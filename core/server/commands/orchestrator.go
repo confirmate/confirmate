@@ -1,8 +1,11 @@
-package orchestrator
+package commands
 
 import (
 	"context"
 
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/server"
+	"confirmate.io/core/service/orchestrator"
 	"github.com/mfridman/cli"
 )
 
@@ -10,6 +13,7 @@ import (
 var OrchestratorCommand = &cli.Command{
 	Name: "orchestrator",
 	Exec: func(ctx context.Context, s *cli.State) error {
-		return nil
+		svc := &orchestrator.Service{}
+		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
 	},
 }

@@ -1,5 +1,7 @@
 package orchestrator
 
+import "confirmate.io/core/api/orchestrator/orchestratorconnect"
+
 type Service struct {
-	//orchestrator.UnimplementedOrchestratorServer
+	orchestratorconnect.UnimplementedOrchestratorHandler
 }
