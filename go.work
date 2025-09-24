@@ -1,0 +1,4 @@
+go 1.24.5
+
+use ./core
+use ./collectors/cloud
