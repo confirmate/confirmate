@@ -11,14 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 syntax = "proto3";
 
 package confirmate.orchestrator.v1;
 
-//import "api/assessment/assessment.proto";
-//import "api/assessment/metric.proto";
-//import "api/runtime/runtime.proto";
+import "api/assessment/metric.proto";
+import "api/assessment/result.proto";
+import "api/common/runtime.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -28,7 +27,7 @@ import "tagger/tagger.proto";
 
 option go_package = "confirmate.io/core/api/orchestrator";
 
-// Manages the orchestration of components within the Confirmate architecture
+// Manages the orchestration of components within the confirmate architecture
 service Orchestrator {
   // Registers the passed assessment tool
   rpc RegisterAssessmentTool(RegisterAssessmentToolRequest) returns (AssessmentTool) {
@@ -76,9 +75,9 @@ service Orchestrator {
   rpc StoreAssessmentResults(stream StoreAssessmentResultRequest) returns (stream StoreAssessmentResultsResponse);
 
   // Get an assessment result by ID
-  /*rpc GetAssessmentResult(GetAssessmentResultRequest) returns (clouditor.assessment.v1.AssessmentResult) {
+  rpc GetAssessmentResult(GetAssessmentResultRequest) returns (confirmate.assessment.v1.AssessmentResult) {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results/{id}"};
-  }*/
+  }
 
   // List all assessment results. Part of the public API, also exposed as REST.
   rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
@@ -86,7 +85,7 @@ service Orchestrator {
   }
 
   // Creates a new metric
-  /*rpc CreateMetric(CreateMetricRequest) returns (clouditor.assessment.v1.Metric) {
+  rpc CreateMetric(CreateMetricRequest) returns (confirmate.assessment.v1.Metric) {
     option (google.api.http) = {
       post: "/v1/orchestrator/metrics"
       body: "metric"
@@ -94,7 +93,7 @@ service Orchestrator {
   }
 
   // Updates an existing metric
-  rpc UpdateMetric(UpdateMetricRequest) returns (clouditor.assessment.v1.Metric) {
+  rpc UpdateMetric(UpdateMetricRequest) returns (confirmate.assessment.v1.Metric) {
     option (google.api.http) = {
       put: "/v1/orchestrator/metrics/{metric.id}"
       body: "metric"
@@ -102,9 +101,9 @@ service Orchestrator {
   }
 
   // Returns the metric with the passed metric id
-  rpc GetMetric(GetMetricRequest) returns (clouditor.assessment.v1.Metric) {
+  rpc GetMetric(GetMetricRequest) returns (confirmate.assessment.v1.Metric) {
     option (google.api.http) = {get: "/v1/orchestrator/metrics/{metric_id}"};
-  }*/
+  }
 
   // List all metrics provided by the metric catalog
   rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse) {
@@ -154,7 +153,7 @@ service Orchestrator {
 
   // Updates a metric configuration (target value and operator) for a specific
   // target of evaluation and metric ID
-  /*rpc UpdateMetricConfiguration(UpdateMetricConfigurationRequest) returns (clouditor.assessment.v1.MetricConfiguration) {
+  rpc UpdateMetricConfiguration(UpdateMetricConfigurationRequest) returns (confirmate.assessment.v1.MetricConfiguration) {
     option (google.api.http) = {
       put:
         "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
@@ -162,16 +161,17 @@ service Orchestrator {
         "{metric_id}"
       body: "configuration"
     };
-  }*/
+  }
 
   // Retrieves a metric configuration (target value and operator) for a specific
   // target of evaluation and metric ID.
-  /*rpc GetMetricConfiguration(GetMetricConfigurationRequest) returns (clouditor.assessment.v1.MetricConfiguration) {
+  rpc GetMetricConfiguration(GetMetricConfigurationRequest) returns (confirmate.assessment.v1.MetricConfiguration) {
     option (google.api.http) = {get:
         "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
         "metric_configurations/"
         "{metric_id}"
-};*/
+};
+  }
 
   // Lists all metric configurations (target value and operator) for a
   // specific target of evaluation ID
@@ -183,7 +183,7 @@ service Orchestrator {
   }
 
   // Updates an existing metric implementation
-  rpc UpdateMetricImplementation(UpdateMetricImplementationRequest) returns (clouditor.assessment.v1.MetricImplementation) {
+  rpc UpdateMetricImplementation(UpdateMetricImplementationRequest) returns (confirmate.assessment.v1.MetricImplementation) {
     option (google.api.http) = {
       put:
         "/v1/orchestrator/metrics/{implementation.metric_id}/"
@@ -193,7 +193,7 @@ service Orchestrator {
   }
 
   // Returns the metric implementation of the passed metric id
-  rpc GetMetricImplementation(GetMetricImplementationRequest) returns (clouditor.assessment.v1.MetricImplementation) {
+  rpc GetMetricImplementation(GetMetricImplementationRequest) returns (confirmate.assessment.v1.MetricImplementation) {
     option (google.api.http) = {get: "/v1/orchestrator/metrics/{metric_id}/implementation"};
   }
 
@@ -329,7 +329,7 @@ service Orchestrator {
   }
 
   // Get Runtime Information
-  rpc GetRuntimeInfo(clouditor.runtime.v1.GetRuntimeInfoRequest) returns (clouditor.runtime.v1.Runtime) {
+  rpc GetRuntimeInfo(confirmate.common.v1.GetRuntimeInfoRequest) returns (confirmate.common.v1.Runtime) {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 }
@@ -379,7 +379,7 @@ message DeregisterAssessmentToolRequest {
 }
 
 message StoreAssessmentResultRequest {
-  clouditor.assessment.v1.AssessmentResult result = 1 [
+  confirmate.assessment.v1.AssessmentResult result = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -400,14 +400,14 @@ message StoreAssessmentResultsResponse {
 }
 
 message CreateMetricRequest {
-  clouditor.assessment.v1.Metric metric = 1 [
+  confirmate.assessment.v1.Metric metric = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 }
 
 message UpdateMetricRequest {
-  clouditor.assessment.v1.Metric metric = 1 [
+  confirmate.assessment.v1.Metric metric = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -441,7 +441,7 @@ message RemoveMetricRequest {
 }
 
 message ListMetricsResponse {
-  repeated clouditor.assessment.v1.Metric metrics = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated confirmate.assessment.v1.Metric metrics = 1 [(google.api.field_behavior) = REQUIRED];
   string next_page_token = 2;
 }
 
@@ -481,7 +481,10 @@ message ListTargetsOfEvaluationRequest {
 }
 
 message ListTargetsOfEvaluationResponse {
-  repeated TargetOfEvaluation targets = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated TargetOfEvaluation targets = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = REQUIRED
+  ];
   string next_page_token = 2;
 }
 
@@ -517,7 +520,7 @@ message UpdateMetricConfigurationRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  clouditor.assessment.v1.MetricConfiguration configuration = 3 [
+  confirmate.assessment.v1.MetricConfiguration configuration = 3 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -544,11 +547,11 @@ message ListMetricConfigurationRequest {
 
 message ListMetricConfigurationResponse {
   // A map of metric configurations associated by their metric ID
-  map<string, clouditor.assessment.v1.MetricConfiguration> configurations = 1;
+  map<string, confirmate.assessment.v1.MetricConfiguration> configurations = 1;
 }
 
 message UpdateMetricImplementationRequest {
-  clouditor.assessment.v1.MetricImplementation implementation = 1 [
+  confirmate.assessment.v1.MetricImplementation implementation = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -624,7 +627,7 @@ message TargetOfEvaluation {
 
   string description = 3;
 
-  repeated clouditor.assessment.v1.Metric configured_metrics = 5 [
+  repeated confirmate.assessment.v1.Metric configured_metrics = 5 [
     (tagger.tags) = "gorm:\"many2many:metric_configurations\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
@@ -774,7 +777,7 @@ message Control {
   // metrics contains either a list of reference to metrics - in this case only
   // the id field of the metric is populated - or a list of populated metric
   // meta-data, most likely returned by the database.
-  repeated clouditor.assessment.v1.Metric metrics = 7 [
+  repeated confirmate.assessment.v1.Metric metrics = 7 [
     (tagger.tags) = "gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
@@ -797,10 +800,6 @@ message AuditScope {
   string id = 4 [
     (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string name = 5 [
-    (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
   string target_of_evaluation_id = 1 [
@@ -845,7 +844,7 @@ message ListAssessmentResultsRequest {
 }
 
 message ListAssessmentResultsResponse {
-  repeated clouditor.assessment.v1.AssessmentResult results = 1;
+  repeated confirmate.assessment.v1.AssessmentResult results = 1;
   string next_page_token = 2;
 }
 
