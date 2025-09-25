@@ -13,7 +13,11 @@ import (
 var OrchestratorCommand = &cli.Command{
 	Name: "orchestrator",
 	Exec: func(ctx context.Context, s *cli.State) error {
-		svc := &orchestrator.Service{}
+		svc, err := orchestrator.NewService()
+		if err != nil {
+			return err
+		}
+
 		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
 	},
 }

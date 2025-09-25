@@ -1193,11 +1193,11 @@ func (x *ListTargetsOfEvaluationRequest) GetAsc() bool {
 }
 
 type ListTargetsOfEvaluationResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Targets       []*TargetOfEvaluation  `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	TargetsOfEvaluation []*TargetOfEvaluation  `protobuf:"bytes,1,rep,name=targets_of_evaluation,json=targetsOfEvaluation,proto3" json:"targets_of_evaluation,omitempty"`
+	NextPageToken       string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListTargetsOfEvaluationResponse) Reset() {
@@ -1230,9 +1230,9 @@ func (*ListTargetsOfEvaluationResponse) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *ListTargetsOfEvaluationResponse) GetTargets() []*TargetOfEvaluation {
+func (x *ListTargetsOfEvaluationResponse) GetTargetsOfEvaluation() []*TargetOfEvaluation {
 	if x != nil {
-		return x.Targets
+		return x.TargetsOfEvaluation
 	}
 	return nil
 }
@@ -4471,9 +4471,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\"\x9b\x01\n" +
-	"\x1fListTargetsOfEvaluationResponse\x12P\n" +
-	"\atargets\x18\x01 \x03(\v2..confirmate.orchestrator.v1.TargetOfEvaluationB\x06\xe0A\x02\xe0A\x02R\atargets\x12&\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\"\xb5\x01\n" +
+	"\x1fListTargetsOfEvaluationResponse\x12j\n" +
+	"\x15targets_of_evaluation\x18\x01 \x03(\v2..confirmate.orchestrator.v1.TargetOfEvaluationB\x06\xe0A\x02\xe0A\x02R\x13targetsOfEvaluation\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"l\n" +
 	"&GetTargetOfEvaluationStatisticsRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\"\x9e\x02\n" +
@@ -4943,7 +4943,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	80, // 8: confirmate.orchestrator.v1.ListMetricsResponse.metrics:type_name -> confirmate.assessment.v1.Metric
 	35, // 9: confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
 	35, // 10: confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
-	35, // 11: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse.targets:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35, // 11: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse.targets_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
 	81, // 12: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest.configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
 	72, // 13: confirmate.orchestrator.v1.ListMetricConfigurationResponse.configurations:type_name -> confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
 	82, // 14: confirmate.orchestrator.v1.UpdateMetricImplementationRequest.implementation:type_name -> confirmate.assessment.v1.MetricImplementation

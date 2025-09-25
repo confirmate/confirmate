@@ -481,7 +481,7 @@ message ListTargetsOfEvaluationRequest {
 }
 
 message ListTargetsOfEvaluationResponse {
-  repeated TargetOfEvaluation targets = 1 [
+  repeated TargetOfEvaluation targets_of_evaluation = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = REQUIRED
   ];
