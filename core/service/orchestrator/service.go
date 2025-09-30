@@ -24,7 +24,7 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		err error
 	)
 
-	svc.db, err = sqlx.Open("ramsql", "TestLoadUserAddresses")
+	svc.db, err = sqlx.Open("ramsql", "orchestrator")
 	if err != nil {
 		return nil, err
 	}
