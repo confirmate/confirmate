@@ -1,0 +1,55 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  merge_group:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: core/go.mod
+          cache: true
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          github_token: ${{ github.token }}
+      - name: Generate
+        run: |
+          go install \
+          github.com/srikrsna/protoc-gen-gotag \
+          go generate ./...
+        working-directory: ./core
+      - name: Build
+        run: |
+          mkdir -p build
+          go build -ldflags="-X confirmate.io/core/service.version=$(git describe --exact-match --tags --abbrev=0)" -o build ./cmd/orchestrator
+        working-directory: ./core
+      - name: Test
+        run: |
+          go install github.com/mfridman/tparse@latest
+
+          go test -v -coverprofile=coverage.cov -coverpkg ./... -covermode=atomic ./...  -json | tee output.json | tparse -follow || true
+          tparse -format markdown -file output.json > $GITHUB_STEP_SUMMARY
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-build
+          path: core/build
