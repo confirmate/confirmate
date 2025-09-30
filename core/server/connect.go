@@ -44,11 +44,11 @@ func RunConnectServer(path string, handler http.Handler) (err error) {
 
 	mux = http.NewServeMux()
 	mux.Handle("/", transcoder)
-	http.ListenAndServe(
+	err = http.ListenAndServe(
 		addr,
 		// Use h2c so we can serve HTTP/2 without TLS.
 		h2c.NewHandler(mux, &http2.Server{}),
 	)
 
-	return nil
+	return err
 }
