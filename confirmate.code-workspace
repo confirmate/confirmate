@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "ui"
+		},
+		{
+			"path": "core"
+		},
+		{
+			"path": "collectors/cloud"
+		}
+	],
+	"settings": {}
+}
