@@ -32,7 +32,10 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	tx := svc.db.MustBegin()
 	tx.MustExec("CREATE TABLE target_of_evaluation (id TEXT PRIMARY KEY, name TEXT)")
 	tx.MustExec("INSERT INTO target_of_evaluation (id, name) VALUES ($1, $2)", "1", "Hello")
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
 
 	return svc, nil
 }
