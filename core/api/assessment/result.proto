@@ -148,7 +148,7 @@ message ComparisonResult {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Success is true, if the comparison was sucessful
+  // Success is true, if the comparison was successful
   bool success = 5 [(google.api.field_behavior) = REQUIRED];
 }
 

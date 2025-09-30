@@ -21,16 +21,16 @@ import "google/protobuf/timestamp.proto";
 option go_package = "confirmate.io/core/api/common;common";
 
 message Runtime {
-  // release_version is the latest Clouditor release version for this commit
+  // release_version is the latest Confirmate release version for this commit
   optional string release_version = 1;
 
   // vcs is the used version control system
   string vcs = 2;
 
-  // commit_hash is the current Clouditor commit hash
+  // commit_hash is the current Confirmate commit hash
   string commit_hash = 3;
 
-  // commit_time is the time of the Clouditor commit
+  // commit_time is the time of the Confirmate commit
   google.protobuf.Timestamp commit_time = 4;
 
   // golang_version is the used golang version
