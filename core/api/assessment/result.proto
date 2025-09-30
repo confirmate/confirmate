@@ -151,3 +151,15 @@ message ComparisonResult {
   // Success is true, if the comparison was sucessful
   bool success = 5 [(google.api.field_behavior) = REQUIRED];
 }
+
+message Record {
+  string evidence_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  google.protobuf.Timestamp evidence_recorded_at = 2 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
