@@ -6,13 +6,12 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM targets_of_evaluation
 ORDER BY name;
 
--- name: CreateTargetOfEvaluation :one
+-- name: CreateTargetOfEvaluation :exec
 INSERT INTO targets_of_evaluation (
   name
 ) VALUES (
   $1
-)
-RETURNING *;
+);
 
 -- name: UpdateTargetOfEvaluation :exec
 UPDATE targets_of_evaluation

@@ -2,10 +2,10 @@ package orchestrator
 
 import (
 	"context"
+	"database/sql"
 	_ "embed"
 	"fmt"
 	"log"
-	"reflect"
 	"strconv"
 
 	"confirmate.io/core"
@@ -14,15 +14,14 @@ import (
 	"confirmate.io/core/db"
 	"connectrpc.com/connect"
 
-	embeddedpostgres "github.com/fergusstrange/embedded-postgres"
-	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 	_ "github.com/proullon/ramsql/driver"
 )
 
 type service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db *pgx.Conn
+	db      *sql.DB
+	queries *db.Queries
 }
 
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
@@ -32,33 +31,31 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		ctx = context.Background()
 	)
 
-	postgres := embeddedpostgres.NewDatabase()
-	err = postgres.Start()
+	svc.db, err = sql.Open("ramsql", "TestDB")
 	if err != nil {
-		return nil, fmt.Errorf("failed to start embedded postgres: %w", err)
+		return nil, fmt.Errorf("failed to open ramsql database: %w", err)
 	}
-	defer postgres.Stop()
 
 	// create tables
-	if _, err := svc.db.Exec(ctx, core.DDL); err != nil {
+	if _, err := svc.db.ExecContext(ctx, core.DDL); err != nil {
 		return nil, fmt.Errorf("could not create table: %w", err)
 	}
 
-	queries := db.New(svc.db)
+	svc.queries = db.New(svc.db)
 
 	// list all targets of evaluation
-	authors, err := queries.ListTargetOfEvaluation(ctx)
+	authors, err := svc.queries.ListTargetOfEvaluation(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not list targets of evaluation: %w", err)
 	}
 	log.Println(authors)
 
 	// create a target of evaluation (TOE)
-	insertedTOE, err := queries.CreateTargetOfEvaluation(ctx, "TOE1")
+	err = svc.queries.CreateTargetOfEvaluation(ctx, "TOE1")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create target of evaluation: %w", err)
 	}
-	log.Println(insertedTOE)
+	/*log.Println(insertedTOE)
 
 	// get the TOE we just inserted
 	fetchedTOE, err := queries.GetTargetOfEvaluation(ctx, insertedTOE.ID)
@@ -66,7 +63,7 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		return nil, fmt.Errorf("failed to get target of evaluation: %w", err)
 	}
 
-	log.Println(reflect.DeepEqual(insertedTOE, fetchedTOE))
+	log.Println(reflect.DeepEqual(insertedTOE, fetchedTOE))*/
 
 	// tx := svc.db.MustBegin()
 	// tx.MustExec("CREATE TABLE target_of_evaluation (id TEXT PRIMARY KEY, name TEXT)")
@@ -84,9 +81,8 @@ func (svc *service) ListTargetsOfEvaluation(context.Context, *connect.Request[or
 		toes = []*orchestrator.TargetOfEvaluation{}
 		err  error
 	)
-	queries := db.New(svc.db)
 
-	targetsOfEvaluation, err := queries.ListTargetOfEvaluation(context.Background())
+	targetsOfEvaluation, err := svc.queries.ListTargetOfEvaluation(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
 	}
