@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"context"
-	"database/sql"
 	_ "embed"
 	"fmt"
 	"log"
@@ -15,13 +14,15 @@ import (
 	"confirmate.io/core/db"
 	"connectrpc.com/connect"
 
+	embeddedpostgres "github.com/fergusstrange/embedded-postgres"
+	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 	_ "github.com/proullon/ramsql/driver"
 )
 
 type service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db *sql.DB
+	db *pgx.Conn
 }
 
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
@@ -31,14 +32,16 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		ctx = context.Background()
 	)
 
-	svc.db, err = sql.Open("ramsql", "test")
+	postgres := embeddedpostgres.NewDatabase()
+	err = postgres.Start()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to start embedded postgres: %w", err)
 	}
+	defer postgres.Stop()
 
 	// create tables
-	if _, err := svc.db.ExecContext(ctx, core.DDL); err != nil {
-		return nil, err
+	if _, err := svc.db.Exec(ctx, core.DDL); err != nil {
+		return nil, fmt.Errorf("could not create table: %w", err)
 	}
 
 	queries := db.New(svc.db)
@@ -46,21 +49,21 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	// list all targets of evaluation
 	authors, err := queries.ListTargetOfEvaluation(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not list targets of evaluation: %w", err)
 	}
 	log.Println(authors)
 
-	// create an target of evaluation
+	// create a target of evaluation (TOE)
 	insertedTOE, err := queries.CreateTargetOfEvaluation(ctx, "TOE1")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create target of evaluation: %w", err)
 	}
 	log.Println(insertedTOE)
 
 	// get the TOE we just inserted
 	fetchedTOE, err := queries.GetTargetOfEvaluation(ctx, insertedTOE.ID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get target of evaluation: %w", err)
 	}
 
 	log.Println(reflect.DeepEqual(insertedTOE, fetchedTOE))

@@ -19,7 +19,7 @@ RETURNING id, name
 `
 
 func (q *Queries) CreateTargetOfEvaluation(ctx context.Context, name string) (TargetsOfEvaluation, error) {
-	row := q.db.QueryRowContext(ctx, createTargetOfEvaluation, name)
+	row := q.db.QueryRow(ctx, createTargetOfEvaluation, name)
 	var i TargetsOfEvaluation
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
@@ -30,8 +30,8 @@ DELETE FROM targets_of_evaluation
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTargetOfEvaluation(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteTargetOfEvaluation, id)
+func (q *Queries) DeleteTargetOfEvaluation(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteTargetOfEvaluation, id)
 	return err
 }
 
@@ -40,8 +40,8 @@ SELECT id, name FROM targets_of_evaluation
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetTargetOfEvaluation(ctx context.Context, id int32) (TargetsOfEvaluation, error) {
-	row := q.db.QueryRowContext(ctx, getTargetOfEvaluation, id)
+func (q *Queries) GetTargetOfEvaluation(ctx context.Context, id int64) (TargetsOfEvaluation, error) {
+	row := q.db.QueryRow(ctx, getTargetOfEvaluation, id)
 	var i TargetsOfEvaluation
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
@@ -53,7 +53,7 @@ ORDER BY name
 `
 
 func (q *Queries) ListTargetOfEvaluation(ctx context.Context) ([]TargetsOfEvaluation, error) {
-	rows, err := q.db.QueryContext(ctx, listTargetOfEvaluation)
+	rows, err := q.db.Query(ctx, listTargetOfEvaluation)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +65,6 @@ func (q *Queries) ListTargetOfEvaluation(ctx context.Context) ([]TargetsOfEvalua
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -82,6 +79,6 @@ WHERE id = $1
 `
 
 func (q *Queries) UpdateTargetOfEvaluation(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, updateTargetOfEvaluation, name)
+	_, err := q.db.Exec(ctx, updateTargetOfEvaluation, name)
 	return err
 }

@@ -5,6 +5,6 @@
 package db
 
 type TargetsOfEvaluation struct {
-	ID   int32
+	ID   int64
 	Name string
 }
