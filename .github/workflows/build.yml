@@ -33,8 +33,7 @@ jobs:
           github_token: ${{ github.token }}
       - name: Generate
         run: |
-          go install \
-          github.com/srikrsna/protoc-gen-gotag \
+          go install github.com/srikrsna/protoc-gen-gotag
           go generate ./...
         working-directory: ./core
       - name: Build
