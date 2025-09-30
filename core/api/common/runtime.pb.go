@@ -38,13 +38,13 @@ const (
 
 type Runtime struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// release_version is the latest Clouditor release version for this commit
+	// release_version is the latest Confirmate release version for this commit
 	ReleaseVersion *string `protobuf:"bytes,1,opt,name=release_version,json=releaseVersion,proto3,oneof" json:"release_version,omitempty"`
 	// vcs is the used version control system
 	Vcs string `protobuf:"bytes,2,opt,name=vcs,proto3" json:"vcs,omitempty"`
-	// commit_hash is the current Clouditor commit hash
+	// commit_hash is the current Confirmate commit hash
 	CommitHash string `protobuf:"bytes,3,opt,name=commit_hash,json=commitHash,proto3" json:"commit_hash,omitempty"`
-	// commit_time is the time of the Clouditor commit
+	// commit_time is the time of the Confirmate commit
 	CommitTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=commit_time,json=commitTime,proto3" json:"commit_time,omitempty"`
 	// golang_version is the used golang version
 	GolangVersion string `protobuf:"bytes,5,opt,name=golang_version,json=golangVersion,proto3" json:"golang_version,omitempty"`
