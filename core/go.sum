@@ -10,8 +10,8 @@ connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4 h1:ZVcLP3Mbmvs9uic4
 connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4/go.mod h1:trSrkeL6NX+HgXkwjOO4H1UVgv0f/mS4AL6WeQGyqSI=
 github.com/bmatcuk/doublestar/v4 v4.0.2 h1:X0krlUVAVmtr2cRoTqR8aDMrDqnB36ht8wpWTiQ3jsA=
 github.com/bmatcuk/doublestar/v4 v4.0.2/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
-github.com/confirmate/ramsql v0.0.0-20250930214756-89c14a261161 h1:2eq8AGujZ7fZC7Kspw5UyOGlL/LaPpge/MJS2rCiKpA=
-github.com/confirmate/ramsql v0.0.0-20250930214756-89c14a261161/go.mod h1:CFGqeQHQpdRfWqYmWD3yXqPTEaHkF4zgXy1C6qDWc9E=
+github.com/confirmate/ramsql v0.0.0-20251001100412-1283bfcd79dc h1:HJIoAEIHQMPdf2ctk0ELm/UHun/4h4BG8TY6euT9W0E=
+github.com/confirmate/ramsql v0.0.0-20251001100412-1283bfcd79dc/go.mod h1:CFGqeQHQpdRfWqYmWD3yXqPTEaHkF4zgXy1C6qDWc9E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

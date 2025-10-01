@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"fmt"
 	"log"
+	"reflect"
 	"strconv"
 
 	"confirmate.io/core"
@@ -51,19 +52,19 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	log.Println(authors)
 
 	// create a target of evaluation (TOE)
-	err = svc.queries.CreateTargetOfEvaluation(ctx, "TOE1")
+	insertedTOE, err := svc.queries.CreateTargetOfEvaluation(ctx, "TOE1")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create target of evaluation: %w", err)
 	}
-	/*log.Println(insertedTOE)
+	log.Println(insertedTOE)
 
 	// get the TOE we just inserted
-	fetchedTOE, err := queries.GetTargetOfEvaluation(ctx, insertedTOE.ID)
+	fetchedTOE, err := svc.queries.GetTargetOfEvaluation(ctx, insertedTOE.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get target of evaluation: %w", err)
 	}
 
-	log.Println(reflect.DeepEqual(insertedTOE, fetchedTOE))*/
+	log.Println(reflect.DeepEqual(insertedTOE, fetchedTOE))
 
 	// tx := svc.db.MustBegin()
 	// tx.MustExec("CREATE TABLE target_of_evaluation (id TEXT PRIMARY KEY, name TEXT)")

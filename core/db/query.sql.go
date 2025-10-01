@@ -9,17 +9,19 @@ import (
 	"context"
 )
 
-const createTargetOfEvaluation = `-- name: CreateTargetOfEvaluation :exec
+const createTargetOfEvaluation = `-- name: CreateTargetOfEvaluation :one
 INSERT INTO targets_of_evaluation (
   name
 ) VALUES (
   $1
-)
+) RETURNING id, name
 `
 
-func (q *Queries) CreateTargetOfEvaluation(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, createTargetOfEvaluation, name)
-	return err
+func (q *Queries) CreateTargetOfEvaluation(ctx context.Context, name string) (TargetsOfEvaluation, error) {
+	row := q.db.QueryRowContext(ctx, createTargetOfEvaluation, name)
+	var i TargetsOfEvaluation
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
 }
 
 const deleteTargetOfEvaluation = `-- name: DeleteTargetOfEvaluation :exec

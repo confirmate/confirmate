@@ -19,7 +19,7 @@ require (
 	google.golang.org/protobuf v1.36.9
 )
 
-replace github.com/proullon/ramsql v0.1.4 => github.com/confirmate/ramsql v0.0.0-20250930214756-89c14a261161
+replace github.com/proullon/ramsql v0.1.4 => github.com/confirmate/ramsql v0.0.0-20251001100412-1283bfcd79dc
 
 // build dependencies
 require (
