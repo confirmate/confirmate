@@ -18,6 +18,7 @@ type service struct {
 	db *sqlx.DB
 }
 
+// NewService creates a new orchestrator service and returns a [orchestratorconnect.OrchestratorHandler].
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	var (
 		svc = &service{}
@@ -40,7 +41,11 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	return svc, nil
 }
 
-func (svc *service) ListTargetsOfEvaluation(context.Context, *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
+// ListTargetsOfEvaluation lists all targets of evaluation.
+func (svc *service) ListTargetsOfEvaluation(
+	ctx context.Context,
+	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
+) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
 	var (
 		toes = []*orchestrator.TargetOfEvaluation{}
 		err  error

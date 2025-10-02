@@ -1,5 +1,7 @@
 buf.build/gen/go/connectrpc/eliza/grpc/go v1.3.0-20230822171018-8b8b971d6fde.1/go.mod h1:GfkEbhSTVWyNKK2L49Cx5ERbJOEn5UWaBrDX0kXXJiw=
 connectrpc.com/grpcreflect v1.2.0/go.mod h1:nwSOKmE8nU5u/CidgHtPYk1PFI3U9ignz7iDMxOYkSY=
+github.com/confirmate/ramsql v0.0.0-20251001100412-1283bfcd79dc h1:HJIoAEIHQMPdf2ctk0ELm/UHun/4h4BG8TY6euT9W0E=
+github.com/confirmate/ramsql v0.0.0-20251001100412-1283bfcd79dc/go.mod h1:CFGqeQHQpdRfWqYmWD3yXqPTEaHkF4zgXy1C6qDWc9E=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/glebarez/go-sqlite v1.21.1/go.mod h1:ISs8MF6yk5cL4n/43rSOmVMGJJjHYr7L2MbZZ5Q4E2E=
 github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=
