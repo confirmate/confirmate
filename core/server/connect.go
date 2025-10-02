@@ -37,6 +37,24 @@ func init() {
 	slog.SetDefault(logger)
 }
 
+// corsMiddleware adds CORS headers to all requests
+func corsMiddleware(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Connect-Protocol-Version, Connect-Timeout-Ms")
+		w.Header().Set("Access-Control-Expose-Headers", "Connect-Protocol-Version")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		handler.ServeHTTP(w, r)
+	})
+}
+
 // RunConnectServer runs a Connect server with the given [net/http.Handler] at the given path.
 // It uses [golang.org/x/net/http2/h2c] to serve HTTP/2 without TLS.
 func RunConnectServer(path string, handler http.Handler) (err error) {
@@ -58,7 +76,7 @@ func RunConnectServer(path string, handler http.Handler) (err error) {
 	)
 
 	mux = http.NewServeMux()
-	mux.Handle("/", transcoder)
+	mux.Handle("/", corsMiddleware(transcoder))
 	err = http.ListenAndServe(
 		addr,
 		// Use h2c so we can serve HTTP/2 without TLS.
