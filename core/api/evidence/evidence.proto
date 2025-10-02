@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package confirmate.evidence.v1;
 
-import "api/ontology/ontology.proto";
+import "policies/security-metrics/ontology/1.0/ontology.proto";
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/any.proto";
