@@ -3,19 +3,23 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"time"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/db"
 	"connectrpc.com/connect"
-
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	_ "github.com/proullon/ramsql/driver"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm/schema"
 )
 
 type service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db *sqlx.DB
+	storage *db.Storage
 }
 
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
@@ -24,17 +28,32 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		err error
 	)
 
-	svc.db, err = sqlx.Open("ramsql", "orchestrator")
+	svc.storage, err = db.NewStorage()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not create storage: %w", err)
 	}
 
-	tx := svc.db.MustBegin()
-	tx.MustExec("CREATE TABLE target_of_evaluation (id TEXT PRIMARY KEY, name TEXT)")
-	tx.MustExec("INSERT INTO target_of_evaluation (id, name) VALUES ($1, $2)", "1", "Hello")
-	err = tx.Commit()
+	// Register custom serializers
+	schema.RegisterSerializer("timestamppb", &TimestampSerializer{})
+
+	// Setup Join Table
+
+	if err = svc.storage.DB.SetupJoinTable(orchestrator.TargetOfEvaluation{}, "ConfiguredMetrics", assessment.MetricConfiguration{}); err != nil {
+		return nil, fmt.Errorf("error during join-table: %w", err)
+	}
+	// Create table
+	err = svc.storage.DB.AutoMigrate(
+		orchestrator.TargetOfEvaluation{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+		return nil, fmt.Errorf("could not migrate TargetOfEvaluation: %w", err)
+	}
+
+	err = svc.storage.Create(&orchestrator.TargetOfEvaluation{
+		Id:   "1",
+		Name: "TOE1",
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not create TOE: %w", err)
 	}
 
 	return svc, nil
@@ -46,7 +65,7 @@ func (svc *service) ListTargetsOfEvaluation(context.Context, *connect.Request[or
 		err  error
 	)
 
-	err = svc.db.Select(&toes, "SELECT * FROM target_of_evaluation ORDER BY id ASC")
+	err = svc.storage.List(&toes, "name", true, 0, -1, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
 	}
@@ -54,4 +73,57 @@ func (svc *service) ListTargetsOfEvaluation(context.Context, *connect.Request[or
 	return connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
 		TargetsOfEvaluation: toes,
 	}), nil
+}
+
+// TimestampSerializer is a GORM serializer that allows the serialization and deserialization of the
+// google.protobuf.Timestamp protobuf message type.
+type TimestampSerializer struct{}
+
+// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate
+// how this struct will be saved into an SQL database field.
+func (TimestampSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, fieldValue interface{}) (interface{}, error) {
+	var (
+		t  *timestamppb.Timestamp
+		ok bool
+	)
+
+	if isNil(fieldValue) {
+		return nil, nil
+	}
+
+	if t, ok = fieldValue.(*timestamppb.Timestamp); !ok {
+		return nil, fmt.Errorf("unsupported type")
+	}
+
+	return t.AsTime(), nil
+}
+
+// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how
+// this struct can be loaded from an SQL database field.
+func (TimestampSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
+	var t *timestamppb.Timestamp
+
+	if dbValue != nil {
+		switch v := dbValue.(type) {
+		case time.Time:
+			t = timestamppb.New(v)
+		default:
+			return fmt.Errorf("unsupported type")
+		}
+
+		field.ReflectValueOf(ctx, dst).Set(reflect.ValueOf(t))
+	}
+
+	return
+}
+
+// isNil checks if an interface value is nil or if the value nil is assigned to it.
+// TODO(lebogg): Goes to util package, eventually
+func isNil(value any) bool {
+	if value == nil || (reflect.ValueOf(value).Kind() == reflect.Pointer &&
+		reflect.ValueOf(value).IsNil()) {
+		return true
+	}
+
+	return false
 }
