@@ -1,0 +1,3 @@
+[submodule "core/policies/security-metrics"]
+	path = core/policies/security-metrics
+	url = git@github.com:Cybersecurity-Certification-Hub/security-metrics.git
