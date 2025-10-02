@@ -12,27 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package commands
+package main
 
 import (
-	"context"
-
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
-	"confirmate.io/core/server"
-	"confirmate.io/core/service/orchestrator"
-
-	"github.com/mfridman/cli"
+	"confirmate.io/core/server/commands"
 )
 
-// OrchestratorCommand is the command to start the orchestrator server.
-var OrchestratorCommand = &cli.Command{
-	Name: "orchestrator",
-	Exec: func(ctx context.Context, s *cli.State) error {
-		svc, err := orchestrator.NewService()
-		if err != nil {
-			return err
-		}
-
-		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
-	},
+func main() {
+	commands.ParseAndRun(commands.EvidenceCommand)
 }

@@ -1,0 +1,131 @@
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package confirmate.evidence.v1;
+
+import "api/evidence/evidence.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "confirmate.io/core/api/evidence";
+
+// Manages the storage of evidences
+service EvidenceStore {
+  // Stores an evidence to the evidence storage. Part of the public API, also
+  // exposed as REST.
+  rpc StoreEvidence(StoreEvidenceRequest) returns (StoreEvidenceResponse) {
+    option (google.api.http) = {
+      post: "/v1/evidence_store/evidence"
+      body: "evidence"
+    };
+  }
+
+  // Stores a stream of evidences to the evidence storage and returns a response
+  // stream. Part of the public API, not exposed as REST.
+  rpc StoreEvidences(stream StoreEvidenceRequest) returns (stream StoreEvidencesResponse) {}
+
+  // Returns all stored evidences. Part of the public API, also exposed as REST.
+  rpc ListEvidences(ListEvidencesRequest) returns (ListEvidencesResponse) {
+    option (google.api.http) = {get: "/v1/evidence_store/evidences"};
+  }
+
+  // Returns a particular stored evidence. Part of the public API, also exposed
+  // as REST.
+  rpc GetEvidence(GetEvidenceRequest) returns (Evidence) {
+    option (google.api.http) = {get: "/v1/evidence_store/evidences/{evidence_id}"};
+  }
+
+  // Returns the resource types that are supported by the EvidenceStore.
+  rpc ListSupportedResourceTypes(ListSupportedResourceTypesRequest) returns (ListSupportedResourceTypesResponse) {
+    option (google.api.http) = {get: "/v1/evidence_store/supported_resource_types"};
+  }
+
+  // Lists all resources collected in the last run, exposed as REST.
+  rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
+    option (google.api.http) = {get: "/v1/evidence_store/resources"};
+  }
+}
+
+message StoreEvidenceRequest {
+  Evidence evidence = 1 [(buf.validate.field).required = true];
+}
+
+enum EvidenceStatus {
+  EVIDENCE_STATUS_UNSPECIFIED = 0;
+  EVIDENCE_STATUS_OK = 1;
+  EVIDENCE_STATUS_ERROR = 2;
+}
+
+// StoreEvidenceResponse belongs to StoreEvidence, which uses a custom unary RPC and therefore requires a response message according to the style convention. Since no return values are required, this is empty.
+message StoreEvidenceResponse {}
+
+// StoreEvidencesResponse belongs to StoreEvidences, which uses a custom bidirectional streaming RPC and therefore requires a response message according to the style convention. The bidirectional streaming needs the status and its message in the response for error handling.
+message StoreEvidencesResponse {
+  EvidenceStatus status = 1;
+  string status_message = 2;
+}
+
+message ListEvidencesRequest {
+  optional Filter filter = 1;
+
+  // page_size: 0 = default (50 is default value), > 0 = set value (i.e. page_size = 5 -> SQL-Limit = 5)
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+// Allows specifying Filters for ListEvidencesRequest
+message Filter {
+  optional string target_of_evaluation_id = 1 [(buf.validate.field).string.uuid = true];
+  optional string tool_id = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message ListEvidencesResponse {
+  repeated Evidence evidences = 1;
+  string next_page_token = 2;
+}
+
+message GetEvidenceRequest {
+  string evidence_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message ListSupportedResourceTypesRequest {}
+
+message ListSupportedResourceTypesResponse {
+  repeated string resource_type = 1 [(buf.validate.field).repeated.min_items = 1];
+}
+
+message ListResourcesRequest {
+  message Filter {
+    optional string type = 1;
+    optional string target_of_evaluation_id = 2;
+    optional string tool_id = 3;
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListResourcesResponse {
+  repeated Resource results = 1 [(google.api.field_behavior) = REQUIRED];
+  string next_page_token = 2;
+}

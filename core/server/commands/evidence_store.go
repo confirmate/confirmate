@@ -17,22 +17,21 @@ package commands
 import (
 	"context"
 
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/api/evidence/evidencestoreconnect"
 	"confirmate.io/core/server"
-	"confirmate.io/core/service/orchestrator"
+	"confirmate.io/core/service/evidence"
 
 	"github.com/mfridman/cli"
 )
 
-// OrchestratorCommand is the command to start the orchestrator server.
-var OrchestratorCommand = &cli.Command{
-	Name: "orchestrator",
+var EvidenceCommand = &cli.Command{
+	Name: "This command starts an Evidence Store service",
 	Exec: func(ctx context.Context, s *cli.State) error {
-		svc, err := orchestrator.NewService()
+		svc, err := EvidenceStore.NewService()
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
+		return server.RunConnectServer(evidencestoreconnect.NewEvidenceStoreHandler(svc))
 	},
 }
