@@ -19,7 +19,7 @@ import (
 
 	"confirmate.io/core/api/evidence/evidencestoreconnect"
 	"confirmate.io/core/server"
-	"confirmate.io/core/service/evidence"
+	"confirmate.io/core/service/evidencestore"
 
 	"github.com/mfridman/cli"
 )

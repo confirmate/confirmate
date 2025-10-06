@@ -19,6 +19,7 @@ package confirmate.evidence.v1;
 import "policies/security-metrics/ontology/1.0/ontology.proto";
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
@@ -42,9 +43,8 @@ message Evidence {
   // Reference to the tool which provided the evidence
   string tool_id = 4 [(buf.validate.field).string.min_len = 1];
 
-  // Semantic representation of the Cloud resource according to our defined
-  // ontology
-  confirmate.ontology.v1.Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];
+  // Semantic representation of the Cloud resource according to our defined ontology
+  Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];
 
   // Very experimental property. Use at own risk. This property will be deleted again.
   //
@@ -89,4 +89,56 @@ message Resource {
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
+}
+
+// Maps cloud resources and its properties to the format of the
+// ontology
+service Resources {
+  // UpdateResource updates a resource (or creates it, if it does not exist).
+  // This is used to give third-party tools the possibility to add something to
+  // the resource graph.
+  rpc UpdateResource(UpdateResourceRequest) returns (confirmate.evidence.v1.Resource) {
+    option (google.api.http) = {
+      post: "/v1/evidence_store/resources/{resource.id}"
+      body: "*"
+    };
+  }
+
+  // ListGraphEdges returns the edges (relationship) between resources in our
+  // resource graph.
+  rpc ListGraphEdges(ListGraphEdgesRequest) returns (ListGraphEdgesResponse) {
+    option (google.api.http) = {get: "/v1/evidence/graph/edges"};
+  }
+}
+
+message UpdateResourceRequest {
+  confirmate.evidence.v1.Resource resource = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListGraphEdgesRequest {
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListGraphEdgesResponse {
+  repeated GraphEdge edges = 1 [(google.api.field_behavior) = REQUIRED];
+  string next_page_token = 2;
+}
+
+message GraphEdge {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string source = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string target = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string type = 4 [(google.api.field_behavior) = REQUIRED];
 }
