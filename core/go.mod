@@ -7,12 +7,9 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.9-20250912141014-52f32327d4b0.1
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4
-	github.com/lib/pq v1.10.9
 	github.com/lmittmann/tint v1.1.2
 	github.com/mfridman/cli v0.2.1
 	github.com/mfridman/xflag v0.1.0 // indirect
-	github.com/proullon/ramsql v0.1.4
-	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 // indirect
 	golang.org/x/net v0.38.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250922171735-9219d122eba9
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090 // indirect

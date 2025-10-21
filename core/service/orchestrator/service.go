@@ -11,8 +11,6 @@ import (
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/db"
 	"connectrpc.com/connect"
-	_ "github.com/lib/pq"
-	_ "github.com/proullon/ramsql/driver"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm/schema"
 )
