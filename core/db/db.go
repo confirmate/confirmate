@@ -1,12 +1,13 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
-	"github.com/glebarez/sqlite"
+	_ "github.com/proullon/ramsql/driver"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type Storage struct {
@@ -15,7 +16,12 @@ type Storage struct {
 }
 
 func NewStorage() (*Storage, error) {
-	g, err := gorm.Open(sqlite.Open(":memory:?_pragma=foreign_keys(1)"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	ramdb, err := sql.Open("ramsql", "TestGormQuickStart")
+
+	g, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: ramdb,
+	}),
+		&gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("could not open in-memory sqlite database: %w", err)
 	}
