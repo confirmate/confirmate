@@ -25,7 +25,7 @@ type Storage struct {
 	types []any
 
 	// customJointTables holds configuration for custom join table setups, including model, field, and the join table reference.
-	customJointTables []jointTable
+	customJointTables []CustomJointTable
 
 	// maxConn is the maximum number of connections. 0 means unlimited.
 	maxConn int
@@ -42,16 +42,16 @@ func WithAutoMigration(types ...any) StorageOption {
 }
 
 // WithSetupJoinTable is an option to add types to GORM's auto-migration.
-func WithSetupJoinTable(jointTables jointTable) StorageOption {
+func WithSetupJoinTable(jointTables CustomJointTable) StorageOption {
 	return func(s *Storage) {
 		s.customJointTables = append(s.customJointTables, jointTables)
 	}
 }
 
-type jointTable struct {
-	model     any    // The main struct (e.g., &TargetOfEvaluation{})
-	field     string // The field name in the struct (e.g., "ConfiguredMetrics")
-	joinTable any    // The custom join table struct (e.g., &MetricConfiguration{})
+type CustomJointTable struct {
+	Model      any    // The main struct (e.g., &TargetOfEvaluation{})
+	Field      string // The Field name in the struct (e.g., "ConfiguredMetrics")
+	JointTable any    // The custom join table struct (e.g., &MetricConfiguration{})
 }
 
 // WithMaxOpenConns is an option to configure the maximum number of open connections
@@ -96,7 +96,7 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 
 	// Setup custom joint tables if any are provided
 	for _, jt := range s.customJointTables {
-		if err = s.DB.SetupJoinTable(jt.model, jt.field, jt.joinTable); err != nil {
+		if err = s.DB.SetupJoinTable(jt.Model, jt.Field, jt.JointTable); err != nil {
 			err = fmt.Errorf("error during join-table: %w", err)
 			return
 		}

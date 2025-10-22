@@ -26,13 +26,14 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		err error
 	)
 
-	svc.storage, err = db.NewStorage(db.WithAutoMigration(types))
+	svc.storage, err = db.NewStorage(
+		db.WithAutoMigration(types),
+		db.WithSetupJoinTable(jointTable))
 	if err != nil {
 		return nil, fmt.Errorf("could not create storage: %w", err)
 	}
 
 	// Setup Join Table
-
 	if err = svc.storage.DB.SetupJoinTable(orchestrator.TargetOfEvaluation{}, "ConfiguredMetrics", assessment.MetricConfiguration{}); err != nil {
 		return nil, fmt.Errorf("error during join-table: %w", err)
 	}
