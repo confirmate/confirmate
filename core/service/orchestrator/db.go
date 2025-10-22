@@ -10,7 +10,7 @@ import (
 	"confirmate.io/core/db"
 )
 
-// TODO(all): Decide if we want to keep just these types in Orchestrator DB or add others DB for each service. See https://github.com/confirmate/confirmate/issues/74
+// TODO: Add other services' types
 var types = []any{
 	&orchestrator.TargetOfEvaluation{},
 	&orchestrator.Certificate{},
@@ -19,7 +19,6 @@ var types = []any{
 	&orchestrator.Category{},
 	&orchestrator.Control{},
 	&orchestrator.AuditScope{},
-	// TODO(all): The question is if this should be stored here or in the Assessment DB.
 	&assessment.MetricConfiguration{},
 }
 

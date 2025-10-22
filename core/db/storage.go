@@ -17,11 +17,12 @@ import (
 const defaultMaxConn = 1
 
 type Storage struct {
-	// TODO(lebogg): Eventually, consider making this unexported
-	DB *gorm.DB
+	*gorm.DB
 
 	// types contain all types that we need to auto-migrate into database tables
 	types []any
+
+	inMemoryDB *sql.DB
 
 	// customJointTables holds configuration for custom join table setups, including model, field, and the join table reference.
 	customJointTables []CustomJointTable
@@ -37,6 +38,13 @@ func WithAutoMigration(types ...any) StorageOption {
 	return func(s *Storage) {
 		// We append because there can be default types already defined. Currently, we don't have any.
 		s.types = append(s.types, types...)
+	}
+}
+
+// WithInMemory is an option to configure Storage to use an in memory DB
+func WithInMemory() StorageOption {
+	return func(s *Storage) {
+		s.inMemoryDB, _ = sql.Open("ramsql", "confirmate_inmemory")
 	}
 }
 
@@ -80,6 +88,8 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 		return nil, fmt.Errorf("could not open in-memory sqlite database: %w", err)
 	}
 
+	s.DB = g
+
 	// Set max open connections
 	if s.maxConn > 0 {
 		db, err := s.DB.DB()
@@ -107,6 +117,5 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 		return
 	}
 
-	s.DB = g
 	return
 }

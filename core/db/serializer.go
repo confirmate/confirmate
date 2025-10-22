@@ -10,7 +10,8 @@ import (
 	"reflect"
 	"time"
 
-	"confirmate.io/core/internal/util"
+	"confirmate.io/util/common"
+
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -38,7 +39,7 @@ func (DurationSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Va
 		ok bool
 	)
 
-	if util.IsNil(fieldValue) {
+	if common.IsNil(fieldValue) {
 		return nil, nil
 	}
 
@@ -80,7 +81,7 @@ func (TimestampSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.V
 		ok bool
 	)
 
-	if util.IsNil(fieldValue) {
+	if common.IsNil(fieldValue) {
 		return nil, nil
 	}
 
@@ -122,7 +123,7 @@ func (AnySerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, 
 		ok bool
 	)
 
-	if util.IsNil(fieldValue) {
+	if common.IsNil(fieldValue) {
 		return nil, nil
 	}
 
@@ -173,7 +174,7 @@ func (ValueSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value
 		ok bool
 	)
 
-	if util.IsNil(fieldValue) {
+	if common.IsNil(fieldValue) {
 		return nil, nil
 	}
 
