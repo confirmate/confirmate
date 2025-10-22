@@ -14,12 +14,21 @@ import (
 	"gorm.io/gorm"
 )
 
+// We set the default for maximum number for connections to 1 to avoid issues with concurrent access to the database.
+const defaultMaxConn = 1
+
 type Storage struct {
-	// TODO(lebogg): Eventually, make this unexported
+	// TODO(lebogg): Eventually, consider making this unexported
 	DB *gorm.DB
 
 	// types contain all types that we need to auto-migrate into database tables
 	types []any
+
+	// customJointTables holds configuration for custom join table setups, including model, field, and the join table reference.
+	customJointTables []jointTable
+
+	// maxConn is the maximum number of connections. 0 means unlimited.
+	maxConn int
 }
 
 type StorageOption func(*Storage)
@@ -27,26 +36,76 @@ type StorageOption func(*Storage)
 // WithAutoMigration is an option to add types to GORM's auto-migration.
 func WithAutoMigration(types ...any) StorageOption {
 	return func(s *Storage) {
+		// We append because there can be default types already defined. Currently, we don't have any.
 		s.types = append(s.types, types...)
 	}
 }
 
+// WithSetupJoinTable is an option to add types to GORM's auto-migration.
+func WithSetupJoinTable(jointTables jointTable) StorageOption {
+	return func(s *Storage) {
+		s.customJointTables = append(s.customJointTables, jointTables)
+	}
+}
+
+type jointTable struct {
+	model     any    // The main struct (e.g., &TargetOfEvaluation{})
+	field     string // The field name in the struct (e.g., "ConfiguredMetrics")
+	joinTable any    // The custom join table struct (e.g., &MetricConfiguration{})
+}
+
+// WithMaxOpenConns is an option to configure the maximum number of open connections
+func WithMaxOpenConns(max int) StorageOption {
+	return func(s *Storage) {
+		s.maxConn = max
+	}
+}
+
 func NewStorage(opts ...StorageOption) (s *Storage, err error) {
-	s = &Storage{}
+	s = &Storage{
+		maxConn: defaultMaxConn,
+	}
 
 	// Add options and/or override default ones
 	for _, o := range opts {
 		o(s)
 	}
 
+	// Open an in-memory database
 	ramdb, err := sql.Open("ramsql", "confirmate_inmemory")
-
 	g, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: ramdb,
 	}),
 		&gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("could not open in-memory sqlite database: %w", err)
+	}
+
+	// Set max open connections
+	if s.maxConn > 0 {
+		db, err := s.DB.DB()
+		if err != nil {
+			return nil, fmt.Errorf("could not retrieve sql.DB: %v", err)
+		}
+
+		db.SetMaxOpenConns(s.maxConn)
+	}
+
+	// Register custom serializers
+	registerSerializers()
+
+	// Setup custom joint tables if any are provided
+	for _, jt := range s.customJointTables {
+		if err = s.DB.SetupJoinTable(jt.model, jt.field, jt.joinTable); err != nil {
+			err = fmt.Errorf("error during join-table: %w", err)
+			return
+		}
+	}
+
+	// After successful DB initialization, migrate the schema
+	if err = s.DB.AutoMigrate(s.types...); err != nil {
+		err = fmt.Errorf("error during auto-migration: %w", err)
+		return
 	}
 
 	s.DB = g
