@@ -19,6 +19,13 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+func registerSerializers() {
+	schema.RegisterSerializer("durationpb", &DurationSerializer{})
+	schema.RegisterSerializer("timestamppb", &TimestampSerializer{})
+	schema.RegisterSerializer("valuepb", &ValueSerializer{})
+	schema.RegisterSerializer("anypb", &AnySerializer{})
+}
+
 // DurationSerializer is a GORM serializer that allows the serialization and deserialization of the
 // google.protobuf.Duration protobuf message type.
 type DurationSerializer struct{}
