@@ -1,3 +1,7 @@
+// Copyright 2025 Fraunhofer AISEC:
+// This code is licensed under the terms of the Apache License, Version 2.0.
+// See the LICENSE file in this project for details.
+
 package db
 
 import (
@@ -13,10 +17,22 @@ import (
 type Storage struct {
 	// TODO(lebogg): Eventually, make this unexported
 	DB *gorm.DB
+
+	// types contain all types that we need to auto-migrate into database tables
+	types []any
 }
 
-func NewStorage() (*Storage, error) {
-	ramdb, err := sql.Open("ramsql", "TestGormQuickStart")
+type StorageOption func(*Storage)
+
+// WithAdditionalAutoMigration is an option to add additional types to GORM's auto-migration.
+func WithAdditionalAutoMigration(types ...any) StorageOption {
+	return func(s *Storage) {
+		s.types = append(s.types, types...)
+	}
+}
+
+func NewStorage(opts ...StorageOption) (*Storage, error) {
+	ramdb, err := sql.Open("ramsql", "confirmate_inmemory")
 
 	g, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: ramdb,
