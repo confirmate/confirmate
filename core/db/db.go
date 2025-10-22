@@ -24,14 +24,21 @@ type Storage struct {
 
 type StorageOption func(*Storage)
 
-// WithAdditionalAutoMigration is an option to add additional types to GORM's auto-migration.
-func WithAdditionalAutoMigration(types ...any) StorageOption {
+// WithAutoMigration is an option to add types to GORM's auto-migration.
+func WithAutoMigration(types ...any) StorageOption {
 	return func(s *Storage) {
 		s.types = append(s.types, types...)
 	}
 }
 
-func NewStorage(opts ...StorageOption) (*Storage, error) {
+func NewStorage(opts ...StorageOption) (s *Storage, err error) {
+	s = &Storage{}
+
+	// Add options and/or override default ones
+	for _, o := range opts {
+		o(s)
+	}
+
 	ramdb, err := sql.Open("ramsql", "confirmate_inmemory")
 
 	g, err := gorm.Open(postgres.New(postgres.Config{
@@ -42,7 +49,8 @@ func NewStorage(opts ...StorageOption) (*Storage, error) {
 		return nil, fmt.Errorf("could not open in-memory sqlite database: %w", err)
 	}
 
-	return &Storage{DB: g}, nil
+	s.DB = g
+	return
 }
 
 func (s *Storage) Create(r any) (err error) {
@@ -61,7 +69,7 @@ func (s *Storage) Create(r any) (err error) {
 }
 
 // List retrieves records from the database with optional ordering, offset, limit, and conditions.
-func (s *Storage) List(r any, orderBy string, asc bool, offset int, limit int, conds ...any) error {
+func (s *Storage) List(r any, orderBy string, asc bool, _ int, limit int, conds ...any) error {
 	var query = s.DB
 	// Set default direction to "ascending"
 	var orderDirection = "asc"

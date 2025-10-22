@@ -30,7 +30,7 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		err error
 	)
 
-	svc.storage, err = db.NewStorage()
+	svc.storage, err = db.NewStorage(db.WithAutoMigration(types))
 	if err != nil {
 		return nil, fmt.Errorf("could not create storage: %w", err)
 	}
