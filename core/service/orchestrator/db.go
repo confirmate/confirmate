@@ -20,6 +20,7 @@ var types = []any{
 	&orchestrator.Control{},
 	&orchestrator.AuditScope{},
 	&assessment.MetricConfiguration{},
+	&assessment.Metric{},
 }
 
 // jointTable defines the MetricConfiguration as a custom join table for gorm
