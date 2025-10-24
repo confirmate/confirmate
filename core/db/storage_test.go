@@ -7,14 +7,18 @@ package db
 import (
 	"testing"
 
-	"confirmate.io/core/api"
-
-	"confirmate.io/util/testutil/assert"
-
-	"confirmate.io/util/testdata"
+	"confirmate.io/core/util/testutil/assert"
 
 	"confirmate.io/core/api/assessment"
 	_ "github.com/proullon/ramsql/driver"
+)
+
+const (
+	MockMetricID1          = "Mock Metric 1"
+	MockMetricDescription1 = "This is a mock metric"
+	MockMetricCategory1    = "Mock Category 1"
+	MockMetricVersion1     = "1.0"
+	MockMetricComments1    = "Mock metric comments 1"
 )
 
 func Test_storage_Create(t *testing.T) {
@@ -26,14 +30,12 @@ func Test_storage_Create(t *testing.T) {
 	)
 
 	metric = &assessment.Metric{
-		Id:          testdata.MockMetricID1,
-		Category:    testdata.MockMetricCategory1,
-		Description: testdata.MockMetricDescription1,
-		Version:     testdata.MockMetricVersion1,
-		Comments:    testdata.MockMetricComments1,
+		Id:          MockMetricID1,
+		Category:    MockMetricCategory1,
+		Description: MockMetricDescription1,
+		Version:     MockMetricVersion1,
+		Comments:    MockMetricComments1,
 	}
-	// Check if metric has all necessary fields
-	assert.NoError(t, api.Validate(metric))
 
 	// Create storage
 	s, err = NewStorage(

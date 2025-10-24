@@ -10,22 +10,15 @@ import (
 	"reflect"
 	"time"
 
-	"confirmate.io/util/common"
-
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm/schema"
-)
 
-func registerSerializers() {
-	schema.RegisterSerializer("durationpb", &DurationSerializer{})
-	schema.RegisterSerializer("timestamppb", &TimestampSerializer{})
-	schema.RegisterSerializer("valuepb", &ValueSerializer{})
-	schema.RegisterSerializer("anypb", &AnySerializer{})
-}
+	"confirmate.io/core/util/common"
+)
 
 // DurationSerializer is a GORM serializer that allows the serialization and deserialization of the
 // google.protobuf.Duration protobuf message type.

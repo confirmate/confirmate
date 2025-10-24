@@ -11,6 +11,7 @@ import (
 	_ "github.com/proullon/ramsql/driver"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 // We set the default for maximum number for connections to 1 to avoid issues with concurrent access to the database.
@@ -101,7 +102,10 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 	}
 
 	// Register custom serializers
-	registerSerializers()
+	schema.RegisterSerializer("durationpb", &DurationSerializer{})
+	schema.RegisterSerializer("timestamppb", &TimestampSerializer{})
+	schema.RegisterSerializer("valuepb", &ValueSerializer{})
+	schema.RegisterSerializer("anypb", &AnySerializer{})
 
 	// Setup custom joint tables if any are provided
 	for _, jt := range s.customJointTables {
