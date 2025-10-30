@@ -7,6 +7,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"math/rand/v2"
 
 	_ "github.com/proullon/ramsql/driver"
 	"gorm.io/driver/postgres"
@@ -22,8 +23,6 @@ type Storage struct {
 
 	// types contain all types that we need to auto-migrate into database tables
 	types []any
-
-	inMemoryDB *sql.DB
 
 	// customJointTables holds configuration for custom join table setups, including model, field, and the join table reference.
 	customJointTables []CustomJointTable
@@ -42,10 +41,12 @@ func WithAutoMigration(types ...any) StorageOption {
 	}
 }
 
-// WithInMemory is an option to configure Storage to use an in memory DB
+// WithInMemory is an option to configure Storage to use an in memory DB. This
+// creates a new in-memory database each time it is called. So if you need to have
+// access to the same in-memory DB, you need to share the [Storage] instance.
 func WithInMemory() StorageOption {
 	return func(s *Storage) {
-		s.inMemoryDB, _ = sql.Open("ramsql", "confirmate_inmemory")
+		s.DB, _ = newInMemoryStorage()
 	}
 }
 
@@ -80,16 +81,12 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 	}
 
 	// Open an in-memory database
-	ramdb, err := sql.Open("ramsql", "confirmate_inmemory")
-	g, err := gorm.Open(postgres.New(postgres.Config{
-		Conn: ramdb,
-	}),
-		&gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("could not open in-memory sqlite database: %w", err)
+	if s.DB == nil {
+		s.DB, err = newInMemoryStorage()
+		if err != nil {
+			return nil, fmt.Errorf("could not create in-memory storage: %w", err)
+		}
 	}
-
-	s.DB = g
 
 	// Set max open connections
 	if s.maxConn > 0 {
@@ -122,4 +119,28 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 	}
 
 	return
+}
+
+// newInMemoryStorage creates a new in-memory Ramsql database connection.
+//
+// This creates a unique in-memory database instance each time it is called.
+func newInMemoryStorage() (g *gorm.DB, err error) {
+	var (
+		db *sql.DB
+	)
+
+	db, err = sql.Open("ramsql", fmt.Sprintf("confirmate_inmemory_%d", rand.Uint64()))
+	if err != nil {
+		return nil, fmt.Errorf("could not open in-memory database: %w", err)
+	}
+
+	g, err = gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}),
+		&gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("could not create gorm connection: %w", err)
+	}
+
+	return g, nil
 }

@@ -53,7 +53,7 @@ func Test_storage_Create(t *testing.T) {
 	// Create storage
 	s, err = NewStorage(
 		WithInMemory(),
-		WithAutoMigration(&assessment.Metric{}),
+		WithAutoMigration(&assessment.Metric{}, &assessment.MetricImplementation{}),
 	)
 	assert.NoError(t, err)
 
