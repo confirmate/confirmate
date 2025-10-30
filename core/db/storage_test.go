@@ -10,10 +10,10 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util/testutil/assert"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/assessment"
 	_ "github.com/proullon/ramsql/driver"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -80,6 +80,7 @@ func Test_storage_Get(t *testing.T) {
 		WithAutoMigration(
 			&orchestrator.TargetOfEvaluation{},
 			&assessment.Metric{},
+			&assessment.MetricImplementation{},
 		),
 	)
 	assert.NoError(t, err)
@@ -87,6 +88,7 @@ func Test_storage_Get(t *testing.T) {
 	// Return error since no record in the DB yet
 	err = s.Get(&orchestrator.TargetOfEvaluation{})
 	assert.ErrorIs(t, err, ErrRecordNotFound)
+	_ = target
 
 	// Create target of evaluation
 	err = s.Create(target)

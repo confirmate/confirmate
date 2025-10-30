@@ -91,9 +91,9 @@ func (s *Storage) Delete(r any, conds ...any) error {
 // Get attempts to retrieve a record from the database. If no record is found, it returns ErrRecordNotFound.
 func (s *Storage) Get(r any, conds ...any) (err error) {
 	// Preload all associations of r if necessary
-	db, conds := applyPreload(s.DB, conds...)
+	//db, conds := applyPreload(s.DB, conds...)
 
-	err = db.First(r, conds...).Error
+	err = s.DB.First(r, conds...).Error
 
 	// if the record is not found, use the error message defined in the persistence package
 	if errors.Is(err, gorm.ErrRecordNotFound) {
