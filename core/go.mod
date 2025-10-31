@@ -58,7 +58,6 @@ require (
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
-
 )
 
-replace github.com/proullon/ramsql v0.1.4 => github.com/confirmate/ramsql v0.0.0-20251030130455-cf96727450c8
+replace github.com/proullon/ramsql v0.1.4 => github.com/confirmate/ramsql v0.0.0-20251031103115-e63f789bd895

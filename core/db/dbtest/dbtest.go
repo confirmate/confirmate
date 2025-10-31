@@ -12,12 +12,20 @@ import (
 //
 // It applies auto-migration for the provided types and sets up the specified join tables.
 // If there is an error during the creation of the storage, the test will panic immediately.
-func NewInMemoryStorage(t *testing.T, joinTables db.CustomJoinTable, types ...interface{}) *db.Storage {
-	db, err := db.NewStorage(
+func NewInMemoryStorage(t *testing.T, types []any, joinTable db.CustomJoinTable, init ...func(*db.Storage)) *db.Storage {
+	opts := []db.StorageOption{
 		db.WithInMemory(),
 		db.WithAutoMigration(types...),
-		db.WithSetupJoinTable(joinTables),
+		db.WithSetupJoinTable(joinTable),
+	}
+	db, err := db.NewStorage(
+		opts...,
 	)
+
+	for _, fn := range init {
+		fn(db)
+	}
+
 	assert.NoError(t, err, "could not create in-memory storage")
 	if err != nil {
 		t.FailNow()

@@ -22,6 +22,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/db"
 	"confirmate.io/core/db/dbtest"
+	"confirmate.io/core/util/testutil/assert"
 	"connectrpc.com/connect"
 )
 
@@ -43,7 +44,16 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 			fields: struct {
 				storage *db.Storage
 			}{
-				storage: dbtest.NewInMemoryStorage(t, joinTable, types...),
+				storage: dbtest.NewInMemoryStorage(t, types, joinTable, func(s *db.Storage) {
+					// Create a sample TargetOfEvaluation entry
+					err := s.Create(&orchestrator.TargetOfEvaluation{
+						Id:   "1",
+						Name: "TOE1",
+					})
+					if err != nil {
+						t.Fatalf("could not create TOE: %v", err)
+					}
+				}),
 			},
 			args: struct {
 				ctx context.Context
@@ -78,10 +88,7 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("ListTargetsOfEvaluation() succeeded unexpectedly")
 			}
-			// TODO: update the condition below to compare got with tt.want.
-			if true {
-				t.Errorf("ListTargetsOfEvaluation() = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want.Msg, got.Msg)
 		})
 	}
 }
