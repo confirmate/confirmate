@@ -26,22 +26,26 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// We set the default for maximum number for connections to 1 to avoid issues with concurrent access to the database.
+// defaultMaxConn is the default for maximum number for connections (default: 1) to avoid issues
+// with concurrent access to the database.
 const defaultMaxConn = 1
 
+// Storage is our main database storage struct that wraps GORM's DB instance and provides
+// additional configuration options.
 type Storage struct {
 	*gorm.DB
 
 	// types contain all types that we need to auto-migrate into database tables
 	types []any
 
-	// customJointTables holds configuration for custom join table setups, including model, field, and the join table reference.
-	customJointTables []CustomJointTable
+	// customJoinTables holds configuration for custom join table setups, including model, field, and the join table reference.
+	customJoinTables []CustomJoinTable
 
 	// maxConn is the maximum number of connections. 0 means unlimited.
 	maxConn int
 }
 
+// StorageOption defines a function type for configuring the Storage instance.
 type StorageOption func(*Storage)
 
 // WithAutoMigration is an option to add types to GORM's auto-migration.
@@ -52,9 +56,10 @@ func WithAutoMigration(types ...any) StorageOption {
 	}
 }
 
-// WithInMemory is an option to configure Storage to use an in memory DB. This
-// creates a new in-memory database each time it is called. So if you need to have
-// access to the same in-memory DB, you need to share the [Storage] instance.
+// WithInMemory is an option to configure Storage to use an in-memory DB. This creates a new
+// in-memory database each time it is called.
+//
+// So if you need to have access to the same in-memory DB, you need to share the [Storage] instance.
 func WithInMemory() StorageOption {
 	return func(s *Storage) {
 		s.DB, _ = newInMemoryStorage()
@@ -62,13 +67,14 @@ func WithInMemory() StorageOption {
 }
 
 // WithSetupJoinTable is an option to add types to GORM's auto-migration.
-func WithSetupJoinTable(jointTables CustomJointTable) StorageOption {
+func WithSetupJoinTable(joinTables CustomJoinTable) StorageOption {
 	return func(s *Storage) {
-		s.customJointTables = append(s.customJointTables, jointTables)
+		s.customJoinTables = append(s.customJoinTables, joinTables)
 	}
 }
 
-type CustomJointTable struct {
+// CustomJoinTable holds the configuration for setting up a custom join table in GORM.
+type CustomJoinTable struct {
 	Model      any    // The main struct (e.g., &TargetOfEvaluation{})
 	Field      string // The Field name in the struct (e.g., "ConfiguredMetrics")
 	JointTable any    // The custom join table struct (e.g., &MetricConfiguration{})
@@ -81,6 +87,7 @@ func WithMaxOpenConns(max int) StorageOption {
 	}
 }
 
+// NewStorage creates a new [Storage] instance with the provided options.
 func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 	s = &Storage{
 		maxConn: defaultMaxConn,
@@ -116,7 +123,7 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 	schema.RegisterSerializer("anypb", &AnySerializer{})
 
 	// Setup custom joint tables if any are provided
-	for _, jt := range s.customJointTables {
+	for _, jt := range s.customJoinTables {
 		if err = s.DB.SetupJoinTable(jt.Model, jt.Field, jt.JointTable); err != nil {
 			err = fmt.Errorf("error during join-table: %w", err)
 			return

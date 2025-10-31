@@ -35,8 +35,8 @@ import (
 // google.protobuf.Duration protobuf message type.
 type DurationSerializer struct{}
 
-// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate
-// how this struct will be saved into an SQL database field.
+// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate how
+// this struct will be saved into an SQL database field.
 func (DurationSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, fieldValue interface{}) (interface{}, error) {
 	var (
 		t  *durationpb.Duration
@@ -54,8 +54,8 @@ func (DurationSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Va
 	return t.AsDuration(), nil
 }
 
-// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how
-// this struct can be loaded from an SQL database field.
+// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how this
+// struct can be loaded from an SQL database field.
 func (DurationSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
 	var t *durationpb.Duration
 
@@ -77,8 +77,8 @@ func (DurationSerializer) Scan(ctx context.Context, field *schema.Field, dst ref
 // google.protobuf.Timestamp protobuf message type.
 type TimestampSerializer struct{}
 
-// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate
-// how this struct will be saved into an SQL database field.
+// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate how
+// this struct will be saved into an SQL database field.
 func (TimestampSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, fieldValue interface{}) (interface{}, error) {
 	var (
 		t  *timestamppb.Timestamp
@@ -96,8 +96,8 @@ func (TimestampSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.V
 	return t.AsTime(), nil
 }
 
-// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how
-// this struct can be loaded from an SQL database field.
+// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how this
+// struct can be loaded from an SQL database field.
 func (TimestampSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
 	var t *timestamppb.Timestamp
 
@@ -119,8 +119,8 @@ func (TimestampSerializer) Scan(ctx context.Context, field *schema.Field, dst re
 // google.protobuf.Any protobuf message type using a JSONB field.
 type AnySerializer struct{}
 
-// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate
-// how this struct will be saved into an SQL database field.
+// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate how
+// this struct will be saved into an SQL database field.
 func (AnySerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, fieldValue interface{}) (interface{}, error) {
 	var (
 		a  *anypb.Any
@@ -138,8 +138,8 @@ func (AnySerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, 
 	return protojson.Marshal(a)
 }
 
-// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how
-// this struct can be loaded from an SQL database field.
+// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how this
+// struct can be loaded from an SQL database field.
 func (AnySerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
 	var (
 		a anypb.Any
@@ -170,8 +170,8 @@ func (AnySerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.
 // google.protobuf.Value protobuf message type.
 type ValueSerializer struct{}
 
-// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate
-// how this struct will be saved into an SQL database field.
+// Value implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerValuerInterface to indicate how
+// this struct will be saved into an SQL database field.
 func (ValueSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, fieldValue interface{}) (interface{}, error) {
 	var (
 		v  *structpb.Value
@@ -189,8 +189,8 @@ func (ValueSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value
 	return v.MarshalJSON()
 }
 
-// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how
-// this struct can be loaded from an SQL database field.
+// Scan implements https://pkg.go.dev/gorm.io/gorm/schema#SerializerInterface to indicate how this
+// struct can be loaded from an SQL database field.
 func (ValueSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
 	v := new(structpb.Value)
 

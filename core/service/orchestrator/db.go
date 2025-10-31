@@ -21,6 +21,8 @@ import (
 	"confirmate.io/core/db"
 )
 
+// types contains all Orchestrator types that we need to auto-migrate into database tables
+//
 // TODO: Add other services' types
 var types = []any{
 	&orchestrator.TargetOfEvaluation{},
@@ -34,8 +36,9 @@ var types = []any{
 	&assessment.Metric{},
 }
 
-// jointTable defines the MetricConfiguration as a custom join table for gorm
-var jointTable = db.CustomJointTable{
+// joinTable defines the [MetricConfiguration] as a custom join table between
+// [orchestrator.TargetOfEvaluation] and [assessment.Metric].
+var joinTable = db.CustomJoinTable{
 	Model:      orchestrator.TargetOfEvaluation{},
 	Field:      "ConfiguredMetrics",
 	JointTable: assessment.MetricConfiguration{},
