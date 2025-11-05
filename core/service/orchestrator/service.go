@@ -33,10 +33,11 @@ type service struct {
 	db *persistence.DB
 }
 
-// NewService creates a new Orchestrator service.
+// NewService creates a new orchestrator service and returns a
+// [orchestratorconnect.OrchestratorHandler].
 //
-// It initializes the database with auto-migration for the required types
-// and sets up the necessary join tables.
+// It initializes the database with auto-migration for the required types and sets up the necessary
+// join tables.
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	var (
 		svc = &service{}
@@ -63,8 +64,11 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	return svc, nil
 }
 
-// ListTargetsOfEvaluation lists all targets of evaluation objects in the database.
-func (svc *service) ListTargetsOfEvaluation(context.Context, *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
+// ListTargetsOfEvaluation lists all targets of evaluation.
+func (svc *service) ListTargetsOfEvaluation(
+	ctx context.Context,
+	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
+) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
 	var (
 		toes = []*orchestrator.TargetOfEvaluation{}
 		err  error
