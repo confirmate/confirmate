@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package confirmate.ontology.v1;
 
-import "api/ontology/ontology.proto";
+import "policies/security-metrics/ontology/1.0/ontology.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
