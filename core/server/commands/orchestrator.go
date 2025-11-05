@@ -29,29 +29,40 @@ import (
 var OrchestratorCommand = &cli.Command{
 	Name:  "orchestrator",
 	Usage: "Launches the orchestrator service",
-	Action: func(context.Context, *cli.Command) error {
+	Action: func(ctx context.Context, cmd *cli.Command) error {
 		svc, err := orchestrator.NewService()
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
+		return server.RunConnectServer(
+			server.WithConfig(server.Config{
+				Port: cmd.Uint16("port"),
+				Path: "/",
+				CORS: server.CORS{
+					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
+					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
+					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
+				},
+			}),
+			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		)
 	},
 	Flags: []cli.Flag{
 		&cli.StringSliceFlag{
 			Name:  "api-cors-allowed-origins",
 			Usage: "Specifies the origins allowed in CORS",
-			Value: []string{"*"},
+			Value: server.DefaultConfig.CORS.AllowedOrigins,
 		},
 		&cli.StringSliceFlag{
 			Name:  "api-cors-allowed-methods",
 			Usage: "Specifies the methods allowed in CORS",
-			Value: []string{"GET", "POST", "PUT", "DELETE"},
+			Value: server.DefaultConfig.CORS.AllowedMethods,
 		},
 		&cli.StringSliceFlag{
 			Name:  "api-cors-allowed-headers",
 			Usage: "Specifies the headers allowed in CORS",
-			Value: []string{"Content-Type", "Accept", "Authorization"},
+			Value: server.DefaultConfig.CORS.AllowedHeaders,
 		},
 	},
 }

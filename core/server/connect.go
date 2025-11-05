@@ -23,8 +23,6 @@ import (
 
 	"connectrpc.com/vanguard"
 	"github.com/lmittmann/tint"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 var (
@@ -55,33 +53,102 @@ func corsMiddleware(handler http.Handler) http.Handler {
 	})
 }
 
-// RunConnectServer runs a Connect server with the given [net/http.Handler] at the given path.
-// It uses [golang.org/x/net/http2/h2c] to serve HTTP/2 without TLS.
-func RunConnectServer(path string, handler http.Handler) (err error) {
+var DefaultConfig = Config{
+	Port: 8080,
+	Path: "/",
+	CORS: CORS{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
+	},
+}
+
+// Server represents a Connect server, with RPC and HTTP support.
+type Server struct {
+	*http.Server
+	cfg      Config
+	handlers map[string]http.Handler
+}
+
+// Config represents the configuration for the [Server].
+type Config struct {
+	Port uint16
+	Path string
+	CORS CORS
+}
+
+// CORS represents the CORS configuration for the server.
+type CORS struct {
+	AllowedOrigins []string
+	AllowedMethods []string
+	AllowedHeaders []string
+}
+
+// Option is a functional option for configuring the [Server].
+type Option func(*Server)
+
+// WithConfig sets the server configuration.
+func WithConfig(cfg Config) Option {
+	return func(svr *Server) {
+		svr.cfg = cfg
+	}
+}
+
+func WithHandler(path string, handler http.Handler) Option {
+	return func(svr *Server) {
+		svr.handlers[path] = handler
+	}
+}
+
+// RunConnectServer runs a Connect server with the given options.
+// It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
+func RunConnectServer(opts ...Option) (err error) {
 	var (
-		svc  *vanguard.Service
-		mux  *http.ServeMux
-		port = "8080"
-		addr = fmt.Sprintf("localhost:%s", port)
+		svr *Server
+		svc *vanguard.Service
+		mux *http.ServeMux
+		p   *http.Protocols
 	)
 
-	svc = vanguard.NewService(path, handler)
+	// Setup default server config
+	svr = &Server{
+		cfg:      DefaultConfig,
+		handlers: make(map[string]http.Handler),
+	}
+
+	// Apply options
+	for _, opt := range opts {
+		opt(svr)
+	}
+
+	// Create one vanguard service for each handler and add to transcoder
+	for path, handler := range svr.handlers {
+		svc = vanguard.NewService(path, handler)
+	}
 	transcoder, _ := vanguard.NewTranscoder([]*vanguard.Service{
 		svc,
 	})
 
-	slog.Info("Starting Connect server",
-		slog.String("address", addr),
-		slog.String("path", path),
-	)
-
+	// Create new mux
 	mux = http.NewServeMux()
 	mux.Handle("/", corsMiddleware(transcoder))
-	err = http.ListenAndServe(
-		addr,
-		// Use h2c so we can serve HTTP/2 without TLS.
-		h2c.NewHandler(mux, &http2.Server{}),
+
+	// Configure h2c support using standard library
+	p = new(http.Protocols)
+	p.SetHTTP1(true)
+	p.SetUnencryptedHTTP2(true)
+
+	// Set address, handler, and protocols
+	svr.Addr = fmt.Sprintf("localhost:%d", svr.cfg.Port)
+	svr.Handler = mux
+	svr.Protocols = p
+
+	slog.Info("Starting Connect server",
+		slog.String("address", svr.Addr),
+		slog.String("path", svr.cfg.Path),
 	)
+
+	err = svr.ListenAndServe()
 
 	return err
 }
