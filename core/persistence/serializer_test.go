@@ -17,12 +17,15 @@ package persistence
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
 	"testing"
 	"time"
 
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util/assert"
 
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm/schema"
@@ -212,7 +215,7 @@ func TestTimestampSerializer_Scan(t *testing.T) {
 	}
 }
 
-/* func TestAnySerializer_Value(t *testing.T) {
+func TestAnySerializer_Value(t *testing.T) {
 	type args struct {
 		ctx        context.Context
 		field      *schema.Field
@@ -252,7 +255,7 @@ func TestTimestampSerializer_Scan(t *testing.T) {
 				assert.NoError(t, err)
 
 				return assert.Equal(t, m, map[string]interface{}{
-					"@type": "type.googleapis.com/clouditor.orchestrator.v1.TargetOfEvaluation",
+					"@type": "type.googleapis.com/confirmate.orchestrator.v1.TargetOfEvaluation",
 					"id":    "my-target",
 				})
 			},
@@ -291,7 +294,7 @@ func TestTimestampSerializer_Scan(t *testing.T) {
 			tt.want(t, got)
 		})
 	}
-} */
+}
 
 func TestAnySerializer_Scan(t *testing.T) {
 	type args struct {
