@@ -79,6 +79,16 @@ func WithHandler(path string, handler http.Handler) Option {
 // RunConnectServer runs a Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
 func RunConnectServer(opts ...Option) (err error) {
+	svr := NewConnectServer(opts)
+
+	err = svr.ListenAndServe()
+
+	return err
+}
+
+// NewConnectServer creates a new Connect server with the given options.
+// It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
+func NewConnectServer(opts []Option) *Server {
 	var (
 		svr *Server
 		svc *vanguard.Service
@@ -115,16 +125,16 @@ func RunConnectServer(opts ...Option) (err error) {
 	p.SetUnencryptedHTTP2(true)
 
 	// Set address, handler, and protocols
-	svr.Addr = fmt.Sprintf("localhost:%d", svr.cfg.Port)
-	svr.Handler = mux
-	svr.Protocols = p
+	svr.Server = &http.Server{
+		Addr:      fmt.Sprintf("localhost:%d", svr.cfg.Port),
+		Handler:   mux,
+		Protocols: p,
+	}
 
 	slog.Info("Starting Connect server",
 		slog.String("address", svr.Addr),
 		slog.String("path", svr.cfg.Path),
 	)
 
-	err = svr.ListenAndServe()
-
-	return err
+	return svr
 }
