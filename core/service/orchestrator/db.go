@@ -36,7 +36,7 @@ var types = []any{
 	&assessment.Metric{},
 }
 
-// joinTable defines the [MetricConfiguration] as a custom join table between
+// joinTables defines the [MetricConfiguration] as a custom join table between
 // [orchestrator.TargetOfEvaluation] and [assessment.Metric].
 var joinTables = []persistence.CustomJoinTable{
 	{
