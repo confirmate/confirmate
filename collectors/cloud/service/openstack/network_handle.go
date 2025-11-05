@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// handleNetworkInterfaces creates a network interface resource based on the Clouditor Ontology
+// handleNetworkInterfaces creates a network interface resource based on the CSC Hub Ontology
 func (d *openstackDiscovery) handleNetworkInterfaces(network *networks.Network) (ontology.IsResource, error) {
 	r := &ontology.NetworkInterface{
 		Id:           network.ID,

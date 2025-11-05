@@ -39,7 +39,7 @@ func WithTargetOfEvaluationID(ctID string) DiscoveryOption {
 func NewTrustedProviderDiscovery(opts ...DiscoveryOption) discovery.Discoverer {
 	d := &csafDiscovery{
 		ctID:   config.DefaultTargetOfEvaluationID,
-		domain: "clouditor.io",
+		domain: "confirmate.io",
 		client: http.DefaultClient,
 	}
 

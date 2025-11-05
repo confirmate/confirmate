@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// handleCluster creates a container resource based on the Clouditor Ontology
+// handleCluster creates a container resource based on the CSC Hub Ontology
 func (d *openstackDiscovery) handleCluster(cluster *clusters.Cluster) (ontology.IsResource, error) {
 	r := &ontology.ContainerOrchestration{
 		Id:           cluster.UUID,

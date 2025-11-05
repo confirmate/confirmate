@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package confirmate.collectors.cloud.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "tagger/tagger.proto";
+
+option go_package = "confirmate.io/core/api/collectors";
+
+// Discovers cloud resources and maps these properties to the format of the
+// ontology
+service CloudCollector {
+  // Starts discovering the cloud resources, exposed as REST.
+  rpc Start(StartCloudCollectorRequest) returns (StartCloudCollectorResponse) {
+    option (google.api.http) = {
+      post: "/v1/cloud/start"
+      body: "*"
+      response_body: "*"
+    };
+  }
+}
+
+message StartCloudCollectorRequest {
+  optional string resource_group = 1;
+  optional string csaf_domain = 2;
+}
+
+message StartCloudCollectorResponse {
+  bool successful = 1;
+}

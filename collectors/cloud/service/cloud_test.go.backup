@@ -548,7 +548,7 @@ func TestService_Start(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &discovery.StartDiscoveryRequest{
-					CsafDomain: util.Ref("clouditor.io"),
+					CsafDomain: util.Ref("confirmate.io"),
 				},
 			},
 			want: func(t *testing.T, got *discovery.StartDiscoveryResponse) bool {

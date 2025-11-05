@@ -1,4 +1,4 @@
-// package openstack contains a Clouditor discoverer for OpenStack-based cloud environments.
+// package openstack contains a Confirmate discoverer for OpenStack-based cloud environments.
 package openstack
 
 import (
@@ -197,7 +197,7 @@ func NewAuthorizer() (gophercloud.AuthOptions, error) {
 
 }
 
-// List discovers the following OpenStack resource types and translates them into the Clouditor ontology:
+// List discovers the following OpenStack resource types and translates them into the CSC Hub Ontology:
 // * Servers
 // * Network interfaces
 // * Block storages
@@ -273,7 +273,7 @@ type ExtractorFunc[T any] func(r pagination.Page) ([]T, error)
 // resources using a
 // - ClientFunc, which returns the needed client,
 // - a ListFunc l, which returns paginated results,
-// - a handler which converts them into an appropriate Clouditor ontology object,
+// - a handler which converts them into an appropriate CSC Hub Ontology object,
 // - an extractor that extracts the results into gophercloud specific objects and
 // - optional options
 func genericList[T any, O any, R ontology.IsResource](d *openstackDiscovery,
@@ -303,7 +303,7 @@ func genericList[T any, O any, R ontology.IsResource](d *openstackDiscovery,
 		for _, s := range x {
 			r, err := handler(&s)
 			if err != nil {
-				return false, fmt.Errorf("could not convert into Clouditor ontology: %w", err)
+				return false, fmt.Errorf("could not convert into CSC Hub ontology: %w", err)
 			}
 
 			log.Debugf("Adding resource %+v", s)

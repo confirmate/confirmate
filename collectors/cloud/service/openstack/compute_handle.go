@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// handleServer creates a virtual machine resource based on the Clouditor Ontology
+// handleServer creates a virtual machine resource based on the CSC Hub Ontology
 func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsResource, error) {
 	var (
 		err         error

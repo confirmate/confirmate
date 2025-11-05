@@ -1,5 +1,5 @@
 # Openstack Discovery
-OpenStack discovery is a feature of Clouditor that retrieves information about OpenStack environments through API calls. It identifies storage, virtual machines and networks. With sufficient permissions it is also possible to discover domains and projects/tenants. Note that in OpenStack environments, projects and tenants are considered equivalent.
+OpenStack discovery is a feature of Confirmate that retrieves information about OpenStack environments through API calls. It identifies storage, virtual machines and networks. With sufficient permissions it is also possible to discover domains and projects/tenants. Note that in OpenStack environments, projects and tenants are considered equivalent.
 
 # Limitations
 ## Application Credentials

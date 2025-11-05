@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// handleBlockStorage creates a block storage resource based on the Clouditor Ontology
+// handleBlockStorage creates a block storage resource based on the CSC Hub Ontology
 func (d *openstackDiscovery) handleBlockStorage(volume *volumes.Volume) (ontology.IsResource, error) {
 	// Get Name, if exits, otherwise take the ID
 	name := volume.Name
