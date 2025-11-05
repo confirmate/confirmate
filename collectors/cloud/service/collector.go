@@ -1,17 +1,3 @@
-// Copyright 2025 Fraunhofer AISEC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cloud
 
 import (
@@ -21,6 +7,7 @@ import (
 	"slices"
 	"time"
 
+	"clouditor.io/clouditor/service"
 	"confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/discovery"
 	"confirmate.io/collectors/cloud/api/evidence"
@@ -29,9 +16,11 @@ import (
 	"confirmate.io/collectors/cloud/internal/util"
 	"confirmate.io/collectors/cloud/launcher"
 	"confirmate.io/collectors/cloud/server/rest"
-	"confirmate.io/collectors/cloud/service"
 	"confirmate.io/collectors/cloud/service/aws"
 	"confirmate.io/collectors/cloud/service/azure"
+	"confirmate.io/collectors/cloud/service/extra/csaf"
+	"confirmate.io/collectors/cloud/service/k8s"
+	"confirmate.io/collectors/cloud/service/openstack"
 
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
