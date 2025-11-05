@@ -21,9 +21,11 @@ func TestNewTestServer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, svc)
 
-	srv, testSrv, err := servertest.NewTestConnectServer(
+	srv, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
 	)
+	defer testSrv.Close()
+
 	assert.NoError(t, err)
 	assert.NotNil(t, srv)
 	assert.NotNil(t, testSrv)
@@ -37,10 +39,10 @@ func TestNewTestServer(t *testing.T) {
 		context.Background(),
 		connect.NewRequest(&orchestratorapi.ListTargetsOfEvaluationRequest{}),
 	)
+
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	slog.Info("Got response", slog.Any("resp.msg", resp.Msg))
 
-	defer testSrv.Close()
 }

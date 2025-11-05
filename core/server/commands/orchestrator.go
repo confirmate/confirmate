@@ -37,7 +37,7 @@ var OrchestratorCommand = &cli.Command{
 
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
-				Port: cmd.Uint16("port"),
+				Port: cmd.Uint16("api-port"),
 				Path: "/",
 				CORS: server.CORS{
 					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
@@ -49,6 +49,11 @@ var OrchestratorCommand = &cli.Command{
 		)
 	},
 	Flags: []cli.Flag{
+		&cli.Uint16Flag{
+			Name:  "api-port",
+			Usage: "Port to run the API server (Connect, gRPC, REST) on",
+			Value: server.DefaultConfig.Port,
+		},
 		&cli.StringSliceFlag{
 			Name:  "api-cors-allowed-origins",
 			Usage: "Specifies the origins allowed in CORS",

@@ -79,7 +79,14 @@ func WithHandler(path string, handler http.Handler) Option {
 // RunConnectServer runs a Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
 func RunConnectServer(opts ...Option) (err error) {
-	svr := NewConnectServer(opts)
+	var (
+		svr *Server
+	)
+
+	svr, err = NewConnectServer(opts)
+	if err != nil {
+		return
+	}
 
 	err = svr.ListenAndServe()
 
@@ -88,12 +95,13 @@ func RunConnectServer(opts ...Option) (err error) {
 
 // NewConnectServer creates a new Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
-func NewConnectServer(opts []Option) *Server {
+func NewConnectServer(opts []Option) (srv *Server, err error) {
 	var (
-		svr *Server
-		svc *vanguard.Service
-		mux *http.ServeMux
-		p   *http.Protocols
+		svr        *Server
+		vs         []*vanguard.Service
+		transcoder http.Handler
+		mux        *http.ServeMux
+		p          *http.Protocols
 	)
 
 	// Setup default server config
@@ -109,11 +117,13 @@ func NewConnectServer(opts []Option) *Server {
 
 	// Create one vanguard service for each handler and add to transcoder
 	for path, handler := range svr.handlers {
-		svc = vanguard.NewService(path, handler)
+		vs = append(vs, vanguard.NewService(path, handler))
 	}
-	transcoder, _ := vanguard.NewTranscoder([]*vanguard.Service{
-		svc,
-	})
+	transcoder, err = vanguard.NewTranscoder(vs)
+	if err != nil {
+		slog.Error("Failed to create vanguard transcoder", tint.Err(err))
+		return nil, err
+	}
 
 	// Create new mux
 	mux = http.NewServeMux()
@@ -136,5 +146,5 @@ func NewConnectServer(opts []Option) *Server {
 		slog.String("path", svr.cfg.Path),
 	)
 
-	return svr
+	return svr, nil
 }
