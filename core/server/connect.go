@@ -53,35 +53,11 @@ func corsMiddleware(handler http.Handler) http.Handler {
 	})
 }
 
-var DefaultConfig = Config{
-	Port: 8080,
-	Path: "/",
-	CORS: CORS{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
-	},
-}
-
 // Server represents a Connect server, with RPC and HTTP support.
 type Server struct {
 	*http.Server
 	cfg      Config
 	handlers map[string]http.Handler
-}
-
-// Config represents the configuration for the [Server].
-type Config struct {
-	Port uint16
-	Path string
-	CORS CORS
-}
-
-// CORS represents the CORS configuration for the server.
-type CORS struct {
-	AllowedOrigins []string
-	AllowedMethods []string
-	AllowedHeaders []string
 }
 
 // Option is a functional option for configuring the [Server].
