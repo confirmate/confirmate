@@ -53,6 +53,9 @@ type Service struct {
 	assessmentStreams *api.StreamsOf[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest]
 	assessment        *api.RPCConnection[assessment.AssessmentClient]
 
+	// TODO(legogg): Rename
+	bufAssessmentStream
+
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
 	channelEvidence chan *evidence.Evidence
 
