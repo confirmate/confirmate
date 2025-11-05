@@ -6,4 +6,4 @@ plugins:
       - paths=source_relative
       - Mapi/orchestrator/orchestrator.proto
       - Mapi/assessment/metric.proto
-      - Mapi/assessment/assessment.proto
+      - Mapi/assessment/result.proto
