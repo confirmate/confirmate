@@ -18,7 +18,7 @@ package orchestrator
 import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/db"
+	"confirmate.io/core/persistence"
 )
 
 // types contains all Orchestrator types that we need to auto-migrate into database tables
@@ -38,7 +38,7 @@ var types = []any{
 
 // joinTable defines the [MetricConfiguration] as a custom join table between
 // [orchestrator.TargetOfEvaluation] and [assessment.Metric].
-var joinTable = db.CustomJoinTable{
+var joinTable = persistence.CustomJoinTable{
 	Model:      orchestrator.TargetOfEvaluation{},
 	Field:      "ConfiguredMetrics",
 	JointTable: assessment.MetricConfiguration{},

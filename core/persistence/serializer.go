@@ -13,7 +13,7 @@
 //
 // This file is part of Confirmate Core.
 
-package db
+package persistence
 
 import (
 	"context"

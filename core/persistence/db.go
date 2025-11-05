@@ -13,7 +13,7 @@
 //
 // This file is part of Confirmate Core.
 
-package db
+package persistence
 
 import (
 	"database/sql"
@@ -30,9 +30,9 @@ import (
 // with concurrent access to the database.
 const defaultMaxConn = 1
 
-// Storage is our main database storage struct that wraps GORM's DB instance and provides
-// additional configuration options.
-type Storage struct {
+// DB is our main database struct that wraps GORM's DB instance and provides additional
+// configuration options.
+type DB struct {
 	*gorm.DB
 
 	// types contain all types that we need to auto-migrate into database tables
@@ -45,30 +45,30 @@ type Storage struct {
 	maxConn int
 }
 
-// StorageOption defines a function type for configuring the Storage instance.
-type StorageOption func(*Storage)
+// DBOption defines a function type for configuring the [DB] instance.
+type DBOption func(*DB)
 
 // WithAutoMigration is an option to add types to GORM's auto-migration.
-func WithAutoMigration(types ...any) StorageOption {
-	return func(s *Storage) {
+func WithAutoMigration(types ...any) DBOption {
+	return func(s *DB) {
 		// We append because there can be default types already defined. Currently, we don't have any.
 		s.types = append(s.types, types...)
 	}
 }
 
-// WithInMemory is an option to configure Storage to use an in-memory DB. This creates a new
+// WithInMemory is an option to configure [DB] to use an in-memory DB. This creates a new
 // in-memory database each time it is called.
 //
-// So if you need to have access to the same in-memory DB, you need to share the [Storage] instance.
-func WithInMemory() StorageOption {
-	return func(s *Storage) {
-		s.DB, _ = newInMemoryStorage()
+// So if you need to have access to the same in-memory DB, you need to share the [DB] instance.
+func WithInMemory() DBOption {
+	return func(s *DB) {
+		s.DB, _ = newInMemoryDB()
 	}
 }
 
 // WithSetupJoinTable is an option to add types to GORM's auto-migration.
-func WithSetupJoinTable(joinTables CustomJoinTable) StorageOption {
-	return func(s *Storage) {
+func WithSetupJoinTable(joinTables CustomJoinTable) DBOption {
+	return func(s *DB) {
 		s.customJoinTables = append(s.customJoinTables, joinTables)
 	}
 }
@@ -81,15 +81,15 @@ type CustomJoinTable struct {
 }
 
 // WithMaxOpenConns is an option to configure the maximum number of open connections
-func WithMaxOpenConns(max int) StorageOption {
-	return func(s *Storage) {
+func WithMaxOpenConns(max int) DBOption {
+	return func(s *DB) {
 		s.maxConn = max
 	}
 }
 
-// NewStorage creates a new [Storage] instance with the provided options.
-func NewStorage(opts ...StorageOption) (s *Storage, err error) {
-	s = &Storage{
+// NewDB creates a new [DB] instance with the provided options.
+func NewDB(opts ...DBOption) (s *DB, err error) {
+	s = &DB{
 		maxConn: defaultMaxConn,
 	}
 
@@ -100,9 +100,9 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 
 	// Open an in-memory database
 	if s.DB == nil {
-		s.DB, err = newInMemoryStorage()
+		s.DB, err = newInMemoryDB()
 		if err != nil {
-			return nil, fmt.Errorf("could not create in-memory storage: %w", err)
+			return nil, fmt.Errorf("could not create in-memory db: %w", err)
 		}
 	}
 
@@ -139,10 +139,10 @@ func NewStorage(opts ...StorageOption) (s *Storage, err error) {
 	return
 }
 
-// newInMemoryStorage creates a new in-memory Ramsql database connection.
+// newInMemoryDB creates a new in-memory Ramsql database connection.
 //
 // This creates a unique in-memory database instance each time it is called.
-func newInMemoryStorage() (g *gorm.DB, err error) {
+func newInMemoryDB() (g *gorm.DB, err error) {
 	var (
 		db *sql.DB
 	)

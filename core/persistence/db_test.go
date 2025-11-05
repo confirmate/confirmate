@@ -13,7 +13,7 @@
 //
 // This file is part of Confirmate Core.
 
-package db
+package persistence
 
 import (
 	"testing"
@@ -46,10 +46,10 @@ var mockToe = orchestrator.TargetOfEvaluation{
 	ConfiguredMetrics: []*assessment.Metric{},
 }
 
-func Test_storage_Create(t *testing.T) {
+func Test_DB_Create(t *testing.T) {
 	var (
 		err    error
-		s      *Storage
+		s      *DB
 		metric *assessment.Metric
 	)
 
@@ -61,8 +61,8 @@ func Test_storage_Create(t *testing.T) {
 		Comments:    MockMetricComments1,
 	}
 
-	// Create storage
-	s, err = NewStorage(
+	// Create DB
+	s, err = NewDB(
 		WithInMemory(),
 		WithAutoMigration(&assessment.Metric{}, &assessment.MetricImplementation{}),
 	)
@@ -75,18 +75,18 @@ func Test_storage_Create(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func Test_storage_Get(t *testing.T) {
+func Test_DB_Get(t *testing.T) {
 	var (
 		err    error
-		s      *Storage
+		s      *DB
 		target *orchestrator.TargetOfEvaluation
 	)
 
 	target = &mockToe
 	// assert.NoError(t, api.Validate(target))
 
-	// Create storage
-	s, err = NewStorage(
+	// Create DB
+	s, err = NewDB(
 		WithInMemory(),
 		WithAutoMigration(
 			&orchestrator.TargetOfEvaluation{},

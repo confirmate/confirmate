@@ -20,8 +20,8 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/db"
-	"confirmate.io/core/db/dbtest"
+	"confirmate.io/core/persistence"
+	"confirmate.io/core/persistence/dbtest"
 	"confirmate.io/core/util/testutil/assert"
 	"connectrpc.com/connect"
 )
@@ -30,7 +30,7 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields struct {
-			storage *db.Storage
+			db *persistence.DB
 		}
 		args struct {
 			ctx context.Context
@@ -42,9 +42,9 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 		{
 			name: "happy path",
 			fields: struct {
-				storage *db.Storage
+				db *persistence.DB
 			}{
-				storage: dbtest.NewInMemoryStorage(t, types, joinTable, func(s *db.Storage) {
+				db: dbtest.NewInMemoryDB(t, types, joinTable, func(s *persistence.DB) {
 					// Create a sample TargetOfEvaluation entry
 					err := s.Create(&orchestrator.TargetOfEvaluation{
 						Id:   "1",
@@ -76,7 +76,7 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &service{
-				storage: tt.fields.storage,
+				db: tt.fields.db,
 			}
 			got, gotErr := svc.ListTargetsOfEvaluation(context.Background(), nil)
 			if gotErr != nil {

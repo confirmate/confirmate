@@ -21,7 +21,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
-	"confirmate.io/core/db"
+	"confirmate.io/core/persistence"
 
 	"connectrpc.com/connect"
 )
@@ -30,12 +30,12 @@ import (
 // [orchestratorconnect.OrchestratorHandler]).
 type service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	storage *db.Storage
+	db *persistence.DB
 }
 
 // NewService creates a new Orchestrator service.
 //
-// It initializes the database storage with auto-migration for the required types
+// It initializes the database with auto-migration for the required types
 // and sets up the necessary join tables.
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	var (
@@ -43,16 +43,16 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		err error
 	)
 
-	// Initialize the database storage with the defined auto-migration types and join tables
-	svc.storage, err = db.NewStorage(
-		db.WithAutoMigration(types),
-		db.WithSetupJoinTable(joinTable))
+	// Initialize the database with the defined auto-migration types and join tables
+	svc.db, err = persistence.NewDB(
+		persistence.WithAutoMigration(types),
+		persistence.WithSetupJoinTable(joinTable))
 	if err != nil {
-		return nil, fmt.Errorf("could not create storage: %w", err)
+		return nil, fmt.Errorf("could not create db: %w", err)
 	}
 
 	// Create a sample TargetOfEvaluation entry. This will be removed later.
-	err = svc.storage.Create(&orchestrator.TargetOfEvaluation{
+	err = svc.db.Create(&orchestrator.TargetOfEvaluation{
 		Id:   "1",
 		Name: "TOE1",
 	})
@@ -70,7 +70,7 @@ func (svc *service) ListTargetsOfEvaluation(context.Context, *connect.Request[or
 		err  error
 	)
 
-	err = svc.storage.List(&toes, "name", true, 0, -1, nil)
+	err = svc.db.List(&toes, "name", true, 0, -1, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
 	}
