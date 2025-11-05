@@ -1,0 +1,9 @@
+version: v1
+plugins:
+  - plugin: gotag
+    out: .
+    opt:
+      - paths=source_relative
+      - Mapi/orchestrator/orchestrator.proto
+      - Mapi/assessment/metric.proto
+      - Mapi/assessment/assessment.proto

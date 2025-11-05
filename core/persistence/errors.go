@@ -13,14 +13,13 @@
 //
 // This file is part of Confirmate Core.
 
-//go:build tools
-// +build tools
+package persistence
 
-package tools
+import "errors"
 
-//go:generate ../add-license-headers.sh
-
-import (
-	_ "github.com/google/addlicense"
-	_ "github.com/srikrsna/protoc-gen-gotag"
+var (
+	ErrRecordNotFound         = errors.New("record not in the database")
+	ErrConstraintFailed       = errors.New("constraint failed")
+	ErrUniqueConstraintFailed = errors.New("unique constraint failed")
+	ErrUnsupportedType        = errors.New("unsupported type")
 )
