@@ -5,8 +5,7 @@ go 1.24.5
 // runtime dependencies - CLI
 require (
 	github.com/lmittmann/tint v1.1.2
-	github.com/mfridman/cli v0.2.1
-	github.com/mfridman/xflag v0.1.0 // indirect
+	github.com/urfave/cli/v3 v3.5.0
 )
 
 // runtime dependencies - protobuf/Connect

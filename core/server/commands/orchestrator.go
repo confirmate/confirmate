@@ -22,18 +22,36 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
 
-	"github.com/mfridman/cli"
+	"github.com/urfave/cli/v3"
 )
 
 // OrchestratorCommand is the command to start the orchestrator server.
 var OrchestratorCommand = &cli.Command{
-	Name: "orchestrator",
-	Exec: func(ctx context.Context, s *cli.State) error {
+	Name:  "orchestrator",
+	Usage: "Launches the orchestrator service",
+	Action: func(context.Context, *cli.Command) error {
 		svc, err := orchestrator.NewService()
 		if err != nil {
 			return err
 		}
 
 		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
+	},
+	Flags: []cli.Flag{
+		&cli.StringSliceFlag{
+			Name:  "api-cors-allowed-origins",
+			Usage: "Specifies the origins allowed in CORS",
+			Value: []string{"*"},
+		},
+		&cli.StringSliceFlag{
+			Name:  "api-cors-allowed-methods",
+			Usage: "Specifies the methods allowed in CORS",
+			Value: []string{"GET", "POST", "PUT", "DELETE"},
+		},
+		&cli.StringSliceFlag{
+			Name:  "api-cors-allowed-headers",
+			Usage: "Specifies the headers allowed in CORS",
+			Value: []string{"Content-Type", "Accept", "Authorization"},
+		},
 	},
 }
