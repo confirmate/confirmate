@@ -60,6 +60,14 @@ require (
 	golang.org/x/tools v0.38.0 // indirect
 )
 
+require (
+	github.com/google/uuid v1.6.0
+	golang.org/x/oauth2 v0.25.0
+	google.golang.org/grpc v1.71.0
+)
+
+require golang.org/x/sys v0.37.0 // indirect
+
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
 replace github.com/proullon/ramsql v0.1.4 => github.com/confirmate/ramsql v0.0.0-20251031103115-e63f789bd895

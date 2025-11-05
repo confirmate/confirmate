@@ -28,11 +28,12 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/persistence"
+
 	// "confirmate.io/core/internal/config"
 	// "confirmate.io/core/launcher"
 	// "confirmate.io/core/persistence"
 	// "confirmate.io/core/persistence/inmemory"
-	"confirmate.io/core/server"
 	"github.com/lmittmann/tint"
 
 	"golang.org/x/oauth2/clientcredentials"
@@ -45,28 +46,9 @@ var (
 	logger *slog.Logger
 )
 
-// DefaultServiceSpec returns a [launcher.ServiceSpec] for this [Service] with all necessary options retrieved from the
-// config system.
-func DefaultServiceSpec() launcher.ServiceSpec {
-	return launcher.NewServiceSpec(
-		NewService,
-		WithStorage,
-		func(svc *Service) ([]server.StartGRPCServerOption, error) {
-			// It is possible to register hook functions for the evidenceStore.
-			//  * The hook functions in evidenceStore are implemented in StoreEvidence(s)
-
-			// evidenceStoreService.RegisterEvidenceHook(func(result *evidence.Evidence, err error) {})
-
-			return nil, nil
-		},
-		WithOAuth2Authorizer(config.ClientCredentials()),
-	)
-}
-
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
-	// TODO persistence --> db
-	storage persistence.Storage
+	persistence.DB
 
 	assessmentStreams *api.StreamsOf[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest]
 	assessment        *api.RPCConnection[assessment.AssessmentClient]
