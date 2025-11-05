@@ -4,6 +4,6 @@ plugins:
     out: .
     opt:
       - paths=source_relative
-      - Mapi/orchestrator/orchestrator.proto=clouditor.io/api/orchestrator
-      - Mapi/assessment/metric.proto=clouditor.io/api/assessment
-      - Mapi/assessment/assessment.proto=clouditor.io/api/assessment
+      - Mapi/orchestrator/orchestrator.proto
+      - Mapi/assessment/metric.proto
+      - Mapi/assessment/assessment.proto
