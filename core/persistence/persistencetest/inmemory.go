@@ -27,11 +27,11 @@ import (
 //
 // It applies auto-migration for the provided types and sets up the specified join tables.
 // If there is an error during the creation of the DB, the test will panic immediately.
-func NewInMemoryDB(t *testing.T, types []any, joinTable persistence.CustomJoinTable, init ...func(*persistence.DB)) *persistence.DB {
+func NewInMemoryDB(t *testing.T, types []any, joinTable []persistence.CustomJoinTable, init ...func(*persistence.DB)) *persistence.DB {
 	opts := []persistence.DBOption{
 		persistence.WithInMemory(),
 		persistence.WithAutoMigration(types...),
-		persistence.WithSetupJoinTable(joinTable),
+		persistence.WithSetupJoinTable(joinTable...),
 	}
 	db, err := persistence.NewDB(
 		opts...,

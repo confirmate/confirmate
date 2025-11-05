@@ -45,8 +45,8 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 
 	// Initialize the database with the defined auto-migration types and join tables
 	svc.db, err = persistence.NewDB(
-		persistence.WithAutoMigration(types),
-		persistence.WithSetupJoinTable(joinTable))
+		persistence.WithAutoMigration(types...),
+		persistence.WithSetupJoinTable(joinTables...))
 	if err != nil {
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}

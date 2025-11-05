@@ -45,7 +45,7 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 			fields: struct {
 				db *persistence.DB
 			}{
-				db: persistencetest.NewInMemoryDB(t, types, joinTable, func(s *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(s *persistence.DB) {
 					// Create a sample TargetOfEvaluation entry
 					err := s.Create(&orchestrator.TargetOfEvaluation{
 						Id:   "1",

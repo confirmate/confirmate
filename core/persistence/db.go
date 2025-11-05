@@ -67,17 +67,17 @@ func WithInMemory() DBOption {
 }
 
 // WithSetupJoinTable is an option to add types to GORM's auto-migration.
-func WithSetupJoinTable(joinTables CustomJoinTable) DBOption {
+func WithSetupJoinTable(joinTables ...CustomJoinTable) DBOption {
 	return func(s *DB) {
-		s.customJoinTables = append(s.customJoinTables, joinTables)
+		s.customJoinTables = append(s.customJoinTables, joinTables...)
 	}
 }
 
 // CustomJoinTable holds the configuration for setting up a custom join table in GORM.
 type CustomJoinTable struct {
-	Model      any    // The main struct (e.g., &TargetOfEvaluation{})
-	Field      string // The Field name in the struct (e.g., "ConfiguredMetrics")
-	JointTable any    // The custom join table struct (e.g., &MetricConfiguration{})
+	Model     any    // The main struct (e.g., &TargetOfEvaluation{})
+	Field     string // The Field name in the struct (e.g., "ConfiguredMetrics")
+	JoinTable any    // The custom join table struct (e.g., &MetricConfiguration{})
 }
 
 // WithMaxOpenConns is an option to configure the maximum number of open connections
@@ -122,9 +122,9 @@ func NewDB(opts ...DBOption) (s *DB, err error) {
 	schema.RegisterSerializer("valuepb", &ValueSerializer{})
 	schema.RegisterSerializer("anypb", &AnySerializer{})
 
-	// Setup custom joint tables if any are provided
+	// Setup custom join tables if any are provided
 	for _, jt := range s.customJoinTables {
-		if err = s.DB.SetupJoinTable(jt.Model, jt.Field, jt.JointTable); err != nil {
+		if err = s.DB.SetupJoinTable(jt.Model, jt.Field, jt.JoinTable); err != nil {
 			err = fmt.Errorf("error during join-table: %w", err)
 			return
 		}

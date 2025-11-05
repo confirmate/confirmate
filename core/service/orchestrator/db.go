@@ -38,8 +38,10 @@ var types = []any{
 
 // joinTable defines the [MetricConfiguration] as a custom join table between
 // [orchestrator.TargetOfEvaluation] and [assessment.Metric].
-var joinTable = persistence.CustomJoinTable{
-	Model:      orchestrator.TargetOfEvaluation{},
-	Field:      "ConfiguredMetrics",
-	JointTable: assessment.MetricConfiguration{},
+var joinTables = []persistence.CustomJoinTable{
+	{
+		Model:     orchestrator.TargetOfEvaluation{},
+		Field:     "ConfiguredMetrics",
+		JoinTable: assessment.MetricConfiguration{},
+	},
 }
