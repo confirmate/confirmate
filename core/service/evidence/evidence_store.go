@@ -29,18 +29,14 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
-	"confirmate.io/core/api/evidence/evidencestoreconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"connectrpc.com/connect"
 
-	// "confirmate.io/core/internal/config"
-	// "confirmate.io/core/launcher"
-	// "confirmate.io/core/persistence"
-	// "confirmate.io/core/persistence/inmemory"
+	"buf.build/go/protovalidate"
 	"github.com/lmittmann/tint"
-
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -53,11 +49,12 @@ const DefaultAssessmentURL = "localhost:9090"
 
 type assessmentConfig struct {
 	targetAddress string
+	client        *http.Client
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
-	persistence.DB
+	db *persistence.DB
 
 	// TODO(lebogg): Remove later
 	//assessmentStreams *api.StreamsOf[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest]
@@ -65,6 +62,8 @@ type Service struct {
 
 	// TODO(lebogg): Test
 	assessmentClient assessmentconnect.AssessmentClient
+	assessmentStream *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+	streamMu         sync.Mutex
 	assessmentConfig assessmentConfig
 
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
@@ -78,7 +77,7 @@ type Service struct {
 
 	// TODO(all): Add authorization strategy
 
-	evidencestoreconnect.EvidenceStoreHandler
+	evidenceconnect.EvidenceStoreHandler
 }
 
 func init() {
@@ -87,18 +86,19 @@ func init() {
 	slog.SetDefault(logger)
 }
 
-func WithStorage(storage persistence.DB) service.Option[*Service] {
+func WithDB(db *persistence.DB) service.Option[*Service] {
 	return func(svc *Service) {
-		svc.DB = storage
+		svc.db = db
 	}
 }
 
-// WithAssessmentAddress is an option to configure the assessment service gRPC address.
-func WithAssessmentAddress(target string, _ ...grpc.DialOption) service.Option[*Service] {
+// WithAssessmentConfig is an option to configure the assessment service gRPC address.
+func WithAssessmentConfig(target string, client *http.Client) service.Option[*Service] {
 
 	return func(s *Service) {
 		slog.Info("Assessment URL is set to %s", target)
 		s.assessmentConfig.targetAddress = target
+		s.assessmentConfig.client = client
 	}
 }
 
@@ -107,17 +107,21 @@ func NewService(opts ...service.Option[*Service]) (svc *Service) {
 		err error
 	)
 	svc = &Service{
-		assessmentConfig: assessmentConfig{targetAddress: DefaultAssessmentURL},
+		assessmentConfig: assessmentConfig{
+			targetAddress: DefaultAssessmentURL,
+			client:        http.DefaultClient,
+		},
 	}
 
 	for _, o := range opts {
 		o(svc)
 	}
 
-	svc.assessmentClient = assessmentconnect.NewAssessmentClient(http.DefaultClient, svc.assessmentConfig.targetAddress)
+	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+		svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
 
-	if svc.DB == nil {
-		svc.DB, err =
+	if svc.db == nil {
+		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types))
 		if err != nil {
 			slog.Error("Could not initialize the storage: %v", err)
 		}
@@ -128,15 +132,14 @@ func NewService(opts ...service.Option[*Service]) (svc *Service) {
 
 func (svc *Service) Init() {
 
-	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function in order to utilize the fire-and-forget strategy.
-	// To do this, we want an channel, that contains the evidences and call another function that processes the evidence.
+	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the fire-and-forget strategy.
 	go func() {
 		for {
 			// Wait for a new evidence to be passed to the channel
-			evidence := <-svc.channelEvidence
+			e := <-svc.channelEvidence
 
 			// Process the evidence
-			err := svc.handleEvidence(evidence)
+			err := svc.handleEvidence(e)
 			if err != nil {
 				slog.Error("Error while processing evidence: %v", err)
 			}
@@ -144,93 +147,66 @@ func (svc *Service) Init() {
 	}()
 }
 
-func (svc *Service) Shutdown() {
-	svc.assessmentStreams.CloseAll()
-}
-
-// initAssessmentStream initializes the stream that is used to send evidences to the assessment service.
-// If configured, it uses the Authorizer of the evidence store service to authenticate requests to the assessment.
-func (svc *Service) initAssessmentStream(target string, _ ...grpc.DialOption) (stream assessment.Assessment_AssessEvidenceStreamClient, err error) {
-	slog.Info("Trying to establish a connection to assessment service @ %v", target)
-
-	// Make sure, that we re-connect
-	svc.assessment.ForceReconnect()
-
-	// Set up the stream and store it in our service struct, so we can access it later to actually
-	// send the evidence data
-	stream, err = svc.assessment.Client.AssessEvidenceStream(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("could not set up stream to assessment for assessing evidence: %w", err)
-	}
-
-	slog.Info("Stream to AssessEvidenceStream established")
-
-	return
-}
-
 // StoreEvidence is a method implementation of the evidenceServer interface: It receives a req and stores it
-func (svc *Service) StoreEvidence(ctx context.Context, req *evidence.StoreEvidenceRequest) (res *evidence.StoreEvidenceResponse, err error) {
-	// Validate request
-	err = api.Validate(req)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check, if this request has access to the target of evaluation according to our authorization strategy.
-	if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
-		return nil, service.ErrPermissionDenied
+func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
+	if protovalidate.Validate(req.Msg) != nil {
+		err = status.Errorf(codes.InvalidArgument, "invalid request: %v", err)
+		return
 	}
 
 	// Store evidence
-	err = svc.storage.Create(req.Evidence)
+	err = svc.db.Create(req.Msg.Evidence)
 	if err != nil && errors.Is(err, persistence.ErrUniqueConstraintFailed) {
 		return nil, status.Error(codes.AlreadyExists, persistence.ErrEntryAlreadyExists.Error())
 	} else if err != nil {
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
 	}
 
-	// Store Resource
+	// Store Resource:
 	// Build a resource struct. This will hold the latest sync state of the
-	// resource for our storage layer. This is needed to store the resource in our DB.s
-	r, err := evidence.ToEvidenceResource(req.Evidence.GetOntologyResource(), req.GetTargetOfEvaluationId(), req.Evidence.GetToolId())
+	// resource for our storage layer. This is needed to store the resource in our DBs
+	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
 		slog.Error("Could not convert resource: %v", err)
 		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
 	}
-
 	// Persist the latest state of the resource
-	err = svc.storage.Save(&r, "id = ?", r.Id)
+	err = svc.db.Save(&r, "id = ?", r.Id)
 	if err != nil {
 		slog.Error("Could not save resource with ID '%s' to storage: %v", r.Id, err)
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
 	}
 
-	go svc.informHooks(ctx, req.Evidence, nil)
+	go svc.informHooks(ctx, req.Msg.Evidence, nil)
 
 	// Send evidence to the channel for further processing and acknowledge receipt, without waiting for the processing to finish. This allows the sender to continue
 	// without waiting for the evidence to be processed.
-	svc.channelEvidence <- req.Evidence
-
-	res = &evidence.StoreEvidenceResponse{}
+	svc.channelEvidence <- req.Msg.Evidence
 
 	slog.Debug("received and handled store evidence request: %v", req)
-
-	return res, nil
+	res = &connect.Response[evidence.StoreEvidenceResponse]{}
+	return
 }
 
 func (svc *Service) handleEvidence(evidence *evidence.Evidence) error {
 	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
-
-	// Get Assessment stream
-	channelAssessment, err := svc.assessmentStreams.GetStream(svc.assessment.Target, "Assessment", svc.initAssessmentStream, svc.assessment.Opts...)
+	// Get or create the stream (lazy initialization)
+	stream, err := svc.getOrCreateStream()
 	if err != nil {
-		err = fmt.Errorf("could not get stream to assessment service (%s): %w", svc.assessment.Target, err)
-		slog.Error(err)
-		return err
+		return fmt.Errorf("could not get assessment stream: %w", err)
 	}
 
-	// Send evidence to assessment service
-	channelAssessment.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	// Send evidence to the assessment service using the persistent stream
+	// TODO(lebogg): Check EOF response of server
+	err = stream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	if err != nil {
+		// Invalidate the stream so it will be recreated on the next attempt
+		svc.streamMu.Lock()
+		svc.assessmentStream = nil
+		svc.streamMu.Unlock()
+
+		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
+	}
 
 	return nil
 }

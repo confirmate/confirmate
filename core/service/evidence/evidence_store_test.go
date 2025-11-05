@@ -68,8 +68,8 @@ func TestNewService(t *testing.T) {
 			},
 		},
 		{
-			name: "EvidenceStoreServer created with option 'WithStorage'",
-			args: args{opts: []service.Option[*Service]{WithStorage(db)}},
+			name: "EvidenceStoreServer created with option 'WithDB'",
+			args: args{opts: []service.Option[*Service]{WithDB(db)}},
 			want: func(t *testing.T, got *Service) bool {
 				// Storage should be gorm (in-memory storage). Hard to check since its type is not exported
 				assert.NotNil(t, got.storage)
@@ -77,8 +77,8 @@ func TestNewService(t *testing.T) {
 			},
 		},
 		{
-			name: "EvidenceStoreServer created with option 'WithAssessmentAddress'",
-			args: args{opts: []service.Option[*Service]{WithAssessmentAddress("localhost:9091")}},
+			name: "EvidenceStoreServer created with option 'WithAssessmentConfig'",
+			args: args{opts: []service.Option[*Service]{WithAssessmentConfig("localhost:9091")}},
 			want: func(t *testing.T, got *Service) bool {
 				return assert.Equal(t, "localhost:9091", got.assessment.Target)
 			},
