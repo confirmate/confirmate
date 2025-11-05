@@ -159,7 +159,7 @@ func (s *DB) Count(r any, conds ...any) (count int64, err error) {
 }
 
 // ================================================================================================
-// Advanced und customizable operations
+// Advanced and customizable operations
 // ================================================================================================
 
 // Raw executes a raw SQL query and scans the result into the provided destination. Returns an error

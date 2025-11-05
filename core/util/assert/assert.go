@@ -93,7 +93,7 @@ func NotEqual[T any](t TestingT, want T, got T, opts ...cmp.Option) bool {
 		return true
 	}
 
-	return assert.Fail(t, "Equal, but excepted to be not equal", cmp.Diff(got, want, opts...))
+	return assert.Fail(t, "Equal, but expected to be not equal", cmp.Diff(got, want, opts...))
 }
 
 func Nil[T any](t *testing.T, obj T) bool {

@@ -41,9 +41,9 @@ func NewInMemoryDB(t *testing.T, types []any, joinTable persistence.CustomJoinTa
 		fn(db)
 	}
 
-	assert.NoError(t, err, "could not create in-memory db")
-	if err != nil {
-		t.FailNow()
+	if !assert.NoError(t, err, "could not create in-memory db") {
+		panic(err)
 	}
+
 	return db
 }
