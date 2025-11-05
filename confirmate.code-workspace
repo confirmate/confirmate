@@ -13,5 +13,25 @@
 			"path": "collectors/cloud"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"AISEC",
+			"anypb",
+			"conds",
+			"Confirmate",
+			"connectrpc",
+			"dbtest",
+			"durationpb",
+			"gorm",
+			"lmittmann",
+			"orchestratorconnect",
+			"proullon",
+			"ramsql",
+			"structpb",
+			"testutil",
+			"timestamppb",
+			"valuepb"
+		],
+		"rewrap.wrappingColumn": 100
+	}
 }

@@ -13,37 +13,37 @@
 //
 // This file is part of Confirmate Core.
 
-package commands
+// package persistencetest provides utilities for testing database operations in Confirmate Core.
+package persistencetest
 
 import (
-	"context"
-	"errors"
-	"flag"
-	"fmt"
-	"os"
+	"testing"
 
-	"github.com/mfridman/cli"
+	"confirmate.io/core/persistence"
+	"confirmate.io/core/util/assert"
 )
 
-// ParseAndRun parses the command line arguments and runs the given command.
-// If an error occurs, it is printed to stderr and the program exits with a non-zero
-// status code.
-// If the help flag is provided, the usage information is printed to stdout
-// and the function returns without error.
-func ParseAndRun(cmd *cli.Command) error {
-	if err := cli.Parse(cmd, os.Args[1:]); err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			fmt.Fprintf(os.Stdout, "%s\n", cli.DefaultUsage(cmd))
-			return nil
-		}
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
+// NewInMemoryDB creates a new in-memory database for testing purposes.
+//
+// It applies auto-migration for the provided types and sets up the specified join tables.
+// If there is an error during the creation of the DB, the test will panic immediately.
+func NewInMemoryDB(t *testing.T, types []any, joinTable []persistence.CustomJoinTable, init ...func(*persistence.DB)) *persistence.DB {
+	opts := []persistence.DBOption{
+		persistence.WithInMemory(),
+		persistence.WithAutoMigration(types...),
+		persistence.WithSetupJoinTable(joinTable...),
+	}
+	db, err := persistence.NewDB(
+		opts...,
+	)
+
+	for _, fn := range init {
+		fn(db)
 	}
 
-	if err := cli.Run(context.Background(), cmd, nil); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
+	if !assert.NoError(t, err, "could not create in-memory db") {
+		panic(err)
 	}
 
-	return nil
+	return db
 }

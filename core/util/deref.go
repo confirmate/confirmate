@@ -13,14 +13,31 @@
 //
 // This file is part of Confirmate Core.
 
-//go:build tools
-// +build tools
+package util
 
-package tools
+import "reflect"
 
-//go:generate ../add-license-headers.sh
+// Deref dereferences pointer values
+func Deref[T any](p *T) T {
+	var result T
+	if p != nil {
+		return *p
+	}
 
-import (
-	_ "github.com/google/addlicense"
-	_ "github.com/srikrsna/protoc-gen-gotag"
-)
+	return result
+}
+
+// Ref references pointer values
+func Ref[T any](p T) *T {
+	return &p
+}
+
+// IsNil checks if an interface value is nil or if the value nil is assigned to it.
+func IsNil(value any) bool {
+	if value == nil || (reflect.ValueOf(value).Kind() == reflect.Pointer &&
+		reflect.ValueOf(value).IsNil()) {
+		return true
+	}
+
+	return false
+}

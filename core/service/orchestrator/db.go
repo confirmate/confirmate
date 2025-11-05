@@ -13,14 +13,35 @@
 //
 // This file is part of Confirmate Core.
 
-//go:build tools
-// +build tools
-
-package tools
-
-//go:generate ../add-license-headers.sh
+package orchestrator
 
 import (
-	_ "github.com/google/addlicense"
-	_ "github.com/srikrsna/protoc-gen-gotag"
+	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 )
+
+// types contains all Orchestrator types that we need to auto-migrate into database tables
+//
+// TODO: Add other services' types
+var types = []any{
+	&orchestrator.TargetOfEvaluation{},
+	&orchestrator.Certificate{},
+	&orchestrator.State{},
+	&orchestrator.Catalog{},
+	&orchestrator.Category{},
+	&orchestrator.Control{},
+	&orchestrator.AuditScope{},
+	&assessment.MetricConfiguration{},
+	&assessment.Metric{},
+}
+
+// joinTables defines the [MetricConfiguration] as a custom join table between
+// [orchestrator.TargetOfEvaluation] and [assessment.Metric].
+var joinTables = []persistence.CustomJoinTable{
+	{
+		Model:     orchestrator.TargetOfEvaluation{},
+		Field:     "ConfiguredMetrics",
+		JoinTable: assessment.MetricConfiguration{},
+	},
+}
