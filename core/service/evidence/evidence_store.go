@@ -20,15 +20,19 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"slices"
 	"strings"
 	"sync"
 
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/api/evidence/evidencestoreconnect"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	// "confirmate.io/core/internal/config"
 	// "confirmate.io/core/launcher"
@@ -36,7 +40,6 @@ import (
 	// "confirmate.io/core/persistence/inmemory"
 	"github.com/lmittmann/tint"
 
-	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -46,15 +49,23 @@ var (
 	logger *slog.Logger
 )
 
+const DefaultAssessmentURL = "localhost:9090"
+
+type assessmentConfig struct {
+	targetAddress string
+}
+
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
 	persistence.DB
 
-	assessmentStreams *api.StreamsOf[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest]
-	assessment        *api.RPCConnection[assessment.AssessmentClient]
+	// TODO(lebogg): Remove later
+	//assessmentStreams *api.StreamsOf[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest]
+	//assessment        *api.RPCConnection[assessment.AssessmentClient]
 
-	// TODO(legogg): Rename
-	bufAssessmentStream
+	// TODO(lebogg): Test
+	assessmentClient assessmentconnect.AssessmentClient
+	assessmentConfig assessmentConfig
 
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
 	channelEvidence chan *evidence.Evidence
@@ -65,12 +76,9 @@ type Service struct {
 	// mu is used for (un)locking result hook calls
 	mu sync.Mutex
 
-	// authz defines our authorization strategy, e.g., which user can access which target of evaluation and associated
-	// resources, such as evidences and assessment results.
-	authz service.AuthorizationStrategy
+	// TODO(all): Add authorization strategy
 
-	evidence.UnimplementedEvidenceStoreServer
-	evidence.UnimplementedExperimentalResourcesServer
+	evidencestoreconnect.EvidenceStoreHandler
 }
 
 func init() {
@@ -79,28 +87,18 @@ func init() {
 	slog.SetDefault(logger)
 }
 
-func WithStorage(storage persistence.Storage) service.Option[*Service] {
+func WithStorage(storage persistence.DB) service.Option[*Service] {
 	return func(svc *Service) {
-		svc.storage = storage
-	}
-}
-
-// WithOAuth2Authorizer is an option to use an OAuth 2.0 authorizer
-func WithOAuth2Authorizer(config *clientcredentials.Config) service.Option[*Service] {
-	return func(s *Service) {
-		auth := api.NewOAuthAuthorizerFromClientCredentials(config)
-		s.assessment.SetAuthorizer(auth)
+		svc.DB = storage
 	}
 }
 
 // WithAssessmentAddress is an option to configure the assessment service gRPC address.
-func WithAssessmentAddress(target string, opts ...grpc.DialOption) service.Option[*Service] {
+func WithAssessmentAddress(target string, _ ...grpc.DialOption) service.Option[*Service] {
 
 	return func(s *Service) {
 		slog.Info("Assessment URL is set to %s", target)
-
-		s.assessment.Target = target
-		s.assessment.Opts = opts
+		s.assessmentConfig.targetAddress = target
 	}
 }
 
@@ -109,22 +107,17 @@ func NewService(opts ...service.Option[*Service]) (svc *Service) {
 		err error
 	)
 	svc = &Service{
-		assessmentStreams: api.NewStreamsOf(api.WithLogger[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest](log)),
-		assessment:        api.NewRPCConnection(config.DefaultAssessmentURL, assessment.NewAssessmentClient),
-		channelEvidence:   make(chan *evidence.Evidence, 1000),
+		assessmentConfig: assessmentConfig{targetAddress: DefaultAssessmentURL},
 	}
 
 	for _, o := range opts {
 		o(svc)
 	}
 
-	// Default to an allow-all authorization strategy
-	if svc.authz == nil {
-		svc.authz = &service.AuthorizationStrategyAllowAll{}
-	}
+	svc.assessmentClient = assessmentconnect.NewAssessmentClient(http.DefaultClient, svc.assessmentConfig.targetAddress)
 
-	if svc.storage == nil {
-		svc.storage, err = inmemory.NewStorage()
+	if svc.DB == nil {
+		svc.DB, err =
 		if err != nil {
 			slog.Error("Could not initialize the storage: %v", err)
 		}
