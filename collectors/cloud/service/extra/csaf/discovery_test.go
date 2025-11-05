@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// csaf contains a discover that discovery security advisory information from a CSAF trusted provider
 package csaf
 
 import (
