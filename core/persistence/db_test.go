@@ -19,12 +19,12 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/util/testutil/assert"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/util/assert"
+
 	_ "github.com/proullon/ramsql/driver"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (

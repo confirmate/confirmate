@@ -1,13 +1,24 @@
-// Copyright 2025 Fraunhofer AISEC:
-// This code is licensed under the terms of the Apache License, Version 2.0.
-// See the LICENSE file in this project for details.
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
 
-package common
+package util
 
 import (
 	"testing"
 
-	"confirmate.io/core/util/testutil/assert"
+	"confirmate.io/core/util/assert"
 )
 
 type myStruct struct {

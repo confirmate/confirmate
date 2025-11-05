@@ -13,9 +13,31 @@
 //
 // This file is part of Confirmate Core.
 
-package core
+package util
 
-//go:generate buf generate
-//go:generate buf generate --template buf.openapi.gen.yaml --path api/orchestrator -o openapi/orchestrator
-//go:generate buf generate --exclude-path="internal/ontology/clouditor_header.proto" --template buf.gotag.gen.yaml
-// //go:generate buf generate --template buf.gen.ontology.yaml --path policies/security-metrics/ontology/1.0/ontology.proto -o api/ontology
+import "reflect"
+
+// Deref dereferences pointer values
+func Deref[T any](p *T) T {
+	var result T
+	if p != nil {
+		return *p
+	}
+
+	return result
+}
+
+// Ref references pointer values
+func Ref[T any](p T) *T {
+	return &p
+}
+
+// IsNil checks if an interface value is nil or if the value nil is assigned to it.
+func IsNil(value any) bool {
+	if value == nil || (reflect.ValueOf(value).Kind() == reflect.Pointer &&
+		reflect.ValueOf(value).IsNil()) {
+		return true
+	}
+
+	return false
+}

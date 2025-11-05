@@ -21,8 +21,9 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
-	"confirmate.io/core/persistence/dbtest"
-	"confirmate.io/core/util/testutil/assert"
+	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/util/assert"
+
 	"connectrpc.com/connect"
 )
 
@@ -44,7 +45,7 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 			fields: struct {
 				db *persistence.DB
 			}{
-				db: dbtest.NewInMemoryDB(t, types, joinTable, func(s *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTable, func(s *persistence.DB) {
 					// Create a sample TargetOfEvaluation entry
 					err := s.Create(&orchestrator.TargetOfEvaluation{
 						Id:   "1",

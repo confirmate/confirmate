@@ -1,12 +1,22 @@
-// Copyright 2025 Fraunhofer AISEC:
-// This code is licensed under the terms of the Apache License, Version 2.0.
-// See the LICENSE file in this project for details.
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
 
 // Package assert contains helpful assertion helpers. Under the hood it currently uses
 // github.com/stretchr/testify/assert, but this might change in the future. In order to keep this transparent to the
 // tests, unit tests should exclusively use this package. This also helps us keep track how often the individual assert
 // functions are used and whether we can reduce the API surface of this package.
-
 package assert
 
 import (

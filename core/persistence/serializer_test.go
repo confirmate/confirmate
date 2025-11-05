@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/util/testutil/assert"
+	"confirmate.io/core/util/assert"
 
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"

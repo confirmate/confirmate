@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm/schema"
 
-	"confirmate.io/core/util/common"
+	"confirmate.io/core/util"
 )
 
 // DurationSerializer is a GORM serializer that allows the serialization and deserialization of the
@@ -43,7 +43,7 @@ func (DurationSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Va
 		ok bool
 	)
 
-	if common.IsNil(fieldValue) {
+	if util.IsNil(fieldValue) {
 		return nil, nil
 	}
 
@@ -85,7 +85,7 @@ func (TimestampSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.V
 		ok bool
 	)
 
-	if common.IsNil(fieldValue) {
+	if util.IsNil(fieldValue) {
 		return nil, nil
 	}
 
@@ -127,7 +127,7 @@ func (AnySerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value, 
 		ok bool
 	)
 
-	if common.IsNil(fieldValue) {
+	if util.IsNil(fieldValue) {
 		return nil, nil
 	}
 
@@ -178,7 +178,7 @@ func (ValueSerializer) Value(_ context.Context, _ *schema.Field, _ reflect.Value
 		ok bool
 	)
 
-	if common.IsNil(fieldValue) {
+	if util.IsNil(fieldValue) {
 		return nil, nil
 	}
 
