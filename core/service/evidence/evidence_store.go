@@ -263,7 +263,9 @@ func (svc *Service) StoreEvidences(ctx context.Context,
 }
 
 // ListEvidences is a method implementation of the evidenceServer interface: It returns the evidences lying in the storage
-func (svc *Service) ListEvidences(ctx context.Context, req *evidence.ListEvidencesRequest) (res *evidence.ListEvidencesResponse, err error) {
+func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (
+	*connect.Response[evidence.ListEvidencesResponse], error) {
+
 	var (
 		all     bool
 		allowed []string
@@ -315,7 +317,7 @@ func (svc *Service) ListEvidences(ctx context.Context, req *evidence.ListEvidenc
 }
 
 // GetEvidence is a method implementation of the evidenceServer interface: It returns a particular evidence in the storage
-func (svc *Service) GetEvidence(ctx context.Context, req *evidence.GetEvidenceRequest) (res *evidence.Evidence, err error) {
+func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (*connect.Response[evidence.Evidence], error) {
 	var (
 		all     bool
 		allowed []string
@@ -350,7 +352,7 @@ func (svc *Service) GetEvidence(ctx context.Context, req *evidence.GetEvidenceRe
 }
 
 // ListSupportedResourceTypes is a method implementation of the evidenceServer interface: It returns the resource types that are supported by this service
-func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *evidence.ListSupportedResourceTypesRequest) (res *evidence.ListSupportedResourceTypesResponse, err error) {
+func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error) {
 	// Validate request
 	err = api.Validate(req)
 	if err != nil {
@@ -365,7 +367,7 @@ func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *evidenc
 	return res, nil
 }
 
-func (svc *Service) ListResources(ctx context.Context, req *evidence.ListResourcesRequest) (res *evidence.ListResourcesResponse, err error) {
+func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error) {
 	var (
 		query   []string
 		args    []any
