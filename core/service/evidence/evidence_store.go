@@ -56,10 +56,6 @@ type assessmentConfig struct {
 type Service struct {
 	db *persistence.DB
 
-	// TODO(lebogg): Remove later
-	//assessmentStreams *api.StreamsOf[assessment.Assessment_AssessEvidenceStreamClient, *assessment.AssessEvidenceRequest]
-	//assessment        *api.RPCConnection[assessment.AssessmentClient]
-
 	// TODO(lebogg): Test
 	assessmentClient assessmentconnect.AssessmentClient
 	assessmentStream *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
@@ -149,6 +145,7 @@ func (svc *Service) Init() {
 
 // StoreEvidence is a method implementation of the evidenceServer interface: It receives a req and stores it
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
+	// Validate request
 	if protovalidate.Validate(req.Msg) != nil {
 		err = status.Errorf(codes.InvalidArgument, "invalid request: %v", err)
 		return
