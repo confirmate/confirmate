@@ -275,14 +275,7 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
 	if err != nil {
-		return nil, nil
-	}
-
-	// Retrieve list of allowed target of evaluation according to our authorization strategy. No need to specify any additional
-	// conditions to our storage request, if we are allowed to see all target of evaluations.
-	all, allowed = svc.authz.AllowedTargetOfEvaluations(ctx)
-	if !all && req.GetFilter().GetTargetOfEvaluationId() != "" && !slices.Contains(allowed, req.GetFilter().GetTargetOfEvaluationId()) {
-		return nil, service.ErrPermissionDenied
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
 	res = new(evidence.ListEvidencesResponse)
@@ -317,7 +310,9 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 }
 
 // GetEvidence is a method implementation of the evidenceServer interface: It returns a particular evidence in the storage
-func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (*connect.Response[evidence.Evidence], error) {
+func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
+	res *connect.Response[evidence.Evidence], err error) {
+
 	var (
 		all     bool
 		allowed []string
@@ -325,18 +320,9 @@ func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[eviden
 	)
 
 	// Validate request
-	err = api.Validate(req)
+	err = protovalidate.Validate(req.Msg)
 	if err != nil {
-		return nil, err
-	}
-
-	// Retrieve list of allowed target of evaluation according to our authorization strategy. No need to specify any additional
-	// conditions to our storage request, if we are allowed to see all target of evaluations.
-	all, allowed = svc.authz.AllowedTargetOfEvaluations(ctx)
-	if !all {
-		conds = []any{"id = ? AND target_of_evaluation_id IN ?", req.EvidenceId, allowed}
-	} else {
-		conds = []any{"id = ?", req.EvidenceId}
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
 	res = new(evidence.Evidence)
@@ -352,11 +338,13 @@ func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[eviden
 }
 
 // ListSupportedResourceTypes is a method implementation of the evidenceServer interface: It returns the resource types that are supported by this service
-func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error) {
+func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (
+	res *connect.Response[evidence.ListSupportedResourceTypesResponse], err error) {
+
 	// Validate request
-	err = api.Validate(req)
+	err = protovalidate.Validate(req.Msg)
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
 	// Get the supported resource types
@@ -367,7 +355,8 @@ func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *connect
 	return res, nil
 }
 
-func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error) {
+func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evidence.ListResourcesRequest]) (
+	res *connect.Response[evidence.ListResourcesResponse], err error) {
 	var (
 		query   []string
 		args    []any
@@ -376,9 +365,9 @@ func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evid
 	)
 
 	// Validate request
-	err = api.Validate(req)
+	err = protovalidate.Validate(req.Msg)
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
 	// Filtering the resources by
@@ -405,16 +394,6 @@ func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evid
 		}
 	}
 
-	// We need to further restrict our query according to the target of evaluation we are allowed to "see".
-	//
-	// TODO(oxisto): This is suboptimal, since we are now calling AllowedTargetOfEvaluations twice. Once here
-	//  and once above in CheckAccess.
-	all, allowed = svc.authz.AllowedTargetOfEvaluations(ctx)
-	if !all {
-		query = append(query, "target_of_evaluation_id IN ?")
-		args = append(args, allowed)
-	}
-
 	res = new(evidence.ListResourcesResponse)
 
 	// Join query with AND and prepend the query
@@ -435,7 +414,7 @@ func (svc *Service) informHooks(ctx context.Context, result *evidence.Evidence, 
 	svc.mu.Lock()
 	defer svc.mu.Unlock()
 
-	// Inform our hook, if we have any
+	// Inform our hook if we have any
 	if svc.evidenceHooks != nil {
 		for _, hook := range svc.evidenceHooks {
 			// TODO(all): We could do hook concurrent again (assuming different hooks don't interfere with each other)
