@@ -23,6 +23,7 @@ import (
 
 	// "confirmate.io/core/internal/util"
 
+	"confirmate.io/core/util"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
