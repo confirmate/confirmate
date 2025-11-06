@@ -255,9 +255,9 @@ func (svc *Service) StoreEvidences(ctx context.Context,
 			return nil
 		}
 		if err != nil {
-			newError := fmt.Errorf("cannot send response to the client: %w", err)
-			slog.Error("failed to send response to client", slog.Any("error", newError))
-			return connect.NewError(connect.CodeUnknown, newError)
+			err = fmt.Errorf("cannot send response to the client: %w", err)
+			slog.Error("failed to send response to client", slog.Any("error", err))
+			return connect.NewError(connect.CodeUnknown, err)
 		}
 	}
 }
@@ -297,14 +297,16 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 	}
 
 	// Paginate the evidences according to the request
-	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req, svc.storage,
+	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req.Msg, svc.db,
 		service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
 
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not paginate results: %w", err))
+		err = connect.NewError(connect.CodeInternal, fmt.Errorf("could not paginate results: %w", err))
+		return
 	}
 
-	return connect.NewResponse(res), nil
+	res = connect.NewResponse(res.Msg)
+	return
 }
 
 // GetEvidence is a method implementation of the evidenceServer interface: It returns a particular evidence in the storage
@@ -323,9 +325,8 @@ func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[eviden
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
-	res = new(evidence.Evidence)
-
-	err = svc.storage.Get(res, conds...)
+	res.Msg = new(evidence.Evidence)
+	err = svc.db.Get(res.Msg, conds...)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, status.Errorf(codes.NotFound, "evidence not found")
 	} else if err != nil {

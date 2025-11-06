@@ -55,7 +55,7 @@ func PaginateSlice[T any](req api.PaginatedRequest, values []T, less func(a T, b
 // PaginateStorage is a helper function that helps to paginate records in persisted storage based on list requests. It
 // parses the necessary information out if a paginated request, e.g. the page token and the desired page size and
 // returns a sliced page as well as the next page token.
-func PaginateStorage[T any](req api.PaginatedRequest, storage persistence.DB, opts PaginationOpts,
+func PaginateStorage[T any](req api.PaginatedRequest, storage *persistence.DB, opts PaginationOpts,
 	conds ...interface{}) (page []T, npt string, err error) {
 	return paginate(req, opts, func(start int64, size int32) (page []T, done bool, err error) {
 		// Retrieve values from the DB
