@@ -147,7 +147,7 @@ func (svc *Service) Init() {
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	// Validate request
 	if protovalidate.Validate(req.Msg) != nil {
-		err = status.Errorf(codes.InvalidArgument, "invalid request: %v", err)
+		err = connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 		return
 	}
 
@@ -181,7 +181,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	svc.channelEvidence <- req.Msg.Evidence
 
 	slog.Debug("received and handled store evidence request: %v", req)
-	res = &connect.Response[evidence.StoreEvidenceResponse]{}
+	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
 }
 
@@ -264,7 +264,7 @@ func (svc *Service) StoreEvidences(ctx context.Context,
 
 // ListEvidences is a method implementation of the evidenceServer interface: It returns the evidences lying in the storage
 func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (
-	*connect.Response[evidence.ListEvidencesResponse], error) {
+	res *connect.Response[evidence.ListEvidencesResponse], err error) {
 
 	var (
 		all     bool
@@ -273,9 +273,9 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 		args    []any
 	)
 	// Validate request
-	err = api.Validate(req)
+	err = protovalidate.Validate(req.Msg)
 	if err != nil {
-		return nil, err
+		return nil, nil
 	}
 
 	// Retrieve list of allowed target of evaluation according to our authorization strategy. No need to specify any additional
@@ -310,10 +310,10 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 		service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
 
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "could not paginate results: %v", err)
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not paginate results: %w", err))
 	}
 
-	return
+	return connect.NewResponse(res), nil
 }
 
 // GetEvidence is a method implementation of the evidenceServer interface: It returns a particular evidence in the storage
