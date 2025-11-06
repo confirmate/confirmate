@@ -278,10 +278,8 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
-	res = new(evidence.ListEvidencesResponse)
-
 	// Apply filter options
-	if filter := req.GetFilter(); filter != nil {
+	if filter := req.Msg.GetFilter(); filter != nil {
 		if TargetOfEvaluationId := filter.GetTargetOfEvaluationId(); TargetOfEvaluationId != "" {
 			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, TargetOfEvaluationId)
@@ -299,7 +297,7 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 	}
 
 	// Paginate the evidences according to the request
-	res.Evidences, res.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req, svc.storage,
+	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req, svc.storage,
 		service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
 
 	if err != nil {

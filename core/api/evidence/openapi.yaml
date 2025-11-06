@@ -2661,6 +2661,40 @@ components:
             description: |-
                 ObjectStorageService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  An object storage service represents the network service that is used to access a list of object storage containers. The storage itself is modelled as a ObjectStorage. The service has an http endpoint.
+        Package:
+            type: object
+            properties:
+                creationTime:
+                    type: string
+                    format: date-time
+                description:
+                    type: string
+                id:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                name:
+                    type: string
+                raw:
+                    type: string
+                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                codeModuleIds:
+                    type: array
+                    items:
+                        type: string
+                codeRepositoryId:
+                    type: string
+                functionalities:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Functionality'
+                parentId:
+                    type: string
+            description: |-
+                Package is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Represents a grouping of (source) code into logical unit, for example a package for a namespace.
         PasswordBasedAuthentication:
             type: object
             properties:
@@ -3027,6 +3061,8 @@ components:
                     $ref: '#/components/schemas/Application'
                 library:
                     $ref: '#/components/schemas/Library'
+                package:
+                    $ref: '#/components/schemas/Package'
                 sourceCodeFile:
                     $ref: '#/components/schemas/SourceCodeFile'
             description: Resource is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -3734,6 +3770,9 @@ components:
         Vulnerability:
             type: object
             properties:
+                criticality:
+                    type: string
+                    description: 'criticality: Contains the criticality of a vulnerability, e.g., low, medium, high, critical'
                 cve:
                     type: string
                 cwe:
