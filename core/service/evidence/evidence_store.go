@@ -313,11 +313,7 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
 	res *connect.Response[evidence.Evidence], err error) {
 
-	var (
-		all     bool
-		allowed []string
-		conds   []any
-	)
+	var conds []any
 
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
