@@ -53,6 +53,7 @@ func WithConfig(cfg Config) Option {
 }
 
 // WithHandler adds an [http.Handler] at the specified path to the server.
+// Multiple handlers can be registered by calling WithHandler multiple times.
 func WithHandler(path string, handler http.Handler) Option {
 	return func(svr *Server) {
 		svr.handlers[path] = handler
