@@ -45,13 +45,14 @@ type Server struct {
 // Option is a functional option for configuring the [Server].
 type Option func(*Server)
 
-// WithConfig sets the server configuration.
+// WithConfig sets the server configuration, overriding the default configuration.
 func WithConfig(cfg Config) Option {
 	return func(svr *Server) {
 		svr.cfg = cfg
 	}
 }
 
+// WithHandler adds an [http.Handler] at the specified path to the server.
 func WithHandler(path string, handler http.Handler) Option {
 	return func(svr *Server) {
 		svr.handlers[path] = handler

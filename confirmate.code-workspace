@@ -27,6 +27,7 @@
 			"orchestratorconnect",
 			"proullon",
 			"ramsql",
+			"servertest",
 			"structpb",
 			"testsrv",
 			"testutil",

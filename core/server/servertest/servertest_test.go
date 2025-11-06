@@ -26,7 +26,6 @@ func TestNewTestServer(t *testing.T) {
 	)
 	defer testSrv.Close()
 
-	assert.NoError(t, err)
 	assert.NotNil(t, srv)
 	assert.NotNil(t, testSrv)
 
