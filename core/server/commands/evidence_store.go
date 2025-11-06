@@ -17,20 +17,21 @@ package commands
 import (
 	"context"
 
-	"confirmate.io/core/api/evidence/evidencestoreconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service/evidence"
 
 	"github.com/mfridman/cli"
 )
 
 var EvidenceCommand = &cli.Command{
-	Name: "This command starts an Evidence Store service",
+	Name: "evidence store",
 	Exec: func(ctx context.Context, s *cli.State) error {
-		svc, err := EvidenceStore.NewService()
+		svc, err := evidence.NewService()
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(evidencestoreconnect.NewEvidenceStoreHandler(svc))
+		return server.RunConnectServer(evidenceconnect.NewEvidenceStoreHandler(svc))
 	},
 }

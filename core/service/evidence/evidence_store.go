@@ -97,10 +97,7 @@ func WithAssessmentConfig(target string, client *http.Client) service.Option[*Se
 	}
 }
 
-func NewService(opts ...service.Option[*Service]) (svc *Service) {
-	var (
-		err error
-	)
+func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
 	svc = &Service{
 		assessmentConfig: assessmentConfig{
 			targetAddress: DefaultAssessmentURL,
@@ -118,7 +115,8 @@ func NewService(opts ...service.Option[*Service]) (svc *Service) {
 	if svc.db == nil {
 		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types))
 		if err != nil {
-			slog.Error("Could not initialize the storage: %v", err)
+			err = fmt.Errorf("could not create db: %w", err)
+			return
 		}
 	}
 
