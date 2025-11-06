@@ -22,7 +22,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"slices"
 	"strings"
 	"sync"
 
@@ -123,11 +122,39 @@ func NewService(opts ...service.Option[*Service]) (svc *Service) {
 		}
 	}
 
+	// Create a channel to send evidence to the worker thread
+	svc.initEvidenceChannel()
+
 	return
 }
 
-func (svc *Service) Init() {
+// handleEvidence processes an evidence, sending it to the assessment service via a persistent stream.
+func (svc *Service) handleEvidence(evidence *evidence.Evidence) error {
+	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
+	// Get or create the stream (lazy initialization)
+	stream, err := svc.getOrCreateStream()
+	if err != nil {
+		return fmt.Errorf("could not get assessment stream: %w", err)
+	}
 
+	// Send evidence to the assessment service using the persistent stream
+	// TODO(lebogg): Check EOF response of server
+	err = stream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	if err != nil {
+		// Invalidate the stream so it will be recreated on the next attempt
+		svc.streamMu.Lock()
+		svc.assessmentStream = nil
+		svc.streamMu.Unlock()
+
+		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
+	}
+
+	return nil
+}
+
+// initEvidenceChannel initializes the channel used to send evidences from the StoreEvidence method to the worker threat
+// to process the evidence.
+func (svc *Service) initEvidenceChannel() {
 	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the fire-and-forget strategy.
 	go func() {
 		for {
@@ -143,7 +170,8 @@ func (svc *Service) Init() {
 	}()
 }
 
-// StoreEvidence is a method implementation of the evidenceServer interface: It receives a req and stores it
+// StoreEvidence receives an evidence and stores it into the database
+// This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	// Validate request
 	if protovalidate.Validate(req.Msg) != nil {
@@ -185,30 +213,9 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	return
 }
 
-func (svc *Service) handleEvidence(evidence *evidence.Evidence) error {
-	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
-	// Get or create the stream (lazy initialization)
-	stream, err := svc.getOrCreateStream()
-	if err != nil {
-		return fmt.Errorf("could not get assessment stream: %w", err)
-	}
-
-	// Send evidence to the assessment service using the persistent stream
-	// TODO(lebogg): Check EOF response of server
-	err = stream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
-	if err != nil {
-		// Invalidate the stream so it will be recreated on the next attempt
-		svc.streamMu.Lock()
-		svc.assessmentStream = nil
-		svc.streamMu.Unlock()
-
-		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
-	}
-
-	return nil
-}
-
-// StoreEvidences is a method implementation of the evidenceServer interface: It receives evidences and stores them
+// StoreEvidences receives a stream of evidences and stores them to the evidence database.
+// It processes each evidence individually and returns a response for each one indicating
+// success or failure. This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidences] RPC method.
 func (svc *Service) StoreEvidences(ctx context.Context,
 	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error {
 	var (
@@ -262,16 +269,18 @@ func (svc *Service) StoreEvidences(ctx context.Context,
 	}
 }
 
-// ListEvidences is a method implementation of the evidenceServer interface: It returns the evidences lying in the storage
-func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (
+// ListEvidences returns all evidence.
+// This implements the [evidenceconnect.EvidenceStoreHandler.ListEvidences] RPC method.
+// TODO(all): Add authorization (we currently just list all evidence, i.e. evidence for all TOEs
+func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (
 	res *connect.Response[evidence.ListEvidencesResponse], err error) {
 
 	var (
-		all     bool
-		allowed []string
-		query   []string
-		args    []any
+		query []string
+		args  []any
 	)
+	res = connect.NewResponse(&evidence.ListEvidencesResponse{})
+
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
 	if err != nil {
@@ -290,12 +299,6 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 		}
 	}
 
-	// In any case, we need to make sure that we only select evidences of target of evaluations that we have access to
-	if !all {
-		query = append(query, "target_of_evaluation_id IN ?")
-		args = append(args, allowed)
-	}
-
 	// Paginate the evidences according to the request
 	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req.Msg, svc.db,
 		service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
@@ -305,15 +308,17 @@ func (svc *Service) ListEvidences(ctx context.Context, req *connect.Request[evid
 		return
 	}
 
-	res = connect.NewResponse(res.Msg)
 	return
 }
 
-// GetEvidence is a method implementation of the evidenceServer interface: It returns a particular evidence in the storage
-func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
+// GetEvidence receives an evidenc ID and returns the corresponding evidence of the storage
+// This implements the [evidenceconnect.EvidenceStoreHandler.GetEvidence] RPC method.
+// TODO(all): Add authorization
+func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
 	res *connect.Response[evidence.Evidence], err error) {
 
 	var conds []any
+	res = connect.NewResponse(&evidence.Evidence{})
 
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
@@ -321,7 +326,6 @@ func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[eviden
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
-	res.Msg = new(evidence.Evidence)
 	err = svc.db.Get(res.Msg, conds...)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, status.Errorf(codes.NotFound, "evidence not found")
@@ -332,9 +336,12 @@ func (svc *Service) GetEvidence(ctx context.Context, req *connect.Request[eviden
 	return
 }
 
-// ListSupportedResourceTypes is a method implementation of the evidenceServer interface: It returns the resource types that are supported by this service
-func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (
+// ListSupportedResourceTypes returns the resource types that are supported by this service
+// This implements the [evidenceconnect.EvidenceStoreHandler.ListSupportedResourceTypes] RPC method.
+func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (
 	res *connect.Response[evidence.ListSupportedResourceTypesResponse], err error) {
+
+	res = connect.NewResponse(&evidence.ListSupportedResourceTypesResponse{})
 
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
@@ -347,17 +354,18 @@ func (svc *Service) ListSupportedResourceTypes(ctx context.Context, req *connect
 		ResourceType: ontology.ListResourceTypes(),
 	}
 
-	return res, nil
+	return
 }
 
-func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evidence.ListResourcesRequest]) (
+// ListResources returns the list of resources, a pagination token, or an error if the operation fails.
+// This implements the [evidenceconnect.EvidenceStoreHandler.ListResources] RPC method.
+func (svc *Service) ListResources(_ context.Context, req *connect.Request[evidence.ListResourcesRequest]) (
 	res *connect.Response[evidence.ListResourcesResponse], err error) {
 	var (
-		query   []string
-		args    []any
-		all     bool
-		allowed []string
+		query []string
+		args  []any
 	)
+	res = connect.NewResponse(&evidence.ListResourcesResponse{})
 
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
@@ -369,32 +377,27 @@ func (svc *Service) ListResources(ctx context.Context, req *connect.Request[evid
 	// * target of evaluation ID
 	// * resource type
 	// * tool ID
-	if req.Filter != nil {
-		// Check if target_of_evaluation_id in filter is within allowed or one can access *all* the target of evaluations
-		if !svc.authz.CheckAccess(ctx, service.AccessRead, req.Filter) {
-			return nil, service.ErrPermissionDenied
-		}
-
-		if req.Filter.TargetOfEvaluationId != nil {
+	if f := req.Msg.Filter; f != nil {
+		if f.TargetOfEvaluationId != nil {
 			query = append(query, "target_of_evaluation_id = ?")
-			args = append(args, req.Filter.GetTargetOfEvaluationId())
+			args = append(args, f.GetTargetOfEvaluationId())
 		}
-		if req.Filter.Type != nil {
+		if f.Type != nil {
 			query = append(query, "(resource_type LIKE ? OR resource_type LIKE ? OR resource_type LIKE ?)")
-			args = append(args, req.Filter.GetType()+",%", "%,"+req.Filter.GetType()+",%", "%,"+req.Filter.GetType())
+			args = append(args, f.GetType()+",%", "%,"+f.GetType()+",%", "%,"+f.GetType())
 		}
-		if req.Filter.ToolId != nil {
+		if f.ToolId != nil {
 			query = append(query, "tool_id = ?")
-			args = append(args, req.Filter.GetToolId())
+			args = append(args, f.GetToolId())
 		}
 	}
 
-	res = new(evidence.ListResourcesResponse)
+	res.Msg = new(evidence.ListResourcesResponse)
 
 	// Join query with AND and prepend the query
 	args = append([]any{strings.Join(query, " AND ")}, args...)
 
-	res.Results, res.NextPageToken, err = service.PaginateStorage[*evidence.Resource](req, svc.storage, service.DefaultPaginationOpts, args...)
+	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Resource](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
 
 	return
 }
