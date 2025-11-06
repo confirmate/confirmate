@@ -209,33 +209,34 @@ func (svc *Service) handleEvidence(evidence *evidence.Evidence) error {
 }
 
 // StoreEvidences is a method implementation of the evidenceServer interface: It receives evidences and stores them
-func (svc *Service) StoreEvidences(stream evidence.EvidenceStore_StoreEvidencesServer) (err error) {
+func (svc *Service) StoreEvidences(ctx context.Context,
+	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error {
 	var (
 		req *evidence.StoreEvidenceRequest
 		res *evidence.StoreEvidencesResponse
+		err error
 	)
 
 	for {
-		req, err = stream.Recv()
-
+		req, err = stream.Receive()
 		// If no more input of the stream is available, return
 		if errors.Is(err, io.EOF) {
 			return nil
 		}
 		if err != nil {
-			newError := fmt.Errorf("cannot receive stream request: %w", err)
-			slog.Error(newError)
-			return status.Errorf(codes.Unknown, "%v", newError)
+			err = fmt.Errorf("cannot receive stream request: %w", err)
+			slog.Error(err.Error())
+			return connect.NewError(connect.CodeUnknown, err)
 		}
 
 		// Call StoreEvidence() for storing a single evidence
-		evidenceRequest := &evidence.StoreEvidenceRequest{
+		evidenceRequest := connect.NewRequest(&evidence.StoreEvidenceRequest{
 			Evidence: req.Evidence,
-		}
-		_, err = svc.StoreEvidence(stream.Context(), evidenceRequest)
+		})
+		_, err = svc.StoreEvidence(ctx, evidenceRequest)
 		if err != nil {
-			slog.Error("Error storing evidence: %v", err)
-			// Create response message. The StoreEvidence method does not need that message, so we have to create it here for the stream response.
+			slog.Error("Error storing evidence", slog.Any("error", err))
+			// Create a response message. The StoreEvidence method does not need that message, so we have to create it here for the stream response.
 			res = &evidence.StoreEvidencesResponse{
 				Status:        evidence.EvidenceStatus_EVIDENCE_STATUS_ERROR,
 				StatusMessage: err.Error(),
@@ -246,7 +247,7 @@ func (svc *Service) StoreEvidences(stream evidence.EvidenceStore_StoreEvidencesS
 			}
 		}
 
-		// Send response back to the client
+		// Send the response back to the client
 		err = stream.Send(res)
 
 		// Check for send errors
@@ -256,7 +257,7 @@ func (svc *Service) StoreEvidences(stream evidence.EvidenceStore_StoreEvidencesS
 		if err != nil {
 			newError := fmt.Errorf("cannot send response to the client: %w", err)
 			slog.Error("failed to send response to client", slog.Any("error", newError))
-			return status.Errorf(codes.Unknown, "%v", newError)
+			return connect.NewError(connect.CodeUnknown, newError)
 		}
 	}
 }
