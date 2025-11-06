@@ -14,10 +14,7 @@ import (
 //
 // The server needs to be stopped by the caller using the [server.Server]'s methods. This will fail
 // the test if the server could not be created.
-func NewTestConnectServer(t *testing.T, opts ...server.Option) (
-	srv *server.Server,
-	testsrv *httptest.Server,
-) {
+func NewTestConnectServer(t *testing.T, opts ...server.Option) (srv *server.Server, testsrv *httptest.Server) {
 	var (
 		err error
 	)

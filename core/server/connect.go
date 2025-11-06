@@ -35,24 +35,6 @@ func init() {
 	slog.SetDefault(logger)
 }
 
-// corsMiddleware adds CORS headers to all requests
-func corsMiddleware(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Connect-Protocol-Version, Connect-Timeout-Ms")
-		w.Header().Set("Access-Control-Expose-Headers", "Connect-Protocol-Version")
-
-		// Handle preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		handler.ServeHTTP(w, r)
-	})
-}
-
 // Server represents a Connect server, with RPC and HTTP support.
 type Server struct {
 	*http.Server
@@ -127,7 +109,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Create new mux
 	mux = http.NewServeMux()
-	mux.Handle("/", corsMiddleware(transcoder))
+	mux.Handle("/", srv.handleCORS(transcoder))
 
 	// Configure h2c support using standard library
 	p = new(http.Protocols)

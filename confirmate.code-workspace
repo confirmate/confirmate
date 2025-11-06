@@ -28,6 +28,7 @@
 			"proullon",
 			"ramsql",
 			"structpb",
+			"testsrv",
 			"testutil",
 			"timestamppb",
 			"valuepb"
