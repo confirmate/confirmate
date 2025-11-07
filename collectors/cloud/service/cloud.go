@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"time"
 
-	"clouditor.io/clouditor/api/discovery"
+	"clouditor.io/clouditor/api/evidence"
 	"clouditor.io/clouditor/server/rest"
 	"clouditor.io/clouditor/v2/api"
-	"clouditor.io/clouditor/v2/api/evidence"
-	"clouditor.io/clouditor/v2/launcher"
+	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/service"
 	"confirmate.io/collectors/cloud/service/aws"
 	"confirmate.io/collectors/cloud/service/azure"
@@ -19,12 +19,11 @@ import (
 	"confirmate.io/collectors/cloud/service/k8s"
 	"confirmate.io/collectors/cloud/service/openstack"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
 
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"golang.org/x/oauth2/clientcredentials"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,36 +37,73 @@ const (
 	ProviderOpenstack = "openstack"
 	ProviderCSAF      = "csaf"
 
-	// DiscovererStart is emitted at the start of a discovery run.
-	DiscovererStart DiscoveryEventType = iota
-	// DiscovererFinished is emitted at the end of a discovery run.
-	DiscovererFinished
+	// CloudCollectorStart is emitted at the start of a discovery run.
+	CloudCollectorStart DiscoveryEventType = iota
+	// CloudCollectorFinished is emitted at the end of a discovery run.
+	CloudCollectorFinished
+
+	// DefaultTargetOfEvaluationID is the default target of evaluation ID. Currently, our discoverers have no way to differentiate between different
+	// targets, but we need this feature in the future. This serves as a default to already prepare the necessary
+	// structures for this feature.
+	DefaultTargetOfEvaluationID = "00000000-0000-0000-0000-000000000000"
+
+	// DefaultEvidenceCollectorToolID is the default evidence collector tool ID.
+	DefaultEvidenceCollectorToolID = "Clouditor Evidences Collection"
+
+	DefaultDiscoveryAutoStartFlag = true
+
+	DefaultEvidenceStoreURL = "localhost:9092"
 )
 
-var log *logrus.Entry
+var (
+	log *logrus.Entry
+)
 
-// DefaultServiceSpec returns a [launcher.ServiceSpec] for this [Service] with all necessary options retrieved from the
-// config system.
-func DefaultServiceSpec() launcher.ServiceSpec {
-	var providers []string
-
-	// If no CSPs for discovering are given, take all implemented discoverers
-	if len(viper.GetStringSlice(config.DiscoveryProviderFlag)) == 0 {
-		providers = []string{ProviderAWS, ProviderAzure, ProviderK8S}
-	} else {
-		providers = viper.GetStringSlice(config.DiscoveryProviderFlag)
-	}
-
-	return launcher.NewServiceSpec(
-		NewService,
-		nil,
-		nil,
-		WithOAuth2Authorizer(config.ClientCredentials()),
-		WithTargetOfEvaluationID(viper.GetString(config.TargetOfEvaluationIDFlag)),
-		WithProviders(providers),
-		WithEvidenceStoreAddress(viper.GetString(config.EvidenceStoreURLFlag)),
-	)
+// CloudCollectorConfig holds the configuration for the cloud collector.
+type CloudCollectorConfig struct {
+	// CollectorProvider is the list of cloud service providers to use for discovering resources.
+	CollectorProvider []string
+	// TargetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
+	TargetOfEvaluationID string
+	// EvidenceCollectorToolID is the collector tool ID which is gathering the resources.
+	EvidenceCollectorToolID string
+	//evStreamConfig holds the configuration for the evidence store stream.
+	evStreamConfig EvidenceStoreStreamConfig
+	// DiscoveryAutoStart indicates whether the discovery should be automatically started when the service is initialized.
+	DiscoveryAutoStart     bool
+	DiscoveryResourceGroup string
+	DiscoveryCSAFDomain    string
 }
+
+// EvidenceStoreStreamConfig holds the configuration for the evidence store stream.
+type EvidenceStoreStreamConfig struct {
+	targetAddress string
+	client        *http.Client
+}
+
+// TODO(anatheka): Delete!?!
+// // DefaultServiceSpec returns a [launcher.ServiceSpec] for this [Service] with all necessary options retrieved from the
+// // config system.
+// func DefaultServiceSpec() launcher.ServiceSpec {
+// 	var providers []string
+
+// 	// If no CSPs for discovering are given, take all implemented discoverers
+// 	if len(CollectorProviderFlag) == 0 {
+// 		providers = []string{ProviderAWS, ProviderAzure, ProviderK8S}
+// 	} else {
+// 		providers = CollectorProviderFlag
+// 	}
+
+// 	return launcher.NewServiceSpec(
+// 		NewService,
+// 		nil,
+// 		nil,
+// 		// WithOAuth2Authorizer(config.ClientCredentials()),
+// 		WithTargetOfEvaluationID(TargetOfEvaluationID),
+// 		WithProviders(providers),
+// 		WithEvidenceStoreAddress(EvidenceStoreURL),
+// 	)
+// }
 
 // DiscoveryEventType defines the event types for [DiscoveryEvent].
 type DiscoveryEventType int
@@ -87,8 +123,9 @@ type DiscoveryEvent struct {
 type Service struct {
 	discovery.UnimplementedDiscoveryServer
 
-	evidenceStoreStreams *api.StreamsOf[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest]
-	evidenceStore        *api.RPCConnection[evidence.EvidenceStoreClient]
+	// TODO(anatheka): Add new evidence store stream
+	// evidenceStoreStreams *api.StreamsOf[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest]
+	// evidenceStore        *api.RPCConnection[evidence.EvidenceStoreClient]
 
 	scheduler *gocron.Scheduler
 
@@ -106,6 +143,9 @@ type Service struct {
 
 	// collectorID is the evidence collector tool ID which is gathering the resources.
 	collectorID string
+
+	// cloudConfig holds the configuration for the cloud collector.
+	cloudConfig CloudCollectorConfig
 }
 
 func init() {
@@ -113,13 +153,13 @@ func init() {
 }
 
 // WithEvidenceStoreAddress is an option to configure the evidence store service gRPC address.
-func WithEvidenceStoreAddress(target string, opts ...grpc.DialOption) service.Option[*Service] {
+func WithEvidenceStoreAddress(target string, client *http.Client) service.Option[*Service] {
 
 	return func(s *Service) {
 		log.Infof("Evidence Store URL is set to %s", target)
 
-		s.evidenceStore.Target = target
-		s.evidenceStore.Opts = opts
+		s.cloudConfig.evStreamConfig.targetAddress = target
+		s.cloudConfig.evStreamConfig.client = client
 	}
 }
 
@@ -141,12 +181,13 @@ func WithEvidenceCollectorToolID(ID string) service.Option[*Service] {
 	}
 }
 
-// WithOAuth2Authorizer is an option to use an OAuth 2.0 authorizer
-func WithOAuth2Authorizer(config *clientcredentials.Config) service.Option[*Service] {
-	return func(svc *Service) {
-		svc.evidenceStore.SetAuthorizer(api.NewOAuthAuthorizerFromClientCredentials(config))
-	}
-}
+// TODO(all): Do we need that anymore?
+// // WithOAuth2Authorizer is an option to use an OAuth 2.0 authorizer
+// func WithOAuth2Authorizer(config *clientcredentials.Config) service.Option[*Service] {
+// 	return func(svc *Service) {
+// 		svc.evidenceStore.SetAuthorizer(api.NewOAuthAuthorizerFromClientCredentials(config))
+// 	}
+// }
 
 // WithProviders is an option to set providers for discovering
 func WithProviders(providersList []string) service.Option[*Service] {
@@ -184,14 +225,25 @@ func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Opti
 
 func NewService(opts ...service.Option[*Service]) *Service {
 	s := &Service{
-		evidenceStoreStreams: api.NewStreamsOf(api.WithLogger[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest](log)),
-		evidenceStore:        api.NewRPCConnection(string(config.DefaultEvidenceStoreURL), evidence.NewEvidenceStoreClient),
-		scheduler:            gocron.NewScheduler(time.UTC),
-		Events:               make(chan *DiscoveryEvent),
-		ctID:                 config.DefaultTargetOfEvaluationID,
-		collectorID:          config.DefaultEvidenceCollectorToolID,
-		authz:                &service.AuthorizationStrategyAllowAll{},
-		discoveryInterval:    5 * time.Minute, // Default discovery interval is 5 minutes
+		// TODO(anatheka): Add evidence store stream
+		// evidenceStoreStreams: api.NewStreamsOf(api.WithLogger[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest](log)),
+		// evidenceStore:        api.NewRPCConnection(EvidenceStoreURL), evidence.NewEvidenceStoreClient),
+		scheduler:         gocron.NewScheduler(time.UTC),
+		Events:            make(chan *DiscoveryEvent),
+		ctID:              DefaultTargetOfEvaluationID,
+		collectorID:       DefaultEvidenceCollectorToolID,
+		authz:             &service.AuthorizationStrategyAllowAll{},
+		discoveryInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
+		cloudConfig: CloudCollectorConfig{
+			DiscoveryAutoStart:      DefaultDiscoveryAutoStartFlag,
+			TargetOfEvaluationID:    DefaultTargetOfEvaluationID,
+			EvidenceCollectorToolID: DefaultEvidenceCollectorToolID,
+			CollectorProvider:       []string{ProviderAWS, ProviderAzure, ProviderK8S},
+			evStreamConfig: EvidenceStoreStreamConfig{
+				targetAddress: DefaultEvidenceStoreURL,
+				client:        http.DefaultClient,
+			},
+		},
 	}
 
 	// Apply any options
@@ -206,12 +258,12 @@ func (svc *Service) Init() {
 	var err error
 
 	// Automatically start the discovery, if we have this flag enabled
-	if viper.GetBool(config.DiscoveryAutoStartFlag) {
+	if svc.cloudConfig.DiscoveryAutoStart {
 		go func() {
 			<-rest.GetReadyChannel()
 			_, err = svc.Start(context.Background(), &discovery.StartDiscoveryRequest{
-				ResourceGroup: util.Ref(viper.GetString(config.DiscoveryResourceGroupFlag)),
-				CsafDomain:    util.Ref(viper.GetString(config.DiscoveryCSAFDomainFlag)),
+				ResourceGroup: svc.cloudConfig.DiscoveryResourceGroup,
+				CsafDomain:    svc.cloudConfig.DiscoveryCSAFDomain,
 			})
 			if err != nil {
 				log.Errorf("Could not automatically start discovery: %v", err)
@@ -221,7 +273,8 @@ func (svc *Service) Init() {
 }
 
 func (svc *Service) Shutdown() {
-	svc.evidenceStoreStreams.CloseAll()
+	// TODO(anatheka): Close evidence store streams
+	// svc.evidenceStoreStreams.CloseAll()
 	svc.scheduler.Stop()
 }
 
@@ -230,15 +283,17 @@ func (svc *Service) Shutdown() {
 func (svc *Service) initEvidenceStoreStream(target string, _ ...grpc.DialOption) (stream evidence.EvidenceStore_StoreEvidencesClient, err error) {
 	log.Infof("Trying to establish a connection to evidence store service @ %v", target)
 
+	// TODO(anatheka): Force re-connect evidence store connection
 	// Make sure, that we re-connect
-	svc.evidenceStore.ForceReconnect()
+	// svc.evidenceStore.ForceReconnect()
 
 	// Set up the stream and store it in our service struct, so we can access it later to actually
 	// send the evidence data
-	stream, err = svc.evidenceStore.Client.StoreEvidences(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("could not set up stream for storing evidences: %w", err)
-	}
+	// TODO(anatheka): Re-add evidence store stream
+	// stream, err = svc.evidenceStore.Client.StoreEvidences(context.Background())
+	// if err != nil {
+	// 	return nil, fmt.Errorf("could not set up stream for storing evidences: %w", err)
+	// }
 
 	log.Infof("Connected to Evidence Store″")
 
@@ -356,7 +411,7 @@ func (svc *Service) StartDiscovery(discoverer discovery.Discoverer) {
 
 	go func() {
 		svc.Events <- &DiscoveryEvent{
-			Type:           DiscovererStart,
+			Type:           CloudCollectorStart,
 			DiscovererName: discoverer.Name(),
 			Time:           time.Now(),
 		}
@@ -372,7 +427,7 @@ func (svc *Service) StartDiscovery(discoverer discovery.Discoverer) {
 	// Notify event listeners that the discoverer is finished
 	go func() {
 		svc.Events <- &DiscoveryEvent{
-			Type:            DiscovererFinished,
+			Type:            CloudCollectorFinished,
 			DiscovererName:  discoverer.Name(),
 			DiscoveredItems: len(list),
 			Time:            time.Now(),
@@ -396,15 +451,16 @@ func (svc *Service) StartDiscovery(discoverer discovery.Discoverer) {
 			}
 		}
 
+		// TODO(anatheka): Re-add evidence store stream
 		// Get Evidence Store stream
-		channel, err := svc.evidenceStoreStreams.GetStream(svc.evidenceStore.Target, "Evidence Store", svc.initEvidenceStoreStream, svc.evidenceStore.Opts...)
-		if err != nil {
-			err = fmt.Errorf("could not get stream to evidence store service (%s): %w", svc.evidenceStore.Target, err)
-			log.Error(err)
-			continue
-		}
+		// channel, err := svc.evidenceStoreStreams.GetStream(svc.evidenceStore.Target, "Evidence Store", svc.initEvidenceStoreStream, svc.evidenceStore.Opts...)
+		// if err != nil {
+		// 	err = fmt.Errorf("could not get stream to evidence store service (%s): %w", svc.evidenceStore.Target, err)
+		// 	log.Error(err)
+		// 	continue
+		// }
 
-		channel.Send(&evidence.StoreEvidenceRequest{Evidence: e})
+		// channel.Send(&evidence.StoreEvidenceRequest{Evidence: e})
 	}
 }
 
