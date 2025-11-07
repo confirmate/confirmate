@@ -1,32 +1,28 @@
 package cloud
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"slices"
 	"time"
 
-	"clouditor.io/clouditor/api/evidence"
-	"clouditor.io/clouditor/server/rest"
-	"clouditor.io/clouditor/v2/api"
-	"clouditor.io/clouditor/v2/api/discovery"
-	"clouditor.io/clouditor/v2/service"
+	"clouditor.io/clouditor/api/discovery"
+	"clouditor.io/clouditor/service"
+	"clouditor.io/clouditor/v2/api/evidence"
+	"clouditor.io/clouditor/v2/server/rest"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/service/aws"
 	"confirmate.io/collectors/cloud/service/azure"
 	"confirmate.io/collectors/cloud/service/extra/csaf"
 	"confirmate.io/collectors/cloud/service/k8s"
 	"confirmate.io/collectors/cloud/service/openstack"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -121,8 +117,6 @@ type DiscoveryEvent struct {
 // Service is an implementation of the Clouditor Discovery service (plus its experimental extensions). It should not be
 // used directly, but rather the NewService constructor should be used.
 type Service struct {
-	discovery.UnimplementedDiscoveryServer
-
 	// TODO(anatheka): Add new evidence store stream
 	// evidenceStoreStreams *api.StreamsOf[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest]
 	// evidenceStore        *api.RPCConnection[evidence.EvidenceStoreClient]
@@ -203,7 +197,7 @@ func WithProviders(providersList []string) service.Option[*Service] {
 
 // WithAdditionalDiscoverers is an option to add additional discoverers for discovering. Note: These are added in
 // addition to the ones created by [WithProviders].
-func WithAdditionalDiscoverers(discoverers []discovery.Discoverer) service.Option[*Service] {
+func WithAdditionalDiscoverers(discoverers []cloud.Collector) service.Option[*Service] {
 	return func(s *Service) {
 		s.discoverers = append(s.discoverers, discoverers...)
 	}
@@ -261,10 +255,7 @@ func (svc *Service) Init() {
 	if svc.cloudConfig.DiscoveryAutoStart {
 		go func() {
 			<-rest.GetReadyChannel()
-			_, err = svc.Start(context.Background(), &discovery.StartDiscoveryRequest{
-				ResourceGroup: svc.cloudConfig.DiscoveryResourceGroup,
-				CsafDomain:    svc.cloudConfig.DiscoveryCSAFDomain,
-			})
+			err = svc.Start()
 			if err != nil {
 				log.Errorf("Could not automatically start discovery: %v", err)
 			}
@@ -301,24 +292,11 @@ func (svc *Service) initEvidenceStoreStream(target string, _ ...grpc.DialOption)
 }
 
 // Start starts discovery
-func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequest) (resp *discovery.StartDiscoveryResponse, err error) {
+func (svc *Service) Start() (err error) {
 	var (
 		optsAzure     = []azure.DiscoveryOption{}
 		optsOpenstack = []openstack.DiscoveryOption{}
 	)
-
-	// Validate request
-	err = api.Validate(req)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	if !svc.authz.CheckAccess(ctx, service.AccessUpdate, svc) {
-		return nil, service.ErrPermissionDenied
-	}
-
-	resp = &discovery.StartDiscoveryResponse{Successful: true}
 
 	log.Infof("Starting discovery...")
 	svc.scheduler.TagsUnique()
@@ -330,20 +308,20 @@ func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequ
 			authorizer, err := azure.NewAuthorizer()
 			if err != nil {
 				log.Errorf("Could not authenticate to Azure: %v", err)
-				return nil, status.Errorf(codes.FailedPrecondition, "could not authenticate to Azure: %v", err)
+				return fmt.Errorf("could not authenticate to Azure: %v", err)
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.ctID))
 			// Check if resource group is given and append to discoverer
-			if req.GetResourceGroup() != "" {
-				optsAzure = append(optsAzure, azure.WithResourceGroup(req.GetResourceGroup()))
+			if svc.cloudConfig.DiscoveryResourceGroup != "" {
+				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.DiscoveryResourceGroup))
 			}
 			svc.discoverers = append(svc.discoverers, azure.NewAzureDiscovery(optsAzure...))
 		case provider == ProviderK8S:
 			k8sClient, err := k8s.AuthFromKubeConfig()
 			if err != nil {
 				log.Errorf("Could not authenticate to Kubernetes: %v", err)
-				return nil, status.Errorf(codes.FailedPrecondition, "could not authenticate to Kubernetes: %v", err)
+				return fmt.Errorf("could not authenticate to Kubernetes: %v", err)
 			}
 			svc.discoverers = append(svc.discoverers,
 				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.ctID),
@@ -353,7 +331,7 @@ func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequ
 			awsClient, err := aws.NewClient()
 			if err != nil {
 				log.Errorf("Could not authenticate to AWS: %v", err)
-				return nil, status.Errorf(codes.FailedPrecondition, "could not authenticate to AWS: %v", err)
+				return fmt.Errorf("could not authenticate to AWS: %v", err)
 			}
 			svc.discoverers = append(svc.discoverers,
 				aws.NewAwsStorageDiscovery(awsClient, svc.ctID),
@@ -362,7 +340,7 @@ func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequ
 			authorizer, err := openstack.NewAuthorizer()
 			if err != nil {
 				log.Errorf("Could not authenticate to OpenStack: %v", err)
-				return nil, status.Errorf(codes.FailedPrecondition, "could not authenticate to OpenStack: %v", err)
+				return fmt.Errorf("could not authenticate to OpenStack: %v", err)
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.ctID))
@@ -372,7 +350,7 @@ func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequ
 				domain string
 				opts   []csaf.DiscoveryOption
 			)
-			domain = util.Deref(req.CsafDomain)
+			domain = svc.cloudConfig.DiscoveryCSAFDomain
 			if domain != "" {
 				opts = append(opts, csaf.WithProviderDomain(domain))
 			}
@@ -380,7 +358,7 @@ func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequ
 		default:
 			newError := fmt.Errorf("provider %s not known", provider)
 			log.Error(newError)
-			return nil, status.Errorf(codes.InvalidArgument, "%s", newError)
+			return fmt.Errorf("%s", newError)
 		}
 	}
 
@@ -394,16 +372,16 @@ func (svc *Service) Start(ctx context.Context, req *discovery.StartDiscoveryRequ
 		if err != nil {
 			newError := fmt.Errorf("could not schedule job for {%s}: %v", v.Name(), err)
 			log.Error(newError)
-			return nil, status.Errorf(codes.Aborted, "%s", newError)
+			return fmt.Errorf("%s", newError)
 		}
 	}
 
 	svc.scheduler.StartAsync()
 
-	return resp, nil
+	return nil
 }
 
-func (svc *Service) StartDiscovery(discoverer discovery.Discoverer) {
+func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 	var (
 		err  error
 		list []ontology.IsResource
