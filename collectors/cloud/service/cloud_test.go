@@ -408,9 +408,26 @@ func TestService_Start(t *testing.T) {
 			want: func(t *testing.T, got *Service) bool {
 				assert.Equal(t, []string{ProviderAWS}, got.providers)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.TargetOfEvaluationID)
-				return assert.True(t, got.scheduler.IsRunning())
+				return assert.False(t, got.scheduler.IsRunning())
 			},
-			wantErr: assert.Nil[error],
+			wantErr: func(t *testing.T, err error) bool {
+				return assert.ErrorContains(t, err, ErrAWSAuth.Error())
+			},
+		},
+		{
+			name: "OpenStack authorizer error",
+			fields: fields{
+				scheduler:         gocron.NewScheduler(time.UTC),
+				providers:         []string{ProviderOpenstack},
+				discoveryInterval: time.Duration(5 * time.Minute),
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, []string{ProviderOpenstack}, got.providers)
+				return assert.False(t, got.scheduler.IsRunning())
+			},
+			wantErr: func(t *testing.T, err error) bool {
+				return assert.ErrorContains(t, err, ErrOpenstackAuth.Error())
+			},
 		},
 		{
 			name: "Happy path: no discovery interval error",
@@ -546,6 +563,36 @@ func TestService_Start(t *testing.T) {
 			},
 			want: func(t *testing.T, got *Service) bool {
 				assert.Equal(t, []string{ProviderK8S}, got.providers)
+				return assert.True(t, got.scheduler.IsRunning())
+			},
+			wantErr: assert.Nil[error],
+		},
+		{
+			name: "Happy path: OpenStack",
+			fields: fields{
+				scheduler:         gocron.NewScheduler(time.UTC),
+				providers:         []string{ProviderOpenstack},
+				discoveryInterval: time.Duration(5 * time.Minute),
+				envVariables: []envVariable{
+					{
+						hasEnvVariable:   true,
+						envVariableKey:   "OS_AUTH_URL",
+						envVariableValue: "project-id-123",
+					},
+					{
+						hasEnvVariable:   true,
+						envVariableKey:   "OS_USERID",
+						envVariableValue: "client-id-123",
+					},
+					{
+						hasEnvVariable:   true,
+						envVariableKey:   "OS_PASSWORD",
+						envVariableValue: "client-secret-456",
+					},
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, []string{ProviderOpenstack}, got.providers)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
