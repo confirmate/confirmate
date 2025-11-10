@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package confirmate.orchestrator.v1;
 
+import "api/assessment/assessment.proto";
 import "api/assessment/metric.proto";
-import "api/assessment/result.proto";
 import "api/common/runtime.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";

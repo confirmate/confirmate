@@ -59,7 +59,21 @@ require (
 	golang.org/x/tools v0.38.0 // indirect
 )
 
-require github.com/kr/pretty v0.3.1 // indirect
+require (
+	buf.build/go/protovalidate v1.0.0
+	github.com/google/uuid v1.6.0
+	github.com/kr/pretty v0.3.1 // indirect
+	golang.org/x/oauth2 v0.25.0
+	google.golang.org/grpc v1.71.0
+)
+
+require (
+	cel.dev/expr v0.24.0 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/google/cel-go v0.26.1 // indirect
+	github.com/stoewer/go-strcase v1.3.1 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+)
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
