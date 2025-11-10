@@ -1,13 +1,15 @@
 package cloud
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"slices"
+	"sync"
 	"time"
 
-	"clouditor.io/clouditor/server/rest"
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/service/aws"
@@ -16,13 +18,14 @@ import (
 	"confirmate.io/collectors/cloud/service/k8s"
 	"confirmate.io/collectors/cloud/service/openstack"
 	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service"
+	"connectrpc.com/connect"
 
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -109,9 +112,14 @@ type DiscoveryEvent struct {
 // Service is an implementation of the Clouditor Discovery service (plus its experimental extensions). It should not be
 // used directly, but rather the NewService constructor should be used.
 type Service struct {
-	// TODO(anatheka): Add new evidence store stream
-	// evidenceStoreStreams *api.StreamsOf[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest]
-	// evidenceStore        *api.RPCConnection[evidence.EvidenceStoreClient]
+	// evidenceStoreClient holds the client to communicate with the evidence store service.
+	evidenceStoreClient evidenceconnect.EvidenceStoreClient
+	// evidenceStoreStream is the stream used to send evidences to the evidence store service.
+	evidenceStoreStream *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
+	// dead indicates whether the stream is dead.
+	dead bool
+	// streamMu is used to synchronize access to the evidence store stream.
+	streamMu sync.RWMutex
 
 	// scheduler is used to schedule periodic discovery runs.
 	scheduler *gocron.Scheduler
@@ -239,7 +247,8 @@ func (svc *Service) Init() {
 	// Automatically start the discovery, if we have this flag enabled
 	if svc.cloudConfig.DiscoveryAutoStart {
 		go func() {
-			<-rest.GetReadyChannel()
+			// TODO(all): Do we need that anymore?
+			// <-rest.GetReadyChannel()
 			err = svc.Start()
 			if err != nil {
 				log.Errorf("Could not automatically start discovery: %v", err)
@@ -249,31 +258,8 @@ func (svc *Service) Init() {
 }
 
 func (svc *Service) Shutdown() {
-	// TODO(anatheka): Close evidence store streams
-	// svc.evidenceStoreStreams.CloseAll()
+	svc.evidenceStoreStream.CloseRequest()
 	svc.scheduler.Stop()
-}
-
-// initEvidenceStoreStream initializes the stream that is used to send evidences to the evidence store service.
-// If configured, it uses the Authorizer of the discovery service to authenticate requests to the evidence store.
-func (svc *Service) initEvidenceStoreStream(target string, _ ...grpc.DialOption) (stream evidence.EvidenceStore_StoreEvidencesClient, err error) {
-	log.Infof("Trying to establish a connection to evidence store service @ %v", target)
-
-	// TODO(anatheka): Force re-connect evidence store connection
-	// Make sure, that we re-connect
-	// svc.evidenceStore.ForceReconnect()
-
-	// Set up the stream and store it in our service struct, so we can access it later to actually
-	// send the evidence data
-	// TODO(anatheka): Re-add evidence store stream
-	// stream, err = svc.evidenceStore.Client.StoreEvidences(context.Background())
-	// if err != nil {
-	// 	return nil, fmt.Errorf("could not set up stream for storing evidences: %w", err)
-	// }
-
-	log.Infof("Connected to Evidence Store″")
-
-	return
 }
 
 // Start starts discovery
@@ -414,16 +400,15 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 			}
 		}
 
-		// TODO(anatheka): Re-add evidence store stream
-		// Get Evidence Store stream
-		// channel, err := svc.evidenceStoreStreams.GetStream(svc.evidenceStore.Target, "Evidence Store", svc.initEvidenceStoreStream, svc.evidenceStore.Opts...)
-		// if err != nil {
-		// 	err = fmt.Errorf("could not get stream to evidence store service (%s): %w", svc.evidenceStore.Target, err)
-		// 	log.Error(err)
-		// 	continue
-		// }
-
-		// channel.Send(&evidence.StoreEvidenceRequest{Evidence: e})
+		// Get or create evidence store stream
+		svc.evidenceStoreStream = svc.GetStream()
+		err := svc.evidenceStoreStream.Send(&evidence.StoreEvidenceRequest{Evidence: e})
+		if err != nil {
+			err = fmt.Errorf("could not send evidence to evidence store service (%s): %w", svc.cloudConfig.evStreamConfig.targetAddress, err)
+			log.Error(err)
+			svc.checkStreamError(err)
+			continue
+		}
 	}
 }
 
@@ -432,4 +417,44 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 // target of evaluation ID, instead of the individual requests that are made against the service.
 func (svc *Service) GetTargetOfEvaluationId() string {
 	return svc.ctID
+}
+
+// TODO(all): Maybe add a generic in core that can be used by all services to manage streams?
+// GetStream returns the evidence store stream used to send evidences to the evidence store service.
+func (svc *Service) GetStream() *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse] {
+	svc.streamMu.Lock()
+	defer svc.streamMu.Unlock()
+
+	if svc.evidenceStoreClient == nil {
+		svc.evidenceStoreClient = evidenceconnect.NewEvidenceStoreClient(svc.cloudConfig.evStreamConfig.client, svc.cloudConfig.evStreamConfig.targetAddress)
+	}
+
+	stream := svc.evidenceStoreStream
+
+	if stream != nil && !svc.dead {
+		return stream
+	} else if svc.dead || stream == nil {
+		// If the stream is dead, we need to create a new one
+		log.Infof("Re-establishing stream to Evidence Store (%s)...", svc.cloudConfig.evStreamConfig.targetAddress)
+		svc.evidenceStoreStream = svc.evidenceStoreClient.StoreEvidences(context.Background())
+		svc.dead = false
+	}
+
+	return svc.evidenceStoreStream
+}
+
+// checkStreamError checks if there was an streaming error in the evidence store stream. If there was an error, it marks the stream as dead.
+func (svc *Service) checkStreamError(err error) {
+	if err != nil {
+		if errors.Is(err, io.EOF) {
+			log.Infof("Stream to Evidence Store (%s) closed with EOF", svc.cloudConfig.evStreamConfig.targetAddress)
+		} else {
+			// Some other error than EOF occurred
+			log.Errorf("Error when sending message to Evidence Store (%s): %v", svc.cloudConfig.evStreamConfig.targetAddress, err)
+
+			// Close the stream gracefully. We can ignore any error resulting from the close here
+			_ = svc.evidenceStoreStream.CloseRequest()
+		}
+		svc.dead = true
+	}
 }
