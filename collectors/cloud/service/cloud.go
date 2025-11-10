@@ -7,9 +7,7 @@ import (
 	"slices"
 	"time"
 
-	"clouditor.io/clouditor/service"
-	"clouditor.io/clouditor/v2/api/evidence"
-	"clouditor.io/clouditor/v2/server/rest"
+	"clouditor.io/clouditor/server/rest"
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/service/aws"
@@ -17,7 +15,9 @@ import (
 	"confirmate.io/collectors/cloud/service/extra/csaf"
 	"confirmate.io/collectors/cloud/service/k8s"
 	"confirmate.io/collectors/cloud/service/openstack"
+	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/service"
 
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
@@ -113,15 +113,18 @@ type Service struct {
 	// evidenceStoreStreams *api.StreamsOf[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest]
 	// evidenceStore        *api.RPCConnection[evidence.EvidenceStoreClient]
 
+	// scheduler is used to schedule periodic discovery runs.
 	scheduler *gocron.Scheduler
 
-	authz service.AuthorizationStrategy
-
-	providers  []string
+	// providers is the list of cloud service providers to use for discovering resources.
+	providers []string
+	// collectors is the list of collectors to use for discovering resources.
 	collectors []cloud.Collector
 
+	// discveryInterval is the interval at which discovery runs are scheduled.
 	discoveryInterval time.Duration
 
+	// Events is a channel that emits discovery events.
 	Events chan *DiscoveryEvent
 
 	// ctID is the target of evaluation ID for which we are gathering resources.
@@ -202,13 +205,6 @@ func WithDiscoveryInterval(interval time.Duration) service.Option[*Service] {
 	}
 }
 
-// WithAuthorizationStrategy is an option that configures an authorization strategy to be used with this service.
-func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[*Service] {
-	return func(s *Service) {
-		s.authz = authz
-	}
-}
-
 func NewService(opts ...service.Option[*Service]) *Service {
 	s := &Service{
 		// TODO(anatheka): Add evidence store stream
@@ -216,7 +212,6 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		// evidenceStore:        api.NewRPCConnection(EvidenceStoreURL), evidence.NewEvidenceStoreClient),
 		scheduler:         gocron.NewScheduler(time.UTC),
 		Events:            make(chan *DiscoveryEvent),
-		authz:             &service.AuthorizationStrategyAllowAll{},
 		discoveryInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
 		cloudConfig: CloudCollectorConfig{
 			DiscoveryAutoStart:      DefaultDiscoveryAutoStartFlag,
