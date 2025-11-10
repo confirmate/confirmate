@@ -1,6 +1,6 @@
 module confirmate.io/collectors/cloud
 
-go 1.24.10
+go 1.25.2
 
 require (
 	github.com/go-co-op/gocron v1.37.0
