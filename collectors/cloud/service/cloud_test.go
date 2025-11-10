@@ -519,6 +519,19 @@ func TestService_Start(t *testing.T) {
 			},
 			wantErr: assert.Nil[error],
 		},
+		{
+			name: "Happy path: K8S",
+			fields: fields{
+				scheduler:         gocron.NewScheduler(time.UTC),
+				providers:         []string{ProviderK8S},
+				discoveryInterval: time.Duration(5 * time.Minute),
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, []string{ProviderK8S}, got.providers)
+				return assert.True(t, got.scheduler.IsRunning())
+			},
+			wantErr: assert.Nil[error],
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
