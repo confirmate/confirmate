@@ -48,6 +48,8 @@ const (
 
 var (
 	log *logrus.Entry
+
+	ErrK8sAuth = errors.New("could not authenticate to Kubernetes")
 )
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
@@ -126,15 +128,17 @@ type Service struct {
 
 	// providers is the list of cloud service providers to use for discovering resources.
 	providers []string
+
 	// collectors is the list of collectors to use for discovering resources.
 	collectors []cloud.Collector
 
-	// discveryInterval is the interval at which discovery runs are scheduled.
+	// discoveryInterval is the interval at which discovery runs are scheduled.
 	discoveryInterval time.Duration
 
 	// Events is a channel that emits discovery events.
 	Events chan *DiscoveryEvent
 
+	// TODO(anatheka): Refactor ctID and collectorID into cloudConfig
 	// ctID is the target of evaluation ID for which we are gathering resources.
 	ctID string
 
@@ -238,6 +242,9 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		o(s)
 	}
 
+	// Set evidence store client and stream
+	s.GetStream()
+
 	return s
 }
 
@@ -291,8 +298,9 @@ func (svc *Service) Start() (err error) {
 		case provider == ProviderK8S:
 			k8sClient, err := k8s.AuthFromKubeConfig()
 			if err != nil {
-				log.Errorf("Could not authenticate to Kubernetes: %v", err)
-				return fmt.Errorf("could not authenticate to Kubernetes: %v", err)
+				err := fmt.Errorf("%v: %v", ErrK8sAuth, err)
+				log.Error(err)
+				return err
 			}
 			svc.collectors = append(svc.collectors,
 				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.ctID),
