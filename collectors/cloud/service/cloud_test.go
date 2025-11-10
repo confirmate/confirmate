@@ -457,8 +457,11 @@ func TestService_Start(t *testing.T) {
 		{
 			name: "Happy path: Azure with resource group",
 			fields: fields{
-				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderAzure},
+				scheduler: gocron.NewScheduler(time.UTC),
+				providers: []string{ProviderAzure},
+				cloudConfig: CloudCollectorConfig{
+					DiscoveryResourceGroup: "my-resource-group",
+				},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				envVariables: []envVariable{
 					{
@@ -480,6 +483,7 @@ func TestService_Start(t *testing.T) {
 			},
 			want: func(t *testing.T, got *Service) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, "my-resource-group", got.cloudConfig.DiscoveryResourceGroup)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -490,8 +494,26 @@ func TestService_Start(t *testing.T) {
 				scheduler:         gocron.NewScheduler(time.UTC),
 				providers:         []string{ProviderCSAF},
 				discoveryInterval: time.Duration(5 * time.Minute),
+				cloudConfig: CloudCollectorConfig{
+					DiscoveryCSAFDomain: "example.com",
+				},
 			},
 			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, "example.com", got.cloudConfig.DiscoveryCSAFDomain)
+				assert.Equal(t, []string{ProviderCSAF}, got.providers)
+				return assert.True(t, got.scheduler.IsRunning())
+			},
+			wantErr: assert.Nil[error],
+		},
+		{
+			name: "Happy path: CSAF without domain",
+			fields: fields{
+				scheduler:         gocron.NewScheduler(time.UTC),
+				providers:         []string{ProviderCSAF},
+				discoveryInterval: time.Duration(5 * time.Minute),
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, "", got.cloudConfig.DiscoveryCSAFDomain)
 				assert.Equal(t, []string{ProviderCSAF}, got.providers)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
