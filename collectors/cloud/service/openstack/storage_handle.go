@@ -1,7 +1,7 @@
 package openstack
 
 import (
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 
@@ -27,7 +27,7 @@ func (d *openstackDiscovery) handleBlockStorage(volume *volumes.Volume) (ontolog
 		},
 		ParentId: util.Ref(getParentID(volume)),
 		Labels:   map[string]string{}, // Not available
-		Raw:      discovery.Raw(volume),
+		Raw:      cloud.Raw(volume),
 	}
 
 	log.Infof("Adding block storage '%s", volume.Name)

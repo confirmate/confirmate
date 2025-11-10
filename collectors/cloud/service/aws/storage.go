@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -79,12 +79,12 @@ type Bool struct {
 	AwsSecureTransport bool `json:"aws:SecureTransport"`
 }
 
-// Name is the method implementation defined in the discovery.Discoverer interface
+// Name is the method implementation defined in the cloud.Collector interface
 func (*awsS3Discovery) Name() string {
 	return "AWS Blob Storage"
 }
 
-// List is the method implementation defined in the discovery.Discoverer interface
+// List is the method implementation defined in the cloud.Collector interface
 func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
 	var (
 		rawBucketEncOutput  *s3.GetBucketEncryptionOutput
@@ -120,7 +120,7 @@ func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
 					Region: b.region,
 				},
 				AtRestEncryption: encryptionAtRest,
-				Raw:              discovery.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
+				Raw:              cloud.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
 			},
 			// Add ObjectStorageService
 			&ontology.ObjectStorageService{
@@ -135,7 +135,7 @@ func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
 					Url:                 b.endpoint,
 					TransportEncryption: encryptionAtTransit,
 				},
-				Raw: discovery.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
+				Raw: cloud.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
 			})
 	}
 	return
@@ -150,7 +150,7 @@ func (b *bucket) String() string {
 }
 
 // NewAwsStorageDiscovery constructs a new awsS3Discovery initializing the s3-api and isDiscovering with true
-func NewAwsStorageDiscovery(client *Client, TargetOfEvaluationID string) discovery.Discoverer {
+func NewAwsStorageDiscovery(client *Client, TargetOfEvaluationID string) cloud.Collector {
 	return &awsS3Discovery{
 		storageAPI:    s3.NewFromConfig(client.cfg),
 		isDiscovering: true,

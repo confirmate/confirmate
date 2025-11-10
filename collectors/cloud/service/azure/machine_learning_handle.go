@@ -1,9 +1,9 @@
 package azure
 
 import (
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -17,7 +17,7 @@ func (d *azureDiscovery) handleMLWorkspace(value *armmachinelearning.Workspace, 
 		GeoLocation:                location(value.Location),
 		Labels:                     labels(value.Tags),
 		ParentId:                   resourceGroupID(resourceIDPointer(value.ID)),
-		Raw:                        discovery.Raw(value),
+		Raw:                        cloud.Raw(value),
 		InternetAccessibleEndpoint: getInternetAccessibleEndpoint(value.Properties.PublicNetworkAccess),
 		StorageIds:                 []string{util.Deref(value.Properties.StorageAccount)},
 		ComputeIds:                 computeList,
@@ -56,7 +56,7 @@ func (d *azureDiscovery) handleMLCompute(value *armmachinelearning.ComputeResour
 			GeoLocation:         location(value.Location),
 			Labels:              labels(value.Tags),
 			ParentId:            resourceIDPointer(workspaceID),
-			Raw:                 discovery.Raw(value, c.ComputeLocation),
+			Raw:                 cloud.Raw(value, c.ComputeLocation),
 			NetworkInterfaceIds: []string{},
 		}
 		return container, nil
@@ -69,7 +69,7 @@ func (d *azureDiscovery) handleMLCompute(value *armmachinelearning.ComputeResour
 			GeoLocation:         location(value.Location),
 			Labels:              labels(value.Tags),
 			ParentId:            resourceIDPointer(workspaceID),
-			Raw:                 discovery.Raw(value, c.ComputeLocation),
+			Raw:                 cloud.Raw(value, c.ComputeLocation),
 			NetworkInterfaceIds: []string{},
 			BlockStorageIds:     []string{},
 			MalwareProtection:   &ontology.MalwareProtection{},

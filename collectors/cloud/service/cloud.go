@@ -7,11 +7,11 @@ import (
 	"slices"
 	"time"
 
-	"clouditor.io/clouditor/api/discovery"
 	"clouditor.io/clouditor/service"
 	"clouditor.io/clouditor/v2/api/evidence"
 	"clouditor.io/clouditor/v2/server/rest"
 	cloud "confirmate.io/collectors/cloud/api"
+	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/service/aws"
 	"confirmate.io/collectors/cloud/service/azure"
 	"confirmate.io/collectors/cloud/service/extra/csaf"
@@ -37,14 +37,6 @@ const (
 	CloudCollectorStart DiscoveryEventType = iota
 	// CloudCollectorFinished is emitted at the end of a discovery run.
 	CloudCollectorFinished
-
-	// DefaultTargetOfEvaluationID is the default target of evaluation ID. Currently, our discoverers have no way to differentiate between different
-	// targets, but we need this feature in the future. This serves as a default to already prepare the necessary
-	// structures for this feature.
-	DefaultTargetOfEvaluationID = "00000000-0000-0000-0000-000000000000"
-
-	// DefaultEvidenceCollectorToolID is the default evidence collector tool ID.
-	DefaultEvidenceCollectorToolID = "Clouditor Evidences Collection"
 
 	DefaultDiscoveryAutoStartFlag = true
 
@@ -125,8 +117,8 @@ type Service struct {
 
 	authz service.AuthorizationStrategy
 
-	providers   []string
-	discoverers []discovery.Discoverer
+	providers  []string
+	collectors []cloud.Collector
 
 	discoveryInterval time.Duration
 
@@ -199,7 +191,7 @@ func WithProviders(providersList []string) service.Option[*Service] {
 // addition to the ones created by [WithProviders].
 func WithAdditionalDiscoverers(discoverers []cloud.Collector) service.Option[*Service] {
 	return func(s *Service) {
-		s.discoverers = append(s.discoverers, discoverers...)
+		s.collectors = append(s.collectors, discoverers...)
 	}
 }
 
@@ -224,14 +216,12 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		// evidenceStore:        api.NewRPCConnection(EvidenceStoreURL), evidence.NewEvidenceStoreClient),
 		scheduler:         gocron.NewScheduler(time.UTC),
 		Events:            make(chan *DiscoveryEvent),
-		ctID:              DefaultTargetOfEvaluationID,
-		collectorID:       DefaultEvidenceCollectorToolID,
 		authz:             &service.AuthorizationStrategyAllowAll{},
 		discoveryInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
 		cloudConfig: CloudCollectorConfig{
 			DiscoveryAutoStart:      DefaultDiscoveryAutoStartFlag,
-			TargetOfEvaluationID:    DefaultTargetOfEvaluationID,
-			EvidenceCollectorToolID: DefaultEvidenceCollectorToolID,
+			TargetOfEvaluationID:    config.DefaultTargetOfEvaluationID,
+			EvidenceCollectorToolID: config.DefaultEvidenceCollectorToolID,
 			CollectorProvider:       []string{ProviderAWS, ProviderAzure, ProviderK8S},
 			evStreamConfig: EvidenceStoreStreamConfig{
 				targetAddress: DefaultEvidenceStoreURL,
@@ -316,14 +306,14 @@ func (svc *Service) Start() (err error) {
 			if svc.cloudConfig.DiscoveryResourceGroup != "" {
 				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.DiscoveryResourceGroup))
 			}
-			svc.discoverers = append(svc.discoverers, azure.NewAzureDiscovery(optsAzure...))
+			svc.collectors = append(svc.collectors, azure.NewAzureDiscovery(optsAzure...))
 		case provider == ProviderK8S:
 			k8sClient, err := k8s.AuthFromKubeConfig()
 			if err != nil {
 				log.Errorf("Could not authenticate to Kubernetes: %v", err)
 				return fmt.Errorf("could not authenticate to Kubernetes: %v", err)
 			}
-			svc.discoverers = append(svc.discoverers,
+			svc.collectors = append(svc.collectors,
 				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.ctID),
 				k8s.NewKubernetesNetworkDiscovery(k8sClient, svc.ctID),
 				k8s.NewKubernetesStorageDiscovery(k8sClient, svc.ctID))
@@ -333,7 +323,7 @@ func (svc *Service) Start() (err error) {
 				log.Errorf("Could not authenticate to AWS: %v", err)
 				return fmt.Errorf("could not authenticate to AWS: %v", err)
 			}
-			svc.discoverers = append(svc.discoverers,
+			svc.collectors = append(svc.collectors,
 				aws.NewAwsStorageDiscovery(awsClient, svc.ctID),
 				aws.NewAwsComputeDiscovery(awsClient, svc.ctID))
 		case provider == ProviderOpenstack:
@@ -344,7 +334,7 @@ func (svc *Service) Start() (err error) {
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.ctID))
-			svc.discoverers = append(svc.discoverers, openstack.NewOpenstackDiscovery(optsOpenstack...))
+			svc.collectors = append(svc.collectors, openstack.NewOpenstackDiscovery(optsOpenstack...))
 		case provider == ProviderCSAF:
 			var (
 				domain string
@@ -354,7 +344,7 @@ func (svc *Service) Start() (err error) {
 			if domain != "" {
 				opts = append(opts, csaf.WithProviderDomain(domain))
 			}
-			svc.discoverers = append(svc.discoverers, csaf.NewTrustedProviderDiscovery(opts...))
+			svc.collectors = append(svc.collectors, csaf.NewTrustedProviderDiscovery(opts...))
 		default:
 			newError := fmt.Errorf("provider %s not known", provider)
 			log.Error(newError)
@@ -362,7 +352,7 @@ func (svc *Service) Start() (err error) {
 		}
 	}
 
-	for _, v := range svc.discoverers {
+	for _, v := range svc.collectors {
 		log.Infof("Scheduling {%s} to execute every {%v} minutes...", v.Name(), svc.discoveryInterval.Minutes())
 
 		_, err = svc.scheduler.

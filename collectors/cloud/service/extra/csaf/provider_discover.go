@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 
@@ -65,7 +65,7 @@ func (d *csafDiscovery) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resou
 			SchemaUrl: "https://docs.oasis-open.org/csaf/csaf/v2.0/provider_json_schema.json",
 			Errors:    providerValidationErrors(lpmd.Messages),
 		},
-		Raw: discovery.Raw(pmd),
+		Raw: cloud.Raw(pmd),
 	}
 
 	// TODO(oxisto): find a sensible ID instead of this one
@@ -93,7 +93,7 @@ func (d *csafDiscovery) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resou
 		ServiceMetadataDocumentId: util.Ref(serviceMetadata.Id),
 		TransportEncryption:       serviceMetadata.DataLocation.GetRemoteDataLocation().GetTransportEncryption(),
 		KeyIds:                    getIDsOf(keys),
-		Raw:                       discovery.Raw(lpmd),
+		Raw:                       cloud.Raw(lpmd),
 	}
 
 	resources = append(resources, serviceMetadata, provider)

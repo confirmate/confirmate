@@ -105,7 +105,7 @@ func TestNewService(t *testing.T) {
 			name: "Create service with option 'WithAdditionalDiscoverers'",
 			args: args{
 				opts: []service.Option[*Service]{
-					WithAdditionalDiscoverers([]discovery.Discoverer{&discoverytest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID}}),
+					WithAdditionalDiscoverers([]cloud.Collector{&discoverytest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID}}),
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
@@ -135,7 +135,7 @@ func TestNewService(t *testing.T) {
 
 func TestService_StartDiscovery(t *testing.T) {
 	type fields struct {
-		discoverer  discovery.Discoverer
+		discoverer  cloud.Collector
 		ctID        string
 		collectorID string
 	}

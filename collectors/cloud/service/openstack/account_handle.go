@@ -1,7 +1,7 @@
 package openstack
 
 import (
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 
@@ -19,7 +19,7 @@ func (d *openstackDiscovery) handleDomain(domain *domains.Domain) (ontology.IsRe
 		GeoLocation:  nil, // domain is global
 		Labels:       nil, // domain does not have labels,
 		ParentId:     nil, // domain is the top-most item and have no parent,
-		Raw:          discovery.Raw(domain),
+		Raw:          cloud.Raw(domain),
 	}
 
 	log.Infof("Adding domain '%s", domain.Name)
@@ -40,7 +40,7 @@ func (d *openstackDiscovery) handleProject(project *projects.Project) (ontology.
 		},
 		Labels:   labels(util.Ref(project.Tags)),
 		ParentId: util.Ref(project.ParentID),
-		Raw:      discovery.Raw(project),
+		Raw:      cloud.Raw(project),
 	}
 
 	log.Infof("Adding project '%s", project.Name)

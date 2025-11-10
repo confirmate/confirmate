@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
@@ -25,12 +25,12 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want assert.Want[discovery.Discoverer]
+		want assert.Want[cloud.Collector]
 	}{
 		{
 			name: "error: oauthOpts not set",
 			args: args{},
-			want: assert.Nil[discovery.Discoverer],
+			want: assert.Nil[cloud.Collector],
 		},
 		{
 			name: "Happy path: Name",
@@ -46,7 +46,7 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got discovery.Discoverer) bool {
+			want: func(t *testing.T, got cloud.Collector) bool {
 				return assert.Equal(t, "OpenStack", got.Name())
 			},
 		},
@@ -64,7 +64,7 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got discovery.Discoverer) bool {
+			want: func(t *testing.T, got cloud.Collector) bool {
 				assert.Equal(t, testdata.MockTargetOfEvaluationID2, got.TargetOfEvaluationID())
 				return assert.NotNil(t, got)
 			},
@@ -82,7 +82,7 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 					}),
 				},
 			},
-			want: func(t *testing.T, got discovery.Discoverer) bool {
+			want: func(t *testing.T, got cloud.Collector) bool {
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.TargetOfEvaluationID())
 				return assert.NotNil(t, got)
 			},

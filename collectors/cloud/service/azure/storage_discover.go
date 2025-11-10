@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/constants"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
@@ -89,7 +89,7 @@ func (d *azureDiscovery) discoverMongoDBDatabases(account *armcosmos.DatabaseAcc
 				GeoLocation:      location(value.Location),
 				Labels:           labels(value.Tags),
 				ParentId:         resourceIDPointer(account.ID),
-				Raw:              discovery.Raw(account, value),
+				Raw:              cloud.Raw(account, value),
 				AtRestEncryption: atRestEnc,
 			}
 			list = append(list, mongoDB)
@@ -183,7 +183,7 @@ func (d *azureDiscovery) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 				GeoLocation:  location(value.Location),
 				Labels:       labels(value.Tags),
 				ParentId:     resourceIDPointer(server.ID),
-				Raw:          discovery.Raw(value),
+				Raw:          cloud.Raw(value),
 				AtRestEncryption: &ontology.AtRestEncryption{
 					Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
 						ManagedKeyEncryption: &ontology.ManagedKeyEncryption{

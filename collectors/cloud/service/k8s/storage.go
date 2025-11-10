@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	v1 "k8s.io/api/core/v1"
@@ -14,7 +14,7 @@ import (
 
 type k8sStorageDiscovery struct{ k8sDiscovery }
 
-func NewKubernetesStorageDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) discovery.Discoverer {
+func NewKubernetesStorageDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
 	return &k8sStorageDiscovery{k8sDiscovery{intf, TargetOfEvaluationID}}
 }
 
@@ -81,7 +81,7 @@ func (d *k8sStorageDiscovery) handlePV(pv *v1.PersistentVolume) ontology.IsResou
 			CreationTime:     timestamppb.New(pv.CreationTimestamp.Time),
 			Labels:           pv.Labels,
 			AtRestEncryption: &ontology.AtRestEncryption{},
-			Raw:              discovery.Raw(pv),
+			Raw:              cloud.Raw(pv),
 		}
 
 		return v
@@ -93,7 +93,7 @@ func (d *k8sStorageDiscovery) handlePV(pv *v1.PersistentVolume) ontology.IsResou
 			CreationTime:     timestamppb.New(pv.CreationTimestamp.Time),
 			Labels:           pv.Labels,
 			AtRestEncryption: &ontology.AtRestEncryption{},
-			Raw:              discovery.Raw(pv),
+			Raw:              cloud.Raw(pv),
 		}
 
 		return v

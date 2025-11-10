@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
 	"confirmate.io/collectors/cloud/internal/util"
@@ -113,7 +113,7 @@ func (d *csafDiscovery) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 		DocumentSignatures: []*ontology.DocumentSignature{
 			d.documentPGPSignature(file.SignURL(), body, keyring),
 		},
-		Raw:      discovery.Raw(doc),
+		Raw:      cloud.Raw(doc),
 		ParentId: &parentId,
 	}
 

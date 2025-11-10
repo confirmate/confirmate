@@ -3,9 +3,9 @@ package csaf
 import (
 	"net/http"
 
-	"confirmate.io/collectors/cloud/api/discovery"
-	"confirmate.io/collectors/cloud/api/ontology"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/core/api/ontology"
 
 	"github.com/sirupsen/logrus"
 )
@@ -13,7 +13,7 @@ import (
 var log *logrus.Entry
 
 func init() {
-	log = logrus.WithField("component", "csaf-discovery")
+	log = logrus.WithField("component", "csaf-collector")
 }
 
 type csafDiscovery struct {
@@ -36,7 +36,7 @@ func WithTargetOfEvaluationID(ctID string) DiscoveryOption {
 	}
 }
 
-func NewTrustedProviderDiscovery(opts ...DiscoveryOption) discovery.Discoverer {
+func NewTrustedProviderDiscovery(opts ...DiscoveryOption) cloud.Collector {
 	d := &csafDiscovery{
 		ctID:   config.DefaultTargetOfEvaluationID,
 		domain: "confirmate.io",

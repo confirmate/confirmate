@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/constants"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
@@ -61,7 +61,7 @@ func (d *azureDiscovery) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 		GeoLocation:  location(account.Location),
 		Labels:       labels(account.Tags),
 		ParentId:     resourceGroupID(account.ID),
-		Raw:          discovery.Raw(account),
+		Raw:          cloud.Raw(account),
 	}
 
 	// Add Mongo DB database service
@@ -102,7 +102,7 @@ func (d *azureDiscovery) handleSqlServer(server *armsql.Server) ([]ontology.IsRe
 		GeoLocation:  location(server.Location),
 		Labels:       labels(server.Tags),
 		ParentId:     resourceGroupID(server.ID),
-		Raw:          discovery.Raw(server),
+		Raw:          cloud.Raw(server),
 		// TODO(all): HttpEndpoint
 		TransportEncryption: &ontology.TransportEncryption{
 			Enabled:         true,
@@ -153,7 +153,7 @@ func (d *azureDiscovery) handleStorageAccount(account *armstorage.Account, stora
 		GeoLocation:         location(account.Location),
 		Labels:              labels(account.Tags),
 		ParentId:            resourceGroupID(account.ID),
-		Raw:                 discovery.Raw(account, rawActivityLogging),
+		Raw:                 cloud.Raw(account, rawActivityLogging),
 		TransportEncryption: te,
 		HttpEndpoint: &ontology.HttpEndpoint{
 			Url:                 generalizeURL(util.Deref(account.Properties.PrimaryEndpoints.Blob)),
@@ -199,7 +199,7 @@ func (d *azureDiscovery) handleFileStorage(account *armstorage.Account, fileshar
 		GeoLocation:  location(account.Location),                    // The location is the same as the storage account
 		Labels:       labels(account.Tags),                          // The storage account labels the file storage belongs to
 		ParentId:     resourceIDPointer(account.ID),                 // the storage account is our parent
-		Raw:          discovery.Raw(account, fileshare),
+		Raw:          cloud.Raw(account, fileshare),
 		ResourceLogging: &ontology.ResourceLogging{
 			MonitoringLogDataEnabled: monitoringLogDataEnabled,
 			SecurityAlertsEnabled:    securityAlertsEnabled,
@@ -247,7 +247,7 @@ func (d *azureDiscovery) handleObjectStorage(account *armstorage.Account, contai
 		GeoLocation:      location(account.Location),                    // The location is the same as the storage account
 		Labels:           labels(account.Tags),                          // The storage account labels the file storage belongs to
 		ParentId:         resourceIDPointer(account.ID),                 // the storage account is our parent
-		Raw:              discovery.Raw(account, container),
+		Raw:              cloud.Raw(account, container),
 		AtRestEncryption: enc,
 		Immutability: &ontology.Immutability{
 			Enabled: util.Deref(container.Properties.HasImmutabilityPolicy),

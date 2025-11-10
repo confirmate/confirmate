@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
 	"confirmate.io/collectors/cloud/internal/util"
@@ -46,7 +46,7 @@ func (d *csafDiscovery) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ont
 	key = &ontology.Key{
 		Algorithm:                  "PGP",
 		Id:                         util.Deref(pgpkey.URL),
-		Raw:                        discovery.Raw(pgpkey),
+		Raw:                        cloud.Raw(pgpkey),
 		ParentId:                   &parentId,
 		InternetAccessibleEndpoint: isAccessible,
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 
@@ -43,7 +43,7 @@ func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsRe
 		},
 		Labels:            labels(server.Tags),
 		ParentId:          util.Ref(server.TenantID),
-		Raw:               discovery.Raw(server),
+		Raw:               cloud.Raw(server),
 		MalwareProtection: &ontology.MalwareProtection{},
 		BootLogging:       bootLogging,
 		AutomaticUpdates:  &ontology.AutomaticUpdates{},

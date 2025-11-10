@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/collectors/cloud/internal/testutil/assert"
@@ -24,7 +24,7 @@ func TestNewKubernetesNetworkDiscovery(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want discovery.Discoverer
+		want cloud.Collector
 	}{
 		{
 			name: "empty input",

@@ -11,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/config"
 	"clouditor.io/clouditor/v2/internal/testdata"
 	"clouditor.io/clouditor/v2/internal/testutil/assert"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
@@ -1190,7 +1190,7 @@ func TestNewAzureDiscovery(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want discovery.Discoverer
+		want cloud.Collector
 	}{
 		{
 			name: "Happy path",

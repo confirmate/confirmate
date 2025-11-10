@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/util"
@@ -90,7 +90,7 @@ func init() {
 	log = logrus.WithField("component", "openstack-discovery")
 }
 
-func NewOpenstackDiscovery(opts ...DiscoveryOption) discovery.Discoverer {
+func NewOpenstackDiscovery(opts ...DiscoveryOption) cloud.Collector {
 	region := os.Getenv(RegionName)
 	if region == "" {
 		region = "unknown"

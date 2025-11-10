@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	corev1 "k8s.io/api/core/v1"
@@ -15,7 +15,7 @@ import (
 
 type k8sNetworkDiscovery struct{ k8sDiscovery }
 
-func NewKubernetesNetworkDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) discovery.Discoverer {
+func NewKubernetesNetworkDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
 	return &k8sNetworkDiscovery{k8sDiscovery{intf, TargetOfEvaluationID}}
 }
 
@@ -74,7 +74,7 @@ func (d *k8sNetworkDiscovery) handleService(service *corev1.Service) ontology.Is
 		Name:         service.Name,
 		CreationTime: timestamppb.New(service.CreationTimestamp.Time),
 		Labels:       service.Labels,
-		Raw:          discovery.Raw(service),
+		Raw:          cloud.Raw(service),
 		Ips:          service.Spec.ClusterIPs,
 		Ports:        ports,
 	}
@@ -90,7 +90,7 @@ func (d *k8sNetworkDiscovery) handleIngress(ingress *v1.Ingress) ontology.IsReso
 		Name:         ingress.Name,
 		CreationTime: timestamppb.New(ingress.CreationTimestamp.Time),
 		Labels:       ingress.Labels,
-		Raw:          discovery.Raw(ingress),
+		Raw:          cloud.Raw(ingress),
 		Ports:        []uint32{80, 443},
 	}
 

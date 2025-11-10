@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
@@ -283,7 +283,7 @@ func (d *azureDiscovery) discoverDiagnosticSettings(resourceURI string) (*ontolo
 			workspaceIDs = append(workspaceIDs, util.Deref(value.Properties.WorkspaceID))
 		}
 
-		raw = discovery.Raw(pageResponse)
+		raw = cloud.Raw(pageResponse)
 	}
 
 	if len(workspaceIDs) > 0 {

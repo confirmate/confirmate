@@ -1,7 +1,7 @@
 package openstack
 
 import (
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 
@@ -21,7 +21,7 @@ func (d *openstackDiscovery) handleNetworkInterfaces(network *networks.Network) 
 		},
 		Labels:   labels(util.Ref(network.Tags)),
 		ParentId: util.Ref(network.ProjectID),
-		Raw:      discovery.Raw(network),
+		Raw:      cloud.Raw(network),
 	}
 
 	log.Infof("Adding network interface '%s", network.Name)

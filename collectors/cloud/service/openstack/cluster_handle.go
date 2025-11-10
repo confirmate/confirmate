@@ -1,7 +1,7 @@
 package openstack
 
 import (
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 
@@ -20,7 +20,7 @@ func (d *openstackDiscovery) handleCluster(cluster *clusters.Cluster) (ontology.
 		},
 		Labels:   cluster.Labels,
 		ParentId: util.Ref(cluster.ProjectID),
-		Raw:      discovery.Raw(cluster),
+		Raw:      cloud.Raw(cluster),
 	}
 
 	log.Infof("Adding cluster '%s", cluster.Name)

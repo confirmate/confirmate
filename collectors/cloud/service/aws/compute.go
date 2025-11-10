@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/util"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -53,7 +53,7 @@ var newFromConfigEC2 = ec2.NewFromConfig
 var newFromConfigLambda = lambda.NewFromConfig
 
 // NewAwsComputeDiscovery constructs a new awsS3Discovery initializing the s3-virtualMachineAPI and isDiscovering with true
-func NewAwsComputeDiscovery(client *Client, TargetOfEvaluationID string) discovery.Discoverer {
+func NewAwsComputeDiscovery(client *Client, TargetOfEvaluationID string) cloud.Collector {
 	return &computeDiscovery{
 		virtualMachineAPI: newFromConfigEC2(client.cfg),
 		functionAPI:       newFromConfigLambda(client.cfg),
@@ -63,12 +63,12 @@ func NewAwsComputeDiscovery(client *Client, TargetOfEvaluationID string) discove
 	}
 }
 
-// Name is the method implementation defined in the discovery.Discoverer interface
+// Name is the method implementation defined in the cloud.Collector interface
 func (*computeDiscovery) Name() string {
 	return "AWS Compute"
 }
 
-// List is the method implementation defined in the discovery.Discoverer interface
+// List is the method implementation defined in the cloud.Collector interface
 func (d *computeDiscovery) List() (resources []ontology.IsResource, err error) {
 	log.Infof("Collecting evidences in %s", d.Name())
 
@@ -146,7 +146,7 @@ func (d *computeDiscovery) discoverVolumes() ([]*ontology.BlockStorage, error) {
 					ManagedKeyEncryption: atRest,
 				},
 			},
-			Raw: discovery.Raw(&res.Volumes[i]),
+			Raw: cloud.Raw(&res.Volumes[i]),
 		})
 	}
 
@@ -171,7 +171,7 @@ func (d *computeDiscovery) discoverNetworkInterfaces() ([]*ontology.NetworkInter
 				Region: d.awsConfig.cfg.Region,
 			},
 			Labels: d.labels(ifc.TagSet),
-			Raw:    discovery.Raw(&res.NetworkInterfaces[i]),
+			Raw:    cloud.Raw(&res.NetworkInterfaces[i]),
 		})
 	}
 
@@ -200,7 +200,7 @@ func (d *computeDiscovery) discoverVirtualMachines() ([]*ontology.VirtualMachine
 				BlockStorageIds:     d.mapBlockStorageIDsOfVM(vm),
 				BootLogging:         d.getBootLog(vm),
 				OsLogging:           d.getOSLog(vm),
-				Raw:                 discovery.Raw(&reservation),
+				Raw:                 cloud.Raw(&reservation),
 			})
 		}
 	}
@@ -242,7 +242,7 @@ func (d *computeDiscovery) mapFunctionResources(functions []typesLambda.Function
 			GeoLocation: &ontology.GeoLocation{
 				Region: d.awsConfig.cfg.Region,
 			},
-			Raw: discovery.Raw(&functions[i]),
+			Raw: cloud.Raw(&functions[i]),
 		})
 	}
 	return

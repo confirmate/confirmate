@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
@@ -59,7 +59,7 @@ func (d *azureDiscovery) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		},
 		Labels:              labels(vm.Tags),
 		ParentId:            resourceGroupID(vm.ID),
-		Raw:                 discovery.Raw(vm),
+		Raw:                 cloud.Raw(vm),
 		NetworkInterfaceIds: []string{}, // TODO(all): Discover network interface IDs
 		BlockStorageIds:     []string{},
 		MalwareProtection:   &ontology.MalwareProtection{},
@@ -135,7 +135,7 @@ func (d *azureDiscovery) handleBlockStorage(disk *armcompute.Disk) (*ontology.Bl
 		GeoLocation:      location(disk.Location),
 		Labels:           labels(disk.Tags),
 		ParentId:         resourceGroupID(disk.ManagedBy),
-		Raw:              discovery.Raw(disk, rawKeyUrl),
+		Raw:              cloud.Raw(disk, rawKeyUrl),
 		AtRestEncryption: enc,
 		Backups:          backups,
 	}, nil
@@ -190,7 +190,7 @@ func (d *azureDiscovery) handleFunction(function *armappservice.Site, config arm
 		},
 		Labels:              labels(function.Tags),
 		ParentId:            resourceGroupID(function.ID),
-		Raw:                 discovery.Raw(function, config),
+		Raw:                 cloud.Raw(function, config),
 		NetworkInterfaceIds: getVirtualNetworkSubnetId(function), // Add the Virtual Network Subnet ID
 		ResourceLogging:     d.getResourceLoggingWebApps(function),
 		RuntimeLanguage:     runtimeLanguage,
@@ -219,7 +219,7 @@ func (d *azureDiscovery) handleWebApp(webApp *armappservice.Site, config armapps
 		},
 		Labels:              labels(webApp.Tags),
 		ParentId:            resourceGroupID(webApp.ID),
-		Raw:                 discovery.Raw(webApp, config),
+		Raw:                 cloud.Raw(webApp, config),
 		NetworkInterfaceIds: getVirtualNetworkSubnetId(webApp), // Add the Virtual Network Subnet ID
 		ResourceLogging:     d.getResourceLoggingWebApps(webApp),
 		// TODO(oxisto): This is missing in the ontology

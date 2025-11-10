@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -16,7 +16,7 @@ import (
 
 type k8sComputeDiscovery struct{ k8sDiscovery }
 
-func NewKubernetesComputeDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) discovery.Discoverer {
+func NewKubernetesComputeDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
 	return &k8sComputeDiscovery{k8sDiscovery{intf, TargetOfEvaluationID}}
 }
 
@@ -62,7 +62,7 @@ func (d *k8sComputeDiscovery) handlePod(pod *v1.Pod) *ontology.Container {
 		Name:         pod.Name,
 		CreationTime: timestamppb.New(pod.CreationTimestamp.Time),
 		Labels:       pod.Labels,
-		Raw:          discovery.Raw(pod),
+		Raw:          cloud.Raw(pod),
 	}
 
 	r.NetworkInterfaceIds = append(r.NetworkInterfaceIds, pod.Namespace)
@@ -118,7 +118,7 @@ func (d *k8sComputeDiscovery) handlePodVolume(pod *v1.Pod) []ontology.IsResource
 				Labels: nil,
 				// Not able to get the AtRestEncryption information, that must be retrieved directly from the storage
 				AtRestEncryption: &ontology.AtRestEncryption{},
-				Raw:              discovery.Raw(pod, &vol),
+				Raw:              cloud.Raw(pod, &vol),
 			}
 		} else if vs.AzureFile != nil || vs.EmptyDir != nil || vs.NFS != nil || vs.HostPath != nil || vs.Secret != nil {
 			v = &ontology.FileStorage{
@@ -131,7 +131,7 @@ func (d *k8sComputeDiscovery) handlePodVolume(pod *v1.Pod) []ontology.IsResource
 				Labels: nil,
 				// Not able to get the AtRestEncryption information, that must be retrieved directly from the storage
 				AtRestEncryption: &ontology.AtRestEncryption{},
-				Raw:              discovery.Raw(pod, &vol),
+				Raw:              cloud.Raw(pod, &vol),
 			}
 		}
 

@@ -1,9 +1,9 @@
 package azure
 
 import (
-	"clouditor.io/clouditor/v2/api/discovery"
 	"clouditor.io/clouditor/v2/api/ontology"
 	"clouditor.io/clouditor/v2/internal/util"
+	cloud "confirmate.io/collectors/cloud/api"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )
@@ -18,7 +18,7 @@ func (d *azureDiscovery) handleLoadBalancer(lb *armnetwork.LoadBalancer) ontolog
 		},
 		Labels:   labels(lb.Tags),
 		ParentId: resourceGroupID(lb.ID),
-		Raw:      discovery.Raw(lb),
+		Raw:      cloud.Raw(lb),
 		Ips:      publicIPAddressFromLoadBalancer(lb),
 		Ports:    loadBalancerPorts(lb), // TODO(oxisto): ports should be uint16, not 32
 	}
@@ -42,7 +42,7 @@ func (d *azureDiscovery) handleApplicationGateway(ag *armnetwork.ApplicationGate
 		},
 		Labels:   labels(ag.Tags),
 		ParentId: resourceGroupID(ag.ID),
-		Raw:      discovery.Raw(ag),
+		Raw:      cloud.Raw(ag),
 		AccessRestriction: &ontology.AccessRestriction{
 			Type: &ontology.AccessRestriction_WebApplicationFirewall{
 				WebApplicationFirewall: &ontology.WebApplicationFirewall{
@@ -63,7 +63,7 @@ func (d *azureDiscovery) handleNetworkInterfaces(ni *armnetwork.Interface) ontol
 		},
 		Labels:   labels(ni.Tags),
 		ParentId: resourceGroupID(ni.ID),
-		Raw:      discovery.Raw(ni),
+		Raw:      cloud.Raw(ni),
 		AccessRestriction: &ontology.AccessRestriction{
 			Type: &ontology.AccessRestriction_L3Firewall{
 				L3Firewall: &ontology.L3Firewall{

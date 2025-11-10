@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"confirmate.io/collectors/cloud/api/discovery"
+	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/util"
@@ -167,7 +167,7 @@ type clients struct {
 	rgClient *armresources.ResourceGroupsClient
 }
 
-func NewAzureDiscovery(opts ...DiscoveryOption) discovery.Discoverer {
+func NewAzureDiscovery(opts ...DiscoveryOption) cloud.Collector {
 	d := &azureDiscovery{
 		ctID:               config.DefaultTargetOfEvaluationID,
 		backupMap:          make(map[string]*backup),
