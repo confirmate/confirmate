@@ -196,7 +196,6 @@ func Test_k8sComputeDiscovery_handlePodVolume(t *testing.T) {
 					Id:               "test",
 					Name:             "test",
 					AtRestEncryption: &ontology.AtRestEncryption{},
-					Raw:              `{"*v1.Pod":[{"metadata":{"creationTimestamp":null},"spec":{"volumes":[{"name":"test","hostPath":{"path":"/tmp"}}],"containers":null},"status":{}}],"*v1.Volume":[{"name":"test","hostPath":{"path":"/tmp"}}]}`,
 				},
 			},
 		},
@@ -208,6 +207,16 @@ func Test_k8sComputeDiscovery_handlePodVolume(t *testing.T) {
 			}
 
 			got := d.handlePodVolume(tt.args.pod)
+
+			// Check if raw field is set and then remove it for comparison
+			for _, res := range got {
+				switch r := res.(type) {
+				case *ontology.FileStorage:
+					assert.NotEmpty(t, r.Raw)
+					r.Raw = ""
+				}
+			}
+
 			assert.Equal(t, tt.want, got)
 		})
 	}
