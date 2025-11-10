@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"testing"
 
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/assert"
 	"github.com/gocsaf/csaf/v3/csaf"
 )
 

@@ -14,9 +14,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
+	"confirmate.io/core/api/ontology"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 )

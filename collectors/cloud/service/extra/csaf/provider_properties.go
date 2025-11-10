@@ -1,7 +1,7 @@
 package csaf
 
 import (
-	"confirmate.io/collectors/cloud/api/ontology"
+	"confirmate.io/core/api/ontology"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 )

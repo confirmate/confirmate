@@ -12,11 +12,11 @@ import (
 	"reflect"
 	"testing"
 
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/assert"
 )
 
 func Test_documentValidationErrors(t *testing.T) {

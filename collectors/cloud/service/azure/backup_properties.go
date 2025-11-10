@@ -3,7 +3,7 @@ package azure
 import (
 	"strings"
 
-	"clouditor.io/clouditor/v2/api/ontology"
+	"confirmate.io/core/api/ontology"
 )
 
 // backupsEmptyCheck checks if the backups list is empty and returns voc.Backup with enabled = false.

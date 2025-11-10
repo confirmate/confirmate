@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"clouditor.io/clouditor/v2/api/ontology"
-	"clouditor.io/clouditor/v2/internal/constants"
-	"clouditor.io/clouditor/v2/internal/testutil/assert"
-	"clouditor.io/clouditor/v2/internal/util"
+	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v3"

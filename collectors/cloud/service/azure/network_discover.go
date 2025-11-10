@@ -1,7 +1,7 @@
 package azure
 
 import (
-	"clouditor.io/clouditor/v2/api/ontology"
+	"confirmate.io/core/api/ontology"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )

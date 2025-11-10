@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"clouditor.io/clouditor/v2/api/ontology"
-	"clouditor.io/clouditor/v2/internal/constants"
-	"clouditor.io/clouditor/v2/internal/util"
 	cloud "confirmate.io/collectors/cloud/api"
+	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"

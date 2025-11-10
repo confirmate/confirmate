@@ -6,9 +6,9 @@ import (
 	"time"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/testdata"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/assert"
 
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"

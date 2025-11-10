@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"confirmate.io/collectors/cloud/api/ontology"
+	"confirmate.io/core/api/ontology"
 )
 
 func Test_getIDsOf(t *testing.T) {

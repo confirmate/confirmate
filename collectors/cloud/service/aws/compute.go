@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/aws/aws-sdk-go-v2/aws"

@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
+	"confirmate.io/collectors/cloud/internal/collectortest/csaf/providertest"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
-	"confirmate.io/collectors/cloud/internal/testutil/servicetest/discoverytest/csaf/providertest"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
 	"github.com/gocsaf/csaf/v3/csaf"
 )
 

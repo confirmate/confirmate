@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/testdata"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -41,21 +41,21 @@ func Test_openstackDiscovery_handleNetworkInterfaces(t *testing.T) {
 			},
 			args: args{
 				network: &networks.Network{
-					ID:        testdata.MockNetworkID1,
-					Name:      testdata.MockNetworkName1,
-					ProjectID: testdata.MockServerTenantID,
+					ID:        testdata.MockOpenstackNetworkID1,
+					Name:      testdata.MockOpenstackNetworkName1,
+					ProjectID: testdata.MockOpenstackServerTenantID,
 					CreatedAt: testTime,
 				},
 			},
 			want: func(t *testing.T, got ontology.IsResource) bool {
 				want := &ontology.NetworkInterface{
-					Id:           testdata.MockNetworkID1,
-					Name:         testdata.MockNetworkName1,
+					Id:           testdata.MockOpenstackNetworkID1,
+					Name:         testdata.MockOpenstackNetworkName1,
 					CreationTime: timestamppb.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(testdata.MockServerTenantID),
+					ParentId: util.Ref(testdata.MockOpenstackServerTenantID),
 				}
 
 				gotNew := got.(*ontology.NetworkInterface)

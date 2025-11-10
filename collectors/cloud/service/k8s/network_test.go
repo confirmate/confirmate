@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/testdata"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/assert"
 
 	v1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"

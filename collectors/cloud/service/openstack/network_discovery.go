@@ -1,7 +1,7 @@
 package openstack
 
 import (
-	"confirmate.io/collectors/cloud/api/ontology"
+	"confirmate.io/core/api/ontology"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 )

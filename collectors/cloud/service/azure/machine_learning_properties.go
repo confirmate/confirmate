@@ -1,8 +1,8 @@
 package azure
 
 import (
-	"clouditor.io/clouditor/v2/api/ontology"
-	"clouditor.io/clouditor/v2/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 )

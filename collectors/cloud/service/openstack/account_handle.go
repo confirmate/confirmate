@@ -2,8 +2,8 @@ package openstack
 
 import (
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"

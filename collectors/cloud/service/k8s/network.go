@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
+	"confirmate.io/core/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/networking/v1"

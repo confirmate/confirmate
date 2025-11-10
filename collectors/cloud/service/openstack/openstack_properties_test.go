@@ -3,8 +3,8 @@ package openstack
 import (
 	"testing"
 
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
-	"confirmate.io/collectors/cloud/internal/testutil/servicetest/discoverytest/openstacktest"
+	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
+	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"

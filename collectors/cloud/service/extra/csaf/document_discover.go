@@ -8,9 +8,9 @@ import (
 	"time"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	csafutil "github.com/gocsaf/csaf/v3/util"

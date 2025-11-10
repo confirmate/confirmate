@@ -3,7 +3,7 @@ package openstack
 import (
 	"testing"
 
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
+	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 )
 

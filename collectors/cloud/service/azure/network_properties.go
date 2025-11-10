@@ -3,7 +3,7 @@ package azure
 import (
 	"context"
 
-	"clouditor.io/clouditor/v2/internal/util"
+	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )

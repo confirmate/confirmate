@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	cloud "confirmate.io/collectors/cloud/api"
-	"confirmate.io/collectors/cloud/api/ontology"
+	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
-	"confirmate.io/collectors/cloud/internal/testutil/servicetest/discoverytest/openstacktest"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
@@ -296,11 +296,11 @@ func TestNewAuthorizer(t *testing.T) {
 					},
 					{
 						envVariableKey:   "OS_TENANT_ID",
-						envVariableValue: testdata.MockProjectID1,
+						envVariableValue: testdata.MockOpenstackProjectID1,
 					},
 					{
 						envVariableKey:   "OS_PROJECT_ID",
-						envVariableValue: testdata.MockProjectID1,
+						envVariableValue: testdata.MockOpenstackProjectID1,
 					},
 				},
 			},
@@ -309,7 +309,7 @@ func TestNewAuthorizer(t *testing.T) {
 					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
 					Username:         testdata.MockOpenstackUsername,
 					Password:         testdata.MockOpenstackPassword,
-					TenantID:         testdata.MockProjectID1,
+					TenantID:         testdata.MockOpenstackProjectID1,
 					AllowReauth:      true,
 				}
 				return assert.Equal(t, want, got)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/util"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"

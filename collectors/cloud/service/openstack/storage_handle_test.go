@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/collectors/cloud/api/ontology"
 	"confirmate.io/collectors/cloud/internal/testdata"
-	"confirmate.io/collectors/cloud/internal/testutil/assert"
-	"confirmate.io/collectors/cloud/internal/util"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -41,21 +41,21 @@ func Test_openstackDiscovery_handleBlockStorage(t *testing.T) {
 			},
 			args: args{
 				volume: &volumes.Volume{
-					ID: testdata.MockVolumeID1,
-					// Name:      testdata.MockVolumeName1,
-					TenantID:  testdata.MockVolumeTenantID,
+					ID: testdata.MockOpenstackVolumeID1,
+					// Name:      testdata.MockOpenstackVolumeName1,
+					TenantID:  testdata.MockOpenstackVolumeTenantID,
 					CreatedAt: testTime,
 				},
 			},
 			want: func(t *testing.T, got ontology.IsResource) bool {
 				want := &ontology.BlockStorage{
-					Id:           testdata.MockVolumeID1,
-					Name:         testdata.MockVolumeID1,
+					Id:           testdata.MockOpenstackVolumeID1,
+					Name:         testdata.MockOpenstackVolumeID1,
 					CreationTime: timestamppb.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(testdata.MockVolumeTenantID),
+					ParentId: util.Ref(testdata.MockOpenstackVolumeTenantID),
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
@@ -73,21 +73,21 @@ func Test_openstackDiscovery_handleBlockStorage(t *testing.T) {
 			},
 			args: args{
 				volume: &volumes.Volume{
-					ID:        testdata.MockVolumeID1,
-					Name:      testdata.MockVolumeName1,
-					TenantID:  testdata.MockVolumeTenantID,
+					ID:        testdata.MockOpenstackVolumeID1,
+					Name:      testdata.MockOpenstackVolumeName1,
+					TenantID:  testdata.MockOpenstackVolumeTenantID,
 					CreatedAt: testTime,
 				},
 			},
 			want: func(t *testing.T, got ontology.IsResource) bool {
 				want := &ontology.BlockStorage{
-					Id:           testdata.MockVolumeID1,
-					Name:         testdata.MockVolumeName1,
+					Id:           testdata.MockOpenstackVolumeID1,
+					Name:         testdata.MockOpenstackVolumeName1,
 					CreationTime: timestamppb.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(testdata.MockVolumeTenantID),
+					ParentId: util.Ref(testdata.MockOpenstackVolumeTenantID),
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
