@@ -1,4 +1,4 @@
-package internal
+package config
 
 const (
 	// DefaultTargetOfEvaluationID is the default target of evaluation ID. Currently, our discoverers have no way to differentiate between different

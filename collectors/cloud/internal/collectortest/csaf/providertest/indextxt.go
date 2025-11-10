@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"clouditor.io/clouditor/v2/internal/crypto/openpgp"
-	"clouditor.io/clouditor/v2/internal/util"
+	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
+	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	log "github.com/sirupsen/logrus"
