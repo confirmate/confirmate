@@ -4,13 +4,18 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"sync"
 	"testing"
 	"time"
 
+	cloud "confirmate.io/collectors/cloud/api"
+	"confirmate.io/collectors/cloud/internal/collectortest"
 	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
+	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
@@ -18,112 +23,121 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// func TestNewService(t *testing.T) {
-// 	type args struct {
-// 		opts []service.Option[*Service]
-// 	}
-// 	tests := []struct {
-// 		name string
-// 		args args
-// 		want assert.Want[*Service]
-// 	}{
-// 		{
-// 			name: "Create service with option 'WithEvidenceStoreAddress'",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithEvidenceStoreAddress("localhost:9091"),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal(t, "localhost:9091", got.evidenceStore.Target)
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithDefaultTargetOfEvaluationID'",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal(t, testdata.MockTargetOfEvaluationID1, got.ctID)
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithCollectorToolID'",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithEvidenceCollectorToolID(testdata.MockEvidenceToolID1),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal(t, testdata.MockEvidenceToolID1, got.collectorID)
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithAuthorizationStrategy'",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithAuthorizationStrategy(&service.AuthorizationStrategyJWT{AllowAllKey: "test"}),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal[service.AuthorizationStrategy](t, &service.AuthorizationStrategyJWT{AllowAllKey: "test"}, got.authz)
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithProviders' and one provider given",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithProviders([]string{"azure"}),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal(t, []string{"azure"}, got.providers)
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithProviders' and no provider given",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithProviders([]string{}),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal(t, []string{}, got.providers)
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithAdditionalDiscoverers'",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithAdditionalDiscoverers([]cloud.Collector{&discoverytest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID}}),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Contains(t, got.discoverers, &discoverytest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID})
-// 			},
-// 		},
-// 		{
-// 			name: "Create service with option 'WithDiscoveryInterval'",
-// 			args: args{
-// 				opts: []service.Option[*Service]{
-// 					WithDiscoveryInterval(time.Duration(8)),
-// 				},
-// 			},
-// 			want: func(t *testing.T, got *Service) bool {
-// 				return assert.Equal(t, time.Duration(8), got.discoveryInterval)
-// 			},
-// 		},
-// 	}
+func TestNewService(t *testing.T) {
+	type args struct {
+		opts []service.Option[*Service]
+	}
+	tests := []struct {
+		name string
+		args args
+		want assert.Want[*Service]
+	}{
+		{
+			name: "Create service with option 'WithEvidenceStoreAddress'",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithEvidenceStoreAddress("localhost:9091", http.DefaultClient),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, http.DefaultClient, got.cloudConfig.evStreamConfig.client)
+				return assert.Equal(t, "localhost:9091", got.cloudConfig.evStreamConfig.targetAddress)
+			},
+		},
+		{
+			name: "Create service with option 'WithTargetOfEvaluationID'",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				return assert.Equal(t, testdata.MockTargetOfEvaluationID1, got.ctID)
+			},
+		},
+		{
+			name: "Create service with option 'WithEvidenceCollectorToolID'",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithEvidenceCollectorToolID(testdata.MockEvidenceToolID1),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				return assert.Equal(t, testdata.MockEvidenceToolID1, got.collectorID)
+			},
+		},
+		// {
+		// 	name: "Create service with option 'WithAuthorizationStrategy'",
+		// 	args: args{
+		// 		opts: []service.Option[*Service]{
+		// 			WithAuthorizationStrategy(&service.AuthorizationStrategyJWT{AllowAllKey: "test"}),
+		// 		},
+		// 	},
+		// 	want: func(t *testing.T, got *Service) bool {
+		// 		return assert.Equal[service.AuthorizationStrategy](t, &service.AuthorizationStrategyJWT{AllowAllKey: "test"}, got.authz)
+		// 	},
+		// },
+		{
+			name: "Create service with option 'WithProviders' and one provider given",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithProviders([]string{"azure"}),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				return assert.Equal(t, []string{"azure"}, got.providers)
+			},
+		},
+		{
+			name: "Create service with option 'WithProviders' and no provider given",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithProviders([]string{}),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				return assert.Equal(t, []string{}, got.providers)
+			},
+		},
+		{
+			name: "Create service with option 'WithAdditionalDiscoverers'",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithAdditionalDiscoverers([]cloud.Collector{&collectortest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID}}),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				return assert.Contains(t, got.collectors, &collectortest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID})
+			},
+		},
+		{
+			name: "Create service with option 'WithDiscoveryInterval'",
+			args: args{
+				opts: []service.Option[*Service]{
+					WithDiscoveryInterval(time.Duration(8)),
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				return assert.Equal(t, time.Duration(8), got.discoveryInterval)
+			},
+		},
+		{
+			name: "Create service without any option",
+			args: args{},
+			want: func(t *testing.T, got *Service) bool {
+				assert.NotNil(t, got.evidenceStoreStream)
+				return assert.NotNil(t, got.evidenceStoreClient)
+			},
+		},
+	}
 
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			got := NewService(tt.args.opts...)
-// 			tt.want(t, got)
-// 		})
-// 	}
-// }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewService(tt.args.opts...)
+			tt.want(t, got)
+		})
+	}
+}
 
 // func TestService_StartDiscovery(t *testing.T) {
 // 	type fields struct {
