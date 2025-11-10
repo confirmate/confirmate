@@ -315,7 +315,7 @@ func TestService_Start(t *testing.T) {
 		want    assert.Want[*Service]
 		wantErr assert.WantErr
 	}{
-		// TODO(all): How to test for Azure and AWS authorizer failures and K8S authorizer without failure?
+		// TODO(all): How to test for AWS and K8S authorizer without failure?
 		{
 			name: "Request with wrong provider name",
 			fields: fields{
@@ -393,6 +393,32 @@ func TestService_Start(t *testing.T) {
 			},
 			wantErr: func(t *testing.T, gotErr error) bool {
 				return assert.ErrorContains(t, gotErr, ErrK8sAuth.Error())
+			},
+		},
+		{
+			name: "Azure authorizer error",
+			fields: fields{
+				scheduler:         gocron.NewScheduler(time.UTC),
+				providers:         []string{ProviderAzure},
+				discoveryInterval: time.Duration(5 * time.Minute),
+				cloudConfig: CloudCollectorConfig{
+					TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
+				},
+				envVariables: []envVariable{
+					{
+						hasEnvVariable:   true,
+						envVariableKey:   "AZURE_TOKEN_CREDENTIALS",
+						envVariableValue: "fail",
+					},
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.TargetOfEvaluationID)
+				return assert.False(t, got.scheduler.IsRunning())
+			},
+			wantErr: func(t *testing.T, err error) bool {
+				return assert.ErrorContains(t, err, ErrAzureAuth.Error())
 			},
 		},
 		{

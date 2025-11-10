@@ -49,7 +49,10 @@ const (
 var (
 	log *logrus.Entry
 
-	ErrK8sAuth = errors.New("could not authenticate to Kubernetes")
+	ErrK8sAuth       = errors.New("could not authenticate to Kubernetes")
+	ErrOpenstackAuth = errors.New("could not authenticate to OpenStack")
+	ErrAWSAuth       = errors.New("could not authenticate to AWS")
+	ErrAzureAuth     = errors.New("could not authenticate to Azure")
 )
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
@@ -285,8 +288,9 @@ func (svc *Service) Start() (err error) {
 		case provider == ProviderAzure:
 			authorizer, err := azure.NewAuthorizer()
 			if err != nil {
-				log.Errorf("Could not authenticate to Azure: %v", err)
-				return fmt.Errorf("could not authenticate to Azure: %v", err)
+				err := fmt.Errorf("%v: %v", ErrAzureAuth, err)
+				log.Error(err)
+				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.ctID))
@@ -309,8 +313,9 @@ func (svc *Service) Start() (err error) {
 		case provider == ProviderAWS:
 			awsClient, err := aws.NewClient()
 			if err != nil {
-				log.Errorf("Could not authenticate to AWS: %v", err)
-				return fmt.Errorf("could not authenticate to AWS: %v", err)
+				err = fmt.Errorf("%v: %v", ErrAWSAuth, err)
+				log.Error(err)
+				return err
 			}
 			svc.collectors = append(svc.collectors,
 				aws.NewAwsStorageDiscovery(awsClient, svc.ctID),
@@ -318,8 +323,9 @@ func (svc *Service) Start() (err error) {
 		case provider == ProviderOpenstack:
 			authorizer, err := openstack.NewAuthorizer()
 			if err != nil {
-				log.Errorf("Could not authenticate to OpenStack: %v", err)
-				return fmt.Errorf("could not authenticate to OpenStack: %v", err)
+				err = fmt.Errorf("%v: %v", ErrOpenstackAuth, err)
+				log.Error(err)
+				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.ctID))
