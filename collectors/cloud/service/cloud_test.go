@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/util/assert"
@@ -393,6 +394,23 @@ func TestService_Start(t *testing.T) {
 			wantErr: func(t *testing.T, gotErr error) bool {
 				return assert.ErrorContains(t, gotErr, ErrK8sAuth.Error())
 			},
+		},
+		{
+			name: "AWS authorizer error",
+			fields: fields{
+				scheduler:         gocron.NewScheduler(time.UTC),
+				providers:         []string{ProviderAWS},
+				discoveryInterval: time.Duration(5 * time.Minute),
+				cloudConfig: CloudCollectorConfig{
+					TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
+				},
+			},
+			want: func(t *testing.T, got *Service) bool {
+				assert.Equal(t, []string{ProviderAWS}, got.providers)
+				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.TargetOfEvaluationID)
+				return assert.True(t, got.scheduler.IsRunning())
+			},
+			wantErr: assert.Nil[error],
 		},
 		{
 			name: "Happy path: no discovery interval error",
