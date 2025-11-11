@@ -15,9 +15,10 @@
 
 package core
 
-//go:generate buf generate
+// //go:generate buf generate
+//go:generate buf generate --exclude-path policies
 //go:generate buf generate --template buf.openapi.gen.yaml --path api/evidence -o api/evidence
 //go:generate buf generate --template buf.openapi.gen.yaml --path api/assessment -o api/assessment
 //go:generate buf generate --template buf.openapi.gen.yaml --path api/orchestrator -o api/orchestrator
-//go:generate buf generate --template buf.gotag.gen.yaml
 //go:generate buf generate --template buf.gen.ontology.yaml --path policies/security-metrics/ontology/1.0/ontology.proto -o api/ontology
+//go:generate buf generate --template buf.gotag.gen.yaml  --exclude-path policies
