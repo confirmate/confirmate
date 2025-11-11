@@ -5,8 +5,7 @@ go 1.25.2
 // runtime dependencies - CLI
 require (
 	github.com/lmittmann/tint v1.1.2
-	github.com/mfridman/cli v0.2.1
-	github.com/mfridman/xflag v0.1.0 // indirect
+	github.com/urfave/cli/v3 v3.5.0
 )
 
 // runtime dependencies - protobuf/Connect
@@ -14,7 +13,6 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4
-	golang.org/x/net v0.46.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251020155222-88f65dc88635
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251020155222-88f65dc88635 // indirect
 	google.golang.org/protobuf v1.36.10
