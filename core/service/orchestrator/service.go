@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
@@ -82,4 +83,33 @@ func (svc *service) ListTargetsOfEvaluation(
 	return connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
 		TargetsOfEvaluation: toes,
 	}), nil
+}
+
+// StoreAssessmentResults handles a bidirectional stream for storing assessment results.
+func (svc *service) StoreAssessmentResults(
+	ctx context.Context,
+	stream *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
+) error {
+	for {
+		// Receive a message from the client
+		req, err := stream.Receive()
+		if err != nil {
+			// io.EOF means the client has closed the stream, which is normal
+			if err == io.EOF {
+				return nil
+			}
+			return fmt.Errorf("error receiving from stream: %w", err)
+		}
+		
+		// Process the received message (for now, just acknowledge it)
+		_ = req
+		
+		// Send success response for each received message
+		if err := stream.Send(&orchestrator.StoreAssessmentResultsResponse{
+			Status:        true,
+			StatusMessage: "received",
+		}); err != nil {
+			return fmt.Errorf("error sending response: %w", err)
+		}
+	}
 }
