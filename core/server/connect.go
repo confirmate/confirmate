@@ -23,8 +23,6 @@ import (
 
 	"connectrpc.com/vanguard"
 	"github.com/lmittmann/tint"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 var (
@@ -37,51 +35,100 @@ func init() {
 	slog.SetDefault(logger)
 }
 
-// corsMiddleware adds CORS headers to all requests
-func corsMiddleware(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Connect-Protocol-Version, Connect-Timeout-Ms")
-		w.Header().Set("Access-Control-Expose-Headers", "Connect-Protocol-Version")
-
-		// Handle preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		handler.ServeHTTP(w, r)
-	})
+// Server represents a Connect server, with RPC and HTTP support.
+type Server struct {
+	*http.Server
+	cfg      Config
+	handlers map[string]http.Handler
 }
 
-// RunConnectServer runs a Connect server with the given [net/http.Handler] at the given path.
-// It uses [golang.org/x/net/http2/h2c] to serve HTTP/2 without TLS.
-func RunConnectServer(path string, handler http.Handler) (err error) {
+// Option is a functional option for configuring the [Server].
+type Option func(*Server)
+
+// WithConfig sets the server configuration, overriding the default configuration.
+func WithConfig(cfg Config) Option {
+	return func(svr *Server) {
+		svr.cfg = cfg
+	}
+}
+
+// WithHandler adds an [http.Handler] at the specified path to the server.
+// Multiple handlers can be registered by calling WithHandler multiple times.
+func WithHandler(path string, handler http.Handler) Option {
+	return func(svr *Server) {
+		svr.handlers[path] = handler
+	}
+}
+
+// RunConnectServer runs a Connect server with the given options.
+// It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
+func RunConnectServer(opts ...Option) (err error) {
 	var (
-		svc  *vanguard.Service
-		mux  *http.ServeMux
-		port = "8080"
-		addr = fmt.Sprintf("localhost:%s", port)
+		svr *Server
 	)
 
-	svc = vanguard.NewService(path, handler)
-	transcoder, _ := vanguard.NewTranscoder([]*vanguard.Service{
-		svc,
-	})
+	svr, err = NewConnectServer(opts)
+	if err != nil {
+		return
+	}
 
-	slog.Info("Starting Connect server",
-		slog.String("address", addr),
-		slog.String("path", path),
-	)
-
-	mux = http.NewServeMux()
-	mux.Handle("/", corsMiddleware(transcoder))
-	err = http.ListenAndServe(
-		addr,
-		// Use h2c so we can serve HTTP/2 without TLS.
-		h2c.NewHandler(mux, &http2.Server{}),
-	)
+	err = svr.ListenAndServe()
 
 	return err
+}
+
+// NewConnectServer creates a new Connect server with the given options.
+// It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
+func NewConnectServer(opts []Option) (srv *Server, err error) {
+	var (
+		svr        *Server
+		vs         []*vanguard.Service
+		transcoder http.Handler
+		mux        *http.ServeMux
+		p          *http.Protocols
+	)
+
+	// Setup default server config
+	svr = &Server{
+		cfg:      DefaultConfig,
+		handlers: make(map[string]http.Handler),
+	}
+
+	// Apply options
+	for _, opt := range opts {
+		opt(svr)
+	}
+
+	// Create one vanguard service for each handler and add to transcoder
+	for path, handler := range svr.handlers {
+		vs = append(vs, vanguard.NewService(path, handler))
+	}
+	transcoder, err = vanguard.NewTranscoder(vs)
+	if err != nil {
+		slog.Error("Failed to create vanguard transcoder", tint.Err(err))
+		return nil, err
+	}
+
+	// Create new mux
+	mux = http.NewServeMux()
+	mux.Handle("/", srv.handleCORS(transcoder))
+
+	// Configure h2c support using standard library
+	p = new(http.Protocols)
+	p.SetHTTP1(true)
+	p.SetUnencryptedHTTP2(true)
+
+	// Set address, handler, and protocols
+	svr.Server = &http.Server{
+		Addr:      fmt.Sprintf("localhost:%d", svr.cfg.Port),
+		Handler:   mux,
+		Protocols: p,
+	}
+
+	slog.Info("Starting Connect server",
+		slog.String("address", svr.Addr),
+		slog.String("path", svr.cfg.Path),
+	)
+
+	return svr, nil
 }
