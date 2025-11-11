@@ -1,0 +1,52 @@
+package k8s
+
+import (
+	"errors"
+	"fmt"
+	"path/filepath"
+
+	"github.com/sirupsen/logrus"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
+)
+
+var log *logrus.Entry
+
+func init() {
+	log = logrus.WithField("component", "k8s-discovery")
+}
+
+type k8sDiscovery struct {
+	intf kubernetes.Interface
+	ctID string
+}
+
+func (d *k8sDiscovery) TargetOfEvaluationID() string {
+	return d.ctID
+}
+
+func AuthFromKubeConfig() (intf kubernetes.Interface, err error) {
+	var kubeconfig string
+
+	// TODO(oxisto): this crashes if called twice
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = filepath.Join(home, ".kube", "config")
+	} else {
+		return nil, errors.New("could not find kubeconfig")
+	}
+
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		return nil, fmt.Errorf("could not read kubeconfig: %w", err)
+	}
+
+	// create the clientset
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	return client, nil
+}

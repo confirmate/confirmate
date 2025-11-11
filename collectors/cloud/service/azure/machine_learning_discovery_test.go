@@ -1,0 +1,119 @@
+package azure
+
+import (
+	"testing"
+
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
+)
+
+func Test_azureDiscovery_discoverMLWorkspaces(t *testing.T) {
+	type fields struct {
+		azureDiscovery *azureDiscovery
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    assert.Want[[]ontology.IsResource]
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "Error list pages",
+			fields: fields{
+				azureDiscovery: NewMockAzureDiscovery(nil),
+			},
+			want: assert.Nil[[]ontology.IsResource],
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, ErrSubscriptionNotFound.Error())
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+			},
+			want: func(t *testing.T, got []ontology.IsResource) bool {
+				assert.Equal(t, got[0].GetName(), "compute1")
+				assert.Equal(t, got[1].GetName(), "mlWorkspace")
+				return assert.Equal(t, 2, len(got))
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := tt.fields.azureDiscovery
+
+			got, err := d.discoverMLWorkspaces()
+
+			tt.wantErr(t, err)
+			tt.want(t, got)
+		})
+	}
+}
+
+func Test_azureDiscovery_discoverMLCompute(t *testing.T) {
+	type fields struct {
+		azureDiscovery *azureDiscovery
+	}
+	type args struct {
+		rg        string
+		workspace *armmachinelearning.Workspace
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[[]ontology.IsResource]
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "Error list pages",
+			fields: fields{
+				azureDiscovery: NewMockAzureDiscovery(nil),
+			},
+			args: args{
+				rg: "rg",
+				workspace: &armmachinelearning.Workspace{
+					Name: util.Ref("mlWorkspace"),
+				},
+			},
+			want: assert.Nil[[]ontology.IsResource],
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, ErrSubscriptionNotFound.Error())
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+			},
+			args: args{
+				rg: "rg1",
+				workspace: &armmachinelearning.Workspace{
+					Name: util.Ref("mlWorkspace"),
+				},
+			},
+			want: func(t *testing.T, got []ontology.IsResource) bool {
+				assert.Equal(t, 1, len(got))
+
+				_, ok := got[0].(*ontology.VirtualMachine)
+				return assert.True(t, ok)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := tt.fields.azureDiscovery
+
+			got, err := d.discoverMLCompute(tt.args.rg, tt.args.workspace)
+
+			tt.wantErr(t, err)
+			tt.want(t, got)
+		})
+	}
+}
