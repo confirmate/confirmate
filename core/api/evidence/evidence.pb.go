@@ -22,7 +22,7 @@ package evidence
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	_ "confirmate.io/core/api/ontology"
+	ontology "confirmate.io/core/api/ontology"
 	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -53,7 +53,7 @@ type Evidence struct {
 	// Reference to the tool which provided the evidence
 	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty"`
 	// Semantic representation of the Cloud resource according to our defined ontology
-	Resource *Resource `protobuf:"bytes,6,opt,name=resource,proto3" json:"resource,omitempty" gorm:"serializer:json"`
+	Resource *ontology.Resource `protobuf:"bytes,6,opt,name=resource,proto3" json:"resource,omitempty" gorm:"serializer:json"`
 	// Very experimental property. Use at own risk. This property will be deleted again.
 	//
 	// Related resource IDs. The assessment will wait until all evidences for related resource have arrived in the
@@ -122,7 +122,7 @@ func (x *Evidence) GetToolId() string {
 	return ""
 }
 
-func (x *Evidence) GetResource() *Resource {
+func (x *Evidence) GetResource() *ontology.Resource {
 	if x != nil {
 		return x.Resource
 	}
@@ -466,7 +466,7 @@ const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12?\n" +
 	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12 \n" +
 	"\atool_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06toolId\x12Y\n" +
-	"\bresource\x18\x06 \x01(\v2 .confirmate.evidence.v1.ResourceB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\bresource\x12g\n" +
+	"\bresource\x18\x06 \x01(\v2 .confirmate.ontology.v1.ResourceB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\bresource\x12g\n" +
 	"!experimental_related_resource_ids\x18\xe7\a \x03(\tB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x1eexperimentalRelatedResourceIds\"\xa7\x02\n" +
 	"\bResource\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
@@ -525,12 +525,13 @@ var file_api_evidence_evidence_proto_goTypes = []any{
 	(*ListGraphEdgesResponse)(nil), // 4: confirmate.evidence.v1.ListGraphEdgesResponse
 	(*GraphEdge)(nil),              // 5: confirmate.evidence.v1.GraphEdge
 	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
-	(*anypb.Any)(nil),              // 7: google.protobuf.Any
+	(*ontology.Resource)(nil),      // 7: confirmate.ontology.v1.Resource
+	(*anypb.Any)(nil),              // 8: google.protobuf.Any
 }
 var file_api_evidence_evidence_proto_depIdxs = []int32{
 	6, // 0: confirmate.evidence.v1.Evidence.timestamp:type_name -> google.protobuf.Timestamp
-	1, // 1: confirmate.evidence.v1.Evidence.resource:type_name -> confirmate.evidence.v1.Resource
-	7, // 2: confirmate.evidence.v1.Resource.properties:type_name -> google.protobuf.Any
+	7, // 1: confirmate.evidence.v1.Evidence.resource:type_name -> confirmate.ontology.v1.Resource
+	8, // 2: confirmate.evidence.v1.Resource.properties:type_name -> google.protobuf.Any
 	1, // 3: confirmate.evidence.v1.UpdateResourceRequest.resource:type_name -> confirmate.evidence.v1.Resource
 	5, // 4: confirmate.evidence.v1.ListGraphEdgesResponse.edges:type_name -> confirmate.evidence.v1.GraphEdge
 	2, // 5: confirmate.evidence.v1.Resources.UpdateResource:input_type -> confirmate.evidence.v1.UpdateResourceRequest

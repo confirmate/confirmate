@@ -44,7 +44,7 @@ message Evidence {
   string tool_id = 4 [(buf.validate.field).string.min_len = 1];
 
   // Semantic representation of the Cloud resource according to our defined ontology
-  Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];
+  confirmate.ontology.v1.Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];
 
   // Very experimental property. Use at own risk. This property will be deleted again.
   //
