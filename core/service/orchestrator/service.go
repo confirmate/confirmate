@@ -100,14 +100,14 @@ func (svc *service) StoreAssessmentResults(
 			}
 			return fmt.Errorf("error receiving from stream: %w", err)
 		}
-		
+
 		// Process the received message (for now, just acknowledge it)
 		_ = req
-		
+
 		// Send success response for each received message
 		if err := stream.Send(&orchestrator.StoreAssessmentResultsResponse{
 			Status:        true,
-			StatusMessage: "received",
+			StatusMessage: req.Result.Id + " received",
 		}); err != nil {
 			return fmt.Errorf("error sending response: %w", err)
 		}

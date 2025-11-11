@@ -190,12 +190,12 @@ func TestStoreAssessmentResults_StreamResilience(t *testing.T) {
 	resp, err := stream.Receive()
 	assert.NoError(t, err)
 	assert.True(t, resp.Status)
-	assert.Equal(t, "received", resp.StatusMessage)
+	assert.Equal(t, "test-result-1 received", resp.StatusMessage)
 	t.Log("First message sent and received successfully")
 
 	// Close the orchestrator server
 	t.Log("Closing orchestrator server...")
-	testSrv.Listener.Close()
+	testSrv.CloseClientConnections()
 
 	// Give it a moment to fully close
 	time.Sleep(100 * time.Millisecond)
