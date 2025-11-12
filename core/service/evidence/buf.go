@@ -21,7 +21,8 @@ func (svc *Service) getOrCreateStream() (*connect.BidiStreamForClient[assessment
 	}
 
 	// Try to create a new stream
-	slog.Info("Creating new stream to assessment service at %s", svc.assessmentConfig.targetAddress)
+	// TODO(lebogg): Test this slog statement
+	slog.Info("Creating new stream to assessment service at %s", svc.assessmentConfig.targetAddress, slog.Any("targetAddress", svc.assessmentConfig.targetAddress))
 	stream := svc.assessmentClient.AssessEvidences(context.Background())
 
 	// Store the stream for reuse
