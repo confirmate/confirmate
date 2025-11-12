@@ -1,11 +1,16 @@
 package evidence
 
 import (
+	"context"
 	"os"
 	"testing"
 
+	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
+	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
+	"connectrpc.com/connect"
 )
 
 func TestMain(m *testing.M) {
@@ -16,11 +21,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// TestNewService is a simply test for NewService
+// TestNewService provides simple tests for NewService
 func TestNewService(t *testing.T) {
-	//db, err := gorm.NewStorage(gorm.WithInMemory())
-	//assert.NoError(t, err)
-
 	type args struct {
 		opts []service.Option[*Service]
 	}
@@ -37,15 +39,22 @@ func TestNewService(t *testing.T) {
 				return true
 			},
 		},
-		//{
-		//	name: "EvidenceStoreServer created with option 'WithDB'",
-		//	args: args{opts: []service.Option[*Service]{WithDB(db)}},
-		//	want: func(t *testing.T, got *Service) bool {
-		//		// Storage should be gorm (in-memory storage). Hard to check since its type is not exported
-		//		assert.NotNil(t, got.db)
-		//		return true
-		//	},
-		//},
+		{
+			name: "EvidenceStoreServer created with option 'WithDB'",
+			args: args{opts: []service.Option[*Service]{
+				WithDB(persistencetest.NewInMemoryDB(t, types, nil, evidencetest.InitDBWithEvidence))}},
+			want: func(t *testing.T, got *Service) bool {
+				// Storage should be gorm (in-memory storage). Hard to check since its type is not exported
+				assert.NotNil(t, got.db)
+				// But we can check if we can get the evidence we inserted into the custom DB
+				gotEvidence, err := got.GetEvidence(context.Background(), &connect.Request[evidence.GetEvidenceRequest]{
+					Msg: &evidence.GetEvidenceRequest{EvidenceId: evidencetest.MockEvidence1.Id}})
+				assert.NoError(t, err)
+				assert.NotNil(t, gotEvidence)
+				assert.Equal(t, evidencetest.MockEvidence1.Id, gotEvidence.Msg.Id)
+				return true
+			},
+		},
 		//{
 		//	name: "EvidenceStoreServer created with option 'WithAssessmentConfig'",
 		//	args: args{opts: []service.Option[*Service]{WithAssessmentConfig("localhost:9091")}},
