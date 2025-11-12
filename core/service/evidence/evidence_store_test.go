@@ -1,6 +1,7 @@
 package evidence
 
 import (
+	"os"
 	"testing"
 
 	"confirmate.io/core/service"
@@ -11,6 +12,8 @@ func TestMain(m *testing.M) {
 	// Start the Evidence Store server
 
 	// Start the Assessment server
+	code := m.Run()
+	os.Exit(code)
 }
 
 // TestNewService is a simply test for NewService
