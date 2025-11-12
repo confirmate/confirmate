@@ -114,7 +114,7 @@ func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
 		svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
 
 	if svc.db == nil {
-		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types))
+		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types...))
 		if err != nil {
 			err = fmt.Errorf("could not create db: %w", err)
 			return
