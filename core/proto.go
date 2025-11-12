@@ -18,4 +18,5 @@ package core
 //go:generate buf generate --exclude-path policies
 //go:generate buf generate --template buf.openapi.gen.yaml --path api/orchestrator -o api/orchestrator
 //go:generate buf generate --template buf.gen.ontology.yaml --path policies/security-metrics/ontology/1.0/ontology.proto -o api/ontology
+// Keep the gotag generation at the end to make sure that it isn't overridden by the other generators.
 //go:generate buf generate --template buf.gotag.gen.yaml  --exclude-path policies
