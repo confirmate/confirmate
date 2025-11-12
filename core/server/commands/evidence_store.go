@@ -21,17 +21,29 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/evidence"
 
-	"github.com/mfridman/cli"
+	"github.com/urfave/cli/v3"
 )
 
 var EvidenceCommand = &cli.Command{
-	Name: "evidence store",
-	Exec: func(ctx context.Context, s *cli.State) error {
+	Name:  "evidence store",
+	Usage: "Launches the evidence store service",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
 		svc, err := evidence.NewService()
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(evidenceconnect.NewEvidenceStoreHandler(svc))
+		return server.RunConnectServer(
+			server.WithConfig(server.Config{
+				Port: cmd.Uint16("api-port"),
+				Path: "/",
+				CORS: server.CORS{
+					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
+					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
+					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
+				},
+			}),
+			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(svc)),
+		)
 	},
 }
