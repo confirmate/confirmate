@@ -116,7 +116,8 @@ func NewDB(opts ...DBOption) (s *DB, err error) {
 		db.SetMaxOpenConns(s.maxConn)
 	}
 
-	// Register custom serializers
+	// Register custom serializers BEFORE setting up join tables
+	// This is important because join table setup may need to analyze structs that use these serializers
 	schema.RegisterSerializer("durationpb", &DurationSerializer{})
 	schema.RegisterSerializer("timestamppb", &TimestampSerializer{})
 	schema.RegisterSerializer("valuepb", &ValueSerializer{})
