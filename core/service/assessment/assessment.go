@@ -17,25 +17,49 @@ package assessment
 import (
 	"context"
 	"log/slog"
+	"net/http"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/service"
 )
 
 var (
 	logger *slog.Logger
 )
 
+const DefaultOrchestratorURL = "localhost:9090"
+
+type orchestratorConfig struct {
+	targetAddress string
+	client        *http.Client
+}
+
 // Service is an implementation of the Clouditor Assessment service. It should not be used directly,
 // but rather the NewService constructor should be used. It implements the AssessmentServer interface.
 type Service struct {
 	// Embedded for FWD compatibility
 	assessmentconnect.UnimplementedAssessmentHandler
+
+	orchestratorClient orchestratorconnect.OrchestratorClient
+	orchestratorConfig orchestratorConfig
 }
 
 // NewService creates a new assessment service with default values.
-func NewService() *Service {
-	svc := &Service{}
+func NewService(opts ...service.Option[*Service]) *Service {
+	svc := &Service{
+		orchestratorConfig: orchestratorConfig{
+			targetAddress: DefaultOrchestratorURL,
+			client:        http.DefaultClient,
+		},
+	}
+
+	for _, o := range opts {
+		o(svc)
+	}
+
+	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
 
 	return svc
 }
