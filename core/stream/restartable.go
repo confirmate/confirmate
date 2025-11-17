@@ -13,6 +13,77 @@
 //
 // This file is part of Confirmate Core.
 
+// Package stream provides automatic restart functionality for Connect bidirectional streams,
+// ensuring continuous connections between components even when streams are closed or encounter errors.
+//
+// # Features
+//
+// - Automatic Restart: Streams automatically restart when they encounter errors or are closed
+// - Exponential Backoff: Configurable retry logic with exponential backoff to prevent overwhelming the server
+// - Thread-Safe: Safe for concurrent use across multiple goroutines
+// - Customizable Callbacks: Monitor restart events with custom callback functions
+// - Context-Aware: Respects context cancellation for graceful shutdown
+//
+// # Quick Start
+//
+// Create a factory function that creates new streams:
+//
+//	factory := func(ctx context.Context) *connect.BidiStreamForClient[Req, Res] {
+//	    return client.StoreAssessmentResults(ctx)
+//	}
+//
+// Configure auto-restart behavior:
+//
+//	config := stream.DefaultRestartConfig()
+//	config.MaxRetries = 10 // Retry up to 10 times (0 = unlimited)
+//	config.InitialBackoff = 100 * time.Millisecond
+//	config.MaxBackoff = 30 * time.Second
+//
+// Create the restartable stream:
+//
+//	rs, err := stream.NewRestartableBidiStream(ctx, factory, config)
+//	if err != nil {
+//	    return err
+//	}
+//	defer rs.Close()
+//
+// Use the stream - it will automatically restart on errors:
+//
+//	err = rs.Send(request)
+//	msg, err := rs.Receive()
+//
+// # Configuration
+//
+// The RestartConfig struct allows fine-grained control over restart behavior:
+//
+//   - MaxRetries: Maximum number of restart attempts (0 = unlimited)
+//   - InitialBackoff: Initial delay before the first retry
+//   - MaxBackoff: Maximum delay between retries
+//   - BackoffMultiplier: Factor by which backoff increases after each retry
+//   - OnRestart: Callback when a stream restart is attempted
+//   - OnRestartSuccess: Callback when a stream restart succeeds
+//   - OnRestartFailure: Callback when all restart attempts have failed
+//
+// # Monitoring
+//
+// Monitor stream health with built-in methods:
+//
+//	retryCount := rs.RetryCount()  // Number of times stream has restarted
+//	lastError := rs.LastError()    // Last error that triggered a restart
+//
+// # Thread Safety
+//
+// All operations on RestartableBidiStream are thread-safe and can be called
+// concurrently from multiple goroutines.
+//
+// # Best Practices
+//
+//   - Set MaxRetries in production to prevent infinite retry loops
+//   - Use exponential backoff to avoid overwhelming servers
+//   - Monitor RetryCount() to detect persistent connection issues
+//   - Implement callbacks for logging and monitoring
+//   - Always respect context cancellation for graceful shutdown
+//   - Always call Close() when done with the stream
 package stream
 
 import (
@@ -49,7 +120,12 @@ type RestartConfig struct {
 	OnRestartFailure func(err error)
 }
 
-// DefaultRestartConfig returns a RestartConfig with sensible defaults.
+// DefaultRestartConfig returns a RestartConfig with sensible defaults:
+//   - MaxRetries: 0 (unlimited retries)
+//   - InitialBackoff: 100ms
+//   - MaxBackoff: 30s
+//   - BackoffMultiplier: 2.0
+//   - Logging callbacks for restart events
 func DefaultRestartConfig() RestartConfig {
 	return RestartConfig{
 		MaxRetries:        0, // unlimited
@@ -72,6 +148,8 @@ func DefaultRestartConfig() RestartConfig {
 type StreamFactory[Req, Res any] func(ctx context.Context) *connect.BidiStreamForClient[Req, Res]
 
 // RestartableBidiStream wraps a Connect bidirectional stream with automatic restart functionality.
+// It transparently handles connection failures by recreating the stream using the provided factory
+// function, with exponential backoff between retry attempts. All operations are thread-safe.
 type RestartableBidiStream[Req, Res any] struct {
 	factory StreamFactory[Req, Res]
 	config  RestartConfig
@@ -86,7 +164,9 @@ type RestartableBidiStream[Req, Res any] struct {
 }
 
 // NewRestartableBidiStream creates a new restartable bidirectional stream.
-// The factory function is called to create a new stream when needed.
+// The factory function is called to create a new stream initially and whenever
+// a restart is needed due to errors. The returned stream must be closed with
+// Close() when no longer needed to clean up resources and prevent further restarts.
 func NewRestartableBidiStream[Req, Res any](
 	ctx context.Context,
 	factory StreamFactory[Req, Res],
