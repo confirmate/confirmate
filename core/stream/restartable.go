@@ -244,10 +244,6 @@ func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) (err error) {
 		}
 		// Retry sending on the new stream - get it under lock to avoid race
 		rs.mu.RLock()
-		if rs.closed {
-			rs.mu.RUnlock()
-			return io.EOF
-		}
 		stream = rs.stream
 		rs.mu.RUnlock()
 		return stream.Send(msg)
@@ -278,10 +274,6 @@ func (rs *RestartableBidiStream[Req, Res]) Receive() (msg *Res, err error) {
 		}
 		// Retry receiving on the new stream - get it under lock to avoid race
 		rs.mu.RLock()
-		if rs.closed {
-			rs.mu.RUnlock()
-			return nil, io.EOF
-		}
 		stream = rs.stream
 		rs.mu.RUnlock()
 		return stream.Receive()
