@@ -118,7 +118,7 @@ func TestNewService(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				return assert.Equal(t, time.Duration(8), got.discoveryInterval)
+				return assert.Equal(t, time.Duration(8), got.cloudConfig.collectorInterval)
 			},
 		},
 		{
@@ -663,7 +663,6 @@ func TestService_Start(t *testing.T) {
 				evidenceStoreStream: tt.fields.evidenceStoreStream,
 				dead:                tt.fields.dead,
 				scheduler:           tt.fields.scheduler,
-				discoveryInterval:   tt.fields.discoveryInterval,
 				Events:              tt.fields.Events,
 				cloudConfig:         tt.fields.cloudConfig,
 			}

@@ -59,16 +59,27 @@ var (
 type CloudCollectorConfig struct {
 	// Provider is the list of cloud service providers to use for discovering resources.
 	Provider []string
+
 	// TargetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
 	TargetOfEvaluationID string
+
 	// CollectorToolID is the collector tool ID which is gathering the resources.
 	CollectorToolID string
+
+	// collectorInterval is the interval at which discovery runs are scheduled.
+	collectorInterval time.Duration
+
 	//evStreamConfig holds the configuration for the evidence store stream.
 	evStreamConfig EvidenceStoreStreamConfig
+
 	// AutoStart indicates whether the discovery should be automatically started when the service is initialized.
-	AutoStart     bool
+	AutoStart bool
+
+	// ResourceGroup is the Azure resource group to discover resources from.
 	ResourceGroup string
-	CSAFDomain    string
+
+	// CSAFDomain is the domain used for CSAF trusted provider discovery.
+	CSAFDomain string
 }
 
 // EvidenceStoreStreamConfig holds the configuration for the evidence store stream.
@@ -131,9 +142,6 @@ type Service struct {
 
 	// collectors is the list of collectors to use for discovering resources.
 	collectors []cloud.Collector
-
-	// discoveryInterval is the interval at which discovery runs are scheduled.
-	discoveryInterval time.Duration
 
 	// Events is a channel that emits discovery events.
 	Events chan *DiscoveryEvent
@@ -205,8 +213,8 @@ func WithAdditionalDiscoverers(discoverers []cloud.Collector) service.Option[*Se
 
 // WithDiscoveryInterval is an option to set the discovery interval. If not set, the discovery is set to 5 minutes.
 func WithDiscoveryInterval(interval time.Duration) service.Option[*Service] {
-	return func(s *Service) {
-		s.discoveryInterval = interval
+	return func(svc *Service) {
+		svc.cloudConfig.collectorInterval = interval
 	}
 }
 
@@ -215,9 +223,8 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		// TODO(anatheka): Add evidence store stream
 		// evidenceStoreStreams: api.NewStreamsOf(api.WithLogger[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest](log)),
 		// evidenceStore:        api.NewRPCConnection(EvidenceStoreURL), evidence.NewEvidenceStoreClient),
-		scheduler:         gocron.NewScheduler(time.UTC),
-		Events:            make(chan *DiscoveryEvent),
-		discoveryInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
+		scheduler: gocron.NewScheduler(time.UTC),
+		Events:    make(chan *DiscoveryEvent),
 		cloudConfig: CloudCollectorConfig{
 			AutoStart:            DefaultDiscoveryAutoStartFlag,
 			TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
@@ -227,6 +234,7 @@ func NewService(opts ...service.Option[*Service]) *Service {
 				targetAddress: DefaultEvidenceStoreURL,
 				client:        http.DefaultClient,
 			},
+			collectorInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
 		},
 	}
 
@@ -338,10 +346,10 @@ func (svc *Service) Start() (err error) {
 	}
 
 	for _, v := range svc.collectors {
-		log.Infof("Scheduling {%s} to execute every {%v} minutes...", v.Name(), svc.discoveryInterval.Minutes())
+		log.Infof("Scheduling {%s} to execute every {%v} minutes...", v.Name(), svc.cloudConfig.collectorInterval.Minutes())
 
 		_, err = svc.scheduler.
-			Every(svc.discoveryInterval).
+			Every(svc.cloudConfig.collectorInterval).
 			Tag(v.Name()).
 			Do(svc.StartDiscovery, v)
 		if err != nil {
