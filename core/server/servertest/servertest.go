@@ -9,51 +9,40 @@ import (
 	"confirmate.io/core/util/assert"
 )
 
-// testServerOptions holds configuration for creating test servers.
-type testServerOptions struct {
-	listener net.Listener
-}
-
-// TestServerOption is a functional option for configuring test server creation.
-type TestServerOption func(*testServerOptions)
-
-// WithListener configures the test server to use a specific listener.
-// This allows restarting the server on the same address.
-func WithListener(listener net.Listener) TestServerOption {
-	return func(opts *testServerOptions) {
-		opts.listener = listener
-	}
-}
-
 // NewTestConnectServer creates a new in-memory Connect server for testing purposes. It returns the
 // server instance and an [httptest.Server] that can be used to send requests to the server. The
 // server is already started in the background.
 //
-// If WithListener option is provided, the server will use the specified listener, allowing it to
-// restart on the same address. Otherwise, a new random port will be used.
+// The caller must close the returned [httptest.Server] using testsrv.Close() when done. This will
+// fail the test if the server could not be created.
+func NewTestConnectServer(t *testing.T, opts []server.Option) (srv *server.Server, testsrv *httptest.Server) {
+	return newTestConnectServerInternal(t, opts, nil)
+}
+
+// NewTestConnectServerWithListener creates a new in-memory Connect server for testing purposes,
+// using the specified listener. This allows restarting the server on the same address. It returns
+// the server instance and an [httptest.Server] that can be used to send requests to the server.
+// The server is already started in the background.
 //
 // The caller must close the returned [httptest.Server] using testsrv.Close() when done. This will
 // fail the test if the server could not be created.
-func NewTestConnectServer(t *testing.T, serverOpts []server.Option, testOpts ...TestServerOption) (srv *server.Server, testsrv *httptest.Server) {
-	var (
-		err     error
-		options testServerOptions
-	)
+func NewTestConnectServerWithListener(t *testing.T, opts []server.Option, listener net.Listener) (srv *server.Server, testsrv *httptest.Server) {
+	return newTestConnectServerInternal(t, opts, listener)
+}
 
-	// Apply test server options
-	for _, opt := range testOpts {
-		opt(&options)
-	}
+// newTestConnectServerInternal is the shared implementation for creating test Connect servers.
+func newTestConnectServerInternal(t *testing.T, opts []server.Option, listener net.Listener) (srv *server.Server, testsrv *httptest.Server) {
+	var err error
 
-	srv, err = server.NewConnectServer(serverOpts)
+	srv, err = server.NewConnectServer(opts)
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
 
-	if options.listener != nil {
+	if listener != nil {
 		// Use provided listener
 		testsrv = httptest.NewUnstartedServer(srv.Handler)
-		testsrv.Listener = options.listener
+		testsrv.Listener = listener
 		testsrv.Start()
 	} else {
 		// Create new server with random port
