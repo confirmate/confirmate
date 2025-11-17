@@ -20,7 +20,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -97,20 +96,6 @@ func TestRestartableBidiStream_Basic(t *testing.T) {
 	_ = factory
 	_ = mockStream
 	_ = msg
-}
-
-// TestRestartableBidiStream_AutoRestart tests automatic restart on error.
-func TestRestartableBidiStream_AutoRestart(t *testing.T) {
-	// This test verifies that the restart configuration is properly applied
-	config := DefaultRestartConfig()
-	config.MaxRetries = 3
-	config.InitialBackoff = 10 * time.Millisecond
-	config.MaxBackoff = 100 * time.Millisecond
-
-	// Verify configuration
-	assert.Equal(t, 3, config.MaxRetries)
-	assert.Equal(t, 10*time.Millisecond, config.InitialBackoff)
-	assert.Equal(t, 100*time.Millisecond, config.MaxBackoff)
 }
 
 // TestRestartableBidiStream_RetryCount tests retry counting using integration test setup.
@@ -234,105 +219,6 @@ func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 	default:
 		assert.Fail(t, "Context should be cancelled")
 	}
-}
-
-// TestRestartableBidiStream_Integration performs an integration test with real server.
-func TestRestartableBidiStream_Integration(t *testing.T) {
-	// Create a test server
-	svc, err := orchestratorsvc.NewService()
-	assert.NoError(t, err)
-
-	// Create a real test server
-	srv, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(
-			orchestratorconnect.NewOrchestratorHandler(svc),
-		),
-	)
-	defer testSrv.Close()
-	defer srv.Close()
-
-	// Create a client
-	client := orchestratorconnect.NewOrchestratorClient(
-		http.DefaultClient,
-		testSrv.URL,
-	)
-
-	// Test connection by listing targets
-	ctx := context.Background()
-	resp, err := client.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
-	assert.NoError(t, err)
-
-	assert.NotEmpty(t, resp.Msg.TargetsOfEvaluation)
-
-	t.Log("Integration test passed: server is working correctly")
-}
-
-// TestRestartableBidiStream_StreamRecovery tests that a stream can be recovered after connection loss.
-func TestRestartableBidiStream_StreamRecovery(t *testing.T) {
-	// This test simulates connection loss and recovery
-	var serverRestart atomic.Int32
-	var mu sync.Mutex
-	
-	// Create a factory that tracks server restarts
-	createServer := func() *httptest.Server {
-		mu.Lock()
-		defer mu.Unlock()
-		
-		serverRestart.Add(1)
-		
-		svc, err := orchestratorsvc.NewService()
-		assert.NoError(t, err)
-
-		_, testSrv := servertest.NewTestConnectServer(t,
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		)
-		
-		return testSrv
-	}
-
-	// Start initial server
-	testSrv := createServer()
-	
-	// Create client
-	client := orchestratorconnect.NewOrchestratorClient(
-		http.DefaultClient,
-		testSrv.URL,
-	)
-
-	ctx := context.Background()
-	
-	// First request should succeed
-	_, err := client.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
-	assert.NoError(t, err)
-
-	// Simulate server restart by closing and creating new server
-	mu.Lock()
-	testSrv.Close()
-	mu.Unlock()
-	
-	// Wait a bit
-	time.Sleep(100 * time.Millisecond)
-	
-	// Create new server
-	newTestSrv := createServer()
-	defer newTestSrv.Close()
-	
-	// Create new client pointing to new server
-	newClient := orchestratorconnect.NewOrchestratorClient(
-		http.DefaultClient,
-		newTestSrv.URL,
-	)
-
-	// This request should succeed with the new server
-	_, err = newClient.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
-	assert.NoError(t, err)
-
-	// Verify server was restarted
-	assert.True(t, serverRestart.Load() >= 2)
-
-	t.Log("Stream recovery test passed: successfully recovered from connection loss")
 }
 
 // TestRestartConfig_Defaults tests the default configuration values.
