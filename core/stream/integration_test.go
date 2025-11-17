@@ -109,10 +109,13 @@ func TestStreamRestartIntegration(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Restart server on the same listener/port
-	_, testSrv2 := servertest.NewTestConnectServerWithListener(t, listener,
-		server.WithHandler(
-			orchestratorconnect.NewOrchestratorHandler(svc),
-		),
+	_, testSrv2 := servertest.NewTestConnectServer(t,
+		[]server.Option{
+			server.WithHandler(
+				orchestratorconnect.NewOrchestratorHandler(svc),
+			),
+		},
+		servertest.WithListener(listener),
 	)
 	defer testSrv2.Close()
 	t.Log("Server restarted on same address")

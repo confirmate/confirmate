@@ -22,7 +22,9 @@ func TestNewTestServer(t *testing.T) {
 	assert.NotNil(t, svc)
 
 	srv, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		[]server.Option{
+			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		},
 	)
 	defer testSrv.Close()
 
