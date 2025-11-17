@@ -89,6 +89,7 @@ package stream
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"sync"
 	"time"
@@ -151,6 +152,7 @@ type StreamFactory[Req, Res any] func(ctx context.Context) *connect.BidiStreamFo
 // It transparently handles connection failures by recreating the stream using the provided factory
 // function, with exponential backoff between retry attempts. All operations are thread-safe.
 type RestartableBidiStream[Req, Res any] struct {
+	name    string
 	factory StreamFactory[Req, Res]
 	config  RestartConfig
 
@@ -167,14 +169,29 @@ type RestartableBidiStream[Req, Res any] struct {
 // The factory function is called to create a new stream initially and whenever
 // a restart is needed due to errors. The returned stream must be closed with
 // Close() when no longer needed to clean up resources and prevent further restarts.
+// The name parameter is optional and used for logging; if empty, a default name is used.
 func NewRestartableBidiStream[Req, Res any](
 	ctx context.Context,
 	factory StreamFactory[Req, Res],
 	config RestartConfig,
+	name ...string,
 ) (*RestartableBidiStream[Req, Res], error) {
-	streamCtx, cancel := context.WithCancel(ctx)
+	var (
+		streamCtx context.Context
+		cancel    context.CancelFunc
+		streamName string
+	)
+	
+	streamCtx, cancel = context.WithCancel(ctx)
+	
+	if len(name) > 0 && name[0] != "" {
+		streamName = name[0]
+	} else {
+		streamName = "BidiStream"
+	}
 
 	rs := &RestartableBidiStream[Req, Res]{
+		name:    streamName,
 		factory: factory,
 		config:  config,
 		ctx:     streamCtx,
@@ -192,16 +209,20 @@ func NewRestartableBidiStream[Req, Res any](
 }
 
 // Send sends a message on the stream, automatically restarting if needed.
-func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) error {
+func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) (err error) {
+	var (
+		stream *connect.BidiStreamForClient[Req, Res]
+	)
+	
 	rs.mu.RLock()
 	if rs.closed {
 		rs.mu.RUnlock()
-		return fmt.Errorf("stream is closed")
+		return io.EOF
 	}
-	stream := rs.stream
+	stream = rs.stream
 	rs.mu.RUnlock()
 
-	err := stream.Send(msg)
+	err = stream.Send(msg)
 	if err != nil {
 		// Try to restart the stream
 		if restartErr := rs.restart(err); restartErr != nil {
@@ -218,16 +239,20 @@ func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) error {
 }
 
 // Receive receives a message from the stream, automatically restarting if needed.
-func (rs *RestartableBidiStream[Req, Res]) Receive() (*Res, error) {
+func (rs *RestartableBidiStream[Req, Res]) Receive() (msg *Res, err error) {
+	var (
+		stream *connect.BidiStreamForClient[Req, Res]
+	)
+	
 	rs.mu.RLock()
 	if rs.closed {
 		rs.mu.RUnlock()
-		return nil, fmt.Errorf("stream is closed")
+		return nil, io.EOF
 	}
-	stream := rs.stream
+	stream = rs.stream
 	rs.mu.RUnlock()
 
-	msg, err := stream.Receive()
+	msg, err = stream.Receive()
 	if err != nil {
 		// Try to restart the stream
 		if restartErr := rs.restart(err); restartErr != nil {

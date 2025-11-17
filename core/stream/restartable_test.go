@@ -18,6 +18,7 @@ package stream
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -529,10 +530,9 @@ func TestRestartableBidiStream_SendAfterClose(t *testing.T) {
 	err = rs.Close()
 	assert.NoError(t, err)
 
-	// Try to send after close - should fail
+	// Try to send after close - should fail with EOF
 	err = rs.Send(&orchestrator.StoreAssessmentResultRequest{})
-	assert.Error(t, err)
-	assert.ErrorContains(t, err, "stream is closed")
+	assert.ErrorIs(t, err, io.EOF)
 }
 
 // TestRestartableBidiStream_ReceiveAfterClose tests error handling when receiving after close.
@@ -566,8 +566,7 @@ func TestRestartableBidiStream_ReceiveAfterClose(t *testing.T) {
 	err = rs.Close()
 	assert.NoError(t, err)
 
-	// Try to receive after close - should fail
+	// Try to receive after close - should fail with EOF
 	_, err = rs.Receive()
-	assert.Error(t, err)
-	assert.ErrorContains(t, err, "stream is closed")
+	assert.ErrorIs(t, err, io.EOF)
 }
