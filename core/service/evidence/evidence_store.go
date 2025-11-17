@@ -88,13 +88,15 @@ func WithDB(db *persistence.DB) service.Option[*Service] {
 }
 
 // WithAssessmentConfig is an option to configure the assessment service gRPC address.
-func WithAssessmentConfig(target string, client *http.Client) service.Option[*Service] {
-
+func WithAssessmentConfig(conf assessmentConfig) service.Option[*Service] {
 	return func(s *Service) {
 		// TODO(lebogg): Test this slog statement
-		slog.Info("Assessment URL is set to %s", target, slog.Any("target", target))
-		s.assessmentConfig.targetAddress = target
-		s.assessmentConfig.client = client
+		slog.Info("Assessment URL is set to %s", conf.targetAddress, slog.Any("target", conf.targetAddress))
+		s.assessmentConfig.targetAddress = conf.targetAddress
+		// Avoid overriding the default client if no client is provided
+		if conf.client != nil {
+			s.assessmentConfig.client = conf.client
+		}
 	}
 }
 
