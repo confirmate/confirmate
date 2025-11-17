@@ -57,18 +57,18 @@ var (
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
 type CloudCollectorConfig struct {
-	// CollectorProvider is the list of cloud service providers to use for discovering resources.
-	CollectorProvider []string
+	// Provider is the list of cloud service providers to use for discovering resources.
+	Provider []string
 	// TargetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
 	TargetOfEvaluationID string
-	// EvidenceCollectorToolID is the collector tool ID which is gathering the resources.
-	EvidenceCollectorToolID string
+	// CollectorToolID is the collector tool ID which is gathering the resources.
+	CollectorToolID string
 	//evStreamConfig holds the configuration for the evidence store stream.
 	evStreamConfig EvidenceStoreStreamConfig
-	// DiscoveryAutoStart indicates whether the discovery should be automatically started when the service is initialized.
-	DiscoveryAutoStart     bool
-	DiscoveryResourceGroup string
-	DiscoveryCSAFDomain    string
+	// AutoStart indicates whether the discovery should be automatically started when the service is initialized.
+	AutoStart     bool
+	ResourceGroup string
+	CSAFDomain    string
 }
 
 // EvidenceStoreStreamConfig holds the configuration for the evidence store stream.
@@ -229,10 +229,10 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		Events:            make(chan *DiscoveryEvent),
 		discoveryInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
 		cloudConfig: CloudCollectorConfig{
-			DiscoveryAutoStart:      DefaultDiscoveryAutoStartFlag,
-			TargetOfEvaluationID:    config.DefaultTargetOfEvaluationID,
-			EvidenceCollectorToolID: config.DefaultEvidenceCollectorToolID,
-			CollectorProvider:       []string{ProviderAWS, ProviderAzure, ProviderK8S},
+			AutoStart:            DefaultDiscoveryAutoStartFlag,
+			TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
+			CollectorToolID:      config.DefaultEvidenceCollectorToolID,
+			Provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
 			evStreamConfig: EvidenceStoreStreamConfig{
 				targetAddress: DefaultEvidenceStoreURL,
 				client:        http.DefaultClient,
@@ -255,7 +255,7 @@ func (svc *Service) Init() {
 	var err error
 
 	// Automatically start the discovery, if we have this flag enabled
-	if svc.cloudConfig.DiscoveryAutoStart {
+	if svc.cloudConfig.AutoStart {
 		go func() {
 			// TODO(all): Do we need that anymore?
 			// <-rest.GetReadyChannel()
@@ -295,8 +295,8 @@ func (svc *Service) Start() (err error) {
 			// Add authorizer and TargetOfEvaluationID
 			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.ctID))
 			// Check if resource group is given and append to discoverer
-			if svc.cloudConfig.DiscoveryResourceGroup != "" {
-				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.DiscoveryResourceGroup))
+			if svc.cloudConfig.ResourceGroup != "" {
+				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.ResourceGroup))
 			}
 			svc.collectors = append(svc.collectors, azure.NewAzureDiscovery(optsAzure...))
 		case provider == ProviderK8S:
@@ -335,7 +335,7 @@ func (svc *Service) Start() (err error) {
 				domain string
 				opts   []csaf.DiscoveryOption
 			)
-			domain = svc.cloudConfig.DiscoveryCSAFDomain
+			domain = svc.cloudConfig.CSAFDomain
 			if domain != "" {
 				opts = append(opts, csaf.WithProviderDomain(domain))
 			}
