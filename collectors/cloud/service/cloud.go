@@ -57,14 +57,14 @@ var (
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
 type CloudCollectorConfig struct {
-	// Provider is the list of cloud service providers to use for discovering resources.
-	Provider []string
+	// provider is the list of cloud service providers to use for discovering resources.
+	provider []string
 
-	// TargetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
-	TargetOfEvaluationID string
+	// targetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
+	targetOfEvaluationID string
 
-	// CollectorToolID is the collector tool ID which is gathering the resources.
-	CollectorToolID string
+	// collectorToolID is the collector tool ID which is gathering the resources.
+	collectorToolID string
 
 	// collectorInterval is the interval at which discovery runs are scheduled.
 	collectorInterval time.Duration
@@ -72,14 +72,14 @@ type CloudCollectorConfig struct {
 	//evStreamConfig holds the configuration for the evidence store stream.
 	evStreamConfig EvidenceStoreStreamConfig
 
-	// AutoStart indicates whether the discovery should be automatically started when the service is initialized.
-	AutoStart bool
+	// autoStart indicates whether the discovery should be automatically started when the service is initialized.
+	autoStart bool
 
-	// ResourceGroup is the Azure resource group to discover resources from.
-	ResourceGroup string
+	// resourceGroup is the Azure resource group to discover resources from.
+	resourceGroup string
 
-	// CSAFDomain is the domain used for CSAF trusted provider discovery.
-	CSAFDomain string
+	// csafDomain is the domain used for CSAF trusted provider discovery.
+	csafDomain string
 }
 
 // EvidenceStoreStreamConfig holds the configuration for the evidence store stream.
@@ -170,7 +170,7 @@ func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
 		log.Infof("Target of Evaluation ID is set to %s", ID)
 
-		svc.cloudConfig.TargetOfEvaluationID = ID
+		svc.cloudConfig.targetOfEvaluationID = ID
 	}
 }
 
@@ -179,7 +179,7 @@ func WithCollectorToolID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
 		log.Infof("Evidence Collector Tool ID is set to %s", ID)
 
-		svc.cloudConfig.CollectorToolID = ID
+		svc.cloudConfig.collectorToolID = ID
 	}
 }
 
@@ -199,7 +199,7 @@ func WithProviders(providersList []string) service.Option[*Service] {
 	}
 
 	return func(svc *Service) {
-		svc.cloudConfig.Provider = providersList
+		svc.cloudConfig.provider = providersList
 	}
 }
 
@@ -226,10 +226,10 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		scheduler: gocron.NewScheduler(time.UTC),
 		Events:    make(chan *DiscoveryEvent),
 		cloudConfig: CloudCollectorConfig{
-			AutoStart:            DefaultDiscoveryAutoStartFlag,
-			TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
-			CollectorToolID:      config.DefaultEvidenceCollectorToolID,
-			Provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
+			autoStart:            DefaultDiscoveryAutoStartFlag,
+			targetOfEvaluationID: config.DefaultTargetOfEvaluationID,
+			collectorToolID:      config.DefaultEvidenceCollectorToolID,
+			provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
 			evStreamConfig: EvidenceStoreStreamConfig{
 				targetAddress: DefaultEvidenceStoreURL,
 				client:        http.DefaultClient,
@@ -253,7 +253,7 @@ func (svc *Service) Init() {
 	var err error
 
 	// Automatically start the discovery, if we have this flag enabled
-	if svc.cloudConfig.AutoStart {
+	if svc.cloudConfig.autoStart {
 		go func() {
 			// TODO(all): Do we need that anymore?
 			// <-rest.GetReadyChannel()
@@ -281,7 +281,7 @@ func (svc *Service) Start() (err error) {
 	svc.scheduler.TagsUnique()
 
 	// Configure discoverers for given providers
-	for _, provider := range svc.cloudConfig.Provider {
+	for _, provider := range svc.cloudConfig.provider {
 		switch {
 		case provider == ProviderAzure:
 			authorizer, err := azure.NewAuthorizer()
@@ -291,10 +291,10 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
-			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.TargetOfEvaluationID))
+			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
 			// Check if resource group is given and append to discoverer
-			if svc.cloudConfig.ResourceGroup != "" {
-				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.ResourceGroup))
+			if svc.cloudConfig.resourceGroup != "" {
+				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.resourceGroup))
 			}
 			svc.collectors = append(svc.collectors, azure.NewAzureDiscovery(optsAzure...))
 		case provider == ProviderK8S:
@@ -305,9 +305,9 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			svc.collectors = append(svc.collectors,
-				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.cloudConfig.TargetOfEvaluationID),
-				k8s.NewKubernetesNetworkDiscovery(k8sClient, svc.cloudConfig.TargetOfEvaluationID),
-				k8s.NewKubernetesStorageDiscovery(k8sClient, svc.cloudConfig.TargetOfEvaluationID))
+				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.cloudConfig.targetOfEvaluationID),
+				k8s.NewKubernetesNetworkDiscovery(k8sClient, svc.cloudConfig.targetOfEvaluationID),
+				k8s.NewKubernetesStorageDiscovery(k8sClient, svc.cloudConfig.targetOfEvaluationID))
 		case provider == ProviderAWS:
 			awsClient, err := aws.NewClient()
 			if err != nil {
@@ -316,8 +316,8 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			svc.collectors = append(svc.collectors,
-				aws.NewAwsStorageDiscovery(awsClient, svc.cloudConfig.TargetOfEvaluationID),
-				aws.NewAwsComputeDiscovery(awsClient, svc.cloudConfig.TargetOfEvaluationID))
+				aws.NewAwsStorageDiscovery(awsClient, svc.cloudConfig.targetOfEvaluationID),
+				aws.NewAwsComputeDiscovery(awsClient, svc.cloudConfig.targetOfEvaluationID))
 		case provider == ProviderOpenstack:
 			authorizer, err := openstack.NewAuthorizer()
 			if err != nil {
@@ -326,14 +326,14 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
-			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.TargetOfEvaluationID))
+			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
 			svc.collectors = append(svc.collectors, openstack.NewOpenstackDiscovery(optsOpenstack...))
 		case provider == ProviderCSAF:
 			var (
 				domain string
 				opts   []csaf.DiscoveryOption
 			)
-			domain = svc.cloudConfig.CSAFDomain
+			domain = svc.cloudConfig.csafDomain
 			if domain != "" {
 				opts = append(opts, csaf.WithProviderDomain(domain))
 			}
@@ -400,7 +400,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 			Id:                   uuid.New().String(),
 			TargetOfEvaluationId: svc.GetTargetOfEvaluationId(),
 			Timestamp:            timestamppb.Now(),
-			ToolId:               svc.cloudConfig.CollectorToolID,
+			ToolId:               svc.cloudConfig.collectorToolID,
 			Resource:             ontology.ProtoResource(resource),
 		}
 
@@ -428,7 +428,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 // CheckAccess directly on the service. This is necessary because the discovery service itself is tied to a specific
 // target of evaluation ID, instead of the individual requests that are made against the service.
 func (svc *Service) GetTargetOfEvaluationId() string {
-	return svc.cloudConfig.TargetOfEvaluationID
+	return svc.cloudConfig.targetOfEvaluationID
 }
 
 // TODO(all): Maybe add a generic in core that can be used by all services to manage streams?
