@@ -4,37 +4,11 @@ Thank you for your interest in contributing to Confirmate! This document provide
 
 ## Table of Contents
 
-- [Development Setup](#development-setup)
 - [Code Style Guidelines](#code-style-guidelines)
 - [Documentation Guidelines](#documentation-guidelines)
 - [Testing Guidelines](#testing-guidelines)
-- [Migration Guidelines](#migration-guidelines)
+- [Dependencies and Libraries](#dependencies-and-libraries)
 - [Pull Request Process](#pull-request-process)
-
-## Development Setup
-
-### Prerequisites
-
-- Go 1.21 or later
-- [buf](https://buf.build) for Protocol Buffer generation
-- Git for version control
-
-### Building the Project
-
-```bash
-cd core
-go install github.com/srikrsna/protoc-gen-gotag
-go generate ./...
-mkdir -p build
-go build -o build ./cmd/orchestrator
-```
-
-### Running Tests
-
-```bash
-cd core
-go test ./...
-```
 
 ## Code Style Guidelines
 
@@ -68,13 +42,17 @@ Use `var` blocks at the beginning of functions to group all variables needed in 
 
 **Good:**
 ```go
-func NewService() (orchestratorconnect.OrchestratorHandler, error) {
+func NewService() (svc orchestratorconnect.OrchestratorHandler, err error) {
     var (
-        svc = &service{}
-        err error
+        db *persistence.DB
     )
     
-    // Function implementation
+    db, err = persistence.NewDB(...)
+    if err != nil {
+        return nil, err
+    }
+    
+    svc = &service{db: db}
     return svc, nil
 }
 ```
@@ -238,9 +216,7 @@ func TestSomething(t *testing.T) {
 }
 ```
 
-## Migration Guidelines
-
-When migrating components from Clouditor to Confirmate, follow these guidelines:
+## Dependencies and Libraries
 
 ### Reduce Dependencies
 
@@ -250,14 +226,14 @@ When migrating components from Clouditor to Confirmate, follow these guidelines:
 
 ### Configuration and CLI
 
-- Use [github.com/urfave/cli](https://github.com/urfave/cli) v3 instead of cobra/viper for configuration
-- No migrated code should refer to cobra or viper
+- Use [github.com/urfave/cli](https://github.com/urfave/cli) v3 for command-line interfaces and configuration
+- Do not use cobra or viper
 - Follow the cli v3 patterns for command-line interfaces
 
 ### Logging
 
-- Use `slog` (standard library structured logging) instead of `log`
-- Remove all references to `logrus`
+- Use `slog` (standard library structured logging) for all logging
+- Do not use `log` or `logrus`
 - Use structured logging with appropriate log levels
 
 **Example:**
@@ -270,16 +246,10 @@ slog.Error("failed to connect", "error", err)
 
 ### Database and Storage
 
-- Keep using `gorm` for database operations
-- Remove the intermediate "storage" layer
-- Allow (more or less) direct access to Gorm, wrapped by small utility functions for saving, updating, etc.
+- Use `gorm` for database operations
+- Access Gorm directly, wrapped by small utility functions for saving, updating, etc.
 - Use the utility functions in `core/persistence` for common operations
-
-### Testing Assertions
-
-- Use `core/util/assert` for test assertions
-- This package provides a consistent interface and may change implementations in the future
-- Always use this package instead of importing external assertion libraries directly
+- Avoid creating intermediate "storage" abstraction layers
 
 ## Pull Request Process
 
