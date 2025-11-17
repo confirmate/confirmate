@@ -107,11 +107,9 @@ func TestRestartableBidiStream_RetryCount(t *testing.T) {
 	}
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 
@@ -144,11 +142,9 @@ func TestRestartableBidiStream_Close(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 
@@ -189,11 +185,9 @@ func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 
@@ -247,11 +241,9 @@ func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 
@@ -350,11 +342,9 @@ func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 
@@ -402,11 +392,9 @@ func TestRestartableBidiStream_SendAfterClose(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 
@@ -440,11 +428,9 @@ func TestRestartableBidiStream_ReceiveAfterClose(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
-		[]server.Option{
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(svc),
-			),
-		},
+		server.WithHandler(
+			orchestratorconnect.NewOrchestratorHandler(svc),
+		),
 	)
 	defer testSrv.Close()
 

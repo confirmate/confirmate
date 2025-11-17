@@ -42,11 +42,9 @@ func ExampleRestartableBidiStream() {
 	}
 
 	_, testSrv := servertest.NewTestConnectServer(nil,
-		[]server.Option{
 			server.WithHandler(
 				orchestratorconnect.NewOrchestratorHandler(svc),
 			),
-		},
 	)
 	defer testSrv.Close()
 
@@ -96,11 +94,9 @@ func ExampleRestartableBidiStream_withCallbacks() {
 	}
 
 	_, testSrv := servertest.NewTestConnectServer(nil,
-		[]server.Option{
 			server.WithHandler(
 				orchestratorconnect.NewOrchestratorHandler(svc),
 			),
-		},
 	)
 	defer testSrv.Close()
 
@@ -180,11 +176,9 @@ func ExampleRestartableBidiStream_monitoring() {
 	}
 
 	_, testSrv := servertest.NewTestConnectServer(nil,
-		[]server.Option{
 			server.WithHandler(
 				orchestratorconnect.NewOrchestratorHandler(svc),
 			),
-		},
 	)
 	defer testSrv.Close()
 

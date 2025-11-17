@@ -15,7 +15,7 @@ import (
 //
 // The caller must close the returned [httptest.Server] using testsrv.Close() when done. This will
 // fail the test if the server could not be created.
-func NewTestConnectServer(t *testing.T, opts []server.Option) (srv *server.Server, testsrv *httptest.Server) {
+func NewTestConnectServer(t *testing.T, opts ...server.Option) (srv *server.Server, testsrv *httptest.Server) {
 	return newTestConnectServerInternal(t, opts, nil)
 }
 
@@ -26,7 +26,7 @@ func NewTestConnectServer(t *testing.T, opts []server.Option) (srv *server.Serve
 //
 // The caller must close the returned [httptest.Server] using testsrv.Close() when done. This will
 // fail the test if the server could not be created.
-func NewTestConnectServerWithListener(t *testing.T, opts []server.Option, listener net.Listener) (srv *server.Server, testsrv *httptest.Server) {
+func NewTestConnectServerWithListener(t *testing.T, listener net.Listener, opts ...server.Option) (srv *server.Server, testsrv *httptest.Server) {
 	return newTestConnectServerInternal(t, opts, listener)
 }
 
