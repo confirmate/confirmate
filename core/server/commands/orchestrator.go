@@ -22,18 +22,52 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
 
-	"github.com/mfridman/cli"
+	"github.com/urfave/cli/v3"
 )
 
 // OrchestratorCommand is the command to start the orchestrator server.
 var OrchestratorCommand = &cli.Command{
-	Name: "orchestrator",
-	Exec: func(ctx context.Context, s *cli.State) error {
+	Name:  "orchestrator",
+	Usage: "Launches the orchestrator service",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
 		svc, err := orchestrator.NewService()
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(orchestratorconnect.NewOrchestratorHandler(svc))
+		return server.RunConnectServer(
+			server.WithConfig(server.Config{
+				Port: cmd.Uint16("api-port"),
+				Path: "/",
+				CORS: server.CORS{
+					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
+					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
+					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
+				},
+			}),
+			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		)
+	},
+	Flags: []cli.Flag{
+		&cli.Uint16Flag{
+			Name:  "api-port",
+			Usage: "Port to run the API server (Connect, gRPC, REST) on",
+			Value: server.DefaultConfig.Port,
+		},
+		&cli.StringSliceFlag{
+			Name:  "api-cors-allowed-origins",
+			Usage: "Specifies the origins allowed in CORS",
+			Value: server.DefaultConfig.CORS.AllowedOrigins,
+		},
+		&cli.StringSliceFlag{
+			Name:  "api-cors-allowed-methods",
+			Usage: "Specifies the methods allowed in CORS",
+			Value: server.DefaultConfig.CORS.AllowedMethods,
+		},
+		&cli.StringSliceFlag{
+			Name:  "api-cors-allowed-headers",
+			Usage: "Specifies the headers allowed in CORS",
+			Value: server.DefaultConfig.CORS.AllowedHeaders,
+		},
 	},
 }
