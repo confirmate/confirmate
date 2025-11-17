@@ -22,8 +22,6 @@ import (
 )
 
 // types contains all Orchestrator types that we need to auto-migrate into database tables
-//
-// TODO: Add other services' types
 var types = []any{
 	&orchestrator.TargetOfEvaluation{},
 	&orchestrator.Certificate{},
@@ -32,8 +30,12 @@ var types = []any{
 	&orchestrator.Category{},
 	&orchestrator.Control{},
 	&orchestrator.AuditScope{},
+	// TODO: Add AssessmentTool once available_metrics field has proper serialization tag
+	// &orchestrator.AssessmentTool{},
 	&assessment.MetricConfiguration{},
 	&assessment.Metric{},
+	&assessment.MetricImplementation{},
+	&assessment.AssessmentResult{},
 }
 
 // joinTables defines the [MetricConfiguration] as a custom join table between
