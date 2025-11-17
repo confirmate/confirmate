@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
+	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
 )
@@ -49,7 +50,7 @@ func TestDemo_StreamRestartAfterServerShutdown(t *testing.T) {
 	
 	svc, err := orchestratorsvc.NewService()
 	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
+		assert.NoError(t, err)
 	}
 
 	_, server1 := servertest.NewTestConnectServer(t,
@@ -96,7 +97,7 @@ func TestDemo_StreamRestartAfterServerShutdown(t *testing.T) {
 	ctx := context.Background()
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
 	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
+		assert.NoError(t, err)
 	}
 	defer rs.Close()
 	
@@ -126,7 +127,7 @@ func TestDemo_StreamRestartAfterServerShutdown(t *testing.T) {
 	
 	svc2, err := orchestratorsvc.NewService()
 	if err != nil {
-		t.Fatalf("Failed to create new service: %v", err)
+		assert.NoError(t, err)
 	}
 
 	_, server2 := servertest.NewTestConnectServer(t,
@@ -151,7 +152,7 @@ func TestDemo_StreamRestartAfterServerShutdown(t *testing.T) {
 	// Test that we can make requests with the new server
 	resp, err := newClient.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
 	if err != nil {
-		t.Fatalf("Failed to list targets with new server: %v", err)
+		assert.NoError(t, err)
 	}
 	
 	t.Logf("   ✓ Successfully communicated with new server")
@@ -225,7 +226,7 @@ func TestDemo_MonitoringAndCallbacks(t *testing.T) {
 	// Create a test server
 	svc, err := orchestratorsvc.NewService()
 	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
+		assert.NoError(t, err)
 	}
 
 	_, testSrv := servertest.NewTestConnectServer(t,
@@ -269,7 +270,7 @@ func TestDemo_MonitoringAndCallbacks(t *testing.T) {
 	ctx := context.Background()
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
 	if err != nil {
-		t.Fatalf("Failed to create stream: %v", err)
+		assert.NoError(t, err)
 	}
 	defer rs.Close()
 

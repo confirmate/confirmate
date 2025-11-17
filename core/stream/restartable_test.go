@@ -18,7 +18,6 @@ package stream
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -31,6 +30,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
+	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
 )
@@ -90,12 +90,8 @@ func TestRestartableBidiStream_Basic(t *testing.T) {
 	config.MaxRetries = 3
 
 	// For unit testing, we'll verify the config is correct
-	if config.MaxRetries != 3 {
-		t.Errorf("Expected MaxRetries=3, got %d", config.MaxRetries)
-	}
-	if config.InitialBackoff != 100*time.Millisecond {
-		t.Errorf("Expected InitialBackoff=100ms, got %v", config.InitialBackoff)
-	}
+	assert.Equal(t, 3, config.MaxRetries)
+	assert.Equal(t, 100*time.Millisecond, config.InitialBackoff)
 
 	_ = factory
 	_ = mockStream
@@ -111,15 +107,9 @@ func TestRestartableBidiStream_AutoRestart(t *testing.T) {
 	config.MaxBackoff = 100 * time.Millisecond
 
 	// Verify configuration
-	if config.MaxRetries != 3 {
-		t.Errorf("Expected MaxRetries=3, got %d", config.MaxRetries)
-	}
-	if config.InitialBackoff != 10*time.Millisecond {
-		t.Errorf("Expected InitialBackoff=10ms, got %v", config.InitialBackoff)
-	}
-	if config.MaxBackoff != 100*time.Millisecond {
-		t.Errorf("Expected MaxBackoff=100ms, got %v", config.MaxBackoff)
-	}
+	assert.Equal(t, 3, config.MaxRetries)
+	assert.Equal(t, 10*time.Millisecond, config.InitialBackoff)
+	assert.Equal(t, 100*time.Millisecond, config.MaxBackoff)
 }
 
 // TestRestartableBidiStream_RetryCount tests retry counting using integration test setup.
@@ -152,24 +142,18 @@ func TestRestartableBidiStream_RetryCount(t *testing.T) {
 	}
 
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 	defer rs.Close()
 
 	// Initial retry count should be 0
-	if rs.RetryCount() != 0 {
-		t.Errorf("Expected retry count 0, got %d", rs.RetryCount())
-	}
+	assert.Equal(t, 0, rs.RetryCount())
 }
 
 // TestRestartableBidiStream_Close tests proper cleanup on close.
 func TestRestartableBidiStream_Close(t *testing.T) {
 	// Create a test server for proper stream creation
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(
@@ -190,39 +174,29 @@ func TestRestartableBidiStream_Close(t *testing.T) {
 
 	config := DefaultRestartConfig()
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Close the stream
 	err = rs.Close()
-	if err != nil {
-		t.Errorf("Close() returned error: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Verify stream is closed
 	rs.mu.RLock()
 	closed := rs.closed
 	rs.mu.RUnlock()
 	
-	if !closed {
-		t.Error("Stream should be marked as closed")
-	}
+	assert.True(t, closed)
 
 	// Second close should be idempotent
 	err = rs.Close()
-	if err != nil {
-		t.Errorf("Second Close() returned error: %v", err)
-	}
+	assert.NoError(t, err)
 }
 
 // TestRestartableBidiStream_ContextCancellation tests behavior when context is cancelled.
 func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 	// Create a test server for proper stream creation
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(
@@ -243,9 +217,7 @@ func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 
 	config := DefaultRestartConfig()
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 	defer rs.Close()
 
 	// Cancel the context
@@ -259,7 +231,7 @@ func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 	case <-rs.ctx.Done():
 		// Expected
 	default:
-		t.Error("Context should be cancelled")
+		assert.Fail(t, "Context should be cancelled")
 	}
 }
 
@@ -267,9 +239,7 @@ func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 func TestRestartableBidiStream_Integration(t *testing.T) {
 	// Create a test server
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Create a real test server
 	srv, testSrv := servertest.NewTestConnectServer(t,
@@ -289,13 +259,9 @@ func TestRestartableBidiStream_Integration(t *testing.T) {
 	// Test connection by listing targets
 	ctx := context.Background()
 	resp, err := client.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
-	if err != nil {
-		t.Fatalf("Failed to list targets: %v", err)
-	}
+	assert.NoError(t, err)
 
-	if len(resp.Msg.TargetsOfEvaluation) == 0 {
-		t.Error("Expected at least one target of evaluation")
-	}
+	assert.NotEmpty(t, resp.Msg.TargetsOfEvaluation)
 
 	t.Log("Integration test passed: server is working correctly")
 }
@@ -314,9 +280,7 @@ func TestRestartableBidiStream_StreamRecovery(t *testing.T) {
 		serverRestart.Add(1)
 		
 		svc, err := orchestratorsvc.NewService()
-		if err != nil {
-			t.Fatalf("Failed to create service: %v", err)
-		}
+		assert.NoError(t, err)
 
 		_, testSrv := servertest.NewTestConnectServer(t,
 			server.WithHandler(
@@ -340,9 +304,7 @@ func TestRestartableBidiStream_StreamRecovery(t *testing.T) {
 	
 	// First request should succeed
 	_, err := client.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
-	if err != nil {
-		t.Fatalf("Initial request failed: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Simulate server restart by closing and creating new server
 	mu.Lock()
@@ -364,14 +326,10 @@ func TestRestartableBidiStream_StreamRecovery(t *testing.T) {
 
 	// This request should succeed with the new server
 	_, err = newClient.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}))
-	if err != nil {
-		t.Fatalf("Request after restart failed: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Verify server was restarted
-	if serverRestart.Load() < 2 {
-		t.Errorf("Expected at least 2 server starts, got %d", serverRestart.Load())
-	}
+	assert.True(t, serverRestart.Load() >= 2)
 
 	t.Log("Stream recovery test passed: successfully recovered from connection loss")
 }
@@ -380,36 +338,20 @@ func TestRestartableBidiStream_StreamRecovery(t *testing.T) {
 func TestRestartConfig_Defaults(t *testing.T) {
 	config := DefaultRestartConfig()
 
-	if config.MaxRetries != 0 {
-		t.Errorf("Expected MaxRetries=0 (unlimited), got %d", config.MaxRetries)
-	}
-	if config.InitialBackoff != 100*time.Millisecond {
-		t.Errorf("Expected InitialBackoff=100ms, got %v", config.InitialBackoff)
-	}
-	if config.MaxBackoff != 30*time.Second {
-		t.Errorf("Expected MaxBackoff=30s, got %v", config.MaxBackoff)
-	}
-	if config.BackoffMultiplier != 2.0 {
-		t.Errorf("Expected BackoffMultiplier=2.0, got %f", config.BackoffMultiplier)
-	}
-	if config.OnRestart == nil {
-		t.Error("Expected OnRestart callback to be set")
-	}
-	if config.OnRestartSuccess == nil {
-		t.Error("Expected OnRestartSuccess callback to be set")
-	}
-	if config.OnRestartFailure == nil {
-		t.Error("Expected OnRestartFailure callback to be set")
-	}
+	assert.Equal(t, 0, config.MaxRetries)
+	assert.Equal(t, 100*time.Millisecond, config.InitialBackoff)
+	assert.Equal(t, 30*time.Second, config.MaxBackoff)
+	assert.Equal(t, 2.0, config.BackoffMultiplier)
+	assert.NotNil(t, config.OnRestart)
+	assert.NotNil(t, config.OnRestartSuccess)
+	assert.NotNil(t, config.OnRestartFailure)
 }
 
 // TestRestartableBidiStream_MaxRetriesExceeded tests that retries stop after max attempts.
 func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 	// Create a test server for proper stream creation
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(
@@ -443,9 +385,7 @@ func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 	}
 
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 	defer rs.Close()
 
 	// Close the server to simulate connection failure
@@ -465,24 +405,16 @@ func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 	restartErr := rs.restart(testErr)
 	
 	// Should fail after max retries
-	if restartErr == nil {
-		t.Error("Expected restart to fail after max retries")
-	}
+	assert.Error(t, restartErr)
 
 	// Verify restart was attempted at least once
-	if restartAttempts.Load() < 1 {
-		t.Errorf("Expected at least 1 restart attempt, got %d", restartAttempts.Load())
-	}
+	assert.True(t, restartAttempts.Load() >= 1)
 
 	// Verify failure callback was called
-	if !failureCalled.Load() {
-		t.Error("Expected OnRestartFailure callback to be called")
-	}
+	assert.True(t, failureCalled.Load())
 
 	// Verify last error is stored
-	if rs.LastError() != testErr {
-		t.Errorf("Expected last error to be %v, got %v", testErr, rs.LastError())
-	}
+	assert.Same(t, testErr, rs.LastError())
 }
 
 // TestRestartableBidiStream_ExponentialBackoff tests exponential backoff behavior.
@@ -506,10 +438,8 @@ func TestRestartableBidiStream_ExponentialBackoff(t *testing.T) {
 	}
 
 	backoff := config.InitialBackoff
-	for i, expected := range expectedBackoffs {
-		if backoff != expected {
-			t.Errorf("Backoff at step %d: expected %v, got %v", i, expected, backoff)
-		}
+	for _, expected := range expectedBackoffs {
+		assert.Equal(t, expected, backoff)
 		
 		backoff = time.Duration(float64(backoff) * config.BackoffMultiplier)
 		if backoff > config.MaxBackoff {
@@ -522,9 +452,7 @@ func TestRestartableBidiStream_ExponentialBackoff(t *testing.T) {
 func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 	// Create a test server for proper stream creation
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(
@@ -548,9 +476,7 @@ func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 	config.InitialBackoff = 1 * time.Millisecond
 	
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 	defer rs.Close()
 
 	// Run concurrent operations
@@ -576,9 +502,7 @@ func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 func TestRestartableBidiStream_SendAfterClose(t *testing.T) {
 	// Create a test server for proper stream creation
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(
@@ -599,36 +523,23 @@ func TestRestartableBidiStream_SendAfterClose(t *testing.T) {
 
 	config := DefaultRestartConfig()
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Close the stream
 	err = rs.Close()
-	if err != nil {
-		t.Errorf("Close() returned error: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Try to send after close - should fail
 	err = rs.Send(&orchestrator.StoreAssessmentResultRequest{})
-	if err == nil {
-		t.Error("Expected error when sending after close, got nil")
-	}
-	if err != nil && !errors.Is(err, fmt.Errorf("stream is closed")) {
-		// Check error message contains "closed"
-		if err.Error() != "stream is closed" {
-			t.Errorf("Expected 'stream is closed' error, got: %v", err)
-		}
-	}
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "stream is closed")
 }
 
 // TestRestartableBidiStream_ReceiveAfterClose tests error handling when receiving after close.
 func TestRestartableBidiStream_ReceiveAfterClose(t *testing.T) {
 	// Create a test server for proper stream creation
 	svc, err := orchestratorsvc.NewService()
-	if err != nil {
-		t.Fatalf("Failed to create service: %v", err)
-	}
+	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
 		server.WithHandler(
@@ -649,22 +560,14 @@ func TestRestartableBidiStream_ReceiveAfterClose(t *testing.T) {
 
 	config := DefaultRestartConfig()
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		t.Fatalf("Failed to create restartable stream: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Close the stream
 	err = rs.Close()
-	if err != nil {
-		t.Errorf("Close() returned error: %v", err)
-	}
+	assert.NoError(t, err)
 
 	// Try to receive after close - should fail
 	_, err = rs.Receive()
-	if err == nil {
-		t.Error("Expected error when receiving after close, got nil")
-	}
-	if err != nil && err.Error() != "stream is closed" {
-		t.Errorf("Expected 'stream is closed' error, got: %v", err)
-	}
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "stream is closed")
 }
