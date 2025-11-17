@@ -7,12 +7,16 @@ import (
 	"testing"
 	"time"
 
+	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/server"
+	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 )
 
 func TestMain(m *testing.M) {
@@ -107,4 +111,62 @@ func TestNewService(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+func TestService_handleEvidence(t *testing.T) {
+	// Create Assessment Service + Server
+	assessmentService := assessmentconnect.UnimplementedAssessmentHandler{}
+	srv, testSrv := servertest.NewTestConnectServer(
+		t,
+		server.WithHandler(assessmentconnect.NewAssessmentHandler(assessmentService)),
+	)
+	defer testSrv.Close()
+	assert.NotNil(t, srv)
+	assert.NotNil(t, testSrv)
+
+	// Create Evidence Service
+	svc, err := NewService(WithAssessmentConfig(assessmentConfig{
+		targetAddress: testSrv.URL,
+		client:        testSrv.Client(),
+	}))
+	assert.NoError(t, err)
+
+	// handle Evidence (pass)
+	err = svc.handleEvidence(&evidence.Evidence{
+		Id: uuid.NewString(),
+	},
+		0)
+	assert.NoError(t, err)
+
+	// handle another Evidence (pass)
+	err = svc.handleEvidence(&evidence.Evidence{
+		Id: uuid.NewString(),
+	},
+		0)
+	assert.NoError(t, err)
+
+	// Break up stream from the assessment side
+	testSrv.Close()
+	go func() {
+		// Restart server. In production, we will have a fixed URL but here we have to adapt to the test server
+		time.Sleep(15 * time.Second)
+		srv, testSrv = servertest.NewTestConnectServer(
+			t,
+			server.WithHandler(assessmentconnect.NewAssessmentHandler(assessmentService)),
+		)
+		// Since we have new server, we need to update the config
+		svc.assessmentConfig = assessmentConfig{
+			targetAddress: testSrv.URL,
+			client:        testSrv.Client(),
+		}
+		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+			svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
+	}()
+
+	// handle another Evidence (automatically recreate stream, pass)
+	err = svc.handleEvidence(&evidence.Evidence{
+		Id: uuid.NewString(),
+	},
+		0)
+	assert.NoError(t, err)
 }

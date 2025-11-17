@@ -20,13 +20,10 @@ func (svc *Service) getOrCreateStream() (*connect.BidiStreamForClient[assessment
 		return svc.assessmentStream, nil
 	}
 
-	// Try to create a new stream
+	// Create new stream and
 	// TODO(lebogg): Test this slog statement
 	slog.Info("Creating new stream to assessment service at %s", svc.assessmentConfig.targetAddress, slog.Any("targetAddress", svc.assessmentConfig.targetAddress))
-	stream := svc.assessmentClient.AssessEvidences(context.Background())
-
-	// Store the stream for reuse
-	svc.assessmentStream = stream
+	svc.assessmentStream = svc.assessmentClient.AssessEvidences(context.Background())
 
 	return svc.assessmentStream, nil
 }
