@@ -129,9 +129,6 @@ type Service struct {
 	// scheduler is used to schedule periodic discovery runs.
 	scheduler *gocron.Scheduler
 
-	// providers is the list of cloud service providers to use for discovering resources.
-	providers []string
-
 	// collectors is the list of collectors to use for discovering resources.
 	collectors []cloud.Collector
 
@@ -200,8 +197,8 @@ func WithProviders(providersList []string) service.Option[*Service] {
 		log.Error(newError)
 	}
 
-	return func(s *Service) {
-		s.providers = providersList
+	return func(svc *Service) {
+		svc.cloudConfig.Provider = providersList
 	}
 }
 
@@ -283,7 +280,7 @@ func (svc *Service) Start() (err error) {
 	svc.scheduler.TagsUnique()
 
 	// Configure discoverers for given providers
-	for _, provider := range svc.providers {
+	for _, provider := range svc.cloudConfig.Provider {
 		switch {
 		case provider == ProviderAzure:
 			authorizer, err := azure.NewAuthorizer()

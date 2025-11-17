@@ -85,7 +85,7 @@ func TestNewService(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				return assert.Equal(t, []string{"azure"}, got.providers)
+				return assert.Equal(t, []string{"azure"}, got.cloudConfig.Provider)
 			},
 		},
 		{
@@ -96,7 +96,7 @@ func TestNewService(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				return assert.Equal(t, []string{}, got.providers)
+				return assert.Equal(t, []string{}, got.cloudConfig.Provider)
 			},
 		},
 		{
@@ -316,7 +316,6 @@ func TestService_Start(t *testing.T) {
 		evidenceStoreStream *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
 		dead                bool
 		scheduler           *gocron.Scheduler
-		providers           []string
 		discoveryInterval   time.Duration
 		Events              chan *DiscoveryEvent
 		ctID                string
@@ -334,7 +333,9 @@ func TestService_Start(t *testing.T) {
 			name: "Request with wrong provider name",
 			fields: fields{
 				scheduler: gocron.NewScheduler(time.UTC),
-				providers: []string{"falseProvider"},
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{"falseProvider"},
+				},
 			},
 			want: func(t *testing.T, got *Service) bool {
 				return assert.False(t, got.scheduler.IsRunning())
@@ -357,8 +358,11 @@ func TestService_Start(t *testing.T) {
 		{
 			name: "discovery interval error",
 			fields: fields{
-				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderAzure},
+				scheduler: gocron.NewScheduler(time.UTC),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderAzure},
+				},
+
 				discoveryInterval: time.Duration(-5 * time.Minute),
 				envVariables: []envVariable{
 					{
@@ -379,7 +383,7 @@ func TestService_Start(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.Provider)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
 			wantErr: func(t *testing.T, gotErr error) bool {
@@ -389,8 +393,10 @@ func TestService_Start(t *testing.T) {
 		{
 			name: "K8S authorizer error",
 			fields: fields{
-				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderK8S},
+				scheduler: gocron.NewScheduler(time.UTC),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderK8S},
+				},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				envVariables: []envVariable{
 					// We must set HOME to a wrong path so that the K8S authorizer fails
@@ -402,7 +408,7 @@ func TestService_Start(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderK8S}, got.providers)
+				assert.Equal(t, []string{ProviderK8S}, got.cloudConfig.Provider)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
 			wantErr: func(t *testing.T, gotErr error) bool {
@@ -413,10 +419,10 @@ func TestService_Start(t *testing.T) {
 			name: "Azure authorizer error",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderAzure},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				cloudConfig: CloudCollectorConfig{
 					TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
+					Provider:             []string{ProviderAzure},
 				},
 				envVariables: []envVariable{
 					{
@@ -427,7 +433,7 @@ func TestService_Start(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.Provider)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.TargetOfEvaluationID)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
@@ -439,14 +445,14 @@ func TestService_Start(t *testing.T) {
 			name: "AWS authorizer error",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderAWS},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				cloudConfig: CloudCollectorConfig{
 					TargetOfEvaluationID: config.DefaultTargetOfEvaluationID,
+					Provider:             []string{ProviderAWS},
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderAWS}, got.providers)
+				assert.Equal(t, []string{ProviderAWS}, got.cloudConfig.Provider)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.TargetOfEvaluationID)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
@@ -457,12 +463,14 @@ func TestService_Start(t *testing.T) {
 		{
 			name: "OpenStack authorizer error",
 			fields: fields{
-				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderOpenstack},
+				scheduler: gocron.NewScheduler(time.UTC),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderOpenstack},
+				},
 				discoveryInterval: time.Duration(5 * time.Minute),
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderOpenstack}, got.providers)
+				assert.Equal(t, []string{ProviderOpenstack}, got.cloudConfig.Provider)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
 			wantErr: func(t *testing.T, err error) bool {
@@ -473,7 +481,6 @@ func TestService_Start(t *testing.T) {
 			name: "Happy path: no discovery interval error",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderAzure},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				envVariables: []envVariable{
 					{
@@ -492,9 +499,12 @@ func TestService_Start(t *testing.T) {
 						envVariableValue: "client-secret-456",
 					},
 				},
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderAzure},
+				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.Provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -502,8 +512,10 @@ func TestService_Start(t *testing.T) {
 		{
 			name: "Happy path: Azure authorizer from ENV",
 			fields: fields{
-				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderAzure},
+				scheduler: gocron.NewScheduler(time.UTC),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderAzure},
+				},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				envVariables: []envVariable{
 					{
@@ -524,7 +536,7 @@ func TestService_Start(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.Provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -533,9 +545,9 @@ func TestService_Start(t *testing.T) {
 			name: "Happy path: Azure with resource group",
 			fields: fields{
 				scheduler: gocron.NewScheduler(time.UTC),
-				providers: []string{ProviderAzure},
 				cloudConfig: CloudCollectorConfig{
 					ResourceGroup: "my-resource-group",
+					Provider:      []string{ProviderAzure},
 				},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				envVariables: []envVariable{
@@ -557,7 +569,7 @@ func TestService_Start(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderAzure}, got.providers)
+				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.Provider)
 				assert.Equal(t, "my-resource-group", got.cloudConfig.ResourceGroup)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
@@ -567,15 +579,15 @@ func TestService_Start(t *testing.T) {
 			name: "Happy path: CSAF with domain",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderCSAF},
 				discoveryInterval: time.Duration(5 * time.Minute),
 				cloudConfig: CloudCollectorConfig{
 					CSAFDomain: "example.com",
+					Provider:   []string{ProviderCSAF},
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
 				assert.Equal(t, "example.com", got.cloudConfig.CSAFDomain)
-				assert.Equal(t, []string{ProviderCSAF}, got.providers)
+				assert.Equal(t, []string{ProviderCSAF}, got.cloudConfig.Provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -584,12 +596,14 @@ func TestService_Start(t *testing.T) {
 			name: "Happy path: CSAF without domain",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderCSAF},
 				discoveryInterval: time.Duration(5 * time.Minute),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderCSAF},
+				},
 			},
 			want: func(t *testing.T, got *Service) bool {
 				assert.Equal(t, "", got.cloudConfig.CSAFDomain)
-				assert.Equal(t, []string{ProviderCSAF}, got.providers)
+				assert.Equal(t, []string{ProviderCSAF}, got.cloudConfig.Provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -598,11 +612,13 @@ func TestService_Start(t *testing.T) {
 			name: "Happy path: K8S",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderK8S},
 				discoveryInterval: time.Duration(5 * time.Minute),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderK8S},
+				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderK8S}, got.providers)
+				assert.Equal(t, []string{ProviderK8S}, got.cloudConfig.Provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -611,8 +627,10 @@ func TestService_Start(t *testing.T) {
 			name: "Happy path: OpenStack",
 			fields: fields{
 				scheduler:         gocron.NewScheduler(time.UTC),
-				providers:         []string{ProviderOpenstack},
 				discoveryInterval: time.Duration(5 * time.Minute),
+				cloudConfig: CloudCollectorConfig{
+					Provider: []string{ProviderOpenstack},
+				},
 				envVariables: []envVariable{
 					{
 						hasEnvVariable:   true,
@@ -632,7 +650,7 @@ func TestService_Start(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				assert.Equal(t, []string{ProviderOpenstack}, got.providers)
+				assert.Equal(t, []string{ProviderOpenstack}, got.cloudConfig.Provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -645,7 +663,6 @@ func TestService_Start(t *testing.T) {
 				evidenceStoreStream: tt.fields.evidenceStoreStream,
 				dead:                tt.fields.dead,
 				scheduler:           tt.fields.scheduler,
-				providers:           tt.fields.providers,
 				discoveryInterval:   tt.fields.discoveryInterval,
 				Events:              tt.fields.Events,
 				ctID:                tt.fields.ctID,
