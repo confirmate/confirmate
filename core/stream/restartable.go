@@ -76,14 +76,11 @@
 // All operations on RestartableBidiStream are thread-safe and can be called
 // concurrently from multiple goroutines.
 //
-// # Best Practices
-//
-//   - Set MaxRetries in production to prevent infinite retry loops
-//   - Use exponential backoff to avoid overwhelming servers
-//   - Monitor RetryCount() to detect persistent connection issues
-//   - Implement callbacks for logging and monitoring
-//   - Always respect context cancellation for graceful shutdown
-//   - Always call Close() when done with the stream
+// Best practices: Set MaxRetries in production to prevent infinite retry loops,
+// use exponential backoff to avoid overwhelming servers, monitor RetryCount() to
+// detect persistent connection issues, implement callbacks for logging and monitoring,
+// always respect context cancellation for graceful shutdown, and always call Close()
+// when done with the stream.
 package stream
 
 import (
@@ -169,7 +166,8 @@ type RestartableBidiStream[Req, Res any] struct {
 // The factory function is called to create a new stream initially and whenever
 // a restart is needed due to errors. The returned stream must be closed with
 // Close() when no longer needed to clean up resources and prevent further restarts.
-// The name parameter is optional and used for logging; if empty, a default name is used.
+// The name parameter is optional and used for logging; if empty, the name is
+// automatically derived from the stream's procedure name.
 func NewRestartableBidiStream[Req, Res any](
 	ctx context.Context,
 	factory StreamFactory[Req, Res],
@@ -177,17 +175,31 @@ func NewRestartableBidiStream[Req, Res any](
 	name ...string,
 ) (*RestartableBidiStream[Req, Res], error) {
 	var (
-		streamCtx context.Context
-		cancel    context.CancelFunc
+		streamCtx  context.Context
+		cancel     context.CancelFunc
 		streamName string
+		stream     *connect.BidiStreamForClient[Req, Res]
 	)
 	
 	streamCtx, cancel = context.WithCancel(ctx)
+
+	// Create initial stream
+	stream = factory(streamCtx)
+	if stream == nil {
+		cancel()
+		return nil, fmt.Errorf("factory returned nil stream")
+	}
 	
+	// Determine stream name
 	if len(name) > 0 && name[0] != "" {
 		streamName = name[0]
 	} else {
-		streamName = "BidiStream"
+		// Extract name from stream's procedure
+		spec := stream.Spec()
+		streamName = spec.Procedure
+		if streamName == "" {
+			streamName = "BidiStream"
+		}
 	}
 
 	rs := &RestartableBidiStream[Req, Res]{
@@ -196,13 +208,7 @@ func NewRestartableBidiStream[Req, Res any](
 		config:  config,
 		ctx:     streamCtx,
 		cancel:  cancel,
-	}
-
-	// Create initial stream
-	rs.stream = factory(streamCtx)
-	if rs.stream == nil {
-		cancel()
-		return nil, fmt.Errorf("factory returned nil stream")
+		stream:  stream,
 	}
 
 	return rs, nil
