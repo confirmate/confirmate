@@ -131,3 +131,49 @@ func (svc *service) GetCategory(
 
 	return connect.NewResponse(&res), nil
 }
+
+// ListControls lists all controls, optionally filtered by catalog ID.
+func (svc *service) ListControls(
+	ctx context.Context,
+	req *connect.Request[orchestrator.ListControlsRequest],
+) (*connect.Response[orchestrator.ListControlsResponse], error) {
+	var controls []*orchestrator.Control
+	var conds []any
+
+	// Filter by catalog_id if provided
+	if req.Msg.CatalogId != "" {
+		conds = append(conds, "category_catalog_id = ?", req.Msg.CatalogId)
+	}
+
+	// Filter by category_name if provided
+	if req.Msg.CategoryName != "" {
+		conds = append(conds, "category_name = ?", req.Msg.CategoryName)
+	}
+
+	err := svc.db.List(&controls, "id", true, 0, -1, conds...)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list controls: %w", err))
+	}
+
+	return connect.NewResponse(&orchestrator.ListControlsResponse{
+		Controls: controls,
+	}), nil
+}
+
+// GetControl retrieves a control by ID, category name, and catalog ID.
+func (svc *service) GetControl(
+	ctx context.Context,
+	req *connect.Request[orchestrator.GetControlRequest],
+) (*connect.Response[orchestrator.Control], error) {
+	var res orchestrator.Control
+
+	err := svc.db.Get(&res, "id = ? AND category_name = ? AND category_catalog_id = ?", 
+		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("control not found"))
+	} else if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	}
+
+	return connect.NewResponse(&res), nil
+}

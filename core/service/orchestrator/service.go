@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -218,4 +219,32 @@ func (svc *service) RemoveTargetOfEvaluation(
 	}
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
+}
+
+// GetTargetOfEvaluationStatistics retrieves statistics for targets of evaluation.
+func (svc *service) GetTargetOfEvaluationStatistics(
+	ctx context.Context,
+	req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest],
+) (*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], error) {
+	// TODO: Implement actual statistics calculation
+	// For now, return zero statistics
+	return connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{
+		NumberOfDiscoveredResources: 0,
+		NumberOfAssessmentResults:   0,
+		NumberOfEvidences:           0,
+		NumberOfSelectedCatalogs:    0,
+	}), nil
+}
+
+// GetRuntimeInfo returns runtime information about the orchestrator service.
+func (svc *service) GetRuntimeInfo(
+	ctx context.Context,
+	req *connect.Request[common.GetRuntimeInfoRequest],
+) (*connect.Response[common.Runtime], error) {
+	// TODO: Implement actual runtime information gathering
+	// For now, return basic runtime info
+	return connect.NewResponse(&common.Runtime{
+		Vcs:        "git",
+		CommitHash: "unknown",
+	}), nil
 }
