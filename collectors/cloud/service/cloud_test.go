@@ -59,11 +59,11 @@ func TestNewService(t *testing.T) {
 			name: "Create service with option 'WithEvidenceCollectorToolID'",
 			args: args{
 				opts: []service.Option[*Service]{
-					WithEvidenceCollectorToolID(testdata.MockEvidenceToolID1),
+					WithCollectorToolID(testdata.MockEvidenceToolID1),
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				return assert.Equal(t, testdata.MockEvidenceToolID1, got.collectorID)
+				return assert.Equal(t, testdata.MockEvidenceToolID1, got.cloudConfig.CollectorToolID)
 			},
 		},
 		// {

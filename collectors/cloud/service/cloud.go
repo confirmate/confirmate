@@ -138,9 +138,6 @@ type Service struct {
 	// Events is a channel that emits discovery events.
 	Events chan *DiscoveryEvent
 
-	// collectorID is the evidence collector tool ID which is gathering the resources.
-	collectorID string
-
 	// cloudConfig holds the configuration for the cloud collector.
 	cloudConfig CloudCollectorConfig
 }
@@ -169,12 +166,12 @@ func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 	}
 }
 
-// WithEvidenceCollectorToolID is an option to configure the collector tool ID that is used to discover resources.
-func WithEvidenceCollectorToolID(ID string) service.Option[*Service] {
+// WithCollectorToolID is an option to configure the collector tool ID that is used to discover resources.
+func WithCollectorToolID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
 		log.Infof("Evidence Collector Tool ID is set to %s", ID)
 
-		svc.collectorID = ID
+		svc.cloudConfig.CollectorToolID = ID
 	}
 }
 
@@ -395,7 +392,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 			Id:                   uuid.New().String(),
 			TargetOfEvaluationId: svc.GetTargetOfEvaluationId(),
 			Timestamp:            timestamppb.Now(),
-			ToolId:               svc.collectorID,
+			ToolId:               svc.cloudConfig.CollectorToolID,
 			Resource:             ontology.ProtoResource(resource),
 		}
 
