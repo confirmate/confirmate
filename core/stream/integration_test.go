@@ -18,7 +18,6 @@ package stream
 import (
 	"context"
 	"net/http"
-	"net/http/httptest"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -30,8 +29,6 @@ import (
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
-
-	"connectrpc.com/connect"
 )
 
 // TestStreamRestartIntegration tests the complete stream restart functionality
@@ -43,18 +40,12 @@ func TestStreamRestartIntegration(t *testing.T) {
 	svc, err := orchestratorsvc.NewService()
 	assert.NoError(t, err)
 
-	// Create server instance  
-	srv, err := server.NewConnectServer([]server.Option{
+	// Create initial test server
+	_, testSrv1 := servertest.NewTestConnectServer(t,
 		server.WithHandler(
 			orchestratorconnect.NewOrchestratorHandler(svc),
 		),
-	})
-	assert.NoError(t, err)
-	defer srv.Close()
-
-	// Create an unstarted server to get a listener we can reuse
-	testSrv1 := httptest.NewUnstartedServer(srv.Handler)
-	testSrv1.Start()
+	)
 	serverURL := testSrv1.URL
 	listener := testSrv1.Listener
 
@@ -65,11 +56,9 @@ func TestStreamRestartIntegration(t *testing.T) {
 	var restartAttempts atomic.Int32
 	var restartSuccesses atomic.Int32
 
-	// Factory that always connects to the same URL
-	factory := func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
-		client := orchestratorconnect.NewOrchestratorClient(httpClient, serverURL)
-		return client.StoreAssessmentResults(ctx)
-	}
+	// Create client that connects to the same URL
+	client := orchestratorconnect.NewOrchestratorClient(httpClient, serverURL)
+	factory := client.StoreAssessmentResults
 
 	config := DefaultRestartConfig()
 	config.MaxRetries = 5

@@ -66,38 +66,6 @@ func (m *mockBidiStream[Req, Res]) CloseResponse() error {
 	return nil
 }
 
-// TestRestartableBidiStream_Basic tests basic send/receive operations.
-func TestRestartableBidiStream_Basic(t *testing.T) {
-	msg := &orchestrator.StoreAssessmentResultRequest{}
-	resp := &orchestrator.StoreAssessmentResultsResponse{Status: true}
-
-	mockStream := &mockBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]{
-		sendFunc: func(r *orchestrator.StoreAssessmentResultRequest) error {
-			return nil
-		},
-		receiveFunc: func() (*orchestrator.StoreAssessmentResultsResponse, error) {
-			return resp, nil
-		},
-	}
-
-	factory := func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
-		// We can't easily create a real BidiStreamForClient in tests without a server,
-		// so we'll test with integration tests below
-		return nil
-	}
-
-	config := DefaultRestartConfig()
-	config.MaxRetries = 3
-
-	// For unit testing, we'll verify the config is correct
-	assert.Equal(t, 3, config.MaxRetries)
-	assert.Equal(t, 100*time.Millisecond, config.InitialBackoff)
-
-	_ = factory
-	_ = mockStream
-	_ = msg
-}
-
 // TestRestartableBidiStream_RetryCount tests retry counting using integration test setup.
 func TestRestartableBidiStream_RetryCount(t *testing.T) {
 	// Create a test server for proper stream creation
@@ -296,6 +264,9 @@ func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 
 	// Verify restart was attempted at least once
 	assert.True(t, restartAttempts.Load() >= 1)
+
+	// Give goroutine callbacks time to complete
+	time.Sleep(10 * time.Millisecond)
 
 	// Verify failure callback was called
 	assert.True(t, failureCalled.Load())

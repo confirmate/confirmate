@@ -88,6 +88,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"strings"
 	"sync"
 	"time"
 
@@ -194,9 +195,16 @@ func NewRestartableBidiStream[Req, Res any](
 	if len(name) > 0 && name[0] != "" {
 		streamName = name[0]
 	} else {
-		// Extract name from stream's procedure
+		// Extract method name from stream's procedure (last part after /)
 		spec := stream.Spec()
-		streamName = spec.Procedure
+		procedure := spec.Procedure
+		if procedure != "" {
+			// Split by "/" and take the last part (method name)
+			parts := strings.Split(procedure, "/")
+			if len(parts) > 0 {
+				streamName = parts[len(parts)-1]
+			}
+		}
 		if streamName == "" {
 			streamName = "BidiStream"
 		}
@@ -230,12 +238,16 @@ func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) (err error) {
 
 	err = stream.Send(msg)
 	if err != nil {
-		// Try to restart the stream
+		// Try to restart the stream - this locks and updates rs.stream
 		if restartErr := rs.restart(err); restartErr != nil {
 			return fmt.Errorf("failed to send and restart: %w", restartErr)
 		}
-		// Retry sending on the new stream
+		// Retry sending on the new stream - get it under lock to avoid race
 		rs.mu.RLock()
+		if rs.closed {
+			rs.mu.RUnlock()
+			return io.EOF
+		}
 		stream = rs.stream
 		rs.mu.RUnlock()
 		return stream.Send(msg)
@@ -260,12 +272,16 @@ func (rs *RestartableBidiStream[Req, Res]) Receive() (msg *Res, err error) {
 
 	msg, err = stream.Receive()
 	if err != nil {
-		// Try to restart the stream
+		// Try to restart the stream - this locks and updates rs.stream
 		if restartErr := rs.restart(err); restartErr != nil {
 			return nil, fmt.Errorf("failed to receive and restart: %w", restartErr)
 		}
-		// Retry receiving on the new stream
+		// Retry receiving on the new stream - get it under lock to avoid race
 		rs.mu.RLock()
+		if rs.closed {
+			rs.mu.RUnlock()
+			return nil, io.EOF
+		}
 		stream = rs.stream
 		rs.mu.RUnlock()
 		return stream.Receive()
@@ -288,6 +304,7 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 
 	backoff := rs.config.InitialBackoff
 	attempt := 0
+	streamName := rs.name
 
 	for {
 		attempt++
@@ -296,15 +313,25 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 		// Check if we've exceeded max retries
 		if rs.config.MaxRetries > 0 && attempt > rs.config.MaxRetries {
 			if rs.config.OnRestartFailure != nil {
-				rs.config.OnRestartFailure(originalErr)
+				// Call callback in goroutine to avoid blocking
+				go rs.config.OnRestartFailure(originalErr)
 			}
+			slog.Error("Stream restart failed: max retries exceeded",
+				"stream", streamName,
+				"attempts", attempt,
+				"error", originalErr)
 			return fmt.Errorf("max retries exceeded: %w", originalErr)
 		}
 
-		// Call restart callback
+		// Call restart callback in goroutine to avoid blocking
 		if rs.config.OnRestart != nil {
-			rs.config.OnRestart(attempt, originalErr)
+			go rs.config.OnRestart(attempt, originalErr)
 		}
+		
+		slog.Debug("Attempting to restart stream",
+			"stream", streamName,
+			"attempt", attempt,
+			"error", originalErr)
 
 		// Wait before retrying
 		select {
@@ -323,8 +350,13 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 			}
 
 			rs.stream = newStream
+			slog.Info("Stream restarted successfully",
+				"stream", streamName,
+				"attempt", attempt)
+			
 			if rs.config.OnRestartSuccess != nil {
-				rs.config.OnRestartSuccess(attempt)
+				// Call callback in goroutine to avoid blocking
+				go rs.config.OnRestartSuccess(attempt)
 			}
 			return nil
 		}
