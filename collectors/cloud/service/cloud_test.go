@@ -52,7 +52,7 @@ func TestNewService(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				return assert.Equal(t, testdata.MockTargetOfEvaluationID1, got.ctID)
+				return assert.Equal(t, testdata.MockTargetOfEvaluationID1, got.cloudConfig.TargetOfEvaluationID)
 			},
 		},
 		{
@@ -184,7 +184,7 @@ func TestNewService(t *testing.T) {
 // 			mockStream.Prepare()
 
 // 			svc := NewService()
-// 			svc.ctID = tt.fields.ctID
+// 			svc.cloudConfig.TargetOfEvaluationID = tt.fields.ctID
 // 			svc.collectorID = tt.fields.collectorID
 // 			svc.evidenceStoreStreams = api.NewStreamsOf[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest]()
 // 			_, _ = svc.evidenceStoreStreams.GetStream("mock", "Evidence Store", func(target string, additionalOpts ...grpc.DialOption) (stream evidence.EvidenceStore_StoreEvidencesClient, err error) {
@@ -665,7 +665,6 @@ func TestService_Start(t *testing.T) {
 				scheduler:           tt.fields.scheduler,
 				discoveryInterval:   tt.fields.discoveryInterval,
 				Events:              tt.fields.Events,
-				ctID:                tt.fields.ctID,
 				cloudConfig:         tt.fields.cloudConfig,
 			}
 

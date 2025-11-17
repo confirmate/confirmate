@@ -138,10 +138,6 @@ type Service struct {
 	// Events is a channel that emits discovery events.
 	Events chan *DiscoveryEvent
 
-	// TODO(anatheka): Refactor ctID and collectorID into cloudConfig
-	// ctID is the target of evaluation ID for which we are gathering resources.
-	ctID string
-
 	// collectorID is the evidence collector tool ID which is gathering the resources.
 	collectorID string
 
@@ -169,7 +165,7 @@ func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
 		log.Infof("Target of Evaluation ID is set to %s", ID)
 
-		svc.ctID = ID
+		svc.cloudConfig.TargetOfEvaluationID = ID
 	}
 }
 
@@ -290,7 +286,7 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
-			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.ctID))
+			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.TargetOfEvaluationID))
 			// Check if resource group is given and append to discoverer
 			if svc.cloudConfig.ResourceGroup != "" {
 				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.ResourceGroup))
@@ -304,9 +300,9 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			svc.collectors = append(svc.collectors,
-				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.ctID),
-				k8s.NewKubernetesNetworkDiscovery(k8sClient, svc.ctID),
-				k8s.NewKubernetesStorageDiscovery(k8sClient, svc.ctID))
+				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.cloudConfig.TargetOfEvaluationID),
+				k8s.NewKubernetesNetworkDiscovery(k8sClient, svc.cloudConfig.TargetOfEvaluationID),
+				k8s.NewKubernetesStorageDiscovery(k8sClient, svc.cloudConfig.TargetOfEvaluationID))
 		case provider == ProviderAWS:
 			awsClient, err := aws.NewClient()
 			if err != nil {
@@ -315,8 +311,8 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			svc.collectors = append(svc.collectors,
-				aws.NewAwsStorageDiscovery(awsClient, svc.ctID),
-				aws.NewAwsComputeDiscovery(awsClient, svc.ctID))
+				aws.NewAwsStorageDiscovery(awsClient, svc.cloudConfig.TargetOfEvaluationID),
+				aws.NewAwsComputeDiscovery(awsClient, svc.cloudConfig.TargetOfEvaluationID))
 		case provider == ProviderOpenstack:
 			authorizer, err := openstack.NewAuthorizer()
 			if err != nil {
@@ -325,7 +321,7 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
-			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.ctID))
+			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.TargetOfEvaluationID))
 			svc.collectors = append(svc.collectors, openstack.NewOpenstackDiscovery(optsOpenstack...))
 		case provider == ProviderCSAF:
 			var (
@@ -427,7 +423,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 // CheckAccess directly on the service. This is necessary because the discovery service itself is tied to a specific
 // target of evaluation ID, instead of the individual requests that are made against the service.
 func (svc *Service) GetTargetOfEvaluationId() string {
-	return svc.ctID
+	return svc.cloudConfig.TargetOfEvaluationID
 }
 
 // TODO(all): Maybe add a generic in core that can be used by all services to manage streams?
