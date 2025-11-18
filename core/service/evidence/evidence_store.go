@@ -91,8 +91,7 @@ func WithDB(db *persistence.DB) service.Option[*Service] {
 // WithAssessmentConfig is an option to configure the assessment service gRPC address.
 func WithAssessmentConfig(conf assessmentConfig) service.Option[*Service] {
 	return func(s *Service) {
-		// TODO(lebogg): Test this slog statement
-		slog.Info("Assessment URL is set to %s", conf.targetAddress, slog.Any("target", conf.targetAddress))
+		slog.Info("Assessment URL is set", slog.Any("target", conf.targetAddress))
 		s.assessmentConfig.targetAddress = conf.targetAddress
 		// Avoid overriding the default client if no client is provided
 		if conf.client != nil {
@@ -184,8 +183,8 @@ func (svc *Service) initEvidenceChannel() {
 			// Process the evidence
 			err := svc.handleEvidence(e, 0)
 			if err != nil {
-				// TODO(lebogg): Test this slog statement
-				slog.Error("Error while processing evidence: %s", err.Error(), slog.Any("evidence", e))
+				// TODO(lebogg): Test this slog statement (evidence vs. evidence.id)
+				slog.Error("Error while processing evidence", slog.Any("evidence", e))
 			}
 		}
 	}()
@@ -213,15 +212,13 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// resource for our storage layer. This is needed to store the resource in our DBs
 	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
-		// TODO(lebogg): Test this slog statement
-		slog.Error("Could not convert resource: %s", err.Error(), slog.Any("err", err))
+		slog.Error("Could not convert proto resource to DB resource", slog.Any("Evidence", req.Msg.Evidence.Id), slog.Any("Error", err))
 		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
 	}
 	// Persist the latest state of the resource
 	err = svc.db.Save(&r, "id = ?", r.Id)
 	if err != nil {
-		// TODO(lebogg): Test this slog statement
-		slog.Error("Could not save resource with ID '%s' to storage: %s", r.Id, err.Error(), slog.Any("err", err))
+		slog.Error("Could not save resource to storage", slog.Any("Resource", r.Id), slog.Any("err", err))
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
 	}
 
@@ -231,8 +228,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// without waiting for the evidence to be processed.
 	svc.channelEvidence <- req.Msg.Evidence
 
-	// TODO(lebogg): Test this slog statement
-	slog.Debug("received and handled store evidence request with evidence ID %v", req.Msg.Evidence.Id, slog.Any("evidence", req.Msg.Evidence))
+	slog.Debug("received and handled store evidence request", slog.Any("evidence ID", req.Msg.Evidence.Id))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
 }
