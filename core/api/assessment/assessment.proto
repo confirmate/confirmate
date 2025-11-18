@@ -1,4 +1,4 @@
-// Copyright 2016-2025 Fraunhofer AISEC
+// Copyright 2025 Fraunhofer AISEC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ syntax = "proto3";
 package confirmate.assessment.v1;
 
 import "api/assessment/metric.proto";
+import "api/evidence/evidence.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -27,11 +28,60 @@ import "tagger/tagger.proto";
 
 option go_package = "confirmate.io/core/api/assessment";
 
+// Representing the link between orchestrator and discovery: Assessing evidences
+// from discovery and sending results to orchestrator
+service Assessment {
+  // Triggers the compliance calculation. Part of the private API. Not exposed
+  // as REST.
+  rpc CalculateCompliance(CalculateComplianceRequest) returns (google.protobuf.Empty) {}
+
+  // Assesses the evidence sent by the discovery. Part of the public API, also
+  // exposed as REST.
+  rpc AssessEvidence(AssessEvidenceRequest) returns (AssessEvidenceResponse) {
+    option (google.api.http) = {
+      post: "/v1/assessment/evidences"
+      body: "evidence"
+    };
+  }
+
+  // Assesses stream of evidences sent by the discovery and returns a response
+  // stream. Part of the public API. Not exposed as REST.
+  rpc AssessEvidenceStream(stream AssessEvidenceRequest) returns (stream AssessEvidencesResponse) {}
+}
+
+message ConfigureAssessmentRequest {}
+message ConfigureAssessmentResponse {}
+
+message CalculateComplianceRequest {
+  string control_id = 1;
+}
+
+message AssessEvidenceRequest {
+  confirmate.evidence.v1.Evidence evidence = 1 [(buf.validate.field).required = true];
+}
+
 enum AssessmentStatus {
   ASSESSMENT_STATUS_UNSPECIFIED = 0;
   ASSESSMENT_STATUS_WAITING_FOR_RELATED = 1;
   ASSESSMENT_STATUS_ASSESSED = 2;
   ASSESSMENT_STATUS_FAILED = 3;
+}
+
+// AssessEvidenceResponse belongs to AssessEvidence, which uses a custom unary
+// RPC and therefore requires a response message according to the style
+// convention. Since no return values are required, this is empty.
+message AssessEvidenceResponse {
+  AssessmentStatus status = 1;
+}
+
+// AssessEvidencesResponse belongs to AssessEvidences, which uses a custom
+// bidirectional streaming RPC and therefore requires a response message
+// according to the style convention. The bidirectional streaming needs the
+// status and its message in the response for error handling.
+message AssessEvidencesResponse {
+  AssessmentStatus status = 1;
+
+  string status_message = 2;
 }
 
 // A result resource, representing the result after assessing the cloud resource
@@ -121,6 +171,18 @@ message AssessmentResult {
   ];
 }
 
+message Record {
+  string evidence_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  google.protobuf.Timestamp evidence_recorded_at = 2 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
 // An optional structure containing more details how a comparison inside an assessment result was done and if it was successful.
 message ComparisonResult {
   // Property is the property that was compared
@@ -148,18 +210,6 @@ message ComparisonResult {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Success is true, if the comparison was successful
+  // Success is true, if the comparison was sucessful
   bool success = 5 [(google.api.field_behavior) = REQUIRED];
-}
-
-message Record {
-  string evidence_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  google.protobuf.Timestamp evidence_recorded_at = 2 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
 }
