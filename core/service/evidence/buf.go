@@ -10,7 +10,6 @@ import (
 
 // getOrCreateStream returns a stream to the assessment service. If a stream already exists, it is returned.
 // Otherwise, a new stream is created and returned.
-// TODO(lebogg): Check if buf automagically reconnect a stream when streams are closed. If so, we don't need to do this ourselves.
 func (svc *Service) getOrCreateStream() (*connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse], error) {
 	svc.streamMu.Lock()
 	defer svc.streamMu.Unlock()
