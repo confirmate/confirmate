@@ -134,7 +134,7 @@ func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
 func (svc *Service) handleEvidence(evidence *evidence.Evidence, attempt int) error {
 	const (
 		maxAttempts         = 5
-		waitBetweenAttempts = 10 * time.Second
+		waitBetweenAttempts = 1 * time.Second
 	)
 	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
 	// Get or create the stream (lazy initialization)
@@ -161,7 +161,7 @@ func (svc *Service) handleEvidence(evidence *evidence.Evidence, attempt int) err
 			return fmt.Errorf("could not send evidence to assessment service, tried %d times: %w", attempt, err)
 		}
 		if attempt < maxAttempts {
-			slog.Warn("could not send evidence to assessment service, retrying", slog.Any("attempt", attempt))
+			slog.Warn("could not send evidence to assessment service, retrying.", slog.Any("attempt", attempt))
 			time.Sleep(waitBetweenAttempts)
 			return svc.handleEvidence(evidence, attempt+1)
 		}
