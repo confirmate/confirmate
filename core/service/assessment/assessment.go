@@ -19,6 +19,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
@@ -41,6 +42,8 @@ type orchestratorConfig struct {
 type Service struct {
 	// Embedded for FWD compatibility
 	assessmentconnect.UnimplementedAssessmentHandler
+
+	authz service.AuthorizationStrategy
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
 	orchestratorConfig orchestratorConfig
@@ -68,6 +71,19 @@ func (svc *Service) Init() {}
 
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
 func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEvidenceRequest) (res *assessment.AssessEvidenceResponse, err error) {
+
+	// Validate request
+	err = api.Validate(req)
+	if err != nil {
+		slog.Error("AssessEvidence: invalid request", "error", err)
+		return nil, err
+	}
+
+	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
+	if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
+		slog.Error("AssessEvidence: ", service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
+	}
 
 	res = &assessment.AssessEvidenceResponse{
 		Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
