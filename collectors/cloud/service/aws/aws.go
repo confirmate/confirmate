@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
+	"confirmate.io/collectors/cloud/internal/logconfig"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
@@ -12,7 +14,7 @@ import (
 )
 
 var (
-	// log = *slog.Logger
+	log *slog.Logger
 
 	// loadDefaultConfig holds config.LoadDefaultConfig() so that NewClient() can use it and test function can mock it
 	loadDefaultConfig = config.LoadDefaultConfig
@@ -33,6 +35,10 @@ type Client struct {
 // STSAPI describes the STS api interface which is implemented by the official AWS client and mock clients in tests
 type STSAPI interface {
 	GetCallerIdentity(ctx context.Context, params *sts.GetCallerIdentityInput, optFns ...func(*sts.Options)) (*sts.GetCallerIdentityOutput, error)
+}
+
+func init() {
+	log = logconfig.GetLogger().With("component", "aws-discovery")
 }
 
 // NewClient constructs a new AwsClient

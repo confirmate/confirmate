@@ -3,18 +3,20 @@ package k8s
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 
-	"github.com/sirupsen/logrus"
+	"confirmate.io/collectors/cloud/internal/logconfig"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
 
-var log *logrus.Entry
+var log *slog.Logger
 
 func init() {
-	log = logrus.WithField("component", "k8s-discovery")
+	log = logconfig.GetLogger().With("component", "k8s-discovery")
 }
 
 type k8sDiscovery struct {

@@ -26,7 +26,7 @@ func (d *openstackDiscovery) handleNetworkInterfaces(network *networks.Network) 
 		Raw:      cloud.Raw(network),
 	}
 
-	slog.Info("Adding network interface", slog.String("name", network.Name))
+	log.Info("Adding network interface", slog.String("name", network.Name))
 
 	return r, nil
 }

@@ -25,7 +25,7 @@ func (d *openstackDiscovery) handleCluster(cluster *clusters.Cluster) (ontology.
 		Raw:      cloud.Raw(cluster),
 	}
 
-	slog.Info("Adding cluster", slog.String("name", cluster.Name))
+	log.Info("Adding cluster", slog.String("name", cluster.Name))
 
 	return r, nil
 }

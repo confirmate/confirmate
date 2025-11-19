@@ -29,7 +29,7 @@ func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsRe
 			Enabled: true,
 		}
 	} else {
-		slog.Error("Error getting boot logging", tint.Err(consoleOutput.Err))
+		log.Error("Error getting boot logging", tint.Err(consoleOutput.Err))
 		// When an error occurs, we assume that boot logging is disabled.
 		bootLogging = &ontology.BootLogging{
 			Enabled: false,
@@ -62,7 +62,7 @@ func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsRe
 		return nil, fmt.Errorf("could not discover attached network interfaces: %w", err)
 	}
 
-	slog.Info("Adding server", slog.String("name", server.Name))
+	log.Info("Adding server", slog.String("name", server.Name))
 
 	return r, nil
 }

@@ -16,11 +16,14 @@ import (
 	"time"
 
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
+	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	"github.com/lmittmann/tint"
 )
+
+var log *slog.Logger
 
 type ServiceHandler interface {
 	handleIndexTxt(w http.ResponseWriter, r *http.Request, advisories []*csaf.Advisory, p *TrustedProvider)
@@ -29,6 +32,10 @@ type ServiceHandler interface {
 	handleSHA256(w http.ResponseWriter, r *http.Request, advisory *csaf.Advisory, p *TrustedProvider)
 	handleSHA512(w http.ResponseWriter, r *http.Request, advisory *csaf.Advisory, p *TrustedProvider)
 	handleSignature(w http.ResponseWriter, r *http.Request, advisory *csaf.Advisory, p *TrustedProvider)
+}
+
+func init() {
+	log = logconfig.GetLogger().With("component", "csaf-collectortest")
 }
 
 func NewGoodIndexTxtWriter() ServiceHandler {
@@ -51,7 +58,7 @@ func (good *goodIndexTxtWriter) handleChangesCsv(w http.ResponseWriter, _ *http.
 		_, err := w.Write([]byte(line))
 		// Maybe do better error handling
 		if err != nil {
-			slog.Warn("Could not write csv", tint.Err(err))
+			log.Warn("Could not write csv", tint.Err(err))
 		}
 	}
 }
@@ -59,12 +66,12 @@ func (good *goodIndexTxtWriter) handleChangesCsv(w http.ResponseWriter, _ *http.
 func (good *goodIndexTxtWriter) handleAdvisory(w http.ResponseWriter, _ *http.Request, advisory *csaf.Advisory, _ *TrustedProvider) {
 	b, err := json.Marshal(advisory)
 	if err != nil {
-		slog.Error("advisory marshaling fehlgeschlagen", tint.Err(err))
+		log.Error("advisory marshaling fehlgeschlagen", tint.Err(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if _, err = w.Write(b); err != nil {
-		slog.Error("advisory schreiben fehlgeschlagen", tint.Err(err))
+		log.Error("advisory schreiben fehlgeschlagen", tint.Err(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
@@ -94,7 +101,7 @@ func (good *goodIndexTxtWriter) handleHash(w http.ResponseWriter, advisory *csaf
 		strings.ToLower(string(util.Deref(advisory.Document.Tracking.ID)))+".json")),
 	)
 	if err != nil {
-		slog.Warn("could not write", tint.Err(err))
+		log.Warn("could not write", tint.Err(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

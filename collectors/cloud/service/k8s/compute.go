@@ -41,14 +41,14 @@ func (d *k8sComputeDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range pods.Items {
 		// Get virtual machines
 		c := d.handlePod(&pods.Items[i])
-		slog.Info("Adding container", slog.String("id", c.GetId()))
+		log.Info("Adding container", slog.String("id", c.GetId()))
 		list = append(list, c)
 
 		// Get all volumes conntected to the specific pod
 		v := d.handlePodVolume(&pods.Items[i])
 
 		if len(v) != 0 {
-			slog.Info("Adding pod volumes", slog.String("id", strings.Join(ontology.ResourceIDs(v), ",")))
+			log.Info("Adding pod volumes", slog.String("id", strings.Join(ontology.ResourceIDs(v), ",")))
 			list = append(list, v...)
 		}
 	}

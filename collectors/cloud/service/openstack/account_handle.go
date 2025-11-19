@@ -24,7 +24,7 @@ func (d *openstackDiscovery) handleDomain(domain *domains.Domain) (ontology.IsRe
 		Raw:          cloud.Raw(domain),
 	}
 
-	slog.Info("Adding domain", slog.String("name", domain.Name))
+	log.Info("Adding domain", slog.String("name", domain.Name))
 
 	return r, nil
 }
@@ -45,7 +45,7 @@ func (d *openstackDiscovery) handleProject(project *projects.Project) (ontology.
 		Raw:      cloud.Raw(project),
 	}
 
-	slog.Info("Adding project", slog.String("name", project.Name))
+	log.Info("Adding project", slog.String("name", project.Name))
 
 	return r, nil
 }

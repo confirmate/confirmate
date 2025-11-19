@@ -6,15 +6,14 @@ import (
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
-
-	"github.com/sirupsen/logrus"
 )
 
-var log *logrus.Entry
+var log *slog.Logger
 
 func init() {
-	log = logrus.WithField("component", "csaf-collector")
+	log = logconfig.GetLogger().With("component", "csaf-discovery")
 }
 
 type csafDiscovery struct {
@@ -65,7 +64,7 @@ func (d *csafDiscovery) TargetOfEvaluationID() string {
 }
 
 func (d *csafDiscovery) List() (list []ontology.IsResource, err error) {
-	slog.Info("fetching CSAF documents from domain", slog.String("domain", d.domain))
+	log.Info("fetching CSAF documents from domain", slog.String("domain", d.domain))
 
 	return d.discoverProviders()
 }

@@ -40,7 +40,7 @@ func (mockS3APINew) ListBuckets(_ context.Context,
 	_ ...func(*s3.Options)) (*s3.ListBucketsOutput, error) {
 	creationDate1, err := time.Parse(time.RFC3339, mockBucket1CreationTime)
 	if err != nil {
-		slog.Error("time parse error", tint.Err(err))
+		log.Error("time parse error", tint.Err(err))
 	}
 	creationDate2 := creationDate1.AddDate(1, 1, 1)
 
@@ -118,7 +118,7 @@ func (mockS3APINew) GetBucketPolicy(_ context.Context,
 		}
 		policyJson, err := json.Marshal(policy)
 		if err != nil {
-			slog.Error("json marshal error", tint.Err(err))
+			log.Error("json marshal error", tint.Err(err))
 		}
 		output = &s3.GetBucketPolicyOutput{
 			Policy: aws.String(string(policyJson)),
@@ -142,7 +142,7 @@ func (mockS3APINew) GetBucketPolicy(_ context.Context,
 		}
 		policyJson, err := json.Marshal(policy)
 		if err != nil {
-			slog.Error("json marshal error", tint.Err(err))
+			log.Error("json marshal error", tint.Err(err))
 		}
 		output = &s3.GetBucketPolicyOutput{
 			Policy: aws.String(string(policyJson)),
@@ -275,27 +275,27 @@ func TestAwsS3Discovery_getBuckets(t *testing.T) {
 	buckets, err := d.getBuckets()
 	assert.NoError(t, err)
 
-	slog.Info("Testing number of buckets")
+	log.Info("Testing number of buckets")
 	// We fetch buckets currently only of users region
 	assert.Equal(t, 2, len(buckets))
 
-	slog.Info("Testing name of first bucket")
+	log.Info("Testing name of first bucket")
 	assert.Equal(t, mockBucket1, buckets[0].name)
-	slog.Info("Testing region of first bucket")
+	log.Info("Testing region of first bucket")
 	assert.Equal(t, mockBucket1Region, buckets[0].region)
-	slog.Info("Testing endpoint of first bucket")
+	log.Info("Testing endpoint of first bucket")
 	assert.Equal(t, mockBucket1Endpoint, buckets[0].endpoint)
-	slog.Info("Testing creation time of first bucket")
+	log.Info("Testing creation time of first bucket")
 	expectedCreationTime1, _ := time.Parse(time.RFC3339, mockBucket1CreationTime)
 	assert.Equal(t, expectedCreationTime1.String(), buckets[0].creationTime.String())
 
-	slog.Info("Testing name of second bucket")
+	log.Info("Testing name of second bucket")
 	assert.Equal(t, mockBucket2, buckets[1].name)
-	slog.Info("Testing region of second bucket")
+	log.Info("Testing region of second bucket")
 	assert.Equal(t, mockBucket2Region, buckets[1].region)
-	slog.Info("Testing endpoint of second bucket")
+	log.Info("Testing endpoint of second bucket")
 	assert.Equal(t, mockBucket2Endpoint, buckets[1].endpoint)
-	slog.Info("Testing creation time of second bucket")
+	log.Info("Testing creation time of second bucket")
 	expectedCreationTime2, _ := time.Parse(time.RFC3339, mockBucket2CreationTime)
 	assert.Equal(t, expectedCreationTime2.String(), buckets[1].creationTime.String())
 
@@ -466,23 +466,23 @@ func TestAwsS3Discovery_List(t *testing.T) {
 	resources, err := d.List()
 	assert.NotNil(t, err)
 
-	slog.Info("Testing number of resources (buckets)")
+	log.Info("Testing number of resources (buckets)")
 	assert.Equal(t, 2, len(resources))
 
 	expectedResourceNames := []string{mockBucket1, "mockbucket2", "mockbucket3"}
 
 	// Check first element: voc.ObjectStorage
-	slog.Info("Testing name for resource (bucket)", slog.Int("resource element", 1))
+	log.Info("Testing name for resource (bucket)", slog.Int("resource element", 1))
 	assert.Equal(t, expectedResourceNames[0], resources[0].GetName())
-	slog.Info("Testing type of resource", slog.Int("resource element", 1))
+	log.Info("Testing type of resource", slog.Int("resource element", 1))
 	assert.True(t, ontology.HasType(resources[0], "ObjectStorage"))
 	expectedRaw := "{\"**s3.GetBucketEncryptionOutput\":[{\"ServerSideEncryptionConfiguration\":{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\",\"KMSMasterKeyID\":null},\"BucketKeyEnabled\":false}]},\"ResultMetadata\":{}}],\"**s3.GetBucketPolicyOutput\":[{\"Policy\":\"{\\\"id\\\":\\\"Mock BucketPolicy ID 1234\\\",\\\"Version\\\":\\\"2012-10-17\\\",\\\"Statement\\\":[{\\\"Action\\\":\\\"s3:*\\\",\\\"Effect\\\":\\\"Deny\\\",\\\"Resource\\\":\\\"*\\\",\\\"Condition\\\":{\\\"aws:SecureTransport\\\":false}}]}\",\"ResultMetadata\":{}}],\"*[]interface {}\":[[{\"BucketArn\":null,\"BucketRegion\":null,\"CreationDate\":\"2012-11-01T22:08:41Z\",\"Name\":\"mockbucket1\"},{\"LocationConstraint\":\"eu-central-1\",\"ResultMetadata\":{}}]],\"*aws.bucket\":[{}]}"
 	assert.Equal(t, expectedRaw, resources[0].GetRaw())
 
 	// Check second element: voc.ObjectStorageService
-	slog.Info("Testing name for resource (bucket)", slog.Int("resource element", 2))
+	log.Info("Testing name for resource (bucket)", slog.Int("resource element", 2))
 	assert.Equal(t, expectedResourceNames[0], resources[1].GetName())
-	slog.Info("Testing type of resource", slog.Int("resource element", 2))
+	log.Info("Testing type of resource", slog.Int("resource element", 2))
 	assert.True(t, ontology.HasType(resources[1], "ObjectStorageService"))
 }
 

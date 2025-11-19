@@ -41,7 +41,7 @@ func (d *csafDiscovery) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ont
 	if err != nil {
 		// If we could not fetch the key we assume that the key exists but is not accessible
 		isAccessible = false
-		slog.Warn("Could not fetch key", slog.String("key url", util.Deref(pgpkey.URL)), tint.Err(err))
+		log.Warn("Could not fetch key", slog.String("key url", util.Deref(pgpkey.URL)), tint.Err(err))
 	}
 
 	// 2nd: Create the key in the ontology format

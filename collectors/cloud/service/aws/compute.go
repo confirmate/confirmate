@@ -71,7 +71,7 @@ func (*computeDiscovery) Name() string {
 
 // List is the method implementation defined in the cloud.Collector interface
 func (d *computeDiscovery) List() (resources []ontology.IsResource, err error) {
-	slog.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
+	log.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
 
 	// Even though technically volumes are "storage", they are part of the EC2 API and therefore discovered here
 	volumes, err := d.discoverVolumes()

@@ -9,7 +9,7 @@ import (
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
-	"confirmate.io/collectors/cloud/internal/logging"
+	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -49,7 +49,6 @@ const (
 )
 
 var (
-	// // log *logrus.Entry
 	log *slog.Logger
 
 	ErrCouldNotAuthenticate     = errors.New("could not authenticate to Azure")
@@ -96,7 +95,7 @@ func WithResourceGroup(rg string) DiscoveryOption {
 }
 
 func init() {
-	log = logging.GetLogger().With("component", "azure-discovery")
+	log = logconfig.GetLogger().With("component", "azure-discovery")
 }
 
 type azureDiscovery struct {

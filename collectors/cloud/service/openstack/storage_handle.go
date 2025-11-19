@@ -32,7 +32,7 @@ func (d *openstackDiscovery) handleBlockStorage(volume *volumes.Volume) (ontolog
 		Raw:      cloud.Raw(volume),
 	}
 
-	slog.Info("Adding block storage", slog.String("name", volume.Name))
+	log.Info("Adding block storage", slog.String("name", volume.Name))
 
 	return r, nil
 }

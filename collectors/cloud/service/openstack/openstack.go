@@ -10,6 +10,7 @@ import (
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -17,7 +18,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/lmittmann/tint"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	log *logrus.Entry
+	log *slog.Logger
 
 	ErrGettingAuthOptionsFromEnv = errors.New("error getting auth options from environment")
 )
@@ -89,7 +89,7 @@ func WithAuthorizer(o gophercloud.AuthOptions) DiscoveryOption {
 }
 
 func init() {
-	log = logrus.WithField("component", "openstack-discovery")
+	log = logconfig.GetLogger().With("component", "openstack-discovery")
 }
 
 func NewOpenstackDiscovery(opts ...DiscoveryOption) cloud.Collector {
@@ -191,7 +191,7 @@ func (d *openstackDiscovery) authorize() (err error) {
 func NewAuthorizer() (gophercloud.AuthOptions, error) {
 	ao, err := openstack.AuthOptionsFromEnv()
 	if err != nil {
-		slog.Error(ErrGettingAuthOptionsFromEnv.Error(), "err", err)
+		log.Error(ErrGettingAuthOptionsFromEnv.Error(), "err", err)
 	}
 
 	ao.AllowReauth = true // Allow re-authentication if the token expires
@@ -216,49 +216,49 @@ func (d *openstackDiscovery) List() (list []ontology.IsResource, err error) {
 	)
 
 	if err = d.authorize(); err != nil {
-		slog.Error("could not authorize openstack", tint.Err(err))
+		log.Error("could not authorize openstack", tint.Err(err))
 		return nil, fmt.Errorf("could not authorize openstack: %w", err)
 	}
 
 	// Discover servers
 	servers, err = d.discoverServer()
 	if err != nil {
-		slog.Error("could not discover servers", tint.Err(err))
+		log.Error("could not discover servers", tint.Err(err))
 	}
 	list = append(list, servers...)
 
 	// Discover network interfaces
 	networks, err = d.discoverNetworkInterfaces()
 	if err != nil {
-		slog.Error("could not discover network interfaces", tint.Err(err))
+		log.Error("could not discover network interfaces", tint.Err(err))
 	}
 	list = append(list, networks...)
 
 	// Discover block storage
 	storages, err = d.discoverBlockStorage()
 	if err != nil {
-		slog.Error("could not discover block storage", tint.Err(err))
+		log.Error("could not discover block storage", tint.Err(err))
 	}
 	list = append(list, storages...)
 
 	// Discover clusters
 	clusters, err = d.discoverCluster()
 	if err != nil {
-		slog.Error("could not discover clusters", tint.Err(err))
+		log.Error("could not discover clusters", tint.Err(err))
 	}
 	list = append(list, clusters...)
 
 	// Discover project resources
 	projects, err = d.discoverProjects()
 	if err != nil {
-		slog.Error("could not discover projects/tenants", tint.Err(err))
+		log.Error("could not discover projects/tenants", tint.Err(err))
 	}
 	list = append(list, projects...)
 
 	// Discover domains resource
 	domains, err = d.discoverDomains()
 	if err != nil {
-		slog.Error("could not discover domains", tint.Err(err))
+		log.Error("could not discover domains", tint.Err(err))
 	}
 	list = append(list, domains...)
 
@@ -307,7 +307,7 @@ func genericList[T any, O any, R ontology.IsResource](d *openstackDiscovery,
 				return false, fmt.Errorf("could not convert into CSC Hub ontology: %w", err)
 			}
 
-			slog.Debug("Adding resource", slog.Any("resource", s))
+			log.Debug("Adding resource", slog.Any("resource", s))
 
 			list = append(list, r)
 		}

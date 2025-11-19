@@ -2,7 +2,6 @@ package aws
 
 import (
 	"context"
-	"log/slog"
 	"testing"
 	"time"
 
@@ -137,7 +136,7 @@ func (mockEC2API) DescribeInstances(_ context.Context, _ *ec2.DescribeInstancesI
 	// launch time
 	launchTime, err := time.Parse(time.RFC3339, mockVMCreationTime)
 	if err != nil {
-		slog.Error("time parse error", tint.Err(err))
+		log.Error("time parse error", tint.Err(err))
 	}
 
 	// output struct containing all necessary information

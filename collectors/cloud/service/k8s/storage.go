@@ -40,13 +40,13 @@ func (d *k8sStorageDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range pvc.Items {
 		p := d.handlePV(&pvc.Items[i])
 		if p != nil {
-			slog.Info("Adding volume", slog.String("id", p.GetId()))
+			log.Info("Adding volume", slog.String("id", p.GetId()))
 			list = append(list, p)
 		}
 	}
 
 	if list == nil {
-		slog.Debug("No Kubernetes persistent volumes available")
+		log.Debug("No Kubernetes persistent volumes available")
 	}
 
 	return list, nil

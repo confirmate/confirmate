@@ -39,7 +39,7 @@ func (d *k8sNetworkDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range services.Items {
 		c := d.handleService(&services.Items[i])
 
-		slog.Info("Adding service", slog.String("id", c.GetId()))
+		log.Info("Adding service", slog.String("id", c.GetId()))
 
 		list = append(list, c)
 	}
@@ -53,7 +53,7 @@ func (d *k8sNetworkDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range ingresses.Items {
 		c := d.handleIngress(&ingresses.Items[i])
 
-		slog.Info("Adding ingress", slog.String("id", c.GetId()))
+		log.Info("Adding ingress", slog.String("id", c.GetId()))
 
 		list = append(list, c)
 	}

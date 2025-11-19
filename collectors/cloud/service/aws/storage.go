@@ -94,7 +94,7 @@ func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
 		encryptionAtRest    *ontology.AtRestEncryption
 	)
 
-	slog.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
+	log.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
 	var buckets []bucket
 	buckets, err = d.getBuckets()
 	if err != nil {

@@ -2,7 +2,6 @@ package openstack
 
 import (
 	"fmt"
-	"log/slog"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
@@ -18,7 +17,7 @@ func (d *openstackDiscovery) discoverDomains() (list []ontology.IsResource, err 
 
 	// if we cannot retrieve the domain information by calling the API or from the environment variables, we will add the information manually if we already got the domain ID and/or domain name
 	if err != nil {
-		slog.Debug("Could not discover domains due to insufficient permissions, but we can proceed with less domain information", tint.Err(err))
+		log.Debug("Could not discover domains due to insufficient permissions, but we can proceed with less domain information", tint.Err(err))
 
 		if d.domain.domainID == "" {
 			err := fmt.Errorf("domain ID is not available: %v", err)
@@ -44,7 +43,7 @@ func (d *openstackDiscovery) discoverProjects() (list []ontology.IsResource, err
 
 	// if we cannot retrieve the project information by calling the API or from the environment variables, we will add the information manually if we already got the project ID and/or project name
 	if err != nil {
-		slog.Debug("Could not discover projects/tenants due to insufficient permissions, but we can proceed with less project/tenant information", tint.Err(err))
+		log.Debug("Could not discover projects/tenants due to insufficient permissions, but we can proceed with less project/tenant information", tint.Err(err))
 
 		if d.project.projectID == "" {
 			err := fmt.Errorf("domain ID is not available: %v", err)
