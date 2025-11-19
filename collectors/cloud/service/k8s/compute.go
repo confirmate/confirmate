@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -40,14 +41,14 @@ func (d *k8sComputeDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range pods.Items {
 		// Get virtual machines
 		c := d.handlePod(&pods.Items[i])
-		log.Infof("Adding container %+v", c.GetId())
+		slog.Info("Adding container", slog.String("id", c.GetId()))
 		list = append(list, c)
 
 		// Get all volumes conntected to the specific pod
 		v := d.handlePodVolume(&pods.Items[i])
 
 		if len(v) != 0 {
-			log.Infof("Adding pod volumes %+v", strings.Join(ontology.ResourceIDs(v), ","))
+			slog.Info("Adding pod volumes", slog.String("id", strings.Join(ontology.ResourceIDs(v), ",")))
 			list = append(list, v...)
 		}
 	}

@@ -3,6 +3,7 @@ package azure
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
+	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -69,7 +71,7 @@ func tlsVersion(version *string) float32 {
 	case "1.3", "1_3":
 		return 1.3
 	default:
-		log.Warningf("'%s' is not an implemented TLS version.", *version)
+		slog.Warn("unimplemented TLS version", "version", util.Deref(version))
 		return 0
 	}
 }
@@ -197,7 +199,7 @@ func retentionDuration(retention string) *durationpb.Duration {
 	// string to int
 	d, err := strconv.Atoi(r)
 	if err != nil {
-		log.Errorf("could not convert string to int")
+		slog.Error("could not convert string to int", tint.Err(err))
 		return durationpb.New(time.Duration(0))
 	}
 
@@ -275,7 +277,7 @@ func (d *azureDiscovery) discoverDiagnosticSettings(resourceURI string) (*ontolo
 		for _, value := range pageResponse.Value {
 			// Check if data is sent to a log analytics workspace
 			if value.Properties.WorkspaceID == nil {
-				log.Debugf("diagnostic setting '%s' does not send data to a Log Analytics Workspace", util.Deref(value.Name))
+				slog.Debug("diagnostic setting does not send data to a Log Analytics Workspace", "name", util.Deref(value.Name))
 				continue
 			}
 

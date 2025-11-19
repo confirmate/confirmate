@@ -3,6 +3,7 @@ package csaf
 import (
 	"encoding/hex"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
+	"github.com/lmittmann/tint"
 )
 
 // discoverKeys discovers the PGP keys and returns the respective keys in the ontology format as well as the keyring
@@ -39,7 +41,7 @@ func (d *csafDiscovery) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ont
 	if err != nil {
 		// If we could not fetch the key we assume that the key exists but is not accessible
 		isAccessible = false
-		log.Warnf("Could not fetch key '%s': %v", util.Deref(pgpkey.URL), err)
+		slog.Warn("Could not fetch key", slog.String("key url", util.Deref(pgpkey.URL)), tint.Err(err))
 	}
 
 	// 2nd: Create the key in the ontology format

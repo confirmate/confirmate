@@ -3,12 +3,14 @@ package openstack
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -27,7 +29,7 @@ func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsRe
 			Enabled: true,
 		}
 	} else {
-		log.Errorf("Error getting boot logging: %s", consoleOutput.Err)
+		slog.Error("Error getting boot logging", tint.Err(consoleOutput.Err))
 		// When an error occurs, we assume that boot logging is disabled.
 		bootLogging = &ontology.BootLogging{
 			Enabled: false,
@@ -60,7 +62,7 @@ func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsRe
 		return nil, fmt.Errorf("could not discover attached network interfaces: %w", err)
 	}
 
-	log.Infof("Adding server '%s", server.Name)
+	slog.Info("Adding server", slog.String("name", server.Name))
 
 	return r, nil
 }

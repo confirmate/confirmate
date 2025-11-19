@@ -2,6 +2,7 @@ package aws
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/aws/smithy-go"
 	"github.com/aws/smithy-go/middleware"
 	"github.com/google/go-cmp/cmp"
+	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -135,7 +137,7 @@ func (mockEC2API) DescribeInstances(_ context.Context, _ *ec2.DescribeInstancesI
 	// launch time
 	launchTime, err := time.Parse(time.RFC3339, mockVMCreationTime)
 	if err != nil {
-		log.Error(err)
+		slog.Error("time parse error", tint.Err(err))
 	}
 
 	// output struct containing all necessary information

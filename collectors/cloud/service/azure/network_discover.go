@@ -1,6 +1,8 @@
 package azure
 
 import (
+	"log/slog"
+
 	"confirmate.io/core/api/ontology"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
@@ -28,7 +30,7 @@ func (d *azureDiscovery) discoverNetworkInterfaces() ([]ontology.IsResource, err
 		func(ni *armnetwork.Interface) error {
 			s := d.handleNetworkInterfaces(ni)
 
-			log.Infof("Adding network interface '%s'", s.GetName())
+			slog.Info("Adding network interface", slog.String("network interface", s.GetName()))
 
 			list = append(list, s)
 
@@ -63,7 +65,7 @@ func (d *azureDiscovery) discoverApplicationGateway() ([]ontology.IsResource, er
 		func(ags *armnetwork.ApplicationGateway) error {
 			s := d.handleApplicationGateway(ags)
 
-			log.Infof("Adding application gateway %+v", s.GetName())
+			slog.Info("Adding application gateway", slog.String("application gateway", s.GetName()))
 
 			list = append(list, s)
 
@@ -98,7 +100,7 @@ func (d *azureDiscovery) discoverLoadBalancer() ([]ontology.IsResource, error) {
 		func(lbs *armnetwork.LoadBalancer) error {
 			s := d.handleLoadBalancer(lbs)
 
-			log.Infof("Adding load balancer %+v", s.GetName())
+			slog.Info("Adding load balancer", slog.String("load balancer", s.GetName()))
 
 			list = append(list, s)
 

@@ -1,6 +1,8 @@
 package openstack
 
 import (
+	"log/slog"
+
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -30,7 +32,7 @@ func (d *openstackDiscovery) handleBlockStorage(volume *volumes.Volume) (ontolog
 		Raw:      cloud.Raw(volume),
 	}
 
-	log.Infof("Adding block storage '%s", volume.Name)
+	slog.Info("Adding block storage", slog.String("name", volume.Name))
 
 	return r, nil
 }

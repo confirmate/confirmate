@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -15,6 +16,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/pagination"
+	"github.com/lmittmann/tint"
 	"github.com/sirupsen/logrus"
 )
 
@@ -189,7 +191,7 @@ func (d *openstackDiscovery) authorize() (err error) {
 func NewAuthorizer() (gophercloud.AuthOptions, error) {
 	ao, err := openstack.AuthOptionsFromEnv()
 	if err != nil {
-		log.Error("%w: %w", ErrGettingAuthOptionsFromEnv, err)
+		slog.Error(ErrGettingAuthOptionsFromEnv.Error(), "err", err)
 	}
 
 	ao.AllowReauth = true // Allow re-authentication if the token expires
@@ -214,50 +216,49 @@ func (d *openstackDiscovery) List() (list []ontology.IsResource, err error) {
 	)
 
 	if err = d.authorize(); err != nil {
+		slog.Error("could not authorize openstack", tint.Err(err))
 		return nil, fmt.Errorf("could not authorize openstack: %w", err)
 	}
-
-	// First, we need to discover the resources to obtain the domain and project ID. Domains and projects are discovered last, or they are set manually if discovery is not possible due to insufficient permissions. Currently, application credentials in OpenStack are always created for a specific project within a specific domain, making discovery essentially unnecessary. The code will be retained in case this changes in the future.
 
 	// Discover servers
 	servers, err = d.discoverServer()
 	if err != nil {
-		log.Errorf("could not discover servers: %v", err)
+		slog.Error("could not discover servers", tint.Err(err))
 	}
 	list = append(list, servers...)
 
-	// Discover networks interfaces
+	// Discover network interfaces
 	networks, err = d.discoverNetworkInterfaces()
 	if err != nil {
-		log.Errorf("could not discover network interfaces: %v", err)
+		slog.Error("could not discover network interfaces", tint.Err(err))
 	}
 	list = append(list, networks...)
 
 	// Discover block storage
 	storages, err = d.discoverBlockStorage()
 	if err != nil {
-		log.Errorf("could not discover block storage: %v", err)
+		slog.Error("could not discover block storage", tint.Err(err))
 	}
 	list = append(list, storages...)
 
 	// Discover clusters
 	clusters, err = d.discoverCluster()
 	if err != nil {
-		log.Errorf("could not discover clusters: %v", err)
+		slog.Error("could not discover clusters", tint.Err(err))
 	}
 	list = append(list, clusters...)
 
 	// Discover project resources
 	projects, err = d.discoverProjects()
 	if err != nil {
-		log.Errorf("could not discover projects/tenants: %v", err)
+		slog.Error("could not discover projects/tenants", tint.Err(err))
 	}
 	list = append(list, projects...)
 
 	// Discover domains resource
 	domains, err = d.discoverDomains()
 	if err != nil {
-		log.Errorf("could not discover domains: %v", err)
+		slog.Error("could not discover domains", tint.Err(err))
 	}
 	list = append(list, domains...)
 
@@ -306,7 +307,7 @@ func genericList[T any, O any, R ontology.IsResource](d *openstackDiscovery,
 				return false, fmt.Errorf("could not convert into CSC Hub ontology: %w", err)
 			}
 
-			log.Debugf("Adding resource %+v", s)
+			slog.Debug("Adding resource", slog.Any("resource", s))
 
 			list = append(list, r)
 		}

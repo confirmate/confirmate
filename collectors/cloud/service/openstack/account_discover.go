@@ -2,11 +2,13 @@ package openstack
 
 import (
 	"fmt"
+	"log/slog"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
+	"github.com/lmittmann/tint"
 )
 
 // discoverDomains discovers domains.
@@ -16,7 +18,7 @@ func (d *openstackDiscovery) discoverDomains() (list []ontology.IsResource, err 
 
 	// if we cannot retrieve the domain information by calling the API or from the environment variables, we will add the information manually if we already got the domain ID and/or domain name
 	if err != nil {
-		log.Debugf("Could not discover domains due to insufficient permissions, but we can proceed with less domain information: %v", err)
+		slog.Debug("Could not discover domains due to insufficient permissions, but we can proceed with less domain information", tint.Err(err))
 
 		if d.domain.domainID == "" {
 			err := fmt.Errorf("domain ID is not available: %v", err)
@@ -42,7 +44,7 @@ func (d *openstackDiscovery) discoverProjects() (list []ontology.IsResource, err
 
 	// if we cannot retrieve the project information by calling the API or from the environment variables, we will add the information manually if we already got the project ID and/or project name
 	if err != nil {
-		log.Debugf("Could not discover projects/tenants due to insufficient permissions, but we can proceed with less project/tenant information: %v", err)
+		slog.Debug("Could not discover projects/tenants due to insufficient permissions, but we can proceed with less project/tenant information", tint.Err(err))
 
 		if d.project.projectID == "" {
 			err := fmt.Errorf("domain ID is not available: %v", err)

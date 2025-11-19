@@ -1,6 +1,8 @@
 package openstack
 
 import (
+	"log/slog"
+
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -24,7 +26,7 @@ func (d *openstackDiscovery) handleNetworkInterfaces(network *networks.Network) 
 		Raw:      cloud.Raw(network),
 	}
 
-	log.Infof("Adding network interface '%s", network.Name)
+	slog.Info("Adding network interface", slog.String("name", network.Name))
 
 	return r, nil
 }

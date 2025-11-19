@@ -1,6 +1,7 @@
 package csaf
 
 import (
+	"log/slog"
 	"net/http"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -64,7 +65,7 @@ func (d *csafDiscovery) TargetOfEvaluationID() string {
 }
 
 func (d *csafDiscovery) List() (list []ontology.IsResource, err error) {
-	log.Infof("Fetching CSAF documents from domain %s", d.domain)
+	slog.Info("fetching CSAF documents from domain", slog.String("domain", d.domain))
 
 	return d.discoverProviders()
 }

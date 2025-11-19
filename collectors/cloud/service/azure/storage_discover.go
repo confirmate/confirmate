@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/constants"
@@ -13,6 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
+	"github.com/lmittmann/tint"
 )
 
 var (
@@ -47,7 +49,7 @@ func (d *azureDiscovery) discoverCosmosDB() ([]ontology.IsResource, error) {
 			if err != nil {
 				return fmt.Errorf("could not cosmos db accounts: %w", err)
 			}
-			log.Infof("Adding Cosmos DB account '%s", *dbAccount.Name)
+			slog.Info("Adding Cosmos DB account", slog.String("name", util.Deref(dbAccount.Name)))
 			list = append(list, cosmos...)
 
 			return nil
@@ -76,7 +78,7 @@ func (d *azureDiscovery) discoverMongoDBDatabases(account *armcosmos.DatabaseAcc
 	for serverlistPager.More() {
 		pageResponse, err := serverlistPager.NextPage(context.TODO())
 		if err != nil {
-			log.Errorf("%s: %v", ErrGettingNextPage, err)
+			slog.Error(ErrGettingNextPage.Error(), tint.Err(err))
 			return list
 		}
 
@@ -126,7 +128,7 @@ func (d *azureDiscovery) discoverSqlServers() ([]ontology.IsResource, error) {
 			if err != nil {
 				return fmt.Errorf("could not handle sql database: %w", err)
 			}
-			log.Infof("Adding sql database '%s", *server.Name)
+			slog.Info("Adding sql database", slog.String("name", util.Deref(server.Name)))
 			list = append(list, db...)
 
 			return nil
@@ -156,7 +158,7 @@ func (d *azureDiscovery) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 	for serverlistPager.More() {
 		pageResponse, err := serverlistPager.NextPage(context.TODO())
 		if err != nil {
-			log.Errorf("%s: %v", ErrGettingNextPage, err)
+			slog.Error(ErrGettingNextPage.Error(), tint.Err(err))
 			return list, anomalyDetectionList
 		}
 
@@ -165,7 +167,7 @@ func (d *azureDiscovery) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 			// Get anomaly detection status
 			anomalyDetectionEnabled, err := d.anomalyDetectionEnabled(server, value)
 			if err != nil {
-				log.Errorf("error getting anomaly detection info for database '%s': %v", *value.Name, err)
+				slog.Error("error getting anomaly detection info for database", slog.String("name", util.Deref(value.Name)), tint.Err(err))
 			}
 
 			a := &ontology.AnomalyDetection{
@@ -237,7 +239,7 @@ func (d *azureDiscovery) discoverStorageAccounts() ([]ontology.IsResource, error
 	// Discover backup vaults
 	err := d.discoverBackupVaults()
 	if err != nil {
-		log.Errorf("could not discover backup vaults: %v", err)
+		slog.Error("could not discover backup vaults", tint.Err(err))
 	}
 
 	// Discover object and file storages
@@ -309,7 +311,7 @@ func (d *azureDiscovery) discoverFileStorages(account *armstorage.Account, activ
 				return nil, fmt.Errorf("could not handle file storage: %w", err)
 			}
 
-			log.Infof("Adding file storage '%s", fileStorages.Name)
+			slog.Info("Adding file storage", slog.String("name", fileStorages.GetName()))
 
 			list = append(list, fileStorages)
 		}
@@ -335,7 +337,7 @@ func (d *azureDiscovery) discoverObjectStorages(account *armstorage.Account, act
 			if err != nil {
 				return nil, fmt.Errorf("could not handle object storage: %w", err)
 			}
-			log.Infof("Adding object storage '%s'", objectStorages.Name)
+			slog.Info("Adding object storage", slog.String("name", objectStorages.GetName()))
 
 			list = append(list, objectStorages)
 		}

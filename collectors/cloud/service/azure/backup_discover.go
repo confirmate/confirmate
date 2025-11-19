@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/dataprotection/armdataprotection"
+	"github.com/lmittmann/tint"
 )
 
 // discoverBackupVaults receives all backup vaults in the subscription.
@@ -17,7 +19,7 @@ import (
 func (d *azureDiscovery) discoverBackupVaults() error {
 
 	if len(d.backupMap) > 0 {
-		log.Debug("Backup Vaults already discovered.")
+		slog.Debug("Backup Vaults already discovered.")
 		return nil
 	}
 
@@ -60,7 +62,7 @@ func (d *azureDiscovery) discoverBackupVaults() error {
 				policy, err := d.clients.backupPoliciesClient.Get(context.Background(), resourceGroupName(*vault.ID), *vault.Name, backupPolicyName(*instance.Properties.PolicyInfo.PolicyID), &armdataprotection.BackupPoliciesClientGetOptions{})
 				if err != nil {
 					err := fmt.Errorf("could not get backup policy '%s': %w", *instance.Properties.PolicyInfo.PolicyID, err)
-					log.Error(err)
+					slog.Error("err", tint.Err(err))
 					continue
 				}
 

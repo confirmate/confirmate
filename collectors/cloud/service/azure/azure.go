@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -28,6 +29,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
+	"github.com/lmittmann/tint"
 	"github.com/sirupsen/logrus"
 )
 
@@ -193,7 +195,7 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	}
 
 	// Discover resource group resources
-	log.Info("Discover Azure resource group resources...")
+	slog.Info("Discover Azure resource group resources...")
 	rg, err := d.discoverResourceGroups()
 	if err != nil {
 		return nil, fmt.Errorf("could not discover resource groups: %w", err)
@@ -201,7 +203,7 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	list = append(list, rg...)
 
 	// Discover storage resources
-	log.Info("Discover Azure storage resources...")
+	slog.Info("Discover Azure storage resources...")
 
 	// Discover Defender for X properties to add it to the required resource properties
 	d.defenderProperties, err = d.discoverDefender()
@@ -231,12 +233,12 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	list = append(list, cosmosDB...)
 
 	// Discover compute resources
-	log.Info("Discover Azure compute resources...")
+	slog.Info("Discover Azure compute resources...")
 
 	// Discover backup vaults
 	err = d.discoverBackupVaults()
 	if err != nil {
-		log.Errorf("could not discover backup vaults: %v", err)
+		slog.Error("could not discover backup vaults", tint.Err(err))
 	}
 
 	// Discover block storage
@@ -267,7 +269,7 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	list = append(list, resources...)
 
 	// Discover network resources
-	log.Info("Discover Azure network resources...")
+	slog.Info("Discover Azure network resources...")
 
 	// Discover network interfaces
 	networkInterfaces, err := d.discoverNetworkInterfaces()
@@ -327,7 +329,7 @@ func (d *azureDiscovery) authorize() (err error) {
 		pageResponse, err := subPager.NextPage(context.TODO())
 		if err != nil {
 			err = fmt.Errorf("%s: %w", ErrCouldNotGetSubscriptions, err)
-			log.Error(err)
+			slog.Error("error", tint.Err(err))
 			return err
 		}
 		subList = append(subList, pageResponse.ListResult.Value...)
@@ -342,7 +344,9 @@ func (d *azureDiscovery) authorize() (err error) {
 	// get first subscription
 	d.sub = subList[0]
 
-	log.Infof("Azure %s discoverer uses %s as subscription", d.discovererComponent, *d.sub.SubscriptionID)
+	slog.Info("Azure discoverer uses subscription",
+		"component", d.discovererComponent,
+		"subscription_id", *d.sub.SubscriptionID)
 
 	d.isAuthorized = true
 
@@ -357,7 +361,7 @@ func (d *azureDiscovery) authorize() (err error) {
 func NewAuthorizer() (*azidentity.DefaultAzureCredential, error) {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
-		log.Errorf("%s: %+v", ErrCouldNotAuthenticate, err)
+		slog.Error(ErrCouldNotAuthenticate.Error(), tint.Err(err))
 		return nil, fmt.Errorf("%s: %w", ErrCouldNotAuthenticate, err)
 	}
 

@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"os"
 	"slices"
 	"sync"
 	"time"
@@ -25,7 +27,7 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
+	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -47,7 +49,7 @@ const (
 )
 
 var (
-	log *logrus.Entry
+	logger *slog.Logger
 
 	ErrK8sAuth       = errors.New("could not authenticate to Kubernetes")
 	ErrOpenstackAuth = errors.New("could not authenticate to OpenStack")
@@ -151,14 +153,16 @@ type Service struct {
 }
 
 func init() {
-	log = logrus.WithField("component", "discovery")
+	logger = slog.New(tint.NewHandler(os.Stdout, nil))
+	logger = logger.With("package", "collector")
+	slog.SetDefault(logger)
 }
 
 // WithEvidenceStoreAddress is an option to configure the evidence store service gRPC address.
 func WithEvidenceStoreAddress(target string, client *http.Client) service.Option[*Service] {
 
 	return func(s *Service) {
-		log.Infof("Evidence Store URL is set to %s", target)
+		slog.Info("Evidence Store URL is set", "target", target)
 
 		s.cloudConfig.evStreamConfig.targetAddress = target
 		s.cloudConfig.evStreamConfig.client = client
@@ -168,7 +172,7 @@ func WithEvidenceStoreAddress(target string, client *http.Client) service.Option
 // WithTargetOfEvaluationID is an option to configure the target of evaluation ID for which resources will be discovered.
 func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
-		log.Infof("Target of Evaluation ID is set to %s", ID)
+		slog.Info("Target of Evaluation ID is set", "targetOfEvaluationID", ID)
 
 		svc.cloudConfig.targetOfEvaluationID = ID
 	}
@@ -177,7 +181,7 @@ func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 // WithCollectorToolID is an option to configure the collector tool ID that is used to discover resources.
 func WithCollectorToolID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
-		log.Infof("Evidence Collector Tool ID is set to %s", ID)
+		slog.Info("Evidence Collector Tool ID is set", "collectorToolID", ID)
 
 		svc.cloudConfig.collectorToolID = ID
 	}
@@ -194,8 +198,7 @@ func WithCollectorToolID(ID string) service.Option[*Service] {
 // WithProviders is an option to set providers for discovering
 func WithProviders(providersList []string) service.Option[*Service] {
 	if len(providersList) == 0 {
-		newError := errors.New("no providers given")
-		log.Error(newError)
+		slog.Error("no providers given")
 	}
 
 	return func(svc *Service) {
@@ -259,7 +262,7 @@ func (svc *Service) Init() {
 			// <-rest.GetReadyChannel()
 			err = svc.Start()
 			if err != nil {
-				log.Errorf("Could not automatically start discovery: %v", err)
+				slog.Error("Could not automatically start discovery", tint.Err(err))
 			}
 		}()
 	}
@@ -277,7 +280,7 @@ func (svc *Service) Start() (err error) {
 		optsOpenstack = []openstack.DiscoveryOption{}
 	)
 
-	log.Infof("Starting discovery...")
+	slog.Info("Starting discovery")
 	svc.scheduler.TagsUnique()
 
 	// Configure discoverers for given providers
@@ -287,7 +290,7 @@ func (svc *Service) Start() (err error) {
 			authorizer, err := azure.NewAuthorizer()
 			if err != nil {
 				err := fmt.Errorf("%v: %v", ErrAzureAuth, err)
-				log.Error(err)
+				slog.Error("authorization error", tint.Err(err))
 				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
@@ -301,7 +304,7 @@ func (svc *Service) Start() (err error) {
 			k8sClient, err := k8s.AuthFromKubeConfig()
 			if err != nil {
 				err := fmt.Errorf("%v: %v", ErrK8sAuth, err)
-				log.Error(err)
+				slog.Error("authorization error", tint.Err(err))
 				return err
 			}
 			svc.collectors = append(svc.collectors,
@@ -312,7 +315,7 @@ func (svc *Service) Start() (err error) {
 			awsClient, err := aws.NewClient()
 			if err != nil {
 				err = fmt.Errorf("%v: %v", ErrAWSAuth, err)
-				log.Error(err)
+				slog.Error("authorization error", tint.Err(err))
 				return err
 			}
 			svc.collectors = append(svc.collectors,
@@ -322,7 +325,7 @@ func (svc *Service) Start() (err error) {
 			authorizer, err := openstack.NewAuthorizer()
 			if err != nil {
 				err = fmt.Errorf("%v: %v", ErrOpenstackAuth, err)
-				log.Error(err)
+				slog.Error("authorization error", tint.Err(err))
 				return err
 			}
 			// Add authorizer and TargetOfEvaluationID
@@ -340,13 +343,13 @@ func (svc *Service) Start() (err error) {
 			svc.collectors = append(svc.collectors, csaf.NewTrustedProviderDiscovery(opts...))
 		default:
 			newError := fmt.Errorf("provider %s not known", provider)
-			log.Error(newError)
+			slog.Error("provider not known", "provider", provider, "error", newError)
 			return fmt.Errorf("%s", newError)
 		}
 	}
 
 	for _, v := range svc.collectors {
-		log.Infof("Scheduling {%s} to execute every {%v} minutes...", v.Name(), svc.cloudConfig.collectorInterval.Minutes())
+		slog.Info("Scheduling collector", "name", v.Name(), "interval_min", svc.cloudConfig.collectorInterval.Minutes())
 
 		_, err = svc.scheduler.
 			Every(svc.cloudConfig.collectorInterval).
@@ -354,7 +357,7 @@ func (svc *Service) Start() (err error) {
 			Do(svc.StartDiscovery, v)
 		if err != nil {
 			newError := fmt.Errorf("could not schedule job for {%s}: %v", v.Name(), err)
-			log.Error(newError)
+			slog.Error("schedule error", "collector", v.Name(), "error", newError)
 			return fmt.Errorf("%s", newError)
 		}
 	}
@@ -381,7 +384,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 	list, err = discoverer.List()
 
 	if err != nil {
-		log.Errorf("Could not retrieve resources from discoverer '%s': %v", discoverer.Name(), err)
+		slog.Error("Could not retrieve resources from discoverer", "discoverer", discoverer.Name(), tint.Err(err))
 		return
 	}
 
@@ -417,7 +420,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 		err := svc.evidenceStoreStream.Send(&evidence.StoreEvidenceRequest{Evidence: e})
 		if err != nil {
 			err = fmt.Errorf("could not send evidence to evidence store service (%s): %w", svc.cloudConfig.evStreamConfig.targetAddress, err)
-			log.Error(err)
+			slog.Error("send evidence error", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
 			svc.checkStreamError(err)
 			continue
 		}
@@ -447,7 +450,7 @@ func (svc *Service) GetStream() *connect.BidiStreamForClient[evidence.StoreEvide
 		return stream
 	} else if svc.dead || stream == nil {
 		// If the stream is dead, we need to create a new one
-		log.Infof("Re-establishing stream to Evidence Store (%s)...", svc.cloudConfig.evStreamConfig.targetAddress)
+		slog.Info("Re-establishing stream to Evidence Store", "address", svc.cloudConfig.evStreamConfig.targetAddress)
 		svc.evidenceStoreStream = svc.evidenceStoreClient.StoreEvidences(context.Background())
 		svc.dead = false
 	}
@@ -459,10 +462,10 @@ func (svc *Service) GetStream() *connect.BidiStreamForClient[evidence.StoreEvide
 func (svc *Service) checkStreamError(err error) {
 	if err != nil {
 		if errors.Is(err, io.EOF) {
-			log.Infof("Stream to Evidence Store (%s) closed with EOF", svc.cloudConfig.evStreamConfig.targetAddress)
+			slog.Info("Stream to Evidence Store closed with EOF", "address", svc.cloudConfig.evStreamConfig.targetAddress)
 		} else {
 			// Some other error than EOF occurred
-			log.Errorf("Error when sending message to Evidence Store (%s): %v", svc.cloudConfig.evStreamConfig.targetAddress, err)
+			slog.Error("Error when sending message to Evidence Store", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
 
 			// Close the stream gracefully. We can ignore any error resulting from the close here
 			_ = svc.evidenceStoreStream.CloseRequest()

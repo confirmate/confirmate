@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
@@ -39,13 +40,13 @@ func (d *k8sStorageDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range pvc.Items {
 		p := d.handlePV(&pvc.Items[i])
 		if p != nil {
-			log.Infof("Adding volume %+v", p.GetId())
+			slog.Info("Adding volume", slog.String("id", p.GetId()))
 			list = append(list, p)
 		}
 	}
 
 	if list == nil {
-		log.Debugf("No Kubernetes persistent volumes available")
+		slog.Debug("No Kubernetes persistent volumes available")
 	}
 
 	return list, nil

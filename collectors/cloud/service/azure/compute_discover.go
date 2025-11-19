@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -41,7 +42,7 @@ func (d *azureDiscovery) discoverVirtualMachines() ([]ontology.IsResource, error
 				return fmt.Errorf("could not handle virtual machine: %w", err)
 			}
 
-			log.Infof("Adding virtual machine '%s'", r.GetName())
+			slog.Info("Adding virtual machine", slog.String("virtual machine name", r.GetName()))
 
 			list = append(list, r)
 
@@ -78,7 +79,7 @@ func (d *azureDiscovery) discoverBlockStorages() ([]ontology.IsResource, error) 
 				return fmt.Errorf("could not handle block storage: %w", err)
 			}
 
-			log.Infof("Adding block storage '%s'", blockStorage.GetName())
+			slog.Info("Adding block storage", slog.String("block storage name", blockStorage.GetName()))
 
 			list = append(list, blockStorage)
 			return nil
@@ -118,7 +119,10 @@ func (d *azureDiscovery) discoverFunctionsWebApps() ([]ontology.IsResource, erro
 				util.Deref(site.Name),
 				&armappservice.WebAppsClientGetConfigurationOptions{})
 			if err != nil {
-				log.Errorf("error getting site config: %v", err)
+				slog.Error("error getting site config",
+					"resourceGroup", util.Deref(site.Properties.ResourceGroup),
+					"site", util.Deref(site.Name),
+					"err", err)
 			}
 
 			// Check kind of site (see https://github.com/Azure/app-service-linux-docs/blob/master/Things_You_Should_Know/kind_property.md)
@@ -129,35 +133,35 @@ func (d *azureDiscovery) discoverFunctionsWebApps() ([]ontology.IsResource, erro
 				r = d.handleWebApp(site, config)
 			case "app,linux,container": // Linux Container Web App
 				// TODO(all): TBD
-				log.Debug("Linux Container Web App Web App currently not implemented.")
+				slog.Debug("Linux Container Web App Web App currently not implemented.")
 			case "hyperV": // Windows Container Web App
 				// TODO(all): TBD
-				log.Debug("Windows Container Web App currently not implemented.")
+				slog.Debug("Windows Container Web App currently not implemented.")
 			case "app,container,windows": // Windows Container Web App
 				// TODO(all): TBD
-				log.Debug("Windows Web App currently not implemented.")
+				slog.Debug("Windows Web App currently not implemented.")
 			case "app,linux,kubernetes": // Linux Web App on ARC
 				// TODO(all): TBD
-				log.Debug("Linux Web App on ARC currently not implemented.")
+				slog.Debug("Linux Web App on ARC currently not implemented.")
 			case "app,linux,container,kubernetes": // Linux Container Web App on ARC
 				// TODO(all): TBD
-				log.Debug("Linux Container Web App on ARC currently not implemented.")
+				slog.Debug("Linux Container Web App on ARC currently not implemented.")
 			case "functionapp": // Function Code App
 				r = d.handleFunction(site, config)
 			case "functionapp,linux": // Linux Consumption Function app
 				r = d.handleFunction(site, config)
 			case "functionapp,linux,container,kubernetes": // Function Container App on ARC
 				// TODO(all): TBD
-				log.Debug("Function Container App on ARC currently not implemented.")
+				slog.Debug("Function Container App on ARC currently not implemented.")
 			case "functionapp,linux,kubernetes": // Function Code App on ARC
 				// TODO(all): TBD
-				log.Debug("Function Code App on ARC currently not implemented.")
+				slog.Debug("Function Code App on ARC currently not implemented.")
 			default:
-				log.Debugf("%s currently not supported.", *site.Kind)
+				slog.Debug("kind currently not supported.", slog.String("kind", util.Deref(site.Kind)))
 			}
 
 			if r != nil {
-				log.Infof("Adding function %+v", r.GetName())
+				slog.Info("Adding function", slog.String("function name", r.GetName()))
 				list = append(list, r)
 			}
 

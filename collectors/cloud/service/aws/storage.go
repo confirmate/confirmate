@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -93,7 +94,7 @@ func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
 		encryptionAtRest    *ontology.AtRestEncryption
 	)
 
-	log.Infof("Collecting evidences in %s", d.Name())
+	slog.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
 	var buckets []bucket
 	buckets, err = d.getBuckets()
 	if err != nil {

@@ -3,6 +3,7 @@ package azure
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"confirmate.io/core/api/ontology"
@@ -40,7 +41,7 @@ func (d *azureDiscovery) discoverResourceGroups() (list []ontology.IsResource, e
 
 			r := d.handleResourceGroup(rg)
 
-			log.Infof("Adding resource group '%s'", r.GetName())
+			slog.Info("Adding resource group", slog.String("resource group", r.GetName()))
 
 			list = append(list, r)
 		}

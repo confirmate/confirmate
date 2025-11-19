@@ -2,10 +2,12 @@ package azure
 
 import (
 	"context"
+	"log/slog"
 
 	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
+	"github.com/lmittmann/tint"
 )
 
 // nsgFirewallEnabled checks if network security group (NSG) rules are configured. A NSG is a firewall that operates at OSI layers 3 and 4 to filter ingress and egress traffic. (https://learn.microsoft.com/en-us/azure/firewall/firewall-faq#what-is-the-difference-between-network-security-groups--nsgs--and-azure-firewall, Last access: 05/02/2023)
@@ -19,7 +21,7 @@ func (d *azureDiscovery) nsgFirewallEnabled(ni *armnetwork.Interface) bool {
 		vmNsg := ni.Properties.NetworkSecurityGroup
 		nsg, err := d.clients.networkSecurityGroupsClient.Get(context.Background(), resourceGroupName(*vmNsg.ID), getName(*vmNsg.ID), &armnetwork.SecurityGroupsClientGetOptions{})
 		if err != nil {
-			log.Errorf("error getting network security group: %v", err)
+			slog.Error("error getting network security group", tint.Err(err))
 			return false
 		}
 
@@ -61,7 +63,7 @@ func loadBalancerPorts(lb *armnetwork.LoadBalancer) (loadBalancerPorts []uint32)
 //     sg, err := client.Get(context.Background(), getResourceGroupName(nsgID), strings.Split(nsgID, "/")[8], "")
 //
 //     if err != nil {
-//             log.Errorf("Could not get security group: %v", err)
+//            slog.Error("Could not get security group", tint.Err(err))
 //             return ""
 //     }
 //
@@ -108,7 +110,7 @@ func publicIPAddressFromLoadBalancer(lb *armnetwork.LoadBalancer) []string {
 		// Get public IP address
 		ipAddress := util.Deref(fIpConfig[i].Properties.PublicIPAddress.Properties.IPAddress)
 		if ipAddress == "" {
-			log.Infof("No public IP adress available.")
+			slog.Info("No public IP adress available.")
 			continue
 		}
 

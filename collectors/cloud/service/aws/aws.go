@@ -12,13 +12,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.WithField("component", "aws-discovery")
+var (
+	log = logrus.WithField("component", "aws-discovery")
 
-// loadDefaultConfig holds config.LoadDefaultConfig() so that NewClient() can use it and test function can mock it
-var loadDefaultConfig = config.LoadDefaultConfig
+	// loadDefaultConfig holds config.LoadDefaultConfig() so that NewClient() can use it and test function can mock it
+	loadDefaultConfig = config.LoadDefaultConfig
 
-// newFromConfigSTS holds sts.NewFromConfig() so that NewClient() can use it and test function can mock it
-var newFromConfigSTS = loadSTSClient
+	// newFromConfigSTS holds sts.NewFromConfig() so that NewClient() can use it and test function can mock it
+	newFromConfigSTS = loadSTSClient
+)
 
 // Client holds configurations across all services within AWS
 type Client struct {

@@ -2,6 +2,7 @@ package azure
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -73,11 +74,11 @@ func (d *azureDiscovery) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 		// Get Mongo databases
 		list = append(list, d.discoverMongoDBDatabases(account, atRestEnc)...)
 	case armcosmos.DatabaseAccountKindGlobalDocumentDB:
-		log.Infof("%s not yet implemented", armcosmos.DatabaseAccountKindGlobalDocumentDB)
+		slog.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindGlobalDocumentDB))
 	case armcosmos.DatabaseAccountKindParse:
-		log.Infof("%s not yet implemented", armcosmos.DatabaseAccountKindParse)
+		slog.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindParse))
 	default:
-		log.Warningf("Account kind '%s' not yet implemented", util.Deref(account.Kind))
+		slog.Warn("account kind not yet implemented", slog.Any("kind", util.Deref(account.Kind)))
 	}
 
 	return list, nil

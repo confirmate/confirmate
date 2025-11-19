@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"confirmate.io/collectors/cloud/internal/constants"
@@ -120,14 +121,14 @@ func (d *azureDiscovery) getResourceLoggingWebApps(site *armappservice.Site) (rl
 	rl = &ontology.ResourceLogging{}
 
 	if site == nil {
-		log.Error("given parameter is empty")
+		slog.Error("given parameter is empty")
 		return
 	}
 
 	appSettings, err := d.clients.webAppsClient.ListApplicationSettings(context.Background(),
 		*site.Properties.ResourceGroup, *site.Name, &armappservice.WebAppsClientListApplicationSettingsOptions{})
 	if err != nil {
-		log.Errorf("could not get application settings for '%s': %v", util.Deref(site.Name), err)
+		slog.Error("could not get application settings", "site", util.Deref(site.Name), "error", err)
 		return
 	}
 	if appSettings.Properties["APPLICATIONINSIGHTS_CONNECTION_STRING"] != nil {

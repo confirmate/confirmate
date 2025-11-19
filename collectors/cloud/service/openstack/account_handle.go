@@ -1,6 +1,8 @@
 package openstack
 
 import (
+	"log/slog"
+
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -22,7 +24,7 @@ func (d *openstackDiscovery) handleDomain(domain *domains.Domain) (ontology.IsRe
 		Raw:          cloud.Raw(domain),
 	}
 
-	log.Infof("Adding domain '%s", domain.Name)
+	slog.Info("Adding domain", slog.String("name", domain.Name))
 
 	return r, nil
 }
@@ -43,7 +45,7 @@ func (d *openstackDiscovery) handleProject(project *projects.Project) (ontology.
 		Raw:      cloud.Raw(project),
 	}
 
-	log.Infof("Adding project '%s", project.Name)
+	slog.Info("Adding project", slog.String("name", project.Name))
 
 	return r, nil
 }

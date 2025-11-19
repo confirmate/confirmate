@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"testing"
 	"time"
@@ -1144,7 +1145,7 @@ func (mockSender) Do(req *http.Request) (res *http.Response, err error) {
 		}, 200)
 	} else {
 		res, err = createResponse(req, map[string]interface{}{}, 404)
-		log.Errorf("Not handling mock for %s yet", req.URL.Path)
+		slog.Error("Not handling mock yet", "path", req.URL.Path)
 	}
 
 	return

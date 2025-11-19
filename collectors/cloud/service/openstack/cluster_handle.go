@@ -1,6 +1,8 @@
 package openstack
 
 import (
+	"log/slog"
+
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -23,7 +25,7 @@ func (d *openstackDiscovery) handleCluster(cluster *clusters.Cluster) (ontology.
 		Raw:      cloud.Raw(cluster),
 	}
 
-	log.Infof("Adding cluster '%s", cluster.Name)
+	slog.Info("Adding cluster", slog.String("name", cluster.Name))
 
 	return r, nil
 }

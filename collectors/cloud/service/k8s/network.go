@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
@@ -38,7 +39,7 @@ func (d *k8sNetworkDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range services.Items {
 		c := d.handleService(&services.Items[i])
 
-		log.Infof("Adding service %+v", c.GetId())
+		slog.Info("Adding service", slog.String("id", c.GetId()))
 
 		list = append(list, c)
 	}
@@ -52,7 +53,7 @@ func (d *k8sNetworkDiscovery) List() ([]ontology.IsResource, error) {
 	for i := range ingresses.Items {
 		c := d.handleIngress(&ingresses.Items[i])
 
-		log.Infof("Adding ingress %+v", c.GetId())
+		slog.Info("Adding ingress", slog.String("id", c.GetId()))
 
 		list = append(list, c)
 	}

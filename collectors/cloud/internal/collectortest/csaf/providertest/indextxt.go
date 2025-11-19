@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash"
+	"log/slog"
 	"net/http"
 	"path"
 	"strconv"
@@ -18,7 +19,7 @@ import (
 	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
-	log "github.com/sirupsen/logrus"
+	"github.com/lmittmann/tint"
 )
 
 type ServiceHandler interface {
@@ -34,11 +35,6 @@ func NewGoodIndexTxtWriter() ServiceHandler {
 	return &goodIndexTxtWriter{}
 }
 
-// for future tests
-//type errIndexTxtWriter struct {
-//	statusCode int
-//}
-
 type goodIndexTxtWriter struct{}
 
 func (good *goodIndexTxtWriter) handleIndexTxt(_ http.ResponseWriter, _ *http.Request, advisories []*csaf.Advisory, _ *TrustedProvider) {
@@ -49,27 +45,27 @@ func (good *goodIndexTxtWriter) handleIndexTxt(_ http.ResponseWriter, _ *http.Re
 }
 
 func (good *goodIndexTxtWriter) handleChangesCsv(w http.ResponseWriter, _ *http.Request, advisories []*csaf.Advisory, _ *TrustedProvider) {
-	// TODO: must be sorted!
 	for _, advisory := range advisories {
 		line := fmt.Sprintf("\"%s\",\"%s\"\n", DocURL(advisory.Document), util.Deref(advisory.Document.Tracking.CurrentReleaseDate))
 		// write something, take release from tracking current_release_data
 		_, err := w.Write([]byte(line))
 		// Maybe do better error handling
 		if err != nil {
-			log.Warnf("Could not write csv: %s", err.Error())
+			slog.Warn("Could not write csv", tint.Err(err))
 		}
 	}
 }
 
 func (good *goodIndexTxtWriter) handleAdvisory(w http.ResponseWriter, _ *http.Request, advisory *csaf.Advisory, _ *TrustedProvider) {
 	b, err := json.Marshal(advisory)
-	if err == nil {
-		_, err = w.Write(b)
-		// Maybe do better error handling
-		if err != nil {
-			log.Warnf("Could not write: %s", err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+	if err != nil {
+		slog.Error("advisory marshaling fehlgeschlagen", tint.Err(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if _, err = w.Write(b); err != nil {
+		slog.Error("advisory schreiben fehlgeschlagen", tint.Err(err))
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
@@ -98,7 +94,7 @@ func (good *goodIndexTxtWriter) handleHash(w http.ResponseWriter, advisory *csaf
 		strings.ToLower(string(util.Deref(advisory.Document.Tracking.ID)))+".json")),
 	)
 	if err != nil {
-		log.Warnf("Could not write: %s", err.Error())
+		slog.Warn("could not write", tint.Err(err))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

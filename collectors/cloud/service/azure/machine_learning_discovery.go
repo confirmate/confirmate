@@ -3,6 +3,7 @@ package azure
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -24,7 +25,7 @@ func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
 	for serverListPager.More() {
 		pageResponse, err := serverListPager.NextPage(context.TODO())
 		if err != nil {
-			log.Errorf("%s: %v", ErrGettingNextPage, err)
+			slog.Error(ErrGettingNextPage.Error(), "error", err)
 			return list, err
 		}
 
@@ -47,7 +48,7 @@ func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
 				return nil, fmt.Errorf("could not handle ML workspace: %w", err)
 			}
 
-			log.Infof("Adding ML workspace '%s'", mlWorkspace.GetName())
+			slog.Info("Adding ML workspace", slog.String("machine learning workspace", mlWorkspace.GetName()))
 
 			list = append(list, mlWorkspace)
 		}
@@ -70,7 +71,7 @@ func (d *azureDiscovery) discoverMLCompute(rg string, workspace *armmachinelearn
 	for serverListPager.More() {
 		pageResponse, err := serverListPager.NextPage(context.TODO())
 		if err != nil {
-			log.Errorf("%s: %v", ErrGettingNextPage, err)
+			slog.Error(ErrGettingNextPage.Error(), "error", err)
 			return list, err
 		}
 
@@ -84,7 +85,7 @@ func (d *azureDiscovery) discoverMLCompute(rg string, workspace *armmachinelearn
 				continue
 			}
 
-			log.Infof("Adding ML compute resource '%s'", compute.GetName())
+			slog.Info("Adding ML compute resource", slog.String("machine learning compute", compute.GetName()))
 
 			list = append(list, compute)
 

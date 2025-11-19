@@ -2,6 +2,7 @@ package azure
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
 	cloud "confirmate.io/collectors/cloud/api"
@@ -149,7 +150,7 @@ func (d *azureDiscovery) handleFunction(function *armappservice.Site, config arm
 
 	// If a mandatory field is empty, the whole function is empty
 	if function == nil || config == (armappservice.WebAppsClientGetConfigurationResponse{}) {
-		log.Error("input parameter empty")
+		slog.Error("input parameter empty")
 		return nil
 	}
 
@@ -206,7 +207,7 @@ func (d *azureDiscovery) handleFunction(function *armappservice.Site, config arm
 
 func (d *azureDiscovery) handleWebApp(webApp *armappservice.Site, config armappservice.WebAppsClientGetConfigurationResponse) ontology.IsResource {
 	if webApp == nil || config == (armappservice.WebAppsClientGetConfigurationResponse{}) {
-		log.Error("input parameter empty")
+		slog.Error("input parameter empty")
 		return nil
 	}
 

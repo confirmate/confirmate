@@ -2,6 +2,7 @@ package azure
 
 import (
 	"fmt"
+	"log/slog"
 
 	"confirmate.io/core/util"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/security/armsecurity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
+	"github.com/lmittmann/tint"
 )
 
 // ClientCreateFuncWithSubID is a type that describes a function to create a new Azure SDK client with a subscription ID.
@@ -43,7 +45,7 @@ func initClientWithSubID[T any](existingClient *T, d *azureDiscovery, fun Client
 	client, err = fun(subID, d.cred, &d.clientOptions)
 	if err != nil {
 		err = fmt.Errorf("could not get %T client: %w", new(T), err)
-		log.Error(err)
+		slog.Error("get client error", tint.Err(err))
 		return nil, err
 	}
 
@@ -62,7 +64,7 @@ func initClientWithoutSubID[T any](existingClient *T, d *azureDiscovery, fun Cli
 	client, err = fun(d.cred, &d.clientOptions)
 	if err != nil {
 		err = fmt.Errorf("could not get %T client: %w", new(T), err)
-		log.Error(err)
+		slog.Error("get client error", tint.Err(err))
 		return nil, err
 	}
 

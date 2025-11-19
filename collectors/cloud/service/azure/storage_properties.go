@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
+	"github.com/lmittmann/tint"
 )
 
 // storageAtRestEncryption takes encryption properties of an armstorage.Account and converts it into our respective ontology object.
@@ -78,25 +80,25 @@ func (d *azureDiscovery) getActivityLogging(account *armstorage.Account) (activi
 	// Get ActivityLogging for the storage account
 	activityLoggingAccount, rawAccount, err = d.discoverDiagnosticSettings(util.Deref(account.ID))
 	if err != nil {
-		log.Errorf("could not discover diagnostic settings for the storage account: %v", err)
+		slog.Error("could not discover diagnostic settings for the storage account", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the blob service
 	activityLoggingBlob, rawBlob, err = d.discoverDiagnosticSettings(util.Deref(account.ID) + "/blobServices/default")
 	if err != nil {
-		log.Errorf("could not discover diagnostic settings for the blob service: %v", err)
+		slog.Error("could not discover diagnostic settings for the blob service", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the table service
 	activityLoggingTable, rawTable, err = d.discoverDiagnosticSettings(util.Deref(account.ID) + "/tableServices/default")
 	if err != nil {
-		log.Errorf("could not discover diagnostic settings for the table service: %v", err)
+		slog.Error("could not discover diagnostic settings for the table service", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the file service
 	activityLoggingFile, rawFile, err = d.discoverDiagnosticSettings(util.Deref(account.ID) + "/fileServices/default")
 	if err != nil {
-		log.Errorf("could not discover diagnostic settings for the file service: %v", err)
+		slog.Error("could not discover diagnostic settings for the file service", tint.Err(err))
 	}
 
 	return
