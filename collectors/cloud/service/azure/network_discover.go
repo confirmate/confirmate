@@ -30,7 +30,7 @@ func (d *azureDiscovery) discoverNetworkInterfaces() ([]ontology.IsResource, err
 		func(ni *armnetwork.Interface) error {
 			s := d.handleNetworkInterfaces(ni)
 
-			slog.Info("Adding network interface", slog.String("network interface", s.GetName()))
+			log.Info("Adding network interface", slog.String("network interface", s.GetName()))
 
 			list = append(list, s)
 
@@ -65,7 +65,7 @@ func (d *azureDiscovery) discoverApplicationGateway() ([]ontology.IsResource, er
 		func(ags *armnetwork.ApplicationGateway) error {
 			s := d.handleApplicationGateway(ags)
 
-			slog.Info("Adding application gateway", slog.String("application gateway", s.GetName()))
+			log.Info("Adding application gateway", slog.String("application gateway", s.GetName()))
 
 			list = append(list, s)
 
@@ -100,7 +100,7 @@ func (d *azureDiscovery) discoverLoadBalancer() ([]ontology.IsResource, error) {
 		func(lbs *armnetwork.LoadBalancer) error {
 			s := d.handleLoadBalancer(lbs)
 
-			slog.Info("Adding load balancer", slog.String("load balancer", s.GetName()))
+			log.Info("Adding load balancer", slog.String("load balancer", s.GetName()))
 
 			list = append(list, s)
 

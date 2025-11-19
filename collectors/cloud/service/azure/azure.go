@@ -9,6 +9,7 @@ import (
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/collectors/cloud/internal/logging"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -30,7 +31,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
 	"github.com/lmittmann/tint"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -49,7 +49,8 @@ const (
 )
 
 var (
-	log *logrus.Entry
+	// // log *logrus.Entry
+	log *slog.Logger
 
 	ErrCouldNotAuthenticate     = errors.New("could not authenticate to Azure")
 	ErrCouldNotGetSubscriptions = errors.New("could not get azure subscription")
@@ -95,7 +96,7 @@ func WithResourceGroup(rg string) DiscoveryOption {
 }
 
 func init() {
-	log = logrus.WithField("component", "azure-discovery")
+	log = logging.GetLogger().With("component", "azure-discovery")
 }
 
 type azureDiscovery struct {
@@ -104,13 +105,12 @@ type azureDiscovery struct {
 	sub  *armsubscription.Subscription
 	cred azcore.TokenCredential
 	// rg optionally contains the name of a resource group. If this is not nil, all discovery calls will be scoped to the particular resource group.
-	rg                  *string
-	clientOptions       arm.ClientOptions
-	discovererComponent string
-	clients             clients
-	ctID                string
-	backupMap           map[string]*backup
-	defenderProperties  map[string]*defenderProperties
+	rg                 *string
+	clientOptions      arm.ClientOptions
+	clients            clients
+	ctID               string
+	backupMap          map[string]*backup
+	defenderProperties map[string]*defenderProperties
 }
 
 type defenderProperties struct {
@@ -195,7 +195,7 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	}
 
 	// Discover resource group resources
-	slog.Info("Discover Azure resource group resources...")
+	log.Info("Discover Azure resource group resources...")
 	rg, err := d.discoverResourceGroups()
 	if err != nil {
 		return nil, fmt.Errorf("could not discover resource groups: %w", err)
@@ -203,7 +203,7 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	list = append(list, rg...)
 
 	// Discover storage resources
-	slog.Info("Discover Azure storage resources...")
+	log.Info("Discover Azure storage resources...")
 
 	// Discover Defender for X properties to add it to the required resource properties
 	d.defenderProperties, err = d.discoverDefender()
@@ -233,12 +233,12 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	list = append(list, cosmosDB...)
 
 	// Discover compute resources
-	slog.Info("Discover Azure compute resources...")
+	log.Info("Discover Azure compute resources...")
 
 	// Discover backup vaults
 	err = d.discoverBackupVaults()
 	if err != nil {
-		slog.Error("could not discover backup vaults", tint.Err(err))
+		log.Error("could not discover backup vaults", tint.Err(err))
 	}
 
 	// Discover block storage
@@ -269,7 +269,7 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 	list = append(list, resources...)
 
 	// Discover network resources
-	slog.Info("Discover Azure network resources...")
+	log.Info("Discover Azure network resources...")
 
 	// Discover network interfaces
 	networkInterfaces, err := d.discoverNetworkInterfaces()
@@ -329,7 +329,7 @@ func (d *azureDiscovery) authorize() (err error) {
 		pageResponse, err := subPager.NextPage(context.TODO())
 		if err != nil {
 			err = fmt.Errorf("%s: %w", ErrCouldNotGetSubscriptions, err)
-			slog.Error("error", tint.Err(err))
+			log.Error("error", tint.Err(err))
 			return err
 		}
 		subList = append(subList, pageResponse.ListResult.Value...)
@@ -344,9 +344,7 @@ func (d *azureDiscovery) authorize() (err error) {
 	// get first subscription
 	d.sub = subList[0]
 
-	slog.Info("Azure discoverer uses subscription",
-		"component", d.discovererComponent,
-		"subscription_id", *d.sub.SubscriptionID)
+	log.Info("Azure discoverer uses subscription", "subscriptionID", util.Deref(d.sub.SubscriptionID))
 
 	d.isAuthorized = true
 
@@ -361,7 +359,7 @@ func (d *azureDiscovery) authorize() (err error) {
 func NewAuthorizer() (*azidentity.DefaultAzureCredential, error) {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
-		slog.Error(ErrCouldNotAuthenticate.Error(), tint.Err(err))
+		log.Error(ErrCouldNotAuthenticate.Error(), tint.Err(err))
 		return nil, fmt.Errorf("%s: %w", ErrCouldNotAuthenticate, err)
 	}
 

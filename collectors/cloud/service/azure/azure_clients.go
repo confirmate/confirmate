@@ -2,7 +2,6 @@ package azure
 
 import (
 	"fmt"
-	"log/slog"
 
 	"confirmate.io/core/util"
 
@@ -45,7 +44,7 @@ func initClientWithSubID[T any](existingClient *T, d *azureDiscovery, fun Client
 	client, err = fun(subID, d.cred, &d.clientOptions)
 	if err != nil {
 		err = fmt.Errorf("could not get %T client: %w", new(T), err)
-		slog.Error("get client error", tint.Err(err))
+		log.Error("get client error", tint.Err(err))
 		return nil, err
 	}
 
@@ -64,7 +63,7 @@ func initClientWithoutSubID[T any](existingClient *T, d *azureDiscovery, fun Cli
 	client, err = fun(d.cred, &d.clientOptions)
 	if err != nil {
 		err = fmt.Errorf("could not get %T client: %w", new(T), err)
-		slog.Error("get client error", tint.Err(err))
+		log.Error("get client error", tint.Err(err))
 		return nil, err
 	}
 

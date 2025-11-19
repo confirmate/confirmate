@@ -1,8 +1,6 @@
 package azure
 
 import (
-	"log/slog"
-
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -80,7 +78,7 @@ func (d *azureDiscovery) handleMLCompute(value *armmachinelearning.ComputeResour
 		return compute, nil
 	}
 
-	slog.Debug("unsupported compute resource type",
+	log.Debug("unsupported compute resource type",
 		"name", util.Deref(value.Name),
 		"type", util.Deref(value.Type),
 	)

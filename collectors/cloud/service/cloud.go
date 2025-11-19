@@ -7,13 +7,13 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"os"
 	"slices"
 	"sync"
 	"time"
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/collectors/cloud/internal/logging"
 	"confirmate.io/collectors/cloud/service/aws"
 	"confirmate.io/collectors/cloud/service/azure"
 	"confirmate.io/collectors/cloud/service/extra/csaf"
@@ -132,10 +132,13 @@ type DiscoveryEvent struct {
 type Service struct {
 	// evidenceStoreClient holds the client to communicate with the evidence store service.
 	evidenceStoreClient evidenceconnect.EvidenceStoreClient
+
 	// evidenceStoreStream is the stream used to send evidences to the evidence store service.
 	evidenceStoreStream *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
+
 	// dead indicates whether the stream is dead.
 	dead bool
+
 	// streamMu is used to synchronize access to the evidence store stream.
 	streamMu sync.RWMutex
 
@@ -153,9 +156,7 @@ type Service struct {
 }
 
 func init() {
-	logger = slog.New(tint.NewHandler(os.Stdout, nil))
-	logger = logger.With("package", "collector")
-	slog.SetDefault(logger)
+	logging.InitializeLogger()
 }
 
 // WithEvidenceStoreAddress is an option to configure the evidence store service gRPC address.

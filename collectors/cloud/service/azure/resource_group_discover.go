@@ -41,7 +41,7 @@ func (d *azureDiscovery) discoverResourceGroups() (list []ontology.IsResource, e
 
 			r := d.handleResourceGroup(rg)
 
-			slog.Info("Adding resource group", slog.String("resource group", r.GetName()))
+			log.Info("Adding resource group", slog.String("resource group", r.GetName()))
 
 			list = append(list, r)
 		}

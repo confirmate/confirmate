@@ -9,11 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
-	"github.com/sirupsen/logrus"
 )
 
 var (
-	log = logrus.WithField("component", "aws-discovery")
+	// log = *slog.Logger
 
 	// loadDefaultConfig holds config.LoadDefaultConfig() so that NewClient() can use it and test function can mock it
 	loadDefaultConfig = config.LoadDefaultConfig
@@ -24,7 +23,9 @@ var (
 
 // Client holds configurations across all services within AWS
 type Client struct {
+	// cfg holds AWS SDK configuration
 	cfg aws.Config
+
 	// accountID is needed for ARN creation
 	accountID *string
 }

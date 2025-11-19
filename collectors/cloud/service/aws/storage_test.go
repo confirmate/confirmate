@@ -472,17 +472,17 @@ func TestAwsS3Discovery_List(t *testing.T) {
 	expectedResourceNames := []string{mockBucket1, "mockbucket2", "mockbucket3"}
 
 	// Check first element: voc.ObjectStorage
-	slog.Info("Testing name for resource (bucket)", 1)
+	slog.Info("Testing name for resource (bucket)", slog.Int("resource element", 1))
 	assert.Equal(t, expectedResourceNames[0], resources[0].GetName())
-	slog.Info("Testing type of resource", 1)
+	slog.Info("Testing type of resource", slog.Int("resource element", 1))
 	assert.True(t, ontology.HasType(resources[0], "ObjectStorage"))
 	expectedRaw := "{\"**s3.GetBucketEncryptionOutput\":[{\"ServerSideEncryptionConfiguration\":{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\",\"KMSMasterKeyID\":null},\"BucketKeyEnabled\":false}]},\"ResultMetadata\":{}}],\"**s3.GetBucketPolicyOutput\":[{\"Policy\":\"{\\\"id\\\":\\\"Mock BucketPolicy ID 1234\\\",\\\"Version\\\":\\\"2012-10-17\\\",\\\"Statement\\\":[{\\\"Action\\\":\\\"s3:*\\\",\\\"Effect\\\":\\\"Deny\\\",\\\"Resource\\\":\\\"*\\\",\\\"Condition\\\":{\\\"aws:SecureTransport\\\":false}}]}\",\"ResultMetadata\":{}}],\"*[]interface {}\":[[{\"BucketArn\":null,\"BucketRegion\":null,\"CreationDate\":\"2012-11-01T22:08:41Z\",\"Name\":\"mockbucket1\"},{\"LocationConstraint\":\"eu-central-1\",\"ResultMetadata\":{}}]],\"*aws.bucket\":[{}]}"
 	assert.Equal(t, expectedRaw, resources[0].GetRaw())
 
 	// Check second element: voc.ObjectStorageService
-	slog.Info("Testing name for resource (bucket)", slog.Int("number of resource", 2))
+	slog.Info("Testing name for resource (bucket)", slog.Int("resource element", 2))
 	assert.Equal(t, expectedResourceNames[0], resources[1].GetName())
-	slog.Info("Testing type of resource", slog.Int("number of resources", 2))
+	slog.Info("Testing type of resource", slog.Int("resource element", 2))
 	assert.True(t, ontology.HasType(resources[1], "ObjectStorageService"))
 }
 

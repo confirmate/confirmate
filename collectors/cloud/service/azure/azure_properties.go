@@ -3,7 +3,6 @@ package azure
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"slices"
 	"strconv"
 	"strings"
@@ -71,7 +70,7 @@ func tlsVersion(version *string) float32 {
 	case "1.3", "1_3":
 		return 1.3
 	default:
-		slog.Warn("unimplemented TLS version", "version", util.Deref(version))
+		log.Warn("unimplemented TLS version", "version", util.Deref(version))
 		return 0
 	}
 }
@@ -199,7 +198,7 @@ func retentionDuration(retention string) *durationpb.Duration {
 	// string to int
 	d, err := strconv.Atoi(r)
 	if err != nil {
-		slog.Error("could not convert string to int", tint.Err(err))
+		log.Error("could not convert string to int", tint.Err(err))
 		return durationpb.New(time.Duration(0))
 	}
 
@@ -277,7 +276,7 @@ func (d *azureDiscovery) discoverDiagnosticSettings(resourceURI string) (*ontolo
 		for _, value := range pageResponse.Value {
 			// Check if data is sent to a log analytics workspace
 			if value.Properties.WorkspaceID == nil {
-				slog.Debug("diagnostic setting does not send data to a Log Analytics Workspace", "name", util.Deref(value.Name))
+				log.Debug("diagnostic setting does not send data to a Log Analytics Workspace", "name", util.Deref(value.Name))
 				continue
 			}
 

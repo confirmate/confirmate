@@ -2,7 +2,6 @@ package azure
 
 import (
 	"context"
-	"log/slog"
 
 	"confirmate.io/core/util"
 
@@ -21,7 +20,7 @@ func (d *azureDiscovery) nsgFirewallEnabled(ni *armnetwork.Interface) bool {
 		vmNsg := ni.Properties.NetworkSecurityGroup
 		nsg, err := d.clients.networkSecurityGroupsClient.Get(context.Background(), resourceGroupName(*vmNsg.ID), getName(*vmNsg.ID), &armnetwork.SecurityGroupsClientGetOptions{})
 		if err != nil {
-			slog.Error("error getting network security group", tint.Err(err))
+			log.Error("error getting network security group", tint.Err(err))
 			return false
 		}
 
@@ -63,7 +62,7 @@ func loadBalancerPorts(lb *armnetwork.LoadBalancer) (loadBalancerPorts []uint32)
 //     sg, err := client.Get(context.Background(), getResourceGroupName(nsgID), strings.Split(nsgID, "/")[8], "")
 //
 //     if err != nil {
-//            slog.Error("Could not get security group", tint.Err(err))
+//            log.Error("Could not get security group", tint.Err(err))
 //             return ""
 //     }
 //
@@ -110,7 +109,7 @@ func publicIPAddressFromLoadBalancer(lb *armnetwork.LoadBalancer) []string {
 		// Get public IP address
 		ipAddress := util.Deref(fIpConfig[i].Properties.PublicIPAddress.Properties.IPAddress)
 		if ipAddress == "" {
-			slog.Info("No public IP adress available.")
+			log.Info("No public IP adress available.")
 			continue
 		}
 

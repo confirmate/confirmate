@@ -110,16 +110,15 @@ func Test_handleMLWorkspace(t *testing.T) {
 
 func Test_azureDiscovery_handleMLCompute(t *testing.T) {
 	type fields struct {
-		isAuthorized        bool
-		sub                 *armsubscription.Subscription
-		cred                azcore.TokenCredential
-		rg                  *string
-		clientOptions       arm.ClientOptions
-		discovererComponent string
-		clients             clients
-		ctID                string
-		backupMap           map[string]*backup
-		defenderProperties  map[string]*defenderProperties
+		isAuthorized       bool
+		sub                *armsubscription.Subscription
+		cred               azcore.TokenCredential
+		rg                 *string
+		clientOptions      arm.ClientOptions
+		clients            clients
+		ctID               string
+		backupMap          map[string]*backup
+		defenderProperties map[string]*defenderProperties
 	}
 	type args struct {
 		value       *armmachinelearning.ComputeResource
@@ -211,16 +210,15 @@ func Test_azureDiscovery_handleMLCompute(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &azureDiscovery{
-				isAuthorized:        tt.fields.isAuthorized,
-				sub:                 tt.fields.sub,
-				cred:                tt.fields.cred,
-				rg:                  tt.fields.rg,
-				clientOptions:       tt.fields.clientOptions,
-				discovererComponent: tt.fields.discovererComponent,
-				clients:             tt.fields.clients,
-				ctID:                tt.fields.ctID,
-				backupMap:           tt.fields.backupMap,
-				defenderProperties:  tt.fields.defenderProperties,
+				isAuthorized:       tt.fields.isAuthorized,
+				sub:                tt.fields.sub,
+				cred:               tt.fields.cred,
+				rg:                 tt.fields.rg,
+				clientOptions:      tt.fields.clientOptions,
+				clients:            tt.fields.clients,
+				ctID:               tt.fields.ctID,
+				backupMap:          tt.fields.backupMap,
+				defenderProperties: tt.fields.defenderProperties,
 			}
 			got, err := d.handleMLCompute(tt.args.value, tt.args.workspaceID)
 

@@ -25,7 +25,7 @@ func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
 	for serverListPager.More() {
 		pageResponse, err := serverListPager.NextPage(context.TODO())
 		if err != nil {
-			slog.Error(ErrGettingNextPage.Error(), "error", err)
+			log.Error(ErrGettingNextPage.Error(), "error", err)
 			return list, err
 		}
 
@@ -48,7 +48,7 @@ func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
 				return nil, fmt.Errorf("could not handle ML workspace: %w", err)
 			}
 
-			slog.Info("Adding ML workspace", slog.String("machine learning workspace", mlWorkspace.GetName()))
+			log.Info("Adding ML workspace", slog.String("machine learning workspace", mlWorkspace.GetName()))
 
 			list = append(list, mlWorkspace)
 		}
@@ -71,7 +71,7 @@ func (d *azureDiscovery) discoverMLCompute(rg string, workspace *armmachinelearn
 	for serverListPager.More() {
 		pageResponse, err := serverListPager.NextPage(context.TODO())
 		if err != nil {
-			slog.Error(ErrGettingNextPage.Error(), "error", err)
+			log.Error(ErrGettingNextPage.Error(), "error", err)
 			return list, err
 		}
 
@@ -85,7 +85,7 @@ func (d *azureDiscovery) discoverMLCompute(rg string, workspace *armmachinelearn
 				continue
 			}
 
-			slog.Info("Adding ML compute resource", slog.String("machine learning compute", compute.GetName()))
+			log.Info("Adding ML compute resource", slog.String("machine learning compute", compute.GetName()))
 
 			list = append(list, compute)
 

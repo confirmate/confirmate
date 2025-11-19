@@ -200,15 +200,14 @@ func Test_azureDiscovery_discoverBackupInstances(t *testing.T) {
 
 func Test_azureDiscovery_handleInstances(t *testing.T) {
 	type fields struct {
-		isAuthorized        bool
-		sub                 *armsubscription.Subscription
-		cred                azcore.TokenCredential
-		rg                  *string
-		clientOptions       arm.ClientOptions
-		discovererComponent string
-		clients             clients
-		ctID                string
-		backupMap           map[string]*backup
+		isAuthorized  bool
+		sub           *armsubscription.Subscription
+		cred          azcore.TokenCredential
+		rg            *string
+		clientOptions arm.ClientOptions
+		clients       clients
+		ctID          string
+		backupMap     map[string]*backup
 	}
 	type args struct {
 		vault    *armdataprotection.BackupVaultResource
@@ -299,15 +298,14 @@ func Test_azureDiscovery_handleInstances(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &azureDiscovery{
-				isAuthorized:        tt.fields.isAuthorized,
-				sub:                 tt.fields.sub,
-				cred:                tt.fields.cred,
-				rg:                  tt.fields.rg,
-				clientOptions:       tt.fields.clientOptions,
-				discovererComponent: tt.fields.discovererComponent,
-				clients:             tt.fields.clients,
-				ctID:                tt.fields.ctID,
-				backupMap:           tt.fields.backupMap,
+				isAuthorized:  tt.fields.isAuthorized,
+				sub:           tt.fields.sub,
+				cred:          tt.fields.cred,
+				rg:            tt.fields.rg,
+				clientOptions: tt.fields.clientOptions,
+				clients:       tt.fields.clients,
+				ctID:          tt.fields.ctID,
+				backupMap:     tt.fields.backupMap,
 			}
 			gotResource, err := d.handleInstances(tt.args.vault, tt.args.instance)
 			tt.wantErr(t, err)

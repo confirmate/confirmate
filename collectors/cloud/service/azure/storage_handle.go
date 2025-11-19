@@ -74,11 +74,11 @@ func (d *azureDiscovery) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 		// Get Mongo databases
 		list = append(list, d.discoverMongoDBDatabases(account, atRestEnc)...)
 	case armcosmos.DatabaseAccountKindGlobalDocumentDB:
-		slog.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindGlobalDocumentDB))
+		log.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindGlobalDocumentDB))
 	case armcosmos.DatabaseAccountKindParse:
-		slog.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindParse))
+		log.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindParse))
 	default:
-		slog.Warn("account kind not yet implemented", slog.Any("kind", util.Deref(account.Kind)))
+		log.Warn("account kind not yet implemented", slog.Any("kind", util.Deref(account.Kind)))
 	}
 
 	return list, nil
