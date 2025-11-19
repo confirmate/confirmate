@@ -6,8 +6,8 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/containerinfra/v1/clusters"
 )
 
-// discoverCluster discovers OpenStack clusters and returns a list of resources
-func (d *openstackDiscovery) discoverCluster() (list []ontology.IsResource, err error) {
+// collectCluster collects OpenStack clusters and returns a list of resources
+func (d *openstackCollector) collectCluster() (list []ontology.IsResource, err error) {
 	var opts clusters.ListOptsBuilder = &clusters.ListOpts{}
 	list, err = genericList(d, d.clusterClient, clusters.List, d.handleCluster, clusters.ExtractClusters, opts)
 

@@ -18,12 +18,12 @@ import (
 	"github.com/aws/smithy-go"
 )
 
-// awsS3Discovery handles the AWS API requests regarding the S3 service
-type awsS3Discovery struct {
-	storageAPI    S3API
-	isDiscovering bool
-	awsConfig     *Client
-	ctID          string
+// awsS3Collector handles the AWS API requests regarding the S3 service
+type awsS3Collector struct {
+	storageAPI   S3API
+	isCollecting bool
+	awsConfig    *Client
+	ctID         string
 }
 
 // bucket contains metadata about a S3 bucket
@@ -81,12 +81,12 @@ type Bool struct {
 }
 
 // Name is the method implementation defined in the cloud.Collector interface
-func (*awsS3Discovery) Name() string {
+func (*awsS3Collector) Name() string {
 	return "AWS Blob Storage"
 }
 
 // List is the method implementation defined in the cloud.Collector interface
-func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
+func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 	var (
 		rawBucketEncOutput  *s3.GetBucketEncryptionOutput
 		rawBucketTranspEnc  *s3.GetBucketPolicyOutput
@@ -142,7 +142,7 @@ func (d *awsS3Discovery) List() (resources []ontology.IsResource, err error) {
 	return
 }
 
-func (d *awsS3Discovery) TargetOfEvaluationID() string {
+func (d *awsS3Collector) TargetOfEvaluationID() string {
 	return d.ctID
 }
 
@@ -150,18 +150,18 @@ func (b *bucket) String() string {
 	return fmt.Sprintf("[ARN: %v, Name: %v, Creation Time: %v]", b.arn, b.name, b.creationTime)
 }
 
-// NewAwsStorageDiscovery constructs a new awsS3Discovery initializing the s3-api and isDiscovering with true
-func NewAwsStorageDiscovery(client *Client, TargetOfEvaluationID string) cloud.Collector {
-	return &awsS3Discovery{
-		storageAPI:    s3.NewFromConfig(client.cfg),
-		isDiscovering: true,
-		awsConfig:     client,
-		ctID:          TargetOfEvaluationID,
+// NewAwsStorageCollector constructs a new awsS3Collector initializing the s3-api and isCollecting with true
+func NewAwsStorageCollector(client *Client, TargetOfEvaluationID string) cloud.Collector {
+	return &awsS3Collector{
+		storageAPI:   s3.NewFromConfig(client.cfg),
+		isCollecting: true,
+		awsConfig:    client,
+		ctID:         TargetOfEvaluationID,
 	}
 }
 
 // getBuckets returns all buckets
-func (d *awsS3Discovery) getBuckets() (buckets []bucket, err error) {
+func (d *awsS3Collector) getBuckets() (buckets []bucket, err error) {
 	var resp *s3.ListBucketsOutput
 	resp, err = d.storageAPI.ListBuckets(context.TODO(), &s3.ListBucketsInput{})
 	if err != nil {
@@ -195,7 +195,7 @@ func (d *awsS3Discovery) getBuckets() (buckets []bucket, err error) {
 }
 
 // getEncryptionAtRest gets the bucket's encryption configuration
-func (d *awsS3Discovery) getEncryptionAtRest(bucket *bucket) (e *ontology.AtRestEncryption, resp *s3.GetBucketEncryptionOutput, err error) {
+func (d *awsS3Collector) getEncryptionAtRest(bucket *bucket) (e *ontology.AtRestEncryption, resp *s3.GetBucketEncryptionOutput, err error) {
 	input := s3.GetBucketEncryptionInput{
 		Bucket:              aws.String(bucket.name),
 		ExpectedBucketOwner: nil,
@@ -245,7 +245,7 @@ func (d *awsS3Discovery) getEncryptionAtRest(bucket *bucket) (e *ontology.AtRest
 // "confirm that your bucket policies explicitly deny access to HTTP requests"
 // https://aws.amazon.com/premiumsupport/knowledge-center/s3-bucket-policy-for-config-rule/
 // getTransportEncryption loops over all statements in the bucket policy and checks if one statement denies https only == false
-func (d *awsS3Discovery) getTransportEncryption(bucket string) (*ontology.TransportEncryption, *s3.GetBucketPolicyOutput, error) {
+func (d *awsS3Collector) getTransportEncryption(bucket string) (*ontology.TransportEncryption, *s3.GetBucketPolicyOutput, error) {
 	input := s3.GetBucketPolicyInput{
 		Bucket:              aws.String(bucket),
 		ExpectedBucketOwner: nil,
@@ -320,7 +320,7 @@ func (d *awsS3Discovery) getTransportEncryption(bucket string) (*ontology.Transp
 }
 
 // getRegion returns the region where the bucket resides
-func (d *awsS3Discovery) getRegion(bucket string) (region string, resp *s3.GetBucketLocationOutput, err error) {
+func (d *awsS3Collector) getRegion(bucket string) (region string, resp *s3.GetBucketLocationOutput, err error) {
 	input := s3.GetBucketLocationInput{
 		Bucket: aws.String(bucket),
 	}

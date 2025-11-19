@@ -11,8 +11,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 )
 
-// Discover machine learning workspace
-func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
+// Collect machine learning workspace
+func (d *azureCollector) collectMLWorkspaces() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize machine learning client
@@ -32,9 +32,9 @@ func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
 		// Add storage, atRestEncryption (keyVault), ...?
 		for _, value := range pageResponse.Value {
 			// Add ML compute resources
-			compute, err := d.discoverMLCompute(resourceGroupName(util.Deref(value.ID)), value)
+			compute, err := d.collectMLCompute(resourceGroupName(util.Deref(value.ID)), value)
 			if err != nil {
-				return nil, fmt.Errorf("could not discover ML compute resources: %w", err)
+				return nil, fmt.Errorf("could not collect ML compute resources: %w", err)
 			}
 
 			// Get string list of compute resources for the ML workspace resource
@@ -57,8 +57,8 @@ func (d *azureDiscovery) discoverMLWorkspaces() ([]ontology.IsResource, error) {
 	return list, nil
 }
 
-// discoverMLCompute discovers machine learning compute nodes
-func (d *azureDiscovery) discoverMLCompute(rg string, workspace *armmachinelearning.Workspace) ([]ontology.IsResource, error) {
+// collectMLCompute collects machine learning compute nodes
+func (d *azureCollector) collectMLCompute(rg string, workspace *armmachinelearning.Workspace) ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize machine learning compute client

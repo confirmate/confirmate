@@ -1177,15 +1177,15 @@ func createResponse(req *http.Request, object map[string]interface{}, statusCode
 	}, nil
 }
 
-func Test_azureDiscovery_Name(t *testing.T) {
-	d := NewAzureDiscovery()
+func Test_azureCollector_Name(t *testing.T) {
+	d := NewAzureCollector()
 
 	assert.Equal(t, "Azure", d.Name())
 }
 
-func TestNewAzureDiscovery(t *testing.T) {
+func TestNewAzureCollector(t *testing.T) {
 	type args struct {
-		opts []DiscoveryOption
+		opts []CollectorOption
 	}
 	tests := []struct {
 		name string
@@ -1195,7 +1195,7 @@ func TestNewAzureDiscovery(t *testing.T) {
 		{
 			name: "Happy path",
 			args: args{},
-			want: &azureDiscovery{
+			want: &azureCollector{
 				ctID:               config.DefaultTargetOfEvaluationID,
 				backupMap:          make(map[string]*backup),
 				defenderProperties: make(map[string]*defenderProperties),
@@ -1204,9 +1204,9 @@ func TestNewAzureDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with target of evaluation id",
 			args: args{
-				opts: []DiscoveryOption{WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1)},
+				opts: []CollectorOption{WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1)},
 			},
-			want: &azureDiscovery{
+			want: &azureCollector{
 				ctID:               testdata.MockTargetOfEvaluationID1,
 				backupMap:          make(map[string]*backup),
 				defenderProperties: make(map[string]*defenderProperties),
@@ -1215,9 +1215,9 @@ func TestNewAzureDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with resource group",
 			args: args{
-				opts: []DiscoveryOption{WithResourceGroup(testdata.MockResourceGroup)},
+				opts: []CollectorOption{WithResourceGroup(testdata.MockResourceGroup)},
 			},
-			want: &azureDiscovery{
+			want: &azureCollector{
 				rg:                 util.Ref(testdata.MockResourceGroup),
 				ctID:               config.DefaultTargetOfEvaluationID,
 				backupMap:          make(map[string]*backup),
@@ -1227,9 +1227,9 @@ func TestNewAzureDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with sender",
 			args: args{
-				opts: []DiscoveryOption{WithSender(mockSender{})},
+				opts: []CollectorOption{WithSender(mockSender{})},
 			},
-			want: &azureDiscovery{
+			want: &azureCollector{
 				clientOptions: arm.ClientOptions{
 					ClientOptions: policy.ClientOptions{
 						Transport: mockSender{},
@@ -1243,9 +1243,9 @@ func TestNewAzureDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with authorizer",
 			args: args{
-				opts: []DiscoveryOption{WithAuthorizer(&mockAuthorizer{})},
+				opts: []CollectorOption{WithAuthorizer(&mockAuthorizer{})},
 			},
-			want: &azureDiscovery{
+			want: &azureCollector{
 				cred:               &mockAuthorizer{},
 				ctID:               config.DefaultTargetOfEvaluationID,
 				backupMap:          make(map[string]*backup),
@@ -1255,15 +1255,15 @@ func TestNewAzureDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewAzureDiscovery(tt.args.opts...)
+			got := NewAzureCollector(tt.args.opts...)
 			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
 		})
 	}
 }
 
-func Test_azureDiscovery_List(t *testing.T) {
+func Test_azureCollector_List(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -1274,7 +1274,7 @@ func Test_azureDiscovery_List(t *testing.T) {
 		{
 			name: "Authorize error: no credentials configured",
 			fields: fields{
-				&azureDiscovery{},
+				&azureCollector{},
 			},
 			want: assert.Empty[[]ontology.IsResource],
 			wantErr: func(t *testing.T, gotErr error) bool {
@@ -1285,7 +1285,7 @@ func Test_azureDiscovery_List(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				NewMockAzureDiscovery(newMockSender()),
+				NewMockAzureCollector(newMockSender()),
 			},
 			want: func(t *testing.T, got []ontology.IsResource) bool {
 				return assert.True(t, len(got) > 31)
@@ -1295,7 +1295,7 @@ func Test_azureDiscovery_List(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 			gotList, err := d.List()
 
 			tt.wantErr(t, err)
@@ -1304,7 +1304,7 @@ func Test_azureDiscovery_List(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_TargetOfEvaluationID(t *testing.T) {
+func Test_azureCollector_TargetOfEvaluationID(t *testing.T) {
 	type fields struct {
 		isAuthorized       bool
 		sub                *armsubscription.Subscription
@@ -1331,7 +1331,7 @@ func Test_azureDiscovery_TargetOfEvaluationID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &azureDiscovery{
+			a := &azureCollector{
 				isAuthorized:       tt.fields.isAuthorized,
 				sub:                tt.fields.sub,
 				cred:               tt.fields.cred,
@@ -1343,13 +1343,13 @@ func Test_azureDiscovery_TargetOfEvaluationID(t *testing.T) {
 				defenderProperties: tt.fields.defenderProperties,
 			}
 			if got := a.TargetOfEvaluationID(); got != tt.want {
-				t.Errorf("azureDiscovery.TargetOfEvaluationID() = %v, want %v", got, tt.want)
+				t.Errorf("azureCollector.TargetOfEvaluationID() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_azureDiscovery_authorize(t *testing.T) {
+func Test_azureCollector_authorize(t *testing.T) {
 	type fields struct {
 		isAuthorized  bool
 		sub           *armsubscription.Subscription
@@ -1407,7 +1407,7 @@ func Test_azureDiscovery_authorize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &azureDiscovery{
+			a := &azureCollector{
 				isAuthorized:  tt.fields.isAuthorized,
 				sub:           tt.fields.sub,
 				cred:          tt.fields.cred,
@@ -1548,7 +1548,7 @@ func Test_initClientWithSubID(t *testing.T) {
 
 	type args struct {
 		existingClient *armstorage.AccountsClient
-		d              *azureDiscovery
+		d              *azureCollector
 		fun            ClientCreateFuncWithSubID[armstorage.AccountsClient]
 	}
 	tests := []struct {
@@ -1561,7 +1561,7 @@ func Test_initClientWithSubID(t *testing.T) {
 			name: "No error, client does not exist",
 			args: args{
 				existingClient: nil,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					sub: &armsubscription.Subscription{
 						SubscriptionID: &subID,
@@ -1581,7 +1581,7 @@ func Test_initClientWithSubID(t *testing.T) {
 			name: "Some error, client does not exist",
 			args: args{
 				existingClient: nil,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					sub: &armsubscription.Subscription{
 						SubscriptionID: &subID,
@@ -1605,7 +1605,7 @@ func Test_initClientWithSubID(t *testing.T) {
 			name: "No error, client already exists",
 			args: args{
 				existingClient: someClient,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					sub: &armsubscription.Subscription{
 						SubscriptionID: &subID,
@@ -1642,7 +1642,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 
 	type args struct {
 		existingClient *armsecurity.PricingsClient
-		d              *azureDiscovery
+		d              *azureCollector
 		fun            ClientCreateFuncWithoutSubID[armsecurity.PricingsClient]
 	}
 	tests := []struct {
@@ -1655,7 +1655,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 			name: "No error, client does not exist",
 			args: args{
 				existingClient: nil,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					clientOptions: arm.ClientOptions{
 						ClientOptions: policy.ClientOptions{
@@ -1672,7 +1672,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 			name: "Some error, client does not exist",
 			args: args{
 				existingClient: nil,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					clientOptions: arm.ClientOptions{
 						ClientOptions: policy.ClientOptions{
@@ -1693,7 +1693,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 			name: "No error, client already exists",
 			args: args{
 				existingClient: someClient,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					clientOptions: arm.ClientOptions{
 						ClientOptions: policy.ClientOptions{
@@ -1726,7 +1726,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 	)
 	type args struct {
 		existingClient *armmonitor.DiagnosticSettingsClient
-		d              *azureDiscovery
+		d              *azureCollector
 		fun            ClientCreateFuncWithoutSubID[armmonitor.DiagnosticSettingsClient]
 	}
 	tests := []struct {
@@ -1739,7 +1739,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 			name: "No error, client does not exist",
 			args: args{
 				existingClient: nil,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					clientOptions: arm.ClientOptions{
 						ClientOptions: policy.ClientOptions{
@@ -1756,7 +1756,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 			name: "Some error, client does not exist",
 			args: args{
 				existingClient: nil,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 					clientOptions: arm.ClientOptions{
 						ClientOptions: policy.ClientOptions{
@@ -1777,7 +1777,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 			name: "No error, client already exists",
 			args: args{
 				existingClient: someClient,
-				d: &azureDiscovery{
+				d: &azureCollector{
 					cred: &mockAuthorizer{},
 
 					clientOptions: arm.ClientOptions{
@@ -1803,27 +1803,27 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 	}
 }
 
-// WithDefenderProperties is a [DiscoveryOption] that adds the defender properties for our tests.
-func WithDefenderProperties(dp map[string]*defenderProperties) DiscoveryOption {
-	return func(d *azureDiscovery) {
+// WithDefenderProperties is a [CollectorOption] that adds the defender properties for our tests.
+func WithDefenderProperties(dp map[string]*defenderProperties) CollectorOption {
+	return func(d *azureCollector) {
 		d.defenderProperties = dp
 	}
 }
 
-// WithSubscription is a [DiscoveryOption] that adds the subscription to the discoverer for our tests.
-func WithSubscription(sub *armsubscription.Subscription) DiscoveryOption {
-	return func(d *azureDiscovery) {
+// WithSubscription is a [CollectorOption] that adds the subscription to the collector for our tests.
+func WithSubscription(sub *armsubscription.Subscription) CollectorOption {
+	return func(d *azureCollector) {
 		d.sub = sub
 	}
 }
 
-func NewMockAzureDiscovery(transport policy.Transporter, opts ...DiscoveryOption) *azureDiscovery {
+func NewMockAzureCollector(transport policy.Transporter, opts ...CollectorOption) *azureCollector {
 	sub := &armsubscription.Subscription{
 		SubscriptionID: util.Ref(testdata.MockSubscriptionID),
 		ID:             util.Ref(testdata.MockSubscriptionResourceID),
 	}
 
-	d := &azureDiscovery{
+	d := &azureCollector{
 		cred: &mockAuthorizer{},
 		sub:  sub,
 		clientOptions: arm.ClientOptions{
@@ -1883,9 +1883,9 @@ func Test_retentionDuration(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_discoverDefender(t *testing.T) {
+func Test_azureCollector_collectDefender(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -1896,7 +1896,7 @@ func Test_azureDiscovery_discoverDefender(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: func(t *testing.T, got map[string]*defenderProperties) bool {
 				want := &defenderProperties{
@@ -1911,9 +1911,9 @@ func Test_azureDiscovery_discoverDefender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverDefender()
+			got, err := d.collectDefender()
 
 			tt.wantErr(t, err)
 

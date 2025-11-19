@@ -21,7 +21,7 @@ var (
 
 // blockStorageAtRestEncryption takes encryption properties of an armcompute.Disk and converts it into our respective
 // ontology object.
-func (d *azureDiscovery) blockStorageAtRestEncryption(disk *armcompute.Disk) (enc *ontology.AtRestEncryption, rawKeyUrl *armcompute.DiskEncryptionSet, err error) {
+func (d *azureCollector) blockStorageAtRestEncryption(disk *armcompute.Disk) (enc *ontology.AtRestEncryption, rawKeyUrl *armcompute.DiskEncryptionSet, err error) {
 	var (
 		diskEncryptionSetID string
 		keyUrl              string
@@ -64,7 +64,7 @@ func (d *azureDiscovery) blockStorageAtRestEncryption(disk *armcompute.Disk) (en
 	return enc, rawKeyUrl, nil
 }
 
-func (d *azureDiscovery) keyURL(diskEncryptionSetID string) (string, *armcompute.DiskEncryptionSet, error) {
+func (d *azureCollector) keyURL(diskEncryptionSetID string) (string, *armcompute.DiskEncryptionSet, error) {
 	if diskEncryptionSetID == "" {
 		return "", nil, ErrMissingDiskEncryptionSetID
 	}
@@ -116,7 +116,7 @@ func getVirtualNetworkSubnetId(site *armappservice.Site) []string {
 }
 
 // getResourceLoggingWebApps determines if logging is activated for given web app or function by checking the respective app setting
-func (d *azureDiscovery) getResourceLoggingWebApps(site *armappservice.Site) (rl *ontology.ResourceLogging) {
+func (d *azureCollector) getResourceLoggingWebApps(site *armappservice.Site) (rl *ontology.ResourceLogging) {
 	rl = &ontology.ResourceLogging{}
 
 	if site == nil {

@@ -10,9 +10,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )
 
-func Test_azureNetworkDiscovery_discoverNetworkInterfaces(t *testing.T) {
+func Test_azureNetworkCollector_collectNetworkInterfaces(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -23,7 +23,7 @@ func Test_azureNetworkDiscovery_discoverNetworkInterfaces(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -35,7 +35,7 @@ func Test_azureNetworkDiscovery_discoverNetworkInterfaces(t *testing.T) {
 		{
 			name: "Happy path: with resource group",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender(), WithResourceGroup("res1")),
+				azureCollector: NewMockAzureCollector(newMockSender(), WithResourceGroup("res1")),
 			},
 			want: []ontology.IsResource{
 				&ontology.NetworkInterface{
@@ -61,7 +61,7 @@ func Test_azureNetworkDiscovery_discoverNetworkInterfaces(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.NetworkInterface{
@@ -87,9 +87,9 @@ func Test_azureNetworkDiscovery_discoverNetworkInterfaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverNetworkInterfaces()
+			got, err := d.collectNetworkInterfaces()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -98,9 +98,9 @@ func Test_azureNetworkDiscovery_discoverNetworkInterfaces(t *testing.T) {
 	}
 }
 
-func Test_azureNetworkDiscovery_discoverLoadBalancer(t *testing.T) {
+func Test_azureNetworkCollector_collectLoadBalancer(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -111,7 +111,7 @@ func Test_azureNetworkDiscovery_discoverLoadBalancer(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -123,7 +123,7 @@ func Test_azureNetworkDiscovery_discoverLoadBalancer(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.LoadBalancer{
@@ -171,9 +171,9 @@ func Test_azureNetworkDiscovery_discoverLoadBalancer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverLoadBalancer()
+			got, err := d.collectLoadBalancer()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -319,9 +319,9 @@ func Test_publicIPAddressFromLoadBalancer(t *testing.T) {
 	}
 }
 
-func Test_azureNetworkDiscovery_discoverApplicationGateway(t *testing.T) {
+func Test_azureNetworkCollector_collectApplicationGateway(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -332,7 +332,7 @@ func Test_azureNetworkDiscovery_discoverApplicationGateway(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -344,7 +344,7 @@ func Test_azureNetworkDiscovery_discoverApplicationGateway(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.LoadBalancer{
@@ -370,9 +370,9 @@ func Test_azureNetworkDiscovery_discoverApplicationGateway(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverApplicationGateway()
+			got, err := d.collectApplicationGateway()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -383,7 +383,7 @@ func Test_azureNetworkDiscovery_discoverApplicationGateway(t *testing.T) {
 
 func Test_nsgFirewallEnabled(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		ni *armnetwork.Interface
@@ -397,14 +397,14 @@ func Test_nsgFirewallEnabled(t *testing.T) {
 		{
 			name: "Empty input",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{},
 			want: false,
 		}, {
 			name: "Error getting nsg",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				ni: &armnetwork.Interface{
@@ -420,7 +420,7 @@ func Test_nsgFirewallEnabled(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				ni: &armnetwork.Interface{
@@ -435,7 +435,7 @@ func Test_nsgFirewallEnabled(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		d := tt.fields.azureDiscovery
+		d := tt.fields.azureCollector
 
 		t.Run(tt.name, func(t *testing.T) {
 			if got := d.nsgFirewallEnabled(tt.args.ni); got != tt.want {
@@ -476,9 +476,9 @@ func Test_getName(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_handleLoadBalancer(t *testing.T) {
+func Test_azureCollector_handleLoadBalancer(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		lb *armnetwork.LoadBalancer
@@ -492,7 +492,7 @@ func Test_azureDiscovery_handleLoadBalancer(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				NewMockAzureDiscovery(newMockSender()),
+				NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				lb: &armnetwork.LoadBalancer{
@@ -528,7 +528,7 @@ func Test_azureDiscovery_handleLoadBalancer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 			got := d.handleLoadBalancer(tt.args.lb)
 
 			assert.Equal(t, tt.want, got)
@@ -536,9 +536,9 @@ func Test_azureDiscovery_handleLoadBalancer(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_handleApplicationGateway(t *testing.T) {
+func Test_azureCollector_handleApplicationGateway(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		ag *armnetwork.ApplicationGateway
@@ -552,7 +552,7 @@ func Test_azureDiscovery_handleApplicationGateway(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				ag: &armnetwork.ApplicationGateway{
@@ -587,7 +587,7 @@ func Test_azureDiscovery_handleApplicationGateway(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 			got := d.handleApplicationGateway(tt.args.ag)
 
 			assert.Equal(t, tt.want, got)
@@ -641,9 +641,9 @@ func Test_loadBalancerPorts(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_handleNetworkInterfaces(t *testing.T) {
+func Test_azureCollector_handleNetworkInterfaces(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		ni *armnetwork.Interface
@@ -657,7 +657,7 @@ func Test_azureDiscovery_handleNetworkInterfaces(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				ni: &armnetwork.Interface{
@@ -693,7 +693,7 @@ func Test_azureDiscovery_handleNetworkInterfaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 			got := d.handleNetworkInterfaces(tt.args.ni)
 
 			assert.Equal(t, tt.want, got)

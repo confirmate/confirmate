@@ -17,11 +17,11 @@ import (
 	typesLambda "github.com/aws/aws-sdk-go-v2/service/lambda/types"
 )
 
-// computeDiscovery handles the AWS API requests regarding the computing services (EC2 and Lambda)
-type computeDiscovery struct {
+// computeCollector handles the AWS API requests regarding the computing services (EC2 and Lambda)
+type computeCollector struct {
 	virtualMachineAPI EC2API
 	functionAPI       LambdaAPI
-	isDiscovering     bool
+	isCollecting      bool
 	awsConfig         *Client
 	ctID              string
 }
@@ -53,55 +53,55 @@ var newFromConfigEC2 = ec2.NewFromConfig
 // newFromConfigLambda holds lambda.NewFromConfig(...) allowing a test function tp mock it
 var newFromConfigLambda = lambda.NewFromConfig
 
-// NewAwsComputeDiscovery constructs a new awsS3Discovery initializing the s3-virtualMachineAPI and isDiscovering with true
-func NewAwsComputeDiscovery(client *Client, TargetOfEvaluationID string) cloud.Collector {
-	return &computeDiscovery{
+// NewAwsComputeCollector constructs a new awsS3Collector initializing the s3-virtualMachineAPI and isCollecting with true
+func NewAwsComputeCollector(client *Client, TargetOfEvaluationID string) cloud.Collector {
+	return &computeCollector{
 		virtualMachineAPI: newFromConfigEC2(client.cfg),
 		functionAPI:       newFromConfigLambda(client.cfg),
-		isDiscovering:     true,
+		isCollecting:      true,
 		awsConfig:         client,
 		ctID:              TargetOfEvaluationID,
 	}
 }
 
 // Name is the method implementation defined in the cloud.Collector interface
-func (*computeDiscovery) Name() string {
+func (*computeCollector) Name() string {
 	return "AWS Compute"
 }
 
 // List is the method implementation defined in the cloud.Collector interface
-func (d *computeDiscovery) List() (resources []ontology.IsResource, err error) {
+func (d *computeCollector) List() (resources []ontology.IsResource, err error) {
 	log.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
 
-	// Even though technically volumes are "storage", they are part of the EC2 API and therefore discovered here
-	volumes, err := d.discoverVolumes()
+	// Even though technically volumes are "storage", they are part of the EC2 API and therefore collected here
+	volumes, err := d.collectVolumes()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover volumes: %w", err)
+		return nil, fmt.Errorf("could not collect volumes: %w", err)
 	}
 	for _, volume := range volumes {
 		resources = append(resources, volume)
 	}
 
-	// Even though technically network interfaces are "network", they are part of the EC2 API and therefore discovered here
-	ifcs, err := d.discoverNetworkInterfaces()
+	// Even though technically network interfaces are "network", they are part of the EC2 API and therefore collected here
+	ifcs, err := d.collectNetworkInterfaces()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover volumes: %w", err)
+		return nil, fmt.Errorf("could not collect volumes: %w", err)
 	}
 	for _, ifc := range ifcs {
 		resources = append(resources, ifc)
 	}
 
-	listOfVMs, err := d.discoverVirtualMachines()
+	listOfVMs, err := d.collectVirtualMachines()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover virtual machines: %w", err)
+		return nil, fmt.Errorf("could not collect virtual machines: %w", err)
 	}
 	for _, machine := range listOfVMs {
 		resources = append(resources, machine)
 	}
 
-	listOfFunctions, err := d.discoverFunctions()
+	listOfFunctions, err := d.collectFunctions()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover functions: %w", err)
+		return nil, fmt.Errorf("could not collect functions: %w", err)
 	}
 	for _, function := range listOfFunctions {
 		resources = append(resources, function)
@@ -110,12 +110,12 @@ func (d *computeDiscovery) List() (resources []ontology.IsResource, err error) {
 	return
 }
 
-func (d *computeDiscovery) TargetOfEvaluationID() string {
+func (d *computeCollector) TargetOfEvaluationID() string {
 	return d.ctID
 }
 
-// discoverVolumes discovers all volumes (in the current region)
-func (d *computeDiscovery) discoverVolumes() ([]*ontology.BlockStorage, error) {
+// collectVolumes collects all volumes (in the current region)
+func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 	res, err := d.virtualMachineAPI.DescribeVolumes(context.TODO(), &ec2.DescribeVolumesInput{})
 	if err != nil {
 		return nil, prettyError(err)
@@ -154,8 +154,8 @@ func (d *computeDiscovery) discoverVolumes() ([]*ontology.BlockStorage, error) {
 	return blocks, nil
 }
 
-// discoverNetworkInterfaces discovers all network interfaces (in the current region)
-func (d *computeDiscovery) discoverNetworkInterfaces() ([]*ontology.NetworkInterface, error) {
+// collectNetworkInterfaces collects all network interfaces (in the current region)
+func (d *computeCollector) collectNetworkInterfaces() ([]*ontology.NetworkInterface, error) {
 	res, err := d.virtualMachineAPI.DescribeNetworkInterfaces(context.TODO(), &ec2.DescribeNetworkInterfacesInput{})
 	if err != nil {
 		return nil, prettyError(err)
@@ -179,8 +179,8 @@ func (d *computeDiscovery) discoverNetworkInterfaces() ([]*ontology.NetworkInter
 	return ifcs, nil
 }
 
-// discoverVirtualMachines discovers all VMs (in the current region)
-func (d *computeDiscovery) discoverVirtualMachines() ([]*ontology.VirtualMachine, error) {
+// collectVirtualMachines collects all VMs (in the current region)
+func (d *computeCollector) collectVirtualMachines() ([]*ontology.VirtualMachine, error) {
 	resp, err := d.virtualMachineAPI.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{})
 	if err != nil {
 		return nil, prettyError(err)
@@ -209,9 +209,9 @@ func (d *computeDiscovery) discoverVirtualMachines() ([]*ontology.VirtualMachine
 	return resources, nil
 }
 
-// discoverFunctions discovers all lambda functions
-func (d *computeDiscovery) discoverFunctions() (resources []*ontology.Function, err error) {
-	// 'listFunctions' discovers up to 50 Lambda functions per execution -> loop through when response has nextMarker set
+// collectFunctions collects all lambda functions
+func (d *computeCollector) collectFunctions() (resources []*ontology.Function, err error) {
+	// 'listFunctions' collects up to 50 Lambda functions per execution -> loop through when response has nextMarker set
 	var resp *lambda.ListFunctionsOutput
 	var nextMarker *string
 	for {
@@ -232,7 +232,7 @@ func (d *computeDiscovery) discoverFunctions() (resources []*ontology.Function, 
 }
 
 // mapFunctionResources iterates functionConfigurations and returns a list of corresponding FunctionResources
-func (d *computeDiscovery) mapFunctionResources(functions []typesLambda.FunctionConfiguration) (resources []*ontology.Function) {
+func (d *computeCollector) mapFunctionResources(functions []typesLambda.FunctionConfiguration) (resources []*ontology.Function) {
 	// TODO(all): Labels are missing
 	for i := range functions {
 		function := &functions[i]
@@ -251,7 +251,7 @@ func (d *computeDiscovery) mapFunctionResources(functions []typesLambda.Function
 
 // getBootLog checks if boot logging is enabled
 // Currently there is no option to find out if any logs are enabled -> Assign default zero values
-func (*computeDiscovery) getBootLog(_ *typesEC2.Instance) (l *ontology.BootLogging) {
+func (*computeCollector) getBootLog(_ *typesEC2.Instance) (l *ontology.BootLogging) {
 	l = &ontology.BootLogging{
 		Enabled: false,
 	}
@@ -260,7 +260,7 @@ func (*computeDiscovery) getBootLog(_ *typesEC2.Instance) (l *ontology.BootLoggi
 
 // getOSLog checks if OS logging is enabled
 // Currently there is no option to find out if any logs are enabled -> Assign default zero values
-func (*computeDiscovery) getOSLog(_ *typesEC2.Instance) (l *ontology.OSLogging) {
+func (*computeCollector) getOSLog(_ *typesEC2.Instance) (l *ontology.OSLogging) {
 	l = &ontology.OSLogging{
 		Enabled: false,
 	}
@@ -268,7 +268,7 @@ func (*computeDiscovery) getOSLog(_ *typesEC2.Instance) (l *ontology.OSLogging) 
 }
 
 // mapBlockStorageIDsOfVM returns block storages IDs by iterating the VMs block storages
-func (d *computeDiscovery) mapBlockStorageIDsOfVM(vm *typesEC2.Instance) (blockStorageIDs []string) {
+func (d *computeCollector) mapBlockStorageIDsOfVM(vm *typesEC2.Instance) (blockStorageIDs []string) {
 	// Loop through mappings using an index, since BlockDeviceMappings is an array of a struct
 	// and not of a pointer; otherwise we would copy a lot of data
 	for i := range vm.BlockDeviceMappings {
@@ -279,7 +279,7 @@ func (d *computeDiscovery) mapBlockStorageIDsOfVM(vm *typesEC2.Instance) (blockS
 }
 
 // getNetworkInterfacesOfVM returns the network interface IDs by iterating the VMs network interfaces
-func (d *computeDiscovery) getNetworkInterfacesOfVM(vm *typesEC2.Instance) (networkInterfaceIDs []string) {
+func (d *computeCollector) getNetworkInterfacesOfVM(vm *typesEC2.Instance) (networkInterfaceIDs []string) {
 	// Loop through mappings using an index, since is NetworkInterfaces an array of a struct
 	// and not of a pointer; otherwise we would copy a lot of data
 	for i := range vm.NetworkInterfaces {
@@ -290,7 +290,7 @@ func (d *computeDiscovery) getNetworkInterfacesOfVM(vm *typesEC2.Instance) (netw
 }
 
 // getNameOfVM returns the name if exists (i.e. a tag with key 'name' exists), otherwise instance ID is used
-func (*computeDiscovery) getNameOfVM(vm *typesEC2.Instance) string {
+func (*computeCollector) getNameOfVM(vm *typesEC2.Instance) string {
 	for _, tag := range vm.Tags {
 		if aws.ToString(tag.Key) == "Name" {
 			return aws.ToString(tag.Value)
@@ -301,7 +301,7 @@ func (*computeDiscovery) getNameOfVM(vm *typesEC2.Instance) string {
 }
 
 // nameOrID returns the name if exists (i.e. a tag with key 'name' exists), otherwise instance ID is used
-func (*computeDiscovery) nameOrID(tags []typesEC2.Tag, ID *string) string {
+func (*computeCollector) nameOrID(tags []typesEC2.Tag, ID *string) string {
 	for _, tag := range tags {
 		if aws.ToString(tag.Key) == "Name" {
 			return aws.ToString(tag.Value)
@@ -312,7 +312,7 @@ func (*computeDiscovery) nameOrID(tags []typesEC2.Tag, ID *string) string {
 	return aws.ToString(ID)
 }
 
-func (*computeDiscovery) labels(tags []typesEC2.Tag) (labels map[string]string) {
+func (*computeCollector) labels(tags []typesEC2.Tag) (labels map[string]string) {
 	labels = map[string]string{}
 
 	for _, tag := range tags {
@@ -323,7 +323,7 @@ func (*computeDiscovery) labels(tags []typesEC2.Tag) (labels map[string]string) 
 }
 
 // addARNToVolume generates the ARN of a volume instance
-func (d *computeDiscovery) arnify(typ string, ID *string) string {
+func (d *computeCollector) arnify(typ string, ID *string) string {
 	return "arn:aws:ec2:" +
 		d.awsConfig.cfg.Region + ":" +
 		aws.ToString(d.awsConfig.accountID) +

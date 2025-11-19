@@ -16,15 +16,15 @@ import (
 var log *slog.Logger
 
 func init() {
-	log = logconfig.GetLogger().With("component", "k8s-discovery")
+	log = logconfig.GetLogger().With("component", "k8s-collector")
 }
 
-type k8sDiscovery struct {
+type k8sCollector struct {
 	intf kubernetes.Interface
 	ctID string
 }
 
-func (d *k8sDiscovery) TargetOfEvaluationID() string {
+func (d *k8sCollector) TargetOfEvaluationID() string {
 	return d.ctID
 }
 

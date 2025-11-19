@@ -170,7 +170,7 @@ func Test_transportEncryption(t *testing.T) {
 	}
 }
 
-func Test_csafDiscovery_documentChecksum(t *testing.T) {
+func Test_csafCollector_documentChecksum(t *testing.T) {
 	var badChecksumSrv = func() *httptest.Server {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/file.json.sha256", func(w http.ResponseWriter, r *http.Request) {
@@ -235,7 +235,7 @@ func Test_csafDiscovery_documentChecksum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &csafDiscovery{
+			d := &csafCollector{
 				domain: tt.fields.domain,
 				ctID:   tt.fields.ctID,
 				client: tt.fields.client,
@@ -315,7 +315,7 @@ func Test_clientAuthenticity(t *testing.T) {
 	}
 }
 
-func Test_csafDiscovery_documentPGPSignature(t *testing.T) {
+func Test_csafCollector_documentPGPSignature(t *testing.T) {
 	type fields struct {
 		domain string
 		ctID   string
@@ -356,13 +356,13 @@ func Test_csafDiscovery_documentPGPSignature(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &csafDiscovery{
+			d := &csafCollector{
 				domain: tt.fields.domain,
 				ctID:   tt.fields.ctID,
 				client: tt.fields.client,
 			}
 			if gotSig := d.documentPGPSignature(tt.args.signURL, tt.args.body, tt.args.keyring); !reflect.DeepEqual(gotSig, tt.wantSig) {
-				t.Errorf("csafDiscovery.documentPGPSignature() = %v, want %v", gotSig, tt.wantSig)
+				t.Errorf("csafCollector.documentPGPSignature() = %v, want %v", gotSig, tt.wantSig)
 			}
 		})
 	}

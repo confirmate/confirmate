@@ -87,9 +87,9 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestNewTrustedProviderDiscovery(t *testing.T) {
+func TestNewTrustedProviderCollector(t *testing.T) {
 	type args struct {
-		opts []DiscoveryOption
+		opts []CollectorOption
 	}
 	tests := []struct {
 		name string
@@ -99,7 +99,7 @@ func TestNewTrustedProviderDiscovery(t *testing.T) {
 		{
 			name: "Happy path",
 			args: args{},
-			want: &csafDiscovery{
+			want: &csafCollector{
 				ctID:   config.DefaultTargetOfEvaluationID,
 				domain: "confirmate.io",
 				client: http.DefaultClient,
@@ -108,9 +108,9 @@ func TestNewTrustedProviderDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with target of evaluation id",
 			args: args{
-				opts: []DiscoveryOption{WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1)},
+				opts: []CollectorOption{WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1)},
 			},
-			want: &csafDiscovery{
+			want: &csafCollector{
 				ctID:   testdata.MockTargetOfEvaluationID1,
 				domain: "confirmate.io",
 				client: http.DefaultClient,
@@ -119,9 +119,9 @@ func TestNewTrustedProviderDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with domain",
 			args: args{
-				opts: []DiscoveryOption{WithProviderDomain("mock")},
+				opts: []CollectorOption{WithProviderDomain("mock")},
 			},
-			want: &csafDiscovery{
+			want: &csafCollector{
 				ctID:   config.DefaultTargetOfEvaluationID,
 				client: http.DefaultClient,
 				domain: "mock",
@@ -130,13 +130,13 @@ func TestNewTrustedProviderDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewTrustedProviderDiscovery(tt.args.opts...)
+			got := NewTrustedProviderCollector(tt.args.opts...)
 			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
 		})
 	}
 }
 
-func Test_csafDiscovery_List(t *testing.T) {
+func Test_csafCollector_List(t *testing.T) {
 	type fields struct {
 		domain string
 		ctID   string
@@ -177,7 +177,7 @@ func Test_csafDiscovery_List(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &csafDiscovery{
+			d := &csafCollector{
 				domain: tt.fields.domain,
 				client: tt.fields.client,
 				ctID:   tt.fields.ctID,
@@ -189,7 +189,7 @@ func Test_csafDiscovery_List(t *testing.T) {
 	}
 }
 
-func Test_csafDiscovery_TargetOfEvaluationID(t *testing.T) {
+func Test_csafCollector_TargetOfEvaluationID(t *testing.T) {
 	type fields struct {
 		domain string
 		ctID   string
@@ -210,13 +210,13 @@ func Test_csafDiscovery_TargetOfEvaluationID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &csafDiscovery{
+			d := &csafCollector{
 				domain: tt.fields.domain,
 				ctID:   tt.fields.ctID,
 				client: tt.fields.client,
 			}
 			if got := d.TargetOfEvaluationID(); got != tt.want {
-				t.Errorf("csafDiscovery.TargetOfEvaluationID() = %v, want %v", got, tt.want)
+				t.Errorf("csafCollector.TargetOfEvaluationID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 // nsgFirewallEnabled checks if network security group (NSG) rules are configured. A NSG is a firewall that operates at OSI layers 3 and 4 to filter ingress and egress traffic. (https://learn.microsoft.com/en-us/azure/firewall/firewall-faq#what-is-the-difference-between-network-security-groups--nsgs--and-azure-firewall, Last access: 05/02/2023)
-func (d *azureDiscovery) nsgFirewallEnabled(ni *armnetwork.Interface) bool {
+func (d *azureCollector) nsgFirewallEnabled(ni *armnetwork.Interface) bool {
 	// initialize network interfaces client
 	if err := d.initNetworkSecurityGroupClient(); err != nil {
 		return false
@@ -44,7 +44,7 @@ func loadBalancerPorts(lb *armnetwork.LoadBalancer) (loadBalancerPorts []uint32)
 }
 
 // // Returns all restricted ports for the network interface
-// func (d *azureDiscovery) getRestrictedPorts(ni *network.Interface) string {
+// func (d *azureCollector) getRestrictedPorts(ni *network.Interface) string {
 //
 //     var restrictedPorts []string
 //

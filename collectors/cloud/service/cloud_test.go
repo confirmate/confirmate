@@ -100,21 +100,21 @@ func TestNewService(t *testing.T) {
 			},
 		},
 		{
-			name: "Create service with option 'WithAdditionalDiscoverers'",
+			name: "Create service with option 'WithAdditionalCollectors'",
 			args: args{
 				opts: []service.Option[*Service]{
-					WithAdditionalDiscoverers([]cloud.Collector{&collectortest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID}}),
+					WithAdditionalCollectors([]cloud.Collector{&collectortest.TestCollector{ServiceId: config.DefaultTargetOfEvaluationID}}),
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
-				return assert.Contains(t, got.collectors, &collectortest.TestDiscoverer{ServiceId: config.DefaultTargetOfEvaluationID})
+				return assert.Contains(t, got.collectors, &collectortest.TestCollector{ServiceId: config.DefaultTargetOfEvaluationID})
 			},
 		},
 		{
-			name: "Create service with option 'WithDiscoveryInterval'",
+			name: "Create service with option 'WithCollectorInterval'",
 			args: args{
 				opts: []service.Option[*Service]{
-					WithDiscoveryInterval(time.Duration(8)),
+					WithCollectorInterval(time.Duration(8)),
 				},
 			},
 			want: func(t *testing.T, got *Service) bool {
@@ -139,9 +139,9 @@ func TestNewService(t *testing.T) {
 	}
 }
 
-// func TestService_StartDiscovery(t *testing.T) {
+// func TestService_StartCollector(t *testing.T) {
 // 	type fields struct {
-// 		discoverer  cloud.Collector
+// 		collector  cloud.Collector
 // 		ctID        string
 // 		collectorID string
 // 	}
@@ -152,16 +152,16 @@ func TestNewService(t *testing.T) {
 // 		checkEvidence bool
 // 	}{
 // 		{
-// 			name: "Err in discoverer",
+// 			name: "Err in collector",
 // 			fields: fields{
-// 				discoverer: &discoverytest.TestDiscoverer{TestCase: 0, ServiceId: config.DefaultTargetOfEvaluationID},
+// 				collector: &collectortest.TestCollector{TestCase: 0, ServiceId: config.DefaultTargetOfEvaluationID},
 // 				ctID:       config.DefaultTargetOfEvaluationID,
 // 			},
 // 		},
 // 		{
 // 			name: "No err with default target of evaluation ID",
 // 			fields: fields{
-// 				discoverer:  &discoverytest.TestDiscoverer{TestCase: 2, ServiceId: config.DefaultTargetOfEvaluationID},
+// 				collector:  &collectortest.TestCollector{TestCase: 2, ServiceId: config.DefaultTargetOfEvaluationID},
 // 				ctID:        config.DefaultTargetOfEvaluationID,
 // 				collectorID: config.DefaultEvidenceCollectorToolID,
 // 			},
@@ -170,7 +170,7 @@ func TestNewService(t *testing.T) {
 // 		{
 // 			name: "No err with custom target of evaluation ID",
 // 			fields: fields{
-// 				discoverer:  &discoverytest.TestDiscoverer{TestCase: 2, ServiceId: testdata.MockTargetOfEvaluationID1},
+// 				collector:  &collectortest.TestCollector{TestCase: 2, ServiceId: testdata.MockTargetOfEvaluationID1},
 // 				ctID:        testdata.MockTargetOfEvaluationID1,
 // 				collectorID: config.DefaultEvidenceCollectorToolID,
 // 			},
@@ -191,11 +191,11 @@ func TestNewService(t *testing.T) {
 // 				return mockStream, nil
 // 			})
 // 			svc.evidenceStore = &api.RPCConnection[evidence.EvidenceStoreClient]{Target: "mock"}
-// 			go svc.StartDiscovery(tt.fields.discoverer)
+// 			go svc.StartCollector(tt.fields.collector)
 
 // 			if tt.checkEvidence {
 // 				mockStream.Wait()
-// 				want, _ := tt.fields.discoverer.List()
+// 				want, _ := tt.fields.collector.List()
 
 // 				got := mockStream.sentEvidences
 // 				assert.Equal(t, len(want), len(got))
@@ -210,7 +210,7 @@ func TestNewService(t *testing.T) {
 // 				or := eGot.GetOntologyResource()
 
 // 				// Only the last element sent can be checked
-// 				// The TestDiscoverer adds a random number to the ID, so we have to delete the last 3 characters as we do not know which random number will be added.
+// 				// The TestCollector adds a random number to the ID, so we have to delete the last 3 characters as we do not know which random number will be added.
 // 				assert.Equal(t, eWant.GetId()[:len(eWant.GetId())-3], or.GetId()[:len(or.GetId())-3])
 
 // 				// Assert target of evaluation ID
@@ -316,7 +316,7 @@ func TestService_Start(t *testing.T) {
 		evidenceStoreStream *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
 		dead                bool
 		scheduler           *gocron.Scheduler
-		Events              chan *DiscoveryEvent
+		Events              chan *CollectorEvent
 		envVariables        []envVariable
 		cloudConfig         CloudCollectorConfig
 	}
@@ -354,7 +354,7 @@ func TestService_Start(t *testing.T) {
 		// 	},
 		// },
 		{
-			name: "discovery interval error",
+			name: "collector interval error",
 			fields: fields{
 				scheduler: gocron.NewScheduler(time.UTC),
 				cloudConfig: CloudCollectorConfig{
@@ -475,7 +475,7 @@ func TestService_Start(t *testing.T) {
 			},
 		},
 		{
-			name: "Happy path: no discovery interval error",
+			name: "Happy path: no collector interval error",
 			fields: fields{
 				scheduler: gocron.NewScheduler(time.UTC),
 				envVariables: []envVariable{
@@ -689,7 +689,7 @@ func TestService_Start(t *testing.T) {
 // 		{
 // 			name: "Happy path: providers given",
 // 			prepViper: func() {
-// 				viper.Set(config.DiscoveryProviderFlag, "azure")
+// 				viper.Set(config.CollectorProviderFlag, "azure")
 
 // 			},
 // 			want: func(t *testing.T, got launcher.ServiceSpec) bool {

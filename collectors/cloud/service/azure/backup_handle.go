@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/dataprotection/armdataprotection"
 )
 
-func (d *azureDiscovery) handleInstances(vault *armdataprotection.BackupVaultResource, instance *armdataprotection.BackupInstanceResource) (resource ontology.IsResource, err error) {
+func (d *azureCollector) handleInstances(vault *armdataprotection.BackupVaultResource, instance *armdataprotection.BackupInstanceResource) (resource ontology.IsResource, err error) {
 	if vault == nil || instance == nil {
 		return nil, ErrVaultInstanceIsEmpty
 	}

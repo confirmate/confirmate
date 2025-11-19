@@ -18,9 +18,9 @@ import (
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
 )
 
-func TestNewOpenstackDiscovery(t *testing.T) {
+func TestNewOpenstackCollector(t *testing.T) {
 	type args struct {
-		opts []DiscoveryOption
+		opts []CollectorOption
 	}
 	tests := []struct {
 		name string
@@ -35,7 +35,7 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 		{
 			name: "Happy path: Name",
 			args: args{
-				opts: []DiscoveryOption{
+				opts: []CollectorOption{
 					WithAuthorizer(gophercloud.AuthOptions{
 						IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
 						Username:         testdata.MockOpenstackUsername,
@@ -53,7 +53,7 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with target of evaluation id",
 			args: args{
-				opts: []DiscoveryOption{
+				opts: []CollectorOption{
 					WithAuthorizer(gophercloud.AuthOptions{
 						IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
 						Username:         testdata.MockOpenstackUsername,
@@ -72,7 +72,7 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 		{
 			name: "Happy path: with authorizer",
 			args: args{
-				opts: []DiscoveryOption{
+				opts: []CollectorOption{
 					WithAuthorizer(gophercloud.AuthOptions{
 						IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
 						Username:         testdata.MockOpenstackUsername,
@@ -90,13 +90,13 @@ func TestNewOpenstackDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewOpenstackDiscovery(tt.args.opts...)
+			got := NewOpenstackCollector(tt.args.opts...)
 			tt.want(t, got)
 		})
 	}
 }
 
-func Test_openstackDiscovery_authorize(t *testing.T) {
+func Test_openstackCollector_authorize(t *testing.T) {
 	testhelper.SetupHTTP()
 	defer testhelper.TeardownHTTP()
 
@@ -237,7 +237,7 @@ func Test_openstackDiscovery_authorize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -333,7 +333,7 @@ func TestNewAuthorizer(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_List(t *testing.T) {
+func Test_openstackCollector_List(t *testing.T) {
 	testhelper.SetupHTTP()
 
 	type fields struct {
@@ -352,7 +352,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
-			name: "error discover server",
+			name: "error collect server",
 			fields: fields{
 				testhelper: "server",
 				authOpts: &gophercloud.AuthOptions{
@@ -379,7 +379,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "error discover network interfaces",
+			name: "error collect network interfaces",
 			fields: fields{
 				testhelper: "network",
 				authOpts: &gophercloud.AuthOptions{
@@ -406,7 +406,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "error discover block storage",
+			name: "error collect block storage",
 			fields: fields{
 				testhelper: "storage",
 				authOpts: &gophercloud.AuthOptions{
@@ -433,7 +433,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "error discover clusters",
+			name: "error collect clusters",
 			fields: fields{
 				testhelper: "clusters",
 				authOpts: &gophercloud.AuthOptions{
@@ -460,7 +460,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "error discover projects: but there is no error, as a resource is added based on other information discovered before.",
+			name: "error collect projects: but there is no error, as a resource is added based on other information collected before.",
 			fields: fields{
 				testhelper: "project",
 				authOpts: &gophercloud.AuthOptions{
@@ -499,7 +499,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "error discover domains",
+			name: "error collect domains",
 			fields: fields{
 				testhelper: "domain",
 				authOpts: &gophercloud.AuthOptions{
@@ -559,7 +559,7 @@ func Test_openstackDiscovery_List(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			testhelper.SetupHTTP()
 
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,

@@ -501,7 +501,7 @@ func MockInitializeConnectionResponse(t *testing.T) {
         "iqn.2010-10.org.openstack:volume-cd281d77-8217-4830-be95-9528227c105c"
       ],
       "auth_password": "x854ZY5Re3aCkdNL",
-      "target_discovered": false,
+      "target_collected": false,
       "encrypted": false,
       "qos_specs": null,
       "target_iqn": "iqn.2010-10.org.openstack:volume-cd281d77-8217-4830-be95-9528227c105c",

@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func Test_openstackDiscovery_handleBlockStorage(t *testing.T) {
+func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 	testTime := time.Date(2000, 01, 20, 9, 20, 12, 123, time.UTC)
 
 	type fields struct {
@@ -101,7 +101,7 @@ func Test_openstackDiscovery_handleBlockStorage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,

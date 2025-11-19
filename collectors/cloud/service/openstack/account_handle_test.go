@@ -12,7 +12,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
 )
 
-func Test_openstackDiscovery_handleProject(t *testing.T) {
+func Test_openstackCollector_handleProject(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -66,7 +66,7 @@ func Test_openstackDiscovery_handleProject(t *testing.T) {
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -82,7 +82,7 @@ func Test_openstackDiscovery_handleProject(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_handleDomain(t *testing.T) {
+func Test_openstackCollector_handleDomain(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -126,7 +126,7 @@ func Test_openstackDiscovery_handleDomain(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,

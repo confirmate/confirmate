@@ -17,8 +17,8 @@ var (
 	ErrEmptyVirtualMachine = errors.New("virtual machine is empty")
 )
 
-// Discover virtual machines
-func (d *azureDiscovery) discoverVirtualMachines() ([]ontology.IsResource, error) {
+// Collect virtual machines
+func (d *azureCollector) collectVirtualMachines() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize virtual machines client
@@ -55,7 +55,7 @@ func (d *azureDiscovery) discoverVirtualMachines() ([]ontology.IsResource, error
 	return list, nil
 }
 
-func (d *azureDiscovery) discoverBlockStorages() ([]ontology.IsResource, error) {
+func (d *azureCollector) collectBlockStorages() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize block storages client
@@ -91,8 +91,8 @@ func (d *azureDiscovery) discoverBlockStorages() ([]ontology.IsResource, error) 
 	return list, nil
 }
 
-// Discover functions and web apps
-func (d *azureDiscovery) discoverFunctionsWebApps() ([]ontology.IsResource, error) {
+// Collect functions and web apps
+func (d *azureCollector) collectFunctionsWebApps() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize functions client

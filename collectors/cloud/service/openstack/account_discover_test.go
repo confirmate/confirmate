@@ -14,7 +14,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
 )
 
-func Test_openstackDiscovery_discoverProjects(t *testing.T) {
+func Test_openstackCollector_collectProjects(t *testing.T) {
 	testhelper.SetupHTTP()
 	defer testhelper.TeardownHTTP()
 	openstacktest.HandleListProjectsSuccessfully(t)
@@ -83,7 +83,7 @@ func Test_openstackDiscovery_discoverProjects(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -92,7 +92,7 @@ func Test_openstackDiscovery_discoverProjects(t *testing.T) {
 				project:  tt.fields.project,
 			}
 
-			gotList, err := d.discoverProjects()
+			gotList, err := d.collectProjects()
 
 			tt.want(t, gotList)
 			tt.wantErr(t, err)
@@ -100,7 +100,7 @@ func Test_openstackDiscovery_discoverProjects(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_discoverDomain(t *testing.T) {
+func Test_openstackCollector_collectDomain(t *testing.T) {
 	testhelper.SetupHTTP()
 	defer testhelper.TeardownHTTP()
 	openstacktest.HandleListDomainsSuccessfully(t)
@@ -159,14 +159,14 @@ func Test_openstackDiscovery_discoverDomain(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
 				domain:   tt.fields.domain,
 				project:  tt.fields.project,
 			}
-			gotList, err := d.discoverDomains()
+			gotList, err := d.collectDomains()
 
 			tt.wantList(t, gotList)
 			tt.wantErr(t, err)

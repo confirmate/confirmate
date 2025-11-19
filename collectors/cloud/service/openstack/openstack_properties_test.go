@@ -57,7 +57,7 @@ func Test_labels(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_getAttachedNetworkInterfaces(t *testing.T) {
+func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 	testhelper.SetupHTTP()
 	defer testhelper.TeardownHTTP()
 
@@ -122,7 +122,7 @@ func Test_openstackDiscovery_getAttachedNetworkInterfaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,

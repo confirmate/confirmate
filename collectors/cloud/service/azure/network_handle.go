@@ -8,7 +8,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )
 
-func (d *azureDiscovery) handleLoadBalancer(lb *armnetwork.LoadBalancer) ontology.IsResource {
+func (d *azureCollector) handleLoadBalancer(lb *armnetwork.LoadBalancer) ontology.IsResource {
 	return &ontology.LoadBalancer{
 		Id:           resourceID(lb.ID),
 		Name:         util.Deref(lb.Name),
@@ -26,7 +26,7 @@ func (d *azureDiscovery) handleLoadBalancer(lb *armnetwork.LoadBalancer) ontolog
 
 // handleApplicationGateway returns the application gateway with its properties
 // NOTE: handleApplicationGateway uses the LoadBalancer for now until there is a own resource
-func (d *azureDiscovery) handleApplicationGateway(ag *armnetwork.ApplicationGateway) ontology.IsResource {
+func (d *azureCollector) handleApplicationGateway(ag *armnetwork.ApplicationGateway) ontology.IsResource {
 	firewallStatus := false
 
 	if ag.Properties != nil && ag.Properties.WebApplicationFirewallConfiguration != nil {
@@ -53,7 +53,7 @@ func (d *azureDiscovery) handleApplicationGateway(ag *armnetwork.ApplicationGate
 	}
 }
 
-func (d *azureDiscovery) handleNetworkInterfaces(ni *armnetwork.Interface) ontology.IsResource {
+func (d *azureCollector) handleNetworkInterfaces(ni *armnetwork.Interface) ontology.IsResource {
 	return &ontology.NetworkInterface{
 		Id:           resourceID(ni.ID),
 		Name:         util.Deref(ni.Name),

@@ -15,21 +15,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type k8sComputeDiscovery struct{ k8sDiscovery }
+type k8sComputeCollector struct{ k8sCollector }
 
-func NewKubernetesComputeDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
-	return &k8sComputeDiscovery{k8sDiscovery{intf, TargetOfEvaluationID}}
+func NewKubernetesComputeCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
+	return &k8sComputeCollector{k8sCollector{intf, TargetOfEvaluationID}}
 }
 
-func (*k8sComputeDiscovery) Name() string {
+func (*k8sComputeCollector) Name() string {
 	return "Kubernetes Compute"
 }
 
-func (*k8sComputeDiscovery) Description() string {
-	return "Discover Kubernetes compute resources."
+func (*k8sComputeCollector) Description() string {
+	return "Collect Kubernetes compute resources."
 }
 
-func (d *k8sComputeDiscovery) List() ([]ontology.IsResource, error) {
+func (d *k8sComputeCollector) List() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// Get pods
@@ -57,7 +57,7 @@ func (d *k8sComputeDiscovery) List() ([]ontology.IsResource, error) {
 }
 
 // handlePod returns all existing pods
-func (d *k8sComputeDiscovery) handlePod(pod *v1.Pod) *ontology.Container {
+func (d *k8sComputeCollector) handlePod(pod *v1.Pod) *ontology.Container {
 	r := &ontology.Container{
 		Id:           getContainerResourceID(pod),
 		Name:         pod.Name,
@@ -76,7 +76,7 @@ func getContainerResourceID(pod *v1.Pod) string {
 }
 
 // handleVolume returns all volumes connected to a pod
-func (d *k8sComputeDiscovery) handlePodVolume(pod *v1.Pod) []ontology.IsResource {
+func (d *k8sComputeCollector) handlePodVolume(pod *v1.Pod) []ontology.IsResource {
 	var (
 		volumes []ontology.IsResource
 		v       ontology.IsResource

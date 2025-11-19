@@ -25,7 +25,7 @@ func labels(tags *[]string) map[string]string {
 }
 
 // getAttachedNetworkInterfaces gets the attached network interfaces to the given serverID.
-func (d *openstackDiscovery) getAttachedNetworkInterfaces(serverID string) ([]string, error) {
+func (d *openstackCollector) getAttachedNetworkInterfaces(serverID string) ([]string, error) {
 	var (
 		list []string
 		err  error
@@ -56,7 +56,7 @@ func (d *openstackDiscovery) getAttachedNetworkInterfaces(serverID string) ([]st
 }
 
 // setProjectInfo stores the project ID and name based on the given resource
-func (d *openstackDiscovery) setProjectInfo(x interface{}) {
+func (d *openstackCollector) setProjectInfo(x interface{}) {
 
 	switch v := x.(type) {
 	case []volumes.Volume:

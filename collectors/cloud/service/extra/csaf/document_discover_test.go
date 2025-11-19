@@ -12,7 +12,7 @@ import (
 	"github.com/gocsaf/csaf/v3/csaf"
 )
 
-func Test_csafDiscovery_handleAdvisory(t *testing.T) {
+func Test_csafCollector_handleAdvisory(t *testing.T) {
 	type fields struct {
 		domain string
 		ctID   string
@@ -54,14 +54,14 @@ func Test_csafDiscovery_handleAdvisory(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &csafDiscovery{
+			d := &csafCollector{
 				domain: tt.fields.domain,
 				ctID:   tt.fields.ctID,
 				client: tt.fields.client,
 			}
 			gotDoc, err := d.handleAdvisory(tt.args.label, tt.args.file, tt.args.keyring, tt.args.parentId)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("csafDiscovery.handleAdvisory() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("csafCollector.handleAdvisory() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			tt.wantDoc(t, gotDoc)
@@ -69,7 +69,7 @@ func Test_csafDiscovery_handleAdvisory(t *testing.T) {
 	}
 }
 
-func Test_csafDiscovery_discoverSecurityAdvisories(t *testing.T) {
+func Test_csafCollector_collectSecurityAdvisories(t *testing.T) {
 	type fields struct {
 		domain string
 		ctID   string
@@ -107,14 +107,14 @@ func Test_csafDiscovery_discoverSecurityAdvisories(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &csafDiscovery{
+			d := &csafCollector{
 				domain: tt.fields.domain,
 				ctID:   tt.fields.ctID,
 				client: tt.fields.client,
 			}
-			gotDocuments, err := d.discoverSecurityAdvisories(tt.args.md, tt.args.keyring, tt.args.parentId)
+			gotDocuments, err := d.collectSecurityAdvisories(tt.args.md, tt.args.keyring, tt.args.parentId)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("csafDiscovery.discoverSecurityAdvisories() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("csafCollector.collectSecurityAdvisories() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			tt.wantDocuments(t, gotDocuments)

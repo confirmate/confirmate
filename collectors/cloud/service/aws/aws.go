@@ -38,7 +38,7 @@ type STSAPI interface {
 }
 
 func init() {
-	log = logconfig.GetLogger().With("component", "aws-discovery")
+	log = logconfig.GetLogger().With("component", "aws-collector")
 }
 
 // NewClient constructs a new AwsClient

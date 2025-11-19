@@ -59,51 +59,51 @@ var (
 	ErrVaultInstanceIsEmpty     = errors.New("vault and/or instance is nil")
 )
 
-func (*azureDiscovery) Name() string {
+func (*azureCollector) Name() string {
 	return "Azure"
 }
 
-func (*azureDiscovery) Description() string {
-	return "Discovery Azure."
+func (*azureCollector) Description() string {
+	return "Collector Azure."
 }
 
-type DiscoveryOption func(d *azureDiscovery)
+type CollectorOption func(d *azureCollector)
 
-func WithSender(sender policy.Transporter) DiscoveryOption {
-	return func(d *azureDiscovery) {
+func WithSender(sender policy.Transporter) CollectorOption {
+	return func(d *azureCollector) {
 		d.clientOptions.Transport = sender
 	}
 }
 
-func WithAuthorizer(authorizer azcore.TokenCredential) DiscoveryOption {
-	return func(d *azureDiscovery) {
+func WithAuthorizer(authorizer azcore.TokenCredential) CollectorOption {
+	return func(d *azureCollector) {
 		d.cred = authorizer
 	}
 }
 
-func WithTargetOfEvaluationID(ctID string) DiscoveryOption {
-	return func(a *azureDiscovery) {
+func WithTargetOfEvaluationID(ctID string) CollectorOption {
+	return func(a *azureCollector) {
 		a.ctID = ctID
 	}
 }
 
-// WithResourceGroup is a [DiscoveryOption] that scopes the discovery to a specific resource group.
-func WithResourceGroup(rg string) DiscoveryOption {
-	return func(d *azureDiscovery) {
+// WithResourceGroup is a [CollectorOption] that scopes the collector to a specific resource group.
+func WithResourceGroup(rg string) CollectorOption {
+	return func(d *azureCollector) {
 		d.rg = &rg
 	}
 }
 
 func init() {
-	log = logconfig.GetLogger().With("component", "azure-discovery")
+	log = logconfig.GetLogger().With("component", "azure-collector")
 }
 
-type azureDiscovery struct {
+type azureCollector struct {
 	isAuthorized bool
 
 	sub  *armsubscription.Subscription
 	cred azcore.TokenCredential
-	// rg optionally contains the name of a resource group. If this is not nil, all discovery calls will be scoped to the particular resource group.
+	// rg optionally contains the name of a resource group. If this is not nil, all collector calls will be scoped to the particular resource group.
 	rg                 *string
 	clientOptions      arm.ClientOptions
 	clients            clients
@@ -168,8 +168,8 @@ type clients struct {
 	rgClient *armresources.ResourceGroupsClient
 }
 
-func NewAzureDiscovery(opts ...DiscoveryOption) cloud.Collector {
-	d := &azureDiscovery{
+func NewAzureCollector(opts ...CollectorOption) cloud.Collector {
+	d := &azureCollector{
 		ctID:               config.DefaultTargetOfEvaluationID,
 		backupMap:          make(map[string]*backup),
 		defenderProperties: make(map[string]*defenderProperties),
@@ -183,67 +183,67 @@ func NewAzureDiscovery(opts ...DiscoveryOption) cloud.Collector {
 	return d
 }
 
-// List discovers the following Azure resources types:
+// List collects the following Azure resources types:
 // - ResourceGroup resource
 // - Storage resource
 // - Compute resource
 // - Network resource
-func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
+func (d *azureCollector) List() (list []ontology.IsResource, err error) {
 	if err = d.authorize(); err != nil {
 		return nil, fmt.Errorf("%s: %w", ErrCouldNotAuthenticate, err)
 	}
 
-	// Discover resource group resources
-	log.Info("Discover Azure resource group resources...")
-	rg, err := d.discoverResourceGroups()
+	// Collect resource group resources
+	log.Info("Collect Azure resource group resources...")
+	rg, err := d.collectResourceGroups()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover resource groups: %w", err)
+		return nil, fmt.Errorf("could not collect resource groups: %w", err)
 	}
 	list = append(list, rg...)
 
-	// Discover storage resources
-	log.Info("Discover Azure storage resources...")
+	// Collect storage resources
+	log.Info("Collect Azure storage resources...")
 
-	// Discover Defender for X properties to add it to the required resource properties
-	d.defenderProperties, err = d.discoverDefender()
+	// Collect Defender for X properties to add it to the required resource properties
+	d.defenderProperties, err = d.collectDefender()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover Defender for X: %w", err)
+		return nil, fmt.Errorf("could not collect Defender for X: %w", err)
 	}
 
-	// Discover storage accounts
-	storageAccounts, err := d.discoverStorageAccounts()
+	// Collect storage accounts
+	storageAccounts, err := d.collectStorageAccounts()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover storage accounts: %w", err)
+		return nil, fmt.Errorf("could not collect storage accounts: %w", err)
 	}
 	list = append(list, storageAccounts...)
 
-	// Discover sql databases
-	dbs, err := d.discoverSqlServers()
+	// Collect sql databases
+	dbs, err := d.collectSqlServers()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover sql databases: %w", err)
+		return nil, fmt.Errorf("could not collect sql databases: %w", err)
 	}
 	list = append(list, dbs...)
 
-	// Discover Cosmos DB
-	cosmosDB, err := d.discoverCosmosDB()
+	// Collect Cosmos DB
+	cosmosDB, err := d.collectCosmosDB()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover cosmos db accounts: %w", err)
+		return nil, fmt.Errorf("could not collect cosmos db accounts: %w", err)
 	}
 	list = append(list, cosmosDB...)
 
-	// Discover compute resources
-	log.Info("Discover Azure compute resources...")
+	// Collect compute resources
+	log.Info("Collect Azure compute resources...")
 
-	// Discover backup vaults
-	err = d.discoverBackupVaults()
+	// Collect backup vaults
+	err = d.collectBackupVaults()
 	if err != nil {
-		log.Error("could not discover backup vaults", tint.Err(err))
+		log.Error("could not collect backup vaults", tint.Err(err))
 	}
 
-	// Discover block storage
-	storage, err := d.discoverBlockStorages()
+	// Collect block storage
+	storage, err := d.collectBlockStorages()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover block storage: %w", err)
+		return nil, fmt.Errorf("could not collect block storage: %w", err)
 	}
 	list = append(list, storage...)
 
@@ -252,60 +252,60 @@ func (d *azureDiscovery) List() (list []ontology.IsResource, err error) {
 		list = append(list, d.backupMap[DataSourceTypeDisc].backupStorages...)
 	}
 
-	// Discover virtual machines
-	virtualMachines, err := d.discoverVirtualMachines()
+	// Collect virtual machines
+	virtualMachines, err := d.collectVirtualMachines()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover virtual machines: %w", err)
+		return nil, fmt.Errorf("could not collect virtual machines: %w", err)
 	}
 	list = append(list, virtualMachines...)
 
-	// Discover functions and web apps
-	resources, err := d.discoverFunctionsWebApps()
+	// Collect functions and web apps
+	resources, err := d.collectFunctionsWebApps()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover functions: %w", err)
+		return nil, fmt.Errorf("could not collect functions: %w", err)
 	}
 
 	list = append(list, resources...)
 
-	// Discover network resources
-	log.Info("Discover Azure network resources...")
+	// Collect network resources
+	log.Info("Collect Azure network resources...")
 
-	// Discover network interfaces
-	networkInterfaces, err := d.discoverNetworkInterfaces()
+	// Collect network interfaces
+	networkInterfaces, err := d.collectNetworkInterfaces()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover network interfaces: %w", err)
+		return nil, fmt.Errorf("could not collect network interfaces: %w", err)
 	}
 	list = append(list, networkInterfaces...)
 
-	// Discover Load Balancer
-	loadBalancer, err := d.discoverLoadBalancer()
+	// Collect Load Balancer
+	loadBalancer, err := d.collectLoadBalancer()
 	if err != nil {
-		return list, fmt.Errorf("could not discover load balancer: %w", err)
+		return list, fmt.Errorf("could not collect load balancer: %w", err)
 	}
 	list = append(list, loadBalancer...)
 
-	// Discover Application Gateway
-	ag, err := d.discoverApplicationGateway()
+	// Collect Application Gateway
+	ag, err := d.collectApplicationGateway()
 	if err != nil {
-		return list, fmt.Errorf("could not discover application gateways: %w", err)
+		return list, fmt.Errorf("could not collect application gateways: %w", err)
 	}
 	list = append(list, ag...)
 
-	// Discover machine learning workspaces
-	mlWorkspaces, err := d.discoverMLWorkspaces()
+	// Collect machine learning workspaces
+	mlWorkspaces, err := d.collectMLWorkspaces()
 	if err != nil {
-		return nil, fmt.Errorf("could not discover machine learning workspaces: %w", err)
+		return nil, fmt.Errorf("could not collect machine learning workspaces: %w", err)
 	}
 	list = append(list, mlWorkspaces...)
 
 	return list, nil
 }
 
-func (d *azureDiscovery) TargetOfEvaluationID() string {
+func (d *azureCollector) TargetOfEvaluationID() string {
 	return d.ctID
 }
 
-func (d *azureDiscovery) authorize() (err error) {
+func (d *azureCollector) authorize() (err error) {
 	if d.isAuthorized {
 		return
 	}
@@ -343,7 +343,7 @@ func (d *azureDiscovery) authorize() (err error) {
 	// get first subscription
 	d.sub = subList[0]
 
-	log.Info("Azure discoverer uses subscription", "subscriptionID", util.Deref(d.sub.SubscriptionID))
+	log.Info("Azure collector uses subscription", "subscriptionID", util.Deref(d.sub.SubscriptionID))
 
 	d.isAuthorized = true
 
@@ -365,11 +365,11 @@ func NewAuthorizer() (*azidentity.DefaultAzureCredential, error) {
 	return cred, nil
 }
 
-// discoverDefender discovers Defender for X services and returns a map with the following properties for each defender type
+// collectDefender collects Defender for X services and returns a map with the following properties for each defender type
 // * monitoringLogDataEnabled
 // * securityAlertsEnabled
-// The property will be set to the individual resources, e.g., compute, storage in the corresponding discoverers
-func (d *azureDiscovery) discoverDefender() (map[string]*defenderProperties, error) {
+// The property will be set to the individual resources, e.g., compute, storage in the corresponding collectors
+func (d *azureCollector) collectDefender() (map[string]*defenderProperties, error) {
 	var pricings = make(map[string]*defenderProperties)
 
 	// initialize defender client
@@ -380,7 +380,7 @@ func (d *azureDiscovery) discoverDefender() (map[string]*defenderProperties, err
 	// List all pricings to get the enabled Defender for X
 	pricingsList, err := d.clients.defenderClient.List(context.Background(), *d.sub.ID, nil)
 	if err != nil {
-		return nil, fmt.Errorf("could not discover pricings")
+		return nil, fmt.Errorf("could not collect pricings")
 	}
 
 	for _, elem := range pricingsList.Value {
@@ -402,7 +402,7 @@ func (d *azureDiscovery) discoverDefender() (map[string]*defenderProperties, err
 
 // listPager loops all values from a [runtime.Pager] object from the Azure SDK and issues a callback for each item. It
 // takes the following arguments:
-//   - d, an [azureDiscovery] struct,
+//   - d, an [azureCollector] struct,
 //   - newListAllPager, a function that supplies a [runtime.Pager] listing all resources of a specific Azure client,
 //   - newListByResourceGroupPager, a function that supplies a [runtime.Pager] listing all resources of a specific resource group,
 //   - resToValues1, a function that takes the response from a single page of newListAllPager and returns its values,
@@ -410,7 +410,7 @@ func (d *azureDiscovery) discoverDefender() (map[string]*defenderProperties, err
 //   - callback, a function that is called for each item in every page.
 //
 // This function will then decide to use newListAllPager or newListByResourceGroupPager depending on whether a resource
-// group scope is set in the [azureDiscovery] object.
+// group scope is set in the [azureCollector] object.
 //
 // This function makes heavy use of the following type constraints (generics):
 //   - O1, a type that represents an option argument to the newListAllPager function, e.g. *[armcompute.VirtualMachinesClientListAllOptions],
@@ -419,7 +419,7 @@ func (d *azureDiscovery) discoverDefender() (map[string]*defenderProperties, err
 //   - R1, a type that represents the return type of the newListAllPager function, e.g. [armcompute.VirtualMachinesClientListResponse],
 //   - T, a type that represents the final resource that is supplied to the callback, e.g. *[armcompute.VirtualMachine].
 func listPager[O1 any, R1 any, O2 any, R2 any, T any](
-	d *azureDiscovery,
+	d *azureCollector,
 	newListAllPager func(options O1) *runtime.Pager[R1],
 	newListByResourceGroupPager func(resourceGroupName string, options O2) *runtime.Pager[R2],
 	allPagerResponseToValues func(res R1) []*T,

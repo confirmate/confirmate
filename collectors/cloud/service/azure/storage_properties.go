@@ -48,7 +48,7 @@ func storageAtRestEncryption(account *armstorage.Account) (enc *ontology.AtRestE
 }
 
 // anomalyDetectionEnabled returns true if Azure Advanced Threat Protection is enabled for the database.
-func (d *azureDiscovery) anomalyDetectionEnabled(server *armsql.Server, db *armsql.Database) (bool, error) {
+func (d *azureCollector) anomalyDetectionEnabled(server *armsql.Server, db *armsql.Database) (bool, error) {
 	// initialize threat protection client
 	if err := d.initThreatProtectionClient(); err != nil {
 		return false, err
@@ -72,32 +72,32 @@ func (d *azureDiscovery) anomalyDetectionEnabled(server *armsql.Server, db *arms
 }
 
 // getActivityLogging returns the activity logging information for the storage account, blob, table and file storage including their raw information
-func (d *azureDiscovery) getActivityLogging(account *armstorage.Account) (activityLoggingAccount, activityLoggingBlob, activityLoggingTable, activityLoggingFile *ontology.ActivityLogging, rawAccount, rawBlob, rawTable, rawFile string) {
+func (d *azureCollector) getActivityLogging(account *armstorage.Account) (activityLoggingAccount, activityLoggingBlob, activityLoggingTable, activityLoggingFile *ontology.ActivityLogging, rawAccount, rawBlob, rawTable, rawFile string) {
 
 	var err error
 
 	// Get ActivityLogging for the storage account
-	activityLoggingAccount, rawAccount, err = d.discoverDiagnosticSettings(util.Deref(account.ID))
+	activityLoggingAccount, rawAccount, err = d.collectDiagnosticSettings(util.Deref(account.ID))
 	if err != nil {
-		log.Error("could not discover diagnostic settings for the storage account", tint.Err(err))
+		log.Error("could not collect diagnostic settings for the storage account", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the blob service
-	activityLoggingBlob, rawBlob, err = d.discoverDiagnosticSettings(util.Deref(account.ID) + "/blobServices/default")
+	activityLoggingBlob, rawBlob, err = d.collectDiagnosticSettings(util.Deref(account.ID) + "/blobServices/default")
 	if err != nil {
-		log.Error("could not discover diagnostic settings for the blob service", tint.Err(err))
+		log.Error("could not collect diagnostic settings for the blob service", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the table service
-	activityLoggingTable, rawTable, err = d.discoverDiagnosticSettings(util.Deref(account.ID) + "/tableServices/default")
+	activityLoggingTable, rawTable, err = d.collectDiagnosticSettings(util.Deref(account.ID) + "/tableServices/default")
 	if err != nil {
-		log.Error("could not discover diagnostic settings for the table service", tint.Err(err))
+		log.Error("could not collect diagnostic settings for the table service", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the file service
-	activityLoggingFile, rawFile, err = d.discoverDiagnosticSettings(util.Deref(account.ID) + "/fileServices/default")
+	activityLoggingFile, rawFile, err = d.collectDiagnosticSettings(util.Deref(account.ID) + "/fileServices/default")
 	if err != nil {
-		log.Error("could not discover diagnostic settings for the file service", tint.Err(err))
+		log.Error("could not collect diagnostic settings for the file service", tint.Err(err))
 	}
 
 	return

@@ -10,14 +10,14 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-// discoverDomains discovers domains.
-func (d *openstackDiscovery) discoverDomains() (list []ontology.IsResource, err error) {
+// collectDomains collects domains.
+func (d *openstackCollector) collectDomains() (list []ontology.IsResource, err error) {
 	var opts domains.ListOptsBuilder = &domains.ListOpts{}
 	list, err = genericList(d, d.identityClient, domains.List, d.handleDomain, domains.ExtractDomains, opts)
 
 	// if we cannot retrieve the domain information by calling the API or from the environment variables, we will add the information manually if we already got the domain ID and/or domain name
 	if err != nil {
-		log.Debug("Could not discover domains due to insufficient permissions, but we can proceed with less domain information", tint.Err(err))
+		log.Debug("Could not collect domains due to insufficient permissions, but we can proceed with less domain information", tint.Err(err))
 
 		if d.domain.domainID == "" {
 			err := fmt.Errorf("domain ID is not available: %v", err)
@@ -36,14 +36,14 @@ func (d *openstackDiscovery) discoverDomains() (list []ontology.IsResource, err 
 	return list, nil
 }
 
-// discoverProjects discovers projects/tenants. OpenStack project and tenant are interchangeable.
-func (d *openstackDiscovery) discoverProjects() (list []ontology.IsResource, err error) {
+// collectProjects collects projects/tenants. OpenStack project and tenant are interchangeable.
+func (d *openstackCollector) collectProjects() (list []ontology.IsResource, err error) {
 	var opts projects.ListOptsBuilder = &projects.ListOpts{}
 	list, err = genericList(d, d.identityClient, projects.List, d.handleProject, projects.ExtractProjects, opts)
 
 	// if we cannot retrieve the project information by calling the API or from the environment variables, we will add the information manually if we already got the project ID and/or project name
 	if err != nil {
-		log.Debug("Could not discover projects/tenants due to insufficient permissions, but we can proceed with less project/tenant information", tint.Err(err))
+		log.Debug("Could not collect projects/tenants due to insufficient permissions, but we can proceed with less project/tenant information", tint.Err(err))
 
 		if d.project.projectID == "" {
 			err := fmt.Errorf("domain ID is not available: %v", err)

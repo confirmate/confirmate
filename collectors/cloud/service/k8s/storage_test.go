@@ -19,7 +19,7 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 )
 
-func TestNewKubernetesStorageDiscovery(t *testing.T) {
+func TestNewKubernetesStorageCollector(t *testing.T) {
 	type args struct {
 		intf                 kubernetes.Interface
 		TargetOfEvaluationID string
@@ -31,8 +31,8 @@ func TestNewKubernetesStorageDiscovery(t *testing.T) {
 	}{
 		{
 			name: "empty input",
-			want: &k8sStorageDiscovery{
-				k8sDiscovery: k8sDiscovery{},
+			want: &k8sStorageCollector{
+				k8sCollector: k8sCollector{},
 			},
 		},
 		{
@@ -41,8 +41,8 @@ func TestNewKubernetesStorageDiscovery(t *testing.T) {
 				intf:                 &fake.Clientset{},
 				TargetOfEvaluationID: testdata.MockTargetOfEvaluationID1,
 			},
-			want: &k8sStorageDiscovery{
-				k8sDiscovery: k8sDiscovery{
+			want: &k8sStorageCollector{
+				k8sCollector: k8sCollector{
 					intf: &fake.Clientset{},
 					ctID: testdata.MockTargetOfEvaluationID1,
 				},
@@ -51,14 +51,14 @@ func TestNewKubernetesStorageDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewKubernetesStorageDiscovery(tt.args.intf, tt.args.TargetOfEvaluationID)
+			got := NewKubernetesStorageCollector(tt.args.intf, tt.args.TargetOfEvaluationID)
 			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
 			assert.Equal(t, "Kubernetes Storage", got.Name())
 		})
 	}
 }
 
-func Test_k8sStorageDiscovery_List(t *testing.T) {
+func Test_k8sStorageCollector_List(t *testing.T) {
 
 	var (
 		volumeName              = "my-volume"
@@ -92,7 +92,7 @@ func Test_k8sStorageDiscovery_List(t *testing.T) {
 		t.Fatalf("error injecting volume add: %v", err)
 	}
 
-	d := NewKubernetesStorageDiscovery(client, testdata.MockTargetOfEvaluationID1)
+	d := NewKubernetesStorageCollector(client, testdata.MockTargetOfEvaluationID1)
 
 	list, err := d.List()
 	assert.NoError(t, err)
@@ -114,9 +114,9 @@ func Test_k8sStorageDiscovery_List(t *testing.T) {
 	assert.Equal(t, expectedVolume, volume, protocmp.IgnoreFields(&ontology.BlockStorage{}, "raw"))
 }
 
-func Test_k8sStorageDiscovery_handlePV(t *testing.T) {
+func Test_k8sStorageCollector_handlePV(t *testing.T) {
 	type fields struct {
-		k8sDiscovery k8sDiscovery
+		k8sCollector k8sCollector
 	}
 	type args struct {
 		pv *corev1.PersistentVolume
@@ -157,8 +157,8 @@ func Test_k8sStorageDiscovery_handlePV(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &k8sStorageDiscovery{
-				k8sDiscovery: tt.fields.k8sDiscovery,
+			d := &k8sStorageCollector{
+				k8sCollector: tt.fields.k8sCollector,
 			}
 			got := d.handlePV(tt.args.pv)
 			assert.Equal(t, tt.want, got)

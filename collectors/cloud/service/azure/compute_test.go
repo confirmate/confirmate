@@ -16,9 +16,9 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func Test_azureComputeDiscovery_discoverFunctionsWebApps(t *testing.T) {
+func Test_azureComputeCollector_collectFunctionsWebApps(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -29,7 +29,7 @@ func Test_azureComputeDiscovery_discoverFunctionsWebApps(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -41,7 +41,7 @@ func Test_azureComputeDiscovery_discoverFunctionsWebApps(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.Function{
@@ -166,9 +166,9 @@ func Test_azureComputeDiscovery_discoverFunctionsWebApps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverFunctionsWebApps()
+			got, err := d.collectFunctionsWebApps()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -177,9 +177,9 @@ func Test_azureComputeDiscovery_discoverFunctionsWebApps(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_handleFunction(t *testing.T) {
+func Test_azureComputeCollector_handleFunction(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 		clientWebApps  bool
 	}
 	type args struct {
@@ -202,7 +202,7 @@ func Test_azureComputeDiscovery_handleFunction(t *testing.T) {
 		{
 			name: "Happy path: Linux function",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 				clientWebApps:  true,
 			},
 			args: args{
@@ -267,7 +267,7 @@ func Test_azureComputeDiscovery_handleFunction(t *testing.T) {
 		{
 			name: "Happy path: Windows function",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 				clientWebApps:  true,
 			},
 			args: args{
@@ -331,7 +331,7 @@ func Test_azureComputeDiscovery_handleFunction(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			// Set clients if needed
 			if tt.fields.clientWebApps {
@@ -344,11 +344,11 @@ func Test_azureComputeDiscovery_handleFunction(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_discoverVirtualMachines(t *testing.T) {
+func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -359,7 +359,7 @@ func Test_azureComputeDiscovery_discoverVirtualMachines(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(nil),
+				azureCollector: NewMockAzureCollector(nil),
 			},
 			want: nil,
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
@@ -369,7 +369,7 @@ func Test_azureComputeDiscovery_discoverVirtualMachines(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.VirtualMachine{
@@ -478,9 +478,9 @@ func Test_azureComputeDiscovery_discoverVirtualMachines(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverVirtualMachines()
+			got, err := d.collectVirtualMachines()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -489,11 +489,11 @@ func Test_azureComputeDiscovery_discoverVirtualMachines(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_handleVirtualMachines(t *testing.T) {
+func Test_azureComputeCollector_handleVirtualMachines(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		vm *armcompute.VirtualMachine
@@ -515,7 +515,7 @@ func Test_azureComputeDiscovery_handleVirtualMachines(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender(), WithDefenderProperties(map[string]*defenderProperties{
+				azureCollector: NewMockAzureCollector(newMockSender(), WithDefenderProperties(map[string]*defenderProperties{
 					DefenderVirtualMachineType: {
 						monitoringLogDataEnabled: true,
 						securityAlertsEnabled:    true,
@@ -610,7 +610,7 @@ func Test_azureComputeDiscovery_handleVirtualMachines(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.handleVirtualMachines(tt.args.vm)
 			if !tt.wantErr(t, err) {
@@ -790,11 +790,11 @@ func Test_bootLogOutput(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_discoverBlockStorage(t *testing.T) {
+func Test_azureComputeCollector_collectBlockStorage(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -805,7 +805,7 @@ func Test_azureComputeDiscovery_discoverBlockStorage(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -817,7 +817,7 @@ func Test_azureComputeDiscovery_discoverBlockStorage(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.BlockStorage{
@@ -906,9 +906,9 @@ func Test_azureComputeDiscovery_discoverBlockStorage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverBlockStorages()
+			got, err := d.collectBlockStorages()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -918,7 +918,7 @@ func Test_azureComputeDiscovery_discoverBlockStorage(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_handleBlockStorage(t *testing.T) {
+func Test_azureComputeCollector_handleBlockStorage(t *testing.T) {
 	encType := armcompute.EncryptionTypeEncryptionAtRestWithCustomerKey
 	diskID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/disks/disk1"
 	diskName := "disk1"
@@ -927,7 +927,7 @@ func Test_azureComputeDiscovery_handleBlockStorage(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		disk *armcompute.Disk
@@ -952,7 +952,7 @@ func Test_azureComputeDiscovery_handleBlockStorage(t *testing.T) {
 		{
 			name: "Empty diskID",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				disk: &armcompute.Disk{
@@ -1004,7 +1004,7 @@ func Test_azureComputeDiscovery_handleBlockStorage(t *testing.T) {
 				},
 			},
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: &ontology.BlockStorage{
 				Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.compute/disks/disk1",
@@ -1039,7 +1039,7 @@ func Test_azureComputeDiscovery_handleBlockStorage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.handleBlockStorage(tt.args.disk)
 			if !tt.wantErr(t, err, fmt.Sprintf("handleBlockStorage(%v)", tt.args.disk)) {
@@ -1050,7 +1050,7 @@ func Test_azureComputeDiscovery_handleBlockStorage(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_blockStorageAtRestEncryption(t *testing.T) {
+func Test_azureComputeCollector_blockStorageAtRestEncryption(t *testing.T) {
 	encType := armcompute.EncryptionTypeEncryptionAtRestWithCustomerKey
 	diskID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/disks/disk1"
 	diskName := "disk1"
@@ -1059,7 +1059,7 @@ func Test_azureComputeDiscovery_blockStorageAtRestEncryption(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		disk *armcompute.Disk
@@ -1082,7 +1082,7 @@ func Test_azureComputeDiscovery_blockStorageAtRestEncryption(t *testing.T) {
 		{
 			name: "Error getting atRestEncryptionProperties",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				disk: &armcompute.Disk{
@@ -1103,7 +1103,7 @@ func Test_azureComputeDiscovery_blockStorageAtRestEncryption(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				disk: &armcompute.Disk{
@@ -1134,7 +1134,7 @@ func Test_azureComputeDiscovery_blockStorageAtRestEncryption(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, _, err := d.blockStorageAtRestEncryption(tt.args.disk)
 			if !tt.wantErr(t, err) {
@@ -1145,12 +1145,12 @@ func Test_azureComputeDiscovery_blockStorageAtRestEncryption(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_keyURL(t *testing.T) {
+func Test_azureComputeCollector_keyURL(t *testing.T) {
 	encSetID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/diskEncryptionSets/encryptionkeyvault1"
 	encSetID2 := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/diskEncryptionSets/encryptionkeyvault2"
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		diskEncryptionSetID string
@@ -1171,7 +1171,7 @@ func Test_azureComputeDiscovery_keyURL(t *testing.T) {
 		},
 		{
 			name:   "Error get disc encryption set",
-			fields: fields{&azureDiscovery{}},
+			fields: fields{&azureCollector{}},
 			args: args{
 				diskEncryptionSetID: encSetID,
 			},
@@ -1183,7 +1183,7 @@ func Test_azureComputeDiscovery_keyURL(t *testing.T) {
 		{
 			name: "Empty keyURL",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				diskEncryptionSetID: encSetID2,
@@ -1199,7 +1199,7 @@ func Test_azureComputeDiscovery_keyURL(t *testing.T) {
 				diskEncryptionSetID: encSetID,
 			},
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want:    "https://keyvault1.vault.azure.net/keys/customer-key/6273gdb374jz789hjm17819283748382",
 			wantErr: assert.NoError,
@@ -1208,7 +1208,7 @@ func Test_azureComputeDiscovery_keyURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, _, err := d.keyURL(tt.args.diskEncryptionSetID)
 			if !tt.wantErr(t, err, fmt.Sprintf("keyURL(%v)", tt.args.diskEncryptionSetID)) {
@@ -1377,9 +1377,9 @@ func Test_automaticUpdates(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_handleWebApp(t *testing.T) {
+func Test_azureComputeCollector_handleWebApp(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 		clientWebApps  bool
 	}
 	type args struct {
@@ -1402,7 +1402,7 @@ func Test_azureComputeDiscovery_handleWebApp(t *testing.T) {
 		{
 			name: "Happy path: WebApp Windows",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 				clientWebApps:  true,
 			},
 			args: args{
@@ -1465,7 +1465,7 @@ func Test_azureComputeDiscovery_handleWebApp(t *testing.T) {
 		{
 			name: "Happy path: WebApp Linux",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 				clientWebApps:  true,
 			},
 			args: args{
@@ -1525,7 +1525,7 @@ func Test_azureComputeDiscovery_handleWebApp(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			// Set clients if needed
 			if tt.fields.clientWebApps {
@@ -1662,9 +1662,9 @@ func Test_getTransportEncryption(t *testing.T) {
 	}
 }
 
-func Test_azureComputeDiscovery_getResourceLoggingWebApp(t *testing.T) {
+func Test_azureComputeCollector_getResourceLoggingWebApp(t *testing.T) {
 	type fields struct {
-		azureDiscovery     *azureDiscovery
+		azureCollector     *azureCollector
 		defenderProperties map[string]*defenderProperties
 		clientWebApp       bool
 	}
@@ -1680,7 +1680,7 @@ func Test_azureComputeDiscovery_getResourceLoggingWebApp(t *testing.T) {
 		{
 			name: "Input empty",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				site: nil,
@@ -1690,7 +1690,7 @@ func Test_azureComputeDiscovery_getResourceLoggingWebApp(t *testing.T) {
 		{
 			name: "Happy path: logging disabled",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 				clientWebApp:   true,
 			},
 			args: args{
@@ -1712,7 +1712,7 @@ func Test_azureComputeDiscovery_getResourceLoggingWebApp(t *testing.T) {
 		{
 			name: "Happy path: logging enabled",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 				clientWebApp:   true,
 			},
 			args: args{
@@ -1734,7 +1734,7 @@ func Test_azureComputeDiscovery_getResourceLoggingWebApp(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 			d.defenderProperties = tt.fields.defenderProperties
 
 			// Set clients if needed

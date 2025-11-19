@@ -38,12 +38,12 @@ const (
 	ProviderOpenstack = "openstack"
 	ProviderCSAF      = "csaf"
 
-	// CloudCollectorStart is emitted at the start of a discovery run.
-	CloudCollectorStart DiscoveryEventType = iota
-	// CloudCollectorFinished is emitted at the end of a discovery run.
+	// CloudCollectorStart is emitted at the start of a collector run.
+	CloudCollectorStart CollectorEventType = iota
+	// CloudCollectorFinished is emitted at the end of a collector run.
 	CloudCollectorFinished
 
-	DefaultDiscoveryAutoStartFlag = true
+	DefaultCollectorAutoStartFlag = true
 
 	DefaultEvidenceStoreURL = "localhost:9092"
 )
@@ -59,7 +59,7 @@ var (
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
 type CloudCollectorConfig struct {
-	// provider is the list of cloud service providers to use for discovering resources.
+	// provider is the list of cloud service providers to use for collecting resources.
 	provider []string
 
 	// targetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
@@ -68,19 +68,19 @@ type CloudCollectorConfig struct {
 	// collectorToolID is the collector tool ID which is gathering the resources.
 	collectorToolID string
 
-	// collectorInterval is the interval at which discovery runs are scheduled.
+	// collectorInterval is the interval at which collector runs are scheduled.
 	collectorInterval time.Duration
 
 	//evStreamConfig holds the configuration for the evidence store stream.
 	evStreamConfig EvidenceStoreStreamConfig
 
-	// autoStart indicates whether the discovery should be automatically started when the service is initialized.
+	// autoStart indicates whether the collector should be automatically started when the service is initialized.
 	autoStart bool
 
-	// resourceGroup is the Azure resource group to discover resources from.
+	// resourceGroup is the Azure resource group to collect resources from.
 	resourceGroup string
 
-	// csafDomain is the domain used for CSAF trusted provider discovery.
+	// csafDomain is the domain used for CSAF trusted provider collector.
 	csafDomain string
 }
 
@@ -96,7 +96,7 @@ type EvidenceStoreStreamConfig struct {
 // func DefaultServiceSpec() launcher.ServiceSpec {
 // 	var providers []string
 
-// 	// If no CSPs for discovering are given, take all implemented discoverers
+// 	// If no CSPs for collecting are given, take all implemented collectors
 // 	if len(CollectorProviderFlag) == 0 {
 // 		providers = []string{ProviderAWS, ProviderAzure, ProviderK8S}
 // 	} else {
@@ -114,20 +114,20 @@ type EvidenceStoreStreamConfig struct {
 // 	)
 // }
 
-// DiscoveryEventType defines the event types for [DiscoveryEvent].
-type DiscoveryEventType int
+// CollectorEventType defines the event types for [CollectorEvent].
+type CollectorEventType int
 
-// DiscoveryEvent represents an event that is emitted if certain situations happen in the discoverer (defined by
-// [DiscoveryEventType]). Examples would be the start or the end of the discovery. We will potentially expand this in
+// CollectorEvent represents an event that is emitted if certain situations happen in the collector (defined by
+// [CollectorEventType]). Examples would be the start or the end of the collector. We will potentially expand this in
 // the future.
-type DiscoveryEvent struct {
-	Type            DiscoveryEventType
-	DiscovererName  string
-	DiscoveredItems int
-	Time            time.Time
+type CollectorEvent struct {
+	Type           CollectorEventType
+	CollectorName  string
+	CollectedItems int
+	Time           time.Time
 }
 
-// Service is an implementation of the Clouditor Discovery service (plus its experimental extensions). It should not be
+// Service is an implementation of the Clouditor Collector service (plus its experimental extensions). It should not be
 // used directly, but rather the NewService constructor should be used.
 type Service struct {
 	// evidenceStoreClient holds the client to communicate with the evidence store service.
@@ -142,14 +142,14 @@ type Service struct {
 	// streamMu is used to synchronize access to the evidence store stream.
 	streamMu sync.RWMutex
 
-	// scheduler is used to schedule periodic discovery runs.
+	// scheduler is used to schedule periodic collector runs.
 	scheduler *gocron.Scheduler
 
-	// collectors is the list of collectors to use for discovering resources.
+	// collectors is the list of collectors to use for collecting resources.
 	collectors []cloud.Collector
 
-	// Events is a channel that emits discovery events.
-	Events chan *DiscoveryEvent
+	// Events is a channel that emits collector events.
+	Events chan *CollectorEvent
 
 	// cloudConfig holds the configuration for the cloud collector.
 	cloudConfig CloudCollectorConfig
@@ -170,7 +170,7 @@ func WithEvidenceStoreAddress(target string, client *http.Client) service.Option
 	}
 }
 
-// WithTargetOfEvaluationID is an option to configure the target of evaluation ID for which resources will be discovered.
+// WithTargetOfEvaluationID is an option to configure the target of evaluation ID for which resources will be collected.
 func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
 		log.Info("Target of Evaluation ID is set", "targetOfEvaluationID", ID)
@@ -179,7 +179,7 @@ func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 	}
 }
 
-// WithCollectorToolID is an option to configure the collector tool ID that is used to discover resources.
+// WithCollectorToolID is an option to configure the collector tool ID that is used to collect resources.
 func WithCollectorToolID(ID string) service.Option[*Service] {
 	return func(svc *Service) {
 		log.Info("Evidence Collector Tool ID is set", "collectorToolID", ID)
@@ -196,7 +196,7 @@ func WithCollectorToolID(ID string) service.Option[*Service] {
 // 	}
 // }
 
-// WithProviders is an option to set providers for discovering
+// WithProviders is an option to set providers for collecting
 func WithProviders(providersList []string) service.Option[*Service] {
 	if len(providersList) == 0 {
 		log.Error("no providers given")
@@ -207,16 +207,16 @@ func WithProviders(providersList []string) service.Option[*Service] {
 	}
 }
 
-// WithAdditionalDiscoverers is an option to add additional discoverers for discovering. Note: These are added in
+// WithAdditionalCollectors is an option to add additional collectors for collecting. Note: These are added in
 // addition to the ones created by [WithProviders].
-func WithAdditionalDiscoverers(discoverers []cloud.Collector) service.Option[*Service] {
+func WithAdditionalCollectors(collectors []cloud.Collector) service.Option[*Service] {
 	return func(s *Service) {
-		s.collectors = append(s.collectors, discoverers...)
+		s.collectors = append(s.collectors, collectors...)
 	}
 }
 
-// WithDiscoveryInterval is an option to set the discovery interval. If not set, the discovery is set to 5 minutes.
-func WithDiscoveryInterval(interval time.Duration) service.Option[*Service] {
+// WithCollectorInterval is an option to set the collector interval. If not set, the collector is set to 5 minutes.
+func WithCollectorInterval(interval time.Duration) service.Option[*Service] {
 	return func(svc *Service) {
 		svc.cloudConfig.collectorInterval = interval
 	}
@@ -228,9 +228,9 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		// evidenceStoreStreams: api.NewStreamsOf(api.WithLogger[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest](log)),
 		// evidenceStore:        api.NewRPCConnection(EvidenceStoreURL), evidence.NewEvidenceStoreClient),
 		scheduler: gocron.NewScheduler(time.UTC),
-		Events:    make(chan *DiscoveryEvent),
+		Events:    make(chan *CollectorEvent),
 		cloudConfig: CloudCollectorConfig{
-			autoStart:            DefaultDiscoveryAutoStartFlag,
+			autoStart:            DefaultCollectorAutoStartFlag,
 			targetOfEvaluationID: config.DefaultTargetOfEvaluationID,
 			collectorToolID:      config.DefaultEvidenceCollectorToolID,
 			provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
@@ -238,7 +238,7 @@ func NewService(opts ...service.Option[*Service]) *Service {
 				targetAddress: DefaultEvidenceStoreURL,
 				client:        http.DefaultClient,
 			},
-			collectorInterval: 5 * time.Minute, // Default discovery interval is 5 minutes
+			collectorInterval: 5 * time.Minute, // Default collector interval is 5 minutes
 		},
 	}
 
@@ -256,14 +256,14 @@ func NewService(opts ...service.Option[*Service]) *Service {
 func (svc *Service) Init() {
 	var err error
 
-	// Automatically start the discovery, if we have this flag enabled
+	// Automatically start the collector, if we have this flag enabled
 	if svc.cloudConfig.autoStart {
 		go func() {
 			// TODO(all): Do we need that anymore?
 			// <-rest.GetReadyChannel()
 			err = svc.Start()
 			if err != nil {
-				log.Error("Could not automatically start discovery", tint.Err(err))
+				log.Error("Could not automatically start collector", tint.Err(err))
 			}
 		}()
 	}
@@ -274,17 +274,17 @@ func (svc *Service) Shutdown() {
 	svc.scheduler.Stop()
 }
 
-// Start starts discovery
+// Start starts collector
 func (svc *Service) Start() (err error) {
 	var (
-		optsAzure     = []azure.DiscoveryOption{}
-		optsOpenstack = []openstack.DiscoveryOption{}
+		optsAzure     = []azure.CollectorOption{}
+		optsOpenstack = []openstack.CollectorOption{}
 	)
 
-	log.Info("Starting discovery")
+	log.Info("Starting collector")
 	svc.scheduler.TagsUnique()
 
-	// Configure discoverers for given providers
+	// Configure collectors for given providers
 	for _, provider := range svc.cloudConfig.provider {
 		switch {
 		case provider == ProviderAzure:
@@ -296,11 +296,11 @@ func (svc *Service) Start() (err error) {
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
-			// Check if resource group is given and append to discoverer
+			// Check if resource group is given and append to collector
 			if svc.cloudConfig.resourceGroup != "" {
 				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.resourceGroup))
 			}
-			svc.collectors = append(svc.collectors, azure.NewAzureDiscovery(optsAzure...))
+			svc.collectors = append(svc.collectors, azure.NewAzureCollector(optsAzure...))
 		case provider == ProviderK8S:
 			k8sClient, err := k8s.AuthFromKubeConfig()
 			if err != nil {
@@ -309,9 +309,9 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			svc.collectors = append(svc.collectors,
-				k8s.NewKubernetesComputeDiscovery(k8sClient, svc.cloudConfig.targetOfEvaluationID),
-				k8s.NewKubernetesNetworkDiscovery(k8sClient, svc.cloudConfig.targetOfEvaluationID),
-				k8s.NewKubernetesStorageDiscovery(k8sClient, svc.cloudConfig.targetOfEvaluationID))
+				k8s.NewKubernetesComputeCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID),
+				k8s.NewKubernetesNetworkCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID),
+				k8s.NewKubernetesStorageCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID))
 		case provider == ProviderAWS:
 			awsClient, err := aws.NewClient()
 			if err != nil {
@@ -320,8 +320,8 @@ func (svc *Service) Start() (err error) {
 				return err
 			}
 			svc.collectors = append(svc.collectors,
-				aws.NewAwsStorageDiscovery(awsClient, svc.cloudConfig.targetOfEvaluationID),
-				aws.NewAwsComputeDiscovery(awsClient, svc.cloudConfig.targetOfEvaluationID))
+				aws.NewAwsStorageCollector(awsClient, svc.cloudConfig.targetOfEvaluationID),
+				aws.NewAwsComputeCollector(awsClient, svc.cloudConfig.targetOfEvaluationID))
 		case provider == ProviderOpenstack:
 			authorizer, err := openstack.NewAuthorizer()
 			if err != nil {
@@ -331,17 +331,17 @@ func (svc *Service) Start() (err error) {
 			}
 			// Add authorizer and TargetOfEvaluationID
 			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
-			svc.collectors = append(svc.collectors, openstack.NewOpenstackDiscovery(optsOpenstack...))
+			svc.collectors = append(svc.collectors, openstack.NewOpenstackCollector(optsOpenstack...))
 		case provider == ProviderCSAF:
 			var (
 				domain string
-				opts   []csaf.DiscoveryOption
+				opts   []csaf.CollectorOption
 			)
 			domain = svc.cloudConfig.csafDomain
 			if domain != "" {
 				opts = append(opts, csaf.WithProviderDomain(domain))
 			}
-			svc.collectors = append(svc.collectors, csaf.NewTrustedProviderDiscovery(opts...))
+			svc.collectors = append(svc.collectors, csaf.NewTrustedProviderCollector(opts...))
 		default:
 			newError := fmt.Errorf("provider %s not known", provider)
 			log.Error("provider not known", "provider", provider, "error", newError)
@@ -355,7 +355,7 @@ func (svc *Service) Start() (err error) {
 		_, err = svc.scheduler.
 			Every(svc.cloudConfig.collectorInterval).
 			Tag(v.Name()).
-			Do(svc.StartDiscovery, v)
+			Do(svc.StartCollector, v)
 		if err != nil {
 			newError := fmt.Errorf("could not schedule job for {%s}: %v", v.Name(), err)
 			log.Error("schedule error", "collector", v.Name(), "error", newError)
@@ -368,34 +368,34 @@ func (svc *Service) Start() (err error) {
 	return nil
 }
 
-func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
+func (svc *Service) StartCollector(collector cloud.Collector) {
 	var (
 		err  error
 		list []ontology.IsResource
 	)
 
 	go func() {
-		svc.Events <- &DiscoveryEvent{
-			Type:           CloudCollectorStart,
-			DiscovererName: discoverer.Name(),
-			Time:           time.Now(),
+		svc.Events <- &CollectorEvent{
+			Type:          CloudCollectorStart,
+			CollectorName: collector.Name(),
+			Time:          time.Now(),
 		}
 	}()
 
-	list, err = discoverer.List()
+	list, err = collector.List()
 
 	if err != nil {
-		log.Error("Could not retrieve resources from discoverer", "discoverer", discoverer.Name(), tint.Err(err))
+		log.Error("Could not retrieve resources from collector", "collector", collector.Name(), tint.Err(err))
 		return
 	}
 
-	// Notify event listeners that the discoverer is finished
+	// Notify event listeners that the collector is finished
 	go func() {
-		svc.Events <- &DiscoveryEvent{
-			Type:            CloudCollectorFinished,
-			DiscovererName:  discoverer.Name(),
-			DiscoveredItems: len(list),
-			Time:            time.Now(),
+		svc.Events <- &CollectorEvent{
+			Type:           CloudCollectorFinished,
+			CollectorName:  collector.Name(),
+			CollectedItems: len(list),
+			Time:           time.Now(),
 		}
 	}()
 
@@ -429,7 +429,7 @@ func (svc *Service) StartDiscovery(discoverer cloud.Collector) {
 }
 
 // GetTargetOfEvaluationId implements TargetOfEvaluationRequest for this service. This is a little trick, so that we can call
-// CheckAccess directly on the service. This is necessary because the discovery service itself is tied to a specific
+// CheckAccess directly on the service. This is necessary because the collector service itself is tied to a specific
 // target of evaluation ID, instead of the individual requests that are made against the service.
 func (svc *Service) GetTargetOfEvaluationId() string {
 	return svc.cloudConfig.targetOfEvaluationID

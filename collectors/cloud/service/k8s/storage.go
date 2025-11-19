@@ -13,21 +13,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type k8sStorageDiscovery struct{ k8sDiscovery }
+type k8sStorageCollector struct{ k8sCollector }
 
-func NewKubernetesStorageDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
-	return &k8sStorageDiscovery{k8sDiscovery{intf, TargetOfEvaluationID}}
+func NewKubernetesStorageCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
+	return &k8sStorageCollector{k8sCollector{intf, TargetOfEvaluationID}}
 }
 
-func (*k8sStorageDiscovery) Name() string {
+func (*k8sStorageCollector) Name() string {
 	return "Kubernetes Storage"
 }
 
-func (*k8sStorageDiscovery) Description() string {
-	return "Discover Kubernetes storage resources."
+func (*k8sStorageCollector) Description() string {
+	return "Collect Kubernetes storage resources."
 }
 
-func (d *k8sStorageDiscovery) List() ([]ontology.IsResource, error) {
+func (d *k8sStorageCollector) List() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// Get persistent volumes
@@ -53,7 +53,7 @@ func (d *k8sStorageDiscovery) List() ([]ontology.IsResource, error) {
 }
 
 // handlePVC returns all PersistentVolumes
-func (d *k8sStorageDiscovery) handlePV(pv *v1.PersistentVolume) ontology.IsResource {
+func (d *k8sStorageCollector) handlePV(pv *v1.PersistentVolume) ontology.IsResource {
 	vs := pv.Spec.PersistentVolumeSource
 
 	// TODO(all): Define all volume types

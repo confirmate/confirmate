@@ -16,7 +16,7 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 )
 
-func TestNewKubernetesComputeDiscovery(t *testing.T) {
+func TestNewKubernetesComputeCollector(t *testing.T) {
 	type args struct {
 		intf                 kubernetes.Interface
 		TargetOfEvaluationID string
@@ -28,8 +28,8 @@ func TestNewKubernetesComputeDiscovery(t *testing.T) {
 	}{
 		{
 			name: "empty input",
-			want: &k8sComputeDiscovery{
-				k8sDiscovery: k8sDiscovery{},
+			want: &k8sComputeCollector{
+				k8sCollector: k8sCollector{},
 			},
 		},
 		{
@@ -38,8 +38,8 @@ func TestNewKubernetesComputeDiscovery(t *testing.T) {
 				intf:                 &fake.Clientset{},
 				TargetOfEvaluationID: testdata.MockTargetOfEvaluationID1,
 			},
-			want: &k8sComputeDiscovery{
-				k8sDiscovery: k8sDiscovery{
+			want: &k8sComputeCollector{
+				k8sCollector: k8sCollector{
 					intf: &fake.Clientset{},
 					ctID: testdata.MockTargetOfEvaluationID1,
 				},
@@ -48,14 +48,14 @@ func TestNewKubernetesComputeDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewKubernetesComputeDiscovery(tt.args.intf, tt.args.TargetOfEvaluationID)
+			got := NewKubernetesComputeCollector(tt.args.intf, tt.args.TargetOfEvaluationID)
 			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
 			assert.Equal(t, "Kubernetes Compute", got.Name())
 		})
 	}
 }
 
-func Test_k8sComputeDiscovery_List(t *testing.T) {
+func Test_k8sComputeCollector_List(t *testing.T) {
 	var (
 		volumeName      = "my-volume"
 		diskName        = "my-disk"
@@ -94,7 +94,7 @@ func Test_k8sComputeDiscovery_List(t *testing.T) {
 	}
 
 	type fields struct {
-		discovery cloud.Collector
+		collector cloud.Collector
 	}
 	tests := []struct {
 		name    string
@@ -105,7 +105,7 @@ func Test_k8sComputeDiscovery_List(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				NewKubernetesComputeDiscovery(client, testdata.MockTargetOfEvaluationID1),
+				NewKubernetesComputeCollector(client, testdata.MockTargetOfEvaluationID1),
 			},
 			want: func(t *testing.T, got []ontology.IsResource) bool {
 				container, ok := got[0].(*ontology.Container)
@@ -147,7 +147,7 @@ func Test_k8sComputeDiscovery_List(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.discovery
+			d := tt.fields.collector
 
 			got, err := d.List()
 			tt.wantErr(t, err)
@@ -159,9 +159,9 @@ func Test_k8sComputeDiscovery_List(t *testing.T) {
 	}
 }
 
-func Test_k8sComputeDiscovery_handlePodVolume(t *testing.T) {
+func Test_k8sComputeCollector_handlePodVolume(t *testing.T) {
 	type fields struct {
-		k8sDiscovery k8sDiscovery
+		k8sCollector k8sCollector
 	}
 	type args struct {
 		pod *corev1.Pod
@@ -202,8 +202,8 @@ func Test_k8sComputeDiscovery_handlePodVolume(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &k8sComputeDiscovery{
-				k8sDiscovery: tt.fields.k8sDiscovery,
+			d := &k8sComputeCollector{
+				k8sCollector: tt.fields.k8sCollector,
 			}
 
 			got := d.handlePodVolume(tt.args.pod)

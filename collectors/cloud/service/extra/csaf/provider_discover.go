@@ -12,19 +12,19 @@ import (
 	csafutil "github.com/gocsaf/csaf/v3/util"
 )
 
-func (d *csafDiscovery) discoverProviders() (providers []ontology.IsResource, err error) {
+func (d *csafCollector) collectProviders() (providers []ontology.IsResource, err error) {
 	loader := csaf.NewProviderMetadataLoader(d.client)
 	lpmds := loader.Enumerate(d.domain)
 
 	for _, lpmd := range lpmds {
-		// Handle the single PMD files that were discovered It can happen that the PMD from
+		// Handle the single PMD files that were collected It can happen that the PMD from
 		// the well-known URL and the first one defined in the security.txt are the same,
 		// so the evidence would be created two times
 		res, err := d.handleProvider(lpmd)
 		if err != nil {
-			return nil, fmt.Errorf("could not discover security provider: %w", err)
+			return nil, fmt.Errorf("could not collect security provider: %w", err)
 		}
-		// Add all discovered resources to the providers
+		// Add all collected resources to the providers
 		providers = append(providers, res...)
 	}
 
@@ -34,7 +34,7 @@ func (d *csafDiscovery) discoverProviders() (providers []ontology.IsResource, er
 // handleProvider tries to convert a [csaf.LoadedProviderMetadata] into an
 // [ontology.SecurityAdvisoryService] as well as associated resources, such as
 // its metadata document and signing keys.
-func (d *csafDiscovery) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resources []ontology.IsResource, err error) {
+func (d *csafCollector) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resources []ontology.IsResource, err error) {
 	if !lpmd.Valid() {
 		// TODO(oxisto): Even if the PMD is invalid, we still need to create an evidence for it!
 		return nil, fmt.Errorf("could not load provider-metadata.json from %s", d.domain)
@@ -71,13 +71,13 @@ func (d *csafDiscovery) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resou
 	// TODO(oxisto): find a sensible ID instead of this one
 	serviceId := lpmd.URL + "/service"
 
-	// Discover keys by looping through the keys provided in the PMD
-	keys, keyring := d.discoverKeys(pmd.PGPKeys, serviceId)
+	// Collect keys by looping through the keys provided in the PMD
+	keys, keyring := d.collectKeys(pmd.PGPKeys, serviceId)
 
-	// Discover advisory documents from this provider
-	securityAdvisoryDocuments, err := d.discoverSecurityAdvisories(lpmd, keyring, serviceId)
+	// Collect advisory documents from this provider
+	securityAdvisoryDocuments, err := d.collectSecurityAdvisories(lpmd, keyring, serviceId)
 	if err != nil {
-		return nil, fmt.Errorf("could not discover security advisories: %w", err)
+		return nil, fmt.Errorf("could not collect security advisories: %w", err)
 	}
 
 	var provider = &ontology.SecurityAdvisoryService{

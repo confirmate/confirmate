@@ -12,7 +12,7 @@ import (
 )
 
 // handleCluster creates a container resource based on the CSC Hub Ontology
-func (d *openstackDiscovery) handleCluster(cluster *clusters.Cluster) (ontology.IsResource, error) {
+func (d *openstackCollector) handleCluster(cluster *clusters.Cluster) (ontology.IsResource, error) {
 	r := &ontology.ContainerOrchestration{
 		Id:           cluster.UUID,
 		Name:         cluster.Name,

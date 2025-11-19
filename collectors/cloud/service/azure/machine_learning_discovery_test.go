@@ -10,9 +10,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 )
 
-func Test_azureDiscovery_discoverMLWorkspaces(t *testing.T) {
+func Test_azureCollector_collectMLWorkspaces(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -23,7 +23,7 @@ func Test_azureDiscovery_discoverMLWorkspaces(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(nil),
+				azureCollector: NewMockAzureCollector(nil),
 			},
 			want: assert.Nil[[]ontology.IsResource],
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
@@ -33,7 +33,7 @@ func Test_azureDiscovery_discoverMLWorkspaces(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: func(t *testing.T, got []ontology.IsResource) bool {
 				assert.Equal(t, got[0].GetName(), "compute1")
@@ -45,9 +45,9 @@ func Test_azureDiscovery_discoverMLWorkspaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverMLWorkspaces()
+			got, err := d.collectMLWorkspaces()
 
 			tt.wantErr(t, err)
 			tt.want(t, got)
@@ -55,9 +55,9 @@ func Test_azureDiscovery_discoverMLWorkspaces(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_discoverMLCompute(t *testing.T) {
+func Test_azureCollector_collectMLCompute(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		rg        string
@@ -73,7 +73,7 @@ func Test_azureDiscovery_discoverMLCompute(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(nil),
+				azureCollector: NewMockAzureCollector(nil),
 			},
 			args: args{
 				rg: "rg",
@@ -89,7 +89,7 @@ func Test_azureDiscovery_discoverMLCompute(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				rg: "rg1",
@@ -108,9 +108,9 @@ func Test_azureDiscovery_discoverMLCompute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverMLCompute(tt.args.rg, tt.args.workspace)
+			got, err := d.collectMLCompute(tt.args.rg, tt.args.workspace)
 
 			tt.wantErr(t, err)
 			tt.want(t, got)

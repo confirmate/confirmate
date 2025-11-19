@@ -17,20 +17,20 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
-func Test_azureDiscovery_discoverBackupVaults(t *testing.T) {
+func Test_azureCollector_collectBackupVaults(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
 		fields  fields
-		want    assert.Want[*azureDiscovery]
+		want    assert.Want[*azureCollector]
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
-			name: "Backup vaults already discovered",
+			name: "Backup vaults already collected",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					backupMap: map[string]*backup{
 						"testBackup": {
 							backup:         make(map[string][]*ontology.Backup),
@@ -39,15 +39,15 @@ func Test_azureDiscovery_discoverBackupVaults(t *testing.T) {
 					},
 				},
 			},
-			want:    assert.NotNil[*azureDiscovery],
+			want:    assert.NotNil[*azureCollector],
 			wantErr: assert.NoError,
 		},
 		{
 			name: "Happy path: storage account",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got *azureDiscovery) bool {
+			want: func(t *testing.T, got *azureCollector) bool {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration7Days),
@@ -69,9 +69,9 @@ func Test_azureDiscovery_discoverBackupVaults(t *testing.T) {
 		{
 			name: "Happy path: compute disk",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got *azureDiscovery) bool {
+			want: func(t *testing.T, got *azureCollector) bool {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration30Days),
@@ -93,18 +93,18 @@ func Test_azureDiscovery_discoverBackupVaults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			err := d.discoverBackupVaults()
+			err := d.collectBackupVaults()
 			tt.wantErr(t, err)
 			tt.want(t, d)
 		})
 	}
 }
 
-func Test_azureDiscovery_discoverBackupInstances(t *testing.T) {
+func Test_azureCollector_collectBackupInstances(t *testing.T) {
 	type fields struct {
-		azureDiscovery       *azureDiscovery
+		azureCollector       *azureCollector
 		clientBackupInstance bool
 	}
 	type args struct {
@@ -129,7 +129,7 @@ func Test_azureDiscovery_discoverBackupInstances(t *testing.T) {
 		{
 			name: "defenderClient not set",
 			fields: fields{
-				azureDiscovery:       NewMockAzureDiscovery(nil),
+				azureCollector:       NewMockAzureCollector(nil),
 				clientBackupInstance: true,
 			},
 			args: args{
@@ -144,7 +144,7 @@ func Test_azureDiscovery_discoverBackupInstances(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery:       NewMockAzureDiscovery(newMockSender()),
+				azureCollector:       NewMockAzureCollector(newMockSender()),
 				clientBackupInstance: true,
 			},
 			args: args{
@@ -184,13 +184,13 @@ func Test_azureDiscovery_discoverBackupInstances(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			if tt.fields.clientBackupInstance {
 				// initialize backup instances client
 				_ = d.initBackupInstancesClient()
 			}
-			got, err := d.discoverBackupInstances(tt.args.resourceGroup, tt.args.vaultName)
+			got, err := d.collectBackupInstances(tt.args.resourceGroup, tt.args.vaultName)
 
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.want, got)
@@ -198,7 +198,7 @@ func Test_azureDiscovery_discoverBackupInstances(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_handleInstances(t *testing.T) {
+func Test_azureCollector_handleInstances(t *testing.T) {
 	type fields struct {
 		isAuthorized  bool
 		sub           *armsubscription.Subscription
@@ -297,7 +297,7 @@ func Test_azureDiscovery_handleInstances(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &azureDiscovery{
+			d := &azureCollector{
 				isAuthorized:  tt.fields.isAuthorized,
 				sub:           tt.fields.sub,
 				cred:          tt.fields.cred,

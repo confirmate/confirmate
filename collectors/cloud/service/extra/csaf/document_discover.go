@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (d *csafDiscovery) discoverSecurityAdvisories(md *csaf.LoadedProviderMetadata, keyring openpgp.EntityList, parentId string) (documents []ontology.IsResource, err error) {
+func (d *csafCollector) collectSecurityAdvisories(md *csaf.LoadedProviderMetadata, keyring openpgp.EntityList, parentId string) (documents []ontology.IsResource, err error) {
 	baseURL, err := url.Parse(md.URL)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse base URL: %w", err)
@@ -42,7 +42,7 @@ func (d *csafDiscovery) discoverSecurityAdvisories(md *csaf.LoadedProviderMetada
 	return
 }
 
-func (d *csafDiscovery) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFile, keyring openpgp.EntityList, parentId string) (doc *ontology.SecurityAdvisoryDocument, err error) {
+func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFile, keyring openpgp.EntityList, parentId string) (doc *ontology.SecurityAdvisoryDocument, err error) {
 	// Next, we actually need to retrieve the document to check its validity
 	res, err := d.client.Get(file.URL())
 	if err != nil {

@@ -1,4 +1,4 @@
-// package openstack contains a Confirmate discoverer for OpenStack-based cloud environments.
+// package openstack contains a Confirmate collector for OpenStack-based cloud environments.
 package openstack
 
 import (
@@ -32,7 +32,7 @@ var (
 	ErrGettingAuthOptionsFromEnv = errors.New("error getting auth options from environment")
 )
 
-type openstackDiscovery struct {
+type openstackCollector struct {
 	ctID     string
 	clients  clients
 	authOpts *gophercloud.AuthOptions
@@ -61,44 +61,44 @@ type clients struct {
 	clusterClient  *gophercloud.ServiceClient
 }
 
-func (*openstackDiscovery) Name() string {
+func (*openstackCollector) Name() string {
 	return "OpenStack"
 }
 
-func (*openstackDiscovery) Description() string {
-	return "Discovery OpenStack."
+func (*openstackCollector) Description() string {
+	return "Collector OpenStack."
 }
 
-func (d *openstackDiscovery) TargetOfEvaluationID() string {
+func (d *openstackCollector) TargetOfEvaluationID() string {
 	return d.ctID
 }
 
-type DiscoveryOption func(d *openstackDiscovery)
+type CollectorOption func(d *openstackCollector)
 
-func WithTargetOfEvaluationID(ctID string) DiscoveryOption {
-	return func(d *openstackDiscovery) {
+func WithTargetOfEvaluationID(ctID string) CollectorOption {
+	return func(d *openstackCollector) {
 		d.ctID = ctID
 	}
 }
 
 // WithAuthorizer is an option to set the authentication options
-func WithAuthorizer(o gophercloud.AuthOptions) DiscoveryOption {
-	return func(d *openstackDiscovery) {
+func WithAuthorizer(o gophercloud.AuthOptions) CollectorOption {
+	return func(d *openstackCollector) {
 		d.authOpts = util.Ref(o)
 	}
 }
 
 func init() {
-	log = logconfig.GetLogger().With("component", "openstack-discovery")
+	log = logconfig.GetLogger().With("component", "openstack-collector")
 }
 
-func NewOpenstackDiscovery(opts ...DiscoveryOption) cloud.Collector {
+func NewOpenstackCollector(opts ...CollectorOption) cloud.Collector {
 	region := os.Getenv(RegionName)
 	if region == "" {
 		region = "unknown"
 	}
 
-	d := &openstackDiscovery{
+	d := &openstackCollector{
 		ctID:   config.DefaultTargetOfEvaluationID,
 		region: os.Getenv(RegionName),
 		domain: &domain{
@@ -114,7 +114,7 @@ func NewOpenstackDiscovery(opts ...DiscoveryOption) cloud.Collector {
 		opt(d)
 	}
 
-	// WithAuthorizer is mandatory, since it cannot be checked directly whether WithAuthorizer was passed, we check if authOpts is set before returning the discoverer
+	// WithAuthorizer is mandatory, since it cannot be checked directly whether WithAuthorizer was passed, we check if authOpts is set before returning the collector
 	if d.authOpts == nil {
 		return nil
 	}
@@ -127,7 +127,7 @@ func NewOpenstackDiscovery(opts ...DiscoveryOption) cloud.Collector {
 // * network client
 // * block storage client
 // * identity client
-func (d *openstackDiscovery) authorize() (err error) {
+func (d *openstackCollector) authorize() (err error) {
 	if d.clients.provider == nil {
 		d.clients.provider, err = openstack.AuthenticatedClient(context.Background(), util.Deref(d.authOpts))
 		if err != nil {
@@ -199,13 +199,13 @@ func NewAuthorizer() (gophercloud.AuthOptions, error) {
 
 }
 
-// List discovers the following OpenStack resource types and translates them into the CSC Hub Ontology:
+// List collects the following OpenStack resource types and translates them into the CSC Hub Ontology:
 // * Servers
 // * Network interfaces
 // * Block storages
 // * Domains
 // * Projects
-func (d *openstackDiscovery) List() (list []ontology.IsResource, err error) {
+func (d *openstackCollector) List() (list []ontology.IsResource, err error) {
 	var (
 		servers  []ontology.IsResource
 		networks []ontology.IsResource
@@ -220,45 +220,45 @@ func (d *openstackDiscovery) List() (list []ontology.IsResource, err error) {
 		return nil, fmt.Errorf("could not authorize openstack: %w", err)
 	}
 
-	// Discover servers
-	servers, err = d.discoverServer()
+	// Collect servers
+	servers, err = d.collectServer()
 	if err != nil {
-		log.Error("could not discover servers", tint.Err(err))
+		log.Error("could not collect servers", tint.Err(err))
 	}
 	list = append(list, servers...)
 
-	// Discover network interfaces
-	networks, err = d.discoverNetworkInterfaces()
+	// Collect network interfaces
+	networks, err = d.collectNetworkInterfaces()
 	if err != nil {
-		log.Error("could not discover network interfaces", tint.Err(err))
+		log.Error("could not collect network interfaces", tint.Err(err))
 	}
 	list = append(list, networks...)
 
-	// Discover block storage
-	storages, err = d.discoverBlockStorage()
+	// Collect block storage
+	storages, err = d.collectBlockStorage()
 	if err != nil {
-		log.Error("could not discover block storage", tint.Err(err))
+		log.Error("could not collect block storage", tint.Err(err))
 	}
 	list = append(list, storages...)
 
-	// Discover clusters
-	clusters, err = d.discoverCluster()
+	// Collect clusters
+	clusters, err = d.collectCluster()
 	if err != nil {
-		log.Error("could not discover clusters", tint.Err(err))
+		log.Error("could not collect clusters", tint.Err(err))
 	}
 	list = append(list, clusters...)
 
-	// Discover project resources
-	projects, err = d.discoverProjects()
+	// Collect project resources
+	projects, err = d.collectProjects()
 	if err != nil {
-		log.Error("could not discover projects/tenants", tint.Err(err))
+		log.Error("could not collect projects/tenants", tint.Err(err))
 	}
 	list = append(list, projects...)
 
-	// Discover domains resource
-	domains, err = d.discoverDomains()
+	// Collect domains resource
+	domains, err = d.collectDomains()
 	if err != nil {
-		log.Error("could not discover domains", tint.Err(err))
+		log.Error("could not collect domains", tint.Err(err))
 	}
 	list = append(list, domains...)
 
@@ -277,7 +277,7 @@ type ExtractorFunc[T any] func(r pagination.Page) ([]T, error)
 // - a handler which converts them into an appropriate CSC Hub Ontology object,
 // - an extractor that extracts the results into gophercloud specific objects and
 // - optional options
-func genericList[T any, O any, R ontology.IsResource](d *openstackDiscovery,
+func genericList[T any, O any, R ontology.IsResource](d *openstackCollector,
 	clientGetter ClientFunc,
 	l ListFunc[O],
 	handler HandlerFunc[T, R],

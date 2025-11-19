@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func Test_openstackDiscovery_discoverNetworkInterfaces(t *testing.T) {
+func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
 	testhelper.SetupHTTP()
 	defer testhelper.TeardownHTTP()
 	openstacktest.HandleNetworkListSuccessfully(t)
@@ -84,7 +84,7 @@ func Test_openstackDiscovery_discoverNetworkInterfaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -92,7 +92,7 @@ func Test_openstackDiscovery_discoverNetworkInterfaces(t *testing.T) {
 				domain:   tt.fields.domain,
 				project:  tt.fields.project,
 			}
-			gotList, err := d.discoverNetworkInterfaces()
+			gotList, err := d.collectNetworkInterfaces()
 
 			tt.wantList(t, gotList)
 			tt.wantErr(t, err)

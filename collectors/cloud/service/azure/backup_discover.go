@@ -13,12 +13,12 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-// discoverBackupVaults receives all backup vaults in the subscription.
-// Since the backups for storage and compute are discovered together, the discovery is performed here and results are stored in the azureDiscovery receiver.
-func (d *azureDiscovery) discoverBackupVaults() error {
+// collectBackupVaults receives all backup vaults in the subscription.
+// Since the backups for storage and compute are collected together, the collector is performed here and results are stored in the azureCollector receiver.
+func (d *azureCollector) collectBackupVaults() error {
 
 	if len(d.backupMap) > 0 {
-		log.Debug("Backup Vaults already discovered.")
+		log.Debug("Backup Vaults already collected.")
 		return nil
 	}
 
@@ -48,9 +48,9 @@ func (d *azureDiscovery) discoverBackupVaults() error {
 			return res.Value
 		},
 		func(vault *armdataprotection.BackupVaultResource) error {
-			instances, err := d.discoverBackupInstances(resourceGroupName(util.Deref(vault.ID)), util.Deref(vault.Name))
+			instances, err := d.collectBackupInstances(resourceGroupName(util.Deref(vault.ID)), util.Deref(vault.Name))
 			if err != nil {
-				err := fmt.Errorf("could not discover backup instances: %v", err)
+				err := fmt.Errorf("could not collect backup instances: %v", err)
 				return err
 			}
 
@@ -110,9 +110,9 @@ func (d *azureDiscovery) discoverBackupVaults() error {
 	return nil
 }
 
-// discoverBackupInstances retrieves the instances in a given backup vault.
+// collectBackupInstances retrieves the instances in a given backup vault.
 // Note: It is only possible to backup a storage account with all containers in it.
-func (d *azureDiscovery) discoverBackupInstances(resourceGroup, vaultName string) ([]*armdataprotection.BackupInstanceResource, error) {
+func (d *azureCollector) collectBackupInstances(resourceGroup, vaultName string) ([]*armdataprotection.BackupInstanceResource, error) {
 	var (
 		list armdataprotection.BackupInstancesClientListResponse
 		err  error

@@ -10,7 +10,7 @@ import (
 )
 
 // handleResourceGroup returns a [ontology.ResourceGroup] out of an existing [armresources.ResourceGroup].
-func (d *azureDiscovery) handleResourceGroup(rg *armresources.ResourceGroup) ontology.IsResource {
+func (d *azureCollector) handleResourceGroup(rg *armresources.ResourceGroup) ontology.IsResource {
 	return &ontology.ResourceGroup{
 		Id:          resourceID(rg.ID),
 		Name:        util.Deref(rg.Name),
@@ -22,7 +22,7 @@ func (d *azureDiscovery) handleResourceGroup(rg *armresources.ResourceGroup) ont
 }
 
 // handleSubscription returns a [ontology.Account] out of an existing [armsubscription.Subscription].
-func (d *azureDiscovery) handleSubscription(s *armsubscription.Subscription) *ontology.Account {
+func (d *azureCollector) handleSubscription(s *armsubscription.Subscription) *ontology.Account {
 	return &ontology.Account{
 		Id:           resourceID(s.ID),
 		Name:         util.Deref(s.DisplayName),

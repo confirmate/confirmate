@@ -22,8 +22,8 @@ var (
 	ErrBackupStorageNotAvailable = errors.New("backup storages not available")
 )
 
-// discoverCosmosDB discovers Cosmos DB accounts
-func (d *azureDiscovery) discoverCosmosDB() ([]ontology.IsResource, error) {
+// collectCosmosDB collects Cosmos DB accounts
+func (d *azureCollector) collectCosmosDB() ([]ontology.IsResource, error) {
 	var (
 		list []ontology.IsResource
 		err  error
@@ -34,7 +34,7 @@ func (d *azureDiscovery) discoverCosmosDB() ([]ontology.IsResource, error) {
 		return nil, err
 	}
 
-	// Discover Cosmos DB
+	// Collect Cosmos DB
 	err = listPager(d,
 		d.clients.cosmosDBClient.NewListPager,
 		d.clients.cosmosDBClient.NewListByResourceGroupPager,
@@ -61,8 +61,8 @@ func (d *azureDiscovery) discoverCosmosDB() ([]ontology.IsResource, error) {
 	return list, nil
 }
 
-// discoverMongoDBDatabases returns a list of Mongo DB databases for a specific Mongo DB account
-func (d *azureDiscovery) discoverMongoDBDatabases(account *armcosmos.DatabaseAccountGetResults, atRestEnc *ontology.AtRestEncryption) []ontology.IsResource {
+// collectMongoDBDatabases returns a list of Mongo DB databases for a specific Mongo DB account
+func (d *azureCollector) collectMongoDBDatabases(account *armcosmos.DatabaseAccountGetResults, atRestEnc *ontology.AtRestEncryption) []ontology.IsResource {
 	var (
 		list []ontology.IsResource
 		err  error
@@ -73,7 +73,7 @@ func (d *azureDiscovery) discoverMongoDBDatabases(account *armcosmos.DatabaseAcc
 		return nil
 	}
 
-	// Discover Mongo DB databases
+	// Collect Mongo DB databases
 	serverlistPager := d.clients.mongoDBResourcesClient.NewListMongoDBDatabasesPager(resourceGroupName(util.Deref(account.ID)), *account.Name, &armcosmos.MongoDBResourcesClientListMongoDBDatabasesOptions{})
 	for serverlistPager.More() {
 		pageResponse, err := serverlistPager.NextPage(context.TODO())
@@ -101,8 +101,8 @@ func (d *azureDiscovery) discoverMongoDBDatabases(account *armcosmos.DatabaseAcc
 	return list
 }
 
-// discoverSqlServers discovers the sql server and databases
-func (d *azureDiscovery) discoverSqlServers() ([]ontology.IsResource, error) {
+// collectSqlServers collects the sql server and databases
+func (d *azureCollector) collectSqlServers() ([]ontology.IsResource, error) {
 	var (
 		list []ontology.IsResource
 		err  error
@@ -113,7 +113,7 @@ func (d *azureDiscovery) discoverSqlServers() ([]ontology.IsResource, error) {
 		return nil, err
 	}
 
-	// Discover sql server
+	// Collect sql server
 	err = listPager(d,
 		d.clients.sqlServersClient.NewListPager,
 		d.clients.sqlServersClient.NewListByResourceGroupPager,
@@ -141,7 +141,7 @@ func (d *azureDiscovery) discoverSqlServers() ([]ontology.IsResource, error) {
 }
 
 // getSqlDBs returns a list of SQL databases for a specific SQL account
-func (d *azureDiscovery) getSqlDBs(server *armsql.Server) ([]ontology.IsResource, []*ontology.AnomalyDetection) {
+func (d *azureCollector) getSqlDBs(server *armsql.Server) ([]ontology.IsResource, []*ontology.AnomalyDetection) {
 	var (
 		list                 []ontology.IsResource
 		anomalyDetectionList []*ontology.AnomalyDetection
@@ -203,7 +203,7 @@ func (d *azureDiscovery) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 	return list, anomalyDetectionList
 }
 
-func (d *azureDiscovery) discoverStorageAccounts() ([]ontology.IsResource, error) {
+func (d *azureCollector) collectStorageAccounts() ([]ontology.IsResource, error) {
 	var storageResourcesList []ontology.IsResource
 
 	// initialize backup policies client
@@ -236,13 +236,13 @@ func (d *azureDiscovery) discoverStorageAccounts() ([]ontology.IsResource, error
 		return nil, err
 	}
 
-	// Discover backup vaults
-	err := d.discoverBackupVaults()
+	// Collect backup vaults
+	err := d.collectBackupVaults()
 	if err != nil {
-		log.Error("could not discover backup vaults", tint.Err(err))
+		log.Error("could not collect backup vaults", tint.Err(err))
 	}
 
-	// Discover object and file storages
+	// Collect object and file storages
 	err = listPager(d,
 		d.clients.accountsClient.NewListPager,
 		d.clients.accountsClient.NewListByResourceGroupPager,
@@ -256,14 +256,14 @@ func (d *azureDiscovery) discoverStorageAccounts() ([]ontology.IsResource, error
 			// Get activity logging information
 			activityLoggingAccount, activityLoggingBlob, activityLoggingFile, _, rawAccountActivityLogging, rawBlobActivityLogging, _, rawFileActivityLogging := d.getActivityLogging(account)
 
-			// Discover object storages
-			objectStorages, err := d.discoverObjectStorages(account, activityLoggingBlob, rawBlobActivityLogging)
+			// Collect object storages
+			objectStorages, err := d.collectObjectStorages(account, activityLoggingBlob, rawBlobActivityLogging)
 			if err != nil {
 				return fmt.Errorf("could not handle object storages: %w", err)
 			}
 
-			// Discover file storages
-			fileStorages, err := d.discoverFileStorages(account, activityLoggingFile, rawFileActivityLogging)
+			// Collect file storages
+			fileStorages, err := d.collectFileStorages(account, activityLoggingFile, rawFileActivityLogging)
 			if err != nil {
 				return fmt.Errorf("could not handle file storages: %w", err)
 			}
@@ -293,7 +293,7 @@ func (d *azureDiscovery) discoverStorageAccounts() ([]ontology.IsResource, error
 	return storageResourcesList, nil
 }
 
-func (d *azureDiscovery) discoverFileStorages(account *armstorage.Account, activityLogging *ontology.ActivityLogging, rawActivityLogging string) ([]ontology.IsResource, error) {
+func (d *azureCollector) collectFileStorages(account *armstorage.Account, activityLogging *ontology.ActivityLogging, rawActivityLogging string) ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// List all file shares in the specified resource group
@@ -320,7 +320,7 @@ func (d *azureDiscovery) discoverFileStorages(account *armstorage.Account, activ
 	return list, nil
 }
 
-func (d *azureDiscovery) discoverObjectStorages(account *armstorage.Account, activityLogging *ontology.ActivityLogging, rawActivityLogging string) ([]ontology.IsResource, error) {
+func (d *azureCollector) collectObjectStorages(account *armstorage.Account, activityLogging *ontology.ActivityLogging, rawActivityLogging string) ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// List all blob containers in the specified resource group

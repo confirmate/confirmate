@@ -14,7 +14,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 )
 
-func (d *azureDiscovery) handleCosmosDB(account *armcosmos.DatabaseAccountGetResults) ([]ontology.IsResource, error) {
+func (d *azureCollector) handleCosmosDB(account *armcosmos.DatabaseAccountGetResults) ([]ontology.IsResource, error) {
 	var (
 		atRestEnc *ontology.AtRestEncryption
 		err       error
@@ -72,7 +72,7 @@ func (d *azureDiscovery) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 	switch util.Deref(account.Kind) {
 	case armcosmos.DatabaseAccountKindMongoDB:
 		// Get Mongo databases
-		list = append(list, d.discoverMongoDBDatabases(account, atRestEnc)...)
+		list = append(list, d.collectMongoDBDatabases(account, atRestEnc)...)
 	case armcosmos.DatabaseAccountKindGlobalDocumentDB:
 		log.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindGlobalDocumentDB))
 	case armcosmos.DatabaseAccountKindParse:
@@ -84,7 +84,7 @@ func (d *azureDiscovery) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 	return list, nil
 }
 
-func (d *azureDiscovery) handleSqlServer(server *armsql.Server) ([]ontology.IsResource, error) {
+func (d *azureCollector) handleSqlServer(server *armsql.Server) ([]ontology.IsResource, error) {
 	var (
 		dbList               []ontology.IsResource
 		anomalyDetectionList []*ontology.AnomalyDetection
@@ -123,7 +123,7 @@ func (d *azureDiscovery) handleSqlServer(server *armsql.Server) ([]ontology.IsRe
 	return list, nil
 }
 
-func (d *azureDiscovery) handleStorageAccount(account *armstorage.Account, storagesList []ontology.IsResource, activityLogging *ontology.ActivityLogging, rawActivityLogging string) (*ontology.ObjectStorageService, error) {
+func (d *azureCollector) handleStorageAccount(account *armstorage.Account, storagesList []ontology.IsResource, activityLogging *ontology.ActivityLogging, rawActivityLogging string) (*ontology.ObjectStorageService, error) {
 	var (
 		storageResourceIDs []string
 	)
@@ -166,7 +166,7 @@ func (d *azureDiscovery) handleStorageAccount(account *armstorage.Account, stora
 	return storageService, nil
 }
 
-func (d *azureDiscovery) handleFileStorage(account *armstorage.Account, fileshare *armstorage.FileShareItem, activityLogging *ontology.ActivityLogging, rawActivityLogging string) (*ontology.FileStorage, error) {
+func (d *azureCollector) handleFileStorage(account *armstorage.Account, fileshare *armstorage.FileShareItem, activityLogging *ontology.ActivityLogging, rawActivityLogging string) (*ontology.FileStorage, error) {
 	var (
 		monitoringLogDataEnabled bool
 		securityAlertsEnabled    bool
@@ -210,7 +210,7 @@ func (d *azureDiscovery) handleFileStorage(account *armstorage.Account, fileshar
 	}, nil
 }
 
-func (d *azureDiscovery) handleObjectStorage(account *armstorage.Account, container *armstorage.ListContainerItem, activityLogging *ontology.ActivityLogging) (*ontology.ObjectStorage, error) {
+func (d *azureCollector) handleObjectStorage(account *armstorage.Account, container *armstorage.ListContainerItem, activityLogging *ontology.ActivityLogging) (*ontology.ObjectStorage, error) {
 	var (
 		backups                  []*ontology.Backup
 		monitoringLogDataEnabled bool

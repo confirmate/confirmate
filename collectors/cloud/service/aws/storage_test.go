@@ -263,10 +263,10 @@ func (mockS3APIWitHErrors) GetBucketLifecycleConfiguration(_ context.Context, _ 
 }
 
 // TestGetBuckets tests the getBuckets method (with other form of mocking implementation)
-func TestAwsS3Discovery_getBuckets(t *testing.T) {
-	d := awsS3Discovery{
-		storageAPI:    mockS3APINew{},
-		isDiscovering: false,
+func TestAwsS3Collector_getBuckets(t *testing.T) {
+	d := awsS3Collector{
+		storageAPI:   mockS3APINew{},
+		isCollecting: false,
 		awsConfig: &Client{
 			cfg:       aws.Config{Region: mockBucket1Region},
 			accountID: nil,
@@ -300,9 +300,9 @@ func TestAwsS3Discovery_getBuckets(t *testing.T) {
 	assert.Equal(t, expectedCreationTime2.String(), buckets[1].creationTime.String())
 
 	// API error case
-	d = awsS3Discovery{
-		storageAPI:    mockS3APIWitHErrors{},
-		isDiscovering: false,
+	d = awsS3Collector{
+		storageAPI:   mockS3APIWitHErrors{},
+		isCollecting: false,
 	}
 
 	_, err = d.getBuckets()
@@ -310,7 +310,7 @@ func TestAwsS3Discovery_getBuckets(t *testing.T) {
 }
 
 // TestGetEncryptionAtRest tests the getEncryptionAtRest method
-func TestAwsS3Discovery_getEncryptionAtRest(t *testing.T) {
+func TestAwsS3Collector_getEncryptionAtRest(t *testing.T) {
 	var (
 		encryptionAtRest    *ontology.AtRestEncryption
 		managedEncryption   *ontology.ManagedKeyEncryption
@@ -321,9 +321,9 @@ func TestAwsS3Discovery_getEncryptionAtRest(t *testing.T) {
 		mockAccountID = "123456789"
 	)
 
-	d := awsS3Discovery{
-		storageAPI:    mockS3APINew{},
-		isDiscovering: false,
+	d := awsS3Collector{
+		storageAPI:   mockS3APINew{},
+		isCollecting: false,
 		awsConfig: &Client{
 			cfg:       aws.Config{},
 			accountID: aws.String(mockAccountID),
@@ -354,30 +354,30 @@ func TestAwsS3Discovery_getEncryptionAtRest(t *testing.T) {
 	assert.Empty(t, rawEncryptionAtRest)
 
 	// 4th case: Connection error
-	d = awsS3Discovery{
-		storageAPI:    mockS3APIWitHErrors{},
-		isDiscovering: false,
+	d = awsS3Collector{
+		storageAPI:   mockS3APIWitHErrors{},
+		isCollecting: false,
 	}
 	_, _, err = d.getEncryptionAtRest(&bucket{name: "mockbucket4"})
 	assert.Error(t, err)
 }
 
 // TestGetTransportEncryption tests the getTransportEncryption method
-func TestAwsS3Discovery_getTransportEncryption(t *testing.T) {
+func TestAwsS3Collector_getTransportEncryption(t *testing.T) {
 	var rawBucketPolicy *s3.GetBucketPolicyOutput
 
 	// Case 1: Connection error
-	d := awsS3Discovery{
-		storageAPI:    mockS3APIWitHErrors{},
-		isDiscovering: false,
+	d := awsS3Collector{
+		storageAPI:   mockS3APIWitHErrors{},
+		isCollecting: false,
 	}
 	_, rawBucketPolicy, err := d.getTransportEncryption("")
 	assert.Error(t, err)
 	assert.Empty(t, rawBucketPolicy)
 
-	d = awsS3Discovery{
-		storageAPI:    mockS3APINew{},
-		isDiscovering: false,
+	d = awsS3Collector{
+		storageAPI:   mockS3APINew{},
+		isCollecting: false,
 	}
 
 	// Case 2: Enforced
@@ -412,10 +412,10 @@ func TestAwsS3Discovery_getTransportEncryption(t *testing.T) {
 }
 
 // TestGetRegion tests the getRegion method
-func TestAwsS3Discovery_getRegion(t *testing.T) {
-	d := awsS3Discovery{
-		storageAPI:    mockS3APINew{},
-		isDiscovering: false,
+func TestAwsS3Collector_getRegion(t *testing.T) {
+	d := awsS3Collector{
+		storageAPI:   mockS3APINew{},
+		isCollecting: false,
 	}
 	actualRegion, rawRegion, err := d.getRegion(mockBucket1)
 	assert.NoError(t, err)
@@ -435,20 +435,20 @@ func TestAwsS3Discovery_getRegion(t *testing.T) {
 }
 
 // TestName tests the Name method
-func TestAwsS3Discovery_Name(t *testing.T) {
-	d := awsS3Discovery{
-		storageAPI:    mockS3APINew{},
-		isDiscovering: false,
+func TestAwsS3Collector_Name(t *testing.T) {
+	d := awsS3Collector{
+		storageAPI:   mockS3APINew{},
+		isCollecting: false,
 	}
 
 	assert.Equal(t, "AWS Blob Storage", d.Name())
 }
 
 // TestList tests the List method
-func TestAwsS3Discovery_List(t *testing.T) {
-	d := awsS3Discovery{
-		storageAPI:    mockS3APINew{},
-		isDiscovering: false,
+func TestAwsS3Collector_List(t *testing.T) {
+	d := awsS3Collector{
+		storageAPI:   mockS3APINew{},
+		isCollecting: false,
 		awsConfig: &Client{
 			cfg: aws.Config{
 				Region:        mockBucket1Region,
@@ -486,12 +486,12 @@ func TestAwsS3Discovery_List(t *testing.T) {
 	assert.True(t, ontology.HasType(resources[1], "ObjectStorageService"))
 }
 
-func Test_awsS3Discovery_TargetOfEvaluationID(t *testing.T) {
+func Test_awsS3Collector_TargetOfEvaluationID(t *testing.T) {
 	type fields struct {
-		storageAPI    S3API
-		isDiscovering bool
-		awsConfig     *Client
-		ctID          string
+		storageAPI   S3API
+		isCollecting bool
+		awsConfig    *Client
+		ctID         string
 	}
 	tests := []struct {
 		name   string
@@ -508,14 +508,14 @@ func Test_awsS3Discovery_TargetOfEvaluationID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &awsS3Discovery{
-				storageAPI:    tt.fields.storageAPI,
-				isDiscovering: tt.fields.isDiscovering,
-				awsConfig:     tt.fields.awsConfig,
-				ctID:          tt.fields.ctID,
+			d := &awsS3Collector{
+				storageAPI:   tt.fields.storageAPI,
+				isCollecting: tt.fields.isCollecting,
+				awsConfig:    tt.fields.awsConfig,
+				ctID:         tt.fields.ctID,
 			}
 			if got := d.TargetOfEvaluationID(); got != tt.want {
-				t.Errorf("awsS3Discovery.TargetOfEvaluationID() = %v, want %v", got, tt.want)
+				t.Errorf("awsS3Collector.TargetOfEvaluationID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

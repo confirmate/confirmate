@@ -12,7 +12,7 @@ import (
 )
 
 // handleDomain returns a [ontology.Account] out of an existing [domains.Domain].
-func (d *openstackDiscovery) handleDomain(domain *domains.Domain) (ontology.IsResource, error) {
+func (d *openstackCollector) handleDomain(domain *domains.Domain) (ontology.IsResource, error) {
 	r := &ontology.Account{
 		Id:           domain.ID,
 		Name:         domain.Name,
@@ -30,7 +30,7 @@ func (d *openstackDiscovery) handleDomain(domain *domains.Domain) (ontology.IsRe
 }
 
 // handleProject returns a [ontology.ResourceGroup] out of an existing [projects.Project].
-func (d *openstackDiscovery) handleProject(project *projects.Project) (ontology.IsResource, error) {
+func (d *openstackCollector) handleProject(project *projects.Project) (ontology.IsResource, error) {
 	r := &ontology.ResourceGroup{
 		Id:          project.ID,
 		Name:        project.Name,

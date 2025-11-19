@@ -48,9 +48,9 @@ func Test_accountName(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_discoverStorageAccounts(t *testing.T) {
+func Test_azureStorageCollector_collectStorageAccounts(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -61,7 +61,7 @@ func Test_azureStorageDiscovery_discoverStorageAccounts(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -73,7 +73,7 @@ func Test_azureStorageDiscovery_discoverStorageAccounts(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 
 			want:    nil,
@@ -82,9 +82,9 @@ func Test_azureStorageDiscovery_discoverStorageAccounts(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverStorageAccounts()
+			got, err := d.collectStorageAccounts()
 			if tt.wantErr != nil {
 				if !tt.wantErr(t, err) {
 					return
@@ -173,7 +173,7 @@ func Test_handleFileStorage(t *testing.T) {
 	keySource := armstorage.KeySourceMicrosoftStorage
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account         *armstorage.Account
@@ -225,7 +225,7 @@ func Test_handleFileStorage(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -283,7 +283,7 @@ func Test_handleFileStorage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.handleFileStorage(tt.args.account, tt.args.fileshare, tt.args.activityLogging, "")
 			if !tt.wantErr(t, err, fmt.Sprintf("handleFileStorage(%v, %v)", tt.args.account, tt.args.fileshare)) {
@@ -323,7 +323,7 @@ func Test_generalizeURL(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_handleStorageAccount(t *testing.T) {
+func Test_azureStorageCollector_handleStorageAccount(t *testing.T) {
 	accountID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account1"
 	accountName := "account1"
 	keySource := armstorage.KeySourceMicrosoftStorage
@@ -334,7 +334,7 @@ func Test_azureStorageDiscovery_handleStorageAccount(t *testing.T) {
 	httpsOnly := true
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account         *armstorage.Account
@@ -358,7 +358,7 @@ func Test_azureStorageDiscovery_handleStorageAccount(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -421,7 +421,7 @@ func Test_azureStorageDiscovery_handleStorageAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			az := tt.fields.azureDiscovery
+			az := tt.fields.azureCollector
 
 			got, err := az.handleStorageAccount(tt.args.account, tt.args.storagesList, tt.args.activityLogging, "")
 			if !tt.wantErr(t, err) {
@@ -444,7 +444,7 @@ func Test_handleObjectStorage(t *testing.T) {
 	publicAccess := armstorage.PublicAccessNone
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account         *armstorage.Account
@@ -495,7 +495,7 @@ func Test_handleObjectStorage(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -565,7 +565,7 @@ func Test_handleObjectStorage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.handleObjectStorage(tt.args.account, tt.args.container, tt.args.activityLogging)
 			if !tt.wantErr(t, err, fmt.Sprintf("handleObjectStorage(%v, %v)", tt.args.account, tt.args.container)) {
@@ -577,7 +577,7 @@ func Test_handleObjectStorage(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_discoverFileStorages(t *testing.T) {
+func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 	accountID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account1"
 	accountName := "account1"
@@ -585,7 +585,7 @@ func Test_azureStorageDiscovery_discoverFileStorages(t *testing.T) {
 	keySource := armstorage.KeySourceMicrosoftStorage
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account         *armstorage.Account
@@ -601,7 +601,7 @@ func Test_azureStorageDiscovery_discoverFileStorages(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -618,7 +618,7 @@ func Test_azureStorageDiscovery_discoverFileStorages(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -699,12 +699,12 @@ func Test_azureStorageDiscovery_discoverFileStorages(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			// initialize file share client
 			_ = d.initFileStorageClient()
 
-			got, err := d.discoverFileStorages(tt.args.account, tt.args.activityLogging, "")
+			got, err := d.collectFileStorages(tt.args.account, tt.args.activityLogging, "")
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -713,7 +713,7 @@ func Test_azureStorageDiscovery_discoverFileStorages(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_discoverObjectStorages(t *testing.T) {
+func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 	accountID := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account1"
 	accountName := "account1"
@@ -721,7 +721,7 @@ func Test_azureStorageDiscovery_discoverObjectStorages(t *testing.T) {
 	keySource := armstorage.KeySourceMicrosoftStorage
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account         *armstorage.Account
@@ -737,7 +737,7 @@ func Test_azureStorageDiscovery_discoverObjectStorages(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					cred: nil,
 				},
 			},
@@ -754,7 +754,7 @@ func Test_azureStorageDiscovery_discoverObjectStorages(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -854,12 +854,12 @@ func Test_azureStorageDiscovery_discoverObjectStorages(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			// initialize blob container client
 			_ = d.initBlobContainerClient()
 
-			got, err := d.discoverObjectStorages(tt.args.account, tt.args.activityLogging, "")
+			got, err := d.collectObjectStorages(tt.args.account, tt.args.activityLogging, "")
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -868,9 +868,9 @@ func Test_azureStorageDiscovery_discoverObjectStorages(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_handleSqlServer(t *testing.T) {
+func Test_azureStorageCollector_handleSqlServer(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		server *armsql.Server
@@ -885,7 +885,7 @@ func Test_azureStorageDiscovery_handleSqlServer(t *testing.T) {
 		// {
 		// 	name: "error list pager",
 		// 	fields: fields{
-		// 		azureDiscovery: &azureDiscovery{
+		// 		azureCollector: &azureCollector{
 		// 			clients: clients{},
 		// 		},
 		// 	},
@@ -904,7 +904,7 @@ func Test_azureStorageDiscovery_handleSqlServer(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				server: &armsql.Server{
@@ -965,7 +965,7 @@ func Test_azureStorageDiscovery_handleSqlServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.handleSqlServer(tt.args.server)
 			if !tt.wantErr(t, err, fmt.Sprintf("handleSqlServer(%v, %v)", tt.args.server, tt.args.server)) {
@@ -977,9 +977,9 @@ func Test_azureStorageDiscovery_handleSqlServer(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_anomalyDetectionEnabled(t *testing.T) {
+func Test_azureStorageCollector_anomalyDetectionEnabled(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		server *armsql.Server
@@ -995,7 +995,7 @@ func Test_azureStorageDiscovery_anomalyDetectionEnabled(t *testing.T) {
 		{
 			name: "error list pager",
 			fields: fields{
-				azureDiscovery: &azureDiscovery{
+				azureCollector: &azureCollector{
 					clients: clients{},
 				},
 			},
@@ -1022,7 +1022,7 @@ func Test_azureStorageDiscovery_anomalyDetectionEnabled(t *testing.T) {
 		{
 			name: "Happy path: anomaly detection disabled",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				server: &armsql.Server{
@@ -1045,7 +1045,7 @@ func Test_azureStorageDiscovery_anomalyDetectionEnabled(t *testing.T) {
 		{
 			name: "Happy path: anomaly detection enabled",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				server: &armsql.Server{
@@ -1068,7 +1068,7 @@ func Test_azureStorageDiscovery_anomalyDetectionEnabled(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.anomalyDetectionEnabled(tt.args.server, tt.args.db)
 
@@ -1078,11 +1078,11 @@ func Test_azureStorageDiscovery_anomalyDetectionEnabled(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_discoverCosmosDB(t *testing.T) {
+func Test_azureStorageCollector_collectCosmosDB(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name    string
@@ -1093,7 +1093,7 @@ func Test_azureStorageDiscovery_discoverCosmosDB(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(nil),
+				azureCollector: NewMockAzureCollector(nil),
 			},
 			want: nil,
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
@@ -1103,7 +1103,7 @@ func Test_azureStorageDiscovery_discoverCosmosDB(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			want: []ontology.IsResource{
 				&ontology.DocumentDatabaseService{
@@ -1184,9 +1184,9 @@ func Test_azureStorageDiscovery_discoverCosmosDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			got, err := d.discoverCosmosDB()
+			got, err := d.collectCosmosDB()
 			if !tt.wantErr(t, err) {
 				return
 			}
@@ -1195,11 +1195,11 @@ func Test_azureStorageDiscovery_discoverCosmosDB(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
+func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 	creationTime := time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)
 
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account *armcosmos.DatabaseAccountGetResults
@@ -1214,7 +1214,7 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 		{
 			name: "Cosmos DB account kind not given",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armcosmos.DatabaseAccountGetResults{
@@ -1254,7 +1254,7 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 		{
 			name: "Cosmos DB account kind not implemented: DatabaseAccountKindGlobalDocumentDB",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armcosmos.DatabaseAccountGetResults{
@@ -1295,7 +1295,7 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 		{
 			name: "Cosmos DB account kind not implemented: DatabaseAccountKindGlobalDocumentDB",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armcosmos.DatabaseAccountGetResults{
@@ -1336,7 +1336,7 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 		{
 			name: "Happy path: ManagedKeyEncryption",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armcosmos.DatabaseAccountGetResults{
@@ -1419,7 +1419,7 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 		{
 			name: "Happy path: CustomerKeyEncryption",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armcosmos.DatabaseAccountGetResults{
@@ -1460,7 +1460,7 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got, err := d.handleCosmosDB(tt.args.account)
 			if !tt.wantErr(t, err, fmt.Sprintf("handleCosmosDB(%v, %v)", tt.args.account, tt.args.account)) {
@@ -1472,9 +1472,9 @@ func Test_azureStorageDiscovery_handleCosmosDB(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_discoverMongoDBDatabases(t *testing.T) {
+func Test_azureStorageCollector_collectMongoDBDatabases(t *testing.T) {
 	type fields struct {
-		azureDiscovery         *azureDiscovery
+		azureCollector         *azureCollector
 		defenderProperties     map[string]*defenderProperties
 		mongoDBResourcesClient bool
 	}
@@ -1491,7 +1491,7 @@ func Test_azureStorageDiscovery_discoverMongoDBDatabases(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery:         NewMockAzureDiscovery(newMockSender()),
+				azureCollector:         NewMockAzureCollector(newMockSender()),
 				mongoDBResourcesClient: true,
 			},
 			args: args{
@@ -1558,7 +1558,7 @@ func Test_azureStorageDiscovery_discoverMongoDBDatabases(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 			d.defenderProperties = tt.fields.defenderProperties
 
 			// initialize Mongo DB resources client
@@ -1566,7 +1566,7 @@ func Test_azureStorageDiscovery_discoverMongoDBDatabases(t *testing.T) {
 				_ = d.initMongoDResourcesBClient()
 			}
 
-			got := d.discoverMongoDBDatabases(tt.args.account, tt.args.atRestEnc)
+			got := d.collectMongoDBDatabases(tt.args.account, tt.args.atRestEnc)
 
 			assert.Equal(t, tt.want, got)
 		})
@@ -1620,9 +1620,9 @@ func Test_checkTlsVersion(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_getActivityLogging(t *testing.T) {
+func Test_azureStorageCollector_getActivityLogging(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		account *armstorage.Account
@@ -1643,7 +1643,7 @@ func Test_azureStorageDiscovery_getActivityLogging(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -1664,7 +1664,7 @@ func Test_azureStorageDiscovery_getActivityLogging(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			// Init Diagnostic Settings Client
 			_ = d.initDiagnosticsSettingsClient()

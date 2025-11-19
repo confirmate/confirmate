@@ -7,7 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func Test_k8sDiscovery_TargetOfEvaluationID(t *testing.T) {
+func Test_k8sCollector_TargetOfEvaluationID(t *testing.T) {
 	type fields struct {
 		intf kubernetes.Interface
 		ctID string
@@ -27,12 +27,12 @@ func Test_k8sDiscovery_TargetOfEvaluationID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &k8sDiscovery{
+			d := &k8sCollector{
 				intf: tt.fields.intf,
 				ctID: tt.fields.ctID,
 			}
 			if got := d.TargetOfEvaluationID(); got != tt.want {
-				t.Errorf("k8sDiscovery.TargetOfEvaluationID() = %v, want %v", got, tt.want)
+				t.Errorf("k8sCollector.TargetOfEvaluationID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

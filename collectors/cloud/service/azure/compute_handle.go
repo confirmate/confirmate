@@ -13,7 +13,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v3"
 )
 
-func (d *azureDiscovery) handleVirtualMachines(vm *armcompute.VirtualMachine) (ontology.IsResource, error) {
+func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (ontology.IsResource, error) {
 	var (
 		bootLogging              = []string{}
 		osLoggingEnabled         bool
@@ -60,7 +60,7 @@ func (d *azureDiscovery) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		Labels:              labels(vm.Tags),
 		ParentId:            resourceGroupID(vm.ID),
 		Raw:                 cloud.Raw(vm),
-		NetworkInterfaceIds: []string{}, // TODO(all): Discover network interface IDs
+		NetworkInterfaceIds: []string{}, // TODO(all): Collect network interface IDs
 		BlockStorageIds:     []string{},
 		MalwareProtection:   &ontology.MalwareProtection{},
 		BootLogging: &ontology.BootLogging{
@@ -106,7 +106,7 @@ func (d *azureDiscovery) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 	return r, nil
 }
 
-func (d *azureDiscovery) handleBlockStorage(disk *armcompute.Disk) (*ontology.BlockStorage, error) {
+func (d *azureCollector) handleBlockStorage(disk *armcompute.Disk) (*ontology.BlockStorage, error) {
 	var (
 		rawKeyUrl *armcompute.DiskEncryptionSet
 		backups   []*ontology.Backup
@@ -141,7 +141,7 @@ func (d *azureDiscovery) handleBlockStorage(disk *armcompute.Disk) (*ontology.Bl
 	}, nil
 }
 
-func (d *azureDiscovery) handleFunction(function *armappservice.Site, config armappservice.WebAppsClientGetConfigurationResponse) ontology.IsResource {
+func (d *azureCollector) handleFunction(function *armappservice.Site, config armappservice.WebAppsClientGetConfigurationResponse) ontology.IsResource {
 	var (
 		runtimeLanguage string
 		runtimeVersion  string
@@ -204,7 +204,7 @@ func (d *azureDiscovery) handleFunction(function *armappservice.Site, config arm
 	}
 }
 
-func (d *azureDiscovery) handleWebApp(webApp *armappservice.Site, config armappservice.WebAppsClientGetConfigurationResponse) ontology.IsResource {
+func (d *azureCollector) handleWebApp(webApp *armappservice.Site, config armappservice.WebAppsClientGetConfigurationResponse) ontology.IsResource {
 	if webApp == nil || config == (armappservice.WebAppsClientGetConfigurationResponse{}) {
 		log.Error("input parameter empty")
 		return nil

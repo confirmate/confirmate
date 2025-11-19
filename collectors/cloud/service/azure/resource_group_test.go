@@ -12,9 +12,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
 )
 
-func Test_azureResourceGroupDiscovery_handleSubscription(t *testing.T) {
+func Test_azureResourceGroupCollector_handleSubscription(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		s *armsubscription.Subscription
@@ -28,7 +28,7 @@ func Test_azureResourceGroupDiscovery_handleSubscription(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				s: &armsubscription.Subscription{
@@ -46,7 +46,7 @@ func Test_azureResourceGroupDiscovery_handleSubscription(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got := d.handleSubscription(tt.args.s)
 			assert.Equal(t, tt.want, got)
@@ -54,9 +54,9 @@ func Test_azureResourceGroupDiscovery_handleSubscription(t *testing.T) {
 	}
 }
 
-func Test_azureResourceGroupDiscovery_handleResourceGroup(t *testing.T) {
+func Test_azureResourceGroupCollector_handleResourceGroup(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		rg *armresources.ResourceGroup
@@ -70,7 +70,7 @@ func Test_azureResourceGroupDiscovery_handleResourceGroup(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				rg: &armresources.ResourceGroup{
@@ -100,7 +100,7 @@ func Test_azureResourceGroupDiscovery_handleResourceGroup(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			got := d.handleResourceGroup(tt.args.rg)
 			assert.Equal(t, tt.want, got)
@@ -108,9 +108,9 @@ func Test_azureResourceGroupDiscovery_handleResourceGroup(t *testing.T) {
 	}
 }
 
-func Test_azureResourceGroupDiscovery_discoverResourceGroups(t *testing.T) {
+func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	tests := []struct {
 		name     string
@@ -119,10 +119,10 @@ func Test_azureResourceGroupDiscovery_discoverResourceGroups(t *testing.T) {
 		wantErr  assert.ErrorAssertionFunc
 	}{
 		{
-			name: "Discovery error",
+			name: "Collector error",
 			fields: fields{
 				// Intentionally use wrong sender
-				azureDiscovery: NewMockAzureDiscovery(nil),
+				azureCollector: NewMockAzureCollector(nil),
 			},
 			wantList: nil,
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
@@ -132,7 +132,7 @@ func Test_azureResourceGroupDiscovery_discoverResourceGroups(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender(),
+				azureCollector: NewMockAzureCollector(newMockSender(),
 					WithSubscription(&armsubscription.Subscription{
 						DisplayName:    util.Ref("displayName"),
 						ID:             util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000"),
@@ -177,7 +177,7 @@ func Test_azureResourceGroupDiscovery_discoverResourceGroups(t *testing.T) {
 		{
 			name: "Happy path: with given resource group",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender(),
+				azureCollector: NewMockAzureCollector(newMockSender(),
 					WithResourceGroup("res1"),
 					WithSubscription(&armsubscription.Subscription{
 						DisplayName:    util.Ref("displayName"),
@@ -210,9 +210,9 @@ func Test_azureResourceGroupDiscovery_discoverResourceGroups(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
-			gotList, err := d.discoverResourceGroups()
+			gotList, err := d.collectResourceGroups()
 
 			assert.Equal(t, tt.wantList, gotList)
 			tt.wantErr(t, err)

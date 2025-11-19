@@ -15,7 +15,7 @@ import (
 )
 
 // handleServer creates a virtual machine resource based on the CSC Hub Ontology
-func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsResource, error) {
+func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsResource, error) {
 	var (
 		err         error
 		bootLogging *ontology.BootLogging
@@ -59,7 +59,7 @@ func (d *openstackDiscovery) handleServer(server *servers.Server) (ontology.IsRe
 	// Get attached network interface IDs
 	r.NetworkInterfaceIds, err = d.getAttachedNetworkInterfaces(server.ID)
 	if err != nil {
-		return nil, fmt.Errorf("could not discover attached network interfaces: %w", err)
+		return nil, fmt.Errorf("could not collect attached network interfaces: %w", err)
 	}
 
 	log.Info("Adding server", slog.String("name", server.Name))

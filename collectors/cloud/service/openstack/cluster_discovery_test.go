@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func Test_openstackDiscovery_discoverCluster(t *testing.T) {
+func Test_openstackCollector_collectCluster(t *testing.T) {
 	testhelper.SetupHTTP()
 	defer testhelper.TeardownHTTP()
 	openstacktest.HandleListClusterSuccessfully(t)
@@ -101,7 +101,7 @@ func Test_openstackDiscovery_discoverCluster(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -109,7 +109,7 @@ func Test_openstackDiscovery_discoverCluster(t *testing.T) {
 				domain:   tt.fields.domain,
 				project:  tt.fields.project,
 			}
-			gotList, err := d.discoverCluster()
+			gotList, err := d.collectCluster()
 
 			tt.wantList(t, gotList)
 			tt.wantErr(t, err)

@@ -8,8 +8,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )
 
-// discoverNetworkInterfaces discovers network interfaces
-func (d *azureDiscovery) discoverNetworkInterfaces() ([]ontology.IsResource, error) {
+// collectNetworkInterfaces collects network interfaces
+func (d *azureCollector) collectNetworkInterfaces() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize network interfaces client
@@ -43,8 +43,8 @@ func (d *azureDiscovery) discoverNetworkInterfaces() ([]ontology.IsResource, err
 	return list, nil
 }
 
-// discoverApplicationGateway discovers application gateways
-func (d *azureDiscovery) discoverApplicationGateway() ([]ontology.IsResource, error) {
+// collectApplicationGateway collects application gateways
+func (d *azureCollector) collectApplicationGateway() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize application gateway client
@@ -78,8 +78,8 @@ func (d *azureDiscovery) discoverApplicationGateway() ([]ontology.IsResource, er
 	return list, nil
 }
 
-// discoverLoadBalancer discovers load balancer
-func (d *azureDiscovery) discoverLoadBalancer() ([]ontology.IsResource, error) {
+// collectLoadBalancer collects load balancer
+func (d *azureCollector) collectLoadBalancer() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	// initialize load balancers client

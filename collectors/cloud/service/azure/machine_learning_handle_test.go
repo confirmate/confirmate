@@ -24,7 +24,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 	keyVault := "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.Keyvault/vaults/keyVault1"
 
 	type fields struct {
-		d *azureDiscovery
+		d *azureCollector
 	}
 	type args struct {
 		value       *armmachinelearning.Workspace
@@ -40,7 +40,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				d: &azureDiscovery{},
+				d: &azureCollector{},
 			},
 			args: args{
 				value: &armmachinelearning.Workspace{
@@ -108,7 +108,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 	}
 }
 
-func Test_azureDiscovery_handleMLCompute(t *testing.T) {
+func Test_azureCollector_handleMLCompute(t *testing.T) {
 	type fields struct {
 		isAuthorized       bool
 		sub                *armsubscription.Subscription
@@ -209,7 +209,7 @@ func Test_azureDiscovery_handleMLCompute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &azureDiscovery{
+			d := &azureCollector{
 				isAuthorized:       tt.fields.isAuthorized,
 				sub:                tt.fields.sub,
 				cred:               tt.fields.cred,

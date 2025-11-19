@@ -89,7 +89,7 @@ func clientAuthenticity(res *http.Response) *ontology.Authenticity {
 // checksums located at the URL specified in the [csaf.AdvisoryFile] interface.
 //
 // It uses the [documentChecksum] method to retrieve the respective checksum.
-func (d *csafDiscovery) documentChecksums(file csaf.AdvisoryFile, body []byte) (checksums []*ontology.DocumentChecksum) {
+func (d *csafCollector) documentChecksums(file csaf.AdvisoryFile, body []byte) (checksums []*ontology.DocumentChecksum) {
 	var toHash = map[string]struct {
 		h   hash.Hash
 		alg string
@@ -110,13 +110,13 @@ func (d *csafDiscovery) documentChecksums(file csaf.AdvisoryFile, body []byte) (
 
 // documentChecksum retrieves a hash-based document checksum from the URL specified in checksumURL. This is usually
 // constructed based on the filename by appending an extension based on the hashing algorithm, e.g. `.sha256`. It uses
-// the configured client in the [csafDiscovery] struct to retrieve the checksum contents and compares it to the body, by
+// the configured client in the [csafCollector] struct to retrieve the checksum contents and compares it to the body, by
 // invoking the specified hashing algorithm on its own.
 //
 // The validation result (and any resulting) errors are stored in an [ontology.DocumentChecksum] object. It will return
 // nil, if the document does not exist (because then no checksum exists) or if any other (network) error occurred before
 // we can retrieve the body.
-func (d *csafDiscovery) documentChecksum(checksumURL, filename string, body []byte, algorithm string, h hash.Hash) *ontology.DocumentChecksum {
+func (d *csafCollector) documentChecksum(checksumURL, filename string, body []byte, algorithm string, h hash.Hash) *ontology.DocumentChecksum {
 	// Retrieve hash from URL
 	res, err := d.client.Get(checksumURL)
 	if err != nil {
@@ -174,7 +174,7 @@ func (d *csafDiscovery) documentChecksum(checksumURL, filename string, body []by
 // The validation result (and any resulting) errors are stored in an [ontology.DocumentSignature] object. It will return
 // nil, if the document does not exist (because then no signature exists) or if any other (network) error occurred
 // before we can retrieve the body.
-func (d *csafDiscovery) documentPGPSignature(signURL string, body []byte, keyring openpgp.EntityList) (sig *ontology.DocumentSignature) {
+func (d *csafCollector) documentPGPSignature(signURL string, body []byte, keyring openpgp.EntityList) (sig *ontology.DocumentSignature) {
 	var (
 		res *http.Response
 	)

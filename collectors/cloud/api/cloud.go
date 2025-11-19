@@ -7,7 +7,7 @@ import (
 	"confirmate.io/core/api/ontology"
 )
 
-// Collector is a part of the discovery service that takes care of the actual discovering and translation into
+// Collector is a part of the collector service that takes care of the actual collecting and translation into
 // ontology objects.
 type Collector interface {
 	Name() string

@@ -252,8 +252,8 @@ func publicNetworkAccessStatus(status *string) bool {
 	return false
 }
 
-// discoverDiagnosticSettings discovers the diagnostic setting for the given resource URI and returns the information of the needed information of the log properties as ontology.ActivityLogging object and the Azure response.
-func (d *azureDiscovery) discoverDiagnosticSettings(resourceURI string) (*ontology.ActivityLogging, string, error) {
+// collectDiagnosticSettings collects the diagnostic setting for the given resource URI and returns the information of the needed information of the log properties as ontology.ActivityLogging object and the Azure response.
+func (d *azureCollector) collectDiagnosticSettings(resourceURI string) (*ontology.ActivityLogging, string, error) {
 	var (
 		al           *ontology.ActivityLogging
 		workspaceIDs []string

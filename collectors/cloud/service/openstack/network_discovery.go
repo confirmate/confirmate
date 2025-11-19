@@ -6,8 +6,8 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 )
 
-// discoverNetworkInterfaces discovers network interfaces
-func (d *openstackDiscovery) discoverNetworkInterfaces() (list []ontology.IsResource, err error) {
+// collectNetworkInterfaces collects network interfaces
+func (d *openstackCollector) collectNetworkInterfaces() (list []ontology.IsResource, err error) {
 	var opts networks.ListOptsBuilder = &networks.ListOpts{}
 	list, err = genericList(d, d.networkClient, networks.List, d.handleNetworkInterfaces, networks.ExtractNetworks, opts)
 

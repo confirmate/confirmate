@@ -16,7 +16,7 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 )
 
-func TestNewKubernetesNetworkDiscovery(t *testing.T) {
+func TestNewKubernetesNetworkCollector(t *testing.T) {
 	type args struct {
 		intf                 kubernetes.Interface
 		TargetOfEvaluationID string
@@ -28,8 +28,8 @@ func TestNewKubernetesNetworkDiscovery(t *testing.T) {
 	}{
 		{
 			name: "empty input",
-			want: &k8sNetworkDiscovery{
-				k8sDiscovery: k8sDiscovery{},
+			want: &k8sNetworkCollector{
+				k8sCollector: k8sCollector{},
 			},
 		},
 		{
@@ -38,8 +38,8 @@ func TestNewKubernetesNetworkDiscovery(t *testing.T) {
 				intf:                 &fake.Clientset{},
 				TargetOfEvaluationID: testdata.MockTargetOfEvaluationID1,
 			},
-			want: &k8sNetworkDiscovery{
-				k8sDiscovery: k8sDiscovery{
+			want: &k8sNetworkCollector{
+				k8sCollector: k8sCollector{
 					intf: &fake.Clientset{},
 					ctID: testdata.MockTargetOfEvaluationID1,
 				},
@@ -48,7 +48,7 @@ func TestNewKubernetesNetworkDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewKubernetesNetworkDiscovery(tt.args.intf, tt.args.TargetOfEvaluationID)
+			got := NewKubernetesNetworkCollector(tt.args.intf, tt.args.TargetOfEvaluationID)
 			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
 			assert.Equal(t, "Kubernetes Network", got.Name())
 		})
@@ -104,7 +104,7 @@ func TestListIngresses(t *testing.T) {
 		t.Fatalf("error injecting service add: %v", err)
 	}
 
-	d := NewKubernetesNetworkDiscovery(client, testdata.MockTargetOfEvaluationID1)
+	d := NewKubernetesNetworkCollector(client, testdata.MockTargetOfEvaluationID1)
 
 	list, err := d.List()
 

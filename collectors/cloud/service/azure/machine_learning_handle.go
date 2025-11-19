@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (d *azureDiscovery) handleMLWorkspace(value *armmachinelearning.Workspace, computeList []string) (ontology.IsResource, error) {
+func (d *azureCollector) handleMLWorkspace(value *armmachinelearning.Workspace, computeList []string) (ontology.IsResource, error) {
 	ml := &ontology.MachineLearningService{
 		Id:                         resourceID(value.ID),
 		Name:                       util.Deref(value.Name),
@@ -34,7 +34,7 @@ func (d *azureDiscovery) handleMLWorkspace(value *armmachinelearning.Workspace, 
 }
 
 // TODO(all): Should we move that to the compute file
-func (d *azureDiscovery) handleMLCompute(value *armmachinelearning.ComputeResource, workspaceID *string) (ontology.IsResource, error) {
+func (d *azureCollector) handleMLCompute(value *armmachinelearning.ComputeResource, workspaceID *string) (ontology.IsResource, error) {
 	var (
 		compute   *ontology.VirtualMachine
 		container *ontology.Container

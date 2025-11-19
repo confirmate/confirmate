@@ -7,7 +7,7 @@ import (
 )
 
 // identityClient returns the identity client if initialized
-func (d *openstackDiscovery) identityClient() (client *gophercloud.ServiceClient, err error) {
+func (d *openstackCollector) identityClient() (client *gophercloud.ServiceClient, err error) {
 	if d.clients.identityClient == nil {
 		return nil, fmt.Errorf("identity client not initialized")
 	}
@@ -15,7 +15,7 @@ func (d *openstackDiscovery) identityClient() (client *gophercloud.ServiceClient
 }
 
 // computeClient returns the compute client if initialized
-func (d *openstackDiscovery) computeClient() (client *gophercloud.ServiceClient, err error) {
+func (d *openstackCollector) computeClient() (client *gophercloud.ServiceClient, err error) {
 	if d.clients.computeClient == nil {
 		return nil, fmt.Errorf("compute client not initialized")
 	}
@@ -23,7 +23,7 @@ func (d *openstackDiscovery) computeClient() (client *gophercloud.ServiceClient,
 }
 
 // networkClient returns the network client if initialized
-func (d *openstackDiscovery) networkClient() (client *gophercloud.ServiceClient, err error) {
+func (d *openstackCollector) networkClient() (client *gophercloud.ServiceClient, err error) {
 	if d.clients.networkClient == nil {
 		return nil, fmt.Errorf("network client not initialized")
 	}
@@ -31,7 +31,7 @@ func (d *openstackDiscovery) networkClient() (client *gophercloud.ServiceClient,
 }
 
 // storageClient returns the compute client if initialized
-func (d *openstackDiscovery) storageClient() (client *gophercloud.ServiceClient, err error) {
+func (d *openstackCollector) storageClient() (client *gophercloud.ServiceClient, err error) {
 	if d.clients.storageClient == nil {
 		return nil, fmt.Errorf("storage client not initialized")
 	}
@@ -39,7 +39,7 @@ func (d *openstackDiscovery) storageClient() (client *gophercloud.ServiceClient,
 }
 
 // clusterClient returns the cluster client if initialized
-func (d *openstackDiscovery) clusterClient() (client *gophercloud.ServiceClient, err error) {
+func (d *openstackCollector) clusterClient() (client *gophercloud.ServiceClient, err error) {
 	if d.clients.clusterClient == nil {
 		return nil, fmt.Errorf("cluster client not initialized")
 	}

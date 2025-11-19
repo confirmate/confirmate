@@ -12,7 +12,7 @@ import (
 )
 
 // handleBlockStorage creates a block storage resource based on the CSC Hub Ontology
-func (d *openstackDiscovery) handleBlockStorage(volume *volumes.Volume) (ontology.IsResource, error) {
+func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontology.IsResource, error) {
 	// Get Name, if exits, otherwise take the ID
 	name := volume.Name
 	if volume.Name == "" {

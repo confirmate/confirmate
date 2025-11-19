@@ -46,7 +46,7 @@ type mockEC2APIWithErrors struct {
 type mockLambdaAPI struct {
 }
 
-// mockLambdaAPI implements the LambdaAPI interface for mock testing if >50 Lambda functions are discovered (not only 50)
+// mockLambdaAPI implements the LambdaAPI interface for mock testing if >50 Lambda functions are collected (not only 50)
 type mockLambdaAPI51LambdaFunctions struct {
 }
 
@@ -75,7 +75,7 @@ func (mockLambdaAPI51LambdaFunctions) ListFunctions(_ context.Context, input *la
 	if input.Marker == nil {
 		for i := 0; i < 50; i++ {
 			lambdaFunctions = append(lambdaFunctions, lambdaTypes.FunctionConfiguration{
-				// We have to set a time in a right format, otherwise the discoverer fails (parse error)
+				// We have to set a time in a right format, otherwise the collector fails (parse error)
 				LastModified: aws.String(mockFunction1CreationTime),
 			})
 		}
@@ -86,7 +86,7 @@ func (mockLambdaAPI51LambdaFunctions) ListFunctions(_ context.Context, input *la
 	} else if *input.Marker == nextMarker {
 		for i := 0; i < 5; i++ {
 			lambdaFunctions = append(lambdaFunctions, lambdaTypes.FunctionConfiguration{
-				// We have to set a time in a right format, otherwise the discoverer fails (parse error)
+				// We have to set a time in a right format, otherwise the collector fails (parse error)
 				LastModified: aws.String(mockFunction1CreationTime),
 			})
 		}
@@ -228,11 +228,11 @@ func (mockEC2APIWithErrors) DescribeNetworkInterfaces(_ context.Context, _ *ec2.
 	return nil, err
 }
 
-func TestComputeDiscovery_List(t *testing.T) {
-	d := computeDiscovery{
+func TestComputeCollector_List(t *testing.T) {
+	d := computeCollector{
 		virtualMachineAPI: mockEC2API{},
 		functionAPI:       mockLambdaAPI{},
-		isDiscovering:     true,
+		isCollecting:      true,
 		awsConfig: &Client{
 			cfg: aws.Config{
 				Region: "eu-central-1",
@@ -244,16 +244,16 @@ func TestComputeDiscovery_List(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, list)
 
-	d = computeDiscovery{
+	d = computeCollector{
 		virtualMachineAPI: mockEC2APIWithErrors{},
 	}
 	_, err = d.List()
 	assert.Error(t, err)
 
-	d = computeDiscovery{
+	d = computeCollector{
 		virtualMachineAPI: mockEC2API{},
 		functionAPI:       mockLambdaAPIWithErrors{},
-		isDiscovering:     true,
+		isCollecting:      true,
 		awsConfig: &Client{
 			cfg: aws.Config{
 				Region: "eu-central-1",
@@ -265,10 +265,10 @@ func TestComputeDiscovery_List(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestComputeDiscovery_discoverVirtualMachines(t *testing.T) {
-	d := computeDiscovery{
+func TestComputeCollector_collectVirtualMachines(t *testing.T) {
+	d := computeCollector{
 		virtualMachineAPI: mockEC2API{},
-		isDiscovering:     true,
+		isCollecting:      true,
 		awsConfig: &Client{
 			cfg: aws.Config{
 				Region: "eu-central-1",
@@ -276,7 +276,7 @@ func TestComputeDiscovery_discoverVirtualMachines(t *testing.T) {
 			accountID: aws.String("MockAccountID1234"),
 		},
 	}
-	machines, err := d.discoverVirtualMachines()
+	machines, err := d.collectVirtualMachines()
 	assert.NoError(t, err)
 	testMachine := machines[0]
 	assert.Equal(t, mockVM1, testMachine.Name)
@@ -286,28 +286,28 @@ func TestComputeDiscovery_discoverVirtualMachines(t *testing.T) {
 	assert.Nil(t, testMachine.CreationTime)
 	assert.Equal(t, mockFunction1Region, testMachine.GeoLocation.Region)
 
-	d = computeDiscovery{
+	d = computeCollector{
 		virtualMachineAPI: mockEC2APIWithErrors{},
 	}
-	_, err = d.discoverVirtualMachines()
+	_, err = d.collectVirtualMachines()
 	assert.Error(t, err)
 
 }
 
-func TestComputeDiscover_Name(t *testing.T) {
-	d := computeDiscovery{
+func TestComputeCollect_Name(t *testing.T) {
+	d := computeCollector{
 		virtualMachineAPI: mockEC2API{},
-		isDiscovering:     true,
+		isCollecting:      true,
 		awsConfig:         &Client{},
 	}
 	assert.Equal(t, "AWS Compute", d.Name())
 }
 
-func TestComputeDiscovery_getNameOfVM(t *testing.T) {
+func TestComputeCollector_getNameOfVM(t *testing.T) {
 	type fields struct {
-		api           EC2API
-		isDiscovering bool
-		awsConfig     *Client
+		api          EC2API
+		isCollecting bool
+		awsConfig    *Client
 	}
 	type args struct {
 		vm types.Instance
@@ -339,9 +339,9 @@ func TestComputeDiscovery_getNameOfVM(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &computeDiscovery{
+			d := &computeCollector{
 				virtualMachineAPI: tt.fields.api,
-				isDiscovering:     tt.fields.isDiscovering,
+				isCollecting:      tt.fields.isCollecting,
 				awsConfig:         tt.fields.awsConfig,
 			}
 			if got := d.getNameOfVM(&tt.args.vm); got != tt.want {
@@ -351,11 +351,11 @@ func TestComputeDiscovery_getNameOfVM(t *testing.T) {
 	}
 }
 
-func TestComputeDiscovery_discoverFunctions(t *testing.T) {
+func TestComputeCollector_collectFunctions(t *testing.T) {
 	type fields struct {
 		virtualMachineAPI EC2API
 		functionAPI       LambdaAPI
-		isDiscovering     bool
+		isCollecting      bool
 		awsConfig         *Client
 		ctID              string
 	}
@@ -405,33 +405,33 @@ func TestComputeDiscovery_discoverFunctions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &computeDiscovery{
+			d := &computeCollector{
 				virtualMachineAPI: tt.fields.virtualMachineAPI,
 				functionAPI:       tt.fields.functionAPI,
-				isDiscovering:     tt.fields.isDiscovering,
+				isCollecting:      tt.fields.isCollecting,
 				awsConfig:         tt.fields.awsConfig,
 				ctID:              tt.fields.ctID,
 			}
-			got, err := d.discoverFunctions()
+			got, err := d.collectFunctions()
 
 			tt.wantErr(t, err)
 			if !assert.Empty(t, cmp.Diff(tt.want, got, protocmp.Transform())) {
-				t.Errorf("discoverFunctions() got = %v, want %v", got, tt.want)
+				t.Errorf("collectFunctions() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 
 	// Testing the case where two API Calls have to be made due to limit of returned functions
-	d := computeDiscovery{
+	d := computeCollector{
 		functionAPI: mockLambdaAPI51LambdaFunctions{},
 		awsConfig:   mockClient,
 	}
-	functions, err := d.discoverFunctions()
+	functions, err := d.collectFunctions()
 	assert.NoError(t, err)
 	assert.True(t, len(functions) > 50)
 }
 
-func TestComputeDiscovery_NewComputeDiscovery(t *testing.T) {
+func TestComputeCollector_NewComputeCollector(t *testing.T) {
 	// Mock newFromConfigs and store the original functions back at the end of the test
 	oldEC2 := newFromConfigEC2
 	defer func() { newFromConfigEC2 = oldEC2 }()
@@ -462,10 +462,10 @@ func TestComputeDiscovery_NewComputeDiscovery(t *testing.T) {
 	}{
 		{
 			args: args{client: mockClient, ctID: testdata.MockTargetOfEvaluationID1},
-			want: &computeDiscovery{
+			want: &computeCollector{
 				virtualMachineAPI: &ec2.Client{},
 				functionAPI:       &lambda.Client{},
-				isDiscovering:     true,
+				isCollecting:      true,
 				awsConfig:         mockClient,
 				ctID:              testdata.MockTargetOfEvaluationID1,
 			},
@@ -473,17 +473,17 @@ func TestComputeDiscovery_NewComputeDiscovery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewAwsComputeDiscovery(tt.args.client, tt.args.ctID)
+			got := NewAwsComputeCollector(tt.args.client, tt.args.ctID)
 			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
 		})
 	}
 }
 
-func Test_computeDiscovery_TargetOfEvaluationID(t *testing.T) {
+func Test_computeCollector_TargetOfEvaluationID(t *testing.T) {
 	type fields struct {
 		virtualMachineAPI EC2API
 		functionAPI       LambdaAPI
-		isDiscovering     bool
+		isCollecting      bool
 		awsConfig         *Client
 		ctID              string
 	}
@@ -502,15 +502,15 @@ func Test_computeDiscovery_TargetOfEvaluationID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &computeDiscovery{
+			d := &computeCollector{
 				virtualMachineAPI: tt.fields.virtualMachineAPI,
 				functionAPI:       tt.fields.functionAPI,
-				isDiscovering:     tt.fields.isDiscovering,
+				isCollecting:      tt.fields.isCollecting,
 				awsConfig:         tt.fields.awsConfig,
 				ctID:              tt.fields.ctID,
 			}
 			if got := d.TargetOfEvaluationID(); got != tt.want {
-				t.Errorf("computeDiscovery.TargetOfEvaluationID() = %v, want %v", got, tt.want)
+				t.Errorf("computeCollector.TargetOfEvaluationID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

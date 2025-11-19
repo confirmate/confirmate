@@ -172,7 +172,7 @@ var ClusterGetResponse = fmt.Sprintf(`
 		"stack_id":"9c6f1169-7300-4d08-a444-d2be38758719",
 		"created_at":"2016-08-29T06:51:31+00:00",
 		"api_address":"https://172.24.4.6:6443",
-		"discovery_url":"https://discovery.etcd.io/cbeb580da58915809d59ee69348a84f3",
+		"collector_url":"https://collector.etcd.io/cbeb580da58915809d59ee69348a84f3",
 		"updated_at":"2016-08-29T06:53:24+00:00",
 		"master_count":1,
 		"coe_version": "v1.2.0",
@@ -205,7 +205,7 @@ var ClusterListResponse = fmt.Sprintf(`
 			"coe_version": "v1.2.0",
 			"create_timeout":60,
 			"created_at":"2016-08-29T06:51:31+00:00",
-			"discovery_url":"https://discovery.etcd.io/cbeb580da58915809d59ee69348a84f3",
+			"collector_url":"https://collector.etcd.io/cbeb580da58915809d59ee69348a84f3",
 			"keypair":"my-keypair",
 			"links":[
 			  {
@@ -244,7 +244,7 @@ var ClusterListResponse = fmt.Sprintf(`
 			"coe_version": "v1.2.0",
 			"create_timeout":60,
 			"created_at":null,
-			"discovery_url":"https://discovery.etcd.io/cbeb580da58915809d59ee69348a84f3",
+			"collector_url":"https://collector.etcd.io/cbeb580da58915809d59ee69348a84f3",
 			"keypair":"my-keypair",
 			"links":[
 			  {

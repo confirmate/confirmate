@@ -31,7 +31,7 @@ type ClientCreateFuncWithoutSubID[T any] func(credential azcore.TokenCredential,
 // log the error, so calling functions should just directly return the error in
 // order to avoid double-logging.
 // This function is for client create functions with a subscription ID.
-func initClientWithSubID[T any](existingClient *T, d *azureDiscovery, fun ClientCreateFuncWithSubID[T]) (client *T, err error) {
+func initClientWithSubID[T any](existingClient *T, d *azureCollector, fun ClientCreateFuncWithSubID[T]) (client *T, err error) {
 	if existingClient != nil {
 		return existingClient, nil
 	}
@@ -55,7 +55,7 @@ func initClientWithSubID[T any](existingClient *T, d *azureDiscovery, fun Client
 // log the error, so calling functions should just directly return the error in
 // order to avoid double-logging.
 // This function is for client create functions without a subscription ID.
-func initClientWithoutSubID[T any](existingClient *T, d *azureDiscovery, fun ClientCreateFuncWithoutSubID[T]) (client *T, err error) {
+func initClientWithoutSubID[T any](existingClient *T, d *azureCollector, fun ClientCreateFuncWithoutSubID[T]) (client *T, err error) {
 	if existingClient != nil {
 		return existingClient, nil
 	}
@@ -71,164 +71,164 @@ func initClientWithoutSubID[T any](existingClient *T, d *azureDiscovery, fun Cli
 }
 
 // initAccountsClient creates the client if not already exists
-func (d *azureDiscovery) initAccountsClient() (err error) {
+func (d *azureCollector) initAccountsClient() (err error) {
 	d.clients.accountsClient, err = initClientWithSubID(d.clients.accountsClient, d, armstorage.NewAccountsClient)
 	return
 }
 
 // initApplicationGatewayClient creates the client if not already exists
-func (d *azureDiscovery) initApplicationGatewayClient() (err error) {
+func (d *azureCollector) initApplicationGatewayClient() (err error) {
 	d.clients.applicationGatewayClient, err = initClientWithSubID(d.clients.applicationGatewayClient, d, armnetwork.NewApplicationGatewaysClient)
 	return
 }
 
 // initBackupInstancesClient creates the client if not already exists
-func (d *azureDiscovery) initBackupInstancesClient() (err error) {
+func (d *azureCollector) initBackupInstancesClient() (err error) {
 	d.clients.backupInstancesClient, err = initClientWithSubID(d.clients.backupInstancesClient, d, armdataprotection.NewBackupInstancesClient)
 
 	return
 }
 
 // initBackupPoliciesClient creates the client if not already exists
-func (d *azureDiscovery) initBackupPoliciesClient() (err error) {
+func (d *azureCollector) initBackupPoliciesClient() (err error) {
 	d.clients.backupPoliciesClient, err = initClientWithSubID(d.clients.backupPoliciesClient, d, armdataprotection.NewBackupPoliciesClient)
 
 	return
 }
 
 // initBackupVaultsClient creates the client if not already exists
-func (d *azureDiscovery) initBackupVaultsClient() (err error) {
+func (d *azureCollector) initBackupVaultsClient() (err error) {
 	d.clients.backupVaultClient, err = initClientWithSubID(d.clients.backupVaultClient, d, armdataprotection.NewBackupVaultsClient)
 
 	return
 }
 
 // initBlobContainerClient creates the client if not already exists
-func (d *azureDiscovery) initBlobContainerClient() (err error) {
+func (d *azureCollector) initBlobContainerClient() (err error) {
 	d.clients.blobContainerClient, err = initClientWithSubID(d.clients.blobContainerClient, d, armstorage.NewBlobContainersClient)
 	return
 }
 
 // initBlockStoragesClient creates the client if not already exists
-func (d *azureDiscovery) initBlockStoragesClient() (err error) {
+func (d *azureCollector) initBlockStoragesClient() (err error) {
 	d.clients.blockStorageClient, err = initClientWithSubID(d.clients.blockStorageClient, d, armcompute.NewDisksClient)
 	return
 }
 
 // initCosmosDBClient creates the client if not already exists
-func (d *azureDiscovery) initCosmosDBClient() (err error) {
+func (d *azureCollector) initCosmosDBClient() (err error) {
 	d.clients.cosmosDBClient, err = initClientWithSubID(d.clients.cosmosDBClient, d, armcosmos.NewDatabaseAccountsClient)
 
 	return
 }
 
 // initMongoDResourcesBClient creates the client if not already exists
-func (d *azureDiscovery) initMongoDResourcesBClient() (err error) {
+func (d *azureCollector) initMongoDResourcesBClient() (err error) {
 	d.clients.mongoDBResourcesClient, err = initClientWithSubID(d.clients.mongoDBResourcesClient, d, armcosmos.NewMongoDBResourcesClient)
 
 	return
 }
 
 // initDatabasesClient creates the client if not already exists
-func (d *azureDiscovery) initDatabasesClient() (err error) {
+func (d *azureCollector) initDatabasesClient() (err error) {
 	d.clients.databasesClient, err = initClientWithSubID(d.clients.databasesClient, d, armsql.NewDatabasesClient)
 
 	return
 }
 
 // initDefenderClient creates the client if not already exists
-func (d *azureDiscovery) initDefenderClient() (err error) {
+func (d *azureCollector) initDefenderClient() (err error) {
 	d.clients.defenderClient, err = initClientWithoutSubID(d.clients.defenderClient, d, armsecurity.NewPricingsClient)
 
 	return
 }
 
 // initDiskEncryptonSetClient creates the client if not already exists
-func (d *azureDiscovery) initDiskEncryptonSetClient() (err error) {
+func (d *azureCollector) initDiskEncryptonSetClient() (err error) {
 	d.clients.diskEncSetClient, err = initClientWithSubID(d.clients.diskEncSetClient, d, armcompute.NewDiskEncryptionSetsClient)
 
 	return
 }
 
 // initFileStorageClient creates the client if not already exists
-func (d *azureDiscovery) initFileStorageClient() (err error) {
+func (d *azureCollector) initFileStorageClient() (err error) {
 	d.clients.fileStorageClient, err = initClientWithSubID(d.clients.fileStorageClient, d, armstorage.NewFileSharesClient)
 
 	return
 }
 
 // initLoadBalancersClient creates the client if not already exists
-func (d *azureDiscovery) initLoadBalancersClient() (err error) {
+func (d *azureCollector) initLoadBalancersClient() (err error) {
 	d.clients.loadBalancerClient, err = initClientWithSubID(d.clients.loadBalancerClient, d, armnetwork.NewLoadBalancersClient)
 
 	return
 }
 
 // initNetworkInterfacesClient creates the client if not already exists
-func (d *azureDiscovery) initNetworkInterfacesClient() (err error) {
+func (d *azureCollector) initNetworkInterfacesClient() (err error) {
 	d.clients.networkInterfacesClient, err = initClientWithSubID(d.clients.networkInterfacesClient, d, armnetwork.NewInterfacesClient)
 
 	return
 }
 
 // initNetworkSecurityGroupClient creates the client if not already exists
-func (d *azureDiscovery) initNetworkSecurityGroupClient() (err error) {
+func (d *azureCollector) initNetworkSecurityGroupClient() (err error) {
 	d.clients.networkSecurityGroupsClient, err = initClientWithSubID(d.clients.networkSecurityGroupsClient, d, armnetwork.NewSecurityGroupsClient)
 
 	return
 }
 
-// azureDiscovery creates the client if not already exists
-func (d *azureDiscovery) initResourceGroupsClient() (err error) {
+// azureCollector creates the client if not already exists
+func (d *azureCollector) initResourceGroupsClient() (err error) {
 	d.clients.rgClient, err = initClientWithSubID(d.clients.rgClient, d, armresources.NewResourceGroupsClient)
 
 	return
 }
 
 // initSQLServersClient creates the client if not already exists
-func (d *azureDiscovery) initSQLServersClient() (err error) {
+func (d *azureCollector) initSQLServersClient() (err error) {
 	d.clients.sqlServersClient, err = initClientWithSubID(d.clients.sqlServersClient, d, armsql.NewServersClient)
 
 	return
 }
 
 // initThreatProtectionClient creates the client if not already exists
-func (d *azureDiscovery) initThreatProtectionClient() (err error) {
+func (d *azureCollector) initThreatProtectionClient() (err error) {
 	d.clients.threatProtectionClient, err = initClientWithSubID(d.clients.threatProtectionClient, d, armsql.NewDatabaseAdvancedThreatProtectionSettingsClient)
 
 	return
 }
 
 // initVirtualMachinesClient creates the client if not already exists
-func (d *azureDiscovery) initVirtualMachinesClient() (err error) {
+func (d *azureCollector) initVirtualMachinesClient() (err error) {
 	d.clients.virtualMachinesClient, err = initClientWithSubID(d.clients.virtualMachinesClient, d, armcompute.NewVirtualMachinesClient)
 
 	return
 }
 
 // initWebAppsClient creates the client if not already exists
-func (d *azureDiscovery) initWebAppsClient() (err error) {
+func (d *azureCollector) initWebAppsClient() (err error) {
 	d.clients.webAppsClient, err = initClientWithSubID(d.clients.webAppsClient, d, armappservice.NewWebAppsClient)
 
 	return
 }
 
 // initMachineLearningComputeClient creates the client if not already exists
-func (d *azureDiscovery) initMachineLearningComputeClient() (err error) {
+func (d *azureCollector) initMachineLearningComputeClient() (err error) {
 	d.clients.mlComputeClient, err = initClientWithSubID(d.clients.mlComputeClient, d, armmachinelearning.NewComputeClient)
 
 	return
 }
 
 // initMLWorkspaceClient creates the client if not already exists
-func (d *azureDiscovery) initMLWorkspaceClient() (err error) {
+func (d *azureCollector) initMLWorkspaceClient() (err error) {
 	d.clients.mlWorkspaceClient, err = initClientWithSubID(d.clients.mlWorkspaceClient, d, armmachinelearning.NewWorkspacesClient)
 
 	return
 }
 
 // initDiagnosticsSettingsClient creates the client if not already exists
-func (d *azureDiscovery) initDiagnosticsSettingsClient() (err error) {
+func (d *azureCollector) initDiagnosticsSettingsClient() (err error) {
 	d.clients.diagnosticSettingsClient, err = initClientWithoutSubID(d.clients.diagnosticSettingsClient, d, armmonitor.NewDiagnosticSettingsClient)
 
 	return

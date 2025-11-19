@@ -128,9 +128,9 @@ func Test_tlsVersion(t *testing.T) {
 	}
 }
 
-func Test_azureStorageDiscovery_discoverDiagnosticSettings(t *testing.T) {
+func Test_azureStorageCollector_collectDiagnosticSettings(t *testing.T) {
 	type fields struct {
-		azureDiscovery *azureDiscovery
+		azureCollector *azureCollector
 	}
 	type args struct {
 		resourceURI string
@@ -145,7 +145,7 @@ func Test_azureStorageDiscovery_discoverDiagnosticSettings(t *testing.T) {
 		{
 			name: "No Diagnostic Setting available",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				resourceURI: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account3",
@@ -158,7 +158,7 @@ func Test_azureStorageDiscovery_discoverDiagnosticSettings(t *testing.T) {
 		{
 			name: "Happy path: no workspace available",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				resourceURI: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account2",
@@ -169,7 +169,7 @@ func Test_azureStorageDiscovery_discoverDiagnosticSettings(t *testing.T) {
 		{
 			name: "Happy path: data logged",
 			fields: fields{
-				azureDiscovery: NewMockAzureDiscovery(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
 			args: args{
 				resourceURI: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account1",
@@ -183,12 +183,12 @@ func Test_azureStorageDiscovery_discoverDiagnosticSettings(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := tt.fields.azureDiscovery
+			d := tt.fields.azureCollector
 
 			// Init Diagnostic Settings Client
 			_ = d.initDiagnosticsSettingsClient()
 
-			got, raw, err := d.discoverDiagnosticSettings(tt.args.resourceURI)
+			got, raw, err := d.collectDiagnosticSettings(tt.args.resourceURI)
 
 			tt.wantErr(t, err)
 			if tt.wantErr != nil {

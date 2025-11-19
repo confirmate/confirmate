@@ -16,9 +16,9 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-// discoverKeys discovers the PGP keys and returns the respective keys in the ontology format as well as the keyring
-// needed for discovering the Security Advisories (discoverSecurityAdvisories)
-func (d *csafDiscovery) discoverKeys(pgpkeys []csaf.PGPKey, parentId string) (keys []ontology.IsResource, keyring openpgp.EntityList) {
+// collectKeys collects the PGP keys and returns the respective keys in the ontology format as well as the keyring
+// needed for collecting the Security Advisories (collectSecurityAdvisories)
+func (d *csafCollector) collectKeys(pgpkeys []csaf.PGPKey, parentId string) (keys []ontology.IsResource, keyring openpgp.EntityList) {
 	for _, pgpkey := range pgpkeys {
 		key, openPGPEntity := d.handleKey(pgpkey, parentId)
 		keys = append(keys, key)
@@ -29,7 +29,7 @@ func (d *csafDiscovery) discoverKeys(pgpkeys []csaf.PGPKey, parentId string) (ke
 
 // handleKey handles a [csaf.PGPKey]: First we try to fetch the actual key and provide a [openpgp.Entity]. Then we use
 // this information as well as the information provided by [csaf.PGPKey] to create a Key ontology object.
-func (d *csafDiscovery) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ontology.Key, openPGPEntity *openpgp.Entity) {
+func (d *csafCollector) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ontology.Key, openPGPEntity *openpgp.Entity) {
 	var (
 		err error
 		// isAccessible denotes that the key is accessible. We assume it is but set it to false if we could not fetch it
@@ -55,7 +55,7 @@ func (d *csafDiscovery) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ont
 	return
 }
 
-func (d *csafDiscovery) fetchKey(keyinfo csaf.PGPKey) (key *openpgp.Entity, err error) {
+func (d *csafCollector) fetchKey(keyinfo csaf.PGPKey) (key *openpgp.Entity, err error) {
 	var (
 		res  *http.Response
 		keys openpgp.EntityList

@@ -7,7 +7,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 )
 
-func Test_openstackDiscovery_identityClient(t *testing.T) {
+func Test_openstackCollector_identityClient(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -41,7 +41,7 @@ func Test_openstackDiscovery_identityClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -54,7 +54,7 @@ func Test_openstackDiscovery_identityClient(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_computeClient(t *testing.T) {
+func Test_openstackCollector_computeClient(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -88,7 +88,7 @@ func Test_openstackDiscovery_computeClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -101,7 +101,7 @@ func Test_openstackDiscovery_computeClient(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_networkClient(t *testing.T) {
+func Test_openstackCollector_networkClient(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -135,7 +135,7 @@ func Test_openstackDiscovery_networkClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -148,7 +148,7 @@ func Test_openstackDiscovery_networkClient(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_storageClient(t *testing.T) {
+func Test_openstackCollector_storageClient(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -182,7 +182,7 @@ func Test_openstackDiscovery_storageClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,
@@ -195,7 +195,7 @@ func Test_openstackDiscovery_storageClient(t *testing.T) {
 	}
 }
 
-func Test_openstackDiscovery_clusterClient(t *testing.T) {
+func Test_openstackCollector_clusterClient(t *testing.T) {
 	type fields struct {
 		ctID     string
 		clients  clients
@@ -229,7 +229,7 @@ func Test_openstackDiscovery_clusterClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &openstackDiscovery{
+			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
 				clients:  tt.fields.clients,
 				authOpts: tt.fields.authOpts,

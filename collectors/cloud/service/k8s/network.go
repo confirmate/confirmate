@@ -14,21 +14,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type k8sNetworkDiscovery struct{ k8sDiscovery }
+type k8sNetworkCollector struct{ k8sCollector }
 
-func NewKubernetesNetworkDiscovery(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
-	return &k8sNetworkDiscovery{k8sDiscovery{intf, TargetOfEvaluationID}}
+func NewKubernetesNetworkCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
+	return &k8sNetworkCollector{k8sCollector{intf, TargetOfEvaluationID}}
 }
 
-func (*k8sNetworkDiscovery) Name() string {
+func (*k8sNetworkCollector) Name() string {
 	return "Kubernetes Network"
 }
 
-func (*k8sNetworkDiscovery) Description() string {
-	return "Discover Kubernetes network resources."
+func (*k8sNetworkCollector) Description() string {
+	return "Collect Kubernetes network resources."
 }
 
-func (d *k8sNetworkDiscovery) List() ([]ontology.IsResource, error) {
+func (d *k8sNetworkCollector) List() ([]ontology.IsResource, error) {
 	var list []ontology.IsResource
 
 	services, err := d.intf.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
@@ -61,7 +61,7 @@ func (d *k8sNetworkDiscovery) List() ([]ontology.IsResource, error) {
 	return list, nil
 }
 
-func (d *k8sNetworkDiscovery) handleService(service *corev1.Service) ontology.IsResource {
+func (d *k8sNetworkCollector) handleService(service *corev1.Service) ontology.IsResource {
 	var (
 		ports []uint32
 	)
@@ -85,7 +85,7 @@ func getNetworkServiceResourceID(service *corev1.Service) string {
 	return fmt.Sprintf("/namespaces/%s/services/%s", service.Namespace, service.Name)
 }
 
-func (d *k8sNetworkDiscovery) handleIngress(ingress *v1.Ingress) ontology.IsResource {
+func (d *k8sNetworkCollector) handleIngress(ingress *v1.Ingress) ontology.IsResource {
 	lb := &ontology.LoadBalancer{
 		Id:           getLoadBalancerResourceID(ingress),
 		Name:         ingress.Name,

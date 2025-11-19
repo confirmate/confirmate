@@ -12,8 +12,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 )
 
-// discoverResourceGroups discovers resource groups and cloud account
-func (d *azureDiscovery) discoverResourceGroups() (list []ontology.IsResource, err error) {
+// collectResourceGroups collects resource groups and cloud account
+func (d *azureCollector) collectResourceGroups() (list []ontology.IsResource, err error) {
 	// initialize client
 	if err := d.initResourceGroupsClient(); err != nil {
 		return nil, err
