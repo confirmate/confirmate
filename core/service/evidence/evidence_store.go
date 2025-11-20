@@ -24,6 +24,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
@@ -32,9 +33,9 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"connectrpc.com/connect"
 
 	"buf.build/go/protovalidate"
+	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -88,12 +89,15 @@ func WithDB(db *persistence.DB) service.Option[*Service] {
 }
 
 // WithAssessmentConfig is an option to configure the assessment service gRPC address.
-func WithAssessmentConfig(target string, client *http.Client) service.Option[*Service] {
-
+func WithAssessmentConfig(conf assessmentConfig) service.Option[*Service] {
 	return func(s *Service) {
-		slog.Info("Assessment URL is set to %s", target)
-		s.assessmentConfig.targetAddress = target
-		s.assessmentConfig.client = client
+		// TODO(lebogg): Test this slog statement
+		slog.Info("Assessment URL is set to %s", conf.targetAddress, slog.Any("target", conf.targetAddress))
+		s.assessmentConfig.targetAddress = conf.targetAddress
+		// Avoid overriding the default client if no client is provided
+		if conf.client != nil {
+			s.assessmentConfig.client = conf.client
+		}
 	}
 }
 
@@ -113,7 +117,7 @@ func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
 		svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
 
 	if svc.db == nil {
-		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types))
+		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types...))
 		if err != nil {
 			err = fmt.Errorf("could not create db: %w", err)
 			return
@@ -127,7 +131,11 @@ func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
 }
 
 // handleEvidence processes an evidence, sending it to the assessment service via a persistent stream.
-func (svc *Service) handleEvidence(evidence *evidence.Evidence) error {
+func (svc *Service) handleEvidence(evidence *evidence.Evidence, attempt int) error {
+	const (
+		maxAttempts         = 5
+		waitBetweenAttempts = 10 * time.Second
+	)
 	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
 	// Get or create the stream (lazy initialization)
 	stream, err := svc.getOrCreateStream()
@@ -138,11 +146,25 @@ func (svc *Service) handleEvidence(evidence *evidence.Evidence) error {
 	// Send evidence to the assessment service using the persistent stream
 	// TODO(lebogg): Check EOF response of server
 	err = stream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	// TODO(lebogg): Use it later
+	//if errors.Is(err, io.EOF) {
+	//	return fmt.Errorf("assessment service closed the stream: %w", err)
+	//}
+
 	if err != nil {
 		// Invalidate the stream so it will be recreated on the next attempt
 		svc.streamMu.Lock()
 		svc.assessmentStream = nil
 		svc.streamMu.Unlock()
+
+		if attempt == maxAttempts {
+			return fmt.Errorf("could not send evidence to assessment service, tried %d times: %w", attempt, err)
+		}
+		if attempt < maxAttempts {
+			slog.Warn("could not send evidence to assessment service, retrying", slog.Any("attempt", attempt))
+			time.Sleep(waitBetweenAttempts)
+			return svc.handleEvidence(evidence, attempt+1)
+		}
 
 		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
 	}
@@ -160,9 +182,10 @@ func (svc *Service) initEvidenceChannel() {
 			e := <-svc.channelEvidence
 
 			// Process the evidence
-			err := svc.handleEvidence(e)
+			err := svc.handleEvidence(e, 0)
 			if err != nil {
-				slog.Error("Error while processing evidence: %v", err)
+				// TODO(lebogg): Test this slog statement
+				slog.Error("Error while processing evidence: %s", err.Error(), slog.Any("evidence", e))
 			}
 		}
 	}()
@@ -190,13 +213,15 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// resource for our storage layer. This is needed to store the resource in our DBs
 	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
-		slog.Error("Could not convert resource: %v", err)
+		// TODO(lebogg): Test this slog statement
+		slog.Error("Could not convert resource: %s", err.Error(), slog.Any("err", err))
 		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
 	}
 	// Persist the latest state of the resource
 	err = svc.db.Save(&r, "id = ?", r.Id)
 	if err != nil {
-		slog.Error("Could not save resource with ID '%s' to storage: %v", r.Id, err)
+		// TODO(lebogg): Test this slog statement
+		slog.Error("Could not save resource with ID '%s' to storage: %s", r.Id, err.Error(), slog.Any("err", err))
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
 	}
 
@@ -206,7 +231,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// without waiting for the evidence to be processed.
 	svc.channelEvidence <- req.Msg.Evidence
 
-	slog.Debug("received and handled store evidence request: %v", req)
+	// TODO(lebogg): Test this slog statement
+	slog.Debug("received and handled store evidence request with evidence ID %v", req.Msg.Evidence.Id, slog.Any("evidence", req.Msg.Evidence))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
 }
