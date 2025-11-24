@@ -28,6 +28,7 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
 	"github.com/lmittmann/tint"
+	"github.com/urfave/cli/v3"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -42,8 +43,6 @@ const (
 	CloudCollectorStart CollectorEventType = iota
 	// CloudCollectorFinished is emitted at the end of a collector run.
 	CloudCollectorFinished
-
-	DefaultCollectorAutoStartFlag = true
 
 	DefaultEvidenceStoreURL = "localhost:9092"
 )
@@ -73,15 +72,6 @@ type CloudCollectorConfig struct {
 
 	//evStreamConfig holds the configuration for the evidence store stream.
 	evStreamConfig EvidenceStoreStreamConfig
-
-	// autoStart indicates whether the collector should be automatically started when the service is initialized.
-	autoStart bool
-
-	// resourceGroup is the Azure resource group to collect resources from.
-	resourceGroup string
-
-	// csafDomain is the domain used for CSAF trusted provider collector.
-	csafDomain string
 }
 
 // EvidenceStoreStreamConfig holds the configuration for the evidence store stream.
@@ -230,7 +220,6 @@ func NewService(opts ...service.Option[*Service]) *Service {
 		scheduler: gocron.NewScheduler(time.UTC),
 		Events:    make(chan *CollectorEvent),
 		cloudConfig: CloudCollectorConfig{
-			autoStart:            DefaultCollectorAutoStartFlag,
 			targetOfEvaluationID: config.DefaultTargetOfEvaluationID,
 			collectorToolID:      config.DefaultEvidenceCollectorToolID,
 			provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
@@ -253,15 +242,15 @@ func NewService(opts ...service.Option[*Service]) *Service {
 	return s
 }
 
-func (svc *Service) Init() {
+func (svc *Service) Init(ctx context.Context, cmd *cli.Command) {
 	var err error
 
 	// Automatically start the collector, if we have this flag enabled
-	if svc.cloudConfig.autoStart {
+	if cmd.Bool("collector-auto-start") {
 		go func() {
 			// TODO(all): Do we need that anymore?
 			// <-rest.GetReadyChannel()
-			err = svc.Start()
+			err = svc.Start(cmd)
 			if err != nil {
 				log.Error("Could not automatically start collector", tint.Err(err))
 			}
@@ -275,7 +264,7 @@ func (svc *Service) Shutdown() {
 }
 
 // Start starts collector
-func (svc *Service) Start() (err error) {
+func (svc *Service) Start(cmd *cli.Command) (err error) {
 	var (
 		optsAzure     = []azure.CollectorOption{}
 		optsOpenstack = []openstack.CollectorOption{}
@@ -297,8 +286,9 @@ func (svc *Service) Start() (err error) {
 			// Add authorizer and TargetOfEvaluationID
 			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
 			// Check if resource group is given and append to collector
-			if svc.cloudConfig.resourceGroup != "" {
-				optsAzure = append(optsAzure, azure.WithResourceGroup(svc.cloudConfig.resourceGroup))
+			rg := cmd.String("collector-resource-group")
+			if rg != "" {
+				optsAzure = append(optsAzure, azure.WithResourceGroup(cmd.String("collector-resource-group")))
 			}
 			svc.collectors = append(svc.collectors, azure.NewAzureCollector(optsAzure...))
 		case provider == ProviderK8S:
@@ -337,13 +327,13 @@ func (svc *Service) Start() (err error) {
 				domain string
 				opts   []csaf.CollectorOption
 			)
-			domain = svc.cloudConfig.csafDomain
+			domain = cmd.String("collector-csaf-domain")
 			if domain != "" {
 				opts = append(opts, csaf.WithProviderDomain(domain))
 			}
 			svc.collectors = append(svc.collectors, csaf.NewTrustedProviderCollector(opts...))
 		default:
-			newError := fmt.Errorf("provider %s not known", provider)
+			newError := fmt.Errorf("provider '%s' not known", provider)
 			log.Error("provider not known", "provider", provider, "error", newError)
 			return fmt.Errorf("%s", newError)
 		}
