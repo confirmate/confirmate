@@ -117,25 +117,6 @@ func (svc *service) ListTargetsOfEvaluation(
 	return
 }
 
-func (svc *service) ListAssessmentResults(
-	ctx context.Context,
-	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
-) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
-	var (
-		results []*assessment.AssessmentResult
-	)
-
-	err = svc.db.List(&results, "createdAt", true, 0, -1, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
-	}
-
-	res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
-		Results: results,
-	})
-	return
-}
-
 func (svc *service) StoreAssessmentResults(
 	ctx context.Context,
 	req *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
