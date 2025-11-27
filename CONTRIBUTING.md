@@ -66,9 +66,35 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 }
 ```
 
-### Short Variable Declaration in Tests
+### Short Variable Declaration
 
-The use of `:=` (short variable declaration) is acceptable and encouraged in test functions, as tests often need to quickly declare and use variables. However, production code should follow the named return and `var` block guidelines.
+Avoid using `:=` (short variable declaration) in production code. Instead, use `var` blocks and named return values as shown above.
+
+However, the use of `:=` is acceptable and encouraged in test functions, as tests often need to quickly declare and use variables.
+
+### Import Formatting
+
+- Use `goimports` to automatically format and organize imports
+- Imports should be grouped into standard library, internal packages and external packages
+- Run `goimports -w .` before committing to ensure consistent import formatting
+
+**Example:**
+```go
+import (
+    // Standard library
+    "context"
+    "fmt"
+    "log/slog"
+
+    // Internal packages
+    "github.com/confirmate/confirmate/core/persistence"
+    "github.com/confirmate/confirmate/core/util/assert"
+
+    // External packages
+    "github.com/google/uuid"
+    "github.com/lmittmann/tint"
+)
+```
 
 ## Documentation Guidelines
 
@@ -95,7 +121,31 @@ type service struct {
 //
 // It initializes the database with auto-migration for the required types and sets up the necessary
 // join tables.
+func NewService() (svc orchestratorconnect.OrchestratorHandler, err error) {
+    // Implementation
+}
+
+// CreateMetric creates a new metric in the database.
+// It returns an error if the metric already exists or if the database operation fails.
+func (s *service) CreateMetric(ctx context.Context, req *connect.Request[v1.CreateMetricRequest]) (res *connect.Response[v1.Metric], err error) {
+    // Implementation
+}
+```
+
+**Bad:**
+```go
+package orchestrator
+
+type service struct {
+    orchestratorconnect.UnimplementedOrchestratorHandler
+    db *persistence.DB
+}
+
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
+    // Implementation
+}
+
+func (s *service) CreateMetric(ctx context.Context, req *connect.Request[v1.CreateMetricRequest]) (*connect.Response[v1.Metric], error) {
     // Implementation
 }
 ```
@@ -121,6 +171,8 @@ Avoid adding `README.md` files in internal code directories. Instead, use packag
 ### Table-Driven Tests
 
 Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend.
+
+The actual test body should be kept as short and clear as possible. Instead of extensive logic or repetitive code, prefer using `assert.WantErr` or `assert.Want` from the `core/util/assert` package to make checks concise and precise.
 
 **Example:**
 ```go
@@ -176,6 +228,12 @@ For test assertions, use the `core/util/assert` package instead of direct compar
 
 **Example:**
 ```go
+import (
+    "testing"
+
+    "github.com/confirmate/confirmate/core/util/assert"
+)
+
 func Test_DB_Create(t *testing.T) {
     var (
         err    error
@@ -203,19 +261,6 @@ func Test_DB_Create(t *testing.T) {
 }
 ```
 
-### Short Variable Declaration in Tests
-
-In test functions, it's acceptable to use `:=` for variable declarations:
-
-```go
-func TestSomething(t *testing.T) {
-    // This is fine in tests
-    got := doSomething()
-    want := "expected"
-    assert.Equal(t, want, got)
-}
-```
-
 ## Dependencies and Libraries
 
 ### Reduce Dependencies
@@ -235,13 +280,28 @@ func TestSomething(t *testing.T) {
 - Use `slog` (standard library structured logging) for all logging
 - Do not use `log` or `logrus`
 - Use structured logging with appropriate log levels
+- Prefer using `slog.Any()` and typed attribute functions (e.g., `slog.String()`, `slog.Int()`) for clarity and to make key-value pairs more explicit
+- Use `tint.Err(err)` instead of `slog.Any("error", err)` for error logging
 
 **Example:**
 ```go
-import "log/slog"
+import (
+    "log/slog"
 
-slog.Info("service started", "port", port)
-slog.Error("failed to connect", "error", err)
+    "github.com/lmittmann/tint"
+)
+
+slog.Info("service started", slog.Int("port", port))
+slog.Error("failed to connect", tint.Err(err))
+
+// For multiple parameters:
+slog.Error("failed to connect stream",
+    slog.Any("stream", svc.streamName),
+    slog.Any("address", svc.address),
+    slog.Int("port", svc.port),
+    slog.String("evidence", evidence.Id),
+    tint.Err(err)
+)
 ```
 
 ### Database and Storage
@@ -274,6 +334,9 @@ slog.Error("failed to connect", "error", err)
    - Provide a clear description of the changes
    - Reference any related issues
    - Respond to review feedback promptly
+   - When merging to the main branch, use a concise, descriptive commit message that follows the Go 
+     project style: `<pkg>: <description>` (e.g., `core/service/orchestrator: implement metric export functionality`,
+     `core/persistence: fix database timeout issue`, `doc: update API documentation`)
 
 ## License
 
