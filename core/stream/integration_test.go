@@ -139,4 +139,5 @@ func TestStreamRestartIntegration(t *testing.T) {
 	assert.Equal(t, 2, len(res.Msg.Results))
 
 	t.Log("Test passed: Stream restart mechanism successfully triggered and executed")
+	testSrv2.CloseClientConnections()
 }
