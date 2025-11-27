@@ -90,7 +90,7 @@ func TestRestartableBidiStream_RetryCount(t *testing.T) {
 	config := DefaultRestartConfig()
 	config.MaxRetries = 5
 	config.InitialBackoff = 1 * time.Millisecond
-	
+
 	factory := func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return client.StoreAssessmentResults(ctx)
 	}
@@ -138,7 +138,7 @@ func TestRestartableBidiStream_Close(t *testing.T) {
 	rs.mu.RLock()
 	closed := rs.closed
 	rs.mu.RUnlock()
-	
+
 	assert.True(t, closed)
 
 	// Second close should be idempotent
@@ -223,7 +223,7 @@ func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 	ctx := context.Background()
 	var restartAttempts atomic.Int32
 	var failureCalled atomic.Bool
-	
+
 	factory := func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return client.StoreAssessmentResults(ctx)
 	}
@@ -251,14 +251,14 @@ func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 		// Return nil to simulate stream creation failure
 		return nil
 	}
-	
+
 	// Replace the factory with the failing one
 	rs.factory = failingFactory
 
 	// Simulate an error that triggers restart
 	testErr := errors.New("test connection error")
 	restartErr := rs.restart(testErr)
-	
+
 	// Should fail after max retries
 	assert.Error(t, restartErr)
 
@@ -298,7 +298,7 @@ func TestRestartableBidiStream_ExponentialBackoff(t *testing.T) {
 	backoff := config.InitialBackoff
 	for _, expected := range expectedBackoffs {
 		assert.Equal(t, expected, backoff)
-		
+
 		backoff = time.Duration(float64(backoff) * config.BackoffMultiplier)
 		if backoff > config.MaxBackoff {
 			backoff = config.MaxBackoff
@@ -332,7 +332,7 @@ func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 	config := DefaultRestartConfig()
 	config.MaxRetries = 1
 	config.InitialBackoff = 1 * time.Millisecond
-	
+
 	rs, err := NewRestartableBidiStream(ctx, factory, config)
 	assert.NoError(t, err)
 	defer rs.Close()
@@ -343,7 +343,7 @@ func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			
+
 			// Try various operations concurrently
 			_ = rs.RetryCount()
 			_ = rs.LastError()
