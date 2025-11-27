@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -68,10 +69,9 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 func (svc *service) ListTargetsOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (*connect.Response[orchestrator.ListTargetsOfEvaluationResponse], error) {
+) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
 	var (
-		toes = []*orchestrator.TargetOfEvaluation{}
-		err  error
+		toes []*orchestrator.TargetOfEvaluation
 	)
 
 	err = svc.db.List(&toes, "name", true, 0, -1, nil)
@@ -79,7 +79,51 @@ func (svc *service) ListTargetsOfEvaluation(
 		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
 	}
 
-	return connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
+	res = connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
 		TargetsOfEvaluation: toes,
-	}), nil
+	})
+	return
+}
+
+func (svc *service) ListAssessmentResults(
+	ctx context.Context,
+	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
+) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
+	var (
+		results []*assessment.AssessmentResult
+	)
+
+	err = svc.db.List(&results, "createdAt", true, 0, -1, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
+	}
+
+	res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+		Results: results,
+	})
+	return
+}
+
+func (svc *service) StoreAssessmentResults(
+	ctx context.Context,
+	req *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
+) error {
+	for {
+		msg, err := req.Receive()
+		if err != nil {
+			return err
+		}
+
+		// Store the assessment result in the database
+		err = svc.db.Create(msg.Result)
+		if err != nil {
+			return fmt.Errorf("failed to store assessment result: %w", err)
+		}
+
+		// Send an acknowledgment response
+		err = req.Send(&orchestrator.StoreAssessmentResultsResponse{Status: true})
+		if err != nil {
+			return err
+		}
+	}
 }

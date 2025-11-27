@@ -2,6 +2,7 @@ package servertest
 
 import (
 	"net"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 // The caller must close the returned [httptest.Server] using testsrv.Close() when done. This will
 // fail the test if the server could not be created.
 func NewTestConnectServer(t *testing.T, opts ...server.Option) (srv *server.Server, testsrv *httptest.Server) {
-	return newTestConnectServerInternal(t, opts, nil)
+	return NewTestConnectServerWithListener(t, nil, opts...)
 }
 
 // NewTestConnectServerWithListener creates a new in-memory Connect server for testing purposes,
@@ -27,11 +28,6 @@ func NewTestConnectServer(t *testing.T, opts ...server.Option) (srv *server.Serv
 // The caller must close the returned [httptest.Server] using testsrv.Close() when done. This will
 // fail the test if the server could not be created.
 func NewTestConnectServerWithListener(t *testing.T, listener net.Listener, opts ...server.Option) (srv *server.Server, testsrv *httptest.Server) {
-	return newTestConnectServerInternal(t, opts, listener)
-}
-
-// newTestConnectServerInternal is the shared implementation for creating test Connect servers.
-func newTestConnectServerInternal(t *testing.T, opts []server.Option, listener net.Listener) (srv *server.Server, testsrv *httptest.Server) {
 	var err error
 
 	srv, err = server.NewConnectServer(opts)
@@ -41,13 +37,17 @@ func newTestConnectServerInternal(t *testing.T, opts []server.Option, listener n
 
 	if listener != nil {
 		// Use provided listener
-		testsrv = httptest.NewUnstartedServer(srv.Handler)
-		testsrv.Listener = listener
-		testsrv.Start()
+		testsrv = &httptest.Server{
+			Listener: listener,
+			Config:   &http.Server{Handler: srv.Handler},
+		}
 	} else {
 		// Create new server with random port
-		testsrv = httptest.NewServer(srv.Handler)
+		testsrv = httptest.NewUnstartedServer(srv.Handler)
 	}
+
+	testsrv.EnableHTTP2 = true
+	testsrv.StartTLS()
 
 	return srv, testsrv
 }

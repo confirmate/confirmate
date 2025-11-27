@@ -181,7 +181,7 @@ func NewRestartableBidiStream[Req, Res any](
 		streamName string
 		stream     *connect.BidiStreamForClient[Req, Res]
 	)
-	
+
 	streamCtx, cancel = context.WithCancel(ctx)
 
 	// Create initial stream
@@ -190,7 +190,7 @@ func NewRestartableBidiStream[Req, Res any](
 		cancel()
 		return nil, fmt.Errorf("factory returned nil stream")
 	}
-	
+
 	// Determine stream name
 	if len(name) > 0 && name[0] != "" {
 		streamName = name[0]
@@ -227,7 +227,7 @@ func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) (err error) {
 	var (
 		stream *connect.BidiStreamForClient[Req, Res]
 	)
-	
+
 	rs.mu.RLock()
 	if rs.closed {
 		rs.mu.RUnlock()
@@ -246,7 +246,8 @@ func (rs *RestartableBidiStream[Req, Res]) Send(msg *Req) (err error) {
 		rs.mu.RLock()
 		stream = rs.stream
 		rs.mu.RUnlock()
-		return stream.Send(msg)
+		err = stream.Send(msg)
+		return
 	}
 
 	return nil
@@ -257,7 +258,7 @@ func (rs *RestartableBidiStream[Req, Res]) Receive() (msg *Res, err error) {
 	var (
 		stream *connect.BidiStreamForClient[Req, Res]
 	)
-	
+
 	rs.mu.RLock()
 	if rs.closed {
 		rs.mu.RUnlock()
@@ -319,7 +320,7 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 		if rs.config.OnRestart != nil {
 			go rs.config.OnRestart(attempt, originalErr)
 		}
-		
+
 		slog.Debug("Attempting to restart stream",
 			"stream", streamName,
 			"attempt", attempt,
@@ -345,7 +346,7 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 			slog.Info("Stream restarted successfully",
 				"stream", streamName,
 				"attempt", attempt)
-			
+
 			if rs.config.OnRestartSuccess != nil {
 				// Call callback in goroutine to avoid blocking
 				go rs.config.OnRestartSuccess(attempt)
