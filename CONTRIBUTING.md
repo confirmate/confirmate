@@ -170,51 +170,73 @@ Avoid adding `README.md` files in internal code directories. Instead, use packag
 
 ### Table-Driven Tests
 
-Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend.
+Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend. It specifies the `args` of the call and optionally the `fields` of the struct, if the to-be-called function is a method.
 
 The actual test body should be kept as short and clear as possible. Instead of extensive logic or repetitive code, prefer using `assert.WantErr` or `assert.Want` from the `core/util/assert` package to make checks concise and precise.
 
+When dealing with Connect response, the helper assertion method `assert.WantResponse` should be used.
+
 **Example:**
 ```go
-func TestEqual(t *testing.T) {
-    type args struct {
-        t    TestingT
-        want any
-        got  any
-        opts []cmp.Option
-    }
-    tests := []struct {
-        name string
-        args args
-        want bool
-    }{
-        {
-            name: "compare literals",
-            args: args{
-                t:    t,
-                want: "5",
-                got:  "5",
-            },
-            want: true,
-        },
-        {
-            name: "compare structs with unexported fields",
-            args: args{
-                t:    t,
-                want: &MyStruct{A: "test", b: 1},
-                got:  &MyStruct{A: "test", b: 1},
-                opts: []cmp.Option{CompareAllUnexported()},
-            },
-            want: true,
-        },
-    }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            if got := Equal(tt.args.t, tt.args.want, tt.args.got, tt.args.opts...); got != tt.want {
-                t.Errorf("Equal() = %v, want %v", got, tt.want)
-            }
-        })
-    }
+func TestService_GetMetric(t *testing.T) {
+	type args struct {
+		req *orchestrator.GetMetricRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*assessment.Metric]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *assessment.Metric, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockMetric1.Id, got.Id)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: "non-existent",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &service{
+				db: tt.fields.db,
+			}
+			res, err := svc.GetMetric(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+		})
+	}
 }
 ```
 

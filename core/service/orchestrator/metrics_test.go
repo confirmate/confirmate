@@ -41,7 +41,7 @@ func TestService_CreateMetric(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[*assessment.Metric]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr[*connect.Error]
 	}{
 		{
 			name: "happy path",
@@ -53,11 +53,11 @@ func TestService_CreateMetric(t *testing.T) {
 					Metric: orchestratortest.MockMetric1,
 				},
 			},
-			want: func(t *testing.T, got *assessment.Metric) bool {
+			want: func(t *testing.T, got *assessment.Metric, args ...any) bool {
 				return assert.Equal(t, orchestratortest.MockMetric1.Id, got.Id) &&
 					assert.Equal(t, orchestratortest.MockMetric1.Description, got.Description)
 			},
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 	}
 
@@ -67,8 +67,7 @@ func TestService_CreateMetric(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.CreateMetric(context.Background(), connect.NewRequest(tt.args.req))
-			tt.wantErr(t, err)
-			tt.want(t, res.Msg)
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
@@ -85,7 +84,7 @@ func TestService_GetMetric(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*assessment.Metric]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr[*connect.Error]
 	}{
 		{
 			name: "happy path",
@@ -100,11 +99,11 @@ func TestService_GetMetric(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *assessment.Metric) bool {
+			want: func(t *testing.T, got *assessment.Metric, args ...any) bool {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, orchestratortest.MockMetric1.Id, got.Id)
 			},
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 		{
 			name: "not found",
@@ -116,8 +115,10 @@ func TestService_GetMetric(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want:    nil,
-			wantErr: assert.Error,
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
 		},
 	}
 
@@ -127,8 +128,7 @@ func TestService_GetMetric(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.GetMetric(context.Background(), connect.NewRequest(tt.args.req))
-			tt.wantErr(t, err)
-			assert.WantResponse(t, res, tt.want)
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }

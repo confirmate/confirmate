@@ -22,6 +22,7 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -50,7 +51,7 @@ func (svc *service) GetMetric(
 	var res assessment.Metric
 
 	err := svc.db.Get(&res, "id = ?", req.Msg.MetricId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -164,7 +165,7 @@ func (svc *service) GetMetricConfiguration(
 ) (*connect.Response[assessment.MetricConfiguration], error) {
 	var res assessment.MetricConfiguration
 
-	err := svc.db.Get(&res, "target_of_evaluation_id = ? AND metric_id = ?", 
+	err := svc.db.Get(&res, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric configuration not found"))
@@ -182,7 +183,7 @@ func (svc *service) ListMetricConfigurations(
 ) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error) {
 	var configs []*assessment.MetricConfiguration
 
-	err := svc.db.List(&configs, "metric_id", true, 0, -1, 
+	err := svc.db.List(&configs, "metric_id", true, 0, -1,
 		"target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list metric configurations: %w", err))
@@ -205,7 +206,7 @@ func (svc *service) UpdateMetricConfiguration(
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
 ) (*connect.Response[assessment.MetricConfiguration], error) {
 	// Check if the metric configuration exists
-	count, err := svc.db.Count(req.Msg.Configuration, "target_of_evaluation_id = ? AND metric_id = ?", 
+	count, err := svc.db.Count(req.Msg.Configuration, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -220,7 +221,7 @@ func (svc *service) UpdateMetricConfiguration(
 	req.Msg.Configuration.MetricId = req.Msg.MetricId
 
 	// Save the updated metric configuration
-	err = svc.db.Save(req.Msg.Configuration, "target_of_evaluation_id = ? AND metric_id = ?", 
+	err = svc.db.Save(req.Msg.Configuration, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
