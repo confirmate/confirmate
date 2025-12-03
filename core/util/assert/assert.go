@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"testing"
 
+	"connectrpc.com/connect"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -137,4 +138,15 @@ func Optional[T any](t *testing.T, want Want[T], got T) bool {
 	}
 
 	return true
+}
+
+// WantResponse is a helper to assert a [connect.Response] in tests.
+func WantResponse[T any](t *testing.T, got *connect.Response[T], want Want[*T]) bool {
+	t.Helper()
+
+	if want == nil {
+		return assert.Nil(t, got)
+	}
+
+	return want(t, got.Msg)
 }

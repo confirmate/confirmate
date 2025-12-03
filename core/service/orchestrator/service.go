@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 
-	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
