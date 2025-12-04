@@ -26,7 +26,6 @@ import (
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/gorm"
 )
 
 // CreateMetric creates a new metric.
@@ -125,7 +124,7 @@ func (svc *service) GetMetricImplementation(
 	var res assessment.MetricImplementation
 
 	err := svc.db.Get(&res, "metric_id = ?", req.Msg.MetricId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric implementation not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -167,7 +166,7 @@ func (svc *service) GetMetricConfiguration(
 
 	err := svc.db.Get(&res, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric configuration not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))

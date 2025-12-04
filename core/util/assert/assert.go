@@ -104,13 +104,13 @@ func Nil[T any](t *testing.T, obj T, msgAndArgs ...any) bool {
 	return assert.Nil(t, obj, msgAndArgs...)
 }
 
-func NotNil[T any](t *testing.T, obj T) bool {
+func NotNil[T any](t *testing.T, obj T, msgAndArgs ...any) bool {
 	t.Helper()
 
-	return assert.NotNil(t, obj)
+	return assert.NotNil(t, obj, msgAndArgs...)
 }
 
-func Empty[T any](t *testing.T, obj T) bool {
+func Empty[T any](t *testing.T, obj T, msgAndArgs ...any) bool {
 	t.Helper()
 
 	return assert.Empty(t, obj)

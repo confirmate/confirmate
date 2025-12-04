@@ -27,6 +27,7 @@ import (
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestService_CreateMetric(t *testing.T) {
@@ -134,409 +135,437 @@ func TestService_GetMetric(t *testing.T) {
 }
 
 func TestService_ListMetrics(t *testing.T) {
-	var (
-		tests = []struct {
-			name      string
-			setup     func(*service)
-			wantCount int
-		}{
-			{
-				name: "list all",
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.Metric{
-						Id:          "metric-1",
-						Description: "First metric",
-					})
-					assert.NoError(t, err)
-
-					err = svc.db.Create(&assessment.Metric{
-						Id:          "metric-2",
-						Description: "Second metric",
-					})
-					assert.NoError(t, err)
-				},
-				wantCount: 2,
+	type args struct {
+		req *orchestrator.ListMetricsRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*orchestrator.ListMetricsResponse]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "list all",
+			args: args{
+				req: &orchestrator.ListMetricsRequest{},
 			},
-			{
-				name:      "empty list",
-				setup:     func(svc *service) {},
-				wantCount: 0,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetric2)
+					assert.NoError(t, err)
+				}),
 			},
-		}
-	)
+			want: func(t *testing.T, got *orchestrator.ListMetricsResponse, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 2, len(got.Metrics))
+			},
+			wantErr: nil,
+		},
+		{
+			name: "empty list",
+			args: args{
+				req: &orchestrator.ListMetricsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: func(t *testing.T, got *orchestrator.ListMetricsResponse, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 0, len(got.Metrics))
+			},
+			wantErr: nil,
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.ListMetricsRequest{})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.ListMetrics(context.Background(), req)
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.wantCount, len(res.Msg.Metrics))
+			svc := &service{
+				db: tt.fields.db,
+			}
+			res, err := svc.ListMetrics(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_UpdateMetric(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			req     *orchestrator.UpdateMetricRequest
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
+	type args struct {
+		req *orchestrator.UpdateMetricRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*assessment.Metric]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
-						Id:          "metric-1",
+						Id:          orchestratortest.MockMetric1.Id,
 						Description: "Updated description",
 					},
 				},
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.Metric{
-						Id:          "metric-1",
-						Description: "Original description",
-					})
-					assert.NoError(t, err)
-				},
-				wantErr: false,
 			},
-			{
-				name: "not found",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *assessment.Metric, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, "Updated description", got.Description)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
 						Id:          "non-existent",
 						Description: "Updated description",
 					},
 				},
-				setup:   func(svc *service) {},
-				wantErr: true,
 			},
-		}
-	)
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(tt.req)
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.UpdateMetric(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.req.Metric.Description, res.Msg.Description)
+			res, err := svc.UpdateMetric(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_RemoveMetric(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			id      string
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
-				id:   "metric-1",
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.Metric{
-						Id:          "metric-1",
-						Description: "A test metric",
-					})
-					assert.NoError(t, err)
+	type args struct {
+		req *orchestrator.RemoveMetricRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*emptypb.Empty]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.RemoveMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
 				},
-				wantErr: false,
 			},
-		}
-	)
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *emptypb.Empty, args ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: nil,
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.RemoveMetricRequest{
-					MetricId: tt.id,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.RemoveMetric(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
+			res, err := svc.RemoveMetric(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_GetMetricImplementation(t *testing.T) {
-	var (
-		tests = []struct {
-			name     string
-			metricId string
-			setup    func(*service)
-			wantErr  bool
-		}{
-			{
-				name:     "happy path",
-				metricId: "metric-1",
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.MetricImplementation{
-						MetricId: "metric-1",
-						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
-					})
-					assert.NoError(t, err)
+	type args struct {
+		req *orchestrator.GetMetricImplementationRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*assessment.MetricImplementation]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.GetMetricImplementationRequest{
+					MetricId: orchestratortest.MockMetricImplementation1.MetricId,
 				},
-				wantErr: false,
 			},
-			{
-				name:     "not found",
-				metricId: "non-existent",
-				setup:    func(svc *service) {},
-				wantErr:  true,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricImplementation1)
+					assert.NoError(t, err)
+				}),
 			},
-		}
-	)
+			want: func(t *testing.T, got *assessment.MetricImplementation, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockMetricImplementation1.MetricId, got.MetricId)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetMetricImplementationRequest{
+					MetricId: "non-existent",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.GetMetricImplementationRequest{
-					MetricId: tt.metricId,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.GetMetricImplementation(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.metricId, res.Msg.MetricId)
+			res, err := svc.GetMetricImplementation(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_UpdateMetricImplementation(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			req     *orchestrator.UpdateMetricImplementationRequest
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
+	type args struct {
+		req *orchestrator.UpdateMetricImplementationRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*assessment.MetricImplementation]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
 				req: &orchestrator.UpdateMetricImplementationRequest{
 					Implementation: &assessment.MetricImplementation{
-						MetricId: "metric-1",
+						MetricId: orchestratortest.MockMetricImplementation1.MetricId,
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
 						Code:     "updated code",
 					},
 				},
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.MetricImplementation{
-						MetricId: "metric-1",
-						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
-						Code:     "original code",
-					})
-					assert.NoError(t, err)
-				},
-				wantErr: false,
 			},
-			{
-				name: "not found",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricImplementation1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *assessment.MetricImplementation, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, "updated code", got.Code)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
 				req: &orchestrator.UpdateMetricImplementationRequest{
 					Implementation: &assessment.MetricImplementation{
 						MetricId: "non-existent",
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
 					},
 				},
-				setup:   func(svc *service) {},
-				wantErr: true,
 			},
-		}
-	)
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(tt.req)
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.UpdateMetricImplementation(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.req.Implementation.Code, res.Msg.Code)
+			res, err := svc.UpdateMetricImplementation(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_GetMetricConfiguration(t *testing.T) {
-	var (
-		tests = []struct {
-			name     string
-			toeId    string
-			metricId string
-			setup    func(*service)
-			wantErr  bool
-		}{
-			{
-				name:     "happy path",
-				toeId:    "toe-1",
-				metricId: "metric-1",
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-1",
-						MetricId:             "metric-1",
-						IsDefault:            true,
-					})
-					assert.NoError(t, err)
+	type args struct {
+		req *orchestrator.GetMetricConfigurationRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*assessment.MetricConfiguration]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.GetMetricConfigurationRequest{
+					TargetOfEvaluationId: orchestratortest.MockMetricConfiguration1.TargetOfEvaluationId,
+					MetricId:             orchestratortest.MockMetricConfiguration1.MetricId,
 				},
-				wantErr: false,
 			},
-			{
-				name:     "not found",
-				toeId:    "toe-1",
-				metricId: "non-existent",
-				setup:    func(svc *service) {},
-				wantErr:  true,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricConfiguration1)
+					assert.NoError(t, err)
+				}),
 			},
-		}
-	)
+			want: func(t *testing.T, got *assessment.MetricConfiguration, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockMetricConfiguration1.MetricId, got.MetricId)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetMetricConfigurationRequest{
+					TargetOfEvaluationId: orchestratortest.MockMetricConfiguration1.TargetOfEvaluationId,
+					MetricId:             "non-existent",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.GetMetricConfigurationRequest{
-					TargetOfEvaluationId: tt.toeId,
-					MetricId:             tt.metricId,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.GetMetricConfiguration(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.metricId, res.Msg.MetricId)
+			res, err := svc.GetMetricConfiguration(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_ListMetricConfigurations(t *testing.T) {
-	var (
-		tests = []struct {
-			name      string
-			toeId     string
-			setup     func(*service)
-			wantCount int
-		}{
-			{
-				name:  "list all for TOE",
-				toeId: "toe-1",
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-1",
-						MetricId:             "metric-1",
-						IsDefault:            true,
-					})
+	type args struct {
+		req *orchestrator.ListMetricConfigurationRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*orchestrator.ListMetricConfigurationResponse]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "list all for TOE",
+			args: args{
+				req: &orchestrator.ListMetricConfigurationRequest{
+					TargetOfEvaluationId: orchestratortest.MockMetricConfiguration1.TargetOfEvaluationId,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
-
-					err = svc.db.Create(&assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-1",
-						MetricId:             "metric-2",
-						IsDefault:            false,
-					})
+					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
 					assert.NoError(t, err)
-
-					err = svc.db.Create(&assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-2",
+					err = d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetric2)
+					assert.NoError(t, err)
+					err = d.Create(&assessment.Metric{Id: "metric-3", Description: "Mock Metric 3"})
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricConfiguration1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricConfiguration2)
+					assert.NoError(t, err)
+					err = d.Create(&assessment.MetricConfiguration{
+						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation2.Id,
 						MetricId:             "metric-3",
 						IsDefault:            true,
 					})
 					assert.NoError(t, err)
-				},
-				wantCount: 2,
+				}),
 			},
-		}
-	)
+			want: func(t *testing.T, got *orchestrator.ListMetricConfigurationResponse, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 2, len(got.Configurations))
+			},
+			wantErr: nil,
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.ListMetricConfigurationRequest{
-					TargetOfEvaluationId: tt.toeId,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.ListMetricConfigurations(context.Background(), req)
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.wantCount, len(res.Msg.Configurations))
+			svc := &service{
+				db: tt.fields.db,
+			}
+			res, err := svc.ListMetricConfigurations(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }

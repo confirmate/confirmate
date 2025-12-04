@@ -21,10 +21,10 @@ import (
 	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/gorm"
 )
 
 // RegisterAssessmentTool registers a new assessment tool.
@@ -49,7 +49,7 @@ func (svc *service) GetAssessmentTool(
 	var res orchestrator.AssessmentTool
 
 	err := svc.db.Get(&res, "id = ?", req.Msg.ToolId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment tool not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))

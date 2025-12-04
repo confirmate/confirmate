@@ -21,10 +21,10 @@ import (
 	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/gorm"
 )
 
 // CreateCatalog creates a new catalog.
@@ -49,7 +49,7 @@ func (svc *service) GetCatalog(
 	var res orchestrator.Catalog
 
 	err := svc.db.Get(&res, "id = ?", req.Msg.CatalogId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("catalog not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -123,7 +123,7 @@ func (svc *service) GetCategory(
 	var res orchestrator.Category
 
 	err := svc.db.Get(&res, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("category not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -167,9 +167,9 @@ func (svc *service) GetControl(
 ) (*connect.Response[orchestrator.Control], error) {
 	var res orchestrator.Control
 
-	err := svc.db.Get(&res, "id = ? AND category_name = ? AND category_catalog_id = ?", 
+	err := svc.db.Get(&res, "id = ? AND category_name = ? AND category_catalog_id = ?",
 		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("control not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))

@@ -21,11 +21,11 @@ import (
 	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/gorm"
 )
 
 // CreateAuditScope creates a new audit scope.
@@ -55,7 +55,7 @@ func (svc *service) GetAuditScope(
 	var res orchestrator.AuditScope
 
 	err := svc.db.Get(&res, "id = ?", req.Msg.AuditScopeId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))

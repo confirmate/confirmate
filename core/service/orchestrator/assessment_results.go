@@ -22,11 +22,11 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"gorm.io/gorm"
 )
 
 // StoreAssessmentResult stores a single assessment result.
@@ -59,7 +59,7 @@ func (svc *service) GetAssessmentResult(
 	var res assessment.AssessmentResult
 
 	err := svc.db.Get(&res, "id = ?", req.Msg.Id)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment result not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))

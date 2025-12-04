@@ -20,333 +20,344 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestService_CreateAuditScope(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			req     *orchestrator.CreateAuditScopeRequest
-			wantErr bool
-		}{
-			{
-				name: "happy path",
+	type args struct {
+		req *orchestrator.CreateAuditScopeRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*orchestrator.AuditScope]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},
 				},
-				wantErr: false,
 			},
-			{
-				name: "with existing ID",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.NotEmpty(t, got.Id)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "with existing ID",
+			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   "existing-id",
-						TargetOfEvaluationId: "toe-2",
-						CatalogId:            "catalog-2",
+						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation2.Id,
+						CatalogId:            orchestratortest.MockCatalog2.Id,
 					},
 				},
-				wantErr: false,
 			},
-		}
-	)
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.NotEmpty(t, got.Id)
+			},
+			wantErr: nil,
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(tt.req)
-			)
-
-			res, err := svc.CreateAuditScope(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.NotEmpty(t, res.Msg.Id)
+			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_GetAuditScope(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			id      string
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
-				id:   "scope-1",
-				setup: func(svc *service) {
-					err := svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
-					})
-					assert.NoError(t, err)
+	type args struct {
+		req *orchestrator.GetAuditScopeRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*orchestrator.AuditScope]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.GetAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
 				},
-				wantErr: false,
 			},
-			{
-				name:    "not found",
-				id:      "non-existent",
-				setup:   func(svc *service) {},
-				wantErr: true,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
 			},
-		}
-	)
+			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Id)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetAuditScopeRequest{
+					AuditScopeId: "non-existent",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.GetAuditScopeRequest{
-					AuditScopeId: tt.id,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.GetAuditScope(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.id, res.Msg.Id)
+			res, err := svc.GetAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_ListAuditScopes(t *testing.T) {
-	var (
-		tests = []struct {
-			name      string
-			filter    *orchestrator.ListAuditScopesRequest_Filter
-			setup     func(*service)
-			wantCount int
-		}{
-			{
-				name:   "list all",
-				filter: nil,
-				setup: func(svc *service) {
-					err := svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
-					})
-					assert.NoError(t, err)
-
-					err = svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-2",
-						TargetOfEvaluationId: "toe-2",
-						CatalogId:            "catalog-2",
-					})
-					assert.NoError(t, err)
-				},
-				wantCount: 2,
+	type args struct {
+		req *orchestrator.ListAuditScopesRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*orchestrator.ListAuditScopesResponse]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "list all",
+			args: args{
+				req: &orchestrator.ListAuditScopesRequest{},
 			},
-			{
-				name: "filter by target of evaluation",
-				filter: &orchestrator.ListAuditScopesRequest_Filter{
-					TargetOfEvaluationId: stringPtr("toe-1"),
-				},
-				setup: func(svc *service) {
-					err := svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
-					})
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
-
-					err = svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-2",
-						TargetOfEvaluationId: "toe-2",
-						CatalogId:            "catalog-2",
-					})
+					err = d.Create(orchestratortest.MockAuditScope2)
 					assert.NoError(t, err)
-				},
-				wantCount: 1,
+				}),
 			},
-			{
-				name: "filter by catalog",
-				filter: &orchestrator.ListAuditScopesRequest_Filter{
-					CatalogId: stringPtr("catalog-1"),
-				},
-				setup: func(svc *service) {
-					err := svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
-					})
-					assert.NoError(t, err)
-
-					err = svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-2",
-						TargetOfEvaluationId: "toe-2",
-						CatalogId:            "catalog-2",
-					})
-					assert.NoError(t, err)
-				},
-				wantCount: 1,
+			want: func(t *testing.T, got *orchestrator.ListAuditScopesResponse, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 2, len(got.AuditScopes))
 			},
-		}
-	)
+			wantErr: nil,
+		},
+		{
+			name: "filter by target of evaluation",
+			args: args{
+				req: &orchestrator.ListAuditScopesRequest{
+					Filter: &orchestrator.ListAuditScopesRequest_Filter{
+						TargetOfEvaluationId: stringPtr(orchestratortest.MockAuditScope1.TargetOfEvaluationId),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *orchestrator.ListAuditScopesResponse, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.AuditScopes))
+			},
+			wantErr: nil,
+		},
+		{
+			name: "filter by catalog",
+			args: args{
+				req: &orchestrator.ListAuditScopesRequest{
+					Filter: &orchestrator.ListAuditScopesRequest_Filter{
+						CatalogId: stringPtr(orchestratortest.MockAuditScope1.CatalogId),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *orchestrator.ListAuditScopesResponse, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.AuditScopes))
+			},
+			wantErr: nil,
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.ListAuditScopesRequest{
-					Filter: tt.filter,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.ListAuditScopes(context.Background(), req)
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.wantCount, len(res.Msg.AuditScopes))
+			svc := &service{
+				db: tt.fields.db,
+			}
+			res, err := svc.ListAuditScopes(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_UpdateAuditScope(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			req     *orchestrator.UpdateAuditScopeRequest
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
+	type args struct {
+		req *orchestrator.UpdateAuditScopeRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*orchestrator.AuditScope]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						Id:                   "scope-1",
+						Id:                   orchestratortest.MockAuditScope1.Id,
 						TargetOfEvaluationId: "toe-1-updated",
 						CatalogId:            "catalog-1-updated",
 					},
 				},
-				setup: func(svc *service) {
-					err := svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
-					})
-					assert.NoError(t, err)
-				},
-				wantErr: false,
 			},
-			{
-				name: "not found",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Id)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "not found",
+			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   "non-existent",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},
 				},
-				setup:   func(svc *service) {},
-				wantErr: true,
 			},
-		}
-	)
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: nil,
+			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
+				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(tt.req)
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.UpdateAuditScope(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.req.AuditScope.Id, res.Msg.Id)
+			res, err := svc.UpdateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }
 
 func TestService_RemoveAuditScope(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			id      string
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
-				id:   "scope-1",
-				setup: func(svc *service) {
-					err := svc.db.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
-						TargetOfEvaluationId: "toe-1",
-						CatalogId:            "catalog-1",
-					})
-					assert.NoError(t, err)
+	type args struct {
+		req *orchestrator.RemoveAuditScopeRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*emptypb.Empty]
+		wantErr assert.WantErr[*connect.Error]
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.RemoveAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
 				},
-				wantErr: false,
 			},
-		}
-	)
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *emptypb.Empty, args ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: nil,
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(&orchestrator.RemoveAuditScopeRequest{
-					AuditScopeId: tt.id,
-				})
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.RemoveAuditScope(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
+			res, err := svc.RemoveAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
 		})
 	}
 }

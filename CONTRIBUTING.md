@@ -174,7 +174,9 @@ Tests should use the table-driven test pattern as much as possible. This pattern
 
 The actual test body should be kept as short and clear as possible. Instead of extensive logic or repetitive code, prefer using `assert.WantErr` or `assert.Want` from the `core/util/assert` package to make checks concise and precise.
 
-When dealing with Connect response, the helper assertion method `assert.WantResponse` should be used.
+When dealing with Connect response, the helper assertion method `assert.WantResponse` should be used, which checks both the response and an eventual error.
+
+Also try to avoid hard-coded strings, especially in table tests. Instead common mock objects (e.g. `orchestratortest.MockMetric1`) should be used.
 
 **Example:**
 ```go

@@ -29,7 +29,6 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"gorm.io/gorm"
 )
 
 // service implements the Orchestrator service handler (see
@@ -116,6 +115,7 @@ func (svc *service) ListTargetsOfEvaluation(
 	return
 }
 
+// StoreAssessmentResults stores assessment results via a bidirectional stream.
 func (svc *service) StoreAssessmentResults(
 	ctx context.Context,
 	req *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
@@ -148,7 +148,7 @@ func (svc *service) GetTargetOfEvaluation(
 	var res orchestrator.TargetOfEvaluation
 
 	err := svc.db.Get(&res, "id = ?", req.Msg.TargetOfEvaluationId)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("target of evaluation not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
