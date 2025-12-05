@@ -25,6 +25,7 @@
 			"gorm",
 			"lmittmann",
 			"orchestratorconnect",
+			"persistencetest",
 			"proullon",
 			"ramsql",
 			"servertest",
