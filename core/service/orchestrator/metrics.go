@@ -17,12 +17,11 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -37,10 +36,15 @@ func (svc *Service) CreateMetric(
 		metric = req.Msg.Metric
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Persist the new metric in the database
 	err = svc.db.Create(metric)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add metric to the database: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(metric)
@@ -56,11 +60,14 @@ func (svc *Service) GetMetric(
 		metric assessment.Metric
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&metric, "id = ?", req.Msg.MetricId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&metric)
@@ -76,9 +83,14 @@ func (svc *Service) ListMetrics(
 		metrics []*assessment.Metric
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.List(&metrics, "id", true, 0, -1, nil)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list metrics: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListMetricsResponse{
@@ -97,20 +109,25 @@ func (svc *Service) UpdateMetric(
 		metric = req.Msg.Metric
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Check if the metric exists
 	count, err = svc.db.Count(metric, "id = ?", metric.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric not found"))
+		return nil, service.ErrNotFound("metric")
 	}
 
 	// Save the updated metric
 	err = svc.db.Save(metric, "id = ?", metric.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(metric)
@@ -126,10 +143,15 @@ func (svc *Service) RemoveMetric(
 		metric assessment.Metric
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Delete the metric
 	err = svc.db.Delete(&metric, "id = ?", req.Msg.MetricId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&emptypb.Empty{})
@@ -145,11 +167,14 @@ func (svc *Service) GetMetricImplementation(
 		impl assessment.MetricImplementation
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&impl, "metric_id = ?", req.Msg.MetricId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric implementation not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric implementation")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&impl)
@@ -166,20 +191,25 @@ func (svc *Service) UpdateMetricImplementation(
 		impl  = req.Msg.Implementation
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Check if the metric implementation exists
 	count, err = svc.db.Count(impl, "metric_id = ?", impl.MetricId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric implementation not found"))
+		return nil, service.ErrNotFound("metric implementation")
 	}
 
 	// Save the updated metric implementation
 	err = svc.db.Save(impl, "metric_id = ?", impl.MetricId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(impl)
@@ -195,13 +225,16 @@ func (svc *Service) GetMetricConfiguration(
 		config assessment.MetricConfiguration
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
 	err = svc.db.Get(&config, persistence.WithoutPreload(), "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric configuration not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric configuration")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&config)
@@ -218,11 +251,16 @@ func (svc *Service) ListMetricConfigurations(
 		configMap = make(map[string]*assessment.MetricConfiguration)
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
 	err = svc.db.List(&configs, "metric_id", true, 0, -1,
 		persistence.WithoutPreload(), "target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list metric configurations: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	// Convert slice to map indexed by metric ID
@@ -246,15 +284,20 @@ func (svc *Service) UpdateMetricConfiguration(
 		config = req.Msg.Configuration
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Check if the metric configuration exists
 	count, err = svc.db.Count(config, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric configuration not found"))
+		return nil, service.ErrNotFound("metric configuration")
 	}
 
 	// Ensure IDs match
@@ -264,8 +307,8 @@ func (svc *Service) UpdateMetricConfiguration(
 	// Save the updated metric configuration
 	err = svc.db.Save(config, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(config)

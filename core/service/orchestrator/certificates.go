@@ -34,6 +34,11 @@ func (svc *Service) CreateCertificate(
 		cert = req.Msg.Certificate
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Persist the new certificate in the database
 	err = svc.db.Create(cert)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -53,6 +58,11 @@ func (svc *Service) GetCertificate(
 		cert orchestrator.Certificate
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
 		return nil, err
@@ -70,6 +80,11 @@ func (svc *Service) ListCertificates(
 	var (
 		certificates []*orchestrator.Certificate
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	err = svc.db.List(&certificates, "id", true, 0, -1, nil)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -90,6 +105,11 @@ func (svc *Service) ListPublicCertificates(
 	var (
 		certificates []*orchestrator.Certificate
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	err = svc.db.List(&certificates, "id", true, 0, -1, nil)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -116,6 +136,11 @@ func (svc *Service) UpdateCertificate(
 		count int64
 		cert  = req.Msg.Certificate
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Check if the certificate exists
 	count, err = svc.db.Count(cert, "id = ?", cert.Id)
@@ -145,6 +170,11 @@ func (svc *Service) RemoveCertificate(
 	var (
 		cert orchestrator.Certificate
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Delete the certificate
 	err = svc.db.Delete(&cert, "id = ?", req.Msg.CertificateId)

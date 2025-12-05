@@ -40,9 +40,42 @@ func TestService_CreateAuditScope(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*orchestrator.AuditScope]
+		want    assert.Want[*connect.Response[orchestrator.AuditScope]]
 		wantErr assert.WantErr
 	}{
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
+			},
+		},
+		{
+			name: "validation error - missing target of evaluation id",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						CatalogId: orchestratortest.MockCatalog1.Id,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+					assert.ErrorContains(t, err, "target_of_evaluation_id")
+			},
+		},
 		{
 			name: "happy path",
 			args: args{
@@ -56,18 +89,18 @@ func TestService_CreateAuditScope(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.NotEmpty(t, got.Id)
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.NotEmpty(t, got.Msg.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "with existing ID",
 			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						Id:                   "existing-id",
+						Id:                   "00000000-0000-0000-0001-000000000099",
 						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation2.Id,
 						CatalogId:            orchestratortest.MockCatalog2.Id,
 					},
@@ -76,11 +109,11 @@ func TestService_CreateAuditScope(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.NotEmpty(t, got.Id)
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.NotEmpty(t, got.Msg.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -90,7 +123,8 @@ func TestService_CreateAuditScope(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
@@ -106,7 +140,7 @@ func TestService_GetAuditScope(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*orchestrator.AuditScope]
+		want    assert.Want[*connect.Response[orchestrator.AuditScope]]
 		wantErr assert.WantErr
 	}{
 		{
@@ -122,24 +156,25 @@ func TestService_GetAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Id)
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Msg.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetAuditScopeRequest{
-					AuditScopeId: "non-existent",
+					AuditScopeId: orchestratortest.MockNonExistentID,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
@@ -151,7 +186,8 @@ func TestService_GetAuditScope(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.GetAuditScope(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
@@ -167,7 +203,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*orchestrator.ListAuditScopesResponse]
+		want    assert.Want[*connect.Response[orchestrator.ListAuditScopesResponse]]
 		wantErr assert.WantErr
 	}{
 		{
@@ -183,18 +219,18 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.ListAuditScopesResponse, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, 2, len(got.AuditScopes))
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 2, len(got.Msg.AuditScopes))
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "filter by target of evaluation",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{
 					Filter: &orchestrator.ListAuditScopesRequest_Filter{
-						TargetOfEvaluationId: stringPtr(orchestratortest.MockAuditScope1.TargetOfEvaluationId),
+						TargetOfEvaluationId: &orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					},
 				},
 			},
@@ -206,18 +242,18 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.ListAuditScopesResponse, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, 1, len(got.AuditScopes))
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.AuditScopes))
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "filter by catalog",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{
 					Filter: &orchestrator.ListAuditScopesRequest_Filter{
-						CatalogId: stringPtr(orchestratortest.MockAuditScope1.CatalogId),
+						CatalogId: &orchestratortest.MockAuditScope1.CatalogId,
 					},
 				},
 			},
@@ -229,11 +265,11 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.ListAuditScopesResponse, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, 1, len(got.AuditScopes))
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.AuditScopes))
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -243,7 +279,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.ListAuditScopes(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
@@ -259,7 +296,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*orchestrator.AuditScope]
+		want    assert.Want[*connect.Response[orchestrator.AuditScope]]
 		wantErr assert.WantErr
 	}{
 		{
@@ -268,7 +305,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   orchestratortest.MockAuditScope1.Id,
-						TargetOfEvaluationId: "toe-1-updated",
+						TargetOfEvaluationId: orchestratortest.MockToeID2,
 						CatalogId:            "catalog-1-updated",
 					},
 				},
@@ -279,18 +316,18 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.AuditScope, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Id)
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Msg.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						Id:                   "non-existent",
+						Id:                   orchestratortest.MockNonExistentID,
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},
@@ -299,8 +336,9 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
@@ -312,7 +350,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.UpdateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
@@ -328,7 +367,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*emptypb.Empty]
+		want    assert.Want[*connect.Response[emptypb.Empty]]
 		wantErr assert.WantErr
 	}{
 		{
@@ -344,10 +383,10 @@ func TestService_RemoveAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *emptypb.Empty, args ...any) bool {
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
 				return assert.NotNil(t, got)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -357,7 +396,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.RemoveAuditScope(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }

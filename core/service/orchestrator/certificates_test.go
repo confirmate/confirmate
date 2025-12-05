@@ -116,7 +116,8 @@ func TestService_GetCertificate(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
@@ -276,9 +277,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:          orchestratortest.MockCertificate1.Id,
-						Name:        "Updated Certificate",
-						Description: "Updated description",
+						Id:                   orchestratortest.MockCertificate1.Id,
+						Name:                 "Updated Certificate",
+						Description:          "Updated description",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
 					},
 				},
 			},
@@ -299,9 +301,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:          "non-existent",
-						Name:        "Updated Certificate",
-						Description: "Updated description",
+						Id:                   "non-existent",
+						Name:                 "Updated Certificate",
+						Description:          "Updated description",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
 					},
 				},
 			},
@@ -309,7 +312,8 @@ func TestService_UpdateCertificate(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},

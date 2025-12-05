@@ -23,7 +23,6 @@ import (
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -33,13 +32,15 @@ func (svc *Service) StoreAssessmentResult(
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
 ) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
 	var (
-		result = req.Msg.Result
+		result *assessment.AssessmentResult
 	)
 
-	// Generate a new UUID for the assessment result if not provided
-	if result.Id == "" {
-		result.Id = uuid.NewString()
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
 	}
+
+	result = req.Msg.Result
 
 	// Set timestamp
 	result.CreatedAt = timestamppb.Now()
@@ -63,6 +64,11 @@ func (svc *Service) GetAssessmentResult(
 		result assessment.AssessmentResult
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&result, "id = ?", req.Msg.Id)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment result")); err != nil {
 		return nil, err
@@ -81,6 +87,11 @@ func (svc *Service) ListAssessmentResults(
 		results []*assessment.AssessmentResult
 		conds   []any
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Apply filters if provided
 	if req.Msg.Filter != nil {

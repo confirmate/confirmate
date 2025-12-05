@@ -40,9 +40,44 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*orchestrator.StoreAssessmentResultResponse]
+		want    assert.Want[*connect.Response[orchestrator.StoreAssessmentResultResponse]]
 		wantErr assert.WantErr
 	}{
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.StoreAssessmentResultRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
+			name: "validation error - missing metric id",
+			args: args{
+				req: &orchestrator.StoreAssessmentResultRequest{
+					Result: &assessment.AssessmentResult{
+						EvidenceId:           orchestratortest.MockEvidenceID1,
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+					assert.ErrorContains(t, err, "metric_id")
+			},
+		},
 		{
 			name: "happy path",
 			args: args{
@@ -53,8 +88,8 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want:    assert.NotNil[*orchestrator.StoreAssessmentResultResponse],
-			wantErr: nil,
+			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "with existing ID",
@@ -66,8 +101,8 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want:    assert.NotNil[*orchestrator.StoreAssessmentResultResponse],
-			wantErr: nil,
+			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -77,7 +112,8 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.StoreAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
@@ -93,9 +129,43 @@ func TestService_GetAssessmentResult(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*assessment.AssessmentResult]
+		want    assert.Want[*connect.Response[assessment.AssessmentResult]]
 		wantErr assert.WantErr
 	}{
+		{
+			name: "validation error - empty id",
+			args: args{
+				req: &orchestrator.GetAssessmentResultRequest{
+					Id: "",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+					assert.ErrorContains(t, err, "id")
+			},
+		},
+		{
+			name: "validation error - invalid uuid",
+			args: args{
+				req: &orchestrator.GetAssessmentResultRequest{
+					Id: "not-a-uuid",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+					assert.ErrorContains(t, err, "id")
+			},
+		},
 		{
 			name: "happy path",
 			args: args{
@@ -109,23 +179,23 @@ func TestService_GetAssessmentResult(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *assessment.AssessmentResult, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, orchestratortest.MockAssessmentResult1.Id, got.Id)
+			want: func(t *testing.T, got *connect.Response[assessment.AssessmentResult], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockAssessmentResult1.Id, got.Msg.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetAssessmentResultRequest{
-					Id: "non-existent",
+					Id: orchestratortest.MockNonExistentID,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: nil,
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
@@ -139,7 +209,8 @@ func TestService_GetAssessmentResult(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.GetAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
@@ -155,7 +226,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*orchestrator.ListAssessmentResultsResponse]
+		want    assert.Want[*connect.Response[orchestrator.ListAssessmentResultsResponse]]
 		wantErr assert.WantErr
 	}{
 		{
@@ -171,18 +242,18 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.ListAssessmentResultsResponse, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, 2, len(got.Results))
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 2, len(got.Msg.Results))
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "filter by metric ID",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
 					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-						MetricId: stringPtr(orchestratortest.MockAssessmentResult1.MetricId),
+						MetricId: &orchestratortest.MockAssessmentResult1.MetricId,
 					},
 				},
 			},
@@ -194,18 +265,18 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.ListAssessmentResultsResponse, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, 1, len(got.Results))
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.Results))
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "filter by compliant",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
 					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-						Compliant: boolPtr(true),
+						Compliant: &[]bool{true}[0],
 					},
 				},
 			},
@@ -217,11 +288,11 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *orchestrator.ListAssessmentResultsResponse, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, 1, len(got.Results))
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.Results))
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -231,16 +302,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				db: tt.fields.db,
 			}
 			res, err := svc.ListAssessmentResults(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
-}
-
-// Helper functions
-func stringPtr(s string) *string {
-	return &s
-}
-
-func boolPtr(b bool) *bool {
-	return &b
 }

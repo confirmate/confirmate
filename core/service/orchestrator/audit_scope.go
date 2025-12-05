@@ -20,6 +20,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -32,11 +33,25 @@ func (svc *Service) CreateAuditScope(
 	req *connect.Request[orchestrator.CreateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope = req.Msg.AuditScope
+		scope *orchestrator.AuditScope
 	)
 
-	// Generate a new UUID for the audit scope
-	scope.Id = uuid.NewString()
+	// Check for nil request first
+	if util.IsNil(req.Msg) || util.IsNil(req.Msg.AuditScope) {
+		return nil, connect.NewError(connect.CodeInvalidArgument, service.ErrEmptyRequest)
+	}
+
+	scope = req.Msg.AuditScope
+
+	// Generate a new UUID for the audit scope if not provided.
+	if scope.Id == "" {
+		scope.Id = uuid.NewString()
+	}
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Persist the new audit scope in the database
 	err = svc.db.Create(scope)
@@ -57,6 +72,11 @@ func (svc *Service) GetAuditScope(
 		scope orchestrator.AuditScope
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
@@ -75,6 +95,11 @@ func (svc *Service) ListAuditScopes(
 		scopes []*orchestrator.AuditScope
 		conds  []any
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Filter by target_of_evaluation_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
@@ -107,6 +132,11 @@ func (svc *Service) UpdateAuditScope(
 		scope = req.Msg.AuditScope
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Check if the audit scope exists
 	count, err = svc.db.Count(scope, "id = ?", scope.Id)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -135,6 +165,11 @@ func (svc *Service) RemoveAuditScope(
 	var (
 		scope orchestrator.AuditScope
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Delete the audit scope
 	err = svc.db.Delete(&scope, "id = ?", req.Msg.AuditScopeId)

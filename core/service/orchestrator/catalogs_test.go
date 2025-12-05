@@ -116,7 +116,8 @@ func TestService_GetCatalog(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
@@ -245,7 +246,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
@@ -355,7 +357,8 @@ func TestService_GetCategory(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
@@ -541,7 +544,8 @@ func TestService_GetControl(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},

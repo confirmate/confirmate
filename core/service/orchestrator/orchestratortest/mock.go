@@ -3,6 +3,21 @@ package orchestratortest
 import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+// Mock UUIDs for consistent testing
+const (
+	MockToeID1        = "00000000-0000-0000-0000-000000000001"
+	MockToeID2        = "00000000-0000-0000-0000-000000000002"
+	MockScopeID1      = "00000000-0000-0000-0001-000000000001"
+	MockScopeID2      = "00000000-0000-0000-0001-000000000002"
+	MockResultID1     = "00000000-0000-0000-0002-000000000001"
+	MockResultID2     = "00000000-0000-0000-0002-000000000002"
+	MockEvidenceID1   = "00000000-0000-0000-0003-000000000001"
+	MockEvidenceID2   = "00000000-0000-0000-0003-000000000002"
+	MockNonExistentID = "00000000-0000-0000-ffff-ffffffffffff"
 )
 
 var (
@@ -10,10 +25,14 @@ var (
 	MockMetric1 = &assessment.Metric{
 		Id:          "metric-1",
 		Description: "Mock Metric 1",
+		Version:     "1.0.0",
+		Category:    "test-category",
 	}
 	MockMetric2 = &assessment.Metric{
 		Id:          "metric-2",
 		Description: "Mock Metric 2",
+		Version:     "1.0.0",
+		Category:    "test-category",
 	}
 
 	// Mock Metric Implementations
@@ -25,24 +44,30 @@ var (
 
 	// Mock Metric Configurations
 	MockMetricConfiguration1 = &assessment.MetricConfiguration{
-		TargetOfEvaluationId: "toe-1",
+		TargetOfEvaluationId: MockToeID1,
 		MetricId:             "metric-1",
+		Operator:             "==",
+		TargetValue:          structpb.NewBoolValue(true),
 		IsDefault:            true,
 	}
 	MockMetricConfiguration2 = &assessment.MetricConfiguration{
-		TargetOfEvaluationId: "toe-1",
+		TargetOfEvaluationId: MockToeID1,
 		MetricId:             "metric-2",
+		Operator:             "==",
+		TargetValue:          structpb.NewBoolValue(true),
 		IsDefault:            false,
 	}
 
 	// Mock Targets of Evaluation
 	MockTargetOfEvaluation1 = &orchestrator.TargetOfEvaluation{
-		Id:   "toe-1",
-		Name: "Mock TOE 1",
+		Id:         MockToeID1,
+		Name:       "Mock TOE 1",
+		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
 	}
 	MockTargetOfEvaluation2 = &orchestrator.TargetOfEvaluation{
-		Id:   "toe-2",
-		Name: "Mock TOE 2",
+		Id:         MockToeID2,
+		Name:       "Mock TOE 2",
+		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
 	}
 
 	// Mock Catalogs
@@ -81,60 +106,115 @@ var (
 
 	// Mock Certificates
 	MockCertificate1 = &orchestrator.Certificate{
-		Id:          "cert-1",
-		Name:        "Mock Certificate 1",
-		Description: "Mock certificate description 1",
+		Id:                   "cert-1",
+		Name:                 "Mock Certificate 1",
+		Description:          "Mock certificate description 1",
+		TargetOfEvaluationId: MockToeID1,
 	}
 	MockCertificate2 = &orchestrator.Certificate{
-		Id:          "cert-2",
-		Name:        "Mock Certificate 2",
-		Description: "Mock certificate description 2",
+		Id:                   "cert-2",
+		Name:                 "Mock Certificate 2",
+		Description:          "Mock certificate description 2",
+		TargetOfEvaluationId: MockToeID2,
 	}
 
 	// Mock Audit Scopes
 	MockAuditScope1 = &orchestrator.AuditScope{
-		Id:                   "scope-1",
-		TargetOfEvaluationId: "toe-1",
+		Id:                   MockScopeID1,
+		TargetOfEvaluationId: MockToeID1,
 		CatalogId:            "catalog-1",
 	}
 	MockAuditScope2 = &orchestrator.AuditScope{
-		Id:                   "scope-2",
-		TargetOfEvaluationId: "toe-2",
+		Id:                   MockScopeID2,
+		TargetOfEvaluationId: MockToeID2,
 		CatalogId:            "catalog-2",
 	}
 
 	// Mock Assessment Results
 	MockAssessmentResult1 = &assessment.AssessmentResult{
-		Id:            "result-1",
-		MetricId:      "metric-1",
-		EvidenceId:    "evidence-1",
-		ResourceId:    "resource-1",
-		ResourceTypes: []string{"vm"},
-		Compliant:     true,
+		Id:                   MockResultID1,
+		CreatedAt:            timestamppb.Now(),
+		MetricId:             "metric-1",
+		MetricConfiguration:  MockMetricConfiguration1,
+		Compliant:            true,
+		EvidenceId:           MockEvidenceID1,
+		ResourceId:           "resource-1",
+		ResourceTypes:        []string{"vm"},
+		ComplianceComment:    "Resource is compliant",
+		TargetOfEvaluationId: MockToeID1,
+		ToolId:               ptrString("tool-1"),
+		HistoryUpdatedAt:     timestamppb.Now(),
+		History: []*assessment.Record{
+			{
+				EvidenceId:         MockEvidenceID1,
+				EvidenceRecordedAt: timestamppb.Now(),
+			},
+		},
 	}
 	MockAssessmentResult2 = &assessment.AssessmentResult{
-		Id:            "result-2",
-		MetricId:      "metric-2",
-		EvidenceId:    "evidence-2",
-		ResourceId:    "resource-2",
-		ResourceTypes: []string{"storage"},
-		Compliant:     false,
+		Id:                   MockResultID2,
+		CreatedAt:            timestamppb.Now(),
+		MetricId:             "metric-2",
+		MetricConfiguration:  MockMetricConfiguration2,
+		Compliant:            false,
+		EvidenceId:           MockEvidenceID2,
+		ResourceId:           "resource-2",
+		ResourceTypes:        []string{"storage"},
+		ComplianceComment:    "Resource is not compliant",
+		TargetOfEvaluationId: MockToeID1,
+		ToolId:               ptrString("tool-1"),
+		HistoryUpdatedAt:     timestamppb.Now(),
+		History: []*assessment.Record{
+			{
+				EvidenceId:         MockEvidenceID2,
+				EvidenceRecordedAt: timestamppb.Now(),
+			},
+		},
 	}
 
 	// Mock Assessment Results for Store tests (without ID, so service generates one)
 	MockNewAssessmentResult = &assessment.AssessmentResult{
-		MetricId:      "metric-1",
-		EvidenceId:    "evidence-new",
-		ResourceId:    "resource-new",
-		ResourceTypes: []string{"vm"},
-		Compliant:     true,
+		CreatedAt:            timestamppb.Now(),
+		MetricId:             "metric-1",
+		MetricConfiguration:  MockMetricConfiguration1,
+		Compliant:            true,
+		EvidenceId:           MockEvidenceID1,
+		ResourceId:           "resource-new",
+		ResourceTypes:        []string{"vm"},
+		ComplianceComment:    "New resource is compliant",
+		TargetOfEvaluationId: MockToeID1,
+		ToolId:               ptrString("tool-1"),
+		HistoryUpdatedAt:     timestamppb.Now(),
+		History: []*assessment.Record{
+			{
+				EvidenceId:         MockEvidenceID1,
+				EvidenceRecordedAt: timestamppb.Now(),
+			},
+		},
 	}
 	MockNewAssessmentResultWithId = &assessment.AssessmentResult{
-		Id:            "custom-id",
-		MetricId:      "metric-2",
-		EvidenceId:    "evidence-custom",
-		ResourceId:    "resource-custom",
-		ResourceTypes: []string{"storage"},
-		Compliant:     false,
+		Id:                   "00000000-0000-0000-0002-000000000099",
+		CreatedAt:            timestamppb.Now(),
+		MetricId:             "metric-2",
+		MetricConfiguration:  MockMetricConfiguration2,
+		Compliant:            false,
+		EvidenceId:           MockEvidenceID2,
+		ResourceId:           "resource-custom",
+		ResourceTypes:        []string{"storage"},
+		ComplianceComment:    "Custom resource is not compliant",
+		TargetOfEvaluationId: MockToeID1,
+		ToolId:               ptrString("tool-1"),
+		HistoryUpdatedAt:     timestamppb.Now(),
+		History: []*assessment.Record{
+			{
+				EvidenceId:         MockEvidenceID2,
+				EvidenceRecordedAt: timestamppb.Now(),
+			},
+		},
 	}
 )
+
+// ptrString returns a pointer to the given string.
+func ptrString(s string) *string {
+	return &s
+}

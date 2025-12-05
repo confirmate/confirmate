@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -75,12 +76,26 @@ func (svc *Service) CreateTargetOfEvaluation(
 	req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
 	var (
-		toe = req.Msg.TargetOfEvaluation
+		toe *orchestrator.TargetOfEvaluation
 		now = timestamppb.Now()
 	)
 
-	// Generate a new UUID for the target of evaluation
-	toe.Id = uuid.NewString()
+	// Check for nil request first
+	if util.IsNil(req.Msg) || util.IsNil(req.Msg.TargetOfEvaluation) {
+		return nil, connect.NewError(connect.CodeInvalidArgument, service.ErrEmptyRequest)
+	}
+
+	toe = req.Msg.TargetOfEvaluation
+
+	// Generate a new UUID for the target of evaluation if not provided.
+	if toe.Id == "" {
+		toe.Id = uuid.NewString()
+	}
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Set timestamps
 	toe.CreatedAt = now
@@ -104,6 +119,11 @@ func (svc *Service) ListTargetsOfEvaluation(
 	var (
 		toes []*orchestrator.TargetOfEvaluation
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	err = svc.db.List(&toes, "name", true, 0, -1, nil)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -154,6 +174,11 @@ func (svc *Service) GetTargetOfEvaluation(
 		toe orchestrator.TargetOfEvaluation
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
 		return nil, err
@@ -172,6 +197,11 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		count int64
 		toe   = req.Msg.TargetOfEvaluation
 	)
+
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
 
 	// Check if the target of evaluation exists
 	count, err = svc.db.Count(toe, "id = ?", toe.Id)
@@ -205,6 +235,11 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		toe orchestrator.TargetOfEvaluation
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Delete the target of evaluation
 	err = svc.db.Delete(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -220,6 +255,11 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest],
 ) (res *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], err error) {
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// TODO: Implement actual statistics calculation
 	// For now, return zero statistics
 	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{
@@ -236,6 +276,11 @@ func (svc *Service) GetRuntimeInfo(
 	ctx context.Context,
 	req *connect.Request[common.GetRuntimeInfoRequest],
 ) (res *connect.Response[common.Runtime], err error) {
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// TODO: Implement actual runtime information gathering
 	// For now, return basic runtime info
 	res = connect.NewResponse(&common.Runtime{

@@ -17,11 +17,9 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -36,10 +34,15 @@ func (svc *Service) CreateCatalog(
 		catalog = req.Msg.Catalog
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Persist the new catalog in the database
 	err = svc.db.Create(catalog)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add catalog to the database: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(catalog)
@@ -55,11 +58,14 @@ func (svc *Service) GetCatalog(
 		catalog orchestrator.Catalog
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&catalog, "id = ?", req.Msg.CatalogId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("catalog not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&catalog)
@@ -75,9 +81,14 @@ func (svc *Service) ListCatalogs(
 		catalogs []*orchestrator.Catalog
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.List(&catalogs, "id", true, 0, -1, nil)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list catalogs: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListCatalogsResponse{
@@ -96,20 +107,25 @@ func (svc *Service) UpdateCatalog(
 		catalog = req.Msg.Catalog
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Check if the catalog exists
 	count, err = svc.db.Count(catalog, "id = ?", catalog.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("catalog not found"))
+		return nil, service.ErrNotFound("catalog")
 	}
 
 	// Save the updated catalog
 	err = svc.db.Save(catalog, "id = ?", catalog.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(catalog)
@@ -125,10 +141,15 @@ func (svc *Service) RemoveCatalog(
 		catalog orchestrator.Catalog
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Delete the catalog
 	err = svc.db.Delete(&catalog, "id = ?", req.Msg.CatalogId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&emptypb.Empty{})
@@ -144,11 +165,14 @@ func (svc *Service) GetCategory(
 		category orchestrator.Category
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&category, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("category not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("category")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&category)
@@ -165,6 +189,11 @@ func (svc *Service) ListControls(
 		conds    []any
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	// Filter by catalog_id if provided
 	if req.Msg.CatalogId != "" {
 		conds = append(conds, "category_catalog_id = ?", req.Msg.CatalogId)
@@ -176,8 +205,8 @@ func (svc *Service) ListControls(
 	}
 
 	err = svc.db.List(&controls, "id", true, 0, -1, conds...)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list controls: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListControlsResponse{
@@ -195,12 +224,15 @@ func (svc *Service) GetControl(
 		control orchestrator.Control
 	)
 
+	// Validate the request
+	if err = service.Validate(req.Msg); err != nil {
+		return nil, err
+	}
+
 	err = svc.db.Get(&control, "id = ? AND category_name = ? AND category_catalog_id = ?",
 		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("control not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&control)

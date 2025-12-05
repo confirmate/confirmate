@@ -131,6 +131,41 @@ func (svc *Service) GetCertificate(
 
 This pattern ensures consistent error handling across all service methods and reduces code duplication.
 
+### Request Validation
+
+All service methods must validate incoming requests using the `service.Validate` helper function from `core/service`. This function uses `protovalidate` to validate the request message and returns a `connect.CodeInvalidArgument` error if validation fails.
+
+**Validation must be the first operation in every service method:**
+```go
+import (
+    "confirmate.io/core/service"
+)
+
+func (svc *Service) GetCertificate(
+    ctx context.Context,
+    req *connect.Request[orchestrator.GetCertificateRequest],
+) (res *connect.Response[orchestrator.Certificate], err error) {
+    var (
+        cert orchestrator.Certificate
+    )
+
+    // Validate the request
+    if err = service.Validate(req.Msg); err != nil {
+        return nil, err
+    }
+
+    err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+    if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+        return nil, err
+    }
+
+    res = connect.NewResponse(&cert)
+    return
+}
+```
+
+The validation rules are defined in the protobuf files using `buf/validate` annotations. See [protovalidate documentation](https://buf.build/docs/protovalidate/overview) for details.
+
 ## Documentation Guidelines
 
 ### Use godoc

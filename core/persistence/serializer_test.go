@@ -134,7 +134,7 @@ func TestTimestampSerializer_Value(t *testing.T) {
 		name    string
 		args    args
 		want    interface{}
-		wantErr assert.WantErr[error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "ok field",
@@ -226,7 +226,7 @@ func TestAnySerializer_Value(t *testing.T) {
 		name    string
 		args    args
 		want    assert.Want[any]
-		wantErr assert.WantErr[error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "ok field",
