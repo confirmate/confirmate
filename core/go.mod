@@ -11,6 +11,8 @@ require (
 // runtime dependencies - protobuf/Connect
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
+	buf.build/go/protovalidate v1.0.1
+	cel.dev/expr v0.24.0 // indirect
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4
 	google.golang.org/genproto/googleapis/api v0.0.0-20251020155222-88f65dc88635
