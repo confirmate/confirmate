@@ -39,6 +39,14 @@ func TestHandleDatabaseError(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "happy path",
+			args: args{
+				err:          nil,
+				notFoundErrs: []error{},
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "not found error",
 			args: args{
 				err:          persistence.ErrRecordNotFound,
