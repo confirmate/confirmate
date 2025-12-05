@@ -31,57 +31,73 @@ import (
 func (svc *service) CreateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateCatalogRequest],
-) (*connect.Response[orchestrator.Catalog], error) {
+) (res *connect.Response[orchestrator.Catalog], err error) {
+	var (
+		catalog = req.Msg.Catalog
+	)
+
 	// Persist the new catalog in the database
-	err := svc.db.Create(req.Msg.Catalog)
+	err = svc.db.Create(catalog)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add catalog to the database: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Catalog), nil
+	res = connect.NewResponse(catalog)
+	return
 }
 
 // GetCatalog retrieves a catalog by ID.
 func (svc *service) GetCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCatalogRequest],
-) (*connect.Response[orchestrator.Catalog], error) {
-	var res orchestrator.Catalog
+) (res *connect.Response[orchestrator.Catalog], err error) {
+	var (
+		catalog orchestrator.Catalog
+	)
 
-	err := svc.db.Get(&res, "id = ?", req.Msg.CatalogId)
+	err = svc.db.Get(&catalog, "id = ?", req.Msg.CatalogId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("catalog not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&catalog)
+	return
 }
 
 // ListCatalogs lists all catalogs.
 func (svc *service) ListCatalogs(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCatalogsRequest],
-) (*connect.Response[orchestrator.ListCatalogsResponse], error) {
-	var catalogs []*orchestrator.Catalog
+) (res *connect.Response[orchestrator.ListCatalogsResponse], err error) {
+	var (
+		catalogs []*orchestrator.Catalog
+	)
 
-	err := svc.db.List(&catalogs, "id", true, 0, -1, nil)
+	err = svc.db.List(&catalogs, "id", true, 0, -1, nil)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list catalogs: %w", err))
 	}
 
-	return connect.NewResponse(&orchestrator.ListCatalogsResponse{
+	res = connect.NewResponse(&orchestrator.ListCatalogsResponse{
 		Catalogs: catalogs,
-	}), nil
+	})
+	return
 }
 
 // UpdateCatalog updates an existing catalog.
 func (svc *service) UpdateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
-) (*connect.Response[orchestrator.Catalog], error) {
+) (res *connect.Response[orchestrator.Catalog], err error) {
+	var (
+		count   int64
+		catalog = req.Msg.Catalog
+	)
+
 	// Check if the catalog exists
-	count, err := svc.db.Count(req.Msg.Catalog, "id = ?", req.Msg.Catalog.Id)
+	count, err = svc.db.Count(catalog, "id = ?", catalog.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
@@ -91,54 +107,63 @@ func (svc *service) UpdateCatalog(
 	}
 
 	// Save the updated catalog
-	err = svc.db.Save(req.Msg.Catalog, "id = ?", req.Msg.Catalog.Id)
+	err = svc.db.Save(catalog, "id = ?", catalog.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Catalog), nil
+	res = connect.NewResponse(catalog)
+	return
 }
 
 // RemoveCatalog removes a catalog by ID.
 func (svc *service) RemoveCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveCatalogRequest],
-) (*connect.Response[emptypb.Empty], error) {
-	var catalog orchestrator.Catalog
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		catalog orchestrator.Catalog
+	)
 
 	// Delete the catalog
-	err := svc.db.Delete(&catalog, "id = ?", req.Msg.CatalogId)
+	err = svc.db.Delete(&catalog, "id = ?", req.Msg.CatalogId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&emptypb.Empty{}), nil
+	res = connect.NewResponse(&emptypb.Empty{})
+	return
 }
 
 // GetCategory retrieves a category by name and catalog ID.
 func (svc *service) GetCategory(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCategoryRequest],
-) (*connect.Response[orchestrator.Category], error) {
-	var res orchestrator.Category
+) (res *connect.Response[orchestrator.Category], err error) {
+	var (
+		category orchestrator.Category
+	)
 
-	err := svc.db.Get(&res, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
+	err = svc.db.Get(&category, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("category not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&category)
+	return
 }
 
 // ListControls lists all controls, optionally filtered by catalog ID.
 func (svc *service) ListControls(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListControlsRequest],
-) (*connect.Response[orchestrator.ListControlsResponse], error) {
-	var controls []*orchestrator.Control
-	var conds []any
+) (res *connect.Response[orchestrator.ListControlsResponse], err error) {
+	var (
+		controls []*orchestrator.Control
+		conds    []any
+	)
 
 	// Filter by catalog_id if provided
 	if req.Msg.CatalogId != "" {
@@ -150,24 +175,27 @@ func (svc *service) ListControls(
 		conds = append(conds, "category_name = ?", req.Msg.CategoryName)
 	}
 
-	err := svc.db.List(&controls, "id", true, 0, -1, conds...)
+	err = svc.db.List(&controls, "id", true, 0, -1, conds...)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list controls: %w", err))
 	}
 
-	return connect.NewResponse(&orchestrator.ListControlsResponse{
+	res = connect.NewResponse(&orchestrator.ListControlsResponse{
 		Controls: controls,
-	}), nil
+	})
+	return
 }
 
 // GetControl retrieves a control by ID, category name, and catalog ID.
 func (svc *service) GetControl(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetControlRequest],
-) (*connect.Response[orchestrator.Control], error) {
-	var res orchestrator.Control
+) (res *connect.Response[orchestrator.Control], err error) {
+	var (
+		control orchestrator.Control
+	)
 
-	err := svc.db.Get(&res, "id = ? AND category_name = ? AND category_catalog_id = ?",
+	err = svc.db.Get(&control, "id = ? AND category_name = ? AND category_catalog_id = ?",
 		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("control not found"))
@@ -175,5 +203,6 @@ func (svc *service) GetControl(
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&control)
+	return
 }

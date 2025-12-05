@@ -31,57 +31,73 @@ import (
 func (svc *service) RegisterAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RegisterAssessmentToolRequest],
-) (*connect.Response[orchestrator.AssessmentTool], error) {
+) (res *connect.Response[orchestrator.AssessmentTool], err error) {
+	var (
+		tool = req.Msg.Tool
+	)
+
 	// Persist the new assessment tool in the database
-	err := svc.db.Create(req.Msg.Tool)
+	err = svc.db.Create(tool)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not register assessment tool: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Tool), nil
+	res = connect.NewResponse(tool)
+	return
 }
 
 // GetAssessmentTool retrieves an assessment tool by ID.
 func (svc *service) GetAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentToolRequest],
-) (*connect.Response[orchestrator.AssessmentTool], error) {
-	var res orchestrator.AssessmentTool
+) (res *connect.Response[orchestrator.AssessmentTool], err error) {
+	var (
+		tool orchestrator.AssessmentTool
+	)
 
-	err := svc.db.Get(&res, "id = ?", req.Msg.ToolId)
+	err = svc.db.Get(&tool, "id = ?", req.Msg.ToolId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment tool not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&tool)
+	return
 }
 
 // ListAssessmentTools lists all assessment tools.
 func (svc *service) ListAssessmentTools(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentToolsRequest],
-) (*connect.Response[orchestrator.ListAssessmentToolsResponse], error) {
-	var tools []*orchestrator.AssessmentTool
+) (res *connect.Response[orchestrator.ListAssessmentToolsResponse], err error) {
+	var (
+		tools []*orchestrator.AssessmentTool
+	)
 
-	err := svc.db.List(&tools, "id", true, 0, -1, nil)
+	err = svc.db.List(&tools, "id", true, 0, -1, nil)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list assessment tools: %w", err))
 	}
 
-	return connect.NewResponse(&orchestrator.ListAssessmentToolsResponse{
+	res = connect.NewResponse(&orchestrator.ListAssessmentToolsResponse{
 		Tools: tools,
-	}), nil
+	})
+	return
 }
 
 // UpdateAssessmentTool updates an existing assessment tool.
 func (svc *service) UpdateAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAssessmentToolRequest],
-) (*connect.Response[orchestrator.AssessmentTool], error) {
+) (res *connect.Response[orchestrator.AssessmentTool], err error) {
+	var (
+		count int64
+		tool  = req.Msg.Tool
+	)
+
 	// Check if the assessment tool exists
-	count, err := svc.db.Count(req.Msg.Tool, "id = ?", req.Msg.Tool.Id)
+	count, err = svc.db.Count(tool, "id = ?", tool.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
@@ -91,26 +107,30 @@ func (svc *service) UpdateAssessmentTool(
 	}
 
 	// Save the updated assessment tool
-	err = svc.db.Save(req.Msg.Tool, "id = ?", req.Msg.Tool.Id)
+	err = svc.db.Save(tool, "id = ?", tool.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Tool), nil
+	res = connect.NewResponse(tool)
+	return
 }
 
 // DeregisterAssessmentTool removes an assessment tool by ID.
 func (svc *service) DeregisterAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.DeregisterAssessmentToolRequest],
-) (*connect.Response[emptypb.Empty], error) {
-	var tool orchestrator.AssessmentTool
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		tool orchestrator.AssessmentTool
+	)
 
 	// Delete the assessment tool
-	err := svc.db.Delete(&tool, "id = ?", req.Msg.ToolId)
+	err = svc.db.Delete(&tool, "id = ?", req.Msg.ToolId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&emptypb.Empty{}), nil
+	res = connect.NewResponse(&emptypb.Empty{})
+	return
 }

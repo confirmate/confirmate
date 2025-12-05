@@ -33,48 +33,58 @@ import (
 func (svc *service) StoreAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
-) (*connect.Response[orchestrator.StoreAssessmentResultResponse], error) {
+) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
+	var (
+		result = req.Msg.Result
+	)
+
 	// Generate a new UUID for the assessment result if not provided
-	if req.Msg.Result.Id == "" {
-		req.Msg.Result.Id = uuid.NewString()
+	if result.Id == "" {
+		result.Id = uuid.NewString()
 	}
 
 	// Set timestamp
-	req.Msg.Result.CreatedAt = timestamppb.Now()
+	result.CreatedAt = timestamppb.Now()
 
 	// Persist the assessment result in the database
-	err := svc.db.Create(req.Msg.Result)
+	err = svc.db.Create(result)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not store assessment result: %w", err))
 	}
 
-	return connect.NewResponse(&orchestrator.StoreAssessmentResultResponse{}), nil
+	res = connect.NewResponse(&orchestrator.StoreAssessmentResultResponse{})
+	return
 }
 
 // GetAssessmentResult retrieves an assessment result by ID.
 func (svc *service) GetAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
-) (*connect.Response[assessment.AssessmentResult], error) {
-	var res assessment.AssessmentResult
+) (res *connect.Response[assessment.AssessmentResult], err error) {
+	var (
+		result assessment.AssessmentResult
+	)
 
-	err := svc.db.Get(&res, "id = ?", req.Msg.Id)
+	err = svc.db.Get(&result, "id = ?", req.Msg.Id)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment result not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&result)
+	return
 }
 
 // ListAssessmentResults lists all assessment results with optional filtering.
 func (svc *service) ListAssessmentResults(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
-) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
-	var results []*assessment.AssessmentResult
-	var conds []any
+) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
+	var (
+		results []*assessment.AssessmentResult
+		conds   []any
+	)
 
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
@@ -89,12 +99,13 @@ func (svc *service) ListAssessmentResults(
 		}
 	}
 
-	err := svc.db.List(&results, "timestamp DESC", false, 0, -1, conds...)
+	err = svc.db.List(&results, "timestamp DESC", false, 0, -1, conds...)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list assessment results: %w", err))
 	}
 
-	return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+	res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
 		Results: results,
-	}), nil
+	})
+	return
 }

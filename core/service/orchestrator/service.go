@@ -43,10 +43,9 @@ type service struct {
 //
 // It initializes the database with auto-migration for the required types and sets up the necessary
 // join tables.
-func NewService() (orchestratorconnect.OrchestratorHandler, error) {
+func NewService() (handler orchestratorconnect.OrchestratorHandler, err error) {
 	var (
 		svc = &service{}
-		err error
 	)
 
 	// Initialize the database with the defined auto-migration types and join tables
@@ -66,33 +65,35 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 		return nil, fmt.Errorf("could not create TOE: %w", err)
 	}
 
-	return svc, nil
+	handler = svc
+	return
 }
 
 // CreateTargetOfEvaluation creates a new target of evaluation.
 func (svc *service) CreateTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest],
-) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	var res *orchestrator.TargetOfEvaluation
+) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
+	var (
+		toe = req.Msg.TargetOfEvaluation
+		now = timestamppb.Now()
+	)
 
 	// Generate a new UUID for the target of evaluation
-	req.Msg.TargetOfEvaluation.Id = uuid.NewString()
-
-	res = req.Msg.TargetOfEvaluation
+	toe.Id = uuid.NewString()
 
 	// Set timestamps
-	now := timestamppb.Now()
-	res.CreatedAt = now
-	res.UpdatedAt = now
+	toe.CreatedAt = now
+	toe.UpdatedAt = now
 
 	// Persist the target of evaluation in the database
-	err := svc.db.Create(res)
+	err = svc.db.Create(toe)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add target of evaluation to the database: %w", err))
 	}
 
-	return connect.NewResponse(res), nil
+	res = connect.NewResponse(toe)
+	return
 }
 
 // ListTargetsOfEvaluation lists all targets of evaluation.
@@ -118,10 +119,14 @@ func (svc *service) ListTargetsOfEvaluation(
 // StoreAssessmentResults stores assessment results via a bidirectional stream.
 func (svc *service) StoreAssessmentResults(
 	ctx context.Context,
-	req *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
-) error {
+	stream *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
+) (err error) {
+	var (
+		msg *orchestrator.StoreAssessmentResultRequest
+	)
+
 	for {
-		msg, err := req.Receive()
+		msg, err = stream.Receive()
 		if err != nil {
 			return err
 		}
@@ -133,7 +138,7 @@ func (svc *service) StoreAssessmentResults(
 		}
 
 		// Send an acknowledgment response
-		err = req.Send(&orchestrator.StoreAssessmentResultsResponse{Status: true})
+		err = stream.Send(&orchestrator.StoreAssessmentResultsResponse{Status: true})
 		if err != nil {
 			return err
 		}
@@ -144,26 +149,34 @@ func (svc *service) StoreAssessmentResults(
 func (svc *service) GetTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetTargetOfEvaluationRequest],
-) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
-	var res orchestrator.TargetOfEvaluation
+) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
+	var (
+		toe orchestrator.TargetOfEvaluation
+	)
 
-	err := svc.db.Get(&res, "id = ?", req.Msg.TargetOfEvaluationId)
+	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("target of evaluation not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&toe)
+	return
 }
 
 // UpdateTargetOfEvaluation updates an existing target of evaluation.
 func (svc *service) UpdateTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest],
-) (*connect.Response[orchestrator.TargetOfEvaluation], error) {
+) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
+	var (
+		count int64
+		toe   = req.Msg.TargetOfEvaluation
+	)
+
 	// Check if the target of evaluation exists
-	count, err := svc.db.Count(req.Msg.TargetOfEvaluation, "id = ?", req.Msg.TargetOfEvaluation.Id)
+	count, err = svc.db.Count(toe, "id = ?", toe.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
@@ -173,58 +186,63 @@ func (svc *service) UpdateTargetOfEvaluation(
 	}
 
 	// Update timestamp
-	res := req.Msg.TargetOfEvaluation
-	res.UpdatedAt = timestamppb.Now()
+	toe.UpdatedAt = timestamppb.Now()
 
 	// Save the updated target of evaluation
-	err = svc.db.Save(res, "id = ?", req.Msg.TargetOfEvaluation.Id)
+	err = svc.db.Save(toe, "id = ?", toe.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(res), nil
+	res = connect.NewResponse(toe)
+	return
 }
 
 // RemoveTargetOfEvaluation removes a target of evaluation by ID.
 func (svc *service) RemoveTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest],
-) (*connect.Response[emptypb.Empty], error) {
-	var toe orchestrator.TargetOfEvaluation
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		toe orchestrator.TargetOfEvaluation
+	)
 
 	// Delete the target of evaluation
-	err := svc.db.Delete(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
+	err = svc.db.Delete(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&emptypb.Empty{}), nil
+	res = connect.NewResponse(&emptypb.Empty{})
+	return
 }
 
 // GetTargetOfEvaluationStatistics retrieves statistics for targets of evaluation.
 func (svc *service) GetTargetOfEvaluationStatistics(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest],
-) (*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], error) {
+) (res *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], err error) {
 	// TODO: Implement actual statistics calculation
 	// For now, return zero statistics
-	return connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{
+	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{
 		NumberOfDiscoveredResources: 0,
 		NumberOfAssessmentResults:   0,
 		NumberOfEvidences:           0,
 		NumberOfSelectedCatalogs:    0,
-	}), nil
+	})
+	return
 }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.
 func (svc *service) GetRuntimeInfo(
 	ctx context.Context,
 	req *connect.Request[common.GetRuntimeInfoRequest],
-) (*connect.Response[common.Runtime], error) {
+) (res *connect.Response[common.Runtime], err error) {
 	// TODO: Implement actual runtime information gathering
 	// For now, return basic runtime info
-	return connect.NewResponse(&common.Runtime{
+	res = connect.NewResponse(&common.Runtime{
 		Vcs:        "git",
 		CommitHash: "unknown",
-	}), nil
+	})
+	return
 }

@@ -32,57 +32,73 @@ import (
 func (svc *service) CreateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateMetricRequest],
-) (*connect.Response[assessment.Metric], error) {
+) (res *connect.Response[assessment.Metric], err error) {
+	var (
+		metric = req.Msg.Metric
+	)
+
 	// Persist the new metric in the database
-	err := svc.db.Create(req.Msg.Metric)
+	err = svc.db.Create(metric)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add metric to the database: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Metric), nil
+	res = connect.NewResponse(metric)
+	return
 }
 
 // GetMetric retrieves a metric by ID.
 func (svc *service) GetMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricRequest],
-) (*connect.Response[assessment.Metric], error) {
-	var res assessment.Metric
+) (res *connect.Response[assessment.Metric], err error) {
+	var (
+		metric assessment.Metric
+	)
 
-	err := svc.db.Get(&res, "id = ?", req.Msg.MetricId)
+	err = svc.db.Get(&metric, "id = ?", req.Msg.MetricId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&metric)
+	return
 }
 
 // ListMetrics lists all metrics.
 func (svc *service) ListMetrics(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListMetricsRequest],
-) (*connect.Response[orchestrator.ListMetricsResponse], error) {
-	var metrics []*assessment.Metric
+) (res *connect.Response[orchestrator.ListMetricsResponse], err error) {
+	var (
+		metrics []*assessment.Metric
+	)
 
-	err := svc.db.List(&metrics, "id", true, 0, -1, nil)
+	err = svc.db.List(&metrics, "id", true, 0, -1, nil)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list metrics: %w", err))
 	}
 
-	return connect.NewResponse(&orchestrator.ListMetricsResponse{
+	res = connect.NewResponse(&orchestrator.ListMetricsResponse{
 		Metrics: metrics,
-	}), nil
+	})
+	return
 }
 
 // UpdateMetric updates an existing metric.
 func (svc *service) UpdateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricRequest],
-) (*connect.Response[assessment.Metric], error) {
+) (res *connect.Response[assessment.Metric], err error) {
+	var (
+		count  int64
+		metric = req.Msg.Metric
+	)
+
 	// Check if the metric exists
-	count, err := svc.db.Count(req.Msg.Metric, "id = ?", req.Msg.Metric.Id)
+	count, err = svc.db.Count(metric, "id = ?", metric.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
@@ -92,54 +108,66 @@ func (svc *service) UpdateMetric(
 	}
 
 	// Save the updated metric
-	err = svc.db.Save(req.Msg.Metric, "id = ?", req.Msg.Metric.Id)
+	err = svc.db.Save(metric, "id = ?", metric.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Metric), nil
+	res = connect.NewResponse(metric)
+	return
 }
 
 // RemoveMetric removes a metric by ID.
 func (svc *service) RemoveMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveMetricRequest],
-) (*connect.Response[emptypb.Empty], error) {
-	var metric assessment.Metric
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		metric assessment.Metric
+	)
 
 	// Delete the metric
-	err := svc.db.Delete(&metric, "id = ?", req.Msg.MetricId)
+	err = svc.db.Delete(&metric, "id = ?", req.Msg.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&emptypb.Empty{}), nil
+	res = connect.NewResponse(&emptypb.Empty{})
+	return
 }
 
 // GetMetricImplementation retrieves a metric implementation by metric ID.
 func (svc *service) GetMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricImplementationRequest],
-) (*connect.Response[assessment.MetricImplementation], error) {
-	var res assessment.MetricImplementation
+) (res *connect.Response[assessment.MetricImplementation], err error) {
+	var (
+		impl assessment.MetricImplementation
+	)
 
-	err := svc.db.Get(&res, "metric_id = ?", req.Msg.MetricId)
+	err = svc.db.Get(&impl, "metric_id = ?", req.Msg.MetricId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric implementation not found"))
 	} else if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&impl)
+	return
 }
 
 // UpdateMetricImplementation updates an existing metric implementation.
 func (svc *service) UpdateMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricImplementationRequest],
-) (*connect.Response[assessment.MetricImplementation], error) {
+) (res *connect.Response[assessment.MetricImplementation], err error) {
+	var (
+		count int64
+		impl  = req.Msg.Implementation
+	)
+
 	// Check if the metric implementation exists
-	count, err := svc.db.Count(req.Msg.Implementation, "metric_id = ?", req.Msg.Implementation.MetricId)
+	count, err = svc.db.Count(impl, "metric_id = ?", impl.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
@@ -149,23 +177,26 @@ func (svc *service) UpdateMetricImplementation(
 	}
 
 	// Save the updated metric implementation
-	err = svc.db.Save(req.Msg.Implementation, "metric_id = ?", req.Msg.Implementation.MetricId)
+	err = svc.db.Save(impl, "metric_id = ?", impl.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Implementation), nil
+	res = connect.NewResponse(impl)
+	return
 }
 
 // GetMetricConfiguration retrieves a metric configuration for a specific TOE and metric.
 func (svc *service) GetMetricConfiguration(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricConfigurationRequest],
-) (*connect.Response[assessment.MetricConfiguration], error) {
-	var res assessment.MetricConfiguration
+) (res *connect.Response[assessment.MetricConfiguration], err error) {
+	var (
+		config assessment.MetricConfiguration
+	)
 
 	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
-	err := svc.db.Get(&res, persistence.WithoutPreload(), "target_of_evaluation_id = ? AND metric_id = ?",
+	err = svc.db.Get(&config, persistence.WithoutPreload(), "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric configuration not found"))
@@ -173,41 +204,50 @@ func (svc *service) GetMetricConfiguration(
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(&res), nil
+	res = connect.NewResponse(&config)
+	return
 }
 
 // ListMetricConfigurations lists all metric configurations for a specific TOE.
 func (svc *service) ListMetricConfigurations(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListMetricConfigurationRequest],
-) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error) {
-	var configs []*assessment.MetricConfiguration
+) (res *connect.Response[orchestrator.ListMetricConfigurationResponse], err error) {
+	var (
+		configs   []*assessment.MetricConfiguration
+		configMap = make(map[string]*assessment.MetricConfiguration)
+	)
 
 	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
-	err := svc.db.List(&configs, "metric_id", true, 0, -1,
+	err = svc.db.List(&configs, "metric_id", true, 0, -1,
 		persistence.WithoutPreload(), "target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list metric configurations: %w", err))
 	}
 
 	// Convert slice to map indexed by metric ID
-	configMap := make(map[string]*assessment.MetricConfiguration)
 	for _, config := range configs {
 		configMap[config.MetricId] = config
 	}
 
-	return connect.NewResponse(&orchestrator.ListMetricConfigurationResponse{
+	res = connect.NewResponse(&orchestrator.ListMetricConfigurationResponse{
 		Configurations: configMap,
-	}), nil
+	})
+	return
 }
 
 // UpdateMetricConfiguration updates a metric configuration for a specific TOE and metric.
 func (svc *service) UpdateMetricConfiguration(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
-) (*connect.Response[assessment.MetricConfiguration], error) {
+) (res *connect.Response[assessment.MetricConfiguration], err error) {
+	var (
+		count  int64
+		config = req.Msg.Configuration
+	)
+
 	// Check if the metric configuration exists
-	count, err := svc.db.Count(req.Msg.Configuration, "target_of_evaluation_id = ? AND metric_id = ?",
+	count, err = svc.db.Count(config, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -218,15 +258,16 @@ func (svc *service) UpdateMetricConfiguration(
 	}
 
 	// Ensure IDs match
-	req.Msg.Configuration.TargetOfEvaluationId = req.Msg.TargetOfEvaluationId
-	req.Msg.Configuration.MetricId = req.Msg.MetricId
+	config.TargetOfEvaluationId = req.Msg.TargetOfEvaluationId
+	config.MetricId = req.Msg.MetricId
 
 	// Save the updated metric configuration
-	err = svc.db.Save(req.Msg.Configuration, "target_of_evaluation_id = ? AND metric_id = ?",
+	err = svc.db.Save(config, "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 
-	return connect.NewResponse(req.Msg.Configuration), nil
+	res = connect.NewResponse(config)
+	return
 }
