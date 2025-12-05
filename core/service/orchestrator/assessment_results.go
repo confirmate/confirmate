@@ -30,7 +30,7 @@ import (
 )
 
 // StoreAssessmentResult stores a single assessment result.
-func (svc *service) StoreAssessmentResult(
+func (svc *Service) StoreAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
 ) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
@@ -57,7 +57,7 @@ func (svc *service) StoreAssessmentResult(
 }
 
 // GetAssessmentResult retrieves an assessment result by ID.
-func (svc *service) GetAssessmentResult(
+func (svc *Service) GetAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
@@ -77,7 +77,7 @@ func (svc *service) GetAssessmentResult(
 }
 
 // ListAssessmentResults lists all assessment results with optional filtering.
-func (svc *service) ListAssessmentResults(
+func (svc *Service) ListAssessmentResults(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {

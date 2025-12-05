@@ -64,7 +64,7 @@ func TestService_CreateMetric(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.CreateMetric(context.Background(), connect.NewRequest(tt.args.req))
@@ -125,7 +125,7 @@ func TestService_GetMetric(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetMetric(context.Background(), connect.NewRequest(tt.args.req))
@@ -185,7 +185,7 @@ func TestService_ListMetrics(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListMetrics(context.Background(), connect.NewRequest(tt.args.req))
@@ -252,7 +252,7 @@ func TestService_UpdateMetric(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.UpdateMetric(context.Background(), connect.NewRequest(tt.args.req))
@@ -297,7 +297,7 @@ func TestService_RemoveMetric(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.RemoveMetric(context.Background(), connect.NewRequest(tt.args.req))
@@ -360,7 +360,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetMetricImplementation(context.Background(), connect.NewRequest(tt.args.req))
@@ -430,7 +430,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.UpdateMetricImplementation(context.Background(), connect.NewRequest(tt.args.req))
@@ -497,7 +497,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetMetricConfiguration(context.Background(), connect.NewRequest(tt.args.req))
@@ -561,7 +561,7 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListMetricConfigurations(context.Background(), connect.NewRequest(tt.args.req))

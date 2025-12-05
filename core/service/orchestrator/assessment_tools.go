@@ -17,18 +17,16 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAssessmentTool registers a new assessment tool.
-func (svc *service) RegisterAssessmentTool(
+func (svc *Service) RegisterAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RegisterAssessmentToolRequest],
 ) (res *connect.Response[orchestrator.AssessmentTool], err error) {
@@ -38,8 +36,8 @@ func (svc *service) RegisterAssessmentTool(
 
 	// Persist the new assessment tool in the database
 	err = svc.db.Create(tool)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not register assessment tool: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(tool)
@@ -47,7 +45,7 @@ func (svc *service) RegisterAssessmentTool(
 }
 
 // GetAssessmentTool retrieves an assessment tool by ID.
-func (svc *service) GetAssessmentTool(
+func (svc *Service) GetAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentToolRequest],
 ) (res *connect.Response[orchestrator.AssessmentTool], err error) {
@@ -56,10 +54,8 @@ func (svc *service) GetAssessmentTool(
 	)
 
 	err = svc.db.Get(&tool, "id = ?", req.Msg.ToolId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment tool not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment tool")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&tool)
@@ -67,7 +63,7 @@ func (svc *service) GetAssessmentTool(
 }
 
 // ListAssessmentTools lists all assessment tools.
-func (svc *service) ListAssessmentTools(
+func (svc *Service) ListAssessmentTools(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentToolsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentToolsResponse], err error) {
@@ -76,8 +72,8 @@ func (svc *service) ListAssessmentTools(
 	)
 
 	err = svc.db.List(&tools, "id", true, 0, -1, nil)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list assessment tools: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListAssessmentToolsResponse{
@@ -87,7 +83,7 @@ func (svc *service) ListAssessmentTools(
 }
 
 // UpdateAssessmentTool updates an existing assessment tool.
-func (svc *service) UpdateAssessmentTool(
+func (svc *Service) UpdateAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAssessmentToolRequest],
 ) (res *connect.Response[orchestrator.AssessmentTool], err error) {
@@ -98,18 +94,18 @@ func (svc *service) UpdateAssessmentTool(
 
 	// Check if the assessment tool exists
 	count, err = svc.db.Count(tool, "id = ?", tool.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment tool not found"))
+		return nil, service.ErrNotFound("assessment tool")
 	}
 
 	// Save the updated assessment tool
 	err = svc.db.Save(tool, "id = ?", tool.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(tool)
@@ -117,7 +113,7 @@ func (svc *service) UpdateAssessmentTool(
 }
 
 // DeregisterAssessmentTool removes an assessment tool by ID.
-func (svc *service) DeregisterAssessmentTool(
+func (svc *Service) DeregisterAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.DeregisterAssessmentToolRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
@@ -127,8 +123,8 @@ func (svc *service) DeregisterAssessmentTool(
 
 	// Delete the assessment tool
 	err = svc.db.Delete(&tool, "id = ?", req.Msg.ToolId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment tool")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&emptypb.Empty{})

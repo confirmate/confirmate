@@ -28,7 +28,7 @@ import (
 )
 
 // CreateCatalog creates a new catalog.
-func (svc *service) CreateCatalog(
+func (svc *Service) CreateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
@@ -47,7 +47,7 @@ func (svc *service) CreateCatalog(
 }
 
 // GetCatalog retrieves a catalog by ID.
-func (svc *service) GetCatalog(
+func (svc *Service) GetCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
@@ -67,7 +67,7 @@ func (svc *service) GetCatalog(
 }
 
 // ListCatalogs lists all catalogs.
-func (svc *service) ListCatalogs(
+func (svc *Service) ListCatalogs(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCatalogsRequest],
 ) (res *connect.Response[orchestrator.ListCatalogsResponse], err error) {
@@ -87,7 +87,7 @@ func (svc *service) ListCatalogs(
 }
 
 // UpdateCatalog updates an existing catalog.
-func (svc *service) UpdateCatalog(
+func (svc *Service) UpdateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
@@ -117,7 +117,7 @@ func (svc *service) UpdateCatalog(
 }
 
 // RemoveCatalog removes a catalog by ID.
-func (svc *service) RemoveCatalog(
+func (svc *Service) RemoveCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveCatalogRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
@@ -136,7 +136,7 @@ func (svc *service) RemoveCatalog(
 }
 
 // GetCategory retrieves a category by name and catalog ID.
-func (svc *service) GetCategory(
+func (svc *Service) GetCategory(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCategoryRequest],
 ) (res *connect.Response[orchestrator.Category], err error) {
@@ -156,7 +156,7 @@ func (svc *service) GetCategory(
 }
 
 // ListControls lists all controls, optionally filtered by catalog ID.
-func (svc *service) ListControls(
+func (svc *Service) ListControls(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListControlsRequest],
 ) (res *connect.Response[orchestrator.ListControlsResponse], err error) {
@@ -187,7 +187,7 @@ func (svc *service) ListControls(
 }
 
 // GetControl retrieves a control by ID, category name, and catalog ID.
-func (svc *service) GetControl(
+func (svc *Service) GetControl(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetControlRequest],
 ) (res *connect.Response[orchestrator.Control], err error) {

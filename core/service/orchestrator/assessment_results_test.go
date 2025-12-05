@@ -73,7 +73,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.StoreAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
@@ -134,7 +134,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
@@ -226,7 +226,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListAssessmentResults(context.Background(), connect.NewRequest(tt.args.req))

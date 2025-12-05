@@ -17,11 +17,9 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -29,7 +27,7 @@ import (
 )
 
 // CreateAuditScope creates a new audit scope.
-func (svc *service) CreateAuditScope(
+func (svc *Service) CreateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
@@ -37,15 +35,13 @@ func (svc *service) CreateAuditScope(
 		scope = req.Msg.AuditScope
 	)
 
-	// Generate a new UUID for the audit scope if not provided
-	if scope.Id == "" {
-		scope.Id = uuid.NewString()
-	}
+	// Generate a new UUID for the audit scope
+	scope.Id = uuid.NewString()
 
 	// Persist the new audit scope in the database
 	err = svc.db.Create(scope)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add audit scope to the database: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(scope)
@@ -53,7 +49,7 @@ func (svc *service) CreateAuditScope(
 }
 
 // GetAuditScope retrieves an audit scope by ID.
-func (svc *service) GetAuditScope(
+func (svc *Service) GetAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
@@ -62,10 +58,8 @@ func (svc *service) GetAuditScope(
 	)
 
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&scope)
@@ -73,7 +67,7 @@ func (svc *service) GetAuditScope(
 }
 
 // ListAuditScopes lists all audit scopes.
-func (svc *service) ListAuditScopes(
+func (svc *Service) ListAuditScopes(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAuditScopesRequest],
 ) (res *connect.Response[orchestrator.ListAuditScopesResponse], err error) {
@@ -93,8 +87,8 @@ func (svc *service) ListAuditScopes(
 	}
 
 	err = svc.db.List(&scopes, "id", true, 0, -1, conds...)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list audit scopes: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListAuditScopesResponse{
@@ -104,7 +98,7 @@ func (svc *service) ListAuditScopes(
 }
 
 // UpdateAuditScope updates an existing audit scope.
-func (svc *service) UpdateAuditScope(
+func (svc *Service) UpdateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
@@ -115,18 +109,18 @@ func (svc *service) UpdateAuditScope(
 
 	// Check if the audit scope exists
 	count, err = svc.db.Count(scope, "id = ?", scope.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found"))
+		return nil, service.ErrNotFound("audit scope")
 	}
 
 	// Save the updated audit scope
 	err = svc.db.Save(scope, "id = ?", scope.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(scope)
@@ -134,7 +128,7 @@ func (svc *service) UpdateAuditScope(
 }
 
 // RemoveAuditScope removes an audit scope by ID.
-func (svc *service) RemoveAuditScope(
+func (svc *Service) RemoveAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveAuditScopeRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
@@ -144,8 +138,8 @@ func (svc *service) RemoveAuditScope(
 
 	// Delete the audit scope
 	err = svc.db.Delete(&scope, "id = ?", req.Msg.AuditScopeId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&emptypb.Empty{})

@@ -17,18 +17,16 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // CreateCertificate creates a new certificate.
-func (svc *service) CreateCertificate(
+func (svc *Service) CreateCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
@@ -38,8 +36,8 @@ func (svc *service) CreateCertificate(
 
 	// Persist the new certificate in the database
 	err = svc.db.Create(cert)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not add certificate to the database: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(cert)
@@ -47,7 +45,7 @@ func (svc *service) CreateCertificate(
 }
 
 // GetCertificate retrieves a certificate by ID.
-func (svc *service) GetCertificate(
+func (svc *Service) GetCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
@@ -56,10 +54,8 @@ func (svc *service) GetCertificate(
 	)
 
 	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("certificate not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&cert)
@@ -67,7 +63,7 @@ func (svc *service) GetCertificate(
 }
 
 // ListCertificates lists all certificates.
-func (svc *service) ListCertificates(
+func (svc *Service) ListCertificates(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCertificatesRequest],
 ) (res *connect.Response[orchestrator.ListCertificatesResponse], err error) {
@@ -76,8 +72,8 @@ func (svc *service) ListCertificates(
 	)
 
 	err = svc.db.List(&certificates, "id", true, 0, -1, nil)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list certificates: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListCertificatesResponse{
@@ -87,7 +83,7 @@ func (svc *service) ListCertificates(
 }
 
 // ListPublicCertificates lists all certificates without state history.
-func (svc *service) ListPublicCertificates(
+func (svc *Service) ListPublicCertificates(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListPublicCertificatesRequest],
 ) (res *connect.Response[orchestrator.ListPublicCertificatesResponse], err error) {
@@ -96,8 +92,8 @@ func (svc *service) ListPublicCertificates(
 	)
 
 	err = svc.db.List(&certificates, "id", true, 0, -1, nil)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list certificates: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	// Remove state history from certificates
@@ -112,7 +108,7 @@ func (svc *service) ListPublicCertificates(
 }
 
 // UpdateCertificate updates an existing certificate.
-func (svc *service) UpdateCertificate(
+func (svc *Service) UpdateCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
@@ -123,18 +119,18 @@ func (svc *service) UpdateCertificate(
 
 	// Check if the certificate exists
 	count, err = svc.db.Count(cert, "id = ?", cert.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	if count == 0 {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("certificate not found"))
+		return nil, service.ErrNotFound("certificate")
 	}
 
 	// Save the updated certificate
 	err = svc.db.Save(cert, "id = ?", cert.Id)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(cert)
@@ -142,7 +138,7 @@ func (svc *service) UpdateCertificate(
 }
 
 // RemoveCertificate removes a certificate by ID.
-func (svc *service) RemoveCertificate(
+func (svc *Service) RemoveCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveCertificateRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
@@ -152,8 +148,8 @@ func (svc *service) RemoveCertificate(
 
 	// Delete the certificate
 	err = svc.db.Delete(&cert, "id = ?", req.Msg.CertificateId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&emptypb.Empty{})

@@ -63,7 +63,7 @@ func TestService_CreateCatalog(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.CreateCatalog(context.Background(), connect.NewRequest(tt.args.req))
@@ -124,7 +124,7 @@ func TestService_GetCatalog(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetCatalog(context.Background(), connect.NewRequest(tt.args.req))
@@ -184,7 +184,7 @@ func TestService_ListCatalogs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListCatalogs(context.Background(), connect.NewRequest(tt.args.req))
@@ -253,7 +253,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.UpdateCatalog(context.Background(), connect.NewRequest(tt.args.req))
@@ -298,7 +298,7 @@ func TestService_RemoveCatalog(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.RemoveCatalog(context.Background(), connect.NewRequest(tt.args.req))
@@ -363,7 +363,7 @@ func TestService_GetCategory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetCategory(context.Background(), connect.NewRequest(tt.args.req))
@@ -480,7 +480,7 @@ func TestService_ListControls(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListControls(context.Background(), connect.NewRequest(tt.args.req))
@@ -549,7 +549,7 @@ func TestService_GetControl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetControl(context.Background(), connect.NewRequest(tt.args.req))

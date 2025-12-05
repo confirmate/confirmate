@@ -96,6 +96,41 @@ import (
 )
 ```
 
+## Error Handling
+
+### Database Error Handling in Services
+
+When handling database errors in service methods, use the `service.HandleDatabaseError` helper function from `core/service`. This function translates database errors into appropriate Connect RPC errors:
+
+- `persistence.ErrRecordNotFound` → `connect.CodeNotFound`
+- Other errors → `connect.CodeInternal`
+
+**Example:**
+```go
+import (
+    "confirmate.io/core/service"
+)
+
+func (svc *Service) GetCertificate(
+    ctx context.Context,
+    req *connect.Request[orchestrator.GetCertificateRequest],
+) (res *connect.Response[orchestrator.Certificate], err error) {
+    var (
+        cert orchestrator.Certificate
+    )
+
+    err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+    if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+        return nil, err
+    }
+
+    res = connect.NewResponse(&cert)
+    return
+}
+```
+
+This pattern ensures consistent error handling across all service methods and reduces code duplication.
+
 ## Documentation Guidelines
 
 ### Use godoc

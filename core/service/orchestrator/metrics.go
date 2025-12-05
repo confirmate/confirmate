@@ -29,7 +29,7 @@ import (
 )
 
 // CreateMetric creates a new metric.
-func (svc *service) CreateMetric(
+func (svc *Service) CreateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
@@ -48,7 +48,7 @@ func (svc *service) CreateMetric(
 }
 
 // GetMetric retrieves a metric by ID.
-func (svc *service) GetMetric(
+func (svc *Service) GetMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
@@ -68,7 +68,7 @@ func (svc *service) GetMetric(
 }
 
 // ListMetrics lists all metrics.
-func (svc *service) ListMetrics(
+func (svc *Service) ListMetrics(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListMetricsRequest],
 ) (res *connect.Response[orchestrator.ListMetricsResponse], err error) {
@@ -88,7 +88,7 @@ func (svc *service) ListMetrics(
 }
 
 // UpdateMetric updates an existing metric.
-func (svc *service) UpdateMetric(
+func (svc *Service) UpdateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
@@ -118,7 +118,7 @@ func (svc *service) UpdateMetric(
 }
 
 // RemoveMetric removes a metric by ID.
-func (svc *service) RemoveMetric(
+func (svc *Service) RemoveMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveMetricRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
@@ -137,7 +137,7 @@ func (svc *service) RemoveMetric(
 }
 
 // GetMetricImplementation retrieves a metric implementation by metric ID.
-func (svc *service) GetMetricImplementation(
+func (svc *Service) GetMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricImplementationRequest],
 ) (res *connect.Response[assessment.MetricImplementation], err error) {
@@ -157,7 +157,7 @@ func (svc *service) GetMetricImplementation(
 }
 
 // UpdateMetricImplementation updates an existing metric implementation.
-func (svc *service) UpdateMetricImplementation(
+func (svc *Service) UpdateMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricImplementationRequest],
 ) (res *connect.Response[assessment.MetricImplementation], err error) {
@@ -187,7 +187,7 @@ func (svc *service) UpdateMetricImplementation(
 }
 
 // GetMetricConfiguration retrieves a metric configuration for a specific TOE and metric.
-func (svc *service) GetMetricConfiguration(
+func (svc *Service) GetMetricConfiguration(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricConfigurationRequest],
 ) (res *connect.Response[assessment.MetricConfiguration], err error) {
@@ -209,7 +209,7 @@ func (svc *service) GetMetricConfiguration(
 }
 
 // ListMetricConfigurations lists all metric configurations for a specific TOE.
-func (svc *service) ListMetricConfigurations(
+func (svc *Service) ListMetricConfigurations(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListMetricConfigurationRequest],
 ) (res *connect.Response[orchestrator.ListMetricConfigurationResponse], err error) {
@@ -237,7 +237,7 @@ func (svc *service) ListMetricConfigurations(
 }
 
 // UpdateMetricConfiguration updates a metric configuration for a specific TOE and metric.
-func (svc *service) UpdateMetricConfiguration(
+func (svc *Service) UpdateMetricConfiguration(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
 ) (res *connect.Response[assessment.MetricConfiguration], err error) {

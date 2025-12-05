@@ -86,7 +86,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
@@ -147,7 +147,7 @@ func TestService_GetAuditScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetAuditScope(context.Background(), connect.NewRequest(tt.args.req))
@@ -239,7 +239,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListAuditScopes(context.Background(), connect.NewRequest(tt.args.req))
@@ -308,7 +308,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.UpdateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
@@ -353,7 +353,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.RemoveAuditScope(context.Background(), connect.NewRequest(tt.args.req))

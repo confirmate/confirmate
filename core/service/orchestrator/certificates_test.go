@@ -63,7 +63,7 @@ func TestService_CreateCertificate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.CreateCertificate(context.Background(), connect.NewRequest(tt.args.req))
@@ -124,7 +124,7 @@ func TestService_GetCertificate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.GetCertificate(context.Background(), connect.NewRequest(tt.args.req))
@@ -184,7 +184,7 @@ func TestService_ListCertificates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListCertificates(context.Background(), connect.NewRequest(tt.args.req))
@@ -248,7 +248,7 @@ func TestService_ListPublicCertificates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.ListPublicCertificates(context.Background(), connect.NewRequest(tt.args.req))
@@ -317,7 +317,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.UpdateCertificate(context.Background(), connect.NewRequest(tt.args.req))
@@ -362,7 +362,7 @@ func TestService_RemoveCertificate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
 			res, err := svc.RemoveCertificate(context.Background(), connect.NewRequest(tt.args.req))
