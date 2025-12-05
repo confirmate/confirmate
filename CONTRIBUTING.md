@@ -96,6 +96,48 @@ import (
 )
 ```
 
+### Request Validation
+
+All gRPC/Connect service methods should validate incoming requests at the beginning of the function using `service.Validate()`. This function uses protovalidate to validate the request based on the validation rules defined in the protobuf definitions.
+
+**Good:**
+```go
+func (svc *orch) ListTargetsOfEvaluation(
+    ctx context.Context,
+    req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
+) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
+    var (
+        toes []*orchestrator.TargetOfEvaluation
+    )
+
+    // Validate request
+    err = service.Validate(req.Msg)
+    if err != nil {
+        return nil, err
+    }
+
+    // Continue with business logic...
+}
+```
+
+**Bad:**
+```go
+func (svc *orch) ListTargetsOfEvaluation(
+    ctx context.Context,
+    req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
+) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
+    // Missing validation - requests should always be validated
+    
+    err = svc.db.List(&toes, "name", true, 0, -1, nil)
+    // ...
+}
+```
+
+The `service.Validate()` function:
+- Returns `connect.CodeInvalidArgument` error if the request is nil
+- Returns `connect.CodeInvalidArgument` error if the request fails protovalidate validation
+- Returns `nil` if validation passes
+
 ## Documentation Guidelines
 
 ### Use godoc

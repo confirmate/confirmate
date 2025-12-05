@@ -76,10 +76,10 @@ func Test_service_ListTargetsOfEvaluation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &orch{
 				db: tt.fields.db,
 			}
-			got, gotErr := svc.ListTargetsOfEvaluation(context.Background(), nil)
+			got, gotErr := svc.ListTargetsOfEvaluation(tt.args.ctx, tt.args.req)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("ListTargetsOfEvaluation() failed: %v", gotErr)
