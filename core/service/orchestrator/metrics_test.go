@@ -104,7 +104,7 @@ func TestService_GetMetric(t *testing.T) {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, orchestratortest.MockMetric1.Id, got.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.Nil[*connect.Error],
 		},
 		{
 			name: "not found",
@@ -116,7 +116,7 @@ func TestService_GetMetric(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: nil,
+			want: assert.Nil[*assessment.Metric],
 			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
 				return assert.Equal(t, connect.CodeNotFound, err.Code())
 			},

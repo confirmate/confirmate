@@ -17,12 +17,10 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -48,8 +46,8 @@ func (svc *Service) StoreAssessmentResult(
 
 	// Persist the assessment result in the database
 	err = svc.db.Create(result)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not store assessment result: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.StoreAssessmentResultResponse{})
@@ -66,10 +64,8 @@ func (svc *Service) GetAssessmentResult(
 	)
 
 	err = svc.db.Get(&result, "id = ?", req.Msg.Id)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("assessment result not found"))
-	} else if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment result")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&result)
@@ -100,8 +96,8 @@ func (svc *Service) ListAssessmentResults(
 	}
 
 	err = svc.db.List(&results, "timestamp DESC", false, 0, -1, conds...)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list assessment results: %w", err))
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
