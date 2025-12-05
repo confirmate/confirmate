@@ -31,7 +31,12 @@ import (
 var validator protovalidate.Validator
 
 func init() {
-	validator, _ = protovalidate.New()
+	var err error
+
+	validator, err = protovalidate.New()
+	if err != nil {
+		panic(fmt.Sprintf("failed to create protovalidate validator: %v", err))
+	}
 }
 
 var (
@@ -45,8 +50,8 @@ func ErrNotFound(entity string) error {
 }
 
 // Validate validates an incoming request using protovalidate.
-// If the request is nil, it returns an [ErrEmptyRequest] error.
-// If the request fails validation, it returns a [connect.CodeInvalidArgument] error.
+//   - If the request is nil, it returns an [ErrEmptyRequest] error.
+//   - If the request fails validation, it returns a [connect.CodeInvalidArgument] error.
 func Validate(req proto.Message) error {
 	if util.IsNil(req) {
 		return connect.NewError(connect.CodeInvalidArgument, ErrEmptyRequest)
@@ -60,10 +65,9 @@ func Validate(req proto.Message) error {
 }
 
 // HandleDatabaseError translates database errors into appropriate connect errors.
-// If the error is [persistence.ErrRecordNotFound], it returns a [connect.CodeNotFound] error
-// with the provided notFoundMsg (or a default message if not provided).
-// For other errors, it returns a [connect.CodeInternal] error.
-// If err is nil, it returns nil.
+//   - If the error is [persistence.ErrRecordNotFound], it returns a [connect.CodeNotFound]
+//     error with the provided notFoundErr (or a default error if not provided).
+//   - For other errors, it returns a [connect.CodeInternal] error. If err is nil, it returns nil.
 func HandleDatabaseError(err error, notFoundErr ...error) error {
 	if err == nil {
 		return nil

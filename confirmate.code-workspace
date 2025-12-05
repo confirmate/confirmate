@@ -27,6 +27,7 @@
 			"orchestratorconnect",
 			"persistencetest",
 			"protoreflect",
+			"protovalidate",
 			"proullon",
 			"ramsql",
 			"servertest",
