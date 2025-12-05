@@ -1,0 +1,48 @@
+# golangci-lint configuration for Confirmate
+# See: https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck
+    - gofmt
+    - goimports
+    - govet
+    - ineffassign
+    - revive
+    - staticcheck
+    - unused
+
+linters-settings:
+  goimports:
+    # Ensure imports are grouped correctly
+    local-prefixes: confirmate.io
+
+  revive:
+    rules:
+      # Enforce consistent error naming
+      - name: error-naming
+      # Enforce proper package comments
+      - name: package-comments
+      # Enforce exported functions have comments
+      - name: exported
+        arguments:
+          - checkPrivateReceivers
+          - sayRepetitiveInsteadOfStutters
+
+issues:
+  # Don't skip any files
+  exclude-use-default: false
+  
+  # Show all issues
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - revive
