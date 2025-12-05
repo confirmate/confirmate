@@ -41,7 +41,7 @@ func TestService_CreateCertificate(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Certificate]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -84,7 +84,7 @@ func TestService_GetCertificate(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Certificate]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -116,8 +116,8 @@ func TestService_GetCertificate(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -145,7 +145,7 @@ func TestService_ListCertificates(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.ListCertificatesResponse]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "list all",
@@ -205,7 +205,7 @@ func TestService_ListPublicCertificates(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.ListPublicCertificatesResponse]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "list all public certificates",
@@ -269,7 +269,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Certificate]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -309,8 +309,8 @@ func TestService_UpdateCertificate(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -338,7 +338,7 @@ func TestService_RemoveCertificate(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*emptypb.Empty]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",

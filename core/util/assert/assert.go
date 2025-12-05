@@ -52,8 +52,9 @@ var _ Want[any] = Nil[any]
 type WantErr func(t *testing.T, err error, msgAndArgs ...any) bool
 
 var _ WantErr = AnyValue
-var _ WantErr = Nil
+var _ WantErr = NoError
 
+// NoError is a [WantErr] that asserts that no error occurred.
 var NoError = Nil[error]
 
 // CompareAllUnexported is a [cmp.Option] that allows the introspection of all un-exported fields in order to use them in

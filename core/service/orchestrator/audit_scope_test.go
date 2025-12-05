@@ -41,7 +41,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.AuditScope]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -107,7 +107,7 @@ func TestService_GetAuditScope(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.AuditScope]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -139,8 +139,8 @@ func TestService_GetAuditScope(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -168,7 +168,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.ListAuditScopesResponse]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "list all",
@@ -260,7 +260,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.AuditScope]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -300,8 +300,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -329,7 +329,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*emptypb.Empty]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",

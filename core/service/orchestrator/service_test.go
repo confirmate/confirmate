@@ -40,7 +40,7 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.ListTargetsOfEvaluationResponse]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",

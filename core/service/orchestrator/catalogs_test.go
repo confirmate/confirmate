@@ -41,7 +41,7 @@ func TestService_CreateCatalog(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Catalog]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -84,7 +84,7 @@ func TestService_GetCatalog(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Catalog]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -116,8 +116,8 @@ func TestService_GetCatalog(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -145,7 +145,7 @@ func TestService_ListCatalogs(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.ListCatalogsResponse]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "list all",
@@ -205,7 +205,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Catalog]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -245,8 +245,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -274,7 +274,7 @@ func TestService_RemoveCatalog(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*emptypb.Empty]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -319,7 +319,7 @@ func TestService_GetCategory(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Category]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -355,8 +355,8 @@ func TestService_GetCategory(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
@@ -384,7 +384,7 @@ func TestService_ListControls(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.ListControlsResponse]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "list all",
@@ -501,7 +501,7 @@ func TestService_GetControl(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*orchestrator.Control]
-		wantErr assert.WantErr[*connect.Error]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -541,8 +541,8 @@ func TestService_GetControl(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool { cErr := assert.Is[*connect.Error](t, err);
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}

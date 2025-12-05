@@ -238,8 +238,7 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
-					err := d.Create(orchestratortest.MockMetric1)
-					assert.NoError(t, err)
+					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
