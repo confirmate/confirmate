@@ -134,8 +134,7 @@ func (svc *orch) ListTargetsOfEvaluation(
 ```
 
 The `service.Validate()` function:
-- Returns `connect.CodeInvalidArgument` error if the request is nil
-- Returns `connect.CodeInvalidArgument` error if the request fails protovalidate validation
+- Returns `connect.CodeInvalidArgument` error if the request is nil or fails protovalidate validation
 - Returns `nil` if validation passes
 
 ## Documentation Guidelines
