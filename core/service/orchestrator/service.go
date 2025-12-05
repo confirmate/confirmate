@@ -23,13 +23,14 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 )
 
-// service implements the Orchestrator service handler (see
+// orch implements the Orchestrator orch handler (see
 // [orchestratorconnect.OrchestratorHandler]).
-type service struct {
+type orch struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
 	db *persistence.DB
 }
@@ -41,7 +42,7 @@ type service struct {
 // join tables.
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 	var (
-		svc = &service{}
+		svc = &orch{}
 		err error
 	)
 
@@ -66,13 +67,19 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 }
 
 // ListTargetsOfEvaluation lists all targets of evaluation.
-func (svc *service) ListTargetsOfEvaluation(
+func (svc *orch) ListTargetsOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
 	var (
 		toes []*orchestrator.TargetOfEvaluation
 	)
+
+	// Validate request
+	err = service.Validate(req.Msg)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.db.List(&toes, "name", true, 0, -1, nil)
 	if err != nil {
@@ -85,7 +92,7 @@ func (svc *service) ListTargetsOfEvaluation(
 	return
 }
 
-func (svc *service) ListAssessmentResults(
+func (svc *orch) ListAssessmentResults(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
@@ -104,7 +111,7 @@ func (svc *service) ListAssessmentResults(
 	return
 }
 
-func (svc *service) StoreAssessmentResults(
+func (svc *orch) StoreAssessmentResults(
 	ctx context.Context,
 	req *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
 ) error {
