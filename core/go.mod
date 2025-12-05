@@ -13,6 +13,7 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4
+	github.com/google/uuid v1.3.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251020155222-88f65dc88635
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251020155222-88f65dc88635 // indirect
 	google.golang.org/protobuf v1.36.10
@@ -20,7 +21,6 @@ require (
 
 // runtime dependencies - database
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.6 // indirect
@@ -37,6 +37,7 @@ require (
 
 // test dependencies
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -58,8 +59,6 @@ require (
 	golang.org/x/tools v0.38.0 // indirect
 )
 
-require github.com/google/uuid v1.3.0
-
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql v0.1.4 => github.com/confirmate/ramsql v0.0.0-20251031103115-e63f789bd895
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20251205103212-fa301ec946db

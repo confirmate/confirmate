@@ -164,7 +164,8 @@ func (svc *service) GetMetricConfiguration(
 ) (*connect.Response[assessment.MetricConfiguration], error) {
 	var res assessment.MetricConfiguration
 
-	err := svc.db.Get(&res, "target_of_evaluation_id = ? AND metric_id = ?",
+	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
+	err := svc.db.Get(&res, persistence.WithoutPreload(), "target_of_evaluation_id = ? AND metric_id = ?",
 		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("metric configuration not found"))
@@ -182,8 +183,9 @@ func (svc *service) ListMetricConfigurations(
 ) (*connect.Response[orchestrator.ListMetricConfigurationResponse], error) {
 	var configs []*assessment.MetricConfiguration
 
+	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
 	err := svc.db.List(&configs, "metric_id", true, 0, -1,
-		"target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
+		persistence.WithoutPreload(), "target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not list metric configurations: %w", err))
 	}
