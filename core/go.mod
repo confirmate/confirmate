@@ -20,7 +20,6 @@ require (
 
 // runtime dependencies - database
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.6 // indirect
@@ -37,8 +36,8 @@ require (
 
 // test dependencies
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0
-	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/testify v1.11.1
@@ -56,6 +55,15 @@ require (
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
+)
+
+require buf.build/go/protovalidate v1.0.1
+
+require (
+	cel.dev/expr v0.24.0 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/google/cel-go v0.26.1 // indirect
+	github.com/stoewer/go-strcase v1.3.1 // indirect
 )
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
