@@ -226,8 +226,8 @@ func TestService_GetMetric(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*assessment.Metric]
-		wantErr assert.WantErr[*connect.Error]
+		want    assert.Want[*connect.Response[assessment.Metric]]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
@@ -242,11 +242,11 @@ func TestService_GetMetric(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 			},
-			want: func(t *testing.T, got *assessment.Metric, args ...any) bool {
-				return assert.NotNil(t, got) &&
-					assert.Equal(t, orchestratortest.MockMetric1.Id, got.Id)
+			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id)
 			},
-			wantErr: nil,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "not found",
@@ -258,20 +258,23 @@ func TestService_GetMetric(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			want: nil,
-			wantErr: func(t *testing.T, err *connect.Error, msgAndArgs ...any) bool {
-				return assert.Equal(t, connect.CodeNotFound, err.Code())
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &service{
+			svc := &Service{
 				db: tt.fields.db,
 			}
+
 			res, err := svc.GetMetric(context.Background(), connect.NewRequest(tt.args.req))
-			assert.WantResponse(t, res, err, tt.want, tt.wantErr)
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }

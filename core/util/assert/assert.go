@@ -49,10 +49,10 @@ var _ Want[any] = AnyValue[any]
 var _ Want[any] = Nil[any]
 
 // WantErr is a function type that can hold asserts in order to check the error of "err".
-type WantErr[T error] func(t *testing.T, err T, msgAndArgs ...any) bool
+type WantErr func(t *testing.T, err error, msgAndArgs ...any) bool
 
-var _ WantErr[error] = AnyValue[error]
-var _ WantErr[error] = Nil[error]
+var _ WantErr = AnyValue
+var _ WantErr = Nil
 
 var NoError = Nil[error]
 
@@ -142,7 +142,7 @@ func Optional[T any](t *testing.T, want Want[T], got T) bool {
 }
 
 // WantResponse is a helper to assert a [connect.Response] (including error) in tests.
-func WantResponse[T any](t *testing.T, got *connect.Response[T], gotErr error, want Want[*T], wantErr WantErr[*connect.Error]) bool {
+func WantResponse[T any](t *testing.T, got *connect.Response[T], gotErr error, want Want[*T], wantErr WantErr) bool {
 	t.Helper()
 
 	// Assert error first, if we "want" an error
