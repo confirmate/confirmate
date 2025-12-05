@@ -1,3 +1,18 @@
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package api
 
 import (
@@ -63,7 +78,7 @@ func DecodePageToken(b64token string) (t *PageToken, err error) {
 // the function specified in list using the req of RequestType. Afterwards, the function getter is
 // executed to transform the response of the list calls into the results slice.
 func ListAllPaginated[ResponseType PaginatedResponse, RequestType PaginatedRequest, ResultType any](
-	req RequestType, list func(context.Context, RequestType) (ResponseType, error),
+	ctx context.Context, req RequestType, list func(context.Context, RequestType) (ResponseType, error),
 	getter func(res ResponseType) []ResultType) (results []ResultType, err error) {
 
 	var (
@@ -77,7 +92,7 @@ func ListAllPaginated[ResponseType PaginatedResponse, RequestType PaginatedReque
 		m.Set(m.Descriptor().Fields().ByName(PageTokenField), protoreflect.ValueOf(pageToken))
 
 		// Call the list function to fetch the next page
-		res, err = list(context.Background(), req)
+		res, err = list(ctx, req)
 		if err != nil {
 			// Transparently return the error of the list function without any wrapping
 			return nil, err

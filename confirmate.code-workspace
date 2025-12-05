@@ -26,6 +26,7 @@
 			"lmittmann",
 			"orchestratorconnect",
 			"persistencetest",
+			"protoreflect",
 			"proullon",
 			"ramsql",
 			"servertest",
