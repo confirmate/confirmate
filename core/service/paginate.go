@@ -62,6 +62,13 @@ func PaginateSlice[T any](req api.PaginatedRequest, values []T, less func(a T, b
 			done = true
 		}
 
+		if start >= max {
+			// Return empty page if start is beyond the slice
+			page = []T{}
+			done = true
+			return
+		}
+
 		page = values[start:end]
 		return
 	})

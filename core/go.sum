@@ -11,8 +11,8 @@ connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4/go.mod h1:trSrkeL6N
 github.com/bmatcuk/doublestar/v4 v4.0.2/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/bmatcuk/doublestar/v4 v4.9.1 h1:X8jg9rRZmJd4yRy7ZeNDRnM+T3ZfHv15JiBJ/avrEXE=
 github.com/bmatcuk/doublestar/v4 v4.9.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
-github.com/confirmate/ramsql v0.0.0-20251205183152-1f36039d1ed3 h1:lyhMeA/lZPhXuHPoayZwSXwI6ucBF+9rruDA5wpagUs=
-github.com/confirmate/ramsql v0.0.0-20251205183152-1f36039d1ed3/go.mod h1:ejv4BtOMoqJRDGpd+hvfKEq2y8qTgxIH2K2rbtz/SQQ=
+github.com/confirmate/ramsql v0.0.0-20251206221700-1cd6b39426a4 h1:z2QNHfAuoCWhh11uKXzFwbqWRP1UuhvWAOTqJcBTK3k=
+github.com/confirmate/ramsql v0.0.0-20251206221700-1cd6b39426a4/go.mod h1:ejv4BtOMoqJRDGpd+hvfKEq2y8qTgxIH2K2rbtz/SQQ=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

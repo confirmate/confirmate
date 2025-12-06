@@ -93,6 +93,75 @@ func TestPaginateSlice(t *testing.T) {
 			},
 			wantErr: assert.Nil[error],
 		},
+		{
+			name: "empty slice",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					PageSize:  2,
+					PageToken: "",
+				},
+				values: []int{},
+				opts:   PaginationOpts{10, 10},
+			},
+			wantPage: func(t *testing.T, got []int) bool {
+				return assert.Equal(t, []int{}, got)
+			},
+			wantNbt: assert.Empty[string],
+			wantErr: assert.Nil[error],
+		},
+		{
+			name: "invalid page token",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					PageSize:  2,
+					PageToken: "invalid-token!!!",
+				},
+				values: []int{1, 2, 3, 4, 5},
+				opts:   PaginationOpts{10, 10},
+			},
+			wantPage: func(t *testing.T, got []int) bool {
+				return assert.Equal(t, []int(nil), got)
+			},
+			wantNbt: assert.Empty[string],
+			wantErr: assert.AnyValue[error],
+		},
+		{
+			name: "page token offset beyond slice length",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					PageSize:  2,
+					PageToken: "CBoQAg==", // Start=26, Size=2 (beyond slice of 5 elements)
+				},
+				values: []int{1, 2, 3, 4, 5},
+				opts:   PaginationOpts{10, 10},
+			},
+			wantPage: func(t *testing.T, got []int) bool {
+				return assert.Equal(t, []int{}, got)
+			},
+			wantNbt: func(t *testing.T, got string) bool {
+				return assert.Equal(t, "", got)
+			},
+			wantErr: assert.Nil[error],
+		},
+		{
+			name: "zero page size uses default",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					PageSize:  0,
+					PageToken: "",
+				},
+				values: []int{1, 2, 3, 4, 5},
+				opts:   PaginationOpts{DefaultPageSize: 3, MaxPageSize: 10},
+			},
+			wantPage: func(t *testing.T, got []int) bool {
+				// Should use DefaultPageSize (3)
+				return assert.Equal(t, []int{1, 2, 3}, got)
+			},
+			wantNbt: func(t *testing.T, got string) bool {
+				return assert.Equal(t, "CAMQAw==", got) // Start=3, Size=3
+			},
+			wantErr: assert.Nil[error],
+		},
 	}
 
 	for _, tt := range tests {
@@ -197,9 +266,61 @@ func TestPaginateStorage(t *testing.T) {
 
 				return assert.Equal(t, want, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
-				return assert.Equal(t, "", got)
+			wantNbt: assert.Empty[string],
+			wantErr: assert.Nil[error],
+		},
+		{
+			name: "empty database",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{
+					PageSize:  2,
+					PageToken: "",
+				},
+				db:   persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil),
+				opts: PaginationOpts{10, 10},
 			},
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+				return assert.Equal(t, []orchestrator.TargetOfEvaluation{}, got)
+			},
+			wantNbt: assert.Empty[string],
+			wantErr: assert.Nil[error],
+		},
+		{
+			name: "invalid page token",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{
+					PageSize:  2,
+					PageToken: "invalid-token!!!",
+				},
+				db:   persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil),
+				opts: PaginationOpts{10, 10},
+			},
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+				return assert.Equal(t, []orchestrator.TargetOfEvaluation(nil), got)
+			},
+			wantNbt: assert.Empty[string],
+			wantErr: assert.AnyValue[error],
+		},
+		{
+			name: "page token offset beyond available records",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{
+					PageSize:  2,
+					PageToken: "CBoQAg==", // Start=26, Size=2 (beyond 5 records)
+				},
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
+					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
+					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
+					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "4"}))
+					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "5"}))
+				}),
+				opts: PaginationOpts{10, 10},
+			},
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+				return assert.Equal(t, []orchestrator.TargetOfEvaluation{}, got)
+			},
+			wantNbt: assert.Empty[string],
 			wantErr: assert.Nil[error],
 		},
 	}
