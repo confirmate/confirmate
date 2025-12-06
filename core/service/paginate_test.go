@@ -49,10 +49,10 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{1, 2, 3, 4, 5},
 				opts:   PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				return assert.Equal(t, []int{1, 2}, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
+			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAIQAg==", got)
 			},
 			wantErr: assert.Nil[error],
@@ -67,10 +67,10 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{1, 2, 3, 4, 5},
 				opts:   PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				return assert.Equal(t, []int{3, 4}, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
+			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAQQAg==", got)
 			},
 			wantErr: assert.Nil[error],
@@ -85,10 +85,10 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{1, 2, 3, 4, 5},
 				opts:   PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				return assert.Equal(t, []int{5}, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
+			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "", got)
 			},
 			wantErr: assert.Nil[error],
@@ -103,7 +103,7 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{},
 				opts:   PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				return assert.Equal(t, []int{}, got)
 			},
 			wantNbt: assert.Empty[string],
@@ -119,7 +119,7 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{1, 2, 3, 4, 5},
 				opts:   PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				return assert.Equal(t, []int(nil), got)
 			},
 			wantNbt: assert.Empty[string],
@@ -135,12 +135,10 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{1, 2, 3, 4, 5},
 				opts:   PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				return assert.Equal(t, []int{}, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
-				return assert.Equal(t, "", got)
-			},
+			wantNbt: assert.Empty[string],
 			wantErr: assert.Nil[error],
 		},
 		{
@@ -153,11 +151,11 @@ func TestPaginateSlice(t *testing.T) {
 				values: []int{1, 2, 3, 4, 5},
 				opts:   PaginationOpts{DefaultPageSize: 3, MaxPageSize: 10},
 			},
-			wantPage: func(t *testing.T, got []int) bool {
+			wantPage: func(t *testing.T, got []int, _ ...any) bool {
 				// Should use DefaultPageSize (3)
 				return assert.Equal(t, []int{1, 2, 3}, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
+			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAMQAw==", got) // Start=3, Size=3
 			},
 			wantErr: assert.Nil[error],
@@ -205,14 +203,14 @@ func TestPaginateStorage(t *testing.T) {
 				}),
 				opts: PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation, _ ...any) bool {
 				want := []orchestrator.TargetOfEvaluation{
 					{Id: "1", ConfiguredMetrics: []*assessment.Metric{}},
 					{Id: "2", ConfiguredMetrics: []*assessment.Metric{}},
 				}
 				return assert.Equal(t, want, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
+			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAIQAg==", got)
 			},
 			wantErr: assert.Nil[error],
@@ -233,14 +231,14 @@ func TestPaginateStorage(t *testing.T) {
 				}),
 				opts: PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation, _ ...any) bool {
 				want := []orchestrator.TargetOfEvaluation{
 					{Id: "3", ConfiguredMetrics: []*assessment.Metric{}},
 					{Id: "4", ConfiguredMetrics: []*assessment.Metric{}},
 				}
 				return assert.Equal(t, want, got)
 			},
-			wantNbt: func(t *testing.T, got string) bool {
+			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAQQAg==", got)
 			},
 			wantErr: assert.Nil[error],
@@ -261,7 +259,7 @@ func TestPaginateStorage(t *testing.T) {
 				}),
 				opts: PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation, _ ...any) bool {
 				want := []orchestrator.TargetOfEvaluation{{Id: "5", ConfiguredMetrics: []*assessment.Metric{}}}
 
 				return assert.Equal(t, want, got)
@@ -279,7 +277,7 @@ func TestPaginateStorage(t *testing.T) {
 				db:   persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil),
 				opts: PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation, _ ...any) bool {
 				return assert.Equal(t, []orchestrator.TargetOfEvaluation{}, got)
 			},
 			wantNbt: assert.Empty[string],
@@ -295,7 +293,7 @@ func TestPaginateStorage(t *testing.T) {
 				db:   persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil),
 				opts: PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation, _ ...any) bool {
 				return assert.Equal(t, []orchestrator.TargetOfEvaluation(nil), got)
 			},
 			wantNbt: assert.Empty[string],
@@ -317,7 +315,7 @@ func TestPaginateStorage(t *testing.T) {
 				}),
 				opts: PaginationOpts{10, 10},
 			},
-			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation) bool {
+			wantPage: func(t *testing.T, got []orchestrator.TargetOfEvaluation, _ ...any) bool {
 				return assert.Equal(t, []orchestrator.TargetOfEvaluation{}, got)
 			},
 			wantNbt: assert.Empty[string],
