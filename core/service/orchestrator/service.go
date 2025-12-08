@@ -148,4 +148,3 @@ func (svc *Service) GetRuntimeInfo(
 	res = connect.NewResponse(runtime)
 	return
 }
-

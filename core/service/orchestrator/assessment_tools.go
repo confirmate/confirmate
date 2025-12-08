@@ -69,15 +69,28 @@ func (svc *Service) ListAssessmentTools(
 ) (res *connect.Response[orchestrator.ListAssessmentToolsResponse], err error) {
 	var (
 		tools []*orchestrator.AssessmentTool
+		npt   string
 	)
 
-	err = svc.db.List(&tools, "id", true, 0, -1, nil)
+	err = service.Validate(req.Msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
+	}
+
+	tools, npt, err = service.PaginateStorage[*orchestrator.AssessmentTool](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListAssessmentToolsResponse{
-		Tools: tools,
+		Tools:         tools,
+		NextPageToken: npt,
 	})
 	return
 }

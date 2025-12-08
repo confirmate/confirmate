@@ -112,6 +112,7 @@ func (svc *Service) ListTargetsOfEvaluation(
 ) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
 	var (
 		toes []*orchestrator.TargetOfEvaluation
+		npt  string
 	)
 
 	// Validate request
@@ -120,13 +121,20 @@ func (svc *Service) ListTargetsOfEvaluation(
 		return nil, err
 	}
 
-	err = svc.db.List(&toes, "name", true, 0, -1, nil)
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "name"
+		req.Msg.Asc = true
+	}
+
+	toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
 		TargetsOfEvaluation: toes,
+		NextPageToken:       npt,
 	})
 	return
 }

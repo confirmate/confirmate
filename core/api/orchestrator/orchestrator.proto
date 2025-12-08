@@ -543,11 +543,17 @@ message ListMetricConfigurationRequest {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  int32 page_size = 1;
+  string page_token = 2;
+  string order_by = 3;
+  bool asc = 4;
 }
 
 message ListMetricConfigurationResponse {
   // A map of metric configurations associated by their metric ID
   map<string, confirmate.assessment.v1.MetricConfiguration> configurations = 1;
+  string next_page_token = 2;
 }
 
 message UpdateMetricImplementationRequest {

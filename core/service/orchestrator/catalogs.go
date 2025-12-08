@@ -83,6 +83,7 @@ func (svc *Service) ListCatalogs(
 ) (res *connect.Response[orchestrator.ListCatalogsResponse], err error) {
 	var (
 		catalogs []*orchestrator.Catalog
+		npt      string
 	)
 
 	// Validate the request
@@ -90,13 +91,20 @@ func (svc *Service) ListCatalogs(
 		return nil, err
 	}
 
-	err = svc.db.List(&catalogs, "id", true, 0, -1, nil)
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
+	}
+
+	catalogs, npt, err = service.PaginateStorage[*orchestrator.Catalog](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListCatalogsResponse{
-		Catalogs: catalogs,
+		Catalogs:      catalogs,
+		NextPageToken: npt,
 	})
 	return
 }
@@ -191,11 +199,18 @@ func (svc *Service) ListControls(
 	var (
 		controls []*orchestrator.Control
 		conds    []any
+		npt      string
 	)
 
 	// Validate the request
 	if err = service.Validate(req.Msg); err != nil {
 		return nil, err
+	}
+
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
 	}
 
 	// Filter by catalog_id if provided
@@ -208,13 +223,14 @@ func (svc *Service) ListControls(
 		conds = append(conds, "category_name = ?", req.Msg.CategoryName)
 	}
 
-	err = svc.db.List(&controls, "id", true, 0, -1, conds...)
+	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListControlsResponse{
-		Controls: controls,
+		Controls:      controls,
+		NextPageToken: npt,
 	})
 	return
 }

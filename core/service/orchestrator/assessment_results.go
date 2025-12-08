@@ -99,11 +99,18 @@ func (svc *Service) ListAssessmentResults(
 	var (
 		results []*assessment.AssessmentResult
 		conds   []any
+		npt     string
 	)
 
 	// Validate the request
 	if err = service.Validate(req.Msg); err != nil {
 		return nil, err
+	}
+
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "timestamp"
+		req.Msg.Asc = false
 	}
 
 	// Apply filters if provided
@@ -119,13 +126,14 @@ func (svc *Service) ListAssessmentResults(
 		}
 	}
 
-	err = svc.db.List(&results, "timestamp DESC", false, 0, -1, conds...)
+	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
-		Results: results,
+		Results:       results,
+		NextPageToken: npt,
 	})
 	return
 }

@@ -103,11 +103,18 @@ func (svc *Service) ListAuditScopes(
 	var (
 		scopes []*orchestrator.AuditScope
 		conds  []any
+		npt    string
 	)
 
 	// Validate the request
 	if err = service.Validate(req.Msg); err != nil {
 		return nil, err
+	}
+
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
 	}
 
 	// Filter by target_of_evaluation_id if provided
@@ -120,13 +127,14 @@ func (svc *Service) ListAuditScopes(
 		conds = append(conds, "catalog_id = ?", *req.Msg.Filter.CatalogId)
 	}
 
-	err = svc.db.List(&scopes, "id", true, 0, -1, conds...)
+	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListAuditScopesResponse{
-		AuditScopes: scopes,
+		AuditScopes:   scopes,
+		NextPageToken: npt,
 	})
 	return
 }

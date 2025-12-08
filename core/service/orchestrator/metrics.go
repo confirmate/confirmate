@@ -96,6 +96,7 @@ func (svc *Service) ListMetrics(
 ) (res *connect.Response[orchestrator.ListMetricsResponse], err error) {
 	var (
 		metrics []*assessment.Metric
+		npt     string
 	)
 
 	// Validate the request
@@ -103,13 +104,20 @@ func (svc *Service) ListMetrics(
 		return nil, err
 	}
 
-	err = svc.db.List(&metrics, "id", true, 0, -1, nil)
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
+	}
+
+	metrics, npt, err = service.PaginateStorage[*assessment.Metric](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListMetricsResponse{
-		Metrics: metrics,
+		Metrics:       metrics,
+		NextPageToken: npt,
 	})
 	return
 }
@@ -297,6 +305,7 @@ func (svc *Service) ListMetricConfigurations(
 	var (
 		configs   []*assessment.MetricConfiguration
 		configMap = make(map[string]*assessment.MetricConfiguration)
+		npt       string
 	)
 
 	// Validate the request
@@ -304,8 +313,14 @@ func (svc *Service) ListMetricConfigurations(
 		return nil, err
 	}
 
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "metric_id"
+		req.Msg.Asc = true
+	}
+
 	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
-	err = svc.db.List(&configs, "metric_id", true, 0, -1,
+	configs, npt, err = service.PaginateStorage[*assessment.MetricConfiguration](req.Msg, svc.db, service.DefaultPaginationOpts,
 		persistence.WithoutPreload(), "target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -318,6 +333,7 @@ func (svc *Service) ListMetricConfigurations(
 
 	res = connect.NewResponse(&orchestrator.ListMetricConfigurationResponse{
 		Configurations: configMap,
+		NextPageToken:  npt,
 	})
 	return
 }
@@ -400,4 +416,3 @@ func (svc *Service) loadMetrics() (err error) {
 	// Save to DB
 	return svc.db.Save(metrics)
 }
-

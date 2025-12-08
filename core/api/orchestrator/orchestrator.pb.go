@@ -1626,6 +1626,10 @@ func (x *GetMetricConfigurationRequest) GetMetricId() string {
 type ListMetricConfigurationRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	TargetOfEvaluationId string                 `protobuf:"bytes,10,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
+	PageSize             int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken            string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	OrderBy              string                 `protobuf:"bytes,3,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	Asc                  bool                   `protobuf:"varint,4,opt,name=asc,proto3" json:"asc,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1667,10 +1671,39 @@ func (x *ListMetricConfigurationRequest) GetTargetOfEvaluationId() string {
 	return ""
 }
 
+func (x *ListMetricConfigurationRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListMetricConfigurationRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListMetricConfigurationRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListMetricConfigurationRequest) GetAsc() bool {
+	if x != nil {
+		return x.Asc
+	}
+	return false
+}
+
 type ListMetricConfigurationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A map of metric configurations associated by their metric ID
 	Configurations map[string]*assessment.MetricConfiguration `protobuf:"bytes,1,rep,name=configurations,proto3" json:"configurations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	NextPageToken  string                                     `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1710,6 +1743,13 @@ func (x *ListMetricConfigurationResponse) GetConfigurations() map[string]*assess
 		return x.Configurations
 	}
 	return nil
+}
+
+func (x *ListMetricConfigurationResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
 }
 
 type UpdateMetricImplementationRequest struct {
@@ -4914,12 +4954,18 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x1dGetMetricConfigurationRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12'\n" +
 	"\tmetric_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bmetricId\"d\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bmetricId\"\xcd\x01\n" +
 	"\x1eListMetricConfigurationRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\n" +
-	" \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\"\x8c\x02\n" +
+	" \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12\x1b\n" +
+	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tR\tpageToken\x12\x19\n" +
+	"\border_by\x18\x03 \x01(\tR\aorderBy\x12\x10\n" +
+	"\x03asc\x18\x04 \x01(\bR\x03asc\"\xb4\x02\n" +
 	"\x1fListMetricConfigurationResponse\x12w\n" +
-	"\x0econfigurations\x18\x01 \x03(\v2O.confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntryR\x0econfigurations\x1ap\n" +
+	"\x0econfigurations\x18\x01 \x03(\v2O.confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntryR\x0econfigurations\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x1ap\n" +
 	"\x13ConfigurationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12C\n" +
 	"\x05value\x18\x02 \x01(\v2-.confirmate.assessment.v1.MetricConfigurationR\x05value:\x028\x01\"\x86\x01\n" +

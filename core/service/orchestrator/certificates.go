@@ -79,6 +79,7 @@ func (svc *Service) ListCertificates(
 ) (res *connect.Response[orchestrator.ListCertificatesResponse], err error) {
 	var (
 		certificates []*orchestrator.Certificate
+		npt          string
 	)
 
 	// Validate the request
@@ -86,13 +87,20 @@ func (svc *Service) ListCertificates(
 		return nil, err
 	}
 
-	err = svc.db.List(&certificates, "id", true, 0, -1, nil)
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
+	}
+
+	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.ListCertificatesResponse{
-		Certificates: certificates,
+		Certificates:  certificates,
+		NextPageToken: npt,
 	})
 	return
 }
@@ -104,6 +112,7 @@ func (svc *Service) ListPublicCertificates(
 ) (res *connect.Response[orchestrator.ListPublicCertificatesResponse], err error) {
 	var (
 		certificates []*orchestrator.Certificate
+		npt          string
 	)
 
 	// Validate the request
@@ -111,7 +120,13 @@ func (svc *Service) ListPublicCertificates(
 		return nil, err
 	}
 
-	err = svc.db.List(&certificates, "id", true, 0, -1, nil)
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
+	}
+
+	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -122,7 +137,8 @@ func (svc *Service) ListPublicCertificates(
 	}
 
 	res = connect.NewResponse(&orchestrator.ListPublicCertificatesResponse{
-		Certificates: certificates,
+		Certificates:  certificates,
+		NextPageToken: npt,
 	})
 	return
 }
