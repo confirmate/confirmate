@@ -22,74 +22,54 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
 )
 
-func Test_service_ListTargetsOfEvaluation(t *testing.T) {
+func TestService_ListTargetsOfEvaluation(t *testing.T) {
+	type args struct {
+		req *orchestrator.ListTargetsOfEvaluationRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
 	tests := []struct {
-		name   string
-		fields struct {
-			db *persistence.DB
-		}
-		args struct {
-			ctx context.Context
-			req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]
-		}
-		want    *connect.Response[orchestrator.ListTargetsOfEvaluationResponse]
-		wantErr bool
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[orchestrator.ListTargetsOfEvaluationResponse]]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "happy path",
-			fields: struct {
-				db *persistence.DB
-			}{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(s *persistence.DB) {
-					// Create a sample TargetOfEvaluation entry
-					err := s.Create(&orchestrator.TargetOfEvaluation{
-						Id:   "1",
-						Name: "TOE1",
-					})
-					if err != nil {
-						t.Fatalf("could not create TOE: %v", err)
-					}
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
 				}),
 			},
-			args: struct {
-				ctx context.Context
-				req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest]
-			}{
-				ctx: context.Background(),
-				req: connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{}),
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 1, len(got.Msg.TargetsOfEvaluation)) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.TargetsOfEvaluation[0].Id)
 			},
-			want: connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
-				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{
-					{
-						Id:   "1",
-						Name: "TOE1",
-					},
-				},
-			}),
+			wantErr: assert.NoError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &orch{
+			svc := &Service{
 				db: tt.fields.db,
 			}
-			got, gotErr := svc.ListTargetsOfEvaluation(tt.args.ctx, tt.args.req)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("ListTargetsOfEvaluation() failed: %v", gotErr)
-				}
-				return
-			}
-			if tt.wantErr {
-				t.Fatal("ListTargetsOfEvaluation() succeeded unexpectedly")
-			}
-			assert.Equal(t, tt.want.Msg, got.Msg)
+			res, err := svc.ListTargetsOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
