@@ -57,6 +57,17 @@ func (svc *Service) CreateAuditScope(
 		return nil, err
 	}
 
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_AUDIT_SCOPE_CHANGE,
+		Event: &orchestrator.ChangeEvent_AuditScopeChange{
+			AuditScopeChange: &orchestrator.AuditScopeChangeEvent{
+				Type:       orchestrator.AuditScopeChangeEvent_TYPE_CREATED,
+				AuditScope: scope,
+			},
+		},
+	})
+
 	res = connect.NewResponse(scope)
 	return
 }
@@ -151,6 +162,17 @@ func (svc *Service) UpdateAuditScope(
 		return nil, err
 	}
 
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_AUDIT_SCOPE_CHANGE,
+		Event: &orchestrator.ChangeEvent_AuditScopeChange{
+			AuditScopeChange: &orchestrator.AuditScopeChangeEvent{
+				Type:       orchestrator.AuditScopeChangeEvent_TYPE_UPDATED,
+				AuditScope: scope,
+			},
+		},
+	})
+
 	res = connect.NewResponse(scope)
 	return
 }
@@ -174,6 +196,17 @@ func (svc *Service) RemoveAuditScope(
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_AUDIT_SCOPE_CHANGE,
+		Event: &orchestrator.ChangeEvent_AuditScopeChange{
+			AuditScopeChange: &orchestrator.AuditScopeChangeEvent{
+				Type:       orchestrator.AuditScopeChangeEvent_TYPE_REMOVED,
+				AuditScope: &scope,
+			},
+		},
+	})
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return

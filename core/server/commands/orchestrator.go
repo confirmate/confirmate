@@ -30,7 +30,10 @@ var OrchestratorCommand = &cli.Command{
 	Name:  "orchestrator",
 	Usage: "Launches the orchestrator service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := orchestrator.NewService()
+		svc, err := orchestrator.NewService(
+			orchestrator.WithCatalogsFolder(cmd.String("catalogs-folder")),
+			orchestrator.WithMetricsFolder(cmd.String("metrics-folder")),
+		)
 		if err != nil {
 			return err
 		}
@@ -68,6 +71,14 @@ var OrchestratorCommand = &cli.Command{
 			Name:  "api-cors-allowed-headers",
 			Usage: "Specifies the headers allowed in CORS",
 			Value: server.DefaultConfig.CORS.AllowedHeaders,
+		},
+		&cli.StringFlag{
+			Name:  "catalogs-folder",
+			Usage: "The folder containing catalog definitions",
+		},
+		&cli.StringFlag{
+			Name:  "metrics-folder",
+			Usage: "The folder containing metric definitions",
 		},
 	},
 }

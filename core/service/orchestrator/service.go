@@ -18,17 +18,18 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"runtime/debug"
+	"time"
+
+	"sync"
 
 	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
-	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -37,6 +38,34 @@ import (
 type Service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
 	db *persistence.DB
+
+	catalogsFolder string
+	metricsFolder  string
+
+	// subscribers is a map of subscribers for change events
+	subscribers      map[int64]*subscriber
+	subscribersMutex sync.RWMutex
+
+	nextSubscriberId int64
+}
+
+type subscriber struct {
+	ch     chan *orchestrator.ChangeEvent
+	filter *orchestrator.SubscribeRequest_Filter
+}
+
+// WithCatalogsFolder sets the folder where catalogs are stored.
+func WithCatalogsFolder(folder string) service.Option[Service] {
+	return func(svc *Service) {
+		svc.catalogsFolder = folder
+	}
+}
+
+// WithMetricsFolder sets the folder where metrics are stored.
+func WithMetricsFolder(folder string) service.Option[Service] {
+	return func(svc *Service) {
+		svc.metricsFolder = folder
+	}
 }
 
 // NewService creates a new orchestrator service and returns a
@@ -44,10 +73,14 @@ type Service struct {
 //
 // It initializes the database with auto-migration for the required types and sets up the necessary
 // join tables.
-func NewService() (handler orchestratorconnect.OrchestratorHandler, err error) {
+func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.OrchestratorHandler, err error) {
 	var (
 		svc = &Service{}
 	)
+
+	for _, o := range opts {
+		o(svc)
+	}
 
 	// Initialize the database with the defined auto-migration types and join tables
 	svc.db, err = persistence.NewDB(
@@ -57,189 +90,19 @@ func NewService() (handler orchestratorconnect.OrchestratorHandler, err error) {
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}
 
-	// Create a sample TargetOfEvaluation entry. This will be removed later.
-	err = svc.db.Create(&orchestrator.TargetOfEvaluation{
-		Id:   "1",
-		Name: "TOE1",
-	})
-	if err != nil {
-		return nil, fmt.Errorf("could not create TOE: %w", err)
+	// Initialize subscribers map
+	svc.subscribers = make(map[int64]*subscriber)
+
+	// Load catalogs and metrics
+	if err = svc.loadCatalogs(); err != nil {
+		return nil, fmt.Errorf("could not load catalogs: %w", err)
+	}
+
+	if err = svc.loadMetrics(); err != nil {
+		return nil, fmt.Errorf("could not load metrics: %w", err)
 	}
 
 	handler = svc
-	return
-}
-
-// CreateTargetOfEvaluation creates a new target of evaluation.
-func (svc *Service) CreateTargetOfEvaluation(
-	ctx context.Context,
-	req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest],
-) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
-	var (
-		toe *orchestrator.TargetOfEvaluation
-		now = timestamppb.Now()
-	)
-
-	// Check for nil request first
-	if util.IsNil(req.Msg) || util.IsNil(req.Msg.TargetOfEvaluation) {
-		return nil, connect.NewError(connect.CodeInvalidArgument, service.ErrEmptyRequest)
-	}
-
-	toe = req.Msg.TargetOfEvaluation
-
-	// Generate a new UUID for the target of evaluation if not provided.
-	if toe.Id == "" {
-		toe.Id = uuid.NewString()
-	}
-
-	// Validate the request
-	if err = service.Validate(req.Msg); err != nil {
-		return nil, err
-	}
-
-	// Set timestamps
-	toe.CreatedAt = now
-	toe.UpdatedAt = now
-
-	// Persist the target of evaluation in the database
-	err = svc.db.Create(toe)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	res = connect.NewResponse(toe)
-	return
-}
-
-// ListTargetsOfEvaluation lists all targets of evaluation.
-func (svc *Service) ListTargetsOfEvaluation(
-	ctx context.Context,
-	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
-	var (
-		toes []*orchestrator.TargetOfEvaluation
-	)
-
-	// Validate request
-	err = service.Validate(req.Msg)
-	if err != nil {
-		return nil, err
-	}
-
-	err = svc.db.List(&toes, "name", true, 0, -1, nil)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	res = connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
-		TargetsOfEvaluation: toes,
-	})
-	return
-}
-
-// GetTargetOfEvaluation retrieves a target of evaluation by ID.
-func (svc *Service) GetTargetOfEvaluation(
-	ctx context.Context,
-	req *connect.Request[orchestrator.GetTargetOfEvaluationRequest],
-) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
-	var (
-		toe orchestrator.TargetOfEvaluation
-	)
-
-	// Validate the request
-	if err = service.Validate(req.Msg); err != nil {
-		return nil, err
-	}
-
-	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
-		return nil, err
-	}
-
-	res = connect.NewResponse(&toe)
-	return
-}
-
-// UpdateTargetOfEvaluation updates an existing target of evaluation.
-func (svc *Service) UpdateTargetOfEvaluation(
-	ctx context.Context,
-	req *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest],
-) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
-	var (
-		count int64
-		toe   = req.Msg.TargetOfEvaluation
-	)
-
-	// Validate the request
-	if err = service.Validate(req.Msg); err != nil {
-		return nil, err
-	}
-
-	// Check if the target of evaluation exists
-	count, err = svc.db.Count(toe, "id = ?", toe.Id)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	if count == 0 {
-		return nil, service.ErrNotFound("target of evaluation")
-	}
-
-	// Update timestamp
-	toe.UpdatedAt = timestamppb.Now()
-
-	// Save the updated target of evaluation
-	err = svc.db.Save(toe, "id = ?", toe.Id)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	res = connect.NewResponse(toe)
-	return
-}
-
-// RemoveTargetOfEvaluation removes a target of evaluation by ID.
-func (svc *Service) RemoveTargetOfEvaluation(
-	ctx context.Context,
-	req *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest],
-) (res *connect.Response[emptypb.Empty], err error) {
-	var (
-		toe orchestrator.TargetOfEvaluation
-	)
-
-	// Validate the request
-	if err = service.Validate(req.Msg); err != nil {
-		return nil, err
-	}
-
-	// Delete the target of evaluation
-	err = svc.db.Delete(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	res = connect.NewResponse(&emptypb.Empty{})
-	return
-}
-
-// GetTargetOfEvaluationStatistics retrieves statistics for targets of evaluation.
-func (svc *Service) GetTargetOfEvaluationStatistics(
-	ctx context.Context,
-	req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest],
-) (res *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], err error) {
-	// Validate the request
-	if err = service.Validate(req.Msg); err != nil {
-		return nil, err
-	}
-
-	// TODO: Implement actual statistics calculation
-	// For now, return zero statistics
-	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{
-		NumberOfDiscoveredResources: 0,
-		NumberOfAssessmentResults:   0,
-		NumberOfEvidences:           0,
-		NumberOfSelectedCatalogs:    0,
-	})
 	return
 }
 
@@ -248,16 +111,41 @@ func (svc *Service) GetRuntimeInfo(
 	ctx context.Context,
 	req *connect.Request[common.GetRuntimeInfoRequest],
 ) (res *connect.Response[common.Runtime], err error) {
+	var (
+		runtime = &common.Runtime{}
+		info    *debug.BuildInfo
+		ok      bool
+	)
+
 	// Validate the request
 	if err = service.Validate(req.Msg); err != nil {
 		return nil, err
 	}
 
-	// TODO: Implement actual runtime information gathering
-	// For now, return basic runtime info
-	res = connect.NewResponse(&common.Runtime{
-		Vcs:        "git",
-		CommitHash: "unknown",
-	})
+	if info, ok = debug.ReadBuildInfo(); ok {
+		runtime.GolangVersion = info.GoVersion
+		runtime.Vcs = "git"
+
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				runtime.CommitHash = setting.Value
+			case "vcs.time":
+				if t, err := time.Parse(time.RFC3339, setting.Value); err == nil {
+					runtime.CommitTime = timestamppb.New(t)
+				}
+			}
+		}
+
+		for _, dep := range info.Deps {
+			runtime.Dependencies = append(runtime.Dependencies, &common.Dependency{
+				Path:    dep.Path,
+				Version: dep.Version,
+			})
+		}
+	}
+
+	res = connect.NewResponse(runtime)
 	return
 }
+

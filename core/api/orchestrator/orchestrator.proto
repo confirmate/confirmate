@@ -197,7 +197,7 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/metrics/{metric_id}/implementation"};
   }
 
-  rpc SubscribeMetricChangeEvents(SubscribeMetricChangeEventRequest) returns (stream MetricChangeEvent) {}
+  rpc Subscribe(SubscribeRequest) returns (stream ChangeEvent) {}
 
   // Creates a new certificate
   rpc CreateCertificate(CreateCertificateRequest) returns (Certificate) {
@@ -564,7 +564,35 @@ message GetMetricImplementationRequest {
   ];
 }
 
-message SubscribeMetricChangeEventRequest {}
+message SubscribeRequest {
+  message Filter {
+    repeated ChangeEvent.Type types = 1;
+  }
+
+  Filter filter = 1;
+}
+
+message ChangeEvent {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_METRIC_CHANGE = 1;
+    TYPE_TARGET_OF_EVALUATION_CHANGE = 2;
+    TYPE_AUDIT_SCOPE_CHANGE = 3;
+    TYPE_ASSESSMENT_RESULT_EVENT = 4;
+  }
+
+  Type type = 1 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  oneof event {
+    MetricChangeEvent metric_change = 2;
+    TargetOfEvaluationChangeEvent target_of_evaluation_change = 3;
+    AuditScopeChangeEvent audit_scope_change = 4;
+    AssessmentResultEvent assessment_result_event = 5;
+  }
+}
 
 // MetricChangeEvent represents a change of either a metric configuration or
 // implementation.
@@ -595,6 +623,52 @@ message MetricChangeEvent {
   ];
 }
 
+message TargetOfEvaluationChangeEvent {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_CREATED = 1;
+    TYPE_UPDATED = 2;
+    TYPE_REMOVED = 3;
+  }
+
+  Type type = 1 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  TargetOfEvaluation target_of_evaluation = 2;
+}
+
+message AuditScopeChangeEvent {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_CREATED = 1;
+    TYPE_UPDATED = 2;
+    TYPE_REMOVED = 3;
+  }
+
+  Type type = 1 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  AuditScope audit_scope = 2;
+}
+
+message AssessmentResultEvent {
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_STORED = 1;
+  }
+
+  Type type = 1 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  confirmate.assessment.v1.AssessmentResult assessment_result = 2;
+}
+
 // Represents an external tool or service that offers assessments according to
 // certain metrics.
 message AssessmentTool {
@@ -609,6 +683,7 @@ message AssessmentTool {
 
   // a list of metrics that this tool can assess, referred by their ids
   repeated string available_metrics = 4 [
+    (tagger.tags) = "gorm:\"serializer:json\"",
     (buf.validate.field).repeated.items.string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1072,25 +1147,4 @@ message State {
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
-}
-
-// AuditScopeChangeEvent represents a change of either an Audit Scope
-// or Control Monitoring Status and the AuditScope hook
-// function can be informed about the reason of its call.
-message AuditScopeChangeEvent {
-  // Type represents the type of the change event. Type can be a change event
-  // regarding the Audit Scope or the Control Monitoring Status.
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-
-    TYPE_AUDIT_SCOPE_CREATED = 1;
-    TYPE_AUDIT_SCOPE_UPDATED = 2;
-    TYPE_AUDIT_SCOPE_REMOVED = 3;
-  }
-
-  Type type = 1 [(buf.validate.field).enum.defined_only = true];
-
-  // Optional. If the type is a AUDIT_SCOPE_* the audit_scope
-  // field must be set
-  optional AuditScope audit_scope = 2 [(buf.validate.field).required = true];
 }

@@ -17,6 +17,8 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
+	"io"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
@@ -50,6 +52,17 @@ func (svc *Service) StoreAssessmentResult(
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_ASSESSMENT_RESULT_EVENT,
+		Event: &orchestrator.ChangeEvent_AssessmentResultEvent{
+			AssessmentResultEvent: &orchestrator.AssessmentResultEvent{
+				Type:             orchestrator.AssessmentResultEvent_TYPE_STORED,
+				AssessmentResult: result,
+			},
+		},
+	})
 
 	res = connect.NewResponse(&orchestrator.StoreAssessmentResultResponse{})
 	return
@@ -128,15 +141,32 @@ func (svc *Service) StoreAssessmentResults(
 
 	for {
 		msg, err = stream.Receive()
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
 		if err != nil {
 			return err
 		}
+
+		// Set timestamp
+		msg.Result.CreatedAt = timestamppb.Now()
 
 		// Store the assessment result in the database
 		err = svc.db.Create(msg.Result)
 		if err = service.HandleDatabaseError(err); err != nil {
 			return err
 		}
+
+		// Notify subscribers
+		go svc.publishEvent(&orchestrator.ChangeEvent{
+			Type: orchestrator.ChangeEvent_TYPE_ASSESSMENT_RESULT_EVENT,
+			Event: &orchestrator.ChangeEvent_AssessmentResultEvent{
+				AssessmentResultEvent: &orchestrator.AssessmentResultEvent{
+					Type:             orchestrator.AssessmentResultEvent_TYPE_STORED,
+					AssessmentResult: msg.Result,
+				},
+			},
+		})
 
 		// Send an acknowledgment response
 		err = stream.Send(&orchestrator.StoreAssessmentResultsResponse{Status: true})

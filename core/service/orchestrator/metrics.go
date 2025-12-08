@@ -17,6 +17,10 @@ package orchestrator
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
@@ -46,6 +50,17 @@ func (svc *Service) CreateMetric(
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_METRIC_CHANGE,
+		Event: &orchestrator.ChangeEvent_MetricChange{
+			MetricChange: &orchestrator.MetricChangeEvent{
+				Type:     orchestrator.MetricChangeEvent_TYPE_METADATA_CHANGED,
+				MetricId: metric.Id,
+			},
+		},
+	})
 
 	res = connect.NewResponse(metric)
 	return
@@ -130,6 +145,17 @@ func (svc *Service) UpdateMetric(
 		return nil, err
 	}
 
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_METRIC_CHANGE,
+		Event: &orchestrator.ChangeEvent_MetricChange{
+			MetricChange: &orchestrator.MetricChangeEvent{
+				Type:     orchestrator.MetricChangeEvent_TYPE_METADATA_CHANGED,
+				MetricId: metric.Id,
+			},
+		},
+	})
+
 	res = connect.NewResponse(metric)
 	return
 }
@@ -153,6 +179,17 @@ func (svc *Service) RemoveMetric(
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric")); err != nil {
 		return nil, err
 	}
+
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_METRIC_CHANGE,
+		Event: &orchestrator.ChangeEvent_MetricChange{
+			MetricChange: &orchestrator.MetricChangeEvent{
+				Type:     orchestrator.MetricChangeEvent_TYPE_METADATA_CHANGED,
+				MetricId: req.Msg.MetricId,
+			},
+		},
+	})
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
@@ -211,6 +248,17 @@ func (svc *Service) UpdateMetricImplementation(
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_METRIC_CHANGE,
+		Event: &orchestrator.ChangeEvent_MetricChange{
+			MetricChange: &orchestrator.MetricChangeEvent{
+				Type:     orchestrator.MetricChangeEvent_TYPE_IMPLEMENTATION_CHANGED,
+				MetricId: impl.MetricId,
+			},
+		},
+	})
 
 	res = connect.NewResponse(impl)
 	return
@@ -280,7 +328,6 @@ func (svc *Service) UpdateMetricConfiguration(
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
 ) (res *connect.Response[assessment.MetricConfiguration], err error) {
 	var (
-		count  int64
 		config = req.Msg.Configuration
 	)
 
@@ -289,28 +336,68 @@ func (svc *Service) UpdateMetricConfiguration(
 		return nil, err
 	}
 
-	// Check if the metric configuration exists
-	count, err = svc.db.Count(config, "target_of_evaluation_id = ? AND metric_id = ?",
-		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	if count == 0 {
-		return nil, service.ErrNotFound("metric configuration")
-	}
-
 	// Ensure IDs match
 	config.TargetOfEvaluationId = req.Msg.TargetOfEvaluationId
 	config.MetricId = req.Msg.MetricId
 
 	// Save the updated metric configuration
-	err = svc.db.Save(config, "target_of_evaluation_id = ? AND metric_id = ?",
-		req.Msg.TargetOfEvaluationId, req.Msg.MetricId)
+	err = svc.db.Save(config)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Type: orchestrator.ChangeEvent_TYPE_METRIC_CHANGE,
+		Event: &orchestrator.ChangeEvent_MetricChange{
+			MetricChange: &orchestrator.MetricChangeEvent{
+				Type:                 orchestrator.MetricChangeEvent_TYPE_CONFIG_CHANGED,
+				MetricId:             config.MetricId,
+				TargetOfEvaluationId: config.TargetOfEvaluationId,
+			},
+		},
+	})
+
 	res = connect.NewResponse(config)
 	return
 }
+
+// loadMetrics loads metric definitions from a JSON file.
+func (svc *Service) loadMetrics() (err error) {
+	var metrics []*assessment.Metric
+
+	if svc.metricsFolder == "" {
+		return nil
+	}
+
+	// Get all filenames
+	files, err := os.ReadDir(svc.metricsFolder)
+	if err != nil {
+		return fmt.Errorf("could not read metrics folder: %w", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() || filepath.Ext(file.Name()) != ".json" {
+			continue
+		}
+
+		var metricsFromFile []*assessment.Metric
+		b, err := os.ReadFile(filepath.Join(svc.metricsFolder, file.Name()))
+		if err != nil {
+			// log error?
+			continue
+		}
+
+		err = json.Unmarshal(b, &metricsFromFile)
+		if err != nil {
+			// log error?
+			continue
+		}
+
+		metrics = append(metrics, metricsFromFile...)
+	}
+
+	// Save to DB
+	return svc.db.Save(metrics)
+}
+

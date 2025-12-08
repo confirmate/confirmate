@@ -17,6 +17,10 @@ package orchestrator
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
@@ -237,4 +241,60 @@ func (svc *Service) GetControl(
 
 	res = connect.NewResponse(&control)
 	return
+}
+
+// loadCatalogs loads catalog definitions from a JSON file.
+func (svc *Service) loadCatalogs() (err error) {
+	var catalogs []*orchestrator.Catalog
+
+	if svc.catalogsFolder == "" {
+		return nil
+	}
+
+	// Get all filenames
+	files, err := os.ReadDir(svc.catalogsFolder)
+	if err != nil {
+		return fmt.Errorf("could not read catalogs folder: %w", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() || filepath.Ext(file.Name()) != ".json" {
+			continue
+		}
+
+		var catalogsFromFile []*orchestrator.Catalog
+		b, err := os.ReadFile(filepath.Join(svc.catalogsFolder, file.Name()))
+		if err != nil {
+			// log error?
+			continue
+		}
+
+		err = json.Unmarshal(b, &catalogsFromFile)
+		if err != nil {
+			// log error?
+			continue
+		}
+
+		catalogs = append(catalogs, catalogsFromFile...)
+	}
+
+	// Post-processing (setting parent IDs)
+	for _, catalog := range catalogs {
+		for _, category := range catalog.Categories {
+			for _, control := range category.Controls {
+				for _, sub := range control.Controls {
+					sub.CategoryName = category.Name
+					sub.CategoryCatalogId = catalog.Id
+
+					// Set parent info
+					sub.ParentControlCategoryCatalogId = &control.CategoryCatalogId
+					sub.ParentControlCategoryName = &control.CategoryName
+					sub.ParentControlId = &control.Id
+				}
+			}
+		}
+	}
+
+	// Save to DB
+	return svc.db.Save(catalogs)
 }

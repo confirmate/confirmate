@@ -30,8 +30,7 @@ var types = []any{
 	&orchestrator.Category{},
 	&orchestrator.Control{},
 	&orchestrator.AuditScope{},
-	// TODO: Add AssessmentTool once available_metrics field has proper serialization tag
-	// &orchestrator.AssessmentTool{},
+	&orchestrator.AssessmentTool{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},
 	&assessment.Metric{},
