@@ -50,10 +50,10 @@ func ErrNotFound(entity string) error {
 }
 
 // Validate validates an incoming request using protovalidate.
-//   - If the request message is nil, it returns an [ErrEmptyRequest] error.
+//   - If the request or request message is nil, it returns an [ErrEmptyRequest] error.
 //   - If the request fails validation, it returns a [connect.CodeInvalidArgument] error.
 func Validate[T any](req *connect.Request[T]) error {
-	if util.IsNil(req.Msg) {
+	if util.IsNil(req) || util.IsNil(req.Msg) {
 		return connect.NewError(connect.CodeInvalidArgument, ErrEmptyRequest)
 	}
 
