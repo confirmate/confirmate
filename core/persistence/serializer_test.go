@@ -99,7 +99,7 @@ func TestDurationSerializer_Scan(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "db wrong type",
@@ -107,7 +107,7 @@ func TestDurationSerializer_Scan(t *testing.T) {
 				field:   &schema.Field{},
 				dbValue: "string",
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -199,7 +199,7 @@ func TestTimestampSerializer_Scan(t *testing.T) {
 				field:   &schema.Field{},
 				dbValue: "string",
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt assert.TestingT, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -314,7 +314,7 @@ func TestAnySerializer_Scan(t *testing.T) {
 				field:   &schema.Field{},
 				dbValue: "string",
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt assert.TestingT, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not unmarshal JSONB value into protobuf message")
 			},
 		},

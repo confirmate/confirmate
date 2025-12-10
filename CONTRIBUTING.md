@@ -96,46 +96,69 @@ import (
 )
 ```
 
-### Request Validation
+## Error Handling
 
-All gRPC/Connect service methods should validate incoming requests at the beginning of the function using `service.Validate()`. This function uses protovalidate to validate the request based on the validation rules defined in the protobuf definitions.
+### Database Error Handling in Services
 
-**Good:**
+When handling database errors in service methods, use the `service.HandleDatabaseError` helper function from `core/service`. This function translates database errors into appropriate Connect RPC errors:
+
+- `persistence.ErrRecordNotFound` → `connect.CodeNotFound`
+- Other errors → `connect.CodeInternal`
+
+**Example:**
 ```go
-func (svc *orch) ListTargetsOfEvaluation(
+import (
+    "confirmate.io/core/service"
+)
+
+func (svc *Service) GetCertificate(
     ctx context.Context,
-    req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
+    req *connect.Request[orchestrator.GetCertificateRequest],
+) (res *connect.Response[orchestrator.Certificate], err error) {
     var (
-        toes []*orchestrator.TargetOfEvaluation
+        cert orchestrator.Certificate
     )
 
-    // Validate request
-    err = service.Validate(req.Msg)
-    if err != nil {
+    err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+    if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
         return nil, err
     }
 
-    // Continue with business logic...
+    res = connect.NewResponse(&cert)
+    return
 }
 ```
 
-**Bad:**
+This pattern ensures consistent error handling across all service methods and reduces code duplication.
+
+### Request Validation
+
+All service methods must validate incoming requests using the `service.Validate` helper function from `core/service`. This function uses `protovalidate` to validate the request message and returns a `connect.CodeInvalidArgument` error if validation fails.
+
+**Validation must be the first operation in every service method:**
 ```go
-func (svc *orch) ListTargetsOfEvaluation(
+import (
+    "confirmate.io/core/service"
+)
+
+func (svc *Service) GetCertificate(
     ctx context.Context,
-    req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
-    // Missing validation - requests should always be validated
-    
-    err = svc.db.List(&toes, "name", true, 0, -1, nil)
-    // ...
+    req *connect.Request[orchestrator.GetCertificateRequest],
+) (res *connect.Response[orchestrator.Certificate], err error) {
+    var (
+        cert orchestrator.Certificate
+    )
+
+    // Validate the request
+    if err = service.Validate(req.Msg); err != nil {
+        return nil, err
+    }
+
+    // Handle it...
 }
 ```
 
-The `service.Validate()` function:
-- Returns `connect.CodeInvalidArgument` error if the request is nil or fails protovalidate validation
-- Returns `nil` if validation passes
+The validation rules are defined in the protobuf files using `buf/validate` annotations. See [protovalidate documentation](https://buf.build/docs/protovalidate/overview) for details.
 
 ## Documentation Guidelines
 
@@ -211,51 +234,75 @@ Avoid adding `README.md` files in internal code directories. Instead, use packag
 
 ### Table-Driven Tests
 
-Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend.
+Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend. It specifies the `args` of the call and optionally the `fields` of the struct, if the to-be-called function is a method.
 
 The actual test body should be kept as short and clear as possible. Instead of extensive logic or repetitive code, prefer using `assert.WantErr` or `assert.Want` from the `core/util/assert` package to make checks concise and precise.
 
+Also try to avoid hard-coded strings, especially in table tests. Instead common mock objects (e.g. `orchestratortest.MockMetric1`) should be used.
+
 **Example:**
 ```go
-func TestEqual(t *testing.T) {
-    type args struct {
-        t    TestingT
-        want any
-        got  any
-        opts []cmp.Option
-    }
-    tests := []struct {
-        name string
-        args args
-        want bool
-    }{
-        {
-            name: "compare literals",
-            args: args{
-                t:    t,
-                want: "5",
-                got:  "5",
-            },
-            want: true,
-        },
-        {
-            name: "compare structs with unexported fields",
-            args: args{
-                t:    t,
-                want: &MyStruct{A: "test", b: 1},
-                got:  &MyStruct{A: "test", b: 1},
-                opts: []cmp.Option{CompareAllUnexported()},
-            },
-            want: true,
-        },
-    }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            if got := Equal(tt.args.t, tt.args.want, tt.args.got, tt.args.opts...); got != tt.want {
-                t.Errorf("Equal() = %v, want %v", got, tt.want)
-            }
-        })
-    }
+func TestService_GetMetric(t *testing.T) {
+	type args struct {
+		req *orchestrator.GetMetricRequest
+	}
+	type fields struct {
+		db *persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[assessment.Metric]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: "non-existent",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db: tt.fields.db,
+			}
+
+			res, err := svc.GetMetric(context.Background(), connect.NewRequest(tt.args.req))
+			tt.want(t, res)
+			tt.wantErr(t, err)
+		})
+	}
 }
 ```
 
