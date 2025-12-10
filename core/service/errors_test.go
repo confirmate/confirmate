@@ -25,7 +25,6 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/proto"
 )
 
 func TestHandleDatabaseError(t *testing.T) {
@@ -79,7 +78,7 @@ func TestHandleDatabaseError(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	type args struct {
-		req proto.Message
+		req *connect.Request[orchestrator.CreateMetricRequest]
 	}
 	tests := []struct {
 		name    string
@@ -89,21 +88,21 @@ func TestValidate(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				req: &orchestrator.CreateMetricRequest{
+				req: connect.NewRequest(&orchestrator.CreateMetricRequest{
 					Metric: &assessment.Metric{
 						Id:          "metric-1",
 						Description: "Test Metric",
 						Version:     "1.0.0",
 						Category:    "awesome",
 					},
-				},
+				}),
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			name: "nil request",
+			name: "nil request message",
 			args: args{
-				req: nil,
+				req: connect.NewRequest[orchestrator.CreateMetricRequest](nil),
 			},
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				cErr := assert.Is[*connect.Error](t, err)
@@ -113,11 +112,11 @@ func TestValidate(t *testing.T) {
 		{
 			name: "invalid request",
 			args: args{
-				req: &orchestrator.CreateMetricRequest{
+				req: connect.NewRequest(&orchestrator.CreateMetricRequest{
 					Metric: &assessment.Metric{
 						Id: "", // Missing required field
 					},
-				},
+				}),
 			},
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				cErr := assert.Is[*connect.Error](t, err)
