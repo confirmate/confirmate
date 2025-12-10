@@ -30,7 +30,7 @@ import (
 
 // StoreAssessmentResult stores a single assessment result.
 func (svc *Service) StoreAssessmentResult(
-	ctx context.Context,
+	_ context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
 ) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
 	var (
@@ -70,7 +70,7 @@ func (svc *Service) StoreAssessmentResult(
 
 // GetAssessmentResult retrieves an assessment result by ID.
 func (svc *Service) GetAssessmentResult(
-	ctx context.Context,
+	_ context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
 	var (
@@ -93,7 +93,7 @@ func (svc *Service) GetAssessmentResult(
 
 // ListAssessmentResults lists all assessment results with optional filtering.
 func (svc *Service) ListAssessmentResults(
-	ctx context.Context,
+	_ context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
 	var (
@@ -140,7 +140,7 @@ func (svc *Service) ListAssessmentResults(
 
 // StoreAssessmentResults stores assessment results via a bidirectional stream.
 func (svc *Service) StoreAssessmentResults(
-	ctx context.Context,
+	_ context.Context,
 	stream *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
 ) (err error) {
 	var (
