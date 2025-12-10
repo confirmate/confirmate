@@ -50,6 +50,7 @@ func ErrNotFound(entity string) error {
 }
 
 // Validate validates an incoming request using protovalidate.
+// The type parameter T should be a protobuf message type where *T implements [proto.Message].
 //   - If the request or request message is nil, it returns an [ErrEmptyRequest] error.
 //   - If the request fails validation, it returns a [connect.CodeInvalidArgument] error.
 func Validate[T any](req *connect.Request[T]) error {
