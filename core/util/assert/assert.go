@@ -33,7 +33,6 @@ var False = assert.False
 var NotEmpty = assert.NotEmpty
 var Contains = assert.Contains
 var ErrorContains = assert.ErrorContains
-var NoError = assert.NoError
 var Error = assert.Error
 var ErrorIs = assert.ErrorIs
 var Fail = assert.Fail
@@ -43,16 +42,19 @@ type TestingT = assert.TestingT
 type ErrorAssertionFunc = assert.ErrorAssertionFunc
 
 // Want is a function type that can hold asserts in order to check the validity of "got".
-type Want[T any] func(t *testing.T, got T) bool
+type Want[T any] func(t *testing.T, got T, msgAndArgs ...any) bool
 
 var _ Want[any] = AnyValue[any]
 var _ Want[any] = Nil[any]
 
 // WantErr is a function type that can hold asserts in order to check the error of "err".
-type WantErr func(t *testing.T, err error) bool
+type WantErr func(t *testing.T, err error, msgAndArgs ...any) bool
 
-var _ WantErr = AnyValue[error]
-var _ WantErr = Nil[error]
+var _ WantErr = AnyValue
+var _ WantErr = NoError
+
+// NoError is a [WantErr] that asserts that no error occurred.
+var NoError = Nil[error]
 
 // CompareAllUnexported is a [cmp.Option] that allows the introspection of all un-exported fields in order to use them in
 // [Equal] or [NotEqual].
@@ -96,22 +98,22 @@ func NotEqual[T any](t TestingT, want T, got T, opts ...cmp.Option) bool {
 	return assert.Fail(t, "Equal, but expected to be not equal", cmp.Diff(got, want, opts...))
 }
 
-func Nil[T any](t *testing.T, obj T) bool {
+func Nil[T any](t *testing.T, obj T, msgAndArgs ...any) bool {
 	t.Helper()
 
-	return assert.Nil(t, obj)
+	return assert.Nil(t, obj, msgAndArgs...)
 }
 
-func NotNil[T any](t *testing.T, obj T) bool {
+func NotNil[T any](t *testing.T, obj T, msgAndArgs ...any) bool {
 	t.Helper()
 
-	return assert.NotNil(t, obj)
+	return assert.NotNil(t, obj, msgAndArgs...)
 }
 
-func Empty[T any](t *testing.T, obj T) bool {
+func Empty[T any](t *testing.T, obj T, msgAndArgs ...any) bool {
 	t.Helper()
 
-	return assert.Empty(t, obj)
+	return assert.Empty(t, obj, msgAndArgs...)
 }
 
 // Is asserts that a certain incoming object a (of type [any]) is of type T. It will return a type casted variant of
@@ -126,7 +128,7 @@ func Is[T any](t TestingT, a any) (obj T) {
 }
 
 // AnyValue is a [Want] that accepts any value of T.
-func AnyValue[T any](*testing.T, T) bool {
+func AnyValue[T any](*testing.T, T, ...any) bool {
 	return true
 }
 

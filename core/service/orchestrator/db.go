@@ -33,6 +33,7 @@ var types = []any{
 	&orchestrator.Control{},
 	&orchestrator.AuditScope{},
 	&assessment.MetricConfiguration{},
+	&assessment.AssessmentResult{},
 	&assessment.Metric{},
 }
 
