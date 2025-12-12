@@ -1,0 +1,29 @@
+package evidence
+
+import (
+	"context"
+	"log/slog"
+
+	"confirmate.io/core/api/assessment"
+	"connectrpc.com/connect"
+)
+
+// getOrCreateStream returns a stream to the assessment service. If a stream already exists, it is returned.
+// Otherwise, a new stream is created and returned.
+// TODO(lebogg): Check if buf automagically reconnect a stream when streams are closed. If so, we don't need to do this ourselves.
+func (svc *Service) getOrCreateStream() (*connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse], error) {
+	svc.streamMu.Lock()
+	defer svc.streamMu.Unlock()
+
+	// If we already have a stream, return it
+	if svc.assessmentStream != nil {
+		return svc.assessmentStream, nil
+	}
+
+	// Create new stream and
+	// TODO(lebogg): Test this slog statement
+	slog.Info("Creating new stream to assessment service at %s", svc.assessmentConfig.targetAddress, slog.Any("targetAddress", svc.assessmentConfig.targetAddress))
+	svc.assessmentStream = svc.assessmentClient.AssessEvidences(context.Background())
+
+	return svc.assessmentStream, nil
+}

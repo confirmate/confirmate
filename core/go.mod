@@ -1,11 +1,11 @@
 module confirmate.io/core
 
-go 1.24.5
+go 1.25.2
 
 // runtime dependencies - CLI
 require (
 	github.com/lmittmann/tint v1.1.2
-	github.com/urfave/cli/v3 v3.5.0
+	github.com/urfave/cli/v3 v3.6.0
 )
 
 // runtime dependencies - protobuf/Connect
@@ -32,11 +32,11 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/proullon/ramsql v0.1.4
-	golang.org/x/crypto v0.43.0 // indirect
-	golang.org/x/exp v0.0.0-20251017212417-90e834f514db // indirect
-	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	gorm.io/driver/postgres v1.6.0
-	gorm.io/gorm v1.31.0
+	gorm.io/gorm v1.31.1
 )
 
 // test dependencies
@@ -57,9 +57,25 @@ require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
-	golang.org/x/mod v0.29.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/mod v0.30.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
+)
+
+require (
+	buf.build/go/protovalidate v1.0.0
+	github.com/google/uuid v1.6.0
+	github.com/kr/pretty v0.3.1 // indirect
+	google.golang.org/grpc v1.76.0
+)
+
+require (
+	cel.dev/expr v0.25.1 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/google/cel-go v0.26.1 // indirect
+	github.com/stoewer/go-strcase v1.3.1 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 )
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility

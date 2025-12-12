@@ -14,4 +14,8 @@
 // This file is part of Confirmate Core.
 
 // Package service implements common service functionality.
+
 package service
+
+// Option is a functional option type to configure services.
+type Option[T any] func(T)
