@@ -16,6 +16,7 @@ package assessment
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -61,7 +62,7 @@ type Service struct {
 	authz service.AuthorizationStrategy
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
-	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
+	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	streamMutex        sync.Mutex
 	orchestratorConfig orchestratorConfig
 
@@ -117,17 +118,13 @@ func (svc *Service) Init() {
 		slog.Error("Failed to restart orchestrator stream after max retries", "error", err)
 	}
 
-	// Context für den Stream (sollte die Lebensdauer des Service haben)
 	ctx := context.Background()
 
-	// Factory erstellen
 	factory := svc.createOrchestratorStreamFactory()
 
-	// RestartableBidiStream erstellen
 	rs, err := stream.NewRestartableBidiStream(ctx, factory, config)
 	if err != nil {
 		slog.Error("Failed to create orchestrator stream", "error", err)
-		// Hier könntest du auch paniken oder den Fehler anders behandeln
 		return
 	}
 
@@ -353,4 +350,53 @@ func (svc *Service) informHooks(ctx context.Context, result *assessment.Assessme
 			hook(ctx, result, err)
 		}
 	}
+}
+
+func (svc *Service) RegisterAssessmentResultHook(assessmentResultsHook func(ctx context.Context, result *assessment.AssessmentResult, err error)) {
+	svc.hookMutex.Lock()
+	defer svc.hookMutex.Unlock()
+	svc.resultHooks = append(svc.resultHooks, assessmentResultsHook)
+}
+
+// Metrics implements MetricsSource by retrieving the metric list from the orchestrator.
+func (svc *Service) Metrics(ctx context.Context) (metrics []*assessment.Metric, err error) {
+	metrics, err = api.ListAllPaginated(
+		ctx,
+		&orchestrator.ListMetricsRequest{},
+		func(ctx context.Context, req *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error) {
+			resp, err := svc.orchestratorClient.ListMetrics(ctx, connect.NewRequest(req))
+			if err != nil {
+				return nil, err
+			}
+			return resp.Msg, nil
+		},
+		func(res *orchestrator.ListMetricsResponse) []*assessment.Metric {
+			return res.Metrics
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve metric list from orchestrator: %w", err)
+	}
+
+	return metrics, nil
+}
+
+// MetricImplementation implements MetricsSource by retrieving the metric implementation
+// from the orchestrator.
+func (svc *Service) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+	if lang != assessment.MetricImplementation_LANGUAGE_REGO {
+		return nil, errors.New("unsupported language")
+	}
+
+	resp, err := svc.orchestratorClient.GetMetricImplementation(
+		context.Background(),
+		connect.NewRequest(&orchestrator.GetMetricImplementationRequest{
+			MetricId: metric.Id,
+		}))
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve metric implementation for %s from orchestrator: %w", metric.Id, err)
+	}
+
+	// Unwrap the response
+	return resp.Msg, nil
 }
