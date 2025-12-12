@@ -2,6 +2,7 @@ package evidence
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 	"testing"
@@ -132,18 +133,22 @@ func TestService_handleEvidence(t *testing.T) {
 	assert.NoError(t, err)
 
 	// handle Evidence (pass)
-	err = svc.handleEvidence(&evidence.Evidence{
+	e := &evidence.Evidence{
 		Id: uuid.NewString(),
-	},
-		0)
+	}
+	err = svc.handleEvidence(e,
+		1)
 	assert.NoError(t, err)
+	slog.Info("Sent evidence", slog.Any("id", e.Id))
 
 	// handle another Evidence (pass)
-	err = svc.handleEvidence(&evidence.Evidence{
+	e = &evidence.Evidence{
 		Id: uuid.NewString(),
-	},
-		0)
+	}
+	err = svc.handleEvidence(e,
+		1)
 	assert.NoError(t, err)
+	slog.Info("Sent evidence", slog.Any("id", e.Id))
 
 	// Break up stream from the assessment side
 	testSrv.Close()
@@ -164,9 +169,11 @@ func TestService_handleEvidence(t *testing.T) {
 	}()
 
 	// handle another Evidence (automatically recreate stream, pass)
-	err = svc.handleEvidence(&evidence.Evidence{
+	e = &evidence.Evidence{
 		Id: uuid.NewString(),
-	},
-		0)
+	}
+	err = svc.handleEvidence(e,
+		1)
 	assert.NoError(t, err)
+	slog.Info("Sent evidence", slog.Any("id", e.Id))
 }
