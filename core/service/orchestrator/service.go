@@ -76,7 +76,7 @@ func (svc *orch) ListTargetsOfEvaluation(
 	)
 
 	// Validate request
-	err = service.Validate(req.Msg)
+	err = service.Validate(req)
 	if err != nil {
 		return nil, err
 	}
