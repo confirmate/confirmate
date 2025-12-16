@@ -17,10 +17,13 @@ package orchestrator
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
@@ -79,23 +82,29 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 		},
 		{
+			name: "db error",
+			args: args{
+				req: &orchestrator.StoreAssessmentResultRequest{
+					Result: orchestratortest.MockAssessmentResult1,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInternal, cErr.Code())
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
 					Result: orchestratortest.MockNewAssessmentResult,
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
-			wantErr: assert.NoError,
-		},
-		{
-			name: "with existing ID",
-			args: args{
-				req: &orchestrator.StoreAssessmentResultRequest{
-					Result: orchestratortest.MockNewAssessmentResultWithId,
 				},
 			},
 			fields: fields{
@@ -230,6 +239,25 @@ func TestService_ListAssessmentResults(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					PageToken: "invalid",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				if cErr == nil {
+					return false
+				}
+				return assert.Equal(t, connect.CodeInternal, cErr.Code())
+			},
+		},
+		{
 			name: "list all",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{},
@@ -306,4 +334,56 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+func TestService_StoreAssessmentResults(t *testing.T) {
+	// Setup service with in-memory DB
+	db := persistencetest.NewInMemoryDB(t, types, joinTables)
+	svc := &Service{
+		db:          db,
+		subscribers: make(map[int64]*subscriber),
+	}
+
+	// Create handler
+	path, handler := orchestratorconnect.NewOrchestratorHandler(svc)
+	mux := http.NewServeMux()
+	mux.Handle(path, handler)
+	server := httptest.NewUnstartedServer(mux)
+	server.EnableHTTP2 = true
+	server.StartTLS()
+	defer server.Close()
+
+	// Create client
+	client := orchestratorconnect.NewOrchestratorClient(server.Client(), server.URL)
+
+	// Start stream
+	stream := client.StoreAssessmentResults(context.Background())
+
+	// Send a result
+	err := stream.Send(&orchestrator.StoreAssessmentResultRequest{
+		Result: orchestratortest.MockNewAssessmentResult,
+	})
+	assert.NoError(t, err)
+
+	// Receive response
+	res, err := stream.Receive()
+	if err != nil {
+		t.Logf("Receive error: %v", err)
+	}
+	assert.NoError(t, err)
+	assert.True(t, res.Status)
+
+	// Verify it's in the DB
+	var stored assessment.AssessmentResult
+	err = db.Get(&stored, "id = ?", orchestratortest.MockNewAssessmentResult.Id)
+	assert.NoError(t, err)
+	assert.Equal(t, orchestratortest.MockNewAssessmentResult.Id, stored.Id)
+
+	// Close stream
+	err = stream.CloseRequest()
+	assert.NoError(t, err)
+
+	// Verify stream closed
+	_, err = stream.Receive()
+	assert.Error(t, err)
 }

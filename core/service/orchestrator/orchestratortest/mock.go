@@ -3,6 +3,7 @@ package orchestratortest
 import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/util"
 
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -144,7 +145,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "Resource is compliant",
 		TargetOfEvaluationId: MockToeID1,
-		ToolId:               ptrString("tool-1"),
+		ToolId:               util.Ref("tool-1"),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -164,7 +165,7 @@ var (
 		ResourceTypes:        []string{"storage"},
 		ComplianceComment:    "Resource is not compliant",
 		TargetOfEvaluationId: MockToeID1,
-		ToolId:               ptrString("tool-1"),
+		ToolId:               util.Ref("tool-1"),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -174,7 +175,7 @@ var (
 		},
 	}
 
-	// Mock Assessment Results for Store tests (without ID, so service generates one)
+	// Mock Assessment Results for Store tests
 	MockNewAssessmentResult = &assessment.AssessmentResult{
 		Id:                   MockResultID3,
 		CreatedAt:            timestamppb.Now(),
@@ -186,7 +187,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "New resource is compliant",
 		TargetOfEvaluationId: MockToeID1,
-		ToolId:               ptrString("tool-1"),
+		ToolId:               util.Ref("tool-1"),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -195,29 +196,4 @@ var (
 			},
 		},
 	}
-	MockNewAssessmentResultWithId = &assessment.AssessmentResult{
-		Id:                   "00000000-0000-0000-0002-000000000099",
-		CreatedAt:            timestamppb.Now(),
-		MetricId:             "metric-2",
-		MetricConfiguration:  MockMetricConfiguration2,
-		Compliant:            false,
-		EvidenceId:           MockEvidenceID2,
-		ResourceId:           "resource-custom",
-		ResourceTypes:        []string{"storage"},
-		ComplianceComment:    "Custom resource is not compliant",
-		TargetOfEvaluationId: MockToeID1,
-		ToolId:               ptrString("tool-1"),
-		HistoryUpdatedAt:     timestamppb.Now(),
-		History: []*assessment.Record{
-			{
-				EvidenceId:         MockEvidenceID2,
-				EvidenceRecordedAt: timestamppb.Now(),
-			},
-		},
-	}
 )
-
-// ptrString returns a pointer to the given string.
-func ptrString(s string) *string {
-	return &s
-}
