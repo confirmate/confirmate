@@ -56,7 +56,7 @@ func Test_openstackCollector_collectCluster(t *testing.T) {
 				domain:  &domain{},
 				project: &project{},
 			},
-			wantList: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			wantList: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				assert.Equal(t, 2, len(got))
 
 				t1, err := time.Parse(time.RFC3339, "2016-08-29T06:51:31Z")

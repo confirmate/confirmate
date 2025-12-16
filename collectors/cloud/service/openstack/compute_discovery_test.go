@@ -62,7 +62,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 				domain:  &domain{},
 				project: &project{},
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				assert.Equal(t, 3, len(got))
 
 				t1, err := time.Parse(time.RFC3339, "2014-09-25T13:10:02Z")

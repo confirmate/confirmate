@@ -89,7 +89,7 @@ func Test_providerValidationErrors(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got []*ontology.Error, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []*ontology.Error, msgAndArgs ...any) bool {
 				want := []*ontology.Error{
 					{
 						Message: "message1",

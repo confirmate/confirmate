@@ -47,7 +47,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got *azureCollector, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *azureCollector, msgAndArgs ...any) bool {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration7Days),
@@ -71,7 +71,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got *azureCollector, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *azureCollector, msgAndArgs ...any) bool {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration30Days),

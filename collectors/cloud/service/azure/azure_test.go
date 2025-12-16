@@ -1277,7 +1277,7 @@ func Test_azureCollector_List(t *testing.T) {
 				&azureCollector{},
 			},
 			want: assert.Empty[[]ontology.IsResource],
-			wantErr: func(t *testing.T, gotErr error, msgAndargs ...any) bool {
+			wantErr: func(t *testing.T, gotErr error, msgAndArgs ...any) bool {
 				assert.ErrorContains(t, gotErr, ErrNoCredentialsConfigured.Error())
 				return assert.ErrorContains(t, gotErr, ErrCouldNotAuthenticate.Error())
 			},
@@ -1287,7 +1287,7 @@ func Test_azureCollector_List(t *testing.T) {
 			fields: fields{
 				NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				return assert.True(t, len(got) > 31)
 			},
 			wantErr: assert.Nil[error],
@@ -1618,7 +1618,7 @@ func Test_initClientWithSubID(t *testing.T) {
 				},
 				fun: armstorage.NewAccountsClient,
 			},
-			wantClient: func(t *testing.T, got *armstorage.AccountsClient, msgAndargs ...any) bool {
+			wantClient: func(t *testing.T, got *armstorage.AccountsClient, msgAndArgs ...any) bool {
 				return assert.Same(t, someClient, got)
 			},
 			wantErr: assert.NoError,
@@ -1685,7 +1685,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 				},
 			},
 			wantClient: assert.Nil[*armsecurity.PricingsClient],
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, someError)
 			},
 		},
@@ -1703,7 +1703,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 				},
 				fun: armsecurity.NewPricingsClient,
 			},
-			wantClient: func(t *testing.T, got *armsecurity.PricingsClient, msgAndargs ...any) bool {
+			wantClient: func(t *testing.T, got *armsecurity.PricingsClient, msgAndArgs ...any) bool {
 				return assert.Same(t, someClient, got)
 			},
 			wantErr: assert.NoError,
@@ -1769,7 +1769,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 				},
 			},
 			wantClient: assert.Nil[*armmonitor.DiagnosticSettingsClient],
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, someError)
 			},
 		},
@@ -1788,7 +1788,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 				},
 				fun: armmonitor.NewDiagnosticSettingsClient,
 			},
-			wantClient: func(t *testing.T, got *armmonitor.DiagnosticSettingsClient, msgAndargs ...any) bool {
+			wantClient: func(t *testing.T, got *armmonitor.DiagnosticSettingsClient, msgAndArgs ...any) bool {
 				return assert.Same(t, someClient, got)
 			},
 			wantErr: assert.NoError,
@@ -1898,7 +1898,7 @@ func Test_azureCollector_collectDefender(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got map[string]*defenderProperties, msgAndargs ...any) bool {
+			want: func(t *testing.T, got map[string]*defenderProperties, msgAndArgs ...any) bool {
 				want := &defenderProperties{
 					monitoringLogDataEnabled: true,
 					securityAlertsEnabled:    true,

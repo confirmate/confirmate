@@ -39,7 +39,7 @@ func TestNewService(t *testing.T) {
 					WithEvidenceStoreAddress("localhost:9091", http.DefaultClient),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, http.DefaultClient, got.cloudConfig.evStreamConfig.client)
 				return assert.Equal(t, "localhost:9091", got.cloudConfig.evStreamConfig.targetAddress)
 			},
@@ -51,7 +51,7 @@ func TestNewService(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.Equal(t, testdata.MockTargetOfEvaluationID1, got.cloudConfig.targetOfEvaluationID)
 			},
 		},
@@ -62,7 +62,7 @@ func TestNewService(t *testing.T) {
 					WithCollectorToolID(testdata.MockEvidenceToolID1),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.Equal(t, testdata.MockEvidenceToolID1, got.cloudConfig.collectorToolID)
 			},
 		},
@@ -84,7 +84,7 @@ func TestNewService(t *testing.T) {
 					WithProviders([]string{"azure"}),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.Equal(t, []string{"azure"}, got.cloudConfig.provider)
 			},
 		},
@@ -95,7 +95,7 @@ func TestNewService(t *testing.T) {
 					WithProviders([]string{}),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.Equal(t, []string{}, got.cloudConfig.provider)
 			},
 		},
@@ -106,7 +106,7 @@ func TestNewService(t *testing.T) {
 					WithAdditionalCollectors([]cloud.Collector{&collectortest.TestCollector{ServiceId: config.DefaultTargetOfEvaluationID}}),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.Contains(t, got.collectors, &collectortest.TestCollector{ServiceId: config.DefaultTargetOfEvaluationID})
 			},
 		},
@@ -117,14 +117,14 @@ func TestNewService(t *testing.T) {
 					WithCollectorInterval(time.Duration(8)),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.Equal(t, time.Duration(8), got.cloudConfig.collectorInterval)
 			},
 		},
 		{
 			name: "Create service without any option",
 			args: args{},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.NotNil(t, got.evidenceStoreStream)
 				return assert.NotNil(t, got.evidenceStoreClient)
 			},
@@ -335,10 +335,10 @@ func TestService_Start(t *testing.T) {
 					provider: []string{"falseProvider"},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.False(t, got.scheduler.IsRunning())
 			},
-			wantErr: func(t *testing.T, gotErr error, msgAndargs ...any) bool {
+			wantErr: func(t *testing.T, gotErr error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, gotErr, "provider falseProvider not known")
 			},
 		},
@@ -379,11 +379,11 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
-			wantErr: func(t *testing.T, gotErr error, msgAndargs ...any) bool {
+			wantErr: func(t *testing.T, gotErr error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, gotErr, "could not schedule job for ", ".Every() interval must be greater than 0")
 			},
 		},
@@ -404,11 +404,11 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderK8S}, got.cloudConfig.provider)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
-			wantErr: func(t *testing.T, gotErr error, msgAndargs ...any) bool {
+			wantErr: func(t *testing.T, gotErr error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, gotErr, ErrK8sAuth.Error())
 			},
 		},
@@ -429,7 +429,7 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.targetOfEvaluationID)
 				return assert.False(t, got.scheduler.IsRunning())
@@ -448,7 +448,7 @@ func TestService_Start(t *testing.T) {
 					collectorInterval:    time.Duration(5 * time.Minute),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAWS}, got.cloudConfig.provider)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.targetOfEvaluationID)
 				return assert.False(t, got.scheduler.IsRunning())
@@ -466,7 +466,7 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderOpenstack}, got.cloudConfig.provider)
 				return assert.False(t, got.scheduler.IsRunning())
 			},
@@ -500,7 +500,7 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
@@ -532,7 +532,7 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
@@ -565,7 +565,7 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				assert.Equal(t, "my-resource-group", got.cloudConfig.resourceGroup)
 				return assert.True(t, got.scheduler.IsRunning())
@@ -582,7 +582,7 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, "example.com", got.cloudConfig.csafDomain)
 				assert.Equal(t, []string{ProviderCSAF}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
@@ -598,7 +598,7 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, "", got.cloudConfig.csafDomain)
 				assert.Equal(t, []string{ProviderCSAF}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
@@ -614,7 +614,7 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderK8S}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
@@ -646,7 +646,7 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got *Service, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderOpenstack}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
 			},

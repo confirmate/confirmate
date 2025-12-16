@@ -80,7 +80,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 				},
 			},
 			want: assert.Nil[ontology.IsResource],
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not collect attached network interfaces:")
 			},
 		},
@@ -117,7 +117,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					Created: t1,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				assert.NotEmpty(t, got)
 
 				want := &ontology.VirtualMachine{

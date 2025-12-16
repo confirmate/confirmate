@@ -35,7 +35,7 @@ func Test_azureCollector_collectMLWorkspaces(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				assert.Equal(t, got[0].GetName(), "compute1")
 				assert.Equal(t, got[1].GetName(), "mlWorkspace")
 				return assert.Equal(t, 2, len(got))
@@ -97,7 +97,7 @@ func Test_azureCollector_collectMLCompute(t *testing.T) {
 					Name: util.Ref("mlWorkspace"),
 				},
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				assert.Equal(t, 1, len(got))
 
 				_, ok := got[0].(*ontology.VirtualMachine)

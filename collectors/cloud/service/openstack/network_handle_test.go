@@ -47,7 +47,7 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 					CreatedAt: testTime,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.NetworkInterface{
 					Id:           testdata.MockOpenstackNetworkID1,
 					Name:         testdata.MockOpenstackNetworkName1,

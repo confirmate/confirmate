@@ -246,7 +246,7 @@ func Test_handleFileStorage(t *testing.T) {
 					Enabled: true,
 				},
 			},
-			want: func(t *testing.T, got *ontology.FileStorage, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *ontology.FileStorage, msgAndArgs ...any) bool {
 				want := &ontology.FileStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare1",
 					Name:         fileShareName,
@@ -381,7 +381,7 @@ func Test_azureStorageCollector_handleStorageAccount(t *testing.T) {
 					Enabled: true,
 				},
 			},
-			want: func(t *testing.T, got *ontology.ObjectStorageService, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *ontology.ObjectStorageService, msgAndArgs ...any) bool {
 				want := &ontology.ObjectStorageService{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1",
 					Name:         accountName,
@@ -520,7 +520,7 @@ func Test_handleObjectStorage(t *testing.T) {
 					Enabled: true,
 				},
 			},
-			want: func(t *testing.T, got *ontology.ObjectStorage, msgAndargs ...any) bool {
+			want: func(t *testing.T, got *ontology.ObjectStorage, msgAndArgs ...any) bool {
 				want := &ontology.ObjectStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container1",
 					Name:         containerName,
@@ -633,7 +633,7 @@ func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 					Location: &accountRegion,
 				},
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				want0 := &ontology.FileStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare1",
 					Name:         "fileshare1",
@@ -769,7 +769,7 @@ func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 					Location: &accountRegion,
 				},
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				want0 := &ontology.ObjectStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container1",
 					Name:         "container1",

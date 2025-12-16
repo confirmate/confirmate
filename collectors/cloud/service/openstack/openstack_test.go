@@ -46,7 +46,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndargs ...any) bool {
+			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
 				return assert.Equal(t, "OpenStack", got.Name())
 			},
 		},
@@ -64,7 +64,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndargs ...any) bool {
+			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
 				assert.Equal(t, testdata.MockTargetOfEvaluationID2, got.TargetOfEvaluationID())
 				return assert.NotNil(t, got)
 			},
@@ -82,7 +82,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					}),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndargs ...any) bool {
+			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.TargetOfEvaluationID())
 				return assert.NotNil(t, got)
 			},
@@ -113,7 +113,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 		{
 			name:   "error authentication",
 			fields: fields{},
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "error while authenticating:")
 			},
 		},
@@ -135,7 +135,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 					},
 				},
 			},
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not create compute client:")
 			},
 		},
@@ -160,7 +160,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 					},
 				},
 			},
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not create network client:")
 			},
 		},
@@ -185,7 +185,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 					},
 				},
 			},
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not create block storage client:")
 			},
 		},
@@ -210,7 +210,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 					},
 				},
 			},
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not create cluster client:")
 			},
 		},
@@ -269,12 +269,12 @@ func TestNewAuthorizer(t *testing.T) {
 			fields: fields{
 				envVariables: []envVariables{},
 			},
-			want: func(t *testing.T, got gophercloud.AuthOptions, msgAndargs ...any) bool {
+			want: func(t *testing.T, got gophercloud.AuthOptions, msgAndArgs ...any) bool {
 				assert.True(t, got.AllowReauth)
 				got.AllowReauth = false // We do not want to check this field in the following
 				return assert.Empty(t, got)
 			},
-			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "Missing environment variable [OS_AUTH_URL]")
 			},
 		},
@@ -304,7 +304,7 @@ func TestNewAuthorizer(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got gophercloud.AuthOptions, msgAndargs ...any) bool {
+			want: func(t *testing.T, got gophercloud.AuthOptions, msgAndArgs ...any) bool {
 				want := gophercloud.AuthOptions{
 					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
 					Username:         testdata.MockOpenstackUsername,
@@ -373,7 +373,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				project: &project{},
 				domain:  &domain{},
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				return assert.Equal(t, 0, len(got))
 			},
 			wantErr: assert.NoError,

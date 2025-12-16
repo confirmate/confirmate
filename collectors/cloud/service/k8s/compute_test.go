@@ -107,7 +107,7 @@ func Test_k8sComputeCollector_List(t *testing.T) {
 			fields: fields{
 				NewKubernetesComputeCollector(client, testdata.MockTargetOfEvaluationID1),
 			},
-			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				container, ok := got[0].(*ontology.Container)
 				if !assert.True(t, ok) {
 					return false

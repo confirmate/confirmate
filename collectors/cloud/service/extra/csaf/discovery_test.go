@@ -170,7 +170,7 @@ func Test_csafCollector_List(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.NoError(t, err)
 			},
-			wantList: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
+			wantList: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				return assert.NotEmpty(t, got)
 			},
 		},
