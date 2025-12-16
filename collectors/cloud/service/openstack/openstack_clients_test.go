@@ -17,12 +17,12 @@ func Test_openstackCollector_identityClient(t *testing.T) {
 		name       string
 		fields     fields
 		wantClient assert.Want[*gophercloud.ServiceClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name:       "identityClient not initialized",
 			wantClient: assert.Nil[*gophercloud.ServiceClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "identity client not initialized")
 			},
 		},
@@ -33,7 +33,7 @@ func Test_openstackCollector_identityClient(t *testing.T) {
 					identityClient: &gophercloud.ServiceClient{},
 				},
 			},
-			wantClient: func(t *testing.T, got *gophercloud.ServiceClient) bool {
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndargs ...any) bool {
 				return assert.NotNil(t, got)
 			},
 			wantErr: assert.NoError,
@@ -64,12 +64,12 @@ func Test_openstackCollector_computeClient(t *testing.T) {
 		name       string
 		fields     fields
 		wantClient assert.Want[*gophercloud.ServiceClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name:       "computeClient not initialized",
 			wantClient: assert.Nil[*gophercloud.ServiceClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorContains(t, err, "compute client not initialized")
 			},
 		},
@@ -80,7 +80,7 @@ func Test_openstackCollector_computeClient(t *testing.T) {
 					computeClient: &gophercloud.ServiceClient{},
 				},
 			},
-			wantClient: func(t *testing.T, got *gophercloud.ServiceClient) bool {
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndargs ...any) bool {
 				return assert.NotNil(t, got)
 			},
 			wantErr: assert.NoError,
@@ -111,12 +111,12 @@ func Test_openstackCollector_networkClient(t *testing.T) {
 		name       string
 		fields     fields
 		wantClient assert.Want[*gophercloud.ServiceClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name:       "networkClient not initialized",
 			wantClient: assert.Nil[*gophercloud.ServiceClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorContains(t, err, "network client not initialized")
 			},
 		},
@@ -127,7 +127,7 @@ func Test_openstackCollector_networkClient(t *testing.T) {
 					networkClient: &gophercloud.ServiceClient{},
 				},
 			},
-			wantClient: func(t *testing.T, got *gophercloud.ServiceClient) bool {
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndargs ...any) bool {
 				return assert.NotNil(t, got)
 			},
 			wantErr: assert.NoError,
@@ -158,12 +158,12 @@ func Test_openstackCollector_storageClient(t *testing.T) {
 		name       string
 		fields     fields
 		wantClient assert.Want[*gophercloud.ServiceClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name:       "storageClient not initialized",
 			wantClient: assert.Nil[*gophercloud.ServiceClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorContains(t, err, "storage client not initialized")
 			},
 		},
@@ -174,7 +174,7 @@ func Test_openstackCollector_storageClient(t *testing.T) {
 					storageClient: &gophercloud.ServiceClient{},
 				},
 			},
-			wantClient: func(t *testing.T, got *gophercloud.ServiceClient) bool {
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndargs ...any) bool {
 				return assert.NotNil(t, got)
 			},
 			wantErr: assert.NoError,
@@ -205,12 +205,12 @@ func Test_openstackCollector_clusterClient(t *testing.T) {
 		name       string
 		fields     fields
 		wantClient assert.Want[*gophercloud.ServiceClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name:       "clusterClient not initialized",
 			wantClient: assert.Nil[*gophercloud.ServiceClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorContains(t, err, "cluster client not initialized")
 			},
 		},
@@ -221,7 +221,7 @@ func Test_openstackCollector_clusterClient(t *testing.T) {
 					clusterClient: &gophercloud.ServiceClient{},
 				},
 			},
-			wantClient: func(t *testing.T, got *gophercloud.ServiceClient) bool {
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndargs ...any) bool {
 				return assert.NotNil(t, got)
 			},
 			wantErr: assert.NoError,

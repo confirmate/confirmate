@@ -24,7 +24,7 @@ func Test_getParentID(t *testing.T) {
 					TenantID: testdata.MockOpenstackVolumeTenantID,
 				},
 			},
-			want: func(t *testing.T, got string) bool {
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
 				return assert.Equal(t, testdata.MockOpenstackVolumeTenantID, got)
 			},
 		},
@@ -40,7 +40,7 @@ func Test_getParentID(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got string) bool {
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
 				return assert.Equal(t, testdata.MockOpenstackServerID1, got)
 			},
 		},

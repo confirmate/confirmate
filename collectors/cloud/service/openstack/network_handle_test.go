@@ -32,7 +32,7 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -47,7 +47,7 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 					CreatedAt: testTime,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
 				want := &ontology.NetworkInterface{
 					Id:           testdata.MockOpenstackNetworkID1,
 					Name:         testdata.MockOpenstackNetworkName1,

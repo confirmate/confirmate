@@ -35,7 +35,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -64,7 +64,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
 				got1 := got.(*ontology.MachineLearningService)
 
 				want := &ontology.MachineLearningService{
@@ -129,7 +129,7 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path: ComputeInstance",
@@ -148,7 +148,7 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 				},
 				workspaceID: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace"),
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
 				got1 := got.(*ontology.Container)
 
 				want := &ontology.Container{
@@ -185,7 +185,7 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 				},
 				workspaceID: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace"),
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
 				got1 := got.(*ontology.VirtualMachine)
 
 				want := &ontology.VirtualMachine{

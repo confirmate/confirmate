@@ -398,7 +398,7 @@ func TestComputeCollector_collectFunctions(t *testing.T) {
 				functionAPI: mockLambdaAPIWithErrors{},
 			},
 			nil,
-			func(t *testing.T, err error) bool {
+			func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "code: 500, fault: unknown, message: Internal Server Error")
 			},
 		},

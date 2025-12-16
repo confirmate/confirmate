@@ -116,7 +116,7 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 		name     string
 		fields   fields
 		wantList []ontology.IsResource
-		wantErr  assert.ErrorAssertionFunc
+		wantErr  assert.WantErr
 	}{
 		{
 			name: "Collector error",
@@ -125,7 +125,7 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 				azureCollector: NewMockAzureCollector(nil),
 			},
 			wantList: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get next page: GET ")
 			},
 		},

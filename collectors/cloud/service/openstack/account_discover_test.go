@@ -31,7 +31,7 @@ func Test_openstackCollector_collectProjects(t *testing.T) {
 		name    string
 		fields  fields
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -55,7 +55,7 @@ func Test_openstackCollector_collectProjects(t *testing.T) {
 				domain:  &domain{},
 				project: &project{},
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				assert.Equal(t, 2, len(got))
 
 				want := &ontology.ResourceGroup{
@@ -116,7 +116,7 @@ func Test_openstackCollector_collectDomain(t *testing.T) {
 		name     string
 		fields   fields
 		wantList assert.Want[[]ontology.IsResource]
-		wantErr  assert.ErrorAssertionFunc
+		wantErr  assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -139,7 +139,7 @@ func Test_openstackCollector_collectDomain(t *testing.T) {
 				domain:  &domain{},
 				project: &project{},
 			},
-			wantList: func(t *testing.T, got []ontology.IsResource) bool {
+			wantList: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				assert.Equal(t, 2, len(got))
 
 				want := &ontology.Account{

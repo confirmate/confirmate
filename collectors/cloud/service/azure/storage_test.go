@@ -56,7 +56,7 @@ func Test_azureStorageCollector_collectStorageAccounts(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -66,7 +66,7 @@ func Test_azureStorageCollector_collectStorageAccounts(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -107,13 +107,13 @@ func Test_storageAtRestEncryption(t *testing.T) {
 		name    string
 		args    args
 		want    *ontology.AtRestEncryption
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Empty account",
 			args: args{},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrEmptyStorageAccount)
 			},
 		},
@@ -127,7 +127,7 @@ func Test_storageAtRestEncryption(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "keySource is empty")
 			},
 		},
@@ -185,13 +185,13 @@ func Test_handleFileStorage(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[*ontology.FileStorage]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Empty account",
 			args: args{},
 			want: assert.Nil[*ontology.FileStorage],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrEmptyStorageAccount)
 			},
 		},
@@ -203,7 +203,7 @@ func Test_handleFileStorage(t *testing.T) {
 				},
 			},
 			want: assert.Nil[*ontology.FileStorage],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "fileshare is nil")
 			},
 		},
@@ -218,7 +218,7 @@ func Test_handleFileStorage(t *testing.T) {
 				},
 			},
 			want: assert.Nil[*ontology.FileStorage],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get file storage properties for the atRestEncryption:")
 			},
 		},
@@ -246,7 +246,7 @@ func Test_handleFileStorage(t *testing.T) {
 					Enabled: true,
 				},
 			},
-			want: func(t *testing.T, got *ontology.FileStorage) bool {
+			want: func(t *testing.T, got *ontology.FileStorage, msgAndargs ...any) bool {
 				want := &ontology.FileStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare1",
 					Name:         fileShareName,
@@ -346,12 +346,12 @@ func Test_azureStorageCollector_handleStorageAccount(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[*ontology.ObjectStorageService]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Account is empty",
 			want: assert.Nil[*ontology.ObjectStorageService],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrEmptyStorageAccount)
 			},
 		},
@@ -381,7 +381,7 @@ func Test_azureStorageCollector_handleStorageAccount(t *testing.T) {
 					Enabled: true,
 				},
 			},
-			want: func(t *testing.T, got *ontology.ObjectStorageService) bool {
+			want: func(t *testing.T, got *ontology.ObjectStorageService, msgAndargs ...any) bool {
 				want := &ontology.ObjectStorageService{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1",
 					Name:         accountName,
@@ -456,12 +456,12 @@ func Test_handleObjectStorage(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[*ontology.ObjectStorage]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Account is empty",
 			want: assert.Nil[*ontology.ObjectStorage],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrEmptyStorageAccount)
 			},
 		},
@@ -473,7 +473,7 @@ func Test_handleObjectStorage(t *testing.T) {
 				},
 			},
 			want: assert.Nil[*ontology.ObjectStorage],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "container is nil")
 			},
 		},
@@ -488,7 +488,7 @@ func Test_handleObjectStorage(t *testing.T) {
 				},
 			},
 			want: assert.Nil[*ontology.ObjectStorage],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get object storage properties for the atRestEncryption:")
 			},
 		},
@@ -520,7 +520,7 @@ func Test_handleObjectStorage(t *testing.T) {
 					Enabled: true,
 				},
 			},
-			want: func(t *testing.T, got *ontology.ObjectStorage) bool {
+			want: func(t *testing.T, got *ontology.ObjectStorage, msgAndargs ...any) bool {
 				want := &ontology.ObjectStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container1",
 					Name:         containerName,
@@ -596,7 +596,7 @@ func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -611,7 +611,7 @@ func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 				},
 			},
 			want: assert.Nil[[]ontology.IsResource],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -633,7 +633,7 @@ func Test_azureStorageCollector_collectFileStorages(t *testing.T) {
 					Location: &accountRegion,
 				},
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				want0 := &ontology.FileStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/fileservices/default/shares/fileshare1",
 					Name:         "fileshare1",
@@ -732,7 +732,7 @@ func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -747,7 +747,7 @@ func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 				},
 			},
 			want: assert.Nil[[]ontology.IsResource],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -769,7 +769,7 @@ func Test_azureStorageCollector_collectObjectStorages(t *testing.T) {
 					Location: &accountRegion,
 				},
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				want0 := &ontology.ObjectStorage{
 					Id:           "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.storage/storageaccounts/account1/blobservices/default/containers/container1",
 					Name:         "container1",
@@ -880,7 +880,7 @@ func Test_azureStorageCollector_handleSqlServer(t *testing.T) {
 		fields  fields
 		args    args
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		// {
 		// 	name: "error list pager",
@@ -897,7 +897,7 @@ func Test_azureStorageCollector_handleSqlServer(t *testing.T) {
 		// 		},
 		// 	},
 		// 	want: nil,
-		// 	wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 		// 		return assert.ErrorContains(t, err, "error getting next page: ")
 		// 	},
 		// },
@@ -990,7 +990,7 @@ func Test_azureStorageCollector_anomalyDetectionEnabled(t *testing.T) {
 		fields  fields
 		args    args
 		want    bool
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "error list pager",
@@ -1015,7 +1015,7 @@ func Test_azureStorageCollector_anomalyDetectionEnabled(t *testing.T) {
 				},
 			},
 			want: false,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get next page: ")
 			},
 		},
@@ -1088,7 +1088,7 @@ func Test_azureStorageCollector_collectCosmosDB(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -1096,7 +1096,7 @@ func Test_azureStorageCollector_collectCosmosDB(t *testing.T) {
 				azureCollector: NewMockAzureCollector(nil),
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -1209,7 +1209,7 @@ func Test_azureStorageCollector_handleCosmosDB(t *testing.T) {
 		fields  fields
 		args    args
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Cosmos DB account kind not given",

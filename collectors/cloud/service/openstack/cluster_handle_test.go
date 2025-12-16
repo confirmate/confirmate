@@ -41,7 +41,7 @@ func Test_openstackCollector_handleCluster(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -75,7 +75,7 @@ func Test_openstackCollector_handleCluster(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
 				assert.NotEmpty(t, got)
 
 				want := &ontology.ContainerOrchestration{

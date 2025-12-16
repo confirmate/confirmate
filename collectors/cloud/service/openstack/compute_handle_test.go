@@ -45,7 +45,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "error getting network interfaces",
@@ -80,7 +80,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 				},
 			},
 			want: assert.Nil[ontology.IsResource],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorContains(t, err, "could not collect attached network interfaces:")
 			},
 		},
@@ -117,7 +117,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					Created: t1,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndargs ...any) bool {
 				assert.NotEmpty(t, got)
 
 				want := &ontology.VirtualMachine{

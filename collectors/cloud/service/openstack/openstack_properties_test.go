@@ -22,7 +22,7 @@ func Test_labels(t *testing.T) {
 		{
 			name: "empty input",
 			args: args{},
-			want: func(t *testing.T, got map[string]string) bool {
+			want: func(t *testing.T, got map[string]string, msgAndargs ...any) bool {
 				want := map[string]string{}
 
 				return assert.Equal(t, want, got)
@@ -37,7 +37,7 @@ func Test_labels(t *testing.T) {
 					"tag3",
 				},
 			},
-			want: func(t *testing.T, got map[string]string) bool {
+			want: func(t *testing.T, got map[string]string, msgAndargs ...any) bool {
 				want := map[string]string{
 					"tag1": "",
 					"tag2": "",
@@ -75,7 +75,7 @@ func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[[]string]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "error getting network interfaces",
@@ -94,7 +94,7 @@ func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 				serverID: "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
 			},
 			want: assert.Nil[[]string],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorContains(t, err, "could not list network interfaces:")
 			},
 		},
@@ -114,7 +114,7 @@ func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 			args: args{
 				serverID: "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
 			},
-			want: func(t *testing.T, got []string) bool {
+			want: func(t *testing.T, got []string, msgAndargs ...any) bool {
 				return assert.Equal(t, "8a5fe506-7e9f-4091-899b-96336909d93c", got[0])
 			},
 			wantErr: assert.NoError,

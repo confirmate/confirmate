@@ -38,7 +38,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 		name    string
 		fields  fields
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -62,7 +62,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 				domain:  &domain{},
 				project: &project{},
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				assert.Equal(t, 3, len(got))
 
 				t1, err := time.Parse(time.RFC3339, "2014-09-25T13:10:02Z")

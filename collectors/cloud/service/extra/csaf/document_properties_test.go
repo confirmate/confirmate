@@ -33,7 +33,7 @@ func Test_documentValidationErrors(t *testing.T) {
 			args: args{
 				messages: []string{"message1", "message2"},
 			},
-			want: func(t *testing.T, got []*ontology.Error) bool {
+			want: func(t *testing.T, got []*ontology.Error, msgAndargs ...any) bool {
 				want := []*ontology.Error{
 					{
 						Message: "message1",
@@ -74,7 +74,7 @@ func Test_transportEncryption(t *testing.T) {
 			args: args{
 				state: nil,
 			},
-			want: func(t *testing.T, got *ontology.TransportEncryption) bool {
+			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndargs ...any) bool {
 				want := &ontology.TransportEncryption{Enabled: false}
 				return assert.Equal(t, want, got)
 			},
@@ -84,7 +84,7 @@ func Test_transportEncryption(t *testing.T) {
 			args: args{
 				state: &tls.ConnectionState{Version: 123},
 			},
-			want: func(t *testing.T, got *ontology.TransportEncryption) bool {
+			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndargs ...any) bool {
 				want := &ontology.TransportEncryption{
 					Enabled:      true,
 					Protocol:     constants.TLS,
@@ -98,7 +98,7 @@ func Test_transportEncryption(t *testing.T) {
 			args: args{
 				state: &tls.ConnectionState{Version: tls.VersionTLS10},
 			},
-			want: func(t *testing.T, got *ontology.TransportEncryption) bool {
+			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndargs ...any) bool {
 				want := &ontology.TransportEncryption{
 					Enabled:         true,
 					ProtocolVersion: 1.0,
@@ -113,7 +113,7 @@ func Test_transportEncryption(t *testing.T) {
 			args: args{
 				state: &tls.ConnectionState{Version: tls.VersionTLS11},
 			},
-			want: func(t *testing.T, got *ontology.TransportEncryption) bool {
+			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndargs ...any) bool {
 				want := &ontology.TransportEncryption{
 					Enabled:         true,
 					ProtocolVersion: 1.1,
@@ -128,7 +128,7 @@ func Test_transportEncryption(t *testing.T) {
 			args: args{
 				state: &tls.ConnectionState{Version: tls.VersionTLS12},
 			},
-			want: func(t *testing.T, got *ontology.TransportEncryption) bool {
+			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndargs ...any) bool {
 				want := &ontology.TransportEncryption{
 					Enabled:         true,
 					ProtocolVersion: 1.2,
@@ -146,7 +146,7 @@ func Test_transportEncryption(t *testing.T) {
 					CipherSuite: tls.TLS_AES_256_GCM_SHA384,
 				},
 			},
-			want: func(t *testing.T, got *ontology.TransportEncryption) bool {
+			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndargs ...any) bool {
 				want := &ontology.TransportEncryption{
 					Enabled:         true,
 					ProtocolVersion: 1.3,

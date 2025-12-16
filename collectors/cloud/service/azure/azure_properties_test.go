@@ -140,7 +140,7 @@ func Test_azureStorageCollector_collectDiagnosticSettings(t *testing.T) {
 		fields  fields
 		args    args
 		want    *ontology.ActivityLogging
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "No Diagnostic Setting available",
@@ -151,7 +151,7 @@ func Test_azureStorageCollector_collectDiagnosticSettings(t *testing.T) {
 				resourceURI: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account3",
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},

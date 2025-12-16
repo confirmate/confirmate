@@ -24,7 +24,7 @@ func Test_azureComputeCollector_collectFunctionsWebApps(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -34,7 +34,7 @@ func Test_azureComputeCollector_collectFunctionsWebApps(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -354,7 +354,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -362,7 +362,7 @@ func Test_azureComputeCollector_collectVirtualMachines(t *testing.T) {
 				azureCollector: NewMockAzureCollector(nil),
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -503,12 +503,12 @@ func Test_azureComputeCollector_handleVirtualMachines(t *testing.T) {
 		fields  fields
 		args    args
 		want    ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Virtual Machine is empty",
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrEmptyVirtualMachine)
 			},
 		},
@@ -800,7 +800,7 @@ func Test_azureComputeCollector_collectBlockStorage(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -810,7 +810,7 @@ func Test_azureComputeCollector_collectBlockStorage(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -937,7 +937,7 @@ func Test_azureComputeCollector_handleBlockStorage(t *testing.T) {
 		fields  fields
 		args    args
 		want    *ontology.BlockStorage
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Empty input",
@@ -945,7 +945,7 @@ func Test_azureComputeCollector_handleBlockStorage(t *testing.T) {
 				disk: nil,
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "disk is nil")
 			},
 		},
@@ -965,7 +965,7 @@ func Test_azureComputeCollector_handleBlockStorage(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get block storage properties for the atRestEncryption:")
 			},
 		},
@@ -982,7 +982,7 @@ func Test_azureComputeCollector_handleBlockStorage(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "error getting atRestEncryption properties of blockStorage")
 			},
 		},
@@ -1069,13 +1069,13 @@ func Test_azureComputeCollector_blockStorageAtRestEncryption(t *testing.T) {
 		fields  fields
 		args    args
 		want    *ontology.AtRestEncryption
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Empty disk",
 			args: args{},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "disk is empty")
 			},
 		},
@@ -1096,7 +1096,7 @@ func Test_azureComputeCollector_blockStorageAtRestEncryption(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "error getting atRestEncryption properties of blockStorage")
 			},
 		},
@@ -1160,12 +1160,12 @@ func Test_azureComputeCollector_keyURL(t *testing.T) {
 		fields  fields
 		args    args
 		want    string
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Empty input",
 			want: "",
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrMissingDiskEncryptionSetID)
 			},
 		},
@@ -1176,7 +1176,7 @@ func Test_azureComputeCollector_keyURL(t *testing.T) {
 				diskEncryptionSetID: encSetID,
 			},
 			want: "",
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get key vault:")
 			},
 		},
@@ -1189,7 +1189,7 @@ func Test_azureComputeCollector_keyURL(t *testing.T) {
 				diskEncryptionSetID: encSetID2,
 			},
 			want: "",
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get keyURL")
 			},
 		},

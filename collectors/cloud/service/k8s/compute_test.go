@@ -100,14 +100,14 @@ func Test_k8sComputeCollector_List(t *testing.T) {
 		name    string
 		fields  fields
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
 			fields: fields{
 				NewKubernetesComputeCollector(client, testdata.MockTargetOfEvaluationID1),
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				container, ok := got[0].(*ontology.Container)
 				if !assert.True(t, ok) {
 					return false

@@ -32,7 +32,7 @@ func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
 		name     string
 		fields   fields
 		wantList assert.Want[[]ontology.IsResource]
-		wantErr  assert.ErrorAssertionFunc
+		wantErr  assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -56,7 +56,7 @@ func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
 				domain:  &domain{},
 				project: &project{},
 			},
-			wantList: func(t *testing.T, got []ontology.IsResource) bool {
+			wantList: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				assert.Equal(t, 2, len(got))
 
 				t1, err := time.Parse("2006-01-02T15:04:05", "2019-06-30T04:15:37")

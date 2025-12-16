@@ -32,7 +32,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path: volume name missing",
@@ -47,7 +47,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					CreatedAt: testTime,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.BlockStorage{
 					Id:           testdata.MockOpenstackVolumeID1,
 					Name:         testdata.MockOpenstackVolumeID1,
@@ -79,7 +79,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					CreatedAt: testTime,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.BlockStorage{
 					Id:           testdata.MockOpenstackVolumeID1,
 					Name:         testdata.MockOpenstackVolumeName1,

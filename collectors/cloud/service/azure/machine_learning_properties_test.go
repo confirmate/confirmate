@@ -202,7 +202,7 @@ func Test_getComputeStringList(t *testing.T) {
 		{
 			name: "Empty input",
 			args: args{},
-			want: func(t *testing.T, got []string) bool {
+			want: func(t *testing.T, got []string, msgAndargs ...any) bool {
 				return assert.Empty(t, got)
 			},
 		},
@@ -218,7 +218,7 @@ func Test_getComputeStringList(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got []string) bool {
+			want: func(t *testing.T, got []string, msgAndargs ...any) bool {
 				return assert.Equal(t, []string{"1", "2"}, got)
 			},
 		},

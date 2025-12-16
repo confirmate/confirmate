@@ -155,7 +155,7 @@ func Test_csafCollector_List(t *testing.T) {
 				client: http.DefaultClient,
 				ctID:   config.DefaultTargetOfEvaluationID,
 			},
-			wantErr: func(t *testing.T, err error) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not load provider-metadata.json")
 			},
 			wantList: assert.Empty[[]ontology.IsResource],
@@ -167,10 +167,10 @@ func Test_csafCollector_List(t *testing.T) {
 				client: goodProvider.Client(),
 				ctID:   config.DefaultTargetOfEvaluationID,
 			},
-			wantErr: func(t *testing.T, err error) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.NoError(t, err)
 			},
-			wantList: func(t *testing.T, got []ontology.IsResource) bool {
+			wantList: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				return assert.NotEmpty(t, got)
 			},
 		},

@@ -25,7 +25,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 		name    string
 		fields  fields
 		want    assert.Want[*azureCollector]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Backup vaults already collected",
@@ -47,7 +47,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got *azureCollector) bool {
+			want: func(t *testing.T, got *azureCollector, msgAndargs ...any) bool {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration7Days),
@@ -71,7 +71,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got *azureCollector) bool {
+			want: func(t *testing.T, got *azureCollector, msgAndargs ...any) bool {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration30Days),
@@ -116,13 +116,13 @@ func Test_azureCollector_collectBackupInstances(t *testing.T) {
 		fields  fields
 		args    args
 		want    []*armdataprotection.BackupInstanceResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Input empty",
 			args: args{},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "missing resource group and/or vault name")
 			},
 		},
@@ -137,7 +137,7 @@ func Test_azureCollector_collectBackupInstances(t *testing.T) {
 				vaultName:     "backupAccount1",
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not get next page: GET")
 			},
 		},
@@ -218,11 +218,11 @@ func Test_azureCollector_handleInstances(t *testing.T) {
 		fields       fields
 		args         args
 		wantResource ontology.IsResource
-		wantErr      assert.ErrorAssertionFunc
+		wantErr      assert.WantErr
 	}{
 		{
 			name: "Empty input",
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrVaultInstanceIsEmpty.Error())
 			},
 		},

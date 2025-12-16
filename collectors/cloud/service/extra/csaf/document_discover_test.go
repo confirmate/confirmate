@@ -45,7 +45,7 @@ func Test_csafCollector_handleAdvisory(t *testing.T) {
 				},
 				keyring: goodProvider.Keyring,
 			},
-			wantDoc: func(t *testing.T, got *ontology.SecurityAdvisoryDocument) bool {
+			wantDoc: func(t *testing.T, got *ontology.SecurityAdvisoryDocument, msgAndargs ...any) bool {
 				// Some debugging output, that can easily be used in Rego
 				fmt.Println(ontology.ToPrettyJSON(got))
 				return assert.Equal(t, "some-id", got.Id)
@@ -100,7 +100,7 @@ func Test_csafCollector_collectSecurityAdvisories(t *testing.T) {
 					Document: goodProvider.DocumentAny(),
 				},
 			},
-			wantDocuments: func(t *testing.T, got []ontology.IsResource) bool {
+			wantDocuments: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				return assert.NotEmpty(t, got) && assert.Equal(t, "some-id", got[0].GetId())
 			},
 		},

@@ -18,7 +18,7 @@ func Test_azureNetworkCollector_collectNetworkInterfaces(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -28,7 +28,7 @@ func Test_azureNetworkCollector_collectNetworkInterfaces(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -106,7 +106,7 @@ func Test_azureNetworkCollector_collectLoadBalancer(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -116,7 +116,7 @@ func Test_azureNetworkCollector_collectLoadBalancer(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},
@@ -327,7 +327,7 @@ func Test_azureNetworkCollector_collectApplicationGateway(t *testing.T) {
 		name    string
 		fields  fields
 		want    []ontology.IsResource
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -337,7 +337,7 @@ func Test_azureNetworkCollector_collectApplicationGateway(t *testing.T) {
 				},
 			},
 			want: nil,
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrGettingNextPage.Error())
 			},
 		},

@@ -18,7 +18,7 @@ func Test_azureCollector_collectMLWorkspaces(t *testing.T) {
 		name    string
 		fields  fields
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -26,7 +26,7 @@ func Test_azureCollector_collectMLWorkspaces(t *testing.T) {
 				azureCollector: NewMockAzureCollector(nil),
 			},
 			want: assert.Nil[[]ontology.IsResource],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrSubscriptionNotFound.Error())
 			},
 		},
@@ -35,7 +35,7 @@ func Test_azureCollector_collectMLWorkspaces(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				assert.Equal(t, got[0].GetName(), "compute1")
 				assert.Equal(t, got[1].GetName(), "mlWorkspace")
 				return assert.Equal(t, 2, len(got))
@@ -68,7 +68,7 @@ func Test_azureCollector_collectMLCompute(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[[]ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error list pages",
@@ -82,7 +82,7 @@ func Test_azureCollector_collectMLCompute(t *testing.T) {
 				},
 			},
 			want: assert.Nil[[]ontology.IsResource],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrSubscriptionNotFound.Error())
 			},
 		},
@@ -97,7 +97,7 @@ func Test_azureCollector_collectMLCompute(t *testing.T) {
 					Name: util.Ref("mlWorkspace"),
 				},
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				assert.Equal(t, 1, len(got))
 
 				_, ok := got[0].(*ontology.VirtualMachine)

@@ -29,7 +29,7 @@ func Test_openstackCollector_handleProject(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -45,7 +45,7 @@ func Test_openstackCollector_handleProject(t *testing.T) {
 					ParentID:    testdata.MockOpenstackProjectParentID1,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.ResourceGroup{
 					Id:   testdata.MockOpenstackProjectID1,
 					Name: testdata.MockOpenstackProjectName1,
@@ -98,7 +98,7 @@ func Test_openstackCollector_handleDomain(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[ontology.IsResource]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
@@ -109,7 +109,7 @@ func Test_openstackCollector_handleDomain(t *testing.T) {
 					Description: testdata.MockOpenstackDomainDescription1,
 				},
 			},
-			want: func(t *testing.T, got ontology.IsResource) bool {
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.Account{
 					Id:          testdata.MockOpenstackDomainID1,
 					Name:        testdata.MockOpenstackDomainName1,

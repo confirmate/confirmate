@@ -1277,7 +1277,7 @@ func Test_azureCollector_List(t *testing.T) {
 				&azureCollector{},
 			},
 			want: assert.Empty[[]ontology.IsResource],
-			wantErr: func(t *testing.T, gotErr error) bool {
+			wantErr: func(t *testing.T, gotErr error, msgAndargs ...any) bool {
 				assert.ErrorContains(t, gotErr, ErrNoCredentialsConfigured.Error())
 				return assert.ErrorContains(t, gotErr, ErrCouldNotAuthenticate.Error())
 			},
@@ -1287,7 +1287,7 @@ func Test_azureCollector_List(t *testing.T) {
 			fields: fields{
 				NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got []ontology.IsResource) bool {
+			want: func(t *testing.T, got []ontology.IsResource, msgAndargs ...any) bool {
 				return assert.True(t, len(got) > 31)
 			},
 			wantErr: assert.Nil[error],
@@ -1359,14 +1359,14 @@ func Test_azureCollector_authorize(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Is authorized",
 			fields: fields{
 				isAuthorized: true,
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, nil, err)
 			},
 		},
@@ -1375,7 +1375,7 @@ func Test_azureCollector_authorize(t *testing.T) {
 			fields: fields{
 				isAuthorized: false,
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrNoCredentialsConfigured)
 			},
 		},
@@ -1385,7 +1385,7 @@ func Test_azureCollector_authorize(t *testing.T) {
 				isAuthorized: false,
 				cred:         &mockAuthorizer{},
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, ErrCouldNotGetSubscriptions.Error())
 			},
 		},
@@ -1400,7 +1400,7 @@ func Test_azureCollector_authorize(t *testing.T) {
 					},
 				},
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.NoError(t, err)
 			},
 		},
@@ -1555,7 +1555,7 @@ func Test_initClientWithSubID(t *testing.T) {
 		name       string
 		args       args
 		wantClient assert.Want[*armstorage.AccountsClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name: "No error, client does not exist",
@@ -1597,7 +1597,7 @@ func Test_initClientWithSubID(t *testing.T) {
 				},
 			},
 			wantClient: assert.Nil[*armstorage.AccountsClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, i ...interface{}) bool {
 				return assert.ErrorIs(t, err, someError)
 			},
 		},
@@ -1618,7 +1618,7 @@ func Test_initClientWithSubID(t *testing.T) {
 				},
 				fun: armstorage.NewAccountsClient,
 			},
-			wantClient: func(t *testing.T, got *armstorage.AccountsClient) bool {
+			wantClient: func(t *testing.T, got *armstorage.AccountsClient, msgAndargs ...any) bool {
 				return assert.Same(t, someClient, got)
 			},
 			wantErr: assert.NoError,
@@ -1649,7 +1649,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 		name       string
 		args       args
 		wantClient assert.Want[*armsecurity.PricingsClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name: "No error, client does not exist",
@@ -1685,7 +1685,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 				},
 			},
 			wantClient: assert.Nil[*armsecurity.PricingsClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorIs(t, err, someError)
 			},
 		},
@@ -1703,7 +1703,7 @@ func Test_initClientWithoutSubID(t *testing.T) {
 				},
 				fun: armsecurity.NewPricingsClient,
 			},
-			wantClient: func(t *testing.T, got *armsecurity.PricingsClient) bool {
+			wantClient: func(t *testing.T, got *armsecurity.PricingsClient, msgAndargs ...any) bool {
 				return assert.Same(t, someClient, got)
 			},
 			wantErr: assert.NoError,
@@ -1733,7 +1733,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 		name       string
 		args       args
 		wantClient assert.Want[*armmonitor.DiagnosticSettingsClient]
-		wantErr    assert.ErrorAssertionFunc
+		wantErr    assert.WantErr
 	}{
 		{
 			name: "No error, client does not exist",
@@ -1769,7 +1769,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 				},
 			},
 			wantClient: assert.Nil[*armmonitor.DiagnosticSettingsClient],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt *testing.T, err error, msgAndargs ...any) bool {
 				return assert.ErrorIs(t, err, someError)
 			},
 		},
@@ -1788,7 +1788,7 @@ func Test_initClientWithoutSubscriptionID(t *testing.T) {
 				},
 				fun: armmonitor.NewDiagnosticSettingsClient,
 			},
-			wantClient: func(t *testing.T, got *armmonitor.DiagnosticSettingsClient) bool {
+			wantClient: func(t *testing.T, got *armmonitor.DiagnosticSettingsClient, msgAndargs ...any) bool {
 				return assert.Same(t, someClient, got)
 			},
 			wantErr: assert.NoError,
@@ -1891,14 +1891,14 @@ func Test_azureCollector_collectDefender(t *testing.T) {
 		name    string
 		fields  fields
 		want    assert.Want[map[string]*defenderProperties]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Happy path",
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender()),
 			},
-			want: func(t *testing.T, got map[string]*defenderProperties) bool {
+			want: func(t *testing.T, got map[string]*defenderProperties, msgAndargs ...any) bool {
 				want := &defenderProperties{
 					monitoringLogDataEnabled: true,
 					securityAlertsEnabled:    true,
