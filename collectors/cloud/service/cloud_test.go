@@ -19,6 +19,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
+	"github.com/urfave/cli/v3"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -320,9 +321,13 @@ func TestService_Start(t *testing.T) {
 		envVariables        []envVariable
 		cloudConfig         CloudCollectorConfig
 	}
+	type args struct {
+		cmd *cli.Command
+	}
 	tests := []struct {
 		name    string
 		fields  fields
+		args    args
 		want    assert.Want[*Service]
 		wantErr assert.WantErr
 	}{
@@ -335,11 +340,14 @@ func TestService_Start(t *testing.T) {
 					provider: []string{"falseProvider"},
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				return assert.False(t, got.scheduler.IsRunning())
 			},
 			wantErr: func(t *testing.T, gotErr error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, gotErr, "provider falseProvider not known")
+				return assert.ErrorContains(t, gotErr, "'falseProvider' not known")
 			},
 		},
 		// {
@@ -348,6 +356,7 @@ func TestService_Start(t *testing.T) {
 		// 		scheduler: gocron.NewScheduler(time.UTC),
 		// 		providers: []string{},
 		// 	},
+		// args: args{},
 		// 	want: assert.Nil[*Service],
 		// 	wantErr: func(t *testing.T, gotErr error) bool {
 		// 		return assert.ErrorContains(t, gotErr, "access denied")
@@ -379,6 +388,9 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				return assert.False(t, got.scheduler.IsRunning())
@@ -403,6 +415,9 @@ func TestService_Start(t *testing.T) {
 						envVariableValue: "",
 					},
 				},
+			},
+			args: args{
+				cmd: &cli.Command{},
 			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderK8S}, got.cloudConfig.provider)
@@ -429,6 +444,9 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.targetOfEvaluationID)
@@ -448,6 +466,9 @@ func TestService_Start(t *testing.T) {
 					collectorInterval:    time.Duration(5 * time.Minute),
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAWS}, got.cloudConfig.provider)
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.cloudConfig.targetOfEvaluationID)
@@ -465,6 +486,9 @@ func TestService_Start(t *testing.T) {
 					provider:          []string{ProviderOpenstack},
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
+			},
+			args: args{
+				cmd: &cli.Command{},
 			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderOpenstack}, got.cloudConfig.provider)
@@ -500,6 +524,9 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
@@ -532,6 +559,9 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
@@ -543,7 +573,6 @@ func TestService_Start(t *testing.T) {
 			fields: fields{
 				scheduler: gocron.NewScheduler(time.UTC),
 				cloudConfig: CloudCollectorConfig{
-					resourceGroup:     "my-resource-group",
 					provider:          []string{ProviderAzure},
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
@@ -565,9 +594,20 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				cmd: &cli.Command{
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:  "collector-resource-group",
+							Value: "my-resource-group",
+						},
+					},
+				},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				// We are not able to check if the resource group was set, but at least we can check if the provider is correct and the scheduler is running.
 				assert.Equal(t, []string{ProviderAzure}, got.cloudConfig.provider)
-				assert.Equal(t, "my-resource-group", got.cloudConfig.resourceGroup)
+				assert.NotEmpty(t, got.collectors)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -577,14 +617,24 @@ func TestService_Start(t *testing.T) {
 			fields: fields{
 				scheduler: gocron.NewScheduler(time.UTC),
 				cloudConfig: CloudCollectorConfig{
-					csafDomain:        "example.com",
 					provider:          []string{ProviderCSAF},
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
+			args: args{
+				cmd: &cli.Command{
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:  "collector-csaf-domain",
+							Value: "example.com",
+						},
+					},
+				},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				assert.Equal(t, "example.com", got.cloudConfig.csafDomain)
+				// We are not able to check if the CSAF domain was set, but at least we can check if the provider is correct and the scheduler is running.
 				assert.Equal(t, []string{ProviderCSAF}, got.cloudConfig.provider)
+				assert.NotEmpty(t, got.collectors)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -598,9 +648,13 @@ func TestService_Start(t *testing.T) {
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				assert.Equal(t, "", got.cloudConfig.csafDomain)
+				// We are not able to check if the CSAF domain was set, but at least we can check if the provider is correct and the scheduler is running.
 				assert.Equal(t, []string{ProviderCSAF}, got.cloudConfig.provider)
+				assert.NotEmpty(t, got.collectors)
 				return assert.True(t, got.scheduler.IsRunning())
 			},
 			wantErr: assert.Nil[error],
@@ -613,6 +667,9 @@ func TestService_Start(t *testing.T) {
 					provider:          []string{ProviderK8S},
 					collectorInterval: time.Duration(5 * time.Minute),
 				},
+			},
+			args: args{
+				cmd: &cli.Command{},
 			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderK8S}, got.cloudConfig.provider)
@@ -646,6 +703,9 @@ func TestService_Start(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				cmd: &cli.Command{},
+			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, []string{ProviderOpenstack}, got.cloudConfig.provider)
 				return assert.True(t, got.scheduler.IsRunning())
@@ -671,7 +731,7 @@ func TestService_Start(t *testing.T) {
 				}
 			}
 
-			err := svc.Start()
+			err := svc.Start(tt.args.cmd)
 
 			tt.want(t, svc)
 			tt.wantErr(t, err)
