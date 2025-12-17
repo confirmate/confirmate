@@ -1,16 +1,17 @@
-// Copyright 2025 Fraunhofer AISEC
+// Copyright 2016-2025 Fraunhofer AISEC
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// SPDX-License-Identifier: Apache-2.0
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// This file is part of Confirmate Core.
 
 package assessment
 
@@ -86,6 +87,26 @@ type Service struct {
 
 	// pe contains the actual policy evaluation engine we use
 	pe policies.PolicyEval
+
+	// evalPkg specifies the package used for the evaluation engine
+	evalPkg string
+}
+
+// WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
+func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[*Service] {
+	return func(svc *Service) {
+		slog.Info("Orchestrator URL is set to %s", targetAddress)
+
+		svc.orchestratorConfig.targetAddress = targetAddress
+		svc.orchestratorConfig.client = client
+	}
+}
+
+// WithRegoPackageName is an option to configure the Rego package name
+func WithRegoPackageName(pkg string) service.Option[*Service] {
+	return func(s *Service) {
+		s.evalPkg = pkg
+	}
 }
 
 // NewService creates a new assessment service with default values.
