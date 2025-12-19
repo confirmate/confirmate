@@ -47,11 +47,21 @@ var (
 	logger *slog.Logger
 )
 
-const DefaultOrchestratorURL = "localhost:9090"
+const DefaultOrchestratorURL = "http://localhost:9090"
 
 type orchestratorConfig struct {
 	targetAddress string
 	client        *http.Client
+}
+
+const (
+	// EvictionTime is the time after which an entry in the metric configuration is invalid
+	EvictionTime = time.Hour * 1
+)
+
+type cachedConfiguration struct {
+	cachedAt time.Time
+	*assessment.MetricConfiguration
 }
 
 // Service is an implementation of the Clouditor Assessment service. It should not be used directly,
@@ -73,6 +83,12 @@ type Service struct {
 	resultHooks []assessment.ResultHookFunc
 	// hookMutex is used for (un)locking result hook calls
 	hookMutex sync.RWMutex
+
+	// cachedConfigurations holds cached metric configurations for faster access with key being the corresponding
+	// metric name
+	cachedConfigurations map[string]cachedConfiguration
+	// TODO(oxisto): combine with hookMutex and replace with a generic version of a mutex'd map
+	confMutex sync.Mutex
 
 	// evidenceResourceMap is a cache which maps a resource ID (key) to its latest available evidence
 	// TODO(oxisto): replace this with storage queries
@@ -96,7 +112,7 @@ type Service struct {
 // WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
 func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[*Service] {
 	return func(svc *Service) {
-		slog.Info("Orchestrator URL is set to %s", targetAddress)
+		slog.Info("Orchestrator URL is set", slog.Any("url", targetAddress))
 
 		svc.orchestratorConfig.targetAddress = targetAddress
 		svc.orchestratorConfig.client = client
@@ -117,11 +133,20 @@ func NewService(opts ...service.Option[*Service]) *Service {
 			targetAddress: DefaultOrchestratorURL,
 			client:        http.DefaultClient,
 		},
+		evidenceResourceMap: make(map[string]*evidence.Evidence),
 	}
 
 	for _, o := range opts {
 		o(svc)
 	}
+
+	// Set to default Rego package
+	if svc.evalPkg == "" {
+		svc.evalPkg = policies.DefaultRegoPackage
+	}
+
+	// Initialize the policy evaluator after options are set
+	svc.pe = policies.NewRegoEval(policies.WithPackageName(svc.evalPkg))
 
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
 
@@ -130,7 +155,7 @@ func NewService(opts ...service.Option[*Service]) *Service {
 	return svc
 }
 
-// TODO make initorchestratorstream; init in new service
+// TODO create method initorchestratorstream; init in new service
 func (svc *Service) Init() {
 
 }
@@ -172,11 +197,11 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEv
 		return nil, err
 	}
 
-	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
-		slog.Error("AssessEvidence: ", service.ErrPermissionDenied)
-		return nil, service.ErrPermissionDenied
-	}
+	// // Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
+	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
+	// 	slog.Error("AssessEvidence: ", slog.Any("error", service.ErrPermissionDenied))
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Retrieve the ontology resource
 	resource = req.Evidence.GetOntologyResource()
@@ -219,7 +244,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEv
 	go svc.informWaitingRequests(resource.GetId())
 
 	if canHandle {
-		// Assess evidence. This also validates the embedded resource and returns a gRPC error if validation fails.
+		// Assess evidence. This also validates the embedded resource and returns an error if validation fails.
 		_, err = svc.handleEvidence(ctx, req.Evidence, resource, related)
 		if err != nil {
 			slog.Error("AssessEvidence: could not handle evidence:", "error", err)
@@ -280,8 +305,8 @@ func (svc *Service) handleEvidence(
 		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
 	}
 
-	slog.Debug("Evaluating evidence %s (%s) collected by %s at %s", ev.Id, resource.GetId(), ev.ToolId, ev.Timestamp.AsTime())
-	slog.Debug("Evidence: %+v", ev)
+	slog.Debug("Evaluating evidence %s (%s) collected by %s at %s", slog.Any("Evidence", ev.Id), slog.Any("Resource", resource.GetId()), slog.Any("ToolId", ev.ToolId), slog.Any("Timestamp", ev.Timestamp.AsTime()))
+	slog.Debug("Evidence:", slog.Any("evidence", ev))
 
 	evaluations, err := svc.pe.Eval(ev, resource, related, svc)
 	if err != nil {
@@ -293,7 +318,7 @@ func (svc *Service) handleEvidence(
 	}
 
 	if err != nil {
-		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.orchestrator.Target, err)
+		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.orchestratorConfig.targetAddress, err)
 
 		go svc.informHooks(ctx, nil, err)
 
@@ -301,20 +326,20 @@ func (svc *Service) handleEvidence(
 	}
 
 	if len(evaluations) == 0 {
-		slog.Debug("No policy evaluation for evidence %s (%s) collected by %s.", ev.Id, resource.GetId(), ev.ToolId)
+		slog.Debug("No policy evaluation for evidence", slog.Any("Evidence", ev.Id), slog.Any("Resource", resource.GetId()), slog.Any("ToolId", ev.ToolId))
 		return results, nil
 	}
 
 	for _, data := range evaluations {
 		// That there is an empty (nil) evaluation should be caught beforehand, but you never know.
 		if data == nil {
-			slog.Error("One empty policy evaluation detected for evidence '%s'. That should not happen.",
-				ev.GetId())
+			slog.Error("One empty policy evaluation detected for evidence. That should not happen.",
+				slog.Any("Evidence", ev.GetId()))
 			continue
 		}
 		metricID := data.MetricID
 
-		slog.Debug("Evaluated evidence %v with metric '%v' as %v", ev.Id, metricID, data.Compliant)
+		slog.Debug("Evaluated evidence with metric", slog.Any("Evidence", ev.Id), slog.Any("MetricID", metricID), slog.Any("Compliant", data.Compliant))
 
 		types = ontology.ResourceTypes(resource)
 
@@ -380,21 +405,14 @@ func (svc *Service) RegisterAssessmentResultHook(assessmentResultsHook func(ctx 
 }
 
 // Metrics implements MetricsSource by retrieving the metric list from the orchestrator.
-func (svc *Service) Metrics(ctx context.Context) (metrics []*assessment.Metric, err error) {
-	metrics, err = api.ListAllPaginated(
-		ctx,
-		&orchestrator.ListMetricsRequest{},
-		func(ctx context.Context, req *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error) {
-			resp, err := svc.orchestratorClient.ListMetrics(ctx, connect.NewRequest(req))
-			if err != nil {
-				return nil, err
-			}
-			return resp.Msg, nil
-		},
-		func(res *orchestrator.ListMetricsResponse) []*assessment.Metric {
-			return res.Metrics
-		},
+func (svc *Service) Metrics() (metrics []*assessment.Metric, err error) {
+	res, err := svc.orchestratorClient.ListMetrics(
+		context.Background(),
+		connect.NewRequest(
+			&orchestrator.ListMetricsRequest{}),
 	)
+	metrics = res.Msg.Metrics
+
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve metric list from orchestrator: %w", err)
 	}
@@ -420,4 +438,49 @@ func (svc *Service) MetricImplementation(lang assessment.MetricImplementation_La
 
 	// Unwrap the response
 	return resp.Msg, nil
+}
+
+// MetricConfiguration implements MetricsSource by getting the corresponding metric configuration for the
+// default target of evaluation
+func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *assessment.Metric) (config *assessment.MetricConfiguration, err error) {
+	var (
+		ok    bool
+		cache cachedConfiguration
+		key   string
+	)
+
+	// Calculate the cache key
+	key = fmt.Sprintf("%s-%s", TargetOfEvaluationID, metric.Id)
+
+	// Retrieve our cached entry
+	svc.confMutex.Lock()
+	cache, ok = svc.cachedConfigurations[key]
+	svc.confMutex.Unlock()
+
+	// Check if entry is not there or is expired
+	if !ok || cache.cachedAt.After(time.Now().Add(EvictionTime)) {
+		req := connect.NewRequest(&orchestrator.GetMetricConfigurationRequest{
+			TargetOfEvaluationId: TargetOfEvaluationID,
+			MetricId:             metric.Id,
+		})
+
+		resp, err := svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
+		config = resp.Msg
+
+		if err != nil {
+			return nil, fmt.Errorf("could not retrieve metric configuration for %s: %w", metric.Id, err)
+		}
+
+		cache = cachedConfiguration{
+			cachedAt:            time.Now(),
+			MetricConfiguration: config,
+		}
+
+		svc.confMutex.Lock()
+		// Update the metric configuration
+		svc.cachedConfigurations[key] = cache
+		defer svc.confMutex.Unlock()
+	}
+
+	return cache.MetricConfiguration, nil
 }

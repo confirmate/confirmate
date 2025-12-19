@@ -19,7 +19,7 @@ import (
 	"log/slog"
 	"slices"
 
-	"confirmate.io/core/api"
+	"confirmate.io/core/util/api"
 	"github.com/golang-jwt/jwt/v5"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc/codes"
@@ -95,7 +95,7 @@ func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Contex
 	// Retrieve the raw token from the context
 	token, err = grpc_auth.AuthFromMD(ctx, "bearer")
 	if err != nil {
-		slog.Debug("Retrieving allowed target of evaluations from token failed: %v", err)
+		slog.Debug("Retrieving allowed target of evaluations from token failed", slog.Any("error", err))
 		return false, nil
 	}
 
@@ -103,7 +103,7 @@ func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Contex
 	parser := jwt.NewParser()
 	_, _, err = parser.ParseUnverified(token, &claims)
 	if err != nil {
-		slog.Debug("Retrieving allowed target of evaluations from token failed: %v", err)
+		slog.Debug("Retrieving allowed target of evaluations from token failed", slog.Any("error", err))
 		return false, nil
 	}
 
@@ -114,7 +114,7 @@ func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Contex
 
 	// We are looking for an array claim
 	if l, ok = claims[a.TargetOfEvaluationsKey].([]interface{}); !ok {
-		slog.Debug("Retrieving allowed target of evaluations from token failed: specified claims key is not an array", err)
+		slog.Debug("Retrieving allowed target of evaluations from token failed: specified claims key is not an array", slog.Any("error", err))
 		return false, nil
 	}
 

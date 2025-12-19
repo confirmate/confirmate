@@ -52,7 +52,7 @@ func (l *waitingRequest) WaitAndHandle() {
 
 		// Are we ready to assess?
 		if len(l.waitingFor) == 0 {
-			slog.Info("Evidence %s is now ready to assess", l.Evidence.Id)
+			slog.Info("Evidence is now ready to assess", slog.Any("Evidence", l.Evidence.Id))
 
 			// Gather our additional resources
 			additional := make(map[string]ontology.IsResource)
@@ -64,7 +64,7 @@ func (l *waitingRequest) WaitAndHandle() {
 				l.s.em.RUnlock()
 
 				if !ok {
-					slog.Error("Apparently, we are missing an evidence for a resource %s which we are supposed to have", r)
+					slog.Error("Apparently, we are missing an evidence for a resource which we are supposed to have", slog.Any("Resource", r))
 					break
 				}
 
