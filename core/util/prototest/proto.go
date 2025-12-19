@@ -13,13 +13,39 @@
 //
 // This file is part of Confirmate Core.
 
-package core
+package prototest
 
-// //go:generate buf generate
-//go:generate buf generate --exclude-path policies
-//go:generate buf generate --template buf.openapi.gen.yaml --path api/evidence -o api/evidence
-//go:generate buf generate --template buf.openapi.gen.yaml --path api/assessment -o api/assessment
-//go:generate buf generate --template buf.openapi.gen.yaml --path api/orchestrator -o api/orchestrator
-//go:generate buf generate --template buf.gen.ontology.yaml --path policies/security-metrics/ontology/1.0/ontology.proto -o api/ontology
-// Keep the gotag generation at the end to make sure that it isn't overridden by the other generators.
-//go:generate buf generate --template buf.gotag.gen.yaml --exclude-path policies
+import (
+	"testing"
+
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util/assert"
+
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+)
+
+// NewAny creates a new [*anypb.Any] from a [proto.Message] with an assert that no error has been thrown.
+func NewAny(t *testing.T, m proto.Message) *anypb.Any {
+	a, err := anypb.New(m)
+	assert.NoError(t, err)
+
+	return a
+}
+
+// NewAny creates a new [*anypb.Any] from a [proto.Message] with a panic if an error has been thrown.
+func NewAnyWithPanic(m proto.Message) *anypb.Any {
+	a, err := anypb.New(m)
+	if err != nil {
+		panic(err)
+	}
+
+	return a
+}
+
+func NewProtobufResource(t *testing.T, or ontology.IsResource) *ontology.Resource {
+	r := ontology.ProtoResource(or)
+	assert.NotNil(t, r)
+
+	return r
+}
