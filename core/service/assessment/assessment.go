@@ -62,6 +62,7 @@ type Service struct {
 
 	authz service.AuthorizationStrategy
 
+	// TODO: we can remove the client if we handle everything via the bidistream
 	orchestratorClient orchestratorconnect.OrchestratorClient
 	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	streamMutex        sync.Mutex
@@ -124,20 +125,19 @@ func NewService(opts ...service.Option[*Service]) *Service {
 
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
 
+	svc.createOrchestratorStream()
+
 	return svc
 }
 
+// TODO make initorchestratorstream; init in new service
 func (svc *Service) Init() {
+
+}
+
+func (svc *Service) createOrchestratorStream() {
 	config := stream.DefaultRestartConfig()
 	config.MaxRetries = 5
-	config.InitialBackoff = 100 * time.Millisecond
-	config.MaxBackoff = 5 * time.Second
-	config.OnRestart = func(attempt int, err error) {
-		slog.Warn("Restarting orchestrator stream", "attempt", attempt, "error", err)
-	}
-	config.OnRestartFailure = func(err error) {
-		slog.Error("Failed to restart orchestrator stream after max retries", "error", err)
-	}
 
 	ctx := context.Background()
 

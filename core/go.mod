@@ -10,16 +10,15 @@ require (
 
 // runtime dependencies - protobuf/Connect
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20250912141014-52f32327d4b0.1
-	buf.build/go/protovalidate v1.0.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20251209175733-2a1774d88802.1
 	cel.dev/expr v0.24.0 // indirect
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/google/cel-go v0.26.1 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251020155222-88f65dc88635
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251213004720-97cd9d5aeac2
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2 // indirect
 	google.golang.org/protobuf v1.36.10
 )
 
@@ -41,9 +40,9 @@ require (
 
 // test dependencies
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/google/go-cmp v0.7.0
-	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/testify v1.11.1
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -63,14 +62,16 @@ require (
 )
 
 require (
+	buf.build/go/protovalidate v1.1.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	google.golang.org/grpc v1.71.0
+	google.golang.org/grpc v1.75.1
 )
 
 require (
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 )
