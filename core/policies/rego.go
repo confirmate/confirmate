@@ -167,7 +167,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 
 		// Set it and unlock
 		re.mrtc.m[key] = cached
-		slog.Info("Resource type %v has the following %v applicable metric(s): %v", key, len(re.mrtc.m[key]), idsOf(re.mrtc.m[key]))
+		slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(re.mrtc.m[key])), slog.Any("ids", idsOf(re.mrtc.m[key])))
 
 		re.mrtc.Unlock()
 	} else {
@@ -195,9 +195,9 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 // appropriate metrics.
 func (re *regoEval) HandleMetricEvent(event *orchestrator.MetricChangeEvent) (err error) {
 	if event.Type == orchestrator.MetricChangeEvent_TYPE_IMPLEMENTATION_CHANGED {
-		slog.Info("Implementation of %s has changed. Clearing cache for this metric", event.MetricId)
+		slog.Info("Implementation of metric has changed. Clearing cache for this metric", slog.Any("metric_id", event.MetricId))
 	} else if event.Type == orchestrator.MetricChangeEvent_TYPE_CONFIG_CHANGED {
-		slog.Info("Configuration of %s has changed. Clearing cache for this metric", event.MetricId)
+		slog.Info("Configuration of metric has changed. Clearing cache for this metric", slog.Any("metric_id", event.MetricId))
 	}
 
 	// Evict the cache for the given metric
