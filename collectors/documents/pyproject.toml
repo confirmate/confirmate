@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "document-analyser"
+version = "0.1.0"
+description = "LLM-powered extractor that turns unstructured documents into structured compliance evidence."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["openai>=1.43.0", "pypdf>=5.0.0", "httpx>=0.28.1"]
+authors = [{ name = "Document-Analyser" }]
+
+[project.scripts]
+document-analyser = "document_analyser.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
