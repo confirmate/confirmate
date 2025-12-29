@@ -7,7 +7,6 @@ from typing import Iterable, List, Sequence
 from .evidence_store import (
     EvidenceStoreClient,
     EvidenceStoreConfig,
-    EvidenceStoreError,
     build_evidence_payloads,
 )
 from .extractor import AnalysisResult, DocumentAnalyser
