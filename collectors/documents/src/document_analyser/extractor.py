@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Sequence
+from typing import Any, Dict, List, Sequence
 
 from .llm import LLMClient
 from .loaders import Document, concatenate_documents
