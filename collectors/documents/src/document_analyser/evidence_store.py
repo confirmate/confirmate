@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Sequence
 from uuid import uuid4
 
 import httpx
-import json
 
 from .extractor import AnalysisResult
 from .loaders import Document
