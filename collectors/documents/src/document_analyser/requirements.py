@@ -161,7 +161,7 @@ REQUIREMENTS: Dict[str, RequirementPrompt] = {
         id="E102",
         name="Products with digital elements shall provide the possibility for users to securely and easily remove on a permanent basis all data and settings and, where such data can be transferred to other products or systems, ensure that this is done in a secure manner.",
         prompt=(
-            "Secure data transfer mechanisms described: ensuring that when data is transferred to other products or systems, in a secure manner."
+            "Secure data transfer mechanisms described: ensuring that data is transferred to other products or systems in a secure manner."
         ),
         response_field_name="secureDataTransfer"
     ),
