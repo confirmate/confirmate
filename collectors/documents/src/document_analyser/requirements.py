@@ -72,7 +72,7 @@ REQUIREMENTS: Dict[str, RequirementPrompt] = {
         id="E55",
         name="Products with digital elements shall be made available on the market with a secure by default configuration, unless otherwise agreed between manufacturer and business user in relation to a tailor-made product with digital elements, including the possibility to reset the product to its original state;",
         prompt=(
-            "Secure by default configuration described in including the possibility to reset the product to its original state."
+            "Secure by default configuration described, including the possibility to reset the product to its original state."
         ),
         response_field_name="secureByDefaultConfiguration"
     ),
