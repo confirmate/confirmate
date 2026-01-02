@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/policies"
+	"connectrpc.com/connect"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
@@ -99,208 +100,167 @@ func TestNewService(t *testing.T) {
 // TestAssessEvidence tests AssessEvidence
 func TestService_AssessEvidence(t *testing.T) {
 	type fields struct {
-		// authz               service.AuthorizationStrategy
 		// orchestrator        *api.orchestratorconnect[orchestrator.OrchestratorClient]
 		evidenceResourceMap map[string]*evidence.Evidence
 	}
 	type args struct {
-		in0      context.Context
-		evidence *evidence.Evidence
+		req *assessment.AssessEvidenceRequest
 	}
 	tests := []struct {
-		name     string
-		fields   fields
-		args     args
-		wantResp *assessment.AssessEvidenceResponse
-		wantErr  assert.ErrorAssertionFunc
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[*connect.Response[assessment.AssessEvidenceResponse]]
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Missing evidence",
-			args: args{
-				in0: context.TODO(),
-			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "evidence: value is required")
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
 			name: "Empty evidence",
 			args: args{
-				in0:      context.TODO(),
-				evidence: &evidence.Evidence{},
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{},
+				},
 			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "evidence.id: value is empty, which is not a valid UUID")
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
-			name:   "Assess evidence without id",
-			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator: api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-			},
+			name: "Assess evidence without id",
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					ToolId:    testdata.MockEvidenceToolID1,
-					Timestamp: timestamppb.Now(),
-					Resource:  prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						ToolId:    testdata.MockEvidenceToolID1,
+						Timestamp: timestamppb.Now(),
+						Resource:  prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
+					},
 				},
 			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "evidence.id: value is empty, which is not a valid UUID")
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
-			name:   "Assess resource without tool id",
-			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:  api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-			},
+			name: "Assess resource without tool id",
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						Timestamp:            timestamppb.Now(),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
+					},
 				},
 			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "evidence.tool_id: value length must be at least 1 characters")
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
-			name:   "Assess resource without timestamp",
-			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:  api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-			},
+			name: "Assess resource without timestamp",
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
-					}),
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						ToolId:               testdata.MockEvidenceToolID1,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+						}),
+					},
 				},
 			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "evidence.timestamp: value is required")
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
 			name: "Assess resource happy",
 			fields: fields{
-				// evidenceStore:       api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:        api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-				// authz:               servicetest.NewAuthorizationStrategy(true),
 				evidenceResourceMap: make(map[string]*evidence.Evidence),
 			},
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:        testdata.MockEvidenceID1,
-					ToolId:    testdata.MockEvidenceToolID1,
-					Timestamp: timestamppb.Now(),
-					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
-					}),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1},
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:        testdata.MockEvidenceID1,
+						ToolId:    testdata.MockEvidenceToolID1,
+						Timestamp: timestamppb.Now(),
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+						}),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+					},
+				},
 			},
-			wantResp: &assessment.AssessEvidenceResponse{
-				Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
+			want: func(t *testing.T, got *connect.Response[assessment.AssessEvidenceResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED, got.Msg.Status)
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.NoError(t, err)
-			},
+			wantErr: assert.NoError,
 		},
 		{
-			name:   "Assess resource of wrong could service",
-			fields: fields{
-				// authz: servicetest.NewAuthorizationStrategy(false, testdata.MockTargetOfEvaluationID2),
-			},
+			name: "Assess resource of wrong cloud service",
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:        testdata.MockEvidenceID1,
-					ToolId:    testdata.MockEvidenceToolID1,
-					Timestamp: timestamppb.Now(),
-					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
-					}),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1},
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:        testdata.MockEvidenceID1,
+						ToolId:    testdata.MockEvidenceToolID1,
+						Timestamp: timestamppb.Now(),
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+						}),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1},
+				},
 			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, service.ErrPermissionDenied.Error())
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodePermissionDenied, cErr.Code())
 			},
 		},
 		{
 			name: "Assess resource without resource id",
 			fields: fields{
-				// evidenceStore:       api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:        api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-				// authz:               servicetest.NewAuthorizationStrategy(true),
 				evidenceResourceMap: make(map[string]*evidence.Evidence),
 			},
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
-					Timestamp:            timestamppb.Now(),
-					Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						ToolId:               testdata.MockEvidenceToolID1,
+						Timestamp:            timestamppb.Now(),
+						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+					},
 				},
 			},
-			wantResp: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "id: value is required")
+			want: nil,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
-		// {
-		// 	name: "No RPC connections",
-		// 	fields: fields{
-		// 		// evidenceStore:       api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(connectionRefusedDialer)),
-		// 		// orchestrator:        api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(connectionRefusedDialer)),
-		// 		// authz:               servicetest.NewAuthorizationStrategy(true),
-		// 		evidenceResourceMap: make(map[string]*evidence.Evidence),
-		// 	},
-		// 	args: args{
-		// 		in0: context.TODO(),
-		// 		evidence: &evidence.Evidence{
-		// 			Id:                   testdata.MockEvidenceID1,
-		// 			ToolId:               testdata.MockEvidenceToolID1,
-		// 			Timestamp:            timestamppb.Now(),
-		// 			TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-		// 			Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 				Id:   testdata.MockVirtualMachineID1,
-		// 				Name: testdata.MockVirtualMachineName1,
-		// 			}),
-		// 		},
-		// 	},
-		// 	wantResp: nil,
-		// 	wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-		// 		return assert.ErrorContains(t, err, "connection refused")
-		// 	},
-		// },
 		{
 			name: "Assess resource and wait existing related resources is already there",
 			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:  api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-				// authz:         servicetest.NewAuthorizationStrategy(true),
 				evidenceResourceMap: map[string]*evidence.Evidence{
 					"my-other-resource-id": {
 						Id: testdata.MockEvidenceID2,
@@ -311,54 +271,51 @@ func TestService_AssessEvidence(t *testing.T) {
 				},
 			},
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
-					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
-					}),
-					ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						ToolId:               testdata.MockEvidenceToolID1,
+						Timestamp:            timestamppb.Now(),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+						}),
+						ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
+					},
 				},
 			},
-			wantResp: &assessment.AssessEvidenceResponse{
-				Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
+			want: func(t *testing.T, got *connect.Response[assessment.AssessEvidenceResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED, got.Msg.Status)
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.NoError(t, err)
-			},
+			wantErr: assert.NoError,
 		},
 		{
-			name: "Assess resource and wait existing related resources is not there",
+			name: "Assess resource and wait, existing related resources are not there",
 			fields: fields{
-				// evidenceStore:       api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:        api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-				// authz:               servicetest.NewAuthorizationStrategy(true),
 				evidenceResourceMap: make(map[string]*evidence.Evidence),
 			},
 			args: args{
-				in0: context.TODO(),
-				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
-					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
-					}),
-					ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						ToolId:               testdata.MockEvidenceToolID1,
+						Timestamp:            timestamppb.Now(),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+						}),
+						ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
+					},
 				},
 			},
-			wantResp: &assessment.AssessEvidenceResponse{
-				Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_WAITING_FOR_RELATED,
+			want: func(t *testing.T, got *connect.Response[assessment.AssessEvidenceResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED, got.Msg.Status)
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.NoError(t, err)
-			},
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -383,11 +340,9 @@ func TestService_AssessEvidence(t *testing.T) {
 			defer testSrv.Close()
 
 			s := NewService()
-			gotResp, err := s.AssessEvidence(tt.args.in0, &assessment.AssessEvidenceRequest{Evidence: tt.args.evidence})
-
+			res, err := s.AssessEvidence(context.Background(), connect.NewRequest(tt.args.req))
+			tt.want(t, res)
 			tt.wantErr(t, err)
-			// Check response
-			assert.Equal(t, tt.wantResp, gotResp)
 		})
 	}
 }

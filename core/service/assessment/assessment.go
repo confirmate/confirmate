@@ -184,27 +184,28 @@ func (svc *Service) createOrchestratorStreamFactory() stream.StreamFactory[orche
 }
 
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
-func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEvidenceRequest) (res *assessment.AssessEvidenceResponse, err error) {
+func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[assessment.AssessEvidenceRequest]) (res *connect.Response[assessment.AssessEvidenceResponse], err error) {
 
 	var (
 		resource ontology.IsResource
 	)
 
+	evidence := req.Msg.Evidence
 	// Validate request
-	err = api.Validate(req)
+	err = api.Validate(evidence)
 	if err != nil {
 		slog.Error("AssessEvidence: invalid request", "error", err)
 		return nil, err
 	}
 
-	// // Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
+	// // TODO: Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
 	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
 	// 	slog.Error("AssessEvidence: ", slog.Any("error", service.ErrPermissionDenied))
 	// 	return nil, service.ErrPermissionDenied
 	// }
 
 	// Retrieve the ontology resource
-	resource = req.Evidence.GetOntologyResource()
+	resource = evidence.GetOntologyResource()
 	if resource == nil {
 		err = ontology.ErrNotOntologyResource
 		slog.Error("AssessEvidence: Not an ontology resource:", "error", err)
@@ -223,7 +224,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEv
 	// We need to check, if by any chance the related resource evidences have already arrived
 	//
 	// TODO(oxisto): We should also check if they are "recent" enough (which is probably determined by the metric)
-	for _, r := range req.Evidence.ExperimentalRelatedResourceIds {
+	for _, r := range evidence.ExperimentalRelatedResourceIds {
 		// If any of the related resource is not available, we cannot handle them immediately, but we need to add it to
 		// our waitingFor slice
 		if _, ok := svc.evidenceResourceMap[r]; ok {
@@ -237,7 +238,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEv
 	}
 
 	// Update our resourceID to evidence cache
-	svc.evidenceResourceMap[resource.GetId()] = req.Evidence
+	svc.evidenceResourceMap[resource.GetId()] = evidence
 	svc.em.Unlock()
 
 	// Inform any other left over evidences that might be waiting
@@ -245,24 +246,24 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEv
 
 	if canHandle {
 		// Assess evidence. This also validates the embedded resource and returns an error if validation fails.
-		_, err = svc.handleEvidence(ctx, req.Evidence, resource, related)
+		_, err = svc.handleEvidence(ctx, evidence, resource, related)
 		if err != nil {
 			slog.Error("AssessEvidence: could not handle evidence:", "error", err)
 			return nil, err
 		}
 
-		res = &assessment.AssessEvidenceResponse{
+		res = connect.NewResponse(&assessment.AssessEvidenceResponse{
 			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
-		}
+		})
 	} else {
-		slog.Debug("Evidence %s needs to wait for %d more resource(s) to assess evidence", req.Evidence.Id, len(waitingFor))
+		slog.Debug("Evidence %s needs to wait for %d more resource(s) to assess evidence", evidence.Id, len(waitingFor))
 
 		// Create a left-over request with all the necessary information
 		l := waitingRequest{
 			started:      time.Now(),
 			waitingFor:   waitingFor,
 			resourceId:   resource.GetId(),
-			Evidence:     req.Evidence,
+			Evidence:     evidence,
 			s:            svc,
 			newResources: make(chan string, 1000),
 			ctx:          ctx,
@@ -276,13 +277,13 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *assessment.AssessEv
 
 		// Lock requests for writing
 		svc.rm.Lock()
-		svc.requests[req.Evidence.Id] = l
+		svc.requests[evidence.Id] = l
 		// Unlock writing
 		svc.rm.Unlock()
 
-		res = &assessment.AssessEvidenceResponse{
+		res = connect.NewResponse(&assessment.AssessEvidenceResponse{
 			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_WAITING_FOR_RELATED,
-		}
+		})
 	}
 
 	return res, nil
