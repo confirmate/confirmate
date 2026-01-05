@@ -27,7 +27,9 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/policies"
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
@@ -457,6 +459,60 @@ func TestService_handleEvidence(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+// TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached tests the following workflow: First an
+// evidence with a VM resource is assessed. The resource contains all required fields s.t. the metric cache is filled
+// with all applicable metrics. In a second step we assess another evidence. It is also of type "VirtualMachine" but all
+// other fields are not set (e.g. MalwareProtection). Thus, metric will be applied and therefore no error occurs in
+// AssessEvidence-handleEvidence (assessment.go) which loops over all evaluations
+// Todo: Add it to table test above (would probably need some function injection in test cases like we do with storage)
+func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached(t *testing.T) {
+	s := &Service{
+		cachedConfigurations: make(map[string]cachedConfiguration),
+		evidenceResourceMap:  make(map[string]*evidence.Evidence),
+		pe:                   policies.NewRegoEval(policies.WithPackageName(policies.DefaultRegoPackage)),
+	}
+	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
+	// tool id (="VirtualMachine-{testdata.MockEvidenceToolID}")
+	e := &evidence.Evidence{
+		Id:                   testdata.MockEvidenceID1,
+		ToolId:               testdata.MockEvidenceToolID1,
+		Timestamp:            timestamppb.Now(),
+		TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+			Id:   testdata.MockVirtualMachineID1,
+			Name: testdata.MockVirtualMachineName1,
+		}),
+		ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
+	}
+	e.Resource = prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+		Id:   testdata.MockVirtualMachineID1,
+		Name: testdata.MockVirtualMachineName1,
+	})
+	_, err := s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e}))
+	assert.NoError(t, err)
+
+	// Now assess a new evidence which has not a valid format other than the resource type and tool id is set correctly
+	// Prepare resource. Make sure both evidences have the same type (for caching key)
+	a := prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+		Id:   uuid.NewString(),
+		Name: "Some other name",
+	})
+
+	assert.NoError(t, err)
+	_, err = s.AssessEvidence(context.Background(), connect.NewRequest(
+		&assessment.AssessEvidenceRequest{
+			Evidence: &evidence.Evidence{
+				Id:                   uuid.NewString(),
+				Timestamp:            timestamppb.Now(),
+				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+				// Make sure both evidences have the same tool id (for caching key)
+				ToolId:   e.ToolId,
+				Resource: a,
+			},
+		}))
+	assert.NoError(t, err)
 }
 
 func TestService_AssessmentResultHooks(t *testing.T) {
