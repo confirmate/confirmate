@@ -17,13 +17,16 @@ package assessment
 
 import (
 	"context"
+	"reflect"
+	"runtime"
+	"sync"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/policies"
 	"connectrpc.com/connect"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
@@ -34,6 +37,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
 	"confirmate.io/core/util/testdata"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -97,7 +101,6 @@ func TestNewService(t *testing.T) {
 	}
 }
 
-// TestAssessEvidence tests AssessEvidence
 func TestService_AssessEvidence(t *testing.T) {
 	type fields struct {
 		// orchestrator        *api.orchestratorconnect[orchestrator.OrchestratorClient]
@@ -321,24 +324,6 @@ func TestService_AssessEvidence(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// s := &Service{
-			// 	orchestrator:         tt.fields.orchestrator,
-			// 	orchestratorStreams:  api.NewStreamsOf(api.WithLogger[orchestrator.Orchestrator_StoreAssessmentResultsClient, *orchestrator.StoreAssessmentResultRequest](log)),
-			// 	evidenceResourceMap:  tt.fields.evidenceResourceMap,
-			// 	requests:             make(map[string]waitingRequest),
-			// 	pe:                   policies.NewRegoEval(policies.WithPackageName(policies.DefaultRegoPackage)),
-			// 	authz:                tt.fields.authz,
-			// }
-			svc, err := orchestratorsvc.NewService()
-			assert.NoError(t, err)
-
-			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(
-					orchestratorconnect.NewOrchestratorHandler(svc),
-				),
-			)
-			defer testSrv.Close()
-
 			s := NewService()
 			res, err := s.AssessEvidence(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -366,11 +351,7 @@ func TestService_handleEvidence(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name:   "correct evidence: using metrics which return comparison results",
-			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:  api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-			},
+			name: "correct evidence: using metrics which return comparison results",
 			args: args{
 				evidence: &evidence.Evidence{
 					Id:                   testdata.MockEvidenceID1,
@@ -414,14 +395,10 @@ func TestService_handleEvidence(t *testing.T) {
 				}
 				return assert.Equal(t, 3, len(got))
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
-			name:   "correct evidence: using metrics which do not return comparison results",
-			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:  api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-			},
+			name: "correct evidence: using metrics which do not return comparison results",
 			args: args{
 				evidence: &evidence.Evidence{
 					Id:                   testdata.MockEvidenceID1,
@@ -453,14 +430,10 @@ func TestService_handleEvidence(t *testing.T) {
 				}
 				return assert.Equal(t, 9, len(got))
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
-			name:   "broken Any message",
-			fields: fields{
-				// evidenceStore: api.NewRPCConnection(testdata.MockGRPCTarget, evidence.NewEvidenceStoreClient, grpc.WithContextDialer(bufConnDialer)),
-				// orchestrator:  api.NewRPCConnection(testdata.MockGRPCTarget, orchestrator.NewOrchestratorClient, grpc.WithContextDialer(bufConnDialer)),
-			},
+			name: "broken Any message",
 			args: args{
 				evidence: &evidence.Evidence{
 					Id:                   testdata.MockEvidenceID1,
@@ -478,28 +451,111 @@ func TestService_handleEvidence(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc, err := orchestratorsvc.NewService()
-			assert.NoError(t, err)
+			s := NewService()
+			res, err := s.handleEvidence(context.Background(), tt.args.evidence, tt.args.resource, tt.args.related)
+			tt.want(t, res)
+			tt.wantErr(t, err)
+		})
+	}
+}
 
-			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(
-					orchestratorconnect.NewOrchestratorHandler(svc),
-				),
-			)
-			defer testSrv.Close()
+func TestService_AssessmentResultHooks(t *testing.T) {
+	var (
+		hookCallCounter = 0
+		wg              sync.WaitGroup
+		hookCounts      = 20
+	)
 
-			s := &Service{
-				// orchestrator:         tt.fields.orchestrator,
-				// orchestratorStreams:  api.NewStreamsOf(api.WithLogger[orchestrator.Orchestrator_StoreAssessmentResultsClient, *orchestrator.StoreAssessmentResultRequest](log)),
-				// cachedConfigurations: make(map[string]cachedConfiguration),
-				pe:    policies.NewRegoEval(policies.WithPackageName(policies.DefaultRegoPackage)),
-				authz: tt.fields.authz,
+	wg.Add(hookCounts)
+
+	firstHookFunction := func(ctx context.Context, assessmentResult *assessment.AssessmentResult, err error) {
+		hookCallCounter++
+		logger.Info("Hello from inside the firstHookFunction")
+		wg.Done()
+	}
+
+	secondHookFunction := func(ctx context.Context, assessmentResult *assessment.AssessmentResult, err error) {
+		hookCallCounter++
+		logger.Info("Hello from inside the secondHookFunction")
+		wg.Done()
+	}
+
+	type args struct {
+		req         *assessment.AssessEvidenceRequest
+		resultHooks []assessment.ResultHookFunc
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    assert.Want[*connect.Response[assessment.AssessEvidenceResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "Store evidence to the map",
+			args: args{
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						ToolId:               testdata.MockEvidenceToolID1,
+						Timestamp:            timestamppb.Now(),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+							BootLogging: &ontology.BootLogging{
+								LoggingServiceIds: []string{"SomeResourceId2"},
+								Enabled:           true,
+								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
+							},
+							OsLogging: &ontology.OSLogging{
+								LoggingServiceIds: []string{"SomeResourceId2"},
+								Enabled:           true,
+								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
+							},
+							MalwareProtection: &ontology.MalwareProtection{
+								Enabled:              true,
+								NumberOfThreatsFound: 5,
+								DurationSinceActive:  durationpb.New(time.Hour * 24 * 20),
+								ApplicationLogging: &ontology.ApplicationLogging{
+									Enabled:           true,
+									LoggingServiceIds: []string{"SomeAnalyticsService?"},
+								},
+							},
+						}),
+					}},
+
+				resultHooks: []assessment.ResultHookFunc{firstHookFunction, secondHookFunction},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.AssessEvidenceResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED, got.Msg.Status)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hookCallCounter = 0
+			s := NewService()
+
+			for i, hookFunction := range tt.args.resultHooks {
+				s.RegisterAssessmentResultHook(hookFunction)
+
+				// Check if hook is registered
+				funcName1 := runtime.FuncForPC(reflect.ValueOf(s.resultHooks[i]).Pointer()).Name()
+				funcName2 := runtime.FuncForPC(reflect.ValueOf(hookFunction).Pointer()).Name()
+				assert.Equal(t, funcName1, funcName2)
 			}
 
-			results, err := s.handleEvidence(context.Background(), tt.args.evidence, tt.args.resource, tt.args.related)
+			// To test the hooks we have to call a function that calls the hook function
+			res, err := s.AssessEvidence(context.Background(), connect.NewRequest(tt.args.req))
 
+			// wait for all hooks
+			wg.Wait()
+
+			tt.want(t, res)
 			tt.wantErr(t, err)
-			tt.want(t, results)
 		})
 	}
 }
