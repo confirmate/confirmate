@@ -45,7 +45,10 @@ var (
 	logger *slog.Logger
 )
 
-const DefaultAssessmentURL = "localhost:9090"
+const (
+	DefaultAssessmentURL     = "localhost:9090"
+	defaultEvidenceQueueSize = 1024
+)
 
 type assessmentConfig struct {
 	targetAddress string
@@ -174,17 +177,23 @@ func (svc *Service) handleEvidence(evidence *evidence.Evidence, attempt int) err
 // initEvidenceChannel initializes the channel used to send evidences from the StoreEvidence method to the worker threat
 // to process the evidence.
 func (svc *Service) initEvidenceChannel() {
+	// Allocate the channel before starting the worker.
+	if svc.channelEvidence == nil {
+		svc.channelEvidence = make(chan *evidence.Evidence, defaultEvidenceQueueSize)
+	}
+
 	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the fire-and-forget strategy.
 	go func() {
-		for {
-			// Wait for a new evidence to be passed to the channel
-			e := <-svc.channelEvidence
-
-			// Process the evidence
-			err := svc.handleEvidence(e, 0)
-			if err != nil {
-				// TODO(lebogg): Test this slog statement (evidence vs. evidence.id)
-				slog.Error("Error while processing evidence", slog.Any("evidence", e))
+		for e := range svc.channelEvidence { // exits when channel is closed
+			if e == nil {
+				continue
+			}
+			if err := svc.handleEvidence(e, 0); err != nil {
+				slog.Error("error while processing evidence",
+					slog.String("evidence_id", e.GetId()),
+					slog.String("tool_id", e.GetToolId()),
+					slog.Any("error", err),
+				)
 			}
 		}
 	}()
