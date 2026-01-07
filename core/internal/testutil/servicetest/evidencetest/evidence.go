@@ -1,14 +1,38 @@
 package evidencetest
 
 import (
-	"confirmate.io/core/api/evidence"
-	"confirmate.io/core/persistence"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/persistence"
 )
 
 var (
 	MockEvidence1 = &evidence.Evidence{
-		Id: uuid.NewString(),
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		TargetOfEvaluationId: uuid.NewString(),
+		ToolId:               "MockTool1",
+		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
+			VirtualMachine: &ontology.VirtualMachine{
+				Id:   "mock-id-1",
+				Name: "my-vm",
+			},
+		}},
+	}
+	MockEvidence2SameResourceAs1 = &evidence.Evidence{
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		TargetOfEvaluationId: uuid.NewString(),
+		ToolId:               "MockTool1",
+		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
+			VirtualMachine: &ontology.VirtualMachine{
+				Id:   "mock-id-1",
+				Name: "my-vm",
+			},
+		}},
 	}
 )
 var InitDBWithEvidence = func(db *persistence.DB) {

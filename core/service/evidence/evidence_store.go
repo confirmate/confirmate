@@ -225,7 +225,12 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
 	}
 	// Persist the latest state of the resource
-	err = svc.db.Save(&r, "id = ?", r.Id)
+	err = svc.db.Create(r)
+	// TODO(lebogg): Move logic to save itself
+	// TODO(lebogg): Check if "errors.Is" works anyway. For Primary Key Violation I had to check the string
+	if err != nil && ((errors.Is(err, persistence.ErrUniqueConstraintFailed)) || strings.Contains(err.Error(), persistence.ErrPrimaryKeyViolation.Error())) {
+		err = svc.db.Update(r)
+	}
 	if err != nil {
 		slog.Error("Could not save resource to storage", slog.Any("Resource", r.Id), slog.Any("err", err))
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)

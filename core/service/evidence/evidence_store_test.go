@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"sync"
 	"testing"
 	"time"
 
@@ -193,7 +192,7 @@ func TestService_StoreEvidence(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*connect.Response[evidence.StoreEvidenceResponse]]
-		wantErr assert.WantErr
+		wantErr assert.ErrorAssertionFunc
 	}{
 		{
 			name: "Error - Validation fails",
@@ -204,39 +203,35 @@ func TestService_StoreEvidence(t *testing.T) {
 				svc: nil, // service isn't needed; validating arg errors only
 			},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
-			wantErr: func(t *testing.T, err error) bool {
-				return assert.NotNil(t, err)
+			wantErr: func(t assert.TestingT, err error, args ...interface{}) bool {
+				return assert.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
 			},
 		},
+		//{
+		//	name: "Error creating evidence - already exists",
+		//},
+		//{
+		//	name: "Error creating evidence - internal",
+		//},
+		//{
+		//	name: "Error saving resource - internal",
+		//},
 		{
-			name: "Error creating evidence - already exists",
-		},
-		{
-			name: "Error creating evidence - internal",
-		},
-		{
-			name: "Error saving resource - internal",
-		},
-		{
-			name: "Happy path",
+			name: "Happy path - create new resource",
 			args: args{
-				ctx: nil,
+				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: &evidence.Evidence{Id: uuid.NewString()},
+					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: &Service{
-				db:                   persistencetest.NewInMemoryDB(t, types, nil, nil),
-				streamMu:             sync.Mutex{},
-				assessmentConfig:     assessmentConfig{},
-				channelEvidence:      nil,
-				evidenceHooks:        nil,
-				mu:                   sync.Mutex{},
-				EvidenceStoreHandler: nil,
-			}},
+			fields:  fields{svc: NewTestService(t)},
+			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: assert.NoError,
 		},
+		//{
+		//	name: "Happy path - updating resource",
+		//},
 	}
-	// TODO(lebogg): Check if we can create this service
 	for _, tt := range tests {
 		res, err := tt.fields.svc.StoreEvidence(tt.args.ctx, tt.args.req)
 		tt.wantErr(t, err)
