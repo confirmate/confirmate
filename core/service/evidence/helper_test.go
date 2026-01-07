@@ -7,7 +7,7 @@ import (
 )
 
 // NewTestService creates a new test service not throwing errors
-func NewTestService(t *testing.T) (svc *Service) {
+func NewTestService(t *testing.T, doSomething func(service *Service)) (svc *Service) {
 	var (
 		err error
 	)
@@ -16,6 +16,9 @@ func NewTestService(t *testing.T) (svc *Service) {
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)))
 	if err != nil {
 		panic(err)
+	}
+	if doSomething != nil {
+		doSomething(svc)
 	}
 	return
 }

@@ -13,7 +13,7 @@
 //
 // This file is part of Confirmate Core.
 
-// package persistence provides our persistence layers, which is mainly database operations for
+// Package persistence provides our persistence layers, which is mainly database operations for
 // Confirmate Core. It includes CRUD operations and advanced query options using Gorm.
 package persistence
 
@@ -50,9 +50,17 @@ func (s *DB) Create(r any) (err error) {
 
 // Save attempts to save the given record to the database, applying optional conditions for
 // filtering. If a constraint violation occurs, it returns ErrConstraintFailed.
+// TODO(lebogg/oxisto): Currently, the GORM save method does not work as expected with conditions. Probably RamSQL is
+// messing something up (it worked before)
 func (s *DB) Save(r any, conds ...any) (err error) {
-	db := applyWhere(s.DB, conds...).Save(r)
-	err = db.Error
+	err = s.Create(r)
+	// TODO(lebogg): Check if "errors.Is" works anyway. For Primary Key Violation I had to check the string
+	if err != nil && ((errors.Is(err, ErrUniqueConstraintFailed)) || strings.Contains(err.Error(), ErrPrimaryKeyViolation.Error())) {
+		err = s.Update(r, conds...)
+	}
+
+	//db := applyWhere(s.DB, conds...).Save(r)
+	//err = db.Error
 
 	if err != nil && strings.Contains(err.Error(), "constraint failed") {
 		return ErrConstraintFailed

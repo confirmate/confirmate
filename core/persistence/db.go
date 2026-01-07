@@ -23,6 +23,7 @@ import (
 	_ "github.com/proullon/ramsql/driver"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
 
@@ -155,7 +156,7 @@ func newInMemoryDB() (g *gorm.DB, err error) {
 	g, err = gorm.Open(postgres.New(postgres.Config{
 		Conn: db,
 	}),
-		&gorm.Config{})
+		&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		return nil, fmt.Errorf("could not create gorm connection: %w", err)
 	}

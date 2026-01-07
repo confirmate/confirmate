@@ -10,6 +10,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	assert2 "github.com/stretchr/testify/assert"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -179,6 +180,7 @@ func TestService_handleEvidence(t *testing.T) {
 	slog.Info("Sent evidence", slog.Any("id", e.Id))
 }
 
+// TestService_StoreEvidence tests the StoreEvidence method of the Service implementation
 func TestService_StoreEvidence(t *testing.T) {
 	type args struct {
 		ctx context.Context
@@ -207,9 +209,24 @@ func TestService_StoreEvidence(t *testing.T) {
 				return assert.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
 			},
 		},
-		//{
-		//	name: "Error creating evidence - already exists",
-		//},
+		{
+			name: "Error creating evidence - already exists",
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
+					Evidence: evidencetest.MockEvidence1,
+				}},
+			},
+			fields: fields{svc: NewTestService(t, func(svc *Service) {
+				// Create evidence
+				err := svc.db.Create(evidencetest.MockEvidence1)
+				assert.NoError(t, err)
+			})},
+			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: func(t assert2.TestingT, err error, i ...interface{}) bool {
+				return assert.Equal(t, connect.CodeAlreadyExists, connect.CodeOf(err))
+			},
+		},
 		//{
 		//	name: "Error creating evidence - internal",
 		//},
@@ -224,17 +241,34 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields:  fields{svc: NewTestService(t)},
+			fields:  fields{svc: NewTestService(t, nil)},
 			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: assert.NoError,
 		},
-		//{
-		//	name: "Happy path - updating resource",
-		//},
+		{
+			name: "Happy path - updating resource",
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
+					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+				}},
+			},
+			fields: fields{svc: NewTestService(t, func(svc *Service) {
+				// Create a resource already such that `save` will update it instead of creating a new entry
+				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidence1.GetOntologyResource(), evidencetest.MockEvidence1.GetTargetOfEvaluationId(), evidencetest.MockEvidence1.GetToolId())
+				assert.NoError(t, err)
+				err = svc.db.Create(r)
+				assert.NoError(t, err)
+			})},
+			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: assert.NoError,
+		},
 	}
 	for _, tt := range tests {
-		res, err := tt.fields.svc.StoreEvidence(tt.args.ctx, tt.args.req)
-		tt.wantErr(t, err)
-		tt.want(t, res)
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := tt.fields.svc.StoreEvidence(tt.args.ctx, tt.args.req)
+			tt.wantErr(t, err)
+			tt.want(t, res)
+		})
 	}
 }

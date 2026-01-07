@@ -210,8 +210,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
-	if err != nil && errors.Is(err, persistence.ErrUniqueConstraintFailed) {
-		return nil, status.Error(codes.AlreadyExists, persistence.ErrEntryAlreadyExists.Error())
+	if err != nil && (strings.Contains(err.Error(), persistence.ErrUniqueConstraintFailed.Error()) || strings.Contains(err.Error(), persistence.ErrPrimaryKeyViolation.Error())) {
+		return nil, connect.NewError(connect.CodeAlreadyExists, persistence.ErrEntryAlreadyExists)
 	} else if err != nil {
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
 	}
@@ -225,12 +225,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
 	}
 	// Persist the latest state of the resource
-	err = svc.db.Create(r)
-	// TODO(lebogg): Move logic to save itself
-	// TODO(lebogg): Check if "errors.Is" works anyway. For Primary Key Violation I had to check the string
-	if err != nil && ((errors.Is(err, persistence.ErrUniqueConstraintFailed)) || strings.Contains(err.Error(), persistence.ErrPrimaryKeyViolation.Error())) {
-		err = svc.db.Update(r)
-	}
+	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I assume we can remove conds.
+	err = svc.db.Save(r, "id = ?", r.Id)
 	if err != nil {
 		slog.Error("Could not save resource to storage", slog.Any("Resource", r.Id), slog.Any("err", err))
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
