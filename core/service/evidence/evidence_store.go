@@ -213,7 +213,11 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err != nil && (strings.Contains(err.Error(), persistence.ErrUniqueConstraintFailed.Error()) || strings.Contains(err.Error(), persistence.ErrPrimaryKeyViolation.Error())) {
 		return nil, connect.NewError(connect.CodeAlreadyExists, persistence.ErrEntryAlreadyExists)
 	} else if err != nil {
-		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
+		slog.Error("Could not store evidence to storage",
+			slog.Any("Evidence", req.Msg.Evidence.Id),
+			slog.Any("err", err))
+		// Only reveal limited information about the error to the client
+		return nil, connect.NewError(connect.CodeInternal, persistence.ErrDatabase)
 	}
 
 	// Store Resource:
@@ -221,6 +225,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// resource for our storage layer. This is needed to store the resource in our DBs
 	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
+		// TODO(lebogg): use buf errors
 		slog.Error("Could not convert proto resource to DB resource", slog.Any("Evidence", req.Msg.Evidence.Id), slog.Any("Error", err))
 		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
 	}
@@ -228,6 +233,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I assume we can remove conds.
 	err = svc.db.Save(r, "id = ?", r.Id)
 	if err != nil {
+		// TODO(lebogg): use buf errors
 		slog.Error("Could not save resource to storage", slog.Any("Resource", r.Id), slog.Any("err", err))
 		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
 	}
@@ -358,8 +364,10 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 
 	err = svc.db.Get(res.Msg, conds...)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
+		// TODO(lebogg): use buf errors
 		return nil, status.Errorf(codes.NotFound, "evidence not found")
 	} else if err != nil {
+		// TODO(lebogg): use buf errors
 		return nil, status.Errorf(codes.Internal, "database error: %v", err)
 	}
 
