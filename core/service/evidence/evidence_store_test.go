@@ -5,8 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"sync"
 	"testing"
 	"time"
+
+	"connectrpc.com/connect"
+	"github.com/google/uuid"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -16,8 +20,6 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
-	"connectrpc.com/connect"
-	"github.com/google/uuid"
 )
 
 func TestMain(m *testing.M) {
@@ -176,4 +178,68 @@ func TestService_handleEvidence(t *testing.T) {
 		1)
 	assert.NoError(t, err)
 	slog.Info("Sent evidence", slog.Any("id", e.Id))
+}
+
+func TestService_StoreEvidence(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		req *connect.Request[evidence.StoreEvidenceRequest]
+	}
+	type fields struct {
+		svc *Service
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evidence.StoreEvidenceResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "Error - Validation fails",
+			args: args{
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{Evidence: nil}},
+			},
+			fields: fields{
+				svc: nil, // service isn't needed; validating arg errors only
+			},
+			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: func(t *testing.T, err error) bool {
+				return assert.NotNil(t, err)
+			},
+		},
+		{
+			name: "Error creating evidence - already exists",
+		},
+		{
+			name: "Error creating evidence - internal",
+		},
+		{
+			name: "Error saving resource - internal",
+		},
+		{
+			name: "Happy path",
+			args: args{
+				ctx: nil,
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
+					Evidence: &evidence.Evidence{Id: uuid.NewString()},
+				}},
+			},
+			fields: fields{svc: &Service{
+				db:                   persistencetest.NewInMemoryDB(t, types, nil, nil),
+				streamMu:             sync.Mutex{},
+				assessmentConfig:     assessmentConfig{},
+				channelEvidence:      nil,
+				evidenceHooks:        nil,
+				mu:                   sync.Mutex{},
+				EvidenceStoreHandler: nil,
+			}},
+		},
+	}
+	// TODO(lebogg): Check if we can create this service
+	for _, tt := range tests {
+		res, err := tt.fields.svc.StoreEvidence(tt.args.ctx, tt.args.req)
+		tt.wantErr(t, err)
+		tt.want(t, res)
+	}
 }
