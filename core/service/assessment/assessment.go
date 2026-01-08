@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"sync"
@@ -127,6 +128,7 @@ func WithRegoPackageName(pkg string) service.Option[*Service] {
 }
 
 // NewService creates a new assessment service with default values.
+// TODO: should return assessmentconnect.AssessmentHandler?
 func NewService(opts ...service.Option[*Service]) *Service {
 	svc := &Service{
 		orchestratorConfig: orchestratorConfig{
@@ -181,6 +183,45 @@ func (svc *Service) createOrchestratorStreamFactory() stream.StreamFactory[orche
 	return func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)
 	}
+}
+
+func (svc *Service) AssessEvidenceStream(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
+	var (
+		req *assessment.AssessEvidenceRequest
+		res *assessment.AssessEvidencesResponse
+		err error
+	)
+
+	for {
+		req, err = stream.Receive()
+		// If no more input of the stream is available, return
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		if err != nil {
+			err = fmt.Errorf("cannot receive stream request: %w", err)
+			slog.Error(err.Error())
+			return connect.NewError(connect.CodeUnknown, err)
+		}
+		assessmentReq := connect.NewRequest(&assessment.AssessEvidenceRequest{
+			Evidence: req.Evidence,
+		})
+
+		_, err = svc.AssessEvidence(ctx, assessmentReq)
+		if err != nil {
+			slog.Error("AssessEvidenceStream: could not assess evidence:", "error", err)
+			res = &assessment.AssessEvidencesResponse{
+				Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
+			}
+		}
+
+		err = stream.Send(res)
+		if err != nil {
+			slog.Error("AssessEvidenceStream: could not send response:", slog.Any("error", err))
+		}
+	}
+
+	return err
 }
 
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence

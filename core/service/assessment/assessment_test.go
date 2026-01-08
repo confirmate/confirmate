@@ -25,9 +25,11 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/policies"
+	"confirmate.io/core/stream"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
@@ -105,7 +107,6 @@ func TestNewService(t *testing.T) {
 
 func TestService_AssessEvidence(t *testing.T) {
 	type fields struct {
-		// orchestrator        *api.orchestratorconnect[orchestrator.OrchestratorClient]
 		evidenceResourceMap map[string]*evidence.Evidence
 	}
 	type args struct {
@@ -330,6 +331,151 @@ func TestService_AssessEvidence(t *testing.T) {
 			res, err := s.AssessEvidence(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+		})
+	}
+}
+
+func TestService_AssessEvidenceStream(t *testing.T) {
+	type args struct {
+		stream *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+		req    *assessment.AssessEvidenceRequest
+	}
+	type fields struct {
+		svc *Service
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*assessment.AssessEvidencesResponse]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "Missing toolId",
+			args: args{
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						Timestamp:            timestamppb.Now(),
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *assessment.AssessEvidencesResponse, args ...any) bool {
+				assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED, got.Status)
+				return assert.Contains(t, got.StatusMessage, "evidence.tool_id: value length must be at least 1 characters")
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Missing evidenceID",
+			args: args{
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Timestamp:            timestamppb.Now(),
+						ToolId:               testdata.MockEvidenceToolID1,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
+					},
+				},
+			},
+			wantErr: assert.NoError,
+			want: func(t *testing.T, got *assessment.AssessEvidencesResponse, args ...any) bool {
+				assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED, got.Status)
+				return assert.Contains(t, got.StatusMessage, "evidence.id: value is empty, which is not a valid UUID")
+			},
+		},
+		{
+			name: "Assess evidences",
+			args: args{
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Id:                   testdata.MockEvidenceID1,
+						Timestamp:            timestamppb.Now(),
+						ToolId:               testdata.MockEvidenceToolID1,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+							Id:   testdata.MockVirtualMachineID1,
+							Name: testdata.MockVirtualMachineName1,
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *assessment.AssessEvidencesResponse, args ...any) bool {
+				assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED, got.Status)
+				return assert.Empty(t, got.Status)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Error in stream to client - Send()-err",
+			args: args{
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Timestamp:            timestamppb.Now(),
+						ToolId:               testdata.MockEvidenceToolID1,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
+					},
+				},
+			},
+			want: assert.Nil[*assessment.AssessEvidencesResponse],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "rpc error: code = Unknown desc = cannot send response to the client")
+			},
+		},
+		{
+			name: "Error in stream to server - Recv()-err",
+			args: args{
+				req: &assessment.AssessEvidenceRequest{
+					Evidence: &evidence.Evidence{
+						Timestamp:            timestamppb.Now(),
+						ToolId:               testdata.MockEvidenceToolID1,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
+					},
+				},
+			},
+			want: assert.Nil[*assessment.AssessEvidencesResponse],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "rpc error: code = Unknown desc = cannot receive stream request")
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create service
+			svc := NewService()
+
+			// Create an initial test server
+			_, testSrv1 := servertest.NewTestConnectServer(t,
+				server.WithHandler(
+					assessmentconnect.NewAssessmentHandler(svc),
+				),
+			)
+			serverURL := testSrv1.URL
+
+			// Retrieve port, so we can restart the server later on the same port
+			// port := testSrv1.Listener.Addr().(*net.TCPAddr).Port
+
+			httpClient := testSrv1.Client()
+
+			client := assessmentconnect.NewAssessmentClient(httpClient, serverURL)
+			factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
+				return client.AssessEvidenceStream(ctx)
+			}
+			ctx := context.Background()
+			rs, err := stream.NewRestartableBidiStream(ctx, factory, stream.DefaultRestartConfig())
+			assert.NoError(t, err)
+
+			err = rs.Send(tt.args.req)
+			// err := tt.fields.svc.AssessEvidenceStream(context.Background(), tt.args.stream)
+			tt.wantErr(t, err)
+
+			res, err := rs.Receive()
+			// TODO: only handle the last response?
+			tt.want(t, res)
 		})
 	}
 }
