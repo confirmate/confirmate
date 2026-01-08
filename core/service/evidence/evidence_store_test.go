@@ -15,6 +15,7 @@ import (
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
@@ -83,7 +84,8 @@ func TestNewService(t *testing.T) {
 				WithAssessmentConfig(assessmentConfig{
 					targetAddress: "localhost:9091",
 					client:        nil,
-				})}},
+				}),
+			}},
 			want: func(t *testing.T, got *Service) bool {
 				// We didn't provide a client, so it should be the default (timeout is zero value)
 				assert.Equal(t, 0, got.assessmentConfig.client.Timeout)
@@ -97,7 +99,8 @@ func TestNewService(t *testing.T) {
 				WithAssessmentConfig(assessmentConfig{
 					targetAddress: "localhost:9091",
 					client:        &http.Client{Timeout: time.Duration(1)},
-				})}},
+				}),
+			}},
 			want: func(t *testing.T, got *Service) bool {
 				// We provided a client with timeout set to 1 second
 				assert.Equal(t, 1, got.assessmentConfig.client.Timeout)
@@ -227,12 +230,41 @@ func TestService_StoreEvidence(t *testing.T) {
 				return assert.Equal(t, connect.CodeAlreadyExists, connect.CodeOf(err))
 			},
 		},
-		//{
-		//	name: "Error creating evidence - internal",
-		//},
-		//{
-		//	name: "Error saving resource - internal",
-		//},
+		{
+			name: "Error creating evidence - internal",
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
+					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+				}},
+			},
+			fields: fields{svc: NewTestServiceWithErrors(t, &StorageWithError{
+				CreateErr:          persistence.ErrDatabase,
+				FailOnCreateSchema: "Evidence",
+			})},
+			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+			},
+		},
+		{
+			name: "Error saving resource - internal",
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
+					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+				}},
+			},
+			fields: fields{svc: NewTestServiceWithErrors(t, &StorageWithError{
+				// Fail only Resource create inside Save(), not Evidence create
+				CreateErr:          persistence.ErrDatabase,
+				FailOnCreateSchema: "Resource",
+			})},
+			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+			},
+		},
 		{
 			name: "Happy path - create new resource",
 			args: args{
