@@ -37,8 +37,6 @@ import (
 	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
@@ -210,6 +208,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
+	// TODO(lebogg): errors.Is should work since it should returned in Create
 	if err != nil && (strings.Contains(err.Error(), persistence.ErrUniqueConstraintFailed.Error()) || strings.Contains(err.Error(), persistence.ErrPrimaryKeyViolation.Error())) {
 		return nil, connect.NewError(connect.CodeAlreadyExists, persistence.ErrEntryAlreadyExists)
 	} else if err != nil {
@@ -226,16 +225,21 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
 		// TODO(lebogg): use buf errors
-		slog.Error("Could not convert proto resource to DB resource", slog.Any("Evidence", req.Msg.Evidence.Id), slog.Any("Error", err))
-		return nil, status.Errorf(codes.Internal, "could not convert resource: %v", err)
+		slog.Error("Could not convert proto resource to DB resource",
+			slog.Any("Evidence", req.Msg.Evidence.Id),
+			slog.Any("Error", err))
+		// Only reveal limited information about the error to the client
+		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
 	}
 	// Persist the latest state of the resource
 	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I assume we can remove conds.
 	err = svc.db.Save(r, "id = ?", r.Id)
 	if err != nil {
 		// TODO(lebogg): use buf errors
-		slog.Error("Could not save resource to storage", slog.Any("Resource", r.Id), slog.Any("err", err))
-		return nil, status.Errorf(codes.Internal, "%v: %v", persistence.ErrDatabase, err)
+		slog.Error("Could not save resource to DB",
+			slog.Any("Resource", r.Id),
+			slog.Any("err", err))
+		return nil, connect.NewError(connect.CodeInternal, persistence.ErrDatabase)
 	}
 
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
@@ -244,7 +248,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// without waiting for the evidence to be processed.
 	svc.channelEvidence <- req.Msg.Evidence
 
-	slog.Debug("received and handled store evidence request", slog.Any("evidence ID", req.Msg.Evidence.Id))
+	slog.Debug("received and handled store evidence request",
+		slog.Any("evidence ID", req.Msg.Evidence.Id))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
 }
@@ -359,16 +364,23 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	// Validate request
 	err = protovalidate.Validate(req.Msg)
 	if err != nil {
+		// TODO(lebogg): Create issue for uniform slog usage (in particular with API endpoints)
+		slog.Error("Evidence invalid (GetEvidence)",
+			slog.String("evidence_id", req.Msg.EvidenceId),
+			slog.Any("error", err))
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
 	err = svc.db.Get(res.Msg, conds...)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
-		// TODO(lebogg): use buf errors
-		return nil, status.Errorf(codes.NotFound, "evidence not found")
+		slog.Error("Evidence not found (GetEvidence)",
+			slog.String("evidence_id", req.Msg.EvidenceId))
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("evidence not found"))
 	} else if err != nil {
-		// TODO(lebogg): use buf errors
-		return nil, status.Errorf(codes.Internal, "database error: %v", err)
+		slog.Error("Database error (GetEvidence)",
+			slog.String("evidence_id", req.Msg.EvidenceId),
+			slog.Any("error", err))
+		return nil, connect.NewError(connect.CodeInternal, errors.New("database error"))
 	}
 
 	return
