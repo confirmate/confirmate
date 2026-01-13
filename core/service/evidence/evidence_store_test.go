@@ -278,6 +278,20 @@ func TestService_StoreEvidence(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "error - nil resource",
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
+					Evidence: evidencetest.MockEvidenceNoResource,
+				}},
+			},
+			fields: fields{svc: NewTestService(t, nil)},
+			want:   assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			wantErr: func(t assert2.TestingT, err error, i ...interface{}) bool {
+				return assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+			},
+		},
+		{
 			name: "Happy path - updating resource",
 			args: args{
 				ctx: context.Background(),

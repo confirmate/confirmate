@@ -34,6 +34,13 @@ var (
 			},
 		}},
 	}
+	MockEvidenceNoResource = &evidence.Evidence{
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		TargetOfEvaluationId: uuid.NewString(),
+		ToolId:               "MockTool1",
+		Resource:             nil,
+	}
 )
 var InitDBWithEvidence = func(db *persistence.DB) {
 	err := db.Create(MockEvidence1)
