@@ -11,7 +11,6 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -123,7 +122,7 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 				Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 				ChangeType:           orchestrator.ChangeType_CHANGE_TYPE_CREATED,
 				EntityId:             "metric-1",
-				TargetOfEvaluationId: util.Ref("11111111-1111-1111-1111-111111111111"),
+				TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
 			},
 			wantErr: false,
 		},

@@ -30,9 +30,9 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
+	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v3"
@@ -383,7 +383,7 @@ func (svc *Service) UpdateMetricConfiguration(
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
 		ChangeType:           orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
 		EntityId:             config.MetricId,
-		TargetOfEvaluationId: util.Ref(config.TargetOfEvaluationId),
+		TargetOfEvaluationId: config.TargetOfEvaluationId,
 		Entity: &orchestrator.ChangeEvent_MetricConfiguration{
 			MetricConfiguration: config,
 		},
@@ -393,29 +393,33 @@ func (svc *Service) UpdateMetricConfiguration(
 	return
 }
 
-// loadMetrics loads metric definitions from configured sources.
-// It loads metrics from:
-// 1. DefaultMetricsPath (if LoadDefaultMetrics is true) - typically the security-metrics repository
-// 2. LoadMetricsFunc (if provided) for additional custom metrics
+// loadMetrics loads metric definitions from the security-metrics repository and/or custom metrics folder.
+// It follows the same pattern as the old Clouditor code:
+// - If IgnoreDefaultMetrics is false (default), load metrics from the security-metrics submodule
+// - If MetricsFolder is set, also load metrics from that custom folder
+// - If IgnoreDefaultMetrics is true and no MetricsFolder is set, return an error
 func (svc *Service) loadMetrics() (err error) {
 	var metrics []*assessment.Metric
 
-	// Load default metrics from repository if enabled
-	if svc.cfg.LoadDefaultMetrics {
-		defaultMetrics, err := svc.loadMetricsFromRepository()
-		if err != nil {
-			return fmt.Errorf("could not load default metrics: %w", err)
-		}
-		metrics = append(metrics, defaultMetrics...)
+	if svc.cfg.IgnoreDefaultMetrics && svc.cfg.AdditionalMetricsPath == "" {
+		return fmt.Errorf("no metrics specified to load: either set additional-metrics-path or disable ignore-default-metrics")
 	}
 
-	// Load additional metrics from custom function if provided
-	if svc.cfg.LoadMetricsFunc != nil {
-		additionalMetrics, err := svc.cfg.LoadMetricsFunc(svc)
+	// Load default metrics from security-metrics repository if not ignored
+	if !svc.cfg.IgnoreDefaultMetrics {
+		metrics, err = svc.loadMetricsFromRepository()
 		if err != nil {
-			return fmt.Errorf("could not load additional metrics: %w", err)
+			return fmt.Errorf("could not load metrics from security-metrics: %w", err)
 		}
-		metrics = append(metrics, additionalMetrics...)
+	}
+
+	// Load custom metrics from external folder if specified
+	if svc.cfg.AdditionalMetricsPath != "" {
+		externalMetrics, err := svc.loadMetricsFromFolder(svc.cfg.AdditionalMetricsPath)
+		if err != nil {
+			return fmt.Errorf("could not load metrics from folder: %w", err)
+		}
+		metrics = append(metrics, externalMetrics...)
 	}
 
 	// Save all metrics to DB (only if we have any)
@@ -515,4 +519,38 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 	defaultMetricConfigurations[m.Id] = config
 
 	return nil
+}
+
+// loadMetricsFromFolder loads metric definitions from JSON files in a custom folder.
+func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.Metric, err error) {
+	metrics = make([]*assessment.Metric, 0)
+
+	// Get all filenames
+	files, err := os.ReadDir(folder)
+	if err != nil {
+		return nil, fmt.Errorf("could not read metrics folder: %w", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() || filepath.Ext(file.Name()) != ".json" {
+			continue
+		}
+
+		var metricsFromFile []*assessment.Metric
+		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
+		if err != nil {
+			slog.Warn("could not read metrics file", "file", file.Name(), tint.Err(err))
+			continue
+		}
+
+		err = json.Unmarshal(b, &metricsFromFile)
+		if err != nil {
+			slog.Warn("could not unmarshal metrics file", "file", file.Name(), tint.Err(err))
+			continue
+		}
+
+		metrics = append(metrics, metricsFromFile...)
+	}
+
+	return metrics, nil
 }

@@ -251,47 +251,31 @@ func (svc *Service) GetControl(
 	return
 }
 
-// loadCatalogs loads catalog definitions from configured sources.
-// It loads catalogs from:
-// 1. DefaultCatalogsPath (if LoadDefaultCatalogs is true)
-// 2. LoadCatalogsFunc (if provided) for additional custom catalogs
+// loadCatalogs loads catalog definitions from a JSON file.
 func (svc *Service) loadCatalogs() (err error) {
 	var catalogs []*orchestrator.Catalog
 
-	// Load default catalogs from folder if enabled
-	if svc.cfg.LoadDefaultCatalogs {
-		defaultCatalogs, err := svc.loadCatalogsFromFolder(svc.cfg.DefaultCatalogsPath)
-		if err != nil {
-			return fmt.Errorf("could not load default catalogs: %w", err)
-		}
-		catalogs = append(catalogs, defaultCatalogs...)
+	if svc.cfg.LoadCatalogsFunc == nil {
+		return nil
 	}
 
-	// Load additional catalogs from custom function if provided
-	if svc.cfg.LoadCatalogsFunc != nil {
-		additionalCatalogs, err := svc.cfg.LoadCatalogsFunc(svc)
-		if err != nil {
-			return fmt.Errorf("could not load additional catalogs: %w", err)
-		}
-		catalogs = append(catalogs, additionalCatalogs...)
+	catalogs, err = svc.cfg.LoadCatalogsFunc(svc)
+	if err != nil {
+		return fmt.Errorf("could not load catalogs: %w", err)
 	}
 
-	// Save all catalogs to DB (only if we have any)
-	if len(catalogs) > 0 {
-		return svc.db.Save(catalogs)
-	}
-
-	return nil
+	// Save to DB
+	return svc.db.Save(catalogs)
 }
 
-// loadCatalogsFromFolder loads catalogs from a specified folder.
-func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestrator.Catalog, err error) {
-	if folder == "" {
+// loadEmbeddedCatalogs loads catalogs from the configured catalogs folder.
+func loadEmbeddedCatalogs(svc *Service) (catalogs []*orchestrator.Catalog, err error) {
+	if svc.cfg.CatalogsFolder == "" {
 		return nil, nil
 	}
 
 	// Get all filenames
-	files, err := os.ReadDir(folder)
+	files, err := os.ReadDir(svc.cfg.CatalogsFolder)
 	if err != nil {
 		return nil, fmt.Errorf("could not read catalogs folder: %w", err)
 	}
@@ -302,7 +286,7 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 		}
 
 		var catalogsFromFile []*orchestrator.Catalog
-		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
+		b, err := os.ReadFile(filepath.Join(svc.cfg.CatalogsFolder, file.Name()))
 		if err != nil {
 			slog.Warn("Failed to read catalog file, skipping", "file", file.Name(), "error", err)
 			continue

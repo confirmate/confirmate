@@ -43,7 +43,6 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -65,45 +64,6 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 					assert.NotNil(t, got.Msg.UpdatedAt)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
-				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
-				assert.NotNil(t, res)
-
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
-				assert.Equal(t, "test-toe", toe.Name)
-				return true
-			},
-		},
-		{
-			name: "validation error - empty request",
-			args: args{
-				req: &orchestrator.CreateTargetOfEvaluationRequest{},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-			},
-			wantDB: assert.NotNil[*persistence.DB],
-		},
-		{
-			name: "validation error - missing name",
-			args: args{
-				req: &orchestrator.CreateTargetOfEvaluationRequest{
-					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{},
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.IsValidationError(t, err, "target_of_evaluation.name")
-			},
-			wantDB: assert.NotNil[*persistence.DB],
 		},
 	}
 
@@ -115,7 +75,6 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			res, err := svc.CreateTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
-			tt.wantDB(t, tt.fields.db, res)
 		})
 	}
 }
@@ -152,19 +111,6 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
-		},
-		{
-			name: "validation error - empty request",
-			args: args{
-				req: &orchestrator.GetTargetOfEvaluationRequest{},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-			},
 		},
 		{
 			name: "not found",
@@ -254,7 +200,6 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -277,47 +222,6 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 					assert.Equal(t, "updated-name", got.Msg.Name)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
-				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
-				assert.NotNil(t, res)
-
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
-				assert.Equal(t, "updated-name", toe.Name)
-				return true
-			},
-		},
-		{
-			name: "validation error - empty request",
-			args: args{
-				req: &orchestrator.UpdateTargetOfEvaluationRequest{},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-			},
-			wantDB: assert.NotNil[*persistence.DB],
-		},
-		{
-			name: "validation error - missing id",
-			args: args{
-				req: &orchestrator.UpdateTargetOfEvaluationRequest{
-					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
-						Name: "updated-name",
-					},
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.IsValidationError(t, err, "target_of_evaluation.id")
-			},
-			wantDB: assert.NotNil[*persistence.DB],
 		},
 		{
 			name: "not found",
@@ -336,7 +240,6 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "target of evaluation not found")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
 		},
 	}
 
@@ -348,7 +251,6 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			res, err := svc.UpdateTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
-			tt.wantDB(t, tt.fields.db, res)
 		})
 	}
 }
@@ -366,7 +268,6 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[emptypb.Empty]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -385,32 +286,6 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 				return assert.NotNil(t, got.Msg)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
-				res := assert.Is[*connect.Response[emptypb.Empty]](t, msgAndArgs[0])
-				assert.NotNil(t, res)
-
-				// Verify entity was deleted
-				var toe orchestrator.TargetOfEvaluation
-				err := db.Get(&toe, "id = ?", orchestratortest.MockTargetOfEvaluation1.Id)
-				assert.ErrorIs(t, err, persistence.ErrRecordNotFound)
-				return true
-			},
-		},
-		{
-			name: "validation error - empty request",
-			args: args{
-				req: &orchestrator.RemoveTargetOfEvaluationRequest{},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[emptypb.Empty]],
-			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-			},
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
-				return true
-			},
 		},
 	}
 
@@ -422,7 +297,6 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 			res, err := svc.RemoveTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
-			tt.wantDB(t, tt.fields.db, res)
 		})
 	}
 }
@@ -474,20 +348,6 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 					assert.Equal(t, int64(1), got.Msg.NumberOfSelectedCatalogs)
 			},
 			wantErr: assert.NoError,
-		},
-		{
-			name: "validation error - empty request",
-			args: args{
-				req: &orchestrator.GetTargetOfEvaluationStatisticsRequest{},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse]],
-			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.IsValidationError(t, err, "target_of_evaluation_id")
-			},
 		},
 	}
 

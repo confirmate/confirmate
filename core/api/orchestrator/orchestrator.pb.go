@@ -1743,9 +1743,9 @@ type ChangeEvent struct {
 	ChangeType ChangeType `protobuf:"varint,3,opt,name=change_type,json=changeType,proto3,enum=confirmate.orchestrator.v1.ChangeType" json:"change_type,omitempty"`
 	// Entity ID (always present for reference)
 	EntityId string `protobuf:"bytes,4,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
-	// TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes).
-	// When present, should be a valid UUID.
-	TargetOfEvaluationId *string `protobuf:"bytes,5,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3,oneof" json:"target_of_evaluation_id,omitempty"`
+	// Optional: target of evaluation ID (for metric configuration changes)
+	// When present, should be a valid UUID
+	TargetOfEvaluationId string `protobuf:"bytes,5,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	// The actual entity data (optional, may be omitted for DELETED events)
 	//
 	// Types that are valid to be assigned to Entity:
@@ -1821,8 +1821,8 @@ func (x *ChangeEvent) GetEntityId() string {
 }
 
 func (x *ChangeEvent) GetTargetOfEvaluationId() string {
-	if x != nil && x.TargetOfEvaluationId != nil {
-		return *x.TargetOfEvaluationId
+	if x != nil {
+		return x.TargetOfEvaluationId
 	}
 	return ""
 }
@@ -4726,15 +4726,15 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"operations\x12\x1d\n" +
 	"\n" +
 	"metric_ids\x18\x03 \x03(\tR\tmetricIds\x127\n" +
-	"\x18target_of_evaluation_ids\x18\x04 \x03(\tR\x15targetOfEvaluationIds\"\x97\b\n" +
+	"\x18target_of_evaluation_ids\x18\x04 \x03(\tR\x15targetOfEvaluationIds\"\xf6\a\n" +
 	"\vChangeEvent\x12k\n" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12R\n" +
 	"\bcategory\x18\x02 \x01(\x0e2).confirmate.orchestrator.v1.EventCategoryB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\bcategory\x12T\n" +
 	"\vchange_type\x18\x03 \x01(\x0e2&.confirmate.orchestrator.v1.ChangeTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\n" +
 	"changeType\x12'\n" +
 	"\tentity_id\x18\x04 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bentityId\x12:\n" +
-	"\x17target_of_evaluation_id\x18\x05 \x01(\tH\x01R\x14targetOfEvaluationId\x88\x01\x01\x12:\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bentityId\x125\n" +
+	"\x17target_of_evaluation_id\x18\x05 \x01(\tR\x14targetOfEvaluationId\x12:\n" +
 	"\x06metric\x18\n" +
 	" \x01(\v2 .confirmate.assessment.v1.MetricH\x00R\x06metric\x12b\n" +
 	"\x14target_of_evaluation\x18\v \x01(\v2..confirmate.orchestrator.v1.TargetOfEvaluationH\x00R\x12targetOfEvaluation\x12I\n" +
@@ -4744,8 +4744,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x14metric_configuration\x18\x0e \x01(\v2-.confirmate.assessment.v1.MetricConfigurationH\x00R\x13metricConfiguration\x12e\n" +
 	"\x15metric_implementation\x18\x0f \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x00R\x14metricImplementation\x12U\n" +
 	"\x0fassessment_tool\x18\x10 \x01(\v2*.confirmate.orchestrator.v1.AssessmentToolH\x00R\x0eassessmentToolB\b\n" +
-	"\x06entityB\x1a\n" +
-	"\x18_target_of_evaluation_id\"\xc5\x01\n" +
+	"\x06entity\"\xc5\x01\n" +
 	"\x0eAssessmentTool\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +

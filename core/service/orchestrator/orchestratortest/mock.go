@@ -1,8 +1,6 @@
 package orchestratortest
 
 import (
-	"strconv"
-
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
@@ -29,26 +27,24 @@ const (
 
 // Mock string IDs for consistent testing
 const (
-	MockMetricID1        = "metric-1"
-	MockMetricID2        = "metric-2"
-	MockMetricID3        = "metric-3"
-	MockMetricIDDefault  = "metric-default"
-	MockCatalogID1       = "catalog-1"
-	MockCatalogID2       = "catalog-2"
-	MockCategoryName1    = "category-1"
-	MockCategoryName2    = "category-2"
-	MockControlID1       = "control-1"
-	MockControlID2       = "control-2"
-	MockCertificateID1   = "certificate-1"
-	MockCertificateID2   = "certificate-2"
-	MockResourceID1      = "resource-1"
-	MockResourceID2      = "resource-2"
-	MockResourceIDNew    = "resource-new"
-	MockResourceID3      = "resource-3"
-	MockToolID1          = "tool-1"
-	MockToolIDConcurrent = "tool-concurrent"
-	MockTestCategory     = "test-category"
-	MockDefaultVersion   = "1.0.0"
+	MockMetricID1       = "metric-1"
+	MockMetricID2       = "metric-2"
+	MockMetricID3       = "metric-3"
+	MockMetricIDDefault = "metric-default"
+	MockCatalogID1      = "catalog-1"
+	MockCatalogID2      = "catalog-2"
+	MockCategoryName1   = "category-1"
+	MockCategoryName2   = "category-2"
+	MockControlID1      = "control-1"
+	MockControlID2      = "control-2"
+	MockCertificateID1  = "certificate-1"
+	MockCertificateID2  = "certificate-2"
+	MockResourceID1     = "resource-1"
+	MockResourceID2     = "resource-2"
+	MockResourceIDNew   = "resource-new"
+	MockToolID1         = "tool-1"
+	MockTestCategory    = "test-category"
+	MockDefaultVersion  = "1.0.0"
 )
 
 var (
@@ -249,81 +245,4 @@ var (
 			},
 		},
 	}
-
-	// MockAssessmentResult3 for integration testing - can be reused for additional result in streams
-	MockAssessmentResult3 = &assessment.AssessmentResult{
-		Id:                   "00000000-0000-0000-0003-000000000005",
-		CreatedAt:            timestamppb.Now(),
-		MetricId:             MockMetricID3,
-		MetricConfiguration:  MockMetricConfiguration3,
-		Compliant:            true,
-		EvidenceId:           MockEvidenceID1,
-		ResourceId:           MockResourceID3,
-		ResourceTypes:        []string{"compute"},
-		ComplianceComment:    "Third resource test",
-		TargetOfEvaluationId: MockToeID1,
-		ToolId:               util.Ref(MockToolID1),
-		HistoryUpdatedAt:     timestamppb.Now(),
-		History: []*assessment.Record{
-			{
-				EvidenceId:         MockEvidenceID1,
-				EvidenceRecordedAt: timestamppb.Now(),
-			},
-		},
-	}
-
-	// MockAssessmentResultForDuplicate - result with ID that can be pre-created to test duplicate errors
-	MockAssessmentResultForDuplicate = &assessment.AssessmentResult{
-		Id:                   "00000000-0000-0000-0002-000000000004",
-		CreatedAt:            timestamppb.Now(),
-		MetricId:             MockMetricID2,
-		MetricConfiguration:  MockMetricConfiguration2,
-		Compliant:            false,
-		EvidenceId:           MockEvidenceID2,
-		ResourceId:           MockResourceID2,
-		ResourceTypes:        []string{"vm"},
-		ComplianceComment:    "Duplicate test",
-		TargetOfEvaluationId: MockToeID1,
-		ToolId:               util.Ref(MockToolID1),
-		HistoryUpdatedAt:     timestamppb.Now(),
-		History: []*assessment.Record{
-			{
-				EvidenceId:         MockEvidenceID2,
-				EvidenceRecordedAt: timestamppb.Now(),
-			},
-		},
-	}
 )
-
-// NewMockAssessmentResultForConcurrentStream creates a unique assessment result for concurrent stream testing
-// with a unique ID based on the stream ID
-func NewMockAssessmentResultForConcurrentStream(streamID int) *assessment.AssessmentResult {
-	// Create a valid UUID by using stream ID as the last part
-	// Format: 00000000-0000-0000-00cc-0000000000XX where XX is the stream ID
-	idSuffix := strconv.Itoa(streamID)
-	if len(idSuffix) == 1 {
-		idSuffix = "0" + idSuffix
-	}
-	validUUID := "00000000-0000-0000-00cc-0000000000" + idSuffix
-
-	return &assessment.AssessmentResult{
-		Id:                   validUUID,
-		CreatedAt:            timestamppb.Now(),
-		MetricId:             MockMetricID1,
-		MetricConfiguration:  MockMetricConfiguration1,
-		Compliant:            true,
-		EvidenceId:           MockEvidenceID1,
-		ResourceId:           "resource-concurrent-" + idSuffix,
-		ResourceTypes:        []string{"compute"},
-		ComplianceComment:    "Concurrent stream test",
-		TargetOfEvaluationId: MockToeID1,
-		ToolId:               util.Ref(MockToolIDConcurrent),
-		HistoryUpdatedAt:     timestamppb.Now(),
-		History: []*assessment.Record{
-			{
-				EvidenceId:         MockEvidenceID1,
-				EvidenceRecordedAt: timestamppb.Now(),
-			},
-		},
-	}
-}
