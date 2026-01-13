@@ -35,7 +35,6 @@ var types = []any{
 	&assessment.AssessmentResult{},
 	&assessment.Metric{},
 	&assessment.MetricImplementation{},
-	&assessment.AssessmentResult{},
 }
 
 // joinTables defines the [MetricConfiguration] as a custom join table between
