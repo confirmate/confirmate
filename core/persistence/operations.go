@@ -72,9 +72,8 @@ func (s *DB) Update(r any, conds ...any) (err error) {
 	if err = db.Error; err != nil { // db error
 		if strings.Contains(err.Error(), "constraint failed") {
 			return ErrConstraintFailed
-		} else {
-			return err
 		}
+		return err
 	}
 
 	// No record with given ID found

@@ -124,9 +124,8 @@ const (
 	// OrchestratorGetMetricImplementationProcedure is the fully-qualified name of the Orchestrator's
 	// GetMetricImplementation RPC.
 	OrchestratorGetMetricImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetMetricImplementation"
-	// OrchestratorSubscribeMetricChangeEventsProcedure is the fully-qualified name of the
-	// Orchestrator's SubscribeMetricChangeEvents RPC.
-	OrchestratorSubscribeMetricChangeEventsProcedure = "/confirmate.orchestrator.v1.Orchestrator/SubscribeMetricChangeEvents"
+	// OrchestratorSubscribeProcedure is the fully-qualified name of the Orchestrator's Subscribe RPC.
+	OrchestratorSubscribeProcedure = "/confirmate.orchestrator.v1.Orchestrator/Subscribe"
 	// OrchestratorCreateCertificateProcedure is the fully-qualified name of the Orchestrator's
 	// CreateCertificate RPC.
 	OrchestratorCreateCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateCertificate"
@@ -245,7 +244,8 @@ type OrchestratorClient interface {
 	UpdateMetricImplementation(context.Context, *connect.Request[orchestrator.UpdateMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
 	// Returns the metric implementation of the passed metric id
 	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
-	SubscribeMetricChangeEvents(context.Context, *connect.Request[orchestrator.SubscribeMetricChangeEventRequest]) (*connect.ServerStreamForClient[orchestrator.MetricChangeEvent], error)
+	// Subscribes to change events in the orchestrator
+	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest]) (*connect.ServerStreamForClient[orchestrator.ChangeEvent], error)
 	// Creates a new certificate
 	CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
 	// Retrieves a certificate
@@ -458,10 +458,10 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("GetMetricImplementation")),
 			connect.WithClientOptions(opts...),
 		),
-		subscribeMetricChangeEvents: connect.NewClient[orchestrator.SubscribeMetricChangeEventRequest, orchestrator.MetricChangeEvent](
+		subscribe: connect.NewClient[orchestrator.SubscribeRequest, orchestrator.ChangeEvent](
 			httpClient,
-			baseURL+OrchestratorSubscribeMetricChangeEventsProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("SubscribeMetricChangeEvents")),
+			baseURL+OrchestratorSubscribeProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
 			connect.WithClientOptions(opts...),
 		),
 		createCertificate: connect.NewClient[orchestrator.CreateCertificateRequest, orchestrator.Certificate](
@@ -614,7 +614,7 @@ type orchestratorClient struct {
 	listMetricConfigurations        *connect.Client[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse]
 	updateMetricImplementation      *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
 	getMetricImplementation         *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
-	subscribeMetricChangeEvents     *connect.Client[orchestrator.SubscribeMetricChangeEventRequest, orchestrator.MetricChangeEvent]
+	subscribe                       *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
 	createCertificate               *connect.Client[orchestrator.CreateCertificateRequest, orchestrator.Certificate]
 	getCertificate                  *connect.Client[orchestrator.GetCertificateRequest, orchestrator.Certificate]
 	listCertificates                *connect.Client[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse]
@@ -765,10 +765,9 @@ func (c *orchestratorClient) GetMetricImplementation(ctx context.Context, req *c
 	return c.getMetricImplementation.CallUnary(ctx, req)
 }
 
-// SubscribeMetricChangeEvents calls
-// confirmate.orchestrator.v1.Orchestrator.SubscribeMetricChangeEvents.
-func (c *orchestratorClient) SubscribeMetricChangeEvents(ctx context.Context, req *connect.Request[orchestrator.SubscribeMetricChangeEventRequest]) (*connect.ServerStreamForClient[orchestrator.MetricChangeEvent], error) {
-	return c.subscribeMetricChangeEvents.CallServerStream(ctx, req)
+// Subscribe calls confirmate.orchestrator.v1.Orchestrator.Subscribe.
+func (c *orchestratorClient) Subscribe(ctx context.Context, req *connect.Request[orchestrator.SubscribeRequest]) (*connect.ServerStreamForClient[orchestrator.ChangeEvent], error) {
+	return c.subscribe.CallServerStream(ctx, req)
 }
 
 // CreateCertificate calls confirmate.orchestrator.v1.Orchestrator.CreateCertificate.
@@ -929,7 +928,8 @@ type OrchestratorHandler interface {
 	UpdateMetricImplementation(context.Context, *connect.Request[orchestrator.UpdateMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
 	// Returns the metric implementation of the passed metric id
 	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
-	SubscribeMetricChangeEvents(context.Context, *connect.Request[orchestrator.SubscribeMetricChangeEventRequest], *connect.ServerStream[orchestrator.MetricChangeEvent]) error
+	// Subscribes to change events in the orchestrator
+	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest], *connect.ServerStream[orchestrator.ChangeEvent]) error
 	// Creates a new certificate
 	CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
 	// Retrieves a certificate
@@ -1138,10 +1138,10 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("GetMetricImplementation")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorSubscribeMetricChangeEventsHandler := connect.NewServerStreamHandler(
-		OrchestratorSubscribeMetricChangeEventsProcedure,
-		svc.SubscribeMetricChangeEvents,
-		connect.WithSchema(orchestratorMethods.ByName("SubscribeMetricChangeEvents")),
+	orchestratorSubscribeHandler := connect.NewServerStreamHandler(
+		OrchestratorSubscribeProcedure,
+		svc.Subscribe,
+		connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorCreateCertificateHandler := connect.NewUnaryHandler(
@@ -1316,8 +1316,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorUpdateMetricImplementationHandler.ServeHTTP(w, r)
 		case OrchestratorGetMetricImplementationProcedure:
 			orchestratorGetMetricImplementationHandler.ServeHTTP(w, r)
-		case OrchestratorSubscribeMetricChangeEventsProcedure:
-			orchestratorSubscribeMetricChangeEventsHandler.ServeHTTP(w, r)
+		case OrchestratorSubscribeProcedure:
+			orchestratorSubscribeHandler.ServeHTTP(w, r)
 		case OrchestratorCreateCertificateProcedure:
 			orchestratorCreateCertificateHandler.ServeHTTP(w, r)
 		case OrchestratorGetCertificateProcedure:
@@ -1467,8 +1467,8 @@ func (UnimplementedOrchestratorHandler) GetMetricImplementation(context.Context,
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) SubscribeMetricChangeEvents(context.Context, *connect.Request[orchestrator.SubscribeMetricChangeEventRequest], *connect.ServerStream[orchestrator.MetricChangeEvent]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.SubscribeMetricChangeEvents is not implemented"))
+func (UnimplementedOrchestratorHandler) Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest], *connect.ServerStream[orchestrator.ChangeEvent]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.Subscribe is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {

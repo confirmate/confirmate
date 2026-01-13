@@ -30,7 +30,14 @@ var OrchestratorCommand = &cli.Command{
 	Name:  "orchestrator",
 	Usage: "Launches the orchestrator service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := orchestrator.NewService()
+		svc, err := orchestrator.NewService(
+			orchestrator.WithConfig(orchestrator.Config{
+				CatalogsFolder:                  cmd.String("catalogs-folder"),
+				AdditionalMetricsPath:           cmd.String("additional-metrics-path"),
+				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
+				IgnoreDefaultMetrics:            cmd.Bool("ignore-default-metrics"),
+			}),
+		)
 		if err != nil {
 			return err
 		}
@@ -68,6 +75,25 @@ var OrchestratorCommand = &cli.Command{
 			Name:  "api-cors-allowed-headers",
 			Usage: "Specifies the headers allowed in CORS",
 			Value: server.DefaultConfig.CORS.AllowedHeaders,
+		},
+		&cli.StringFlag{
+			Name:  "catalogs-folder",
+			Usage: "The folder containing catalog definitions",
+			Value: orchestrator.DefaultConfig.CatalogsFolder,
+		},
+		&cli.StringFlag{
+			Name:  "additional-metrics-path",
+			Usage: "The path to a folder containing additional custom metric definitions",
+		},
+		&cli.BoolFlag{
+			Name:  "create-default-target-of-evaluation",
+			Usage: "Creates a default target of evaluation if none exists",
+			Value: orchestrator.DefaultConfig.CreateDefaultTargetOfEvaluation,
+		},
+		&cli.BoolFlag{
+			Name:  "ignore-default-metrics",
+			Usage: "Skips loading default metrics from the security-metrics submodule",
+			Value: orchestrator.DefaultConfig.IgnoreDefaultMetrics,
 		},
 	},
 }

@@ -1292,6 +1292,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/targets_of_evaluation/{configuration.target_of_evaluation_id}/metric_configurations/{configuration.metric_id}:
+        put:
+            tags:
+                - Orchestrator
+            description: |-
+                Updates a metric configuration (target value and operator) for a specific
+                 target of evaluation and metric ID
+            operationId: Orchestrator_UpdateMetricConfiguration
+            parameters:
+                - name: configuration.target_of_evaluation_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: configuration.metric_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MetricConfiguration'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MetricConfiguration'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/targets_of_evaluation/{targetOfEvaluationId}:
         get:
             tags:
@@ -1352,6 +1390,23 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -1384,43 +1439,6 @@ paths:
                   required: true
                   schema:
                     type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/MetricConfiguration'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        put:
-            tags:
-                - Orchestrator
-            description: |-
-                Updates a metric configuration (target value and operator) for a specific
-                 target of evaluation and metric ID
-            operationId: Orchestrator_UpdateMetricConfiguration
-            parameters:
-                - name: targetOfEvaluationId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: metricId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/MetricConfiguration'
-                required: true
             responses:
                 "200":
                     description: OK
@@ -1850,6 +1868,8 @@ components:
                     additionalProperties:
                         $ref: '#/components/schemas/MetricConfiguration'
                     description: A map of metric configurations associated by their metric ID
+                nextPageToken:
+                    type: string
         ListMetricsResponse:
             required:
                 - metrics
