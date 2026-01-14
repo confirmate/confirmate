@@ -26,16 +26,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"confirmate.io/core/api/assessment"
-	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
-	"confirmate.io/core/service"
-
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v3"
+
+	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 )
 
 var (

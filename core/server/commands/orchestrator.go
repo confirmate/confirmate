@@ -18,11 +18,11 @@ package commands
 import (
 	"context"
 
+	"github.com/urfave/cli/v3"
+
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
-
-	"github.com/urfave/cli/v3"
 )
 
 // OrchestratorCommand is the command to start the orchestrator server.

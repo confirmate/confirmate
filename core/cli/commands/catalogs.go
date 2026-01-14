@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/urfave/cli/v3"
 	"connectrpc.com/connect"
+	"github.com/urfave/cli/v3"
+
 	"confirmate.io/core/api/orchestrator"
 )
 

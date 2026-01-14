@@ -5,11 +5,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/urfave/cli/v3"
+
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
-	"github.com/urfave/cli/v3"
 )
 
 func TestToolsListCommand(t *testing.T) {
