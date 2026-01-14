@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/fatih/color"
@@ -9,7 +10,14 @@ import (
 	"github.com/urfave/cli/v3"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 )
+
+// OrchestratorClient returns an orchestrator client based on the addr flag.
+func OrchestratorClient(c *cli.Command) orchestratorconnect.OrchestratorClient {
+	return orchestratorconnect.NewOrchestratorClient(http.DefaultClient, c.Root().String("addr"))
+}
 
 // PrettyPrint prints a proto message as pretty-printed JSON to stdout.
 func PrettyPrint(msg proto.Message) error {

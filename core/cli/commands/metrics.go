@@ -3,11 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/urfave/cli/v3"
 	"connectrpc.com/connect"
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/api/orchestrator"
 )
 
@@ -17,7 +15,7 @@ func MetricsListCommand() *cli.Command {
 		Usage: "List all metrics",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.ListMetrics(ctx, connect.NewRequest(&orchestrator.ListMetricsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
@@ -42,7 +40,7 @@ func MetricsGetCommand() *cli.Command {
 			}
 			metricID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.GetMetric(ctx, connect.NewRequest(&orchestrator.GetMetricRequest{
 				MetricId: metricID,
 			}))
@@ -67,7 +65,7 @@ func MetricsDeleteCommand() *cli.Command {
 			}
 			metricID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			_, err := client.RemoveMetric(ctx, connect.NewRequest(&orchestrator.RemoveMetricRequest{
 				MetricId: metricID,
 			}))

@@ -3,11 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/urfave/cli/v3"
 	"connectrpc.com/connect"
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/api/orchestrator"
 )
 
@@ -17,7 +15,7 @@ func CatalogsListCommand() *cli.Command {
 		Usage: "List all catalogs",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.ListCatalogs(ctx, connect.NewRequest(&orchestrator.ListCatalogsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
@@ -41,7 +39,7 @@ func CatalogsGetCommand() *cli.Command {
 			}
 			catalogID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
 				CatalogId: catalogID,
 			}))
@@ -65,7 +63,7 @@ func CatalogsDeleteCommand() *cli.Command {
 			}
 			catalogID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			_, err := client.RemoveCatalog(ctx, connect.NewRequest(&orchestrator.RemoveCatalogRequest{
 				CatalogId: catalogID,
 			}))

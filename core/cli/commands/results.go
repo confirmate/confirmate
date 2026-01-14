@@ -3,11 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/urfave/cli/v3"
 	"connectrpc.com/connect"
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/api/orchestrator"
 )
 
@@ -56,7 +54,7 @@ func ResultsListCommand() *cli.Command {
 				req.Filter = filter
 			}
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.ListAssessmentResults(ctx, connect.NewRequest(req))
 			if err != nil {
 				return err
@@ -77,7 +75,7 @@ func ResultsGetCommand() *cli.Command {
 			}
 			resultID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.GetAssessmentResult(ctx, connect.NewRequest(&orchestrator.GetAssessmentResultRequest{
 				Id: resultID,
 			}))

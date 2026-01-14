@@ -12,9 +12,17 @@ import (
 
 func main() {
 	cmd := &cli.Command{
-		Name:                   "cf",
-		Usage:                  "Confirmate Orchestrator CLI",
-		EnableShellCompletion:  true,
+		Name:                  "cf",
+		Usage:                 "Confirmate Orchestrator CLI",
+		EnableShellCompletion: true,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "addr",
+				Usage:   "Orchestrator server address",
+				Value:   "http://localhost:8080",
+				Sources: cli.EnvVars("CONFIRMATE_ADDR"),
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:  "tools",

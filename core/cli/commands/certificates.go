@@ -3,11 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/urfave/cli/v3"
 	"connectrpc.com/connect"
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/api/orchestrator"
 )
 
@@ -17,7 +15,7 @@ func CertificatesListCommand() *cli.Command {
 		Usage: "List all certificates",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
@@ -41,7 +39,7 @@ func CertificatesGetCommand() *cli.Command {
 			}
 			certID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			resp, err := client.GetCertificate(ctx, connect.NewRequest(&orchestrator.GetCertificateRequest{
 				CertificateId: certID,
 			}))
@@ -65,7 +63,7 @@ func CertificatesDeleteCommand() *cli.Command {
 			}
 			certID := c.Args().Get(0)
 			
-			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
+			client := OrchestratorClient(c)
 			_, err := client.RemoveCertificate(ctx, connect.NewRequest(&orchestrator.RemoveCertificateRequest{
 				CertificateId: certID,
 			}))
