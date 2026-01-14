@@ -33,6 +33,7 @@ var OrchestratorCommand = &cli.Command{
 		svc, err := orchestrator.NewService(
 			orchestrator.WithConfig(orchestrator.Config{
 				CatalogsFolder:                  cmd.String("catalogs-folder"),
+				DefaultMetricsPath:              cmd.String("default-metrics-path"),
 				AdditionalMetricsPath:           cmd.String("additional-metrics-path"),
 				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
 				IgnoreDefaultMetrics:            cmd.Bool("ignore-default-metrics"),
@@ -80,6 +81,11 @@ var OrchestratorCommand = &cli.Command{
 			Name:  "catalogs-folder",
 			Usage: "The folder containing catalog definitions",
 			Value: orchestrator.DefaultConfig.CatalogsFolder,
+		},
+		&cli.StringFlag{
+			Name:  "default-metrics-path",
+			Usage: "The path to the default metric definitions (security-metrics submodule)",
+			Value: orchestrator.DefaultConfig.DefaultMetricsPath,
 		},
 		&cli.StringFlag{
 			Name:  "additional-metrics-path",

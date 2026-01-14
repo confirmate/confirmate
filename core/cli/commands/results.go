@@ -15,7 +15,7 @@ func ResultsListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
 		Usage: "List all assessment results",
-		Flags: []cli.Flag{
+		Flags: append([]cli.Flag{
 			&cli.StringFlag{
 				Name:    "target",
 				Aliases: []string{"t"},
@@ -31,9 +31,12 @@ func ResultsListCommand() *cli.Command {
 				Aliases: []string{"c"},
 				Usage:   "Filter only compliant results",
 			},
-		},
+		}, PaginationFlags()...),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			req := &orchestrator.ListAssessmentResultsRequest{}
+			req := &orchestrator.ListAssessmentResultsRequest{
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
+			}
 			
 			// Apply filters if provided
 			if c.String("target") != "" || c.String("metric") != "" || c.IsSet("compliant") {
@@ -58,8 +61,7 @@ func ResultsListCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -70,10 +72,10 @@ func ResultsGetCommand() *cli.Command {
 		Usage:     "Get a specific assessment result by ID",
 		ArgsUsage: "<result-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("result ID required")
 			}
-			resultID := c.Args().First()
+			resultID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			resp, err := client.GetAssessmentResult(ctx, connect.NewRequest(&orchestrator.GetAssessmentResultRequest{
@@ -82,8 +84,7 @@ func ResultsGetCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }

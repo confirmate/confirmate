@@ -1951,7 +1951,7 @@ type AssessmentTool struct {
 	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// a list of metrics that this tool can assess, referred by their ids
-	AvailableMetrics []string `protobuf:"bytes,4,rep,name=available_metrics,json=availableMetrics,proto3" json:"available_metrics,omitempty" gorm:"serializer:json"`
+	AvailableMetrics []string `protobuf:"bytes,4,rep,name=available_metrics,json=availableMetrics,proto3" json:"available_metrics,omitempty" gorm:"type:json"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -4744,13 +4744,13 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x14metric_configuration\x18\x0e \x01(\v2-.confirmate.assessment.v1.MetricConfigurationH\x00R\x13metricConfiguration\x12e\n" +
 	"\x15metric_implementation\x18\x0f \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x00R\x14metricImplementation\x12U\n" +
 	"\x0fassessment_tool\x18\x10 \x01(\v2*.confirmate.orchestrator.v1.AssessmentToolH\x00R\x0eassessmentToolB\b\n" +
-	"\x06entity\"\xc5\x01\n" +
+	"\x06entity\"\xbf\x01\n" +
 	"\x0eAssessmentTool\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12W\n" +
-	"\x11available_metrics\x18\x04 \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x10availableMetrics\"\xb1\b\n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12Q\n" +
+	"\x11available_metrics\x18\x04 \x03(\tB$\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x10gorm:\"type:json\"R\x10availableMetrics\"\xb1\b\n" +
 	"\x12TargetOfEvaluation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +

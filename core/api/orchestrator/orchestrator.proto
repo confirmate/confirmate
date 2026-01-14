@@ -654,7 +654,7 @@ message AssessmentTool {
 
   // a list of metrics that this tool can assess, referred by their ids
   repeated string available_metrics = 4 [
-    (tagger.tags) = "gorm:\"serializer:json\"",
+    (tagger.tags) = "gorm:\"type:json\"",
     (buf.validate.field).repeated.items.string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];

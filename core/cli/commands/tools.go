@@ -15,14 +15,17 @@ func ToolsListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
 		Usage: "List all assessment tools",
+		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
-			resp, err := client.ListAssessmentTools(ctx, connect.NewRequest(&orchestrator.ListAssessmentToolsRequest{}))
+			resp, err := client.ListAssessmentTools(ctx, connect.NewRequest(&orchestrator.ListAssessmentToolsRequest{
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
+			}))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -33,10 +36,10 @@ func ToolsGetCommand() *cli.Command {
 		Usage:     "Get a specific assessment tool by ID",
 		ArgsUsage: "<tool-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("tool ID required")
 			}
-			toolID := c.Args().First()
+			toolID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			resp, err := client.GetAssessmentTool(ctx, connect.NewRequest(&orchestrator.GetAssessmentToolRequest{
@@ -45,8 +48,7 @@ func ToolsGetCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -58,10 +60,10 @@ func ToolsDeleteCommand() *cli.Command {
 		Usage:     "Delete an assessment tool by ID",
 		ArgsUsage: "<tool-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("tool ID required")
 			}
-			toolID := c.Args().First()
+			toolID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			_, err := client.DeregisterAssessmentTool(ctx, connect.NewRequest(&orchestrator.DeregisterAssessmentToolRequest{

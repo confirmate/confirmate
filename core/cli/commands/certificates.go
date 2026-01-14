@@ -15,14 +15,17 @@ func CertificatesListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
 		Usage: "List all certificates",
+		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
-			resp, err := client.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{}))
+			resp, err := client.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
+			}))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -33,10 +36,10 @@ func CertificatesGetCommand() *cli.Command {
 		Usage:     "Get a specific certificate by ID",
 		ArgsUsage: "<certificate-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("certificate ID required")
 			}
-			certID := c.Args().First()
+			certID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			resp, err := client.GetCertificate(ctx, connect.NewRequest(&orchestrator.GetCertificateRequest{
@@ -45,8 +48,7 @@ func CertificatesGetCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -58,10 +60,10 @@ func CertificatesDeleteCommand() *cli.Command {
 		Usage:     "Delete a certificate by ID",
 		ArgsUsage: "<certificate-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("certificate ID required")
 			}
-			certID := c.Args().First()
+			certID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			_, err := client.RemoveCertificate(ctx, connect.NewRequest(&orchestrator.RemoveCertificateRequest{

@@ -424,6 +424,7 @@ func (svc *Service) loadMetrics() (err error) {
 
 	// Save all metrics to DB (only if we have any)
 	if len(metrics) > 0 {
+		slog.Info("Saving metrics to database", "count", len(metrics))
 		return svc.db.Save(metrics)
 	}
 
@@ -433,10 +434,12 @@ func (svc *Service) loadMetrics() (err error) {
 // loadMetricsFromRepository loads metric definitions from the security-metrics submodule
 // by walking through YAML files in the policies/security-metrics/metrics directory.
 func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, err error) {
+	slog.Info("Loading metrics from repository", "path", svc.cfg.DefaultMetricsPath)
 	metrics = make([]*assessment.Metric, 0)
 
 	// Check if the directory exists (it might not in test environments)
 	if _, err := os.Stat(svc.cfg.DefaultMetricsPath); os.IsNotExist(err) {
+		slog.Warn("Metrics repository directory does not exist", "path", svc.cfg.DefaultMetricsPath)
 		// Return empty metrics list if directory doesn't exist (e.g., in tests)
 		return metrics, nil
 	}
@@ -467,6 +470,8 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 		}
 
 		metrics = append(metrics, &metric)
+
+		slog.Debug("Loaded metric", "id", metric.Id, "path", path)
 
 		// Load default configuration from data.json if it exists
 		if err := prepareMetric(&metric, path); err != nil {
@@ -516,6 +521,7 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 	config.IsDefault = true
 	config.MetricId = m.Id
 
+	slog.Debug("Loaded default configuration for metric", "id", m.Id, "path", dataJsonPath)
 	defaultMetricConfigurations[m.Id] = config
 
 	return nil
@@ -523,6 +529,7 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 
 // loadMetricsFromFolder loads metric definitions from JSON files in a custom folder.
 func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.Metric, err error) {
+	slog.Info("Loading metrics from folder", "path", folder)
 	metrics = make([]*assessment.Metric, 0)
 
 	// Get all filenames
@@ -537,7 +544,8 @@ func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.
 		}
 
 		var metricsFromFile []*assessment.Metric
-		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
+		path := filepath.Join(folder, file.Name())
+		b, err := os.ReadFile(path)
 		if err != nil {
 			slog.Warn("could not read metrics file", "file", file.Name(), tint.Err(err))
 			continue
@@ -549,6 +557,7 @@ func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.
 			continue
 		}
 
+		slog.Debug("Loaded metrics from file", "count", len(metricsFromFile), "path", path)
 		metrics = append(metrics, metricsFromFile...)
 	}
 

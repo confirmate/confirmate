@@ -15,14 +15,17 @@ func CatalogsListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
 		Usage: "List all catalogs",
+		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
-			resp, err := client.ListCatalogs(ctx, connect.NewRequest(&orchestrator.ListCatalogsRequest{}))
+			resp, err := client.ListCatalogs(ctx, connect.NewRequest(&orchestrator.ListCatalogsRequest{
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
+			}))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -33,10 +36,10 @@ func CatalogsGetCommand() *cli.Command {
 		Usage:     "Get a specific catalog by ID",
 		ArgsUsage: "<catalog-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("catalog ID required")
 			}
-			catalogID := c.Args().First()
+			catalogID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			resp, err := client.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
@@ -45,8 +48,7 @@ func CatalogsGetCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -58,10 +60,10 @@ func CatalogsDeleteCommand() *cli.Command {
 		Usage:     "Delete a catalog by ID",
 		ArgsUsage: "<catalog-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("catalog ID required")
 			}
-			catalogID := c.Args().First()
+			catalogID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			_, err := client.RemoveCatalog(ctx, connect.NewRequest(&orchestrator.RemoveCatalogRequest{

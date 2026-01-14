@@ -15,14 +15,18 @@ func MetricsListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
 		Usage: "List all metrics",
+		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
-			resp, err := client.ListMetrics(ctx, connect.NewRequest(&orchestrator.ListMetricsRequest{}))
+			resp, err := client.ListMetrics(ctx, connect.NewRequest(&orchestrator.ListMetricsRequest{
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
+			}))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -33,10 +37,10 @@ func MetricsGetCommand() *cli.Command {
 		Usage:     "Get a specific metric by ID",
 		ArgsUsage: "<metric-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("metric ID required")
 			}
-			metricID := c.Args().First()
+			metricID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			resp, err := client.GetMetric(ctx, connect.NewRequest(&orchestrator.GetMetricRequest{
@@ -45,8 +49,8 @@ func MetricsGetCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("%+v\n", resp.Msg)
-			return nil
+			
+			return PrettyPrint(resp.Msg)
 		},
 	}
 }
@@ -58,10 +62,10 @@ func MetricsDeleteCommand() *cli.Command {
 		Usage:     "Delete a metric by ID",
 		ArgsUsage: "<metric-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.NArg() < 1 {
+			if c.Args().Len() < 1 {
 				return fmt.Errorf("metric ID required")
 			}
-			metricID := c.Args().First()
+			metricID := c.Args().Get(0)
 			
 			client := orchestratorconnect.NewOrchestratorClient(http.DefaultClient, "http://localhost:8080")
 			_, err := client.RemoveMetric(ctx, connect.NewRequest(&orchestrator.RemoveMetricRequest{
