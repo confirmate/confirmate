@@ -52,7 +52,7 @@ func (svc *Service) RegisterAssessmentTool(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_CREATED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:   tool.Id,
 		Entity: &orchestrator.ChangeEvent_AssessmentTool{
 			AssessmentTool: tool,
@@ -141,7 +141,7 @@ func (svc *Service) UpdateAssessmentTool(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:   tool.Id,
 		Entity: &orchestrator.ChangeEvent_AssessmentTool{
 			AssessmentTool: tool,
@@ -176,7 +176,7 @@ func (svc *Service) DeregisterAssessmentTool(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_DELETED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:   req.Msg.ToolId,
 	})
 

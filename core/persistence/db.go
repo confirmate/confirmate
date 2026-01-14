@@ -155,7 +155,9 @@ func newInMemoryDB() (g *gorm.DB, err error) {
 	g, err = gorm.Open(postgres.New(postgres.Config{
 		Conn: db,
 	}),
-		&gorm.Config{})
+		&gorm.Config{
+			Logger: newSlogGormLogger(),
+		})
 	if err != nil {
 		return nil, fmt.Errorf("could not create gorm connection: %w", err)
 	}

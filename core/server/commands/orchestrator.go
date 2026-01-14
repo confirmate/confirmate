@@ -22,6 +22,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
 
+	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
 )
 
@@ -45,15 +46,19 @@ var OrchestratorCommand = &cli.Command{
 
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
-				Port: cmd.Uint16("api-port"),
-				Path: "/",
+				Port:     cmd.Uint16("api-port"),
+				Path:     "/",
+				LogLevel: cmd.String("log-level"),
 				CORS: server.CORS{
 					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
 					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
 					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
 				},
 			}),
-			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
+				svc,
+				connect.WithInterceptors(&server.LoggingInterceptor{}),
+			)),
 		)
 	},
 	Flags: []cli.Flag{
@@ -61,6 +66,11 @@ var OrchestratorCommand = &cli.Command{
 			Name:  "api-port",
 			Usage: "Port to run the API server (Connect, gRPC, REST) on",
 			Value: server.DefaultConfig.Port,
+		},
+		&cli.StringFlag{
+			Name:  "log-level",
+			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
+			Value: server.DefaultConfig.LogLevel,
 		},
 		&cli.StringSliceFlag{
 			Name:  "api-cors-allowed-origins",

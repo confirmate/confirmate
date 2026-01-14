@@ -57,9 +57,10 @@ var (
 	})
 )
 
-// ErrNotFound returns a [connect.CodeNotFound] error with the given entity name.
+// ErrNotFound returns a plain error with the given entity name.
+// This error is meant to be wrapped by [HandleDatabaseError] which converts it to a [connect.CodeNotFound] error.
 func ErrNotFound(entity string) error {
-	return connect.NewError(connect.CodeNotFound, fmt.Errorf("%s not found", entity))
+	return fmt.Errorf("%s not found", entity)
 }
 
 // Validate validates an incoming request using protovalidate.

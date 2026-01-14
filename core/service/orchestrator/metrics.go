@@ -28,12 +28,12 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
-	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v3"
@@ -68,10 +68,10 @@ func (svc *Service) CreateMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_CREATED,
-		EntityId:   metric.Id,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
+		EntityId:    metric.Id,
 		Entity: &orchestrator.ChangeEvent_Metric{
 			Metric: metric,
 		},
@@ -159,10 +159,10 @@ func (svc *Service) UpdateMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
-		EntityId:   metric.Id,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+		EntityId:    metric.Id,
 		Entity: &orchestrator.ChangeEvent_Metric{
 			Metric: metric,
 		},
@@ -206,10 +206,10 @@ func (svc *Service) RemoveMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_DELETED,
-		EntityId:   req.Msg.MetricId,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
+		EntityId:    req.Msg.MetricId,
 	})
 
 	res = connect.NewResponse(&emptypb.Empty{})
@@ -261,10 +261,10 @@ func (svc *Service) UpdateMetricImplementation(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
-		EntityId:   impl.MetricId,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+		EntityId:    impl.MetricId,
 		Entity: &orchestrator.ChangeEvent_MetricImplementation{
 			MetricImplementation: impl,
 		},
@@ -382,7 +382,7 @@ func (svc *Service) UpdateMetricConfiguration(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:            timestamppb.Now(),
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
-		ChangeType:           orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
+		RequestType:          orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:             config.MetricId,
 		TargetOfEvaluationId: util.Ref(config.TargetOfEvaluationId),
 		Entity: &orchestrator.ChangeEvent_MetricConfiguration{
@@ -536,13 +536,13 @@ func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.
 		var metricsFromFile []*assessment.Metric
 		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
 		if err != nil {
-			slog.Warn("could not read metrics file", "file", file.Name(), tint.Err(err))
+			slog.Warn("could not read metrics file", "file", file.Name(), log.Err(err))
 			continue
 		}
 
 		err = json.Unmarshal(b, &metricsFromFile)
 		if err != nil {
-			slog.Warn("could not unmarshal metrics file", "file", file.Name(), tint.Err(err))
+			slog.Warn("could not unmarshal metrics file", "file", file.Name(), log.Err(err))
 			continue
 		}
 

@@ -67,7 +67,7 @@ func TestService_RegisterSubscriber(t *testing.T) {
 	case event := <-ch:
 		assert.NotNil(t, event)
 		assert.Equal(t, orchestrator.EventCategory_EVENT_CATEGORY_METRIC, event.Category)
-		assert.Equal(t, orchestrator.ChangeType_CHANGE_TYPE_CREATED, event.ChangeType)
+		assert.Equal(t, orchestrator.RequestType_REQUEST_TYPE_CREATED, event.RequestType)
 		assert.Equal(t, orchestratortest.MockMetric1.Id, event.EntityId)
 		metric := event.GetMetric()
 		assert.NotNil(t, metric)
@@ -121,7 +121,7 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 			event: &orchestrator.ChangeEvent{
 				Timestamp:            timestamppb.Now(),
 				Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-				ChangeType:           orchestrator.ChangeType_CHANGE_TYPE_CREATED,
+				RequestType:          orchestrator.RequestType_REQUEST_TYPE_CREATED,
 				EntityId:             "metric-1",
 				TargetOfEvaluationId: util.Ref("11111111-1111-1111-1111-111111111111"),
 			},
@@ -138,10 +138,10 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 		{
 			name: "invalid entity id",
 			event: &orchestrator.ChangeEvent{
-				Timestamp:  timestamppb.Now(),
-				Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-				ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
-				EntityId:   "", // Empty entity ID should fail validation
+				Timestamp:   timestamppb.Now(),
+				Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+				RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+				EntityId:    "", // Empty entity ID should fail validation
 			},
 			wantErr: true,
 		},

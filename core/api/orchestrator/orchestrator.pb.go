@@ -107,59 +107,68 @@ func (EventCategory) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{0}
 }
 
-// ChangeType is a high-level classification of what happened to an entity.
-type ChangeType int32
+// RequestType is a high-level classification of what happened to an entity. It represents the type
+// of operation performed on the entity.
+type RequestType int32
 
 const (
-	ChangeType_CHANGE_TYPE_UNSPECIFIED ChangeType = 0
-	// ChangeTypeCreated indicates that a new entity was created/stored in the orchestrator.
-	ChangeType_CHANGE_TYPE_CREATED ChangeType = 1
-	// ChangeTypeUpdated indicates that an existing entity was updated/modified in the orchestrator.
-	ChangeType_CHANGE_TYPE_UPDATED ChangeType = 2
-	// ChangeTypeDeleted indicates that an existing entity was deleted/removed from the orchestrator.
-	ChangeType_CHANGE_TYPE_DELETED ChangeType = 3
+	RequestType_REQUEST_TYPE_UNSPECIFIED RequestType = 0
+	// RequestTypeCreated indicates that a new entity was created/stored in the orchestrator.
+	RequestType_REQUEST_TYPE_CREATED RequestType = 1
+	// RequestTypeUpdated indicates that an existing entity was updated/modified in the orchestrator.
+	RequestType_REQUEST_TYPE_UPDATED RequestType = 2
+	// RequestTypeDeleted indicates that an existing entity was deleted/removed from the orchestrator.
+	RequestType_REQUEST_TYPE_DELETED RequestType = 3
+	// RequestTypeRegistered indicates that an entity was registered with the orchestrator.
+	RequestType_REQUEST_TYPE_REGISTERED RequestType = 4
+	// RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
+	RequestType_REQUEST_TYPE_STORED RequestType = 5
 )
 
-// Enum value maps for ChangeType.
+// Enum value maps for RequestType.
 var (
-	ChangeType_name = map[int32]string{
-		0: "CHANGE_TYPE_UNSPECIFIED",
-		1: "CHANGE_TYPE_CREATED",
-		2: "CHANGE_TYPE_UPDATED",
-		3: "CHANGE_TYPE_DELETED",
+	RequestType_name = map[int32]string{
+		0: "REQUEST_TYPE_UNSPECIFIED",
+		1: "REQUEST_TYPE_CREATED",
+		2: "REQUEST_TYPE_UPDATED",
+		3: "REQUEST_TYPE_DELETED",
+		4: "REQUEST_TYPE_REGISTERED",
+		5: "REQUEST_TYPE_STORED",
 	}
-	ChangeType_value = map[string]int32{
-		"CHANGE_TYPE_UNSPECIFIED": 0,
-		"CHANGE_TYPE_CREATED":     1,
-		"CHANGE_TYPE_UPDATED":     2,
-		"CHANGE_TYPE_DELETED":     3,
+	RequestType_value = map[string]int32{
+		"REQUEST_TYPE_UNSPECIFIED": 0,
+		"REQUEST_TYPE_CREATED":     1,
+		"REQUEST_TYPE_UPDATED":     2,
+		"REQUEST_TYPE_DELETED":     3,
+		"REQUEST_TYPE_REGISTERED":  4,
+		"REQUEST_TYPE_STORED":      5,
 	}
 )
 
-func (x ChangeType) Enum() *ChangeType {
-	p := new(ChangeType)
+func (x RequestType) Enum() *RequestType {
+	p := new(RequestType)
 	*p = x
 	return p
 }
 
-func (x ChangeType) String() string {
+func (x RequestType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (ChangeType) Descriptor() protoreflect.EnumDescriptor {
+func (RequestType) Descriptor() protoreflect.EnumDescriptor {
 	return file_api_orchestrator_orchestrator_proto_enumTypes[1].Descriptor()
 }
 
-func (ChangeType) Type() protoreflect.EnumType {
+func (RequestType) Type() protoreflect.EnumType {
 	return &file_api_orchestrator_orchestrator_proto_enumTypes[1]
 }
 
-func (x ChangeType) Number() protoreflect.EnumNumber {
+func (x RequestType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use ChangeType.Descriptor instead.
-func (ChangeType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use RequestType.Descriptor instead.
+func (RequestType) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{1}
 }
 
@@ -1739,8 +1748,8 @@ type ChangeEvent struct {
 	Timestamp *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// Event category (what type of entity changed)
 	Category EventCategory `protobuf:"varint,2,opt,name=category,proto3,enum=confirmate.orchestrator.v1.EventCategory" json:"category,omitempty"`
-	// Change type (what happened to the entity)
-	ChangeType ChangeType `protobuf:"varint,3,opt,name=change_type,json=changeType,proto3,enum=confirmate.orchestrator.v1.ChangeType" json:"change_type,omitempty"`
+	// Request type (what happened to the entity)
+	RequestType RequestType `protobuf:"varint,3,opt,name=request_type,json=requestType,proto3,enum=confirmate.orchestrator.v1.RequestType" json:"request_type,omitempty"`
 	// Entity ID (always present for reference)
 	EntityId string `protobuf:"bytes,4,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	// TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes).
@@ -1806,11 +1815,11 @@ func (x *ChangeEvent) GetCategory() EventCategory {
 	return EventCategory_EVENT_CATEGORY_UNSPECIFIED
 }
 
-func (x *ChangeEvent) GetChangeType() ChangeType {
+func (x *ChangeEvent) GetRequestType() RequestType {
 	if x != nil {
-		return x.ChangeType
+		return x.RequestType
 	}
-	return ChangeType_CHANGE_TYPE_UNSPECIFIED
+	return RequestType_REQUEST_TYPE_UNSPECIFIED
 }
 
 func (x *ChangeEvent) GetEntityId() string {
@@ -4726,12 +4735,15 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"operations\x12\x1d\n" +
 	"\n" +
 	"metric_ids\x18\x03 \x03(\tR\tmetricIds\x127\n" +
+<<<<<<< HEAD
 	"\x18target_of_evaluation_ids\x18\x04 \x03(\tR\x15targetOfEvaluationIds\"\x97\b\n" +
+=======
+	"\x18target_of_evaluation_ids\x18\x04 \x03(\tR\x15targetOfEvaluationIds\"\xf9\a\n" +
+>>>>>>> 88ffc08 (feat: implement comprehensive logging system with context-aware interceptor)
 	"\vChangeEvent\x12k\n" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12R\n" +
-	"\bcategory\x18\x02 \x01(\x0e2).confirmate.orchestrator.v1.EventCategoryB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\bcategory\x12T\n" +
-	"\vchange_type\x18\x03 \x01(\x0e2&.confirmate.orchestrator.v1.ChangeTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\n" +
-	"changeType\x12'\n" +
+	"\bcategory\x18\x02 \x01(\x0e2).confirmate.orchestrator.v1.EventCategoryB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\bcategory\x12W\n" +
+	"\frequest_type\x18\x03 \x01(\x0e2'.confirmate.orchestrator.v1.RequestTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\vrequestType\x12'\n" +
 	"\tentity_id\x18\x04 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bentityId\x12:\n" +
 	"\x17target_of_evaluation_id\x18\x05 \x01(\tH\x01R\x14targetOfEvaluationId\x88\x01\x01\x12:\n" +
@@ -5007,13 +5019,14 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"#EVENT_CATEGORY_TARGET_OF_EVALUATION\x10\x04\x12\x1e\n" +
 	"\x1aEVENT_CATEGORY_AUDIT_SCOPE\x10\x05\x12$\n" +
 	" EVENT_CATEGORY_ASSESSMENT_RESULT\x10\x06\x12\"\n" +
-	"\x1eEVENT_CATEGORY_ASSESSMENT_TOOL\x10\a*t\n" +
-	"\n" +
-	"ChangeType\x12\x1b\n" +
-	"\x17CHANGE_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13CHANGE_TYPE_CREATED\x10\x01\x12\x17\n" +
-	"\x13CHANGE_TYPE_UPDATED\x10\x02\x12\x17\n" +
-	"\x13CHANGE_TYPE_DELETED\x10\x032\xb9A\n" +
+	"\x1eEVENT_CATEGORY_ASSESSMENT_TOOL\x10\a*\xaf\x01\n" +
+	"\vRequestType\x12\x1c\n" +
+	"\x18REQUEST_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14REQUEST_TYPE_CREATED\x10\x01\x12\x18\n" +
+	"\x14REQUEST_TYPE_UPDATED\x10\x02\x12\x18\n" +
+	"\x14REQUEST_TYPE_DELETED\x10\x03\x12\x1b\n" +
+	"\x17REQUEST_TYPE_REGISTERED\x10\x04\x12\x17\n" +
+	"\x13REQUEST_TYPE_STORED\x10\x052\xb9A\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -5080,7 +5093,7 @@ var file_api_orchestrator_orchestrator_proto_enumTypes = make([]protoimpl.EnumIn
 var file_api_orchestrator_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 76)
 var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(EventCategory)(0),                              // 0: confirmate.orchestrator.v1.EventCategory
-	(ChangeType)(0),                                 // 1: confirmate.orchestrator.v1.ChangeType
+	(RequestType)(0),                                // 1: confirmate.orchestrator.v1.RequestType
 	(TargetOfEvaluation_TargetType)(0),              // 2: confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
 	(*RegisterAssessmentToolRequest)(nil),           // 3: confirmate.orchestrator.v1.RegisterAssessmentToolRequest
 	(*ListAssessmentToolsRequest)(nil),              // 4: confirmate.orchestrator.v1.ListAssessmentToolsRequest
@@ -5186,7 +5199,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	72,  // 15: confirmate.orchestrator.v1.SubscribeRequest.filter:type_name -> confirmate.orchestrator.v1.SubscribeRequest.Filter
 	83,  // 16: confirmate.orchestrator.v1.ChangeEvent.timestamp:type_name -> google.protobuf.Timestamp
 	0,   // 17: confirmate.orchestrator.v1.ChangeEvent.category:type_name -> confirmate.orchestrator.v1.EventCategory
-	1,   // 18: confirmate.orchestrator.v1.ChangeEvent.change_type:type_name -> confirmate.orchestrator.v1.ChangeType
+	1,   // 18: confirmate.orchestrator.v1.ChangeEvent.request_type:type_name -> confirmate.orchestrator.v1.RequestType
 	80,  // 19: confirmate.orchestrator.v1.ChangeEvent.metric:type_name -> confirmate.assessment.v1.Metric
 	35,  // 20: confirmate.orchestrator.v1.ChangeEvent.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
 	39,  // 21: confirmate.orchestrator.v1.ChangeEvent.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope

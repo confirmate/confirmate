@@ -64,7 +64,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_CREATED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:   toe.Id,
 		Entity: &orchestrator.ChangeEvent_TargetOfEvaluation{
 			TargetOfEvaluation: toe,
@@ -159,7 +159,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:   toe.Id,
 		Entity: &orchestrator.ChangeEvent_TargetOfEvaluation{
 			TargetOfEvaluation: toe,
@@ -194,7 +194,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_DELETED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:   req.Msg.TargetOfEvaluationId,
 	})
 

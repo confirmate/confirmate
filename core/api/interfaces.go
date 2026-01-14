@@ -13,31 +13,31 @@
 //
 // This file is part of Confirmate Core.
 
-package server
+package api
 
-// DefaultConfig is the default configuration for the [Server].
-var DefaultConfig = Config{
-	Port:     8080,
-	Path:     "/",
-	LogLevel: "INFO",
-	CORS: CORS{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
-	},
+import (
+	"google.golang.org/protobuf/proto"
+)
+
+// PayloadRequest describes any kind of requests that carries a certain payload.
+// This is for example a Create/Update request carrying an embedded message,
+// which should be created or updated.
+type PayloadRequest interface {
+	GetPayload() proto.Message
+	proto.Message
 }
 
-// Config represents the configuration for the [Server].
-type Config struct {
-	Port     uint16
-	Path     string
-	LogLevel string
-	CORS     CORS
+// HasId interface for messages that have an ID field.
+type HasId interface {
+	GetId() string
 }
 
-// CORS represents the CORS configuration for the server.
-type CORS struct {
-	AllowedOrigins []string
-	AllowedMethods []string
-	AllowedHeaders []string
+// HasTargetOfEvaluationId interface for messages that have a target_of_evaluation_id field.
+type HasTargetOfEvaluationId interface {
+	GetTargetOfEvaluationId() string
+}
+
+// HasToolId interface for messages that have a tool_id field.
+type HasToolId interface {
+	GetToolId() string
 }

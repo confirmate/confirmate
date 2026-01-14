@@ -57,7 +57,7 @@ func (svc *Service) CreateAuditScope(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_AUDIT_SCOPE,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_CREATED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
 		EntityId:   scope.Id,
 		Entity: &orchestrator.ChangeEvent_AuditScope{
 			AuditScope: scope,
@@ -159,7 +159,7 @@ func (svc *Service) UpdateAuditScope(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_AUDIT_SCOPE,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:   scope.Id,
 		Entity: &orchestrator.ChangeEvent_AuditScope{
 			AuditScope: scope,
@@ -194,7 +194,7 @@ func (svc *Service) RemoveAuditScope(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:  timestamppb.Now(),
 		Category:   orchestrator.EventCategory_EVENT_CATEGORY_AUDIT_SCOPE,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_DELETED,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
 		EntityId:   req.Msg.AuditScopeId,
 	})
 
