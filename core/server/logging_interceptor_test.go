@@ -16,15 +16,10 @@
 package server
 
 import (
-	"bytes"
-	"context"
 	"log/slog"
-	"strings"
 	"testing"
 
-	"confirmate.io/core/api"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/util/assert"
 )
 
 func TestOperationType(t *testing.T) {
@@ -144,151 +139,121 @@ func TestRequestTypeToVerb(t *testing.T) {
 	}
 }
 
-func TestLogRequest(t *testing.T) {
+func TestAddPaginationAttributes(t *testing.T) {
 	tests := []struct {
-		name            string
-		level           slog.Level
-		requestType     orchestrator.RequestType
-		req             any
-		attrs           []slog.Attr
-		wantContains    []string
-		wantNotContains []string
+		name     string
+		req      any
+		res      any
+		wantKeys map[string]bool
 	}{
 		{
-			name:        "nil request",
-			level:       slog.LevelDebug,
-			requestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
-			req:         nil,
-			// Should not log anything
-			wantNotContains: []string{"Catalog", "created"},
-		},
-		{
-			name:        "Create catalog with ID",
-			level:       slog.LevelInfo,
-			requestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
-			req: &orchestrator.CreateCatalogRequest{
-				Catalog: &orchestrator.Catalog{
-					Id:   "catalog-123",
-					Name: "Test Catalog",
+			name: "paginated request with results",
+			req: &orchestrator.ListTargetsOfEvaluationRequest{
+				PageSize:  10,
+				PageToken: "token123",
+			},
+			res: &orchestrator.ListTargetsOfEvaluationResponse{
+				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{
+					{Id: "toe1"},
+					{Id: "toe2"},
+					{Id: "toe3"},
 				},
+				NextPageToken: "nextToken456",
 			},
-			wantContains: []string{
-				"CreateCatalogRequest",
-				"created",
-			},
-		},
-		{
-			name:        "Update target of evaluation",
-			level:       slog.LevelDebug,
-			requestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
-			req: &orchestrator.UpdateTargetOfEvaluationRequest{
-				TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
-					Id:   "toe-456",
-					Name: "Test TOE",
-				},
-			},
-			wantContains: []string{
-				"UpdateTargetOfEvaluationRequest",
-				"updated",
+			wantKeys: map[string]bool{
+				"page_size":       true,
+				"page_token":      true,
+				"results":         true,
+				"next_page_token": true,
 			},
 		},
 		{
-			name:        "Create with additional attributes",
-			level:       slog.LevelInfo,
-			requestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
-			req: &orchestrator.CreateCatalogRequest{
-				Catalog: &orchestrator.Catalog{
-					Id:   "catalog-abc",
-					Name: "Test Catalog",
+			name: "paginated request without page token",
+			req: &orchestrator.ListTargetsOfEvaluationRequest{
+				PageSize: 5,
+			},
+			res: &orchestrator.ListTargetsOfEvaluationResponse{
+				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{
+					{Id: "toe1"},
 				},
 			},
-			attrs: []slog.Attr{
-				slog.String("extra", "info"),
-				slog.Int("count", 42),
+			wantKeys: map[string]bool{
+				"page_size": true,
+				"results":   true,
 			},
-			wantContains: []string{
-				"CreateCatalogRequest",
-				"created",
-				"extra=info",
-				"count=42",
+		},
+		{
+			name: "empty results",
+			req: &orchestrator.ListTargetsOfEvaluationRequest{
+				PageSize: 10,
+			},
+			res: &orchestrator.ListTargetsOfEvaluationResponse{
+				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{},
+			},
+			wantKeys: map[string]bool{
+				"page_size": true,
+			},
+		},
+		{
+			name:     "non-paginated request",
+			req:      &orchestrator.CreateCatalogRequest{},
+			res:      &orchestrator.Catalog{},
+			wantKeys: map[string]bool{
+				// Should not have any pagination attributes
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				buf    bytes.Buffer
-				logger *slog.Logger
-			)
+			var attrs []slog.Attr
+			li := &LoggingInterceptor{}
 
-			// Create a logger that writes to our buffer
-			logger = slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			}))
+			li.addPaginationAttributes(&attrs, tt.req, tt.res)
 
-			// Set as default logger for the test
-			slog.SetDefault(logger)
+			// Build a map of actual attribute keys
+			actualKeys := make(map[string]bool)
+			for _, attr := range attrs {
+				actualKeys[attr.Key] = true
+			}
 
-			// Call logRequest with the request (which is now PayloadRequest directly)
-			if tt.req != nil {
-				if payloadReq, ok := tt.req.(api.PayloadRequest); ok {
-					li := &LoggingInterceptor{}
-					li.logRequest(context.Background(), tt.level, tt.requestType, payloadReq, tt.attrs...)
+			// Check that all expected keys are present
+			for wantKey := range tt.wantKeys {
+				if !actualKeys[wantKey] {
+					t.Errorf("addPaginationAttributes() missing expected key %q, got keys: %v", wantKey, actualKeys)
 				}
 			}
 
-			output := buf.String()
-
-			// Check that expected strings are present
-			for _, want := range tt.wantContains {
-				if !strings.Contains(output, want) {
-					t.Errorf("logRequest() output does not contain %q\nGot: %s", want, output)
+			// Check that no unexpected keys are present
+			for actualKey := range actualKeys {
+				if !tt.wantKeys[actualKey] {
+					t.Errorf("addPaginationAttributes() has unexpected key %q", actualKey)
 				}
 			}
 
-			// Check that unexpected strings are not present
-			for _, notWant := range tt.wantNotContains {
-				if strings.Contains(output, notWant) {
-					t.Errorf("logRequest() output should not contain %q\nGot: %s", notWant, output)
+			// Verify specific values for the first test case
+			if tt.name == "paginated request with results" {
+				for _, attr := range attrs {
+					switch attr.Key {
+					case "page_size":
+						if attr.Value.Int64() != 10 {
+							t.Errorf("page_size = %v, want 10", attr.Value.Int64())
+						}
+					case "page_token":
+						if attr.Value.String() != "token123" {
+							t.Errorf("page_token = %v, want token123", attr.Value.String())
+						}
+					case "results":
+						if attr.Value.Int64() != 3 {
+							t.Errorf("results = %v, want 3", attr.Value.Int64())
+						}
+					case "next_page_token":
+						if attr.Value.String() != "nextToken456" {
+							t.Errorf("next_page_token = %v, want nextToken456", attr.Value.String())
+						}
+					}
 				}
 			}
 		})
 	}
-}
-
-func TestLogRequest_Integration(t *testing.T) {
-	var (
-		buf    bytes.Buffer
-		logger *slog.Logger
-		req    *orchestrator.CreateCatalogRequest
-	)
-
-	// Create a logger with JSON handler for easier parsing in production
-	logger = slog.New(slog.NewJSONHandler(&buf, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}))
-	slog.SetDefault(logger)
-
-	req = &orchestrator.CreateCatalogRequest{
-		Catalog: &orchestrator.Catalog{
-			Id:          "catalog-integration-test",
-			Name:        "Integration Test Catalog",
-			Description: "This is a test catalog",
-		},
-	}
-
-	li := &LoggingInterceptor{}
-	li.logRequest(context.Background(), slog.LevelInfo, orchestrator.RequestType_REQUEST_TYPE_CREATED, req,
-		slog.String("user", "admin"),
-		slog.String("source", "api"),
-	)
-
-	output := buf.String()
-
-	// Verify the output contains expected JSON fields
-	assert.True(t, strings.Contains(output, `"level":"INFO"`))
-	assert.True(t, strings.Contains(output, `"msg":"CreateCatalogRequest created"`))
-	assert.True(t, strings.Contains(output, `"user":"admin"`))
-	assert.True(t, strings.Contains(output, `"source":"api"`))
 }

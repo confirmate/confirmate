@@ -18,6 +18,7 @@ package server
 import (
 	"context"
 	"log/slog"
+	"os"
 	"strings"
 	"time"
 
@@ -25,7 +26,48 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
 	"connectrpc.com/connect"
+	"github.com/mattn/go-isatty"
 	"google.golang.org/protobuf/reflect/protoreflect"
+)
+
+// Attribute keys for logging
+const (
+	// RPC request/response keys
+	keyMethod   = "method"
+	keyStatus   = "status"
+	keyDuration = "duration"
+	keyError    = "error"
+
+	// Pagination keys
+	keyPageSize      = "page_size"
+	keyPageToken     = "page_token"
+	keyResults       = "results"
+	keyNextPageToken = "next_page_token"
+
+	// Entity keys
+	keyId                   = "id"
+	keyTargetOfEvaluationId = "target_of_evaluation_id"
+	keyToolId               = "tool_id"
+	keyPayload              = "payload"
+
+	// Field names to skip in payload
+	fieldId        = "id"
+	fieldCreatedAt = "created_at"
+	fieldUpdatedAt = "updated_at"
+
+	// Enum suffix to skip
+	enumUnspecified = "_UNSPECIFIED"
+
+	// ANSI color codes - only used if color is enabled
+	ansiReset  = "\033[0m"
+	ansiGreen  = "\033[32m"
+	ansiYellow = "\033[33m"
+	ansiRed    = "\033[31m"
+)
+
+var (
+	// colorEnabled determines if ANSI colors should be used
+	colorEnabled = isatty.IsTerminal(os.Stdout.Fd())
 )
 
 // LoggingInterceptor logs RPC requests at two levels:
@@ -41,19 +83,19 @@ func withRequestAttrs(ctx context.Context, msg any) context.Context {
 
 	if hasId, ok := msg.(api.HasId); ok {
 		if id := hasId.GetId(); id != "" {
-			attrs = append(attrs, slog.String("id", id))
+			attrs = append(attrs, slog.String(keyId, id))
 		}
 	}
 
 	if hasToeId, ok := msg.(api.HasTargetOfEvaluationId); ok {
 		if toeId := hasToeId.GetTargetOfEvaluationId(); toeId != "" {
-			attrs = append(attrs, slog.String("target_of_evaluation_id", toeId))
+			attrs = append(attrs, slog.String(keyTargetOfEvaluationId, toeId))
 		}
 	}
 
 	if hasToolId, ok := msg.(api.HasToolId); ok {
 		if toolId := hasToolId.GetToolId(); toolId != "" {
-			attrs = append(attrs, slog.String("tool_id", toolId))
+			attrs = append(attrs, slog.String(keyToolId, toolId))
 		}
 	}
 
@@ -62,11 +104,11 @@ func withRequestAttrs(ctx context.Context, msg any) context.Context {
 		protoMsg.ProtoReflect().Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
 			fieldName := string(fd.Name())
 			// Check if this is an ID field we haven't already handled
-			if strings.HasSuffix(fieldName, "_id") && 
-			   fieldName != "id" && 
-			   fieldName != "target_of_evaluation_id" && 
-			   fieldName != "tool_id" &&
-			   fd.Kind() == protoreflect.StringKind {
+			if strings.HasSuffix(fieldName, "_id") &&
+				fieldName != keyId &&
+				fieldName != keyTargetOfEvaluationId &&
+				fieldName != keyToolId &&
+				fd.Kind() == protoreflect.StringKind {
 				if strVal := v.String(); strVal != "" {
 					attrs = append(attrs, slog.String(fieldName, strVal))
 				}
@@ -90,6 +132,9 @@ func (li *LoggingInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFun
 			duration time.Duration
 		)
 
+		// Add method to context first so it appears before other attributes
+		ctx = log.WithAttrs(ctx, slog.String(keyMethod, method))
+
 		// Extract request attributes and store in context for automatic logging
 		ctx = withRequestAttrs(ctx, req.Any())
 
@@ -97,11 +142,8 @@ func (li *LoggingInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFun
 		res, err = next(ctx, req)
 		duration = time.Since(start)
 
-		// Log entity-level details first (both success and failure)
-		li.logEntityOperation(ctx, method, req, err)
-
-		// Log request-level summary
-		li.logRPCRequest(ctx, method, duration, err)
+		// Log combined request and entity information
+		li.logRPCRequest(ctx, method, duration, req, res, err)
 
 		return res, err
 	}
@@ -117,138 +159,192 @@ func (li *LoggingInterceptor) WrapStreamingHandler(next connect.StreamingHandler
 	return next // No streaming logging for now
 }
 
-// logRPCRequest logs request-level information (like HTTP access logs).
-func (li *LoggingInterceptor) logRPCRequest(ctx context.Context, method string, duration time.Duration, err error) {
-	attrs := []slog.Attr{
-		slog.String("method", method),
-		slog.Duration("duration", duration),
+// logRPCRequest logs combined request and entity information in a single message.
+// CRUD operations (Create/Update/Delete) are logged at INFO level.
+// Read operations (Get/List) are logged at DEBUG level.
+// Errors are logged at INFO level with color-coded status.
+func (li *LoggingInterceptor) logRPCRequest(ctx context.Context, method string, duration time.Duration, req connect.AnyRequest, res connect.AnyResponse, err error) {
+	var (
+		msg         = req.Any()
+		requestType = operationType(method)
+		level       = slog.LevelInfo
+		status      string
+	)
+
+	// Determine log level based on operation type
+	if err == nil && isReadOperation(method) {
+		level = slog.LevelDebug
 	}
 
+	// Build attributes - method is already in context, so start with status
+	// Pre-allocate with estimated capacity: status + duration + optional (error/pagination/payload)
+	attrs := make([]slog.Attr, 0, 6)
+
+	// Add status with color coding
 	if err != nil {
+		code := connect.CodeOf(err)
+		status = colorCodeStatus(code)
+
 		// Extract just the error message without the code prefix
 		errMsg := err.Error()
 		if connectErr, ok := err.(*connect.Error); ok {
 			errMsg = connectErr.Message()
 		}
-		
-		// Add error code first, then message (context attributes like catalog_id will follow)
+
 		attrs = append(attrs,
-			slog.String("code", connect.CodeOf(err).String()),
-			slog.String("error", errMsg),
+			slog.String(keyStatus, status),
+			slog.Duration(keyDuration, duration),
+			slog.String(keyError, errMsg),
 		)
-		slog.LogAttrs(ctx, slog.LevelWarn, "Request failed", attrs...)
 	} else {
-		slog.LogAttrs(ctx, slog.LevelInfo, "Request completed", attrs...)
+		if colorEnabled {
+			status = ansiGreen + "ok" + ansiReset
+		} else {
+			status = "ok"
+		}
+		attrs = append(attrs,
+			slog.String(keyStatus, status),
+			slog.Duration(keyDuration, duration),
+		)
 	}
-}
 
-// logEntityOperation logs entity-level operations at debug level.
-func (li *LoggingInterceptor) logEntityOperation(ctx context.Context, method string, req connect.AnyRequest, err error) {
-	var (
-		msg         = req.Any()
-		requestType = operationType(method)
-	)
+	// Add pagination info for list operations
+	if err == nil && strings.HasPrefix(method, "List") && res != nil {
+		if resMsg := res.Any(); resMsg != nil {
+			li.addPaginationAttributes(&attrs, msg, resMsg)
+		}
+	}
 
-	// Handle write operations (Create/Update/Delete/Store/etc)
+	// Add entity payload details for CRUD operations
 	if requestType != orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED {
 		if payloadReq, ok := msg.(api.PayloadRequest); ok {
-			// Include error info if operation failed
-			if err != nil {
-				li.logRequest(ctx, slog.LevelDebug, requestType, payloadReq,
-					slog.String("error", err.Error()),
-					slog.String("code", connect.CodeOf(err).String()),
-				)
-			} else {
-				li.logRequest(ctx, slog.LevelDebug, requestType, payloadReq)
-			}
-			return
+			li.addPayloadAttributes(&attrs, requestType, payloadReq, level)
 		}
 	}
 
-	// Handle read operations (Get/List/Query/Search) - only log successful reads
-	if err == nil && isReadOperation(method) {
-		li.logReadAccess(ctx, method, msg)
+	slog.LogAttrs(ctx, level, "RPC request", attrs...)
+}
+
+// addPaginationAttributes adds pagination details for list operations.
+func (li *LoggingInterceptor) addPaginationAttributes(attrs *[]slog.Attr, req any, res any) {
+	// Extract request pagination info
+	if paginatedReq, ok := req.(api.PaginatedRequest); ok {
+		if pageSize := paginatedReq.GetPageSize(); pageSize > 0 {
+			*attrs = append(*attrs, slog.Int(keyPageSize, int(pageSize)))
+		}
+		if pageToken := paginatedReq.GetPageToken(); pageToken != "" {
+			*attrs = append(*attrs, slog.String(keyPageToken, pageToken))
+		}
+	}
+
+	// Extract response pagination info
+	if paginatedRes, ok := res.(api.PaginatedResponse); ok {
+		// Get results count
+		if count := api.GetResultsCount(paginatedRes); count > 0 {
+			*attrs = append(*attrs, slog.Int(keyResults, count))
+		}
+
+		// Get next_page_token
+		if nextPageToken := paginatedRes.GetNextPageToken(); nextPageToken != "" {
+			*attrs = append(*attrs, slog.String(keyNextPageToken, nextPageToken))
+		}
 	}
 }
 
-// logReadAccess logs read operations.
-// Request attributes (id, target_of_evaluation_id, tool_id) are automatically included from context.
-func (li *LoggingInterceptor) logReadAccess(ctx context.Context, method string, msg any) {
-	// Extract entity name from method (e.g., "GetCatalog" → "Catalog", "ListCatalogs" → "Catalogs")
-	entityType := method
-	if strings.HasPrefix(method, "Get") {
-		entityType = strings.TrimPrefix(method, "Get")
-	} else if strings.HasPrefix(method, "List") {
-		entityType = strings.TrimPrefix(method, "List")
-	} else if strings.HasPrefix(method, "Query") {
-		entityType = strings.TrimPrefix(method, "Query")
-	} else if strings.HasPrefix(method, "Search") {
-		entityType = strings.TrimPrefix(method, "Search")
-	}
-	
-	slog.DebugContext(ctx, entityType+" accessed")
-}
-
-// logRequest logs entity operations with full payload details at DEBUG level.
-func (li *LoggingInterceptor) logRequest(ctx context.Context, level slog.Level, requestType orchestrator.RequestType, req api.PayloadRequest, attrs ...slog.Attr) {
-	// Get the payload from the request
+// addPayloadAttributes adds entity payload details to the log attributes.
+func (li *LoggingInterceptor) addPayloadAttributes(attrs *[]slog.Attr, requestType orchestrator.RequestType, req api.PayloadRequest, level slog.Level) {
 	payload := req.GetPayload()
-
-	// Use the payload type name (e.g., "Catalog") instead of request type name (e.g., "CreateCatalogRequest")
-	var name string
-	if payload != nil {
-		name = string(payload.ProtoReflect().Descriptor().Name())
-	} else {
-		// Fallback to request type name if no payload
-		name = string(req.ProtoReflect().Descriptor().Name())
+	if payload == nil {
+		return
 	}
 
-	// Build structured log attributes
-	logAttrs := make([]slog.Attr, 0, 2+len(attrs))
+	// Include full payload for write operations (Create/Update) and debug-level reads
+	if level == slog.LevelDebug || requestType == orchestrator.RequestType_REQUEST_TYPE_CREATED ||
+		requestType == orchestrator.RequestType_REQUEST_TYPE_UPDATED ||
+		requestType == orchestrator.RequestType_REQUEST_TYPE_REGISTERED ||
+		requestType == orchestrator.RequestType_REQUEST_TYPE_STORED {
+		// Use LogValuer wrapper for clean payload logging
+		*attrs = append(*attrs, slog.Any(keyPayload, protoPayload{payload}))
+	}
+}
 
-	// Extract ID from payload if available and add as top-level attribute
-	if payload != nil {
-		if hasId, ok := payload.(api.HasId); ok {
-			if id := hasId.GetId(); id != "" {
-				logAttrs = append(logAttrs, slog.String("id", id))
-			}
+// protoPayload wraps a proto.Message and implements slog.LogValuer for automatic field extraction.
+type protoPayload struct {
+	msg protoreflect.ProtoMessage
+}
+
+// LogValue implements slog.LogValuer to extract payload fields for logging.
+func (p protoPayload) LogValue() slog.Value {
+	payloadReflect := p.msg.ProtoReflect()
+	// Pre-allocate with estimated capacity based on field count
+	attrs := make([]slog.Attr, 0, payloadReflect.Descriptor().Fields().Len())
+
+	payloadReflect.Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		fieldName := string(fd.Name())
+
+		// Skip auto-generated fields that weren't in the original request
+		if fieldName == fieldId || fieldName == fieldCreatedAt || fieldName == fieldUpdatedAt {
+			return true
 		}
-	}
 
-	// For debug level, include the full payload for detailed inspection
-	if level == slog.LevelDebug && payload != nil {
-		// Find the field name that contains the payload in the request
-		// (e.g., "catalog" in CreateCatalogRequest)
-		payloadFieldName := "payload" // default
-		reqReflect := req.ProtoReflect()
-		reqReflect.Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
-			// Check if this field's value is the payload
-			if fd.Message() != nil && v.Message().Interface() == payload {
-				payloadFieldName = string(fd.Name())
-				return false // stop iteration
+		// Get string representation - for enums, use the enum name
+		var fieldValue string
+		if fd.Enum() != nil {
+			// It's an enum - get the enum value name
+			enumVal := v.Enum()
+			enumDesc := fd.Enum().Values().ByNumber(enumVal)
+			if enumDesc != nil {
+				fieldValue = string(enumDesc.Name())
 			}
-			return true
-		})
+		} else {
+			fieldValue = v.String()
+		}
 
-		// Extract payload fields into a slog.Group using the actual field name
-		payloadAttrs := make([]any, 0)
-		payloadReflect := payload.ProtoReflect()
-		payloadReflect.Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
-			payloadAttrs = append(payloadAttrs, slog.String(string(fd.Name()), v.String()))
+		// Skip fields that are unset, UNSPECIFIED, or empty
+		if fieldValue == "" || strings.HasSuffix(fieldValue, enumUnspecified) {
 			return true
-		})
-		logAttrs = append(logAttrs, slog.Group(payloadFieldName, payloadAttrs...))
+		}
+		attrs = append(attrs, slog.String(fieldName, fieldValue))
+		return true
+	})
+
+	return slog.GroupValue(attrs...)
+}
+
+// colorCodeStatus returns an ANSI color-coded status string for a Connect error code.
+// Client errors (4xx equivalent) are colored yellow, server errors (5xx equivalent) are colored red.
+// Returns plain code string if colors are disabled.
+func colorCodeStatus(code connect.Code) string {
+	codeStr := code.String()
+
+	if !colorEnabled {
+		return codeStr
 	}
 
-	// Add any additional attributes provided by the caller
-	logAttrs = append(logAttrs, attrs...)
+	// Client errors (4xx equivalent) - yellow
+	switch code {
+	case connect.CodeInvalidArgument,
+		connect.CodeFailedPrecondition,
+		connect.CodeOutOfRange,
+		connect.CodeUnauthenticated,
+		connect.CodePermissionDenied,
+		connect.CodeNotFound,
+		connect.CodeAlreadyExists,
+		connect.CodeAborted:
+		return ansiYellow + codeStr + ansiReset
 
-	// Build simple message: "PayloadType verb" (e.g., "Catalog created")
-	verb := requestTypeToVerb(requestType)
-	msg := name + " " + verb
+	// Server errors (5xx equivalent) - red
+	case connect.CodeInternal,
+		connect.CodeUnknown,
+		connect.CodeDataLoss,
+		connect.CodeUnavailable,
+		connect.CodeUnimplemented:
+		return ansiRed + codeStr + ansiReset
 
-	// Log the message with structured attributes (context attributes added automatically)
-	slog.LogAttrs(ctx, level, msg, logAttrs...)
+	// Other errors (ResourceExhausted, DeadlineExceeded, Canceled) - red
+	default:
+		return ansiRed + codeStr + ansiReset
+	}
 }
 
 // requestTypeToVerb converts an orchestrator.RequestType to a past-tense verb string for logging.

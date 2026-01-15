@@ -63,6 +63,10 @@ require (
 	golang.org/x/tools v0.41.0 // indirect
 )
 
+require github.com/mattn/go-isatty v0.0.17
+
+require golang.org/x/sys v0.40.0 // indirect
+
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
 replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260113124646-95fa67ef4cd8

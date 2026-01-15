@@ -69,6 +69,11 @@ func (r *UpdateTargetOfEvaluationRequest) GetPayload() proto.Message {
 	return r.TargetOfEvaluation
 }
 
+// GetPayload returns the embedded tool from [RegisterAssessmentToolRequest].
+func (r *RegisterAssessmentToolRequest) GetPayload() proto.Message {
+	return r.Tool
+}
+
 // GetPayload returns the embedded tool from [UpdateAssessmentToolRequest].
 func (r *UpdateAssessmentToolRequest) GetPayload() proto.Message {
 	return r.Tool
