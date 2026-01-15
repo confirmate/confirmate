@@ -119,10 +119,17 @@ func ValidateWithPrep[T any](req *connect.Request[T], prep func(), opts ...proto
 // HandleDatabaseError translates database errors into appropriate connect errors.
 //   - If the error is [persistence.ErrRecordNotFound], it returns a [connect.CodeNotFound]
 //     error with the provided notFoundErr (or a default error if not provided).
+//   - If err is already a [connect.Error], it returns it as-is.
 //   - For other errors, it returns a [connect.CodeInternal] error. If err is nil, it returns nil.
 func HandleDatabaseError(err error, notFoundErr ...error) error {
 	if err == nil {
 		return nil
+	}
+
+	// If it's already a [connect.Error], return it as-is
+	var connectErr *connect.Error
+	if errors.As(err, &connectErr) {
+		return err
 	}
 
 	if errors.Is(err, persistence.ErrRecordNotFound) {

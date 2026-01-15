@@ -21,6 +21,8 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/persistence"
+
+	"connectrpc.com/connect"
 )
 
 // PaginationOpts can be used to fine-tune the pagination, especially with regards to the page sizes. This can be important
@@ -125,7 +127,7 @@ func paginate[T any](req api.PaginatedRequest, opts PaginationOpts, pager func(s
 		// Try to decode our existing token
 		token, err = api.DecodePageToken(req.GetPageToken())
 		if err != nil {
-			return nil, "", fmt.Errorf("could not decode page token: %w", err)
+			return nil, "", connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("could not decode page token: %w", err))
 		}
 	}
 

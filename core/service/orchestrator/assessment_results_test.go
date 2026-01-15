@@ -25,6 +25,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
@@ -241,7 +242,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			name: "validation error",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
-					PageToken: "invalid",
+					PageToken: "!!!invalid-base64!!!",
 				},
 			},
 			fields: fields{
@@ -253,7 +254,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				if cErr == nil {
 					return false
 				}
-				return assert.Equal(t, connect.CodeInternal, cErr.Code())
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
@@ -340,6 +341,30 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Both MockAssessmentResult1 and MockAssessmentResult2 have tool-1
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 2, len(got.Msg.Results))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by target of evaluation ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						TargetOfEvaluationId: util.Ref(orchestratortest.MockToeID1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Both MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, 2, len(got.Msg.Results))
 			},
@@ -474,6 +499,92 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					"result-1-2-latest", // resource-1, metric-2: latest of 2
 					"result-2-1-latest", // resource-2, metric-1: latest of 2
 					"result-2-2-single", // resource-2, metric-2: only 1
+				}
+
+				for _, expectedId := range expectedIds {
+					if !ids[expectedId] {
+						t.Errorf("Expected result %s not found in response", expectedId)
+						return false
+					}
+				}
+
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by latest_by_resource_id with conditions",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					LatestByResourceId: &[]bool{true}[0],
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						MetricId: &[]string{"metric-1"}[0],
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					// Create results for different metrics and resources
+					result11old := &assessment.AssessmentResult{
+						Id:                   "result-1-1-old",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
+					}
+					result11latest := &assessment.AssessmentResult{
+						Id:                   "result-1-1-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
+					}
+					// This should be filtered out due to metric-2
+					result12latest := &assessment.AssessmentResult{
+						Id:                   "result-1-2-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-2",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
+					}
+					result21latest := &assessment.AssessmentResult{
+						Id:                   "result-2-1-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
+					}
+
+					results := []*assessment.AssessmentResult{
+						result11old, result11latest, result12latest, result21latest,
+					}
+					for _, r := range results {
+						err := d.Create(r)
+						assert.NoError(t, err)
+					}
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Should return exactly 2 results (latest for metric-1 only, for each resource)
+				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
+
+				// Collect returned IDs
+				ids := make(map[string]bool)
+				for _, r := range got.Msg.Results {
+					ids[r.Id] = true
+					// Verify all results are for metric-1
+					if r.MetricId != "metric-1" {
+						t.Errorf("Expected only metric-1 results, got %s", r.MetricId)
+						return false
+					}
+				}
+
+				// Verify we got the latest result for each resource with metric-1
+				expectedIds := []string{
+					"result-1-1-latest", // resource-1, metric-1: latest
+					"result-2-1-latest", // resource-2, metric-1: latest
 				}
 
 				for _, expectedId := range expectedIds {
