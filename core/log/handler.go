@@ -35,23 +35,27 @@ func (h *contextHandler) Enabled(ctx context.Context, level slog.Level) bool {
 }
 
 func (h *contextHandler) Handle(ctx context.Context, r slog.Record) error {
-	// Prepend attributes from context to the record (so they appear first)
-	if attrs := attrsFromContext(ctx); len(attrs) > 0 {
-		// We need to prepend context attrs, so collect original attrs first
-		var originalAttrs []slog.Attr
-		r.Attrs(func(a slog.Attr) bool {
-			originalAttrs = append(originalAttrs, a)
-			return true
-		})
-		
-		// Create new record with context attributes first, then original
-		newRecord := slog.NewRecord(r.Time, r.Level, r.Message, r.PC)
-		newRecord.AddAttrs(attrs...)
-		newRecord.AddAttrs(originalAttrs...)
-		
-		return h.handler.Handle(ctx, newRecord)
+	// Check if context has attributes to prepend
+	ctxAttrs := attrsFromContext(ctx)
+	if len(ctxAttrs) == 0 {
+		// No context attributes, pass through directly
+		return h.handler.Handle(ctx, r)
 	}
-	return h.handler.Handle(ctx, r)
+
+	// Prepend context attributes to the record (so they appear first)
+	// Pre-allocate slice with exact capacity needed
+	originalAttrs := make([]slog.Attr, 0, r.NumAttrs())
+	r.Attrs(func(a slog.Attr) bool {
+		originalAttrs = append(originalAttrs, a)
+		return true
+	})
+
+	// Create new record with context attributes first, then original
+	newRecord := slog.NewRecord(r.Time, r.Level, r.Message, r.PC)
+	newRecord.AddAttrs(ctxAttrs...)
+	newRecord.AddAttrs(originalAttrs...)
+
+	return h.handler.Handle(ctx, newRecord)
 }
 
 func (h *contextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {

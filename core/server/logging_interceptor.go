@@ -18,15 +18,14 @@ package server
 import (
 	"context"
 	"log/slog"
-	"os"
 	"strings"
 	"time"
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
+
 	"connectrpc.com/connect"
-	"github.com/mattn/go-isatty"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -63,11 +62,6 @@ const (
 	ansiGreen  = "\033[32m"
 	ansiYellow = "\033[33m"
 	ansiRed    = "\033[31m"
-)
-
-var (
-	// colorEnabled determines if ANSI colors should be used
-	colorEnabled = isatty.IsTerminal(os.Stdout.Fd())
 )
 
 // LoggingInterceptor logs RPC requests at two levels:
@@ -197,7 +191,7 @@ func (li *LoggingInterceptor) logRPCRequest(ctx context.Context, method string, 
 			slog.String(keyError, errMsg),
 		)
 	} else {
-		if colorEnabled {
+		if log.ColorEnabled() {
 			status = ansiGreen + "ok" + ansiReset
 		} else {
 			status = "ok"
@@ -317,7 +311,7 @@ func (p protoPayload) LogValue() slog.Value {
 func colorCodeStatus(code connect.Code) string {
 	codeStr := code.String()
 
-	if !colorEnabled {
+	if !log.ColorEnabled() {
 		return codeStr
 	}
 

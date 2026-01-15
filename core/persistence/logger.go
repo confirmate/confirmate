@@ -58,7 +58,7 @@ func (l *slogGormLogger) Error(ctx context.Context, msg string, data ...interfac
 // This ensures SQL queries don't clutter DEBUG or INFO-level logs in production.
 func (l *slogGormLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
 	// Only log if TRACE level is enabled
-	if !slog.Default().Enabled(ctx, log.LevelTrace) {
+	if !slog.Default().Enabled(ctx, log.LevelTrace.Level()) {
 		return
 	}
 
@@ -66,14 +66,14 @@ func (l *slogGormLogger) Trace(ctx context.Context, begin time.Time, fc func() (
 	sql, rows := fc()
 
 	if err != nil {
-		slog.LogAttrs(ctx, log.LevelTrace, "SQL query failed",
+		slog.LogAttrs(ctx, log.LevelTrace.Level(), "SQL query failed",
 			slog.Duration("elapsed", elapsed),
 			slog.String("sql", sql),
 			slog.Int64("rows", rows),
 			slog.String("error", err.Error()),
 		)
 	} else {
-		slog.LogAttrs(ctx, log.LevelTrace, "SQL query",
+		slog.LogAttrs(ctx, log.LevelTrace.Level(), "SQL query",
 			slog.Duration("elapsed", elapsed),
 			slog.String("sql", sql),
 			slog.Int64("rows", rows),
