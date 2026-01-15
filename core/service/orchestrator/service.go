@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
@@ -54,28 +55,35 @@ type subscriber struct {
 
 // DefaultConfig is the default configuration for the orchestrator [Service].
 var DefaultConfig = Config{
-	CatalogsFolder:                  "catalogs",
-	CreateDefaultTargetOfEvaluation: true,
-	IgnoreDefaultMetrics:            false,
+	DefaultCatalogsFolder:           "catalogs",
 	DefaultMetricsPath:              "./policies/security-metrics/metrics",
-	LoadCatalogsFunc:                loadEmbeddedCatalogs,
+	CreateDefaultTargetOfEvaluation: true,
+	LoadDefaultCatalogs:             true,
+	LoadDefaultMetrics:              true,
 }
 
 // Config represents the configuration for the orchestrator [Service].
 type Config struct {
-	// CatalogsFolder is the folder where catalogs are stored.
-	CatalogsFolder string
-	// LoadCatalogsFunc is a function that is used to initially load catalogs at the start of the orchestrator.
-	// If overridden, this function will be used instead of loading from CatalogsFolder.
+	// DefaultCatalogsFolder is the folder where default catalogs are stored.
+	DefaultCatalogsFolder string
+	// LoadDefaultCatalogs controls whether to load default catalogs from
+	// [Config.DefaultCatalogsFolder].
+	LoadDefaultCatalogs bool
+	// LoadCatalogsFunc is an optional function to load additional catalogs at service start. This
+	// function is called in addition to loading from [Config.DefaultCatalogsFolder] (if enabled).
 	LoadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
-	// AdditionalMetricsPath is the path to a folder containing additional custom metrics.
-	AdditionalMetricsPath string
-	// DefaultMetricsPath is the path to the security-metrics repository.
+
+	// DefaultMetricsPath is the path to the folder containing default metrics (e.g.,
+	// security-metrics repository).
 	DefaultMetricsPath string
+	// LoadDefaultMetrics controls whether to load default metrics from [Config.DefaultMetricsPath].
+	LoadDefaultMetrics bool
+	// LoadMetricsFunc is an optional function to load additional metrics at service start. This
+	// function is called in addition to loading from [Config.DefaultMetricsPath] (if enabled).
+	LoadMetricsFunc func(*Service) ([]*assessment.Metric, error)
+
 	// CreateDefaultTargetOfEvaluation controls whether to create a default target of evaluation.
 	CreateDefaultTargetOfEvaluation bool
-	// IgnoreDefaultMetrics controls whether to skip loading default metrics from the security-metrics submodule.
-	IgnoreDefaultMetrics bool
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
