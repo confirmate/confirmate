@@ -32,10 +32,11 @@ var OrchestratorCommand = &cli.Command{
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		svc, err := orchestrator.NewService(
 			orchestrator.WithConfig(orchestrator.Config{
-				CatalogsFolder:                  cmd.String("catalogs-folder"),
-				AdditionalMetricsPath:           cmd.String("additional-metrics-path"),
+				DefaultCatalogsFolder:           cmd.String("catalogs-default-path"),
+				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
+				DefaultMetricsPath:              cmd.String("metrics-default-path"),
+				LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
 				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
-				IgnoreDefaultMetrics:            cmd.Bool("ignore-default-metrics"),
 			}),
 		)
 		if err != nil {
@@ -77,23 +78,29 @@ var OrchestratorCommand = &cli.Command{
 			Value: server.DefaultConfig.CORS.AllowedHeaders,
 		},
 		&cli.StringFlag{
-			Name:  "catalogs-folder",
-			Usage: "The folder containing catalog definitions",
-			Value: orchestrator.DefaultConfig.CatalogsFolder,
+			Name:  "catalogs-default-path",
+			Usage: "The path to the folder containing default catalog definitions",
+			Value: orchestrator.DefaultConfig.DefaultCatalogsFolder,
+		},
+		&cli.BoolFlag{
+			Name:  "catalogs-load-default",
+			Usage: "Load default catalogs from the catalogs-default-path",
+			Value: orchestrator.DefaultConfig.LoadDefaultCatalogs,
 		},
 		&cli.StringFlag{
-			Name:  "additional-metrics-path",
-			Usage: "The path to a folder containing additional custom metric definitions",
+			Name:  "metrics-default-path",
+			Usage: "The path to the folder containing default metrics (e.g., security-metrics repository)",
+			Value: orchestrator.DefaultConfig.DefaultMetricsPath,
+		},
+		&cli.BoolFlag{
+			Name:  "metrics-load-default",
+			Usage: "Load default metrics from the metrics-default-path",
+			Value: orchestrator.DefaultConfig.LoadDefaultMetrics,
 		},
 		&cli.BoolFlag{
 			Name:  "create-default-target-of-evaluation",
 			Usage: "Creates a default target of evaluation if none exists",
 			Value: orchestrator.DefaultConfig.CreateDefaultTargetOfEvaluation,
-		},
-		&cli.BoolFlag{
-			Name:  "ignore-default-metrics",
-			Usage: "Skips loading default metrics from the security-metrics submodule",
-			Value: orchestrator.DefaultConfig.IgnoreDefaultMetrics,
 		},
 	},
 }

@@ -185,7 +185,7 @@ func TestService_LoadCatalogsFunc(t *testing.T) {
 		},
 		{
 			name:             "default embedded catalogs (empty folder)",
-			loadCatalogsFunc: nil, // Will use default loadEmbeddedCatalogs
+			loadCatalogsFunc: nil, // Will not load additional catalogs
 			wantCatalogCount: 0,   // No catalogs in empty folder
 			wantErr:          assert.NoError,
 		},
@@ -193,21 +193,13 @@ func TestService_LoadCatalogsFunc(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var cfg Config
-			if tt.loadCatalogsFunc != nil {
-				cfg = Config{
-					LoadCatalogsFunc:                tt.loadCatalogsFunc,
-					CreateDefaultTargetOfEvaluation: false,
-					IgnoreDefaultMetrics:            false, // Use default metrics to avoid error
-					DefaultMetricsPath:              "./policies/security-metrics/metrics",
-				}
-			} else {
-				cfg = Config{
-					CatalogsFolder:                  t.TempDir(), // Empty temp directory
-					CreateDefaultTargetOfEvaluation: false,
-					IgnoreDefaultMetrics:            false, // Use default metrics to avoid error
-					DefaultMetricsPath:              "./policies/security-metrics/metrics",
-				}
+			cfg := Config{
+				LoadCatalogsFunc:                tt.loadCatalogsFunc,
+				DefaultCatalogsFolder:           t.TempDir(), // Empty temp directory
+				LoadDefaultCatalogs:             true,
+				CreateDefaultTargetOfEvaluation: false,
+				LoadDefaultMetrics:              true,
+				DefaultMetricsPath:              "./policies/security-metrics/metrics",
 			}
 
 			handler, err := NewService(WithConfig(cfg))

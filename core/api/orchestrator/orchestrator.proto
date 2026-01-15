@@ -624,9 +624,9 @@ message ChangeEvent {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Optional: target of evaluation ID (for metric configuration changes)
-  // When present, should be a valid UUID
-  string target_of_evaluation_id = 5;
+  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes). 
+  // When present, should be a valid UUID.
+  optional string target_of_evaluation_id = 5;
 
   // The actual entity data (optional, may be omitted for DELETED events)
   oneof entity {
