@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
+
 	"connectrpc.com/connect"
 )
 

@@ -72,9 +72,8 @@ func (s *DB) Update(r any, conds ...any) (err error) {
 	if err = db.Error; err != nil { // db error
 		if strings.Contains(err.Error(), "constraint failed") {
 			return ErrConstraintFailed
-		} else {
-			return err
 		}
+		return err
 	}
 
 	// No record with given ID found
@@ -124,30 +123,25 @@ func (s *DB) Get(r any, conds ...any) (err error) {
 
 // List retrieves a list of records from the database.
 func (s *DB) List(r any, orderBy string, asc bool, offset int, limit int, conds ...any) error {
-	var (
-		db = s.DB
-		// Set the default direction to "ascending"
-		orderDirection = "asc"
-	)
+	db := s.DB
 
 	if limit != -1 {
-		db = s.DB.Limit(limit)
+		db = db.Limit(limit)
 	}
 
-	// Set the direction to "descending"
-	if !asc {
-		orderDirection = "desc"
-	}
-	orderStmt := orderBy + " " + orderDirection
-	// No explicit ordering
-	if orderBy == "" {
-		orderStmt = ""
+	// Use GORM's clause.OrderByColumn to safely handle column names
+	// This prevents SQL injection by treating the column name as an identifier
+	if orderBy != "" {
+		db = db.Order(clause.OrderByColumn{
+			Column: clause.Column{Name: orderBy},
+			Desc:   !asc,
+		})
 	}
 
 	// Preload all associations of r if necessary
 	db, conds = applyPreload(db.Offset(offset), conds...)
 
-	return db.Order(orderStmt).Find(r, conds...).Error
+	return db.Find(r, conds...).Error
 }
 
 // Count retrieves the count of records in the database that match the provided conditions.
