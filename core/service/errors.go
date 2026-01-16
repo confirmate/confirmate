@@ -136,6 +136,7 @@ func HandleDatabaseError(err error, notFoundErr ...error) error {
 		if len(notFoundErr) == 0 {
 			notFoundErr = append(notFoundErr, ErrNotFound("entity"))
 		}
+
 		return connect.NewError(connect.CodeNotFound, notFoundErr[0])
 	}
 

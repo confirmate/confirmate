@@ -371,9 +371,9 @@ const file_api_assessment_metric_proto_rawDesc = "" +
 	"\x0eimplementation\x18\x06 \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x00R\x0eimplementation\x88\x01\x01\x12}\n" +
 	"\x10deprecated_since\x18\a \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x01R\x0fdeprecatedSince\x88\x01\x01B\x11\n" +
 	"\x0f_implementationB\x13\n" +
-	"\x11_deprecated_since\"\xe4\x03\n" +
-	"\x13MetricConfiguration\x12A\n" +
-	"\boperator\x18\x01 \x01(\tB%\xe0A\x02\xbaH\x1fr\x1d2\x1b^(<|>|<=|>=|==|isIn|allIn)$R\boperator\x12_\n" +
+	"\x11_deprecated_since\"\xe7\x03\n" +
+	"\x13MetricConfiguration\x12D\n" +
+	"\boperator\x18\x01 \x01(\tB(\xe0A\x02\xbaH\"r 2\x1e^(<|>|<=|>=|==|!=|isIn|allIn)$R\boperator\x12_\n" +
 	"\ftarget_value\x18\x02 \x01(\v2\x16.google.protobuf.ValueB$\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\vtargetValue\x12\"\n" +
 	"\n" +
 	"is_default\x18\x03 \x01(\bB\x03\xe0A\x02R\tisDefault\x12l\n" +

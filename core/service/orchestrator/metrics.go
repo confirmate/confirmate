@@ -33,7 +33,6 @@ import (
 	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
-	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v3"
@@ -516,38 +515,4 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 	defaultMetricConfigurations[m.Id] = config
 
 	return nil
-}
-
-// loadMetricsFromFolder loads metric definitions from JSON files in a custom folder.
-func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.Metric, err error) {
-	metrics = make([]*assessment.Metric, 0)
-
-	// Get all filenames
-	files, err := os.ReadDir(folder)
-	if err != nil {
-		return nil, fmt.Errorf("could not read metrics folder: %w", err)
-	}
-
-	for _, file := range files {
-		if file.IsDir() || filepath.Ext(file.Name()) != ".json" {
-			continue
-		}
-
-		var metricsFromFile []*assessment.Metric
-		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
-		if err != nil {
-			slog.Warn("could not read metrics file", "file", file.Name(), tint.Err(err))
-			continue
-		}
-
-		err = json.Unmarshal(b, &metricsFromFile)
-		if err != nil {
-			slog.Warn("could not unmarshal metrics file", "file", file.Name(), tint.Err(err))
-			continue
-		}
-
-		metrics = append(metrics, metricsFromFile...)
-	}
-
-	return metrics, nil
 }

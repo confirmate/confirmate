@@ -65,6 +65,41 @@ func TestService_CreateCertificate(t *testing.T) {
 				return true
 			},
 		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.CreateCertificateRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+				return true
+			},
+		},
+		{
+			name: "validation error - missing certificate",
+			args: args{
+				req: &orchestrator.CreateCertificateRequest{
+					Certificate: &orchestrator.Certificate{},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "certificate.target_of_evaluation_id")
+			},
+			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+				return true
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -112,6 +147,19 @@ func TestService_GetCertificate(t *testing.T) {
 				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetCertificateRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
 		},
 		{
 			name: "not found",
@@ -307,6 +355,37 @@ func TestService_UpdateCertificate(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.UpdateCertificateRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.UpdateCertificateRequest{
+					Certificate: &orchestrator.Certificate{
+						Name: "Updated Certificate",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "certificate.id")
+			},
+		},
+		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
@@ -371,6 +450,19 @@ func TestService_RemoveCertificate(t *testing.T) {
 				return assert.NotNil(t, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.RemoveCertificateRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
 		},
 	}
 

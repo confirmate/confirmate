@@ -55,7 +55,7 @@ type subscriber struct {
 
 // DefaultConfig is the default configuration for the orchestrator [Service].
 var DefaultConfig = Config{
-	DefaultCatalogsFolder:           "catalogs",
+	DefaultCatalogsPath:             "catalogs",
 	DefaultMetricsPath:              "./policies/security-metrics/metrics",
 	CreateDefaultTargetOfEvaluation: true,
 	LoadDefaultCatalogs:             true,
@@ -64,17 +64,17 @@ var DefaultConfig = Config{
 
 // Config represents the configuration for the orchestrator [Service].
 type Config struct {
-	// DefaultCatalogsFolder is the folder where default catalogs are stored.
-	DefaultCatalogsFolder string
+	// DefaultCatalogsPath is the path where default catalogs are stored.
+	DefaultCatalogsPath string
 	// LoadDefaultCatalogs controls whether to load default catalogs from
-	// [Config.DefaultCatalogsFolder].
+	// [Config.DefaultCatalogsPath].
 	LoadDefaultCatalogs bool
 	// LoadCatalogsFunc is an optional function to load additional catalogs at service start. This
-	// function is called in addition to loading from [Config.DefaultCatalogsFolder] (if enabled).
+	// function is called in addition to loading from [Config.DefaultCatalogsPath] (if enabled).
 	LoadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
 
-	// DefaultMetricsPath is the path to the folder containing default metrics (e.g.,
-	// security-metrics repository).
+	// DefaultMetricsPath is the path containing default metrics (e.g., security-metrics
+	// repository).
 	DefaultMetricsPath string
 	// LoadDefaultMetrics controls whether to load default metrics from [Config.DefaultMetricsPath].
 	LoadDefaultMetrics bool

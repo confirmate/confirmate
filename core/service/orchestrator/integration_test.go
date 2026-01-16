@@ -385,7 +385,7 @@ func TestService_LoadCatalogsFunc(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := Config{
 				LoadCatalogsFunc:                tt.loadCatalogsFunc,
-				DefaultCatalogsFolder:           t.TempDir(), // Empty temp directory
+				DefaultCatalogsPath:             t.TempDir(), // Empty temp directory
 				LoadDefaultCatalogs:             true,
 				CreateDefaultTargetOfEvaluation: false,
 				LoadDefaultMetrics:              true,
