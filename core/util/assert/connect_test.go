@@ -151,7 +151,7 @@ func TestIsValidationError(t *testing.T) {
 				}),
 				field: "id",
 			},
-			want: false,
+			want: true,
 		},
 		{
 			name: "not a connect error",
