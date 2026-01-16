@@ -42,6 +42,7 @@ func TestService_CreateCertificate(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.Certificate]]
 		wantErr assert.WantErr
+		wantDB  assert.Want[*persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -58,6 +59,11 @@ func TestService_CreateCertificate(t *testing.T) {
 				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+				cert := assert.InDB[orchestrator.Certificate](t, db, orchestratortest.MockCertificate1.Id)
+				assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name)
+				return true
+			},
 		},
 	}
 
@@ -69,6 +75,7 @@ func TestService_CreateCertificate(t *testing.T) {
 			res, err := svc.CreateCertificate(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+			tt.wantDB(t, tt.fields.db)
 		})
 	}
 }

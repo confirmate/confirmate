@@ -164,3 +164,22 @@ func WantResponse[T any](t *testing.T, got *connect.Response[T], gotErr error, w
 		return want(t, got.Msg)
 	}
 }
+
+// Getter is an interface for database operations that can retrieve objects by ID.
+type Getter interface {
+	Get(dest any, conds ...any) error
+}
+
+// InDB retrieves an object from the database by ID and returns it.
+// If the object cannot be retrieved, the test fails and returns the zero value.
+func InDB[T any](t *testing.T, db Getter, id string) *T {
+	t.Helper()
+
+	var obj T
+	err := db.Get(&obj, "id = ?", id)
+	if !NoError(t, err) {
+		return nil
+	}
+
+	return &obj
+}

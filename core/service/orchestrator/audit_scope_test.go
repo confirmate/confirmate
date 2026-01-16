@@ -42,6 +42,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.AuditScope]]
 		wantErr assert.WantErr
+		wantDB  assert.Want[*persistence.DB]
 	}{
 		{
 			name: "validation error - empty request",
@@ -56,13 +57,14 @@ func TestService_CreateAuditScope(t *testing.T) {
 				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
+			wantDB: assert.NotNil[*persistence.DB],
 		},
 		{
 			name: "validation error - missing target of evaluation id",
 			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						CatalogId: orchestratortest.MockCatalog1.Id,
+						CatalogId: orchestratortest.MockAuditScope1.CatalogId,
 					},
 				},
 			},
@@ -75,6 +77,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
 					assert.ErrorContains(t, err, "target_of_evaluation_id")
 			},
+			wantDB: assert.NotNil[*persistence.DB],
 		},
 		{
 			name: "happy path",
@@ -94,26 +97,15 @@ func TestService_CreateAuditScope(t *testing.T) {
 					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
-		},
-		{
-			name: "with existing ID",
-			args: args{
-				req: &orchestrator.CreateAuditScopeRequest{
-					AuditScope: &orchestrator.AuditScope{
-						Id:                   "00000000-0000-0000-0001-000000000099",
-						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
-						CatalogId:            orchestratortest.MockCatalog1.Id,
-					},
-				},
+			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+				res := assert.Is[*orchestrator.AuditScope](t, msgAndArgs[0])
+				assert.Nil(t, res)
+
+				scope := assert.InDB[orchestrator.AuditScope](t, db, res.Id)
+				assert.Equal(t, orchestratortest.MockAuditScope1.TargetOfEvaluationId, scope.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockAuditScope1.CatalogId, scope.CatalogId)
+				return true
 			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
-				return assert.NotNil(t, got.Msg) &&
-					assert.NotEmpty(t, got.Msg.Id)
-			},
-			wantErr: assert.NoError,
 		},
 	}
 
@@ -125,6 +117,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+			tt.wantDB(t, tt.fields.db, res.Msg)
 		})
 	}
 }

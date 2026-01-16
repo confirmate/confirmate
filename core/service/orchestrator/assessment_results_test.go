@@ -45,6 +45,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.StoreAssessmentResultResponse]]
 		wantErr assert.WantErr
+		wantDB  assert.Want[*persistence.DB]
 	}{
 		{
 			name: "validation error - empty request",
@@ -60,6 +61,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
 					assert.ErrorContains(t, err, "invalid request")
 			},
+			wantDB: assert.NotNil[*persistence.DB],
 		},
 		{
 			name: "validation error - missing metric id",
@@ -80,6 +82,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
 					assert.ErrorContains(t, err, "metric_id")
 			},
+			wantDB: assert.NotNil[*persistence.DB],
 		},
 		{
 			name: "db error",
@@ -99,6 +102,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeInternal, cErr.Code())
 			},
+			wantDB: assert.NotNil[*persistence.DB],
 		},
 		{
 			name: "happy path",
@@ -112,6 +116,15 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+				// Verify the result was persisted with correct timestamp
+				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultID3)
+				assert.NotNil(t, result.CreatedAt)
+				assert.True(t, time.Since(result.CreatedAt.AsTime()) < 5*time.Second)
+				assert.Equal(t, orchestratortest.MockMetricID1, result.MetricId)
+				assert.Equal(t, orchestratortest.MockResourceIDNew, result.ResourceId)
+				return true
+			},
 		},
 	}
 
@@ -123,6 +136,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			res, err := svc.StoreAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+			tt.wantDB(t, tt.fields.db)
 		})
 	}
 }
