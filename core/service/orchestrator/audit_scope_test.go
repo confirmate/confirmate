@@ -54,8 +54,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 			wantDB: assert.NotNil[*persistence.DB],
 		},
@@ -73,8 +72,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "target_of_evaluation_id")
 			},
 			wantDB: assert.NotNil[*persistence.DB],
@@ -98,10 +96,10 @@ func TestService_CreateAuditScope(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
-				res := assert.Is[*orchestrator.AuditScope](t, msgAndArgs[0])
-				assert.Nil(t, res)
+				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
 
-				scope := assert.InDB[orchestrator.AuditScope](t, db, res.Id)
+				scope := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
 				assert.Equal(t, orchestratortest.MockAuditScope1.TargetOfEvaluationId, scope.TargetOfEvaluationId)
 				assert.Equal(t, orchestratortest.MockAuditScope1.CatalogId, scope.CatalogId)
 				return true
@@ -117,7 +115,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
-			tt.wantDB(t, tt.fields.db, res.Msg)
+			tt.wantDB(t, tt.fields.db, res)
 		})
 	}
 }
@@ -167,8 +165,7 @@ func TestService_GetAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -331,8 +328,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}

@@ -57,8 +57,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "invalid request")
 			},
 			wantDB: assert.NotNil[*persistence.DB],
@@ -78,8 +77,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "metric_id")
 			},
 			wantDB: assert.NotNil[*persistence.DB],
@@ -99,8 +97,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInternal, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
 			wantDB: assert.NotNil[*persistence.DB],
 		},
@@ -167,8 +164,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "id")
 			},
 		},
@@ -184,8 +180,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "id")
 			},
 		},
@@ -220,8 +215,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -264,11 +258,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				if cErr == nil {
-					return false
-				}
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{

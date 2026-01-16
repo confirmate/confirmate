@@ -118,8 +118,7 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -250,8 +249,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -363,8 +361,7 @@ func TestService_GetCategory(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Category]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -552,8 +549,7 @@ func TestService_GetControl(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Control]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
