@@ -88,18 +88,19 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			name: "stream - resilience with partial failures",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
-					// Pre-create the first result to cause a duplicate error
-					assert.NoError(t, d.Create(orchestratortest.MockNewAssessmentResult))
+					// Pre-create the second result to cause a duplicate error in the middle
+					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResult2))
 				}),
 				subscribers: make(map[int64]*subscriber),
 			},
 			results: []*assessment.AssessmentResult{
-				orchestratortest.MockNewAssessmentResult, // Duplicate - should fail
-				orchestratortest.MockAssessmentResult2,   // Should succeed
+				orchestratortest.MockNewAssessmentResult, // Should succeed
+				orchestratortest.MockAssessmentResult2,   // Duplicate - should fail
+				orchestratortest.MockAssessmentResult1,   // Should succeed
 			},
 			wantStatuses: func(t *testing.T, got []bool, args ...any) bool {
 				// Stream continues after error - verifies resilience
-				return assert.Equal(t, []bool{false, true}, got)
+				return assert.Equal(t, []bool{true, false, true}, got)
 			},
 			wantErr: assert.NoError, // Stream itself doesn't error, just returns status=false
 		},
