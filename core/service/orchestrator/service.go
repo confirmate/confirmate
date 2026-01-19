@@ -64,7 +64,7 @@ var DefaultConfig = Config{
 
 // Config represents the configuration for the orchestrator [Service].
 type Config struct {
-	// DefaultCatalogsPath is the folder where default catalogs are stored.
+	// DefaultCatalogsPath is the path where default catalogs are stored.
 	DefaultCatalogsPath string
 	// LoadDefaultCatalogs controls whether to load default catalogs from
 	// [Config.DefaultCatalogsPath].
@@ -73,8 +73,8 @@ type Config struct {
 	// function is called in addition to loading from [Config.DefaultCatalogsPath] (if enabled).
 	LoadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
 
-	// DefaultMetricsPath is the path to the folder containing default metrics (e.g.,
-	// security-metrics repository).
+	// DefaultMetricsPath is the path containing default metrics (e.g., security-metrics
+	// repository).
 	DefaultMetricsPath string
 	// LoadDefaultMetrics controls whether to load default metrics from [Config.DefaultMetricsPath].
 	LoadDefaultMetrics bool

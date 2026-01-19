@@ -28,7 +28,6 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
@@ -516,38 +515,4 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 	defaultMetricConfigurations[m.Id] = config
 
 	return nil
-}
-
-// loadMetricsFromFolder loads metric definitions from JSON files in a custom folder.
-func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.Metric, err error) {
-	metrics = make([]*assessment.Metric, 0)
-
-	// Get all filenames
-	files, err := os.ReadDir(folder)
-	if err != nil {
-		return nil, fmt.Errorf("could not read metrics folder: %w", err)
-	}
-
-	for _, file := range files {
-		if file.IsDir() || filepath.Ext(file.Name()) != ".json" {
-			continue
-		}
-
-		var metricsFromFile []*assessment.Metric
-		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
-		if err != nil {
-			slog.Warn("could not read metrics file", "file", file.Name(), log.Err(err))
-			continue
-		}
-
-		err = json.Unmarshal(b, &metricsFromFile)
-		if err != nil {
-			slog.Warn("could not unmarshal metrics file", "file", file.Name(), log.Err(err))
-			continue
-		}
-
-		metrics = append(metrics, metricsFromFile...)
-	}
-
-	return metrics, nil
 }
