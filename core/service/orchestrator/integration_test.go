@@ -390,6 +390,9 @@ func TestService_LoadCatalogsFunc(t *testing.T) {
 				CreateDefaultTargetOfEvaluation: false,
 				LoadDefaultMetrics:              true,
 				DefaultMetricsPath:              "./policies/security-metrics/metrics",
+				PersistenceConfig: persistence.Config{
+					InMemoryDB: true,
+				},
 			}
 
 			handler, err := NewService(WithConfig(cfg))

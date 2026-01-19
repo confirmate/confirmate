@@ -63,8 +63,10 @@ func Test_DB_Create(t *testing.T) {
 
 	// Create DB
 	s, err = NewDB(
-		WithInMemory(),
-		WithAutoMigration(&assessment.Metric{}, &assessment.MetricImplementation{}),
+		WithConfig(Config{
+			InMemoryDB: true,
+			Types:      []any{&assessment.Metric{}, &assessment.MetricImplementation{}},
+		}),
 	)
 	assert.NoError(t, err)
 
@@ -87,12 +89,14 @@ func Test_DB_Get(t *testing.T) {
 
 	// Create DB
 	s, err = NewDB(
-		WithInMemory(),
-		WithAutoMigration(
-			&orchestrator.TargetOfEvaluation{},
-			&assessment.Metric{},
-			&assessment.MetricImplementation{},
-		),
+		WithConfig(Config{
+			InMemoryDB: true,
+			Types: []any{
+				&orchestrator.TargetOfEvaluation{},
+				&assessment.Metric{},
+				&assessment.MetricImplementation{},
+			},
+		}),
 	)
 	assert.NoError(t, err)
 
