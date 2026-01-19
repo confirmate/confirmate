@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	_ "github.com/proullon/ramsql/driver"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
