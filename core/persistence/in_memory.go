@@ -13,37 +13,38 @@
 //
 // This file is part of Confirmate Core.
 
-// package persistencetest provides utilities for testing database operations in Confirmate Core.
-package persistencetest
+package persistence
 
 import (
-	"testing"
+	"database/sql"
+	"fmt"
+	"math/rand/v2"
 
-	"confirmate.io/core/persistence"
-	"confirmate.io/core/util/assert"
+	_ "github.com/proullon/ramsql/driver"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-// NewInMemoryDB creates a new in-memory database for testing purposes.
+// newInMemoryDB creates a new in-memory Ramsql database connection.
 //
-// It applies auto-migration for the provided types and sets up the specified join tables.
-// If there is an error during the creation of the DB, the test will panic immediately.
-func NewInMemoryDB(t *testing.T, types []any, joinTable []persistence.CustomJoinTable, init ...func(persistence.DB)) persistence.DB {
-	opts := []persistence.DBOption{
-		persistence.WithInMemory(),
-		persistence.WithAutoMigration(types...),
-		persistence.WithSetupJoinTable(joinTable...),
-	}
-	db, err := persistence.NewDB(
-		opts...,
+// This creates a unique in-memory database instance each time it is called.
+func newInMemoryDB() (g *gorm.DB, err error) {
+	var (
+		db *sql.DB
 	)
 
-	for _, fn := range init {
-		fn(db)
+	db, err = sql.Open("ramsql", fmt.Sprintf("confirmate_inmemory_%d", rand.Uint64()))
+	if err != nil {
+		return nil, fmt.Errorf("could not open in-memory database: %w", err)
 	}
 
-	if !assert.NoError(t, err) {
-		panic(err)
+	g, err = gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}),
+		&gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("could not create gorm connection: %w", err)
 	}
 
-	return db
+	return g, nil
 }

@@ -38,7 +38,7 @@ import (
 // [orchestratorconnect.OrchestratorHandler]).
 type Service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db  *persistence.DB
+	db  persistence.DB
 	cfg Config
 
 	// subscribers is a map of subscribers for change events

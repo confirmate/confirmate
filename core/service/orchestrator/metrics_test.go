@@ -37,7 +37,7 @@ func TestService_CreateMetric(t *testing.T) {
 		req *orchestrator.CreateMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -111,7 +111,7 @@ func TestService_GetMetric(t *testing.T) {
 		req *orchestrator.GetMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -128,7 +128,7 @@ func TestService_GetMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 				}),
 			},
@@ -187,7 +187,7 @@ func TestService_ListMetrics(t *testing.T) {
 		req *orchestrator.ListMetricsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -202,7 +202,7 @@ func TestService_ListMetrics(t *testing.T) {
 				req: &orchestrator.ListMetricsRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetric2)
@@ -249,7 +249,7 @@ func TestService_UpdateMetric(t *testing.T) {
 		req *orchestrator.UpdateMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -271,7 +271,7 @@ func TestService_UpdateMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 				}),
@@ -352,7 +352,7 @@ func TestService_RemoveMetric(t *testing.T) {
 		req *orchestrator.RemoveMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -369,7 +369,7 @@ func TestService_RemoveMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 				}),
@@ -411,7 +411,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 		req *orchestrator.GetMetricImplementationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -428,7 +428,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetricImplementation1)
@@ -488,7 +488,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 		req *orchestrator.UpdateMetricImplementationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -509,7 +509,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetricImplementation1)
@@ -589,7 +589,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 		req *orchestrator.GetMetricConfigurationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -607,7 +607,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockTargetOfEvaluation1))
 					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 					assert.NoError(t, d.Create(orchestratortest.MockMetricConfiguration1))
@@ -710,7 +710,7 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 		req *orchestrator.ListMetricConfigurationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -727,7 +727,7 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
@@ -775,7 +775,7 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 		req *orchestrator.UpdateMetricConfigurationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -798,7 +798,7 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Create the TOE first (required by foreign key constraint)
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
@@ -847,7 +847,7 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 
 func TestService_loadMetrics(t *testing.T) {
 	type fields struct {
-		db  *persistence.DB
+		db  persistence.DB
 		cfg Config
 	}
 	tests := []struct {
@@ -916,7 +916,7 @@ func TestService_loadMetrics(t *testing.T) {
 
 func TestService_loadMetricsFromRepository(t *testing.T) {
 	type fields struct {
-		db  *persistence.DB
+		db  persistence.DB
 		cfg Config
 	}
 	tests := []struct {

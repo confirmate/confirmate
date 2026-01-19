@@ -45,7 +45,7 @@ import (
 // are tested in assessment_results_test.go (StoreAssessmentResult unit tests).
 func TestService_StoreAssessmentResults(t *testing.T) {
 	type fields struct {
-		db          *persistence.DB
+		db          persistence.DB
 		subscribers map[int64]*subscriber
 	}
 	tests := []struct {
@@ -87,7 +87,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 		{
 			name: "stream - resilience with partial failures",
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Pre-create the second result to cause a duplicate error
 					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResultForDuplicate))
 				}),

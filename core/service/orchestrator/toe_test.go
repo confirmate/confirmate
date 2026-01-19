@@ -35,7 +35,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.CreateTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -43,7 +43,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -65,7 +65,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 					assert.NotNil(t, got.Msg.UpdatedAt)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
@@ -86,7 +86,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "validation error - missing name",
@@ -103,7 +103,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.IsValidationError(t, err, "target_of_evaluation.name")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 	}
 
@@ -125,7 +125,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.GetTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -142,7 +142,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
@@ -200,7 +200,7 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 		req *orchestrator.ListTargetsOfEvaluationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -215,7 +215,7 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 				req: &orchestrator.ListTargetsOfEvaluationRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
@@ -246,7 +246,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.UpdateTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -254,7 +254,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -267,7 +267,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
@@ -277,7 +277,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 					assert.Equal(t, "updated-name", got.Msg.Name)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
@@ -298,7 +298,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "validation error - missing id",
@@ -317,7 +317,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.IsValidationError(t, err, "target_of_evaluation.id")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "not found",
@@ -336,7 +336,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "target of evaluation not found")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 	}
 
@@ -358,7 +358,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.RemoveTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -366,7 +366,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[emptypb.Empty]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -376,7 +376,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
@@ -385,7 +385,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 				return assert.NotNil(t, got.Msg)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				res := assert.Is[*connect.Response[emptypb.Empty]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
@@ -408,7 +408,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
 			},
 		},
@@ -432,7 +432,7 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 		req *orchestrator.GetTargetOfEvaluationStatisticsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -449,7 +449,7 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 
@@ -505,7 +505,7 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 
 func TestService_CreateDefaultTargetOfEvaluation(t *testing.T) {
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -527,7 +527,7 @@ func TestService_CreateDefaultTargetOfEvaluation(t *testing.T) {
 		{
 			name: "already exists",
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),

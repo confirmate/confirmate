@@ -49,7 +49,7 @@ var mockToe = orchestrator.TargetOfEvaluation{
 func Test_DB_Create(t *testing.T) {
 	var (
 		err    error
-		s      *DB
+		s      DB
 		metric *assessment.Metric
 	)
 
@@ -78,7 +78,7 @@ func Test_DB_Create(t *testing.T) {
 func Test_DB_Get(t *testing.T) {
 	var (
 		err    error
-		s      *DB
+		s      DB
 		target *orchestrator.TargetOfEvaluation
 	)
 
