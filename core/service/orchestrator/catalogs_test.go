@@ -17,6 +17,10 @@ package orchestrator
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
@@ -58,6 +62,35 @@ func TestService_CreateCatalog(t *testing.T) {
 				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing catalog",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{
+					Catalog: &orchestrator.Catalog{},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "catalog.name")
+			},
 		},
 	}
 
@@ -107,6 +140,19 @@ func TestService_GetCatalog(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetCatalogRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetCatalogRequest{
@@ -118,8 +164,7 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -235,6 +280,37 @@ func TestService_UpdateCatalog(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{
+					Catalog: &orchestrator.Catalog{
+						Name: "Updated Catalog",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "catalog.id")
+			},
+		},
+		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.UpdateCatalogRequest{
@@ -250,8 +326,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -299,6 +374,19 @@ func TestService_RemoveCatalog(t *testing.T) {
 				return assert.NotNil(t, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.RemoveCatalogRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
 		},
 	}
 
@@ -363,8 +451,7 @@ func TestService_GetCategory(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Category]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -552,8 +639,7 @@ func TestService_GetControl(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Control]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -566,6 +652,342 @@ func TestService_GetControl(t *testing.T) {
 			res, err := svc.GetControl(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+		})
+	}
+}
+
+func TestService_loadCatalogs(t *testing.T) {
+	tests := []struct {
+		name             string
+		loadDefaultCats  bool
+		catalogsPath     string
+		loadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
+		setupFiles       func(t *testing.T, dir string)
+		wantErr          assert.WantErr
+		wantDB           assert.Want[*persistence.DB]
+	}{
+		{
+			name:            "load from default folder with valid catalogs",
+			loadDefaultCats: true,
+			catalogsPath:    "",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:          "test-catalog-1",
+						Name:        "Test Catalog 1",
+						Description: "Test description",
+					},
+				}
+				data, err := json.Marshal(catalog)
+				assert.NoError(t, err)
+				err = os.WriteFile(filepath.Join(dir, "catalog1.json"), data, 0644)
+				assert.NoError(t, err)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db *persistence.DB, args ...any) bool {
+				catalog := assert.InDB[orchestrator.Catalog](t, db, "test-catalog-1")
+				return assert.Equal(t, "Test Catalog 1", catalog.Name)
+			},
+		},
+		{
+			name:            "load from custom function",
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					orchestratortest.MockCatalog2,
+				}, nil
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db *persistence.DB, args ...any) bool {
+				catalog1 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
+				return assert.NotNil(t, catalog1) &&
+					assert.NotNil(t, catalog2)
+			},
+		},
+		{
+			name:            "load from both default folder and custom function",
+			loadDefaultCats: true,
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:          "folder-catalog",
+						Name:        "Folder Catalog",
+						Description: "From folder",
+					},
+				}
+				data, err := json.Marshal(catalog)
+				assert.NoError(t, err)
+				err = os.WriteFile(filepath.Join(dir, "catalog.json"), data, 0644)
+				assert.NoError(t, err)
+			},
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+				}, nil
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db *persistence.DB, args ...any) bool {
+				folderCatalog := assert.InDB[orchestrator.Catalog](t, db, "folder-catalog")
+				customCatalog := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				return assert.NotNil(t, folderCatalog) &&
+					assert.NotNil(t, customCatalog)
+			},
+		},
+		{
+			name:            "empty folder and no custom function",
+			loadDefaultCats: true,
+			wantErr:         assert.NoError,
+			wantDB:          assert.NotNil[*persistence.DB],
+		},
+		{
+			name:            "custom function returns error",
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return nil, errors.New("custom error")
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "custom error")
+			},
+			wantDB: assert.NotNil[*persistence.DB],
+		},
+		{
+			name:            "invalid catalogs path",
+			loadDefaultCats: true,
+			catalogsPath:    "/nonexistent/path",
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not load default catalogs")
+			},
+			wantDB: assert.NotNil[*persistence.DB],
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tempDir := t.TempDir()
+			if tt.setupFiles != nil {
+				tt.setupFiles(t, tempDir)
+			}
+
+			catalogsPath := tt.catalogsPath
+			if catalogsPath == "" && tt.loadDefaultCats {
+				catalogsPath = tempDir
+			}
+
+			svc := &Service{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultCatalogs: tt.loadDefaultCats,
+					DefaultCatalogsPath: catalogsPath,
+					LoadCatalogsFunc:    tt.loadCatalogsFunc,
+				},
+			}
+
+			err := svc.loadCatalogs()
+			tt.wantErr(t, err)
+			tt.wantDB(t, svc.db)
+		})
+	}
+}
+
+func TestService_loadCatalogsFromFolder(t *testing.T) {
+	tests := []struct {
+		name       string
+		setupFiles func(t *testing.T, dir string)
+		folder     string
+		wantCount  int
+		wantErr    assert.WantErr
+	}{
+		{
+			name: "load valid catalog file",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:          "catalog-1",
+						Name:        "Catalog 1",
+						Description: "Test catalog",
+					},
+				}
+				data, err := json.Marshal(catalog)
+				assert.NoError(t, err)
+				err = os.WriteFile(filepath.Join(dir, "catalog1.json"), data, 0644)
+				assert.NoError(t, err)
+			},
+			wantCount: 1,
+			wantErr:   assert.NoError,
+		},
+		{
+			name: "load multiple catalog files",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog1 := []*orchestrator.Catalog{
+					{
+						Id:          "catalog-1",
+						Name:        "Catalog 1",
+						Description: "First catalog",
+					},
+				}
+				catalog2 := []*orchestrator.Catalog{
+					{
+						Id:          "catalog-2",
+						Name:        "Catalog 2",
+						Description: "Second catalog",
+					},
+				}
+				data1, _ := json.Marshal(catalog1)
+				data2, _ := json.Marshal(catalog2)
+				os.WriteFile(filepath.Join(dir, "catalog1.json"), data1, 0644)
+				os.WriteFile(filepath.Join(dir, "catalog2.json"), data2, 0644)
+			},
+			wantCount: 2,
+			wantErr:   assert.NoError,
+		},
+		{
+			name: "skip non-json files",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:   "catalog-1",
+						Name: "Catalog 1",
+					},
+				}
+				data, _ := json.Marshal(catalog)
+				os.WriteFile(filepath.Join(dir, "catalog.json"), data, 0644)
+				os.WriteFile(filepath.Join(dir, "readme.txt"), []byte("test"), 0644)
+				os.WriteFile(filepath.Join(dir, "config.yaml"), []byte("test"), 0644)
+			},
+			wantCount: 1,
+			wantErr:   assert.NoError,
+		},
+		{
+			name: "skip directories",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:   "catalog-1",
+						Name: "Catalog 1",
+					},
+				}
+				data, _ := json.Marshal(catalog)
+				os.WriteFile(filepath.Join(dir, "catalog.json"), data, 0644)
+				os.Mkdir(filepath.Join(dir, "subdir"), 0755)
+			},
+			wantCount: 1,
+			wantErr:   assert.NoError,
+		},
+		{
+			name: "skip invalid json files",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:   "catalog-1",
+						Name: "Catalog 1",
+					},
+				}
+				data, _ := json.Marshal(catalog)
+				os.WriteFile(filepath.Join(dir, "valid.json"), data, 0644)
+				os.WriteFile(filepath.Join(dir, "invalid.json"), []byte("not json"), 0644)
+			},
+			wantCount: 1,
+			wantErr:   assert.NoError,
+		},
+		{
+			name: "process nested controls and set parent relationships",
+			setupFiles: func(t *testing.T, dir string) {
+				catalog := []*orchestrator.Catalog{
+					{
+						Id:   "catalog-1",
+						Name: "Catalog 1",
+						Categories: []*orchestrator.Category{
+							{
+								Name:      "category-1",
+								CatalogId: "catalog-1",
+								Controls: []*orchestrator.Control{
+									{
+										Id:                "control-1",
+										CategoryName:      "category-1",
+										CategoryCatalogId: "catalog-1",
+										Controls: []*orchestrator.Control{
+											{
+												Id: "sub-control-1",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+				data, _ := json.Marshal(catalog)
+				os.WriteFile(filepath.Join(dir, "catalog.json"), data, 0644)
+			},
+			wantCount: 1,
+			wantErr:   assert.NoError,
+		},
+		{
+			name:      "empty folder",
+			wantCount: 0,
+			wantErr:   assert.NoError,
+		},
+		{
+			name:      "empty folder path",
+			folder:    "",
+			wantCount: 0,
+			wantErr:   assert.NoError,
+		},
+		{
+			name:      "nonexistent folder",
+			folder:    "/nonexistent/path",
+			wantCount: 0,
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not read catalogs folder")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tempDir := t.TempDir()
+			if tt.setupFiles != nil {
+				tt.setupFiles(t, tempDir)
+			}
+
+			folder := tt.folder
+			if folder == "" && tt.name != "empty folder path" {
+				folder = tempDir
+			}
+
+			svc := &Service{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			}
+
+			catalogs, err := svc.loadCatalogsFromFolder(folder)
+			tt.wantErr(t, err)
+
+			if err == nil {
+				assert.Equal(t, tt.wantCount, len(catalogs))
+
+				// Verify parent relationships for nested controls test
+				if tt.name == "process nested controls and set parent relationships" && len(catalogs) > 0 {
+					catalog := catalogs[0]
+					assert.Equal(t, 1, len(catalog.Categories))
+					category := catalog.Categories[0]
+					assert.Equal(t, 1, len(category.Controls))
+					control := category.Controls[0]
+					assert.Equal(t, 1, len(control.Controls))
+					subControl := control.Controls[0]
+
+					// Check parent relationships were set correctly
+					assert.Equal(t, "category-1", subControl.CategoryName)
+					assert.Equal(t, "catalog-1", subControl.CategoryCatalogId)
+					assert.NotNil(t, subControl.ParentControlId)
+					assert.Equal(t, "control-1", *subControl.ParentControlId)
+					assert.NotNil(t, subControl.ParentControlCategoryName)
+					assert.Equal(t, "category-1", *subControl.ParentControlCategoryName)
+					assert.NotNil(t, subControl.ParentControlCategoryCatalogId)
+					assert.Equal(t, "catalog-1", *subControl.ParentControlCategoryCatalogId)
+				}
+			}
 		})
 	}
 }

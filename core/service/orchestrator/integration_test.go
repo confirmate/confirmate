@@ -17,7 +17,9 @@ package orchestrator
 
 import (
 	"context"
+	"io"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
@@ -27,13 +29,20 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// TestService_StoreAssessmentResults tests the bidirectional streaming RPC.
+// This is an integration test focusing on streaming behavior:
+// - Stream Send/Receive protocol cycles
+// - Multiple messages in one stream
+// - Error handling within the stream (status field in response)
+// - Stream resilience (continues after errors)
+//
+// Note: Validation and database error handling for individual results
+// are tested in assessment_results_test.go (StoreAssessmentResult unit tests).
 func TestService_StoreAssessmentResults(t *testing.T) {
 	type fields struct {
 		db          *persistence.DB
@@ -47,7 +56,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 		wantErr      assert.WantErr
 	}{
 		{
-			name: "happy path - single result",
+			name: "stream - single result",
 			fields: fields{
 				db:          persistencetest.NewInMemoryDB(t, types, joinTables),
 				subscribers: make(map[int64]*subscriber),
@@ -61,33 +70,14 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path - multiple results",
+			name: "stream - multiple results in sequence",
 			fields: fields{
 				db:          persistencetest.NewInMemoryDB(t, types, joinTables),
 				subscribers: make(map[int64]*subscriber),
 			},
 			results: []*assessment.AssessmentResult{
 				orchestratortest.MockNewAssessmentResult,
-				{
-					Id:                   "00000000-0000-0000-0002-000000000004",
-					CreatedAt:            timestamppb.Now(),
-					MetricId:             "metric-2",
-					MetricConfiguration:  orchestratortest.MockMetricConfiguration2,
-					Compliant:            false,
-					EvidenceId:           orchestratortest.MockEvidenceID2,
-					ResourceId:           "resource-2",
-					ResourceTypes:        []string{"vm"},
-					ComplianceComment:    "Second resource test",
-					TargetOfEvaluationId: orchestratortest.MockToeID1,
-					ToolId:               util.Ref("tool-1"),
-					HistoryUpdatedAt:     timestamppb.Now(),
-					History: []*assessment.Record{
-						{
-							EvidenceId:         orchestratortest.MockEvidenceID2,
-							EvidenceRecordedAt: timestamppb.Now(),
-						},
-					},
-				},
+				orchestratortest.MockAssessmentResult2,
 			},
 			wantStatuses: func(t *testing.T, got []bool, args ...any) bool {
 				return assert.Equal(t, []bool{true, true}, got)
@@ -95,21 +85,35 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "database error - duplicate id",
+			name: "stream - resilience with partial failures",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+					// Pre-create the first result to cause a duplicate error
 					assert.NoError(t, d.Create(orchestratortest.MockNewAssessmentResult))
 				}),
 				subscribers: make(map[int64]*subscriber),
 			},
 			results: []*assessment.AssessmentResult{
-				orchestratortest.MockNewAssessmentResult,
+				orchestratortest.MockNewAssessmentResult, // Duplicate - should fail
+				orchestratortest.MockAssessmentResult2,   // Should succeed
 			},
 			wantStatuses: func(t *testing.T, got []bool, args ...any) bool {
-				// Stream should be resilient - send error response (status=false) but continue
-				return assert.Equal(t, []bool{false}, got)
+				// Stream continues after error - verifies resilience
+				return assert.Equal(t, []bool{false, true}, got)
 			},
-			wantErr: assert.NoError, // Stream itself should not error
+			wantErr: assert.NoError, // Stream itself doesn't error, just returns status=false
+		},
+		{
+			name: "stream - empty (no messages)",
+			fields: fields{
+				db:          persistencetest.NewInMemoryDB(t, types, joinTables),
+				subscribers: make(map[int64]*subscriber),
+			},
+			results: []*assessment.AssessmentResult{}, // No results
+			wantStatuses: func(t *testing.T, got []bool, args ...any) bool {
+				return len(got) == 0
+			},
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -165,6 +169,191 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 	}
 }
 
+// The following tests focus on streaming protocol-specific behavior:
+// - Context cancellation
+// - Stream lifecycle (close and receive)
+// - Concurrent streams
+//
+// These complement the table-driven test above which covers the basic
+// Send/Receive cycles and message handling within streams.
+
+// TestService_StoreAssessmentResults_ContextCancellation tests that stream properly handles context cancellation.
+func TestService_StoreAssessmentResults_ContextCancellation(t *testing.T) {
+	db := persistencetest.NewInMemoryDB(t, types, joinTables)
+	svc := &Service{
+		db:          db,
+		subscribers: make(map[int64]*subscriber),
+	}
+
+	// Create test server
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+	)
+	defer testSrv.Close()
+
+	// Create client
+	client := orchestratorconnect.NewOrchestratorClient(testSrv.Client(), testSrv.URL)
+
+	// Create context with cancellation
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// Start stream
+	stream := client.StoreAssessmentResults(ctx)
+
+	// Send first result successfully
+	err := stream.Send(&orchestrator.StoreAssessmentResultRequest{Result: orchestratortest.MockNewAssessmentResult})
+	assert.NoError(t, err)
+
+	res, err := stream.Receive()
+	assert.NoError(t, err)
+	assert.True(t, res.Status)
+
+	// Cancel context
+	cancel()
+
+	// Try to send another result - should fail due to cancelled context
+	err = stream.Send(&orchestrator.StoreAssessmentResultRequest{
+		Result: &assessment.AssessmentResult{
+			Id:                   "00000000-0000-0000-0002-000000000999",
+			MetricId:             "metric-2",
+			EvidenceId:           orchestratortest.MockEvidenceID2,
+			ResourceId:           "resource-2",
+			TargetOfEvaluationId: orchestratortest.MockToeID1,
+		},
+	})
+
+	// Should get an error related to context cancellation
+	assert.Error(t, err)
+	t.Logf("Got expected error after context cancellation: %v", err)
+
+	// IMPORTANT: Close the stream to prevent server hang
+	_ = stream.CloseRequest()
+	_ = stream.CloseResponse()
+}
+
+// TestService_StoreAssessmentResults_CloseAndReceive tests receiving after stream is closed.
+func TestService_StoreAssessmentResults_CloseAndReceive(t *testing.T) {
+	db := persistencetest.NewInMemoryDB(t, types, joinTables)
+	svc := &Service{
+		db:          db,
+		subscribers: make(map[int64]*subscriber),
+	}
+
+	// Create test server
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+	)
+	defer testSrv.Close()
+
+	// Create client
+	client := orchestratorconnect.NewOrchestratorClient(testSrv.Client(), testSrv.URL)
+
+	// Start stream
+	stream := client.StoreAssessmentResults(context.Background())
+
+	// Send and receive successfully
+	err := stream.Send(&orchestrator.StoreAssessmentResultRequest{Result: orchestratortest.MockNewAssessmentResult})
+	assert.NoError(t, err)
+
+	res, err := stream.Receive()
+	assert.NoError(t, err)
+	assert.True(t, res.Status)
+
+	// Close the request stream
+	err = stream.CloseRequest()
+	assert.NoError(t, err)
+
+	// Try to receive after closing - should get EOF
+	_, err = stream.Receive()
+	assert.True(t, err == io.EOF || err != nil, "should get EOF or error after closing stream")
+	if err == io.EOF {
+		t.Log("Got expected EOF after closing stream")
+	} else {
+		t.Logf("Got error after closing stream: %v", err)
+	}
+}
+
+// TestService_StoreAssessmentResults_ConcurrentStreams tests multiple concurrent streaming clients.
+func TestService_StoreAssessmentResults_ConcurrentStreams(t *testing.T) {
+	db := persistencetest.NewInMemoryDB(t, types, joinTables)
+	svc := &Service{
+		db:          db,
+		subscribers: make(map[int64]*subscriber),
+	}
+
+	// Create test server
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+	)
+	defer testSrv.Close()
+
+	// Create client
+	client := orchestratorconnect.NewOrchestratorClient(testSrv.Client(), testSrv.URL)
+
+	numStreams := 3
+	done := make(chan bool, numStreams)
+
+	// Start multiple concurrent streams
+	for i := 0; i < numStreams; i++ {
+		go func(streamID int) {
+			defer func() {
+				// Ensure we always signal completion
+				if r := recover(); r != nil {
+					t.Errorf("Stream %d panicked: %v", streamID, r)
+					done <- false
+				}
+			}()
+
+			stream := client.StoreAssessmentResults(context.Background())
+			defer func() {
+				_ = stream.CloseRequest()
+				_ = stream.CloseResponse()
+			}()
+
+			// Each stream sends a unique result using the mock factory function
+			result := orchestratortest.NewMockAssessmentResultForConcurrentStream(streamID)
+
+			err := stream.Send(&orchestrator.StoreAssessmentResultRequest{Result: result})
+			if err != nil {
+				t.Errorf("Stream %d: Send failed: %v", streamID, err)
+				done <- false
+				return
+			}
+
+			res, err := stream.Receive()
+			if err != nil {
+				t.Errorf("Stream %d: Receive failed: %v", streamID, err)
+				done <- false
+				return
+			}
+
+			if !res.Status {
+				t.Errorf("Stream %d: Expected success, got failure: %s", streamID, res.StatusMessage)
+				done <- false
+				return
+			}
+
+			done <- true
+		}(i)
+	}
+
+	// Wait for all streams to complete
+	timeout := time.After(5 * time.Second)
+	successCount := 0
+	for i := 0; i < numStreams; i++ {
+		select {
+		case success := <-done:
+			if success {
+				successCount++
+			}
+		case <-timeout:
+			t.Fatal("Test timed out waiting for concurrent streams")
+		}
+	}
+
+	assert.Equal(t, numStreams, successCount)
+}
+
 func TestService_LoadCatalogsFunc(t *testing.T) {
 	tests := []struct {
 		name             string
@@ -195,7 +384,7 @@ func TestService_LoadCatalogsFunc(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := Config{
 				LoadCatalogsFunc:                tt.loadCatalogsFunc,
-				DefaultCatalogsFolder:           t.TempDir(), // Empty temp directory
+				DefaultCatalogsPath:             t.TempDir(), // Empty temp directory
 				LoadDefaultCatalogs:             true,
 				CreateDefaultTargetOfEvaluation: false,
 				LoadDefaultMetrics:              true,

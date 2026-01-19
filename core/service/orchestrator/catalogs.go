@@ -253,14 +253,14 @@ func (svc *Service) GetControl(
 
 // loadCatalogs loads catalog definitions from configured sources.
 // It loads catalogs from:
-// 1. DefaultCatalogsFolder (if LoadDefaultCatalogs is true)
+// 1. DefaultCatalogsPath (if LoadDefaultCatalogs is true)
 // 2. LoadCatalogsFunc (if provided) for additional custom catalogs
 func (svc *Service) loadCatalogs() (err error) {
 	var catalogs []*orchestrator.Catalog
 
 	// Load default catalogs from folder if enabled
 	if svc.cfg.LoadDefaultCatalogs {
-		defaultCatalogs, err := svc.loadCatalogsFromFolder(svc.cfg.DefaultCatalogsFolder)
+		defaultCatalogs, err := svc.loadCatalogsFromFolder(svc.cfg.DefaultCatalogsPath)
 		if err != nil {
 			return fmt.Errorf("could not load default catalogs: %w", err)
 		}

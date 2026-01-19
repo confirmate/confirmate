@@ -33,7 +33,7 @@ var OrchestratorCommand = &cli.Command{
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		svc, err := orchestrator.NewService(
 			orchestrator.WithConfig(orchestrator.Config{
-				DefaultCatalogsFolder:           cmd.String("catalogs-default-path"),
+				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
 				DefaultMetricsPath:              cmd.String("metrics-default-path"),
 				LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
@@ -90,7 +90,7 @@ var OrchestratorCommand = &cli.Command{
 		&cli.StringFlag{
 			Name:  "catalogs-default-path",
 			Usage: "The path to the folder containing default catalog definitions",
-			Value: orchestrator.DefaultConfig.DefaultCatalogsFolder,
+			Value: orchestrator.DefaultConfig.DefaultCatalogsPath,
 		},
 		&cli.BoolFlag{
 			Name:  "catalogs-load-default",
