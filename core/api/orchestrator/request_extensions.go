@@ -88,3 +88,8 @@ func (r *UpdateMetricConfigurationRequest) GetPayload() proto.Message {
 func (r *UpdateMetricImplementationRequest) GetPayload() proto.Message {
 	return r.Implementation
 }
+
+// GetPayload returns the embedded result from [StoreAssessmentResultRequest].
+func (r *StoreAssessmentResultRequest) GetPayload() proto.Message {
+	return r.Result
+}

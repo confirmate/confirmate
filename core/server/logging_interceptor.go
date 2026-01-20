@@ -35,7 +35,6 @@ const (
 	keyMethod   = "method"
 	keyStatus   = "status"
 	keyDuration = "duration"
-	keyError    = "error"
 
 	// Pagination keys
 	keyPageSize      = "page_size"
@@ -180,15 +179,15 @@ func (li *LoggingInterceptor) logRPCRequest(ctx context.Context, method string, 
 		status = colorCodeStatus(code)
 
 		// Extract just the error message without the code prefix
-		errMsg := err.Error()
+		innerErr := err
 		if connectErr, ok := err.(*connect.Error); ok {
-			errMsg = connectErr.Message()
+			innerErr = connectErr.Unwrap()
 		}
 
 		attrs = append(attrs,
 			slog.String(keyStatus, status),
 			slog.Duration(keyDuration, duration),
-			slog.String(keyError, errMsg),
+			log.Err(innerErr),
 		)
 	} else {
 		if log.ColorEnabled() {
@@ -338,24 +337,6 @@ func colorCodeStatus(code connect.Code) string {
 	// Other errors (ResourceExhausted, DeadlineExceeded, Canceled) - red
 	default:
 		return ansiRed + codeStr + ansiReset
-	}
-}
-
-// requestTypeToVerb converts an orchestrator.RequestType to a past-tense verb string for logging.
-func requestTypeToVerb(rt orchestrator.RequestType) string {
-	switch rt {
-	case orchestrator.RequestType_REQUEST_TYPE_CREATED:
-		return "created"
-	case orchestrator.RequestType_REQUEST_TYPE_UPDATED:
-		return "updated"
-	case orchestrator.RequestType_REQUEST_TYPE_DELETED:
-		return "deleted"
-	case orchestrator.RequestType_REQUEST_TYPE_REGISTERED:
-		return "registered"
-	case orchestrator.RequestType_REQUEST_TYPE_STORED:
-		return "stored"
-	default:
-		return "changed"
 	}
 }
 

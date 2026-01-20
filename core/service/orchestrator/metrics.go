@@ -28,6 +28,7 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
@@ -466,7 +467,7 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 
 		// Load default configuration from data.json if it exists
 		if err := prepareMetric(&metric, path); err != nil {
-			slog.Warn("Could not prepare metric", "metric", metric.Id, "error", err)
+			slog.Warn("Could not prepare metric", "metric", metric.Id, log.Err(err))
 		}
 
 		return nil

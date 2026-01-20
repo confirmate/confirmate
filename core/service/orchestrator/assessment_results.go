@@ -58,10 +58,10 @@ func (svc *Service) StoreAssessmentResult(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
-		EntityId:   result.Id,
+		EntityId:    result.Id,
 		Entity: &orchestrator.ChangeEvent_AssessmentResult{
 			AssessmentResult: result,
 		},

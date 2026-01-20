@@ -50,10 +50,10 @@ func (svc *Service) RegisterAssessmentTool(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
-		EntityId:   tool.Id,
+		EntityId:    tool.Id,
 		Entity: &orchestrator.ChangeEvent_AssessmentTool{
 			AssessmentTool: tool,
 		},
@@ -139,10 +139,10 @@ func (svc *Service) UpdateAssessmentTool(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
-		EntityId:   tool.Id,
+		EntityId:    tool.Id,
 		Entity: &orchestrator.ChangeEvent_AssessmentTool{
 			AssessmentTool: tool,
 		},
@@ -174,10 +174,10 @@ func (svc *Service) DeregisterAssessmentTool(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL,
 		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
-		EntityId:   req.Msg.ToolId,
+		EntityId:    req.Msg.ToolId,
 	})
 
 	res = connect.NewResponse(&emptypb.Empty{})

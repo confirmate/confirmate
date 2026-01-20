@@ -18,6 +18,7 @@ package log
 import (
 	"context"
 	"log/slog"
+	"slices"
 )
 
 // contextKey is a unique type for context keys to avoid collisions.
@@ -55,4 +56,15 @@ func attrsFromContext(ctx context.Context) []slog.Attr {
 		return attrs
 	}
 	return nil
+}
+
+// FindAttr searches for an attribute with the given key in the provided slice
+// of [slog.Attr] and returns the attribute and true if found.
+func FindAttr(attrs []slog.Attr, key string) (*slog.Attr, bool) {
+	i := slices.IndexFunc(attrs, func(a slog.Attr) bool { return a.Key == key })
+	if i < 0 {
+		return nil, false
+	}
+
+	return &attrs[i], true
 }

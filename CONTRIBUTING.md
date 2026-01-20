@@ -635,7 +635,7 @@ func Test_DB_Create(t *testing.T) {
 - Do not use `log` or `logrus`
 - Use structured logging with appropriate log levels
 - Prefer using `slog.Any()` and typed attribute functions (e.g., `slog.String()`, `slog.Int()`) for clarity and to make key-value pairs more explicit
-- Use `tint.Err(err)` instead of `slog.Any("error", err)` for error logging
+- Use `log.Err(err)` instead of `slog.Any("error", err)` for error logging
 
 **Example:**
 ```go

@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
@@ -304,13 +305,13 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 		var catalogsFromFile []*orchestrator.Catalog
 		b, err := os.ReadFile(filepath.Join(folder, file.Name()))
 		if err != nil {
-			slog.Warn("Failed to read catalog file, skipping", "file", file.Name(), "error", err)
+			slog.Warn("Failed to read catalog file, skipping", "file", file.Name(), log.Err(err))
 			continue
 		}
 
 		err = json.Unmarshal(b, &catalogsFromFile)
 		if err != nil {
-			slog.Warn("Failed to unmarshal catalog file, skipping", "file", file.Name(), "error", err)
+			slog.Warn("Failed to unmarshal catalog file, skipping", "file", file.Name(), log.Err(err))
 			continue
 		}
 

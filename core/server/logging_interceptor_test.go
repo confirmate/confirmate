@@ -16,244 +16,251 @@
 package server
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"log/slog"
+	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
+	"confirmate.io/core/util/assert"
+
+	"connectrpc.com/connect"
 )
 
-func TestOperationType(t *testing.T) {
-	tests := []struct {
-		name   string
-		method string
-		want   orchestrator.RequestType
-	}{
-		{"CreateCatalog", "CreateCatalog", orchestrator.RequestType_REQUEST_TYPE_CREATED},
-		{"UpdateCatalog", "UpdateCatalog", orchestrator.RequestType_REQUEST_TYPE_UPDATED},
-		{"RemoveCatalog", "RemoveCatalog", orchestrator.RequestType_REQUEST_TYPE_DELETED},
-		{"StoreAssessmentResult", "StoreAssessmentResult", orchestrator.RequestType_REQUEST_TYPE_STORED},
-		{"RegisterAssessmentTool", "RegisterAssessmentTool", orchestrator.RequestType_REQUEST_TYPE_REGISTERED},
-		{"GetCatalog", "GetCatalog", orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED},
-		{"ListCatalogs", "ListCatalogs", orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED},
-	}
+type capturedRecord struct {
+	Level   slog.Level
+	Message string
+	Attrs   []slog.Attr
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := operationType(tt.method); got != tt.want {
-				t.Errorf("operationType(%q) = %v, want %v", tt.method, got, tt.want)
-			}
-		})
+type captureHandler struct {
+	mu      sync.Mutex
+	records []capturedRecord
+}
+
+func (h *captureHandler) Enabled(context.Context, slog.Level) bool { return true }
+
+func (h *captureHandler) Handle(_ context.Context, r slog.Record) error {
+	attrs := make([]slog.Attr, 0, r.NumAttrs())
+	r.Attrs(func(a slog.Attr) bool {
+		a.Value = a.Value.Resolve()
+		attrs = append(attrs, a)
+		return true
+	})
+
+	h.mu.Lock()
+	h.records = append(h.records, capturedRecord{Level: r.Level, Message: r.Message, Attrs: attrs})
+	h.mu.Unlock()
+	return nil
+}
+
+func (h *captureHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+func (h *captureHandler) WithGroup(string) slog.Handler      { return h }
+
+func (h *captureHandler) lastRecord() (capturedRecord, bool) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	if len(h.records) == 0 {
+		return capturedRecord{}, false
+	}
+	return h.records[len(h.records)-1], true
+}
+
+func stripANSI(s string) string {
+	// Best-effort stripping of ANSI escape sequences like "\x1b[31m".
+	for {
+		start := strings.IndexByte(s, 0x1b)
+		if start < 0 {
+			return s
+		}
+		end := strings.IndexByte(s[start:], 'm')
+		if end < 0 {
+			return s
+		}
+		s = s[:start] + s[start+end+1:]
 	}
 }
 
-func TestMethodName(t *testing.T) {
+func groupToMap(v slog.Value) map[string]string {
+	v = v.Resolve()
+	if v.Kind() != slog.KindGroup {
+		return nil
+	}
+	out := map[string]string{}
+	for _, a := range v.Group() {
+		a.Value = a.Value.Resolve()
+		switch a.Value.Kind() {
+		case slog.KindString:
+			out[a.Key] = a.Value.String()
+		default:
+			out[a.Key] = fmt.Sprint(a.Value.Any())
+		}
+	}
+	return out
+}
+
+func TestLoggingInterceptor_logRPCRequest(t *testing.T) {
+	old := slog.Default()
+	defer slog.SetDefault(old)
+
+	h := &captureHandler{}
+	slog.SetDefault(slog.New(h))
+
+	li := &LoggingInterceptor{}
+
 	tests := []struct {
 		name      string
-		procedure string
-		want      string
-	}{
-		{"Full path", "/confirmate.orchestrator.v1.OrchestratorService/CreateCatalog", "CreateCatalog"},
-		{"Simple", "/Service/Method", "Method"},
-		{"No slash", "MethodName", "MethodName"},
-		{"Empty", "", ""},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := methodName(tt.procedure); got != tt.want {
-				t.Errorf("methodName(%q) = %v, want %v", tt.procedure, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestIsReadOperation(t *testing.T) {
-	tests := []struct {
-		name   string
-		method string
-		want   bool
-	}{
-		{"Get", "GetCatalog", true},
-		{"List", "ListCatalogs", true},
-		{"Query", "QueryMetrics", true},
-		{"Search", "SearchTools", true},
-		{"Create", "CreateCatalog", false},
-		{"Update", "UpdateCatalog", false},
-		{"Delete", "DeleteCatalog", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := isReadOperation(tt.method); got != tt.want {
-				t.Errorf("isReadOperation(%q) = %v, want %v", tt.method, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestRequestTypeToVerb(t *testing.T) {
-	tests := []struct {
-		name        string
-		requestType orchestrator.RequestType
-		want        string
+		ctx       context.Context
+		method    string
+		duration  time.Duration
+		req       connect.AnyRequest
+		res       connect.AnyResponse
+		err       error
+		want      assert.Want[capturedRecord]
+		wantFound assert.Want[bool]
 	}{
 		{
-			name:        "Created",
-			requestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
-			want:        "created",
-		},
-		{
-			name:        "Updated",
-			requestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
-			want:        "updated",
-		},
-		{
-			name:        "Deleted",
-			requestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
-			want:        "deleted",
-		},
-		{
-			name:        "Registered",
-			requestType: orchestrator.RequestType_REQUEST_TYPE_REGISTERED,
-			want:        "registered",
-		},
-		{
-			name:        "Stored",
-			requestType: orchestrator.RequestType_REQUEST_TYPE_STORED,
-			want:        "stored",
-		},
-		{
-			name:        "Unknown",
-			requestType: orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED,
-			want:        "changed",
-		},
-	}
+			name:     "create success includes payload",
+			ctx:      context.Background(),
+			method:   "CreateTargetOfEvaluation",
+			duration: 123 * time.Millisecond,
+			req:      connect.NewRequest(&orchestrator.CreateTargetOfEvaluationRequest{TargetOfEvaluation: orchestratortest.MockTargetOfEvaluation1}),
+			res:      nil,
+			err:      nil,
+			wantFound: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+			want: func(t *testing.T, got capturedRecord, _ ...any) bool {
+				assert.Equal(t, slog.LevelInfo, got.Level)
+				assert.Equal(t, "RPC request", got.Message)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := requestTypeToVerb(tt.requestType)
-			if got != tt.want {
-				t.Errorf("requestTypeToVerb() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+				statusAttr, ok := log.FindAttr(got.Attrs, keyStatus)
+				assert.True(t, ok)
+				assert.Equal(t, "ok", stripANSI(statusAttr.Value.String()))
 
-func TestAddPaginationAttributes(t *testing.T) {
-	tests := []struct {
-		name     string
-		req      any
-		res      any
-		wantKeys map[string]bool
-	}{
-		{
-			name: "paginated request with results",
-			req: &orchestrator.ListTargetsOfEvaluationRequest{
-				PageSize:  10,
-				PageToken: "token123",
-			},
-			res: &orchestrator.ListTargetsOfEvaluationResponse{
-				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{
-					{Id: "toe1"},
-					{Id: "toe2"},
-					{Id: "toe3"},
-				},
-				NextPageToken: "nextToken456",
-			},
-			wantKeys: map[string]bool{
-				"page_size":       true,
-				"page_token":      true,
-				"results":         true,
-				"next_page_token": true,
-			},
-		},
-		{
-			name: "paginated request without page token",
-			req: &orchestrator.ListTargetsOfEvaluationRequest{
-				PageSize: 5,
-			},
-			res: &orchestrator.ListTargetsOfEvaluationResponse{
-				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{
-					{Id: "toe1"},
-				},
-			},
-			wantKeys: map[string]bool{
-				"page_size": true,
-				"results":   true,
-			},
-		},
-		{
-			name: "empty results",
-			req: &orchestrator.ListTargetsOfEvaluationRequest{
-				PageSize: 10,
-			},
-			res: &orchestrator.ListTargetsOfEvaluationResponse{
-				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{},
-			},
-			wantKeys: map[string]bool{
-				"page_size": true,
-			},
-		},
-		{
-			name:     "non-paginated request",
-			req:      &orchestrator.CreateCatalogRequest{},
-			res:      &orchestrator.Catalog{},
-			wantKeys: map[string]bool{
-				// Should not have any pagination attributes
-			},
-		},
-	}
+				durAttr, ok := log.FindAttr(got.Attrs, keyDuration)
+				assert.True(t, ok)
+				assert.Equal(t, 123*time.Millisecond, durAttr.Value.Duration())
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var attrs []slog.Attr
-			li := &LoggingInterceptor{}
-
-			li.addPaginationAttributes(&attrs, tt.req, tt.res)
-
-			// Build a map of actual attribute keys
-			actualKeys := make(map[string]bool)
-			for _, attr := range attrs {
-				actualKeys[attr.Key] = true
-			}
-
-			// Check that all expected keys are present
-			for wantKey := range tt.wantKeys {
-				if !actualKeys[wantKey] {
-					t.Errorf("addPaginationAttributes() missing expected key %q, got keys: %v", wantKey, actualKeys)
+				payloadAttr, ok := log.FindAttr(got.Attrs, keyPayload)
+				assert.True(t, ok)
+				payload := groupToMap(payloadAttr.Value)
+				assert.NotNil(t, payload)
+				assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Name, payload["name"])
+				// description may be empty in the shared mock
+				_, hasDescription := payload["description"]
+				if hasDescription {
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Description, payload["description"])
 				}
-			}
+				assert.Equal(t, "TARGET_TYPE_CLOUD", payload["target_type"])
+				_, hasID := payload["id"]
+				assert.False(t, hasID)
+				return true
+			},
+		},
+		{
+			name:     "remove success has no payload",
+			ctx:      context.Background(),
+			method:   "RemoveTargetOfEvaluation",
+			duration: 10 * time.Millisecond,
+			req:      connect.NewRequest(&orchestrator.RemoveTargetOfEvaluationRequest{TargetOfEvaluationId: orchestratortest.MockToeID1}),
+			res:      nil,
+			err:      nil,
+			wantFound: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+			want: func(t *testing.T, got capturedRecord, _ ...any) bool {
+				_, ok := log.FindAttr(got.Attrs, keyPayload)
+				assert.False(t, ok)
+				return true
+			},
+		},
+		{
+			name:     "list success includes pagination attrs",
+			ctx:      context.Background(),
+			method:   "ListTargetsOfEvaluation",
+			duration: 5 * time.Millisecond,
+			req:      connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{PageSize: 25, PageToken: "p1"}),
+			res: connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
+				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{orchestratortest.MockTargetOfEvaluation1, orchestratortest.MockTargetOfEvaluation2},
+				NextPageToken:       "p2",
+			}),
+			err: nil,
+			wantFound: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+			want: func(t *testing.T, got capturedRecord, _ ...any) bool {
+				assert.Equal(t, slog.LevelDebug, got.Level)
 
-			// Check that no unexpected keys are present
-			for actualKey := range actualKeys {
-				if !tt.wantKeys[actualKey] {
-					t.Errorf("addPaginationAttributes() has unexpected key %q", actualKey)
-				}
-			}
+				pageSizeAttr, ok := log.FindAttr(got.Attrs, keyPageSize)
+				assert.True(t, ok)
+				assert.Equal(t, int64(25), pageSizeAttr.Value.Int64())
 
-			// Verify specific values for the first test case
-			if tt.name == "paginated request with results" {
-				for _, attr := range attrs {
-					switch attr.Key {
-					case "page_size":
-						if attr.Value.Int64() != 10 {
-							t.Errorf("page_size = %v, want 10", attr.Value.Int64())
-						}
-					case "page_token":
-						if attr.Value.String() != "token123" {
-							t.Errorf("page_token = %v, want token123", attr.Value.String())
-						}
-					case "results":
-						if attr.Value.Int64() != 3 {
-							t.Errorf("results = %v, want 3", attr.Value.Int64())
-						}
-					case "next_page_token":
-						if attr.Value.String() != "nextToken456" {
-							t.Errorf("next_page_token = %v, want nextToken456", attr.Value.String())
-						}
-					}
-				}
-			}
+				pageTokenAttr, ok := log.FindAttr(got.Attrs, keyPageToken)
+				assert.True(t, ok)
+				assert.Equal(t, "p1", pageTokenAttr.Value.String())
+
+				resultsAttr, ok := log.FindAttr(got.Attrs, keyResults)
+				assert.True(t, ok)
+				assert.Equal(t, int64(2), resultsAttr.Value.Int64())
+
+				nextTokenAttr, ok := log.FindAttr(got.Attrs, keyNextPageToken)
+				assert.True(t, ok)
+				assert.Equal(t, "p2", nextTokenAttr.Value.String())
+
+				_, ok = log.FindAttr(got.Attrs, keyPayload)
+				assert.False(t, ok)
+				return true
+			},
+		},
+		{
+			name:     "create error includes status and err and payload",
+			ctx:      context.Background(),
+			method:   "CreateTargetOfEvaluation",
+			duration: 1 * time.Millisecond,
+			req:      connect.NewRequest(&orchestrator.CreateTargetOfEvaluationRequest{TargetOfEvaluation: orchestratortest.MockTargetOfEvaluation1}),
+			res:      nil,
+			err:      connect.NewError(connect.CodeInvalidArgument, errors.New("boom")),
+			wantFound: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+			want: func(t *testing.T, got capturedRecord, _ ...any) bool {
+				assert.Equal(t, slog.LevelInfo, got.Level)
+
+				statusAttr, ok := log.FindAttr(got.Attrs, keyStatus)
+				assert.True(t, ok)
+				assert.Equal(t, connect.CodeInvalidArgument.String(), stripANSI(statusAttr.Value.String()))
+
+				errAttr, ok := log.FindAttr(got.Attrs, "err")
+				assert.True(t, ok)
+				assert.Contains(t, fmt.Sprint(errAttr.Value.Any()), "boom")
+
+				payloadAttr, ok := log.FindAttr(got.Attrs, keyPayload)
+				assert.True(t, ok)
+				payload := groupToMap(payloadAttr.Value)
+				assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Name, payload["name"])
+				return true
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h.mu.Lock()
+			h.records = nil
+			h.mu.Unlock()
+
+			li.logRPCRequest(tt.ctx, tt.method, tt.duration, tt.req, tt.res, tt.err)
+
+			rec, ok := h.lastRecord()
+			tt.wantFound(t, ok)
+			tt.want(t, rec)
 		})
 	}
 }

@@ -92,6 +92,7 @@ import (
 	"sync"
 	"time"
 
+	"confirmate.io/core/log"
 	"connectrpc.com/connect"
 )
 
@@ -132,13 +133,13 @@ func DefaultRestartConfig() RestartConfig {
 		MaxBackoff:        30 * time.Second,
 		BackoffMultiplier: 2.0,
 		OnRestart: func(attempt int, err error) {
-			slog.Info("Attempting to restart stream", "attempt", attempt, "error", err)
+			slog.Info("Attempting to restart stream", "attempt", attempt, log.Err(err))
 		},
 		OnRestartSuccess: func(attempt int) {
 			slog.Info("Stream restart successful", "attempt", attempt)
 		},
 		OnRestartFailure: func(err error) {
-			slog.Error("Failed to restart stream after all attempts", "error", err)
+			slog.Error("Failed to restart stream after all attempts", log.Err(err))
 		},
 	}
 }
@@ -312,7 +313,8 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 			slog.Error("Stream restart failed: max retries exceeded",
 				"stream", streamName,
 				"attempts", attempt,
-				"error", originalErr)
+				log.Err(originalErr),
+			)
 			return fmt.Errorf("max retries exceeded: %w", originalErr)
 		}
 
@@ -324,7 +326,8 @@ func (rs *RestartableBidiStream[Req, Res]) restart(originalErr error) error {
 		slog.Debug("Attempting to restart stream",
 			"stream", streamName,
 			"attempt", attempt,
-			"error", originalErr)
+			log.Err(originalErr),
+		)
 
 		// Wait before retrying
 		select {

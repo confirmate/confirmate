@@ -17,6 +17,13 @@ func TestGetResultsCount(t *testing.T) {
 		want     int
 	}{
 		{
+			name: "nil response",
+			response: &orchestrator.ListTargetsOfEvaluationResponse{
+				TargetsOfEvaluation: nil,
+			},
+			want: 0,
+		},
+		{
 			name: "empty response",
 			response: &orchestrator.ListTargetsOfEvaluationResponse{
 				TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{},

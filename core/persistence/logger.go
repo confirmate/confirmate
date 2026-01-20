@@ -70,7 +70,7 @@ func (l *slogGormLogger) Trace(ctx context.Context, begin time.Time, fc func() (
 			slog.Duration("elapsed", elapsed),
 			slog.String("sql", sql),
 			slog.Int64("rows", rows),
-			slog.String("error", err.Error()),
+			log.Err(err),
 		)
 	} else {
 		slog.LogAttrs(ctx, log.LevelTrace.Level(), "SQL query",
