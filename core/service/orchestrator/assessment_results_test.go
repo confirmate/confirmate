@@ -83,21 +83,18 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "db error",
+			name: "db error - unique constraint",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
 					Result: orchestratortest.MockAssessmentResult1,
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockAssessmentResult1)
-					assert.NoError(t, err)
-				}),
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInternal)
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
@@ -212,6 +209,21 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetAssessmentResultRequest{
+					Id: orchestratortest.MockAssessmentResult1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {

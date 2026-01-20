@@ -105,6 +105,24 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
+		{
+			name: "db error - unique constraint",
+			args: args{
+				req: &orchestrator.CreateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Name: "test-toe",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
 	}
 
 	for _, tt := range tests {
@@ -179,6 +197,21 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "target of evaluation not found")
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -338,6 +371,25 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
+		{
+			name: "db error - constraint",
+			args: args{
+				req: &orchestrator.UpdateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Id:   orchestratortest.MockTargetOfEvaluation1.Id,
+						Name: "updated-name",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
 	}
 
 	for _, tt := range tests {
@@ -407,6 +459,24 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				return true
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.RemoveTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
