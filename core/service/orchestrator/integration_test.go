@@ -145,6 +145,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			// Send all results and collect responses
 			for i, result := range tt.results {
 				sendErr := stream.Send(&orchestrator.StoreAssessmentResultRequest{Result: result})
+				assert.NoError(t, sendErr)
 				if sendErr != nil {
 					err = sendErr
 					break
