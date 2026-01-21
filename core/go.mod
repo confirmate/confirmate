@@ -63,12 +63,9 @@ require (
 	golang.org/x/tools v0.41.0 // indirect
 )
 
-require google.golang.org/grpc v1.71.0
+require github.com/mattn/go-isatty v0.0.17
 
-require (
-	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-)
+require golang.org/x/sys v0.40.0 // indirect
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.

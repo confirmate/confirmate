@@ -27,6 +27,7 @@ import (
 	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
@@ -126,11 +127,11 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 
 	// Load catalogs and metrics (log errors but continue - they're not critical for service startup)
 	if err = svc.loadCatalogs(); err != nil {
-		slog.Warn("could not load catalogs, continuing with empty catalog list", "error", err)
+		slog.Warn("Could not load catalogs, continuing with empty catalog list", log.Err(err))
 	}
 
 	if err = svc.loadMetrics(); err != nil {
-		slog.Warn("could not load metrics, continuing with empty metric list", "error", err)
+		slog.Warn("Could not load metrics, continuing with empty metric list", log.Err(err))
 	}
 
 	// Create default target of evaluation if enabled and none exists

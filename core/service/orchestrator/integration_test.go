@@ -89,14 +89,14 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Pre-create the second result to cause a duplicate error
-					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResultForDuplicate))
+					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResult2))
 				}),
 				subscribers: make(map[int64]*subscriber),
 			},
 			results: []*assessment.AssessmentResult{
-				orchestratortest.MockNewAssessmentResult,          // Should succeed
-				orchestratortest.MockAssessmentResultForDuplicate, // Duplicate - should fail
-				orchestratortest.MockAssessmentResult3,            // Should succeed
+				orchestratortest.MockNewAssessmentResult, // Should succeed
+				orchestratortest.MockAssessmentResult2,   // Duplicate - should fail
+				orchestratortest.MockAssessmentResult1,   // Should succeed
 			},
 			wantStatuses: func(t *testing.T, got []bool, args ...any) bool {
 				// Stream continues after error - verifies resilience
@@ -145,6 +145,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			// Send all results and collect responses
 			for i, result := range tt.results {
 				sendErr := stream.Send(&orchestrator.StoreAssessmentResultRequest{Result: result})
+				assert.NoError(t, sendErr)
 				if sendErr != nil {
 					err = sendErr
 					break
@@ -217,9 +218,9 @@ func TestService_StoreAssessmentResults_ContextCancellation(t *testing.T) {
 		Result: &assessment.AssessmentResult{
 			Id:                   "00000000-0000-0000-0002-000000000999",
 			MetricId:             "metric-2",
-			EvidenceId:           orchestratortest.MockEvidenceID2,
+			EvidenceId:           orchestratortest.MockEvidenceId2,
 			ResourceId:           "resource-2",
-			TargetOfEvaluationId: orchestratortest.MockToeID1,
+			TargetOfEvaluationId: orchestratortest.MockToeId1,
 		},
 	})
 
