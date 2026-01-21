@@ -1,3 +1,18 @@
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package servertest_test
 
 import (
@@ -7,6 +22,7 @@ import (
 
 	orchestratorapi "confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator"
@@ -17,7 +33,16 @@ import (
 
 func TestNewTestServer(t *testing.T) {
 	// Create an orchestrator service for testing
-	svc, err := orchestrator.NewService()
+	svc, err := orchestrator.NewService(
+		orchestrator.WithConfig(orchestrator.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 	assert.NotNil(t, svc)
 

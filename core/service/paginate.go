@@ -1,3 +1,18 @@
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package service
 
 import (
@@ -6,6 +21,8 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/persistence"
+
+	"connectrpc.com/connect"
 )
 
 // PaginationOpts can be used to fine-tune the pagination, especially with regards to the page sizes. This can be important
@@ -47,6 +64,13 @@ func PaginateSlice[T any](req api.PaginatedRequest, values []T, less func(a T, b
 			done = true
 		}
 
+		if start >= max {
+			// Return empty page if start is beyond the slice
+			page = []T{}
+			done = true
+			return
+		}
+
 		page = values[start:end]
 		return
 	})
@@ -55,11 +79,11 @@ func PaginateSlice[T any](req api.PaginatedRequest, values []T, less func(a T, b
 // PaginateStorage is a helper function that helps to paginate records in persisted storage based on list requests. It
 // parses the necessary information out if a paginated request, e.g. the page token and the desired page size and
 // returns a sliced page as well as the next page token.
-func PaginateStorage[T any](req api.PaginatedRequest, storage *persistence.DB, opts PaginationOpts,
+func PaginateStorage[T any](req api.PaginatedRequest, db persistence.DB, opts PaginationOpts,
 	conds ...interface{}) (page []T, npt string, err error) {
 	return paginate(req, opts, func(start int64, size int32) (page []T, done bool, err error) {
 		// Retrieve values from the DB
-		err = storage.List(&page, req.GetOrderBy(), req.GetAsc(), int(start), int(size), conds...)
+		err = db.List(&page, req.GetOrderBy(), req.GetAsc(), int(start), int(size), conds...)
 		if err != nil {
 			return nil, true, fmt.Errorf("database error: %w", err)
 		}
@@ -103,7 +127,7 @@ func paginate[T any](req api.PaginatedRequest, opts PaginationOpts, pager func(s
 		// Try to decode our existing token
 		token, err = api.DecodePageToken(req.GetPageToken())
 		if err != nil {
-			return nil, "", fmt.Errorf("could not decode page token: %w", err)
+			return nil, "", connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("could not decode page token: %w", err))
 		}
 	}
 

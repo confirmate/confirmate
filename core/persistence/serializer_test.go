@@ -42,7 +42,7 @@ func TestDurationSerializer_Value(t *testing.T) {
 		name    string
 		args    args
 		want    interface{}
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "ok field",
@@ -72,7 +72,7 @@ func TestDurationSerializer_Value(t *testing.T) {
 				fieldValue: "string",
 			},
 			want: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -99,7 +99,7 @@ func TestDurationSerializer_Scan(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "db wrong type",
@@ -107,7 +107,7 @@ func TestDurationSerializer_Scan(t *testing.T) {
 				field:   &schema.Field{},
 				dbValue: "string",
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -134,7 +134,7 @@ func TestTimestampSerializer_Value(t *testing.T) {
 		name    string
 		args    args
 		want    interface{}
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "ok field",
@@ -164,7 +164,7 @@ func TestTimestampSerializer_Value(t *testing.T) {
 				fieldValue: "string",
 			},
 			want: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -199,7 +199,7 @@ func TestTimestampSerializer_Scan(t *testing.T) {
 				field:   &schema.Field{},
 				dbValue: "string",
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt assert.TestingT, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -226,7 +226,7 @@ func TestAnySerializer_Value(t *testing.T) {
 		name    string
 		args    args
 		want    assert.Want[any]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "ok field",
@@ -240,7 +240,7 @@ func TestAnySerializer_Value(t *testing.T) {
 					return a
 				}(),
 			},
-			want: func(t *testing.T, got any) bool {
+			want: func(t *testing.T, got any, msgAndArgs ...any) bool {
 				// output of protojson is randomized (see
 				// https://github.com/protocolbuffers/protobuf-go/commit/582ab3de426ef0758666e018b422dd20390f7f26),
 				// so we need to unmarshal it to compare the contents in a
@@ -279,7 +279,7 @@ func TestAnySerializer_Value(t *testing.T) {
 				fieldValue: "string",
 			},
 			want: assert.Nil[any],
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorIs(t, err, ErrUnsupportedType)
 			},
 		},
@@ -314,7 +314,7 @@ func TestAnySerializer_Scan(t *testing.T) {
 				field:   &schema.Field{},
 				dbValue: "string",
 			},
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(tt assert.TestingT, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "could not unmarshal JSONB value into protobuf message")
 			},
 		},
