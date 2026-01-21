@@ -24,7 +24,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
-	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -191,7 +190,7 @@ func TestService_GetMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, service.ErrNotFound("metric"), types, joinTables),
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -453,7 +452,7 @@ func TestService_RemoveMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, service.ErrNotFound("metric"), types, joinTables),
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {

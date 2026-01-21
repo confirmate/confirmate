@@ -89,7 +89,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Pre-create the second result to cause a duplicate error
-					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResultForDuplicate))
+					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResult2))
 				}),
 				subscribers: make(map[int64]*subscriber),
 			},

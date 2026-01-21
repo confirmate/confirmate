@@ -27,6 +27,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -263,4 +264,20 @@ func TestLoggingInterceptor_logRPCRequest(t *testing.T) {
 			tt.want(t, rec)
 		})
 	}
+}
+
+func TestLoggingInterceptor_WrapUnary_SanitizesInternalError(t *testing.T) {
+	var (
+		li          = &LoggingInterceptor{}
+		internalErr = errors.New("secret error")
+		call        = li.WrapUnary(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+
+			return nil, service.HandleDatabaseError(internalErr)
+		})
+	)
+
+	_, err := call(context.Background(), connect.NewRequest(&orchestrator.ListMetricsRequest{}))
+	assert.NotNil(t, err)
+	assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+	assert.False(t, strings.Contains(err.Error(), internalErr.Error()))
 }

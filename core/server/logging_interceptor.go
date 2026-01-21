@@ -138,6 +138,11 @@ func (li *LoggingInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFun
 		// Log combined request and entity information
 		li.logRPCRequest(ctx, method, duration, req, res, err)
 
+		// Make sure to avoid returning internal error details to clients
+		if err != nil && connect.CodeOf(err) == connect.CodeInternal {
+			err = connect.NewError(connect.CodeInternal, nil)
+		}
+
 		return res, err
 	}
 }
