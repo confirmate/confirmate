@@ -188,7 +188,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetTargetOfEvaluationRequest{
-					TargetOfEvaluationId: orchestratortest.MockEmptyUUID,
+					TargetOfEvaluationId: orchestratortest.MockEmptyUuid,
 				},
 			},
 			fields: fields{
@@ -357,7 +357,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateTargetOfEvaluationRequest{
 					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
-						Id:   orchestratortest.MockEmptyUUID,
+						Id:   orchestratortest.MockEmptyUuid,
 						Name: "updated-name",
 					},
 				},

@@ -67,6 +67,6 @@ func TestNewTestServer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	slog.Info("Got response", slog.Any("resp.msg", resp.Msg))
+	slog.Info("Got response", "resp.msg", resp.Msg)
 
 }

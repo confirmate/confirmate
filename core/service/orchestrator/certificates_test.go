@@ -181,7 +181,7 @@ func TestService_GetCertificate(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetCertificateRequest{
-					CertificateId: orchestratortest.MockNonExistentID,
+					CertificateId: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -369,7 +369,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Id:                   orchestratortest.MockCertificate1.Id,
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					},
 				},
 			},
@@ -421,10 +421,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockNonExistentID,
+						Id:                   orchestratortest.MockNonExistentId,
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					},
 				},
 			},
@@ -444,7 +444,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Id:                   orchestratortest.MockCertificate1.Id,
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					},
 				},
 			},

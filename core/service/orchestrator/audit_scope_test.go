@@ -189,7 +189,7 @@ func TestService_GetAuditScope(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetAuditScopeRequest{
-					AuditScopeId: orchestratortest.MockNonExistentID,
+					AuditScopeId: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -342,7 +342,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   orchestratortest.MockAuditScope1.Id,
-						TargetOfEvaluationId: orchestratortest.MockToeID2,
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
 					},
 				},
@@ -377,7 +377,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					},
 				},
 			},
@@ -395,7 +395,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
-						Id:                   orchestratortest.MockNonExistentID,
+						Id:                   orchestratortest.MockNonExistentId,
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},

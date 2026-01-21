@@ -24,7 +24,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
-	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -172,7 +171,7 @@ func TestService_GetMetric(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetMetricRequest{
-					MetricId: orchestratortest.MockNonExistentID,
+					MetricId: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -191,7 +190,7 @@ func TestService_GetMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, service.ErrNotFound("metric"), types, joinTables),
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -453,7 +452,7 @@ func TestService_RemoveMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, service.ErrNotFound("metric"), types, joinTables),
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -526,7 +525,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetMetricImplementationRequest{
-					MetricId: orchestratortest.MockNonExistentID,
+					MetricId: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -624,7 +623,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateMetricImplementationRequest{
 					Implementation: &assessment.MetricImplementation{
-						MetricId: orchestratortest.MockNonExistentID,
+						MetricId: orchestratortest.MockNonExistentId,
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
 						Code:     "some code",
 					},
@@ -704,7 +703,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			name: "validation error - missing metric id",
 			args: args{
 				req: &orchestrator.GetMetricConfigurationRequest{
-					TargetOfEvaluationId: orchestratortest.MockToeID1,
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
 				},
 			},
 			fields: fields{
@@ -720,7 +719,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			args: args{
 				req: &orchestrator.GetMetricConfigurationRequest{
 					TargetOfEvaluationId: orchestratortest.MockMetricConfiguration1.TargetOfEvaluationId,
-					MetricId:             orchestratortest.MockNonExistentID,
+					MetricId:             orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -735,7 +734,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			name: "fallback to default configuration",
 			args: args{
 				req: &orchestrator.GetMetricConfigurationRequest{
-					TargetOfEvaluationId: orchestratortest.MockToeID1,
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					MetricId:             orchestratortest.MockMetricWithDefault.Id,
 				},
 			},
@@ -748,7 +747,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 				}
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, orchestratortest.MockMetricWithDefault.Id, got.Msg.MetricId)
-				assert.Equal(t, orchestratortest.MockToeID1, got.Msg.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId)
 				assert.Equal(t, "==", got.Msg.Operator)
 				assert.True(t, got.Msg.IsDefault)
 				return assert.True(t, got.Msg.TargetValue.GetBoolValue())
@@ -857,8 +856,8 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateMetricConfigurationRequest{
 					Configuration: &assessment.MetricConfiguration{
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
-						MetricId:             orchestratortest.MockMetricID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						MetricId:             orchestratortest.MockMetricId1,
 						Operator:             "!=",
 						TargetValue:          structpb.NewBoolValue(false),
 						IsDefault:            false,
@@ -879,8 +878,8 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.MetricConfiguration], args ...any) bool {
-				return assert.Equal(t, orchestratortest.MockToeID1, got.Msg.TargetOfEvaluationId) &&
-					assert.Equal(t, orchestratortest.MockMetricID1, got.Msg.MetricId) &&
+				return assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId) &&
+					assert.Equal(t, orchestratortest.MockMetricId1, got.Msg.MetricId) &&
 					assert.Equal(t, "!=", got.Msg.Operator) &&
 					assert.False(t, got.Msg.IsDefault)
 			},
