@@ -33,6 +33,8 @@ func TestMain(m *testing.M) {
 }
 
 // TestNewService provides simple tests for NewService
+// What we could not test:
+// - Error when a new DB has to be created (because of the way the DB is initialized in the evidence service)
 func TestNewService(t *testing.T) {
 	type args struct {
 		opts []service.Option[*Service]
@@ -69,15 +71,6 @@ func TestNewService(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
-		// TODO(lebogg): Currently, forcing error on DB creation is not possible because of the way the DB is initialized in the evidence service.
-		//{
-		//	name: "Error: EvidenceStoreServer created with option 'WithDB'",
-		//	args: args{opts: []service.Option[*Service]{}},
-		//	want: assert.Nil[*Service],
-		//	wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-		//		return assert.ErrorContains(t, err, "could not create db")
-		//	},
-		//},
 		{
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - no client provided",
 			args: args{opts: []service.Option[*Service]{
@@ -119,6 +112,7 @@ func TestNewService(t *testing.T) {
 	}
 }
 
+// TODO(lebogg): Continue. Fix test. Check Stream stuff again (also other PRs)
 func TestService_handleEvidence(t *testing.T) {
 	// Create Assessment Service + Server
 	assessmentService := assessmentconnect.UnimplementedAssessmentHandler{}
@@ -180,7 +174,6 @@ func TestService_handleEvidence(t *testing.T) {
 	err = svc.handleEvidence(e,
 		1)
 	assert.NoError(t, err)
-	slog.Info("Sent evidence", slog.Any("id", e.Id))
 }
 
 // TestService_StoreEvidence tests the StoreEvidence method of the Service implementation
