@@ -38,7 +38,7 @@ func TestService_CreateCatalog(t *testing.T) {
 		req *orchestrator.CreateCatalogRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -92,6 +92,21 @@ func TestService_CreateCatalog(t *testing.T) {
 					assert.IsValidationError(t, err, "catalog.name")
 			},
 		},
+		{
+			name: "db error - unique constraint",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{
+					Catalog: orchestratortest.MockCatalog1,
+				},
+			},
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -111,7 +126,7 @@ func TestService_GetCatalog(t *testing.T) {
 		req *orchestrator.GetCatalogRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -128,7 +143,7 @@ func TestService_GetCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 				}),
@@ -167,6 +182,21 @@ func TestService_GetCatalog(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetCatalogRequest{
+					CatalogId: orchestratortest.MockCatalog1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -186,7 +216,7 @@ func TestService_ListCatalogs(t *testing.T) {
 		req *orchestrator.ListCatalogsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -201,7 +231,7 @@ func TestService_ListCatalogs(t *testing.T) {
 				req: &orchestrator.ListCatalogsRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
@@ -247,7 +277,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 		req *orchestrator.UpdateCatalogRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -268,7 +298,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 				}),
@@ -329,6 +359,25 @@ func TestService_UpdateCatalog(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - constraint",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{
+					Catalog: &orchestrator.Catalog{
+						Id:          orchestratortest.MockCatalog1.Id,
+						Name:        "Updated Catalog",
+						Description: "Updated description",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -348,7 +397,7 @@ func TestService_RemoveCatalog(t *testing.T) {
 		req *orchestrator.RemoveCatalogRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -365,7 +414,7 @@ func TestService_RemoveCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 				}),
@@ -388,6 +437,21 @@ func TestService_RemoveCatalog(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.RemoveCatalogRequest{
+					CatalogId: orchestratortest.MockCatalog1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -407,7 +471,7 @@ func TestService_GetCategory(t *testing.T) {
 		req *orchestrator.GetCategoryRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -425,7 +489,7 @@ func TestService_GetCategory(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCategory1)
@@ -473,7 +537,7 @@ func TestService_ListControls(t *testing.T) {
 		req *orchestrator.ListControlsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -488,7 +552,7 @@ func TestService_ListControls(t *testing.T) {
 				req: &orchestrator.ListControlsRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
@@ -517,7 +581,7 @@ func TestService_ListControls(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
@@ -546,7 +610,7 @@ func TestService_ListControls(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCategory1)
@@ -591,7 +655,7 @@ func TestService_GetControl(t *testing.T) {
 		req *orchestrator.GetControlRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -610,7 +674,7 @@ func TestService_GetControl(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCategory1)
@@ -664,7 +728,7 @@ func TestService_loadCatalogs(t *testing.T) {
 		loadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
 		setupFiles       func(t *testing.T, dir string)
 		wantErr          assert.WantErr
-		wantDB           assert.Want[*persistence.DB]
+		wantDB           assert.Want[persistence.DB]
 	}{
 		{
 			name:            "load from default folder with valid catalogs",
@@ -684,7 +748,7 @@ func TestService_loadCatalogs(t *testing.T) {
 				assert.NoError(t, err)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, args ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
 				catalog := assert.InDB[orchestrator.Catalog](t, db, "test-catalog-1")
 				return assert.Equal(t, "Test Catalog 1", catalog.Name)
 			},
@@ -699,7 +763,7 @@ func TestService_loadCatalogs(t *testing.T) {
 				}, nil
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, args ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
 				catalog1 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
 				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
 				return assert.NotNil(t, catalog1) &&
@@ -728,7 +792,7 @@ func TestService_loadCatalogs(t *testing.T) {
 				}, nil
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, args ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
 				folderCatalog := assert.InDB[orchestrator.Catalog](t, db, "folder-catalog")
 				customCatalog := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
 				return assert.NotNil(t, folderCatalog) &&
@@ -739,7 +803,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			name:            "empty folder and no custom function",
 			loadDefaultCats: true,
 			wantErr:         assert.NoError,
-			wantDB:          assert.NotNil[*persistence.DB],
+			wantDB:          assert.NotNil[persistence.DB],
 		},
 		{
 			name:            "custom function returns error",
@@ -750,7 +814,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "custom error")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name:            "invalid catalogs path",
@@ -759,7 +823,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "could not load default catalogs")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 	}
 

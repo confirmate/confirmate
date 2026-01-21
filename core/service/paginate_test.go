@@ -176,7 +176,7 @@ func TestPaginateSlice(t *testing.T) {
 func TestPaginateStorage(t *testing.T) {
 	type args struct {
 		req   api.PaginatedRequest
-		db    *persistence.DB
+		db    persistence.DB
 		opts  PaginationOpts
 		conds []interface{}
 	}
@@ -194,7 +194,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "",
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -222,7 +222,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "CAIQAg==",
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -250,7 +250,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "CAQQAg==",
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -306,7 +306,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "CBoQAg==", // Start=26, Size=2 (beyond 5 records)
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))

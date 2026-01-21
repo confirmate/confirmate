@@ -39,7 +39,7 @@ import (
 // [orchestratorconnect.OrchestratorHandler]).
 type Service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db  *persistence.DB
+	db  persistence.DB
 	cfg Config
 
 	// subscribers is a map of subscribers for change events
@@ -85,6 +85,9 @@ type Config struct {
 
 	// CreateDefaultTargetOfEvaluation controls whether to create a default target of evaluation.
 	CreateDefaultTargetOfEvaluation bool
+
+	// PersistenceConfig is the configuration for the persistence layer. If not set, defaults will be used.
+	PersistenceConfig persistence.Config
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -111,9 +114,10 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	}
 
 	// Initialize the database with the defined auto-migration types and join tables
-	svc.db, err = persistence.NewDB(
-		persistence.WithAutoMigration(types...),
-		persistence.WithSetupJoinTable(joinTables...))
+	pcfg := svc.cfg.PersistenceConfig
+	pcfg.Types = types
+	pcfg.CustomJoinTables = joinTables
+	svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 	if err != nil {
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}

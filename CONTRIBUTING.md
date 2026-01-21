@@ -44,7 +44,7 @@ Use `var` blocks at the beginning of functions to group all variables needed in 
 ```go
 func NewService() (svc orchestratorconnect.OrchestratorHandler, err error) {
     var (
-        db *persistence.DB
+        db persistence.DB
     )
     
     db, err = persistence.NewDB(...)
@@ -284,7 +284,7 @@ package orchestrator
 // [orchestratorconnect.OrchestratorHandler]).
 type service struct {
     orchestratorconnect.UnimplementedOrchestratorHandler
-    db *persistence.DB
+    db persistence.DB
 }
 
 // NewService creates a new orchestrator service and returns a
@@ -309,7 +309,7 @@ package orchestrator
 
 type service struct {
     orchestratorconnect.UnimplementedOrchestratorHandler
-    db *persistence.DB
+    db persistence.DB
 }
 
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
@@ -428,7 +428,7 @@ func TestService_GetMetric(t *testing.T) {
 		req *orchestrator.GetMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -445,7 +445,7 @@ func TestService_GetMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 				}),
 			},
@@ -503,7 +503,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
         req *orchestrator.CreateTargetOfEvaluationRequest
     }
     type fields struct {
-        db *persistence.DB
+        db persistence.DB
     }
     tests := []struct {
         name    string
@@ -511,7 +511,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
         fields  fields
         want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
         wantErr assert.WantErr
-        wantDB  assert.Want[*persistence.DB]
+        wantDB  assert.Want[persistence.DB]
     }{
         {
             name: "validation error - empty request",
@@ -525,7 +525,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
             wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
                 return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
             },
-            wantDB: assert.NotNil[*persistence.DB],
+            wantDB: assert.NotNil[persistence.DB],
         },
         {
             name: "happy path",
@@ -545,7 +545,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
                     assert.NotEmpty(t, got.Msg.Id)
             },
             wantErr: assert.NoError,
-            wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+            wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
                 res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
                 assert.NotNil(t, res)
 
@@ -571,7 +571,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 ```
 
 **Key points:**
-- For error cases, use `assert.NotNil[*persistence.DB]` to simply verify the DB still exists
+- For error cases, use `assert.NotNil[persistence.DB]` to simply verify the DB still exists
 - For success cases, use `assert.Is` to type-assert the response, then `assert.InDB` to retrieve and verify the persisted entity
 - Always assert `NotNil` on the response before accessing nested fields like `res.Msg.Id`
 - Pass the complete response object to `wantDB`, not just the message field
@@ -591,7 +591,7 @@ import (
 func Test_DB_Create(t *testing.T) {
     var (
         err    error
-        s      *DB
+        s      persistence.DB
         metric *assessment.Metric
     )
 
@@ -601,11 +601,7 @@ func Test_DB_Create(t *testing.T) {
         Description: MockMetricDescription1,
     }
 
-    s, err = NewDB(
-        WithInMemory(),
-        WithAutoMigration(&assessment.Metric{}),
-    )
-    assert.NoError(t, err)
+    s = persistencetest.NewInMemoryDB(t, []any{&assessment.Metric{}}, nil)
 
     err = s.Create(metric)
     assert.NoError(t, err)

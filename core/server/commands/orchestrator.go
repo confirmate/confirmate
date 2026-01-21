@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
 
@@ -38,6 +39,16 @@ var OrchestratorCommand = &cli.Command{
 				DefaultMetricsPath:              cmd.String("metrics-default-path"),
 				LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
 				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-sslmode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
 			}),
 		)
 		if err != nil {
@@ -111,6 +122,46 @@ var OrchestratorCommand = &cli.Command{
 			Name:  "create-default-target-of-evaluation",
 			Usage: "Creates a default target of evaluation if none exists",
 			Value: orchestrator.DefaultConfig.CreateDefaultTargetOfEvaluation,
+		},
+		&cli.StringFlag{
+			Name:  "db-host",
+			Usage: "Specifies the server hostname",
+			Value: persistence.DefaultConfig.Host,
+		},
+		&cli.IntFlag{
+			Name:  "db-port",
+			Usage: "Specifies the server port",
+			Value: persistence.DefaultConfig.Port,
+		},
+		&cli.StringFlag{
+			Name:  "db-name",
+			Usage: "Specifies the database name",
+			Value: persistence.DefaultConfig.DBName,
+		},
+		&cli.StringFlag{
+			Name:  "db-user",
+			Usage: "Specifies the database user",
+			Value: persistence.DefaultConfig.User,
+		},
+		&cli.StringFlag{
+			Name:  "db-password",
+			Usage: "Specifies the database password",
+			Value: persistence.DefaultConfig.Password,
+		},
+		&cli.StringFlag{
+			Name:  "db-sslmode",
+			Usage: "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
+			Value: persistence.DefaultConfig.SSLMode,
+		},
+		&cli.BoolFlag{
+			Name:  "db-in-memory",
+			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
+			Value: persistence.DefaultConfig.InMemoryDB,
+		},
+		&cli.IntFlag{
+			Name:  "db-max-connections",
+			Usage: "Specifies the maximum number of database connections",
+			Value: persistence.DefaultConfig.MaxConn,
 		},
 	},
 }
