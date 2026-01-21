@@ -35,7 +35,7 @@ func NewTestServiceWithErrors(t *testing.T, storageWithErrors *StorageWithError)
 		err error
 	)
 
-	db := persistencetest.NewInMemoryDB(t, types, nil, func(db *persistence.DB) {
+	db := persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
 		registerDBErrorCallbacks(db, storageWithErrors)
 	})
 
@@ -70,11 +70,22 @@ type StorageWithError struct {
 }
 
 // registerDBErrorCallbacks registers GORM callbacks to inject errors for specific operations.
-func registerDBErrorCallbacks(db *persistence.DB, e *StorageWithError) {
+func registerDBErrorCallbacks(db persistence.DB, e *StorageWithError) {
 	if db == nil || e == nil {
 		return
 	}
-	g := db.DB
+	// Type assert to access the underlying gorm.DB
+	type gormGetter interface {
+		DB() (*gorm.DB, error)
+	}
+	gg, ok := db.(gormGetter)
+	if !ok {
+		return
+	}
+	g, err := gg.DB()
+	if err != nil || g == nil {
+		return
+	}
 
 	// helper to test schema match
 	matchSchema := func(tx *gorm.DB, target string) bool {

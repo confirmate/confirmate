@@ -42,7 +42,7 @@ var (
 		Resource:             nil,
 	}
 )
-var InitDBWithEvidence = func(db *persistence.DB) {
+var InitDBWithEvidence = func(db persistence.DB) {
 	err := db.Create(MockEvidence1)
 	if err != nil {
 		panic(err)

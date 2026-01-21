@@ -10,7 +10,6 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	assert2 "github.com/stretchr/testify/assert"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -37,17 +36,17 @@ func TestMain(m *testing.M) {
 // - Error when a new DB has to be created (because of the way the DB is initialized in the evidence service)
 func TestNewService(t *testing.T) {
 	type args struct {
-		opts []service.Option[*Service]
+		opts []service.Option[Service]
 	}
 	tests := []struct {
 		name    string
 		args    args
 		want    assert.Want[*Service]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "EvidenceStoreServer created without options",
-			want: func(t *testing.T, got *Service) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// Storage should be default (in-memory storage). Hard to check since its type is not exported
 				assert.NotNil(t, got.db)
 				return true
@@ -56,9 +55,9 @@ func TestNewService(t *testing.T) {
 		},
 		{
 			name: "Happy path: EvidenceStoreServer created with option 'WithDB'",
-			args: args{opts: []service.Option[*Service]{
+			args: args{opts: []service.Option[Service]{
 				WithDB(persistencetest.NewInMemoryDB(t, types, nil, evidencetest.InitDBWithEvidence))}},
-			want: func(t *testing.T, got *Service) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// Storage should be gorm (in-memory storage). Hard to check since its type is not exported
 				assert.NotNil(t, got.db)
 				// But we can check if we can get the evidence we inserted into the custom DB
@@ -73,13 +72,13 @@ func TestNewService(t *testing.T) {
 		},
 		{
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - no client provided",
-			args: args{opts: []service.Option[*Service]{
+			args: args{opts: []service.Option[Service]{
 				WithAssessmentConfig(assessmentConfig{
 					targetAddress: "localhost:9091",
 					client:        nil,
 				}),
 			}},
-			want: func(t *testing.T, got *Service) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We didn't provide a client, so it should be the default (timeout is zero value)
 				assert.Equal(t, 0, got.assessmentConfig.client.Timeout)
 				return assert.Equal(t, "localhost:9091", got.assessmentConfig.targetAddress)
@@ -88,13 +87,13 @@ func TestNewService(t *testing.T) {
 		},
 		{
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - with client",
-			args: args{opts: []service.Option[*Service]{
+			args: args{opts: []service.Option[Service]{
 				WithAssessmentConfig(assessmentConfig{
 					targetAddress: "localhost:9091",
 					client:        &http.Client{Timeout: time.Duration(1)},
 				}),
 			}},
-			want: func(t *testing.T, got *Service) bool {
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We provided a client with timeout set to 1 second
 				assert.Equal(t, 1, got.assessmentConfig.client.Timeout)
 				return assert.Equal(t, "localhost:9091", got.assessmentConfig.targetAddress)
@@ -190,7 +189,7 @@ func TestService_StoreEvidence(t *testing.T) {
 		args    args
 		fields  fields
 		want    assert.Want[*connect.Response[evidence.StoreEvidenceResponse]]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name: "Error - Validation fails",
@@ -201,8 +200,8 @@ func TestService_StoreEvidence(t *testing.T) {
 				svc: nil, // service isn't needed; validating arg errors only
 			},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
-			wantErr: func(t assert.TestingT, err error, args ...interface{}) bool {
-				return assert.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(err))
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{
@@ -219,8 +218,8 @@ func TestService_StoreEvidence(t *testing.T) {
 				assert.NoError(t, err)
 			})},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
-			wantErr: func(t assert2.TestingT, err error, i ...interface{}) bool {
-				return assert.Equal(t, connect.CodeAlreadyExists, connect.CodeOf(err))
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
 			},
 		},
 		{
@@ -236,8 +235,8 @@ func TestService_StoreEvidence(t *testing.T) {
 				FailOnCreateSchema: "Evidence",
 			})},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
 		},
 		{
@@ -254,8 +253,8 @@ func TestService_StoreEvidence(t *testing.T) {
 				FailOnCreateSchema: "Resource",
 			})},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
 		},
 		{
@@ -280,8 +279,8 @@ func TestService_StoreEvidence(t *testing.T) {
 			},
 			fields: fields{svc: NewTestService(t, nil)},
 			want:   assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
-			wantErr: func(t assert2.TestingT, err error, i ...interface{}) bool {
-				return assert.Equal(t, connect.CodeInternal, connect.CodeOf(err))
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
 		},
 		{
