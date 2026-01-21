@@ -591,7 +591,7 @@ import (
 func Test_DB_Create(t *testing.T) {
     var (
         err    error
-        s      *DB
+        s      persistence.DB
         metric *assessment.Metric
     )
 
@@ -601,11 +601,7 @@ func Test_DB_Create(t *testing.T) {
         Description: MockMetricDescription1,
     }
 
-    s, err = NewDB(
-        WithInMemory(),
-        WithAutoMigration(&assessment.Metric{}),
-    )
-    assert.NoError(t, err)
+    s = persistencetest.NewInMemoryDB(t, []any{&assessment.Metric{}}, nil)
 
     err = s.Create(metric)
     assert.NoError(t, err)

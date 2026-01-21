@@ -26,7 +26,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// DB is out main database interface that allows to interact with the persistence layer. It is
+// DB is our main database interface that allows to interact with the persistence layer. It is
 // closely aligned to the [gorm] operations.
 type DB interface {
 	// Create attempts to insert the provided record into the database.
@@ -82,7 +82,7 @@ type gormDB struct {
 // DBOption defines a function type for configuring the [DB] instance.
 type DBOption func(*gormDB)
 
-// WithAutoMigration is an option to add types to GORM's auto-migration.
+// WithConfig is an option to add types to GORM's auto-migration.
 func WithConfig(cfg Config) DBOption {
 	return func(s *gormDB) {
 		s.cfg = cfg

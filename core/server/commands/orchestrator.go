@@ -115,32 +115,32 @@ var OrchestratorCommand = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "db-host",
-			Usage: "Specifices the server hostname",
+			Usage: "Specifies the server hostname",
 			Value: persistence.DefaultConfig.Host,
 		},
 		&cli.IntFlag{
 			Name:  "db-port",
-			Usage: "Specifices the server port",
+			Usage: "Specifies the server port",
 			Value: persistence.DefaultConfig.Port,
 		},
 		&cli.StringFlag{
 			Name:  "db-name",
-			Usage: "Specifices the database name",
+			Usage: "Specifies the database name",
 			Value: persistence.DefaultConfig.DBName,
 		},
 		&cli.StringFlag{
 			Name:  "db-user",
-			Usage: "Specifices the database user",
+			Usage: "Specifies the database user",
 			Value: persistence.DefaultConfig.User,
 		},
 		&cli.StringFlag{
 			Name:  "db-password",
-			Usage: "Specifices the database password",
+			Usage: "Specifies the database password",
 			Value: persistence.DefaultConfig.Password,
 		},
 		&cli.StringFlag{
 			Name:  "db-sslmode",
-			Usage: "Specifices the database SSL mode (disable, require, verify-ca, verify-full)",
+			Usage: "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
 			Value: persistence.DefaultConfig.SSLMode,
 		},
 		&cli.BoolFlag{
@@ -150,7 +150,7 @@ var OrchestratorCommand = &cli.Command{
 		},
 		&cli.IntFlag{
 			Name:  "db-max-connections",
-			Usage: "Specifices the maximum number of database connections",
+			Usage: "Specifies the maximum number of database connections",
 			Value: persistence.DefaultConfig.MaxConn,
 		},
 	},

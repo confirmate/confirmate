@@ -13,7 +13,7 @@
 //
 // This file is part of Confirmate Core.
 
-package persistence
+package persistence_test
 
 import (
 	"testing"
@@ -21,6 +21,8 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
+	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/util/assert"
 
 	_ "github.com/proullon/ramsql/driver"
@@ -49,7 +51,7 @@ var mockToe = orchestrator.TargetOfEvaluation{
 func Test_DB_Create(t *testing.T) {
 	var (
 		err    error
-		s      DB
+		s      persistence.DB
 		metric *assessment.Metric
 	)
 
@@ -62,13 +64,10 @@ func Test_DB_Create(t *testing.T) {
 	}
 
 	// Create DB
-	s, err = NewDB(
-		WithConfig(Config{
-			InMemoryDB: true,
-			Types:      []any{&assessment.Metric{}, &assessment.MetricImplementation{}},
-		}),
-	)
-	assert.NoError(t, err)
+	s = persistencetest.NewInMemoryDB(t, []any{
+		&assessment.Metric{},
+		&assessment.MetricImplementation{},
+	}, nil)
 
 	err = s.Create(metric)
 	assert.NoError(t, err)
@@ -80,7 +79,7 @@ func Test_DB_Create(t *testing.T) {
 func Test_DB_Get(t *testing.T) {
 	var (
 		err    error
-		s      DB
+		s      persistence.DB
 		target *orchestrator.TargetOfEvaluation
 	)
 
@@ -88,21 +87,15 @@ func Test_DB_Get(t *testing.T) {
 	// assert.NoError(t, api.Validate(target))
 
 	// Create DB
-	s, err = NewDB(
-		WithConfig(Config{
-			InMemoryDB: true,
-			Types: []any{
-				&orchestrator.TargetOfEvaluation{},
-				&assessment.Metric{},
-				&assessment.MetricImplementation{},
-			},
-		}),
-	)
-	assert.NoError(t, err)
+	s = persistencetest.NewInMemoryDB(t, []any{
+		&orchestrator.TargetOfEvaluation{},
+		&assessment.Metric{},
+		&assessment.MetricImplementation{},
+	}, nil)
 
 	// Return error since no record in the DB yet
 	err = s.Get(&orchestrator.TargetOfEvaluation{})
-	assert.ErrorIs(t, err, ErrRecordNotFound)
+	assert.ErrorIs(t, err, persistence.ErrRecordNotFound)
 	_ = target
 
 	// Create target of evaluation
