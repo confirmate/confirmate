@@ -25,6 +25,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
@@ -36,7 +37,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		req *orchestrator.StoreAssessmentResultRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -44,6 +45,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.StoreAssessmentResultResponse]]
 		wantErr assert.WantErr
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "validation error - empty request",
@@ -55,18 +57,18 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "invalid request")
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "validation error - missing metric id",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
 					Result: &assessment.AssessmentResult{
-						EvidenceId:           orchestratortest.MockEvidenceID1,
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						EvidenceId:           orchestratortest.MockEvidenceId1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					},
 				},
 			},
@@ -75,29 +77,26 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "metric_id")
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "db error",
+			name: "db error - unique constraint",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
 					Result: orchestratortest.MockAssessmentResult1,
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
-					err := d.Create(orchestratortest.MockAssessmentResult1)
-					assert.NoError(t, err)
-				}),
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInternal, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "happy path",
@@ -111,6 +110,15 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				// Verify the result was persisted with correct timestamp
+				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
+				assert.NotNil(t, result.CreatedAt)
+				assert.True(t, time.Since(result.CreatedAt.AsTime()) < 5*time.Second)
+				assert.Equal(t, orchestratortest.MockMetricId1, result.MetricId)
+				assert.Equal(t, orchestratortest.MockResourceIdNew, result.ResourceId)
+				return true
+			},
 		},
 	}
 
@@ -122,6 +130,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			res, err := svc.StoreAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
+			tt.wantDB(t, tt.fields.db)
 		})
 	}
 }
@@ -131,7 +140,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 		req *orchestrator.GetAssessmentResultRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -152,8 +161,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "id")
 			},
 		},
@@ -169,8 +177,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code()) &&
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "id")
 			},
 		},
@@ -182,7 +189,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 				}),
@@ -197,7 +204,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetAssessmentResultRequest{
-					Id: orchestratortest.MockNonExistentID,
+					Id: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -205,8 +212,22 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetAssessmentResultRequest{
+					Id: orchestratortest.MockAssessmentResult1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -228,7 +249,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 		req *orchestrator.ListAssessmentResultsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -241,7 +262,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			name: "validation error",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
-					PageToken: "invalid",
+					PageToken: "!!!invalid-base64!!!",
 				},
 			},
 			fields: fields{
@@ -249,11 +270,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				if cErr == nil {
-					return false
-				}
-				return assert.Equal(t, connect.CodeInternal, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{
@@ -262,7 +279,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				req: &orchestrator.ListAssessmentResultsRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -285,7 +302,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -308,7 +325,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -331,7 +348,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -340,6 +357,30 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Both MockAssessmentResult1 and MockAssessmentResult2 have tool-1
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 2, len(got.Msg.Results))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by target of evaluation ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						TargetOfEvaluationId: util.Ref(orchestratortest.MockToeId1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Both MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, 2, len(got.Msg.Results))
 			},
@@ -355,7 +396,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -377,7 +418,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Create multiple results with different combinations of resource_id and metric_id
 					// to test that we get the latest for each unique (resource_id, metric_id) pair
 
@@ -387,21 +428,21 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result11middle := &assessment.AssessmentResult{
 						Id:                   "result-1-1-middle",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result11latest := &assessment.AssessmentResult{
 						Id:                   "result-1-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Resource 1, Metric 2: 2 results, latest should be result-1-2-latest
@@ -410,14 +451,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result12latest := &assessment.AssessmentResult{
 						Id:                   "result-1-2-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Resource 2, Metric 1: 2 results, latest should be result-2-1-latest
@@ -426,14 +467,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result21latest := &assessment.AssessmentResult{
 						Id:                   "result-2-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Resource 2, Metric 2: 1 result, should be returned
@@ -442,7 +483,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Insert in random order to ensure ordering by created_at works
@@ -474,6 +515,92 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					"result-1-2-latest", // resource-1, metric-2: latest of 2
 					"result-2-1-latest", // resource-2, metric-1: latest of 2
 					"result-2-2-single", // resource-2, metric-2: only 1
+				}
+
+				for _, expectedId := range expectedIds {
+					if !ids[expectedId] {
+						t.Errorf("Expected result %s not found in response", expectedId)
+						return false
+					}
+				}
+
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by latest_by_resource_id with conditions",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					LatestByResourceId: &[]bool{true}[0],
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						MetricId: &[]string{"metric-1"}[0],
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create results for different metrics and resources
+					result11old := &assessment.AssessmentResult{
+						Id:                   "result-1-1-old",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
+					result11latest := &assessment.AssessmentResult{
+						Id:                   "result-1-1-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
+					// This should be filtered out due to metric-2
+					result12latest := &assessment.AssessmentResult{
+						Id:                   "result-1-2-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-2",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
+					result21latest := &assessment.AssessmentResult{
+						Id:                   "result-2-1-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
+
+					results := []*assessment.AssessmentResult{
+						result11old, result11latest, result12latest, result21latest,
+					}
+					for _, r := range results {
+						err := d.Create(r)
+						assert.NoError(t, err)
+					}
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Should return exactly 2 results (latest for metric-1 only, for each resource)
+				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
+
+				// Collect returned IDs
+				ids := make(map[string]bool)
+				for _, r := range got.Msg.Results {
+					ids[r.Id] = true
+					// Verify all results are for metric-1
+					if r.MetricId != "metric-1" {
+						t.Errorf("Expected only metric-1 results, got %s", r.MetricId)
+						return false
+					}
+				}
+
+				// Verify we got the latest result for each resource with metric-1
+				expectedIds := []string{
+					"result-1-1-latest", // resource-1, metric-1: latest
+					"result-2-1-latest", // resource-2, metric-1: latest
 				}
 
 				for _, expectedId := range expectedIds {

@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
@@ -28,6 +29,7 @@ import (
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 func TestService_CreateMetric(t *testing.T) {
@@ -35,7 +37,7 @@ func TestService_CreateMetric(t *testing.T) {
 		req *orchestrator.CreateMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -61,6 +63,50 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.CreateMetricRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing metric",
+			args: args{
+				req: &orchestrator.CreateMetricRequest{
+					Metric: &assessment.Metric{},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "metric.id")
+			},
+		},
+		{
+			name: "db error - unique constraint",
+			args: args{
+				req: &orchestrator.CreateMetricRequest{
+					Metric: orchestratortest.MockMetric1,
+				},
+			},
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -80,7 +126,7 @@ func TestService_GetMetric(t *testing.T) {
 		req *orchestrator.GetMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -97,7 +143,7 @@ func TestService_GetMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 				}),
 			},
@@ -109,10 +155,23 @@ func TestService_GetMetric(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.GetMetricRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsValidationError(t, err, "metric_id")
+			},
+		},
+		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetMetricRequest{
-					MetricId: orchestratortest.MockNonExistentID,
+					MetricId: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -120,8 +179,22 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -144,7 +217,7 @@ func TestService_ListMetrics(t *testing.T) {
 		req *orchestrator.ListMetricsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -159,7 +232,7 @@ func TestService_ListMetrics(t *testing.T) {
 				req: &orchestrator.ListMetricsRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetric2)
@@ -206,8 +279,9 @@ func TestService_UpdateMetric(t *testing.T) {
 		req *orchestrator.UpdateMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -228,7 +302,7 @@ func TestService_UpdateMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 				}),
@@ -238,6 +312,37 @@ func TestService_UpdateMetric(t *testing.T) {
 				return assert.Equal(t, "Updated description", got.Msg.Description)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.UpdateMetricRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.UpdateMetricRequest{
+					Metric: &assessment.Metric{
+						Description: "Updated description",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "metric.id")
+			},
 		},
 		{
 			name: "not found",
@@ -256,8 +361,27 @@ func TestService_UpdateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "db error - constraint",
+			args: args{
+				req: &orchestrator.UpdateMetricRequest{
+					Metric: &assessment.Metric{
+						Id:          orchestratortest.MockMetric1.Id,
+						Description: "Updated description",
+						Version:     "1.0.0",
+						Category:    "test-category",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 	}
@@ -279,8 +403,9 @@ func TestService_RemoveMetric(t *testing.T) {
 		req *orchestrator.RemoveMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -296,7 +421,7 @@ func TestService_RemoveMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 				}),
@@ -305,6 +430,34 @@ func TestService_RemoveMetric(t *testing.T) {
 				return assert.NotNil(t, got)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.RemoveMetricRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsValidationError(t, err, "metric_id")
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.RemoveMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
 		},
 	}
 
@@ -325,7 +478,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 		req *orchestrator.GetMetricImplementationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -342,7 +495,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetricImplementation1)
@@ -356,10 +509,23 @@ func TestService_GetMetricImplementation(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.GetMetricImplementationRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsValidationError(t, err, "metric_id")
+			},
+		},
+		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetMetricImplementationRequest{
-					MetricId: orchestratortest.MockNonExistentID,
+					MetricId: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -367,8 +533,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -390,7 +555,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 		req *orchestrator.UpdateMetricImplementationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -411,7 +576,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetricImplementation1)
@@ -425,11 +590,40 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.UpdateMetricImplementationRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing id",
+			args: args{
+				req: &orchestrator.UpdateMetricImplementationRequest{
+					Implementation: &assessment.MetricImplementation{},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "implementation.metric_id")
+			},
+		},
+		{
 			name: "not found",
 			args: args{
 				req: &orchestrator.UpdateMetricImplementationRequest{
 					Implementation: &assessment.MetricImplementation{
-						MetricId: orchestratortest.MockNonExistentID,
+						MetricId: orchestratortest.MockNonExistentId,
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
 						Code:     "some code",
 					},
@@ -440,8 +634,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -463,7 +656,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 		req *orchestrator.GetMetricConfigurationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -481,7 +674,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockTargetOfEvaluation1))
 					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 					assert.NoError(t, d.Create(orchestratortest.MockMetricConfiguration1))
@@ -494,11 +687,23 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "not found",
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetMetricConfigurationRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "validation error - missing metric id",
 			args: args{
 				req: &orchestrator.GetMetricConfigurationRequest{
-					TargetOfEvaluationId: orchestratortest.MockMetricConfiguration1.TargetOfEvaluationId,
-					MetricId:             orchestratortest.MockNonExistentID,
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
 				},
 			},
 			fields: fields{
@@ -506,15 +711,30 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsValidationError(t, err, "metric_id")
+			},
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetMetricConfigurationRequest{
+					TargetOfEvaluationId: orchestratortest.MockMetricConfiguration1.TargetOfEvaluationId,
+					MetricId:             orchestratortest.MockNonExistentId,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 		{
 			name: "fallback to default configuration",
 			args: args{
 				req: &orchestrator.GetMetricConfigurationRequest{
-					TargetOfEvaluationId: orchestratortest.MockToeID1,
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					MetricId:             orchestratortest.MockMetricWithDefault.Id,
 				},
 			},
@@ -527,7 +747,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 				}
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, orchestratortest.MockMetricWithDefault.Id, got.Msg.MetricId)
-				assert.Equal(t, orchestratortest.MockToeID1, got.Msg.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId)
 				assert.Equal(t, "==", got.Msg.Operator)
 				assert.True(t, got.Msg.IsDefault)
 				return assert.True(t, got.Msg.TargetValue.GetBoolValue())
@@ -557,7 +777,7 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 		req *orchestrator.ListMetricConfigurationRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -574,7 +794,7 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
@@ -617,75 +837,214 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 	}
 }
 
-/*
 func TestService_UpdateMetricConfiguration(t *testing.T) {
-	var (
-		tests = []struct {
-			name    string
-			req     *orchestrator.UpdateMetricConfigurationRequest
-			setup   func(*service)
-			wantErr bool
-		}{
-			{
-				name: "happy path",
+	type args struct {
+		req *orchestrator.UpdateMetricConfigurationRequest
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[assessment.MetricConfiguration]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "happy path",
+			args: args{
 				req: &orchestrator.UpdateMetricConfigurationRequest{
-					TargetOfEvaluationId: "toe-1",
-					MetricId:             "metric-1",
 					Configuration: &assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-1",
-						MetricId:             "metric-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						MetricId:             orchestratortest.MockMetricId1,
+						Operator:             "!=",
+						TargetValue:          structpb.NewBoolValue(false),
 						IsDefault:            false,
 					},
 				},
-				setup: func(svc *service) {
-					err := svc.db.Create(&assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-1",
-						MetricId:             "metric-1",
-						IsDefault:            true,
-					})
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create the TOE first (required by foreign key constraint)
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
-				},
-				wantErr: false,
+					// Create the metric (required by foreign key constraint)
+					err = d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					// Then create the configuration
+					err = d.Create(orchestratortest.MockMetricConfiguration1)
+					assert.NoError(t, err)
+				}),
 			},
-			{
-				name: "not found",
-				req: &orchestrator.UpdateMetricConfigurationRequest{
-					TargetOfEvaluationId: "toe-1",
-					MetricId:             "non-existent",
-					Configuration: &assessment.MetricConfiguration{
-						TargetOfEvaluationId: "toe-1",
-						MetricId:             "non-existent",
-						IsDefault:            false,
-					},
-				},
-				setup:   func(svc *service) {},
-				wantErr: true,
+			want: func(t *testing.T, got *connect.Response[assessment.MetricConfiguration], args ...any) bool {
+				return assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId) &&
+					assert.Equal(t, orchestratortest.MockMetricId1, got.Msg.MetricId) &&
+					assert.Equal(t, "!=", got.Msg.Operator) &&
+					assert.False(t, got.Msg.IsDefault)
 			},
-		}
-	)
+			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.UpdateMetricConfigurationRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				svc = &service{
-					db: persistencetest.NewInMemoryDB(t, types, joinTables),
-				}
-				req = connect.NewRequest(tt.req)
-			)
-
-			tt.setup(svc)
-
-			res, err := svc.UpdateMetricConfiguration(context.Background(), req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
+			svc := &Service{
+				db: tt.fields.db,
 			}
-
-			assert.NoError(t, err)
-			assert.NotNil(t, res)
-			assert.Equal(t, tt.req.Configuration.IsEnabled, res.Msg.IsEnabled)
+			res, err := svc.UpdateMetricConfiguration(context.Background(), connect.NewRequest(tt.args.req))
+			tt.want(t, res)
+			tt.wantErr(t, err)
 		})
 	}
 }
-*/
+
+func TestService_loadMetrics(t *testing.T) {
+	type fields struct {
+		db  persistence.DB
+		cfg Config
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr assert.WantErr
+	}{
+		{
+			name: "no metrics to load",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: false,
+					LoadMetricsFunc:    nil,
+				},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "load from custom function",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: false,
+					LoadMetricsFunc: func(svc *Service) ([]*assessment.Metric, error) {
+						return []*assessment.Metric{
+							{
+								Id:          "custom-metric",
+								Description: "Custom Metric",
+							},
+						}, nil
+					},
+				},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "custom function returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: false,
+					LoadMetricsFunc: func(svc *Service) ([]*assessment.Metric, error) {
+						return nil, errors.New("custom error")
+					},
+				},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Error(t, err) &&
+					assert.ErrorContains(t, err, "could not load additional metrics")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:  tt.fields.db,
+				cfg: tt.fields.cfg,
+			}
+			err := svc.loadMetrics()
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+func TestService_loadMetricsFromRepository(t *testing.T) {
+	type fields struct {
+		db  persistence.DB
+		cfg Config
+	}
+	tests := []struct {
+		name        string
+		fields      fields
+		wantMetrics int
+		wantErr     assert.WantErr
+	}{
+		{
+			name: "directory does not exist",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					DefaultMetricsPath: "/nonexistent/path",
+				},
+			},
+			wantMetrics: 0,
+			wantErr:     assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:  tt.fields.db,
+				cfg: tt.fields.cfg,
+			}
+			metrics, err := svc.loadMetricsFromRepository()
+			tt.wantErr(t, err)
+			assert.Equal(t, tt.wantMetrics, len(metrics))
+		})
+	}
+}
+
+func Test_prepareMetric(t *testing.T) {
+	type args struct {
+		m          *assessment.Metric
+		metricPath string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr assert.WantErr
+	}{
+		{
+			name: "no data.json file",
+			args: args{
+				m: &assessment.Metric{
+					Id:          "test-metric",
+					Description: "Test Metric",
+				},
+				metricPath: "/tmp/nonexistent/metric.yaml",
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := prepareMetric(tt.args.m, tt.args.metricPath)
+			tt.wantErr(t, err)
+		})
+	}
+}

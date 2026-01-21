@@ -26,50 +26,66 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// defaultMaxConn is the default for maximum number for connections (default: 1) to avoid issues
-// with concurrent access to the database.
-const defaultMaxConn = 1
+// DB is our main database interface that allows to interact with the persistence layer. It is
+// closely aligned to the [gorm] operations.
+type DB interface {
+	// Create attempts to insert the provided record into the database.
+	//
+	// If a constraint violation occurs, it must return [ErrUniqueConstraintFailed] or
+	// [ErrConstraintFailed], depending on the error message.
+	Create(r any) (err error)
 
-// DB is our main database struct that wraps GORM's DB instance and provides additional
+	// Save attempts to save the given record to the database, applying optional conditions for
+	// filtering.
+	//
+	// If a constraint violation occurs, it must return [ErrConstraintFailed].
+	Save(r any, conds ...any) (err error)
+
+	// Update applies the provided changes to the database record, optionally applying conditions
+	// for filtering.
+	//
+	// Must return [ErrConstraintFailed] on a constraint violation or [ErrRecordNotFound] if no
+	// matching record is found.
+	Update(r any, conds ...any) (err error)
+
+	// Delete attempts to delete the record with the given ID from the database.
+	//
+	// Must return [ErrRecordNotFound] if no matching record is found.
+	Delete(r any, conds ...any) (err error)
+
+	// Get attempts to retrieve a record from the database.
+	//
+	// If no record is found, it returns [ErrRecordNotFound].
+	Get(r any, conds ...any) (err error)
+
+	// List retrieves a list of records from the database.
+	List(r any, orderBy string, asc bool, offset int, limit int, conds ...any) (err error)
+
+	// Count retrieves the count of records in the database that match the provided conditions.
+	Count(r any, conds ...any) (count int64, err error)
+
+	// Raw executes a raw SQL query and scans the result into the provided destination. Returns an error
+	// if the query fails.
+	Raw(r any, query string, args ...any) (err error)
+}
+
+// gormDB is our main database struct that wraps GORM's DB instance and provides additional
 // configuration options.
-type DB struct {
+type gormDB struct {
 	*gorm.DB
 
-	// types contain all types that we need to auto-migrate into database tables
-	types []any
-
-	// customJoinTables holds configuration for custom join table setups, including model, field, and the join table reference.
-	customJoinTables []CustomJoinTable
-
-	// maxConn is the maximum number of connections. 0 means unlimited.
-	maxConn int
+	cfg  Config
+	gcfg gorm.Config
+	pcfg postgres.Config
 }
 
 // DBOption defines a function type for configuring the [DB] instance.
-type DBOption func(*DB)
+type DBOption func(*gormDB)
 
-// WithAutoMigration is an option to add types to GORM's auto-migration.
-func WithAutoMigration(types ...any) DBOption {
-	return func(s *DB) {
-		// We append because there can be default types already defined. Currently, we don't have any.
-		s.types = append(s.types, types...)
-	}
-}
-
-// WithInMemory is an option to configure [DB] to use an in-memory DB. This creates a new
-// in-memory database each time it is called.
-//
-// So if you need to have access to the same in-memory DB, you need to share the [DB] instance.
-func WithInMemory() DBOption {
-	return func(s *DB) {
-		s.DB, _ = newInMemoryDB()
-	}
-}
-
-// WithSetupJoinTable is an option to add types to GORM's auto-migration.
-func WithSetupJoinTable(joinTables ...CustomJoinTable) DBOption {
-	return func(s *DB) {
-		s.customJoinTables = append(s.customJoinTables, joinTables...)
+// WithConfig is an option to add types to GORM's auto-migration.
+func WithConfig(cfg Config) DBOption {
+	return func(s *gormDB) {
+		s.cfg = cfg
 	}
 }
 
@@ -80,40 +96,48 @@ type CustomJoinTable struct {
 	JoinTable any    // The custom join table struct (e.g., &MetricConfiguration{})
 }
 
-// WithMaxOpenConns is an option to configure the maximum number of open connections
-func WithMaxOpenConns(max int) DBOption {
-	return func(s *DB) {
-		s.maxConn = max
-	}
-}
-
 // NewDB creates a new [DB] instance with the provided options.
-func NewDB(opts ...DBOption) (s *DB, err error) {
-	s = &DB{
-		maxConn: defaultMaxConn,
+func NewDB(opts ...DBOption) (s DB, err error) {
+	var (
+		db *gormDB
+	)
+
+	db = &gormDB{
+		cfg: DefaultConfig,
 	}
 
 	// Add options and/or override default ones
 	for _, o := range opts {
-		o(s)
+		o(db)
 	}
 
-	// Open an in-memory database
-	if s.DB == nil {
-		s.DB, err = newInMemoryDB()
+	// Build the postrges config out of our persistence config
+	if db.cfg.InMemoryDB {
+		db.pcfg.Conn, err = sql.Open("ramsql", fmt.Sprintf("confirmate_inmemory_%d", rand.Uint64()))
 		if err != nil {
-			return nil, fmt.Errorf("could not create in-memory db: %w", err)
+			return nil, fmt.Errorf("could not open in-memory database: %w", err)
 		}
+
+		// Also limit max connection to 1 for in-memory DB
+		db.cfg.MaxConn = 1
+	} else {
+		db.pcfg.DSN = db.cfg.buildDSN()
+	}
+
+	// Set up GORM DB connection
+	db.DB, err = gorm.Open(postgres.New(db.pcfg), &db.gcfg)
+	if err != nil {
+		return nil, fmt.Errorf("could not create gorm connection: %w", err)
 	}
 
 	// Set max open connections
-	if s.maxConn > 0 {
-		db, err := s.DB.DB()
+	if db.cfg.MaxConn > 0 {
+		sqlDB, err := db.DB.DB()
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve sql.DB: %v", err)
 		}
 
-		db.SetMaxOpenConns(s.maxConn)
+		sqlDB.SetMaxOpenConns(db.cfg.MaxConn)
 	}
 
 	// Register custom serializers
@@ -123,42 +147,20 @@ func NewDB(opts ...DBOption) (s *DB, err error) {
 	schema.RegisterSerializer("anypb", &AnySerializer{})
 
 	// Setup custom join tables if any are provided
-	for _, jt := range s.customJoinTables {
-		if err = s.DB.SetupJoinTable(jt.Model, jt.Field, jt.JoinTable); err != nil {
+	for _, jt := range db.cfg.CustomJoinTables {
+		if err = db.DB.SetupJoinTable(jt.Model, jt.Field, jt.JoinTable); err != nil {
 			err = fmt.Errorf("error during join-table: %w", err)
 			return
 		}
 	}
 
 	// After successful DB initialization, migrate the schema
-	if err = s.DB.AutoMigrate(s.types...); err != nil {
+	if err = db.DB.AutoMigrate(db.cfg.Types...); err != nil {
 		err = fmt.Errorf("error during auto-migration: %w", err)
 		return
 	}
 
+	s = db
+
 	return
-}
-
-// newInMemoryDB creates a new in-memory Ramsql database connection.
-//
-// This creates a unique in-memory database instance each time it is called.
-func newInMemoryDB() (g *gorm.DB, err error) {
-	var (
-		db *sql.DB
-	)
-
-	db, err = sql.Open("ramsql", fmt.Sprintf("confirmate_inmemory_%d", rand.Uint64()))
-	if err != nil {
-		return nil, fmt.Errorf("could not open in-memory database: %w", err)
-	}
-
-	g, err = gorm.Open(postgres.New(postgres.Config{
-		Conn: db,
-	}),
-		&gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("could not create gorm connection: %w", err)
-	}
-
-	return g, nil
 }

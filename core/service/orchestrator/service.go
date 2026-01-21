@@ -23,9 +23,11 @@ import (
 	"sync"
 	"time"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
@@ -37,7 +39,7 @@ import (
 // [orchestratorconnect.OrchestratorHandler]).
 type Service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db  *persistence.DB
+	db  persistence.DB
 	cfg Config
 
 	// subscribers is a map of subscribers for change events
@@ -54,28 +56,38 @@ type subscriber struct {
 
 // DefaultConfig is the default configuration for the orchestrator [Service].
 var DefaultConfig = Config{
-	CatalogsFolder:                  "catalogs",
-	CreateDefaultTargetOfEvaluation: true,
-	IgnoreDefaultMetrics:            false,
+	DefaultCatalogsPath:             "catalogs",
 	DefaultMetricsPath:              "./policies/security-metrics/metrics",
-	LoadCatalogsFunc:                loadEmbeddedCatalogs,
+	CreateDefaultTargetOfEvaluation: true,
+	LoadDefaultCatalogs:             true,
+	LoadDefaultMetrics:              true,
 }
 
 // Config represents the configuration for the orchestrator [Service].
 type Config struct {
-	// CatalogsFolder is the folder where catalogs are stored.
-	CatalogsFolder string
-	// LoadCatalogsFunc is a function that is used to initially load catalogs at the start of the orchestrator.
-	// If overridden, this function will be used instead of loading from CatalogsFolder.
+	// DefaultCatalogsPath is the path where default catalogs are stored.
+	DefaultCatalogsPath string
+	// LoadDefaultCatalogs controls whether to load default catalogs from
+	// [Config.DefaultCatalogsPath].
+	LoadDefaultCatalogs bool
+	// LoadCatalogsFunc is an optional function to load additional catalogs at service start. This
+	// function is called in addition to loading from [Config.DefaultCatalogsPath] (if enabled).
 	LoadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
-	// AdditionalMetricsPath is the path to a folder containing additional custom metrics.
-	AdditionalMetricsPath string
-	// DefaultMetricsPath is the path to the security-metrics repository.
+
+	// DefaultMetricsPath is the path containing default metrics (e.g., security-metrics
+	// repository).
 	DefaultMetricsPath string
+	// LoadDefaultMetrics controls whether to load default metrics from [Config.DefaultMetricsPath].
+	LoadDefaultMetrics bool
+	// LoadMetricsFunc is an optional function to load additional metrics at service start. This
+	// function is called in addition to loading from [Config.DefaultMetricsPath] (if enabled).
+	LoadMetricsFunc func(*Service) ([]*assessment.Metric, error)
+
 	// CreateDefaultTargetOfEvaluation controls whether to create a default target of evaluation.
 	CreateDefaultTargetOfEvaluation bool
-	// IgnoreDefaultMetrics controls whether to skip loading default metrics from the security-metrics submodule.
-	IgnoreDefaultMetrics bool
+
+	// PersistenceConfig is the configuration for the persistence layer. If not set, defaults will be used.
+	PersistenceConfig persistence.Config
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -102,9 +114,10 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	}
 
 	// Initialize the database with the defined auto-migration types and join tables
-	svc.db, err = persistence.NewDB(
-		persistence.WithAutoMigration(types...),
-		persistence.WithSetupJoinTable(joinTables...))
+	pcfg := svc.cfg.PersistenceConfig
+	pcfg.Types = types
+	pcfg.CustomJoinTables = joinTables
+	svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 	if err != nil {
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}
@@ -114,11 +127,11 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 
 	// Load catalogs and metrics (log errors but continue - they're not critical for service startup)
 	if err = svc.loadCatalogs(); err != nil {
-		slog.Warn("could not load catalogs, continuing with empty catalog list", "error", err)
+		slog.Warn("Could not load catalogs, continuing with empty catalog list", log.Err(err))
 	}
 
 	if err = svc.loadMetrics(); err != nil {
-		slog.Warn("could not load metrics, continuing with empty metric list", "error", err)
+		slog.Warn("Could not load metrics, continuing with empty metric list", log.Err(err))
 	}
 
 	// Create default target of evaluation if enabled and none exists

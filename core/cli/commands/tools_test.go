@@ -8,6 +8,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
@@ -16,8 +17,11 @@ import (
 func TestToolsListCommand(t *testing.T) {
 	// We need to start an orchestrator service
 	svc, err := orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
-		DefaultMetricsPath:   "../../policies/security-metrics/metrics",
-		IgnoreDefaultMetrics: false,
+		DefaultMetricsPath: "../../policies/security-metrics/metrics",
+		LoadDefaultMetrics: true,
+		PersistenceConfig: persistence.Config{
+			InMemoryDB: true,
+		},
 	}))
 	assert.NoError(t, err)
 

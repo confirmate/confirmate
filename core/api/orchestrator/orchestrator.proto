@@ -590,15 +590,20 @@ message SubscribeRequest {
   Filter filter = 1;
 }
 
-// ChangeType is a high-level classification of what happened to an entity.
-enum ChangeType {
-  CHANGE_TYPE_UNSPECIFIED = 0;
-  // ChangeTypeCreated indicates that a new entity was created/stored in the orchestrator.
-  CHANGE_TYPE_CREATED = 1;
-  // ChangeTypeUpdated indicates that an existing entity was updated/modified in the orchestrator.
-  CHANGE_TYPE_UPDATED = 2;
-  // ChangeTypeDeleted indicates that an existing entity was deleted/removed from the orchestrator.
-  CHANGE_TYPE_DELETED = 3;
+// RequestType is a high-level classification of what happened to an entity. It represents the type
+// of operation performed on the entity.
+enum RequestType {
+  REQUEST_TYPE_UNSPECIFIED = 0;
+  // RequestTypeCreated indicates that a new entity was created/stored in the orchestrator.
+  REQUEST_TYPE_CREATED = 1;
+  // RequestTypeUpdated indicates that an existing entity was updated/modified in the orchestrator.
+  REQUEST_TYPE_UPDATED = 2;
+  // RequestTypeDeleted indicates that an existing entity was deleted/removed from the orchestrator.
+  REQUEST_TYPE_DELETED = 3;
+  // RequestTypeRegistered indicates that an entity was registered with the orchestrator.
+  REQUEST_TYPE_REGISTERED = 4;
+  // RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
+  REQUEST_TYPE_STORED = 5;
 }
 
 // ChangeEvent represents a change that occurred to an entity managed by the orchestrator.
@@ -612,8 +617,8 @@ message ChangeEvent {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Change type (what happened to the entity)
-  ChangeType change_type = 3 [
+  // Request type (what happened to the entity)
+  RequestType request_type = 3 [
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -624,9 +629,9 @@ message ChangeEvent {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Optional: target of evaluation ID (for metric configuration changes)
-  // When present, should be a valid UUID
-  string target_of_evaluation_id = 5;
+  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes). 
+  // When present, should be a valid UUID.
+  optional string target_of_evaluation_id = 5;
 
   // The actual entity data (optional, may be omitted for DELETED events)
   oneof entity {
@@ -654,7 +659,7 @@ message AssessmentTool {
 
   // a list of metrics that this tool can assess, referred by their ids
   repeated string available_metrics = 4 [
-    (tagger.tags) = "gorm:\"type:json\"",
+    (tagger.tags) = "gorm:\"serializer:json\"",
     (buf.validate.field).repeated.items.string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];

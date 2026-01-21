@@ -26,16 +26,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
+	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
+	"confirmate.io/core/util"
+
 	"connectrpc.com/connect"
-	"github.com/lmittmann/tint"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v3"
-
-	"confirmate.io/core/api/assessment"
-	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
-	"confirmate.io/core/service"
 )
 
 var (
@@ -67,10 +68,10 @@ func (svc *Service) CreateMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_CREATED,
-		EntityId:   metric.Id,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_CREATED,
+		EntityId:    metric.Id,
 		Entity: &orchestrator.ChangeEvent_Metric{
 			Metric: metric,
 		},
@@ -158,10 +159,10 @@ func (svc *Service) UpdateMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
-		EntityId:   metric.Id,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+		EntityId:    metric.Id,
 		Entity: &orchestrator.ChangeEvent_Metric{
 			Metric: metric,
 		},
@@ -205,10 +206,10 @@ func (svc *Service) RemoveMetric(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_DELETED,
-		EntityId:   req.Msg.MetricId,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_DELETED,
+		EntityId:    req.Msg.MetricId,
 	})
 
 	res = connect.NewResponse(&emptypb.Empty{})
@@ -260,10 +261,10 @@ func (svc *Service) UpdateMetricImplementation(
 
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:  timestamppb.Now(),
-		Category:   orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
-		ChangeType: orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
-		EntityId:   impl.MetricId,
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+		EntityId:    impl.MetricId,
 		Entity: &orchestrator.ChangeEvent_MetricImplementation{
 			MetricImplementation: impl,
 		},
@@ -381,9 +382,9 @@ func (svc *Service) UpdateMetricConfiguration(
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:            timestamppb.Now(),
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
-		ChangeType:           orchestrator.ChangeType_CHANGE_TYPE_UPDATED,
+		RequestType:          orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:             config.MetricId,
-		TargetOfEvaluationId: config.TargetOfEvaluationId,
+		TargetOfEvaluationId: util.Ref(config.TargetOfEvaluationId),
 		Entity: &orchestrator.ChangeEvent_MetricConfiguration{
 			MetricConfiguration: config,
 		},
@@ -393,33 +394,29 @@ func (svc *Service) UpdateMetricConfiguration(
 	return
 }
 
-// loadMetrics loads metric definitions from the security-metrics repository and/or custom metrics folder.
-// It follows the same pattern as the old Clouditor code:
-// - If IgnoreDefaultMetrics is false (default), load metrics from the security-metrics submodule
-// - If MetricsFolder is set, also load metrics from that custom folder
-// - If IgnoreDefaultMetrics is true and no MetricsFolder is set, return an error
+// loadMetrics loads metric definitions from configured sources.
+// It loads metrics from:
+// 1. DefaultMetricsPath (if LoadDefaultMetrics is true) - typically the security-metrics repository
+// 2. LoadMetricsFunc (if provided) for additional custom metrics
 func (svc *Service) loadMetrics() (err error) {
 	var metrics []*assessment.Metric
 
-	if svc.cfg.IgnoreDefaultMetrics && svc.cfg.AdditionalMetricsPath == "" {
-		return fmt.Errorf("no metrics specified to load: either set additional-metrics-path or disable ignore-default-metrics")
+	// Load default metrics from repository if enabled
+	if svc.cfg.LoadDefaultMetrics {
+		defaultMetrics, err := svc.loadMetricsFromRepository()
+		if err != nil {
+			return fmt.Errorf("could not load default metrics: %w", err)
+		}
+		metrics = append(metrics, defaultMetrics...)
 	}
 
-	// Load default metrics from security-metrics repository if not ignored
-	if !svc.cfg.IgnoreDefaultMetrics {
-		metrics, err = svc.loadMetricsFromRepository()
+	// Load additional metrics from custom function if provided
+	if svc.cfg.LoadMetricsFunc != nil {
+		additionalMetrics, err := svc.cfg.LoadMetricsFunc(svc)
 		if err != nil {
-			return fmt.Errorf("could not load metrics from security-metrics: %w", err)
+			return fmt.Errorf("could not load additional metrics: %w", err)
 		}
-	}
-
-	// Load custom metrics from external folder if specified
-	if svc.cfg.AdditionalMetricsPath != "" {
-		externalMetrics, err := svc.loadMetricsFromFolder(svc.cfg.AdditionalMetricsPath)
-		if err != nil {
-			return fmt.Errorf("could not load metrics from folder: %w", err)
-		}
-		metrics = append(metrics, externalMetrics...)
+		metrics = append(metrics, additionalMetrics...)
 	}
 
 	// Save all metrics to DB (only if we have any)
@@ -434,13 +431,14 @@ func (svc *Service) loadMetrics() (err error) {
 // loadMetricsFromRepository loads metric definitions from the security-metrics submodule
 // by walking through YAML files in the policies/security-metrics/metrics directory.
 func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, err error) {
-	slog.Info("Loading metrics from repository", "path", svc.cfg.DefaultMetricsPath)
 	metrics = make([]*assessment.Metric, 0)
+
+	slog.Info("Loading metrics from repository", "path", svc.cfg.DefaultMetricsPath)
 
 	// Check if the directory exists (it might not in test environments)
 	if _, err := os.Stat(svc.cfg.DefaultMetricsPath); os.IsNotExist(err) {
-		slog.Warn("Metrics repository directory does not exist", "path", svc.cfg.DefaultMetricsPath)
 		// Return empty metrics list if directory doesn't exist (e.g., in tests)
+		slog.Warn("Metrics repository directory does not exist", "path", svc.cfg.DefaultMetricsPath)
 		return metrics, nil
 	}
 
@@ -471,11 +469,9 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 
 		metrics = append(metrics, &metric)
 
-		slog.Debug("Loaded metric", "id", metric.Id, "path", path)
-
 		// Load default configuration from data.json if it exists
 		if err := prepareMetric(&metric, path); err != nil {
-			slog.Warn("Could not prepare metric", "metric", metric.Id, "error", err)
+			slog.Warn("Could not prepare metric", "metric", metric.Id, log.Err(err))
 		}
 
 		return nil
@@ -521,45 +517,7 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 	config.IsDefault = true
 	config.MetricId = m.Id
 
-	slog.Debug("Loaded default configuration for metric", "id", m.Id, "path", dataJsonPath)
 	defaultMetricConfigurations[m.Id] = config
 
 	return nil
-}
-
-// loadMetricsFromFolder loads metric definitions from JSON files in a custom folder.
-func (svc *Service) loadMetricsFromFolder(folder string) (metrics []*assessment.Metric, err error) {
-	slog.Info("Loading metrics from folder", "path", folder)
-	metrics = make([]*assessment.Metric, 0)
-
-	// Get all filenames
-	files, err := os.ReadDir(folder)
-	if err != nil {
-		return nil, fmt.Errorf("could not read metrics folder: %w", err)
-	}
-
-	for _, file := range files {
-		if file.IsDir() || filepath.Ext(file.Name()) != ".json" {
-			continue
-		}
-
-		var metricsFromFile []*assessment.Metric
-		path := filepath.Join(folder, file.Name())
-		b, err := os.ReadFile(path)
-		if err != nil {
-			slog.Warn("could not read metrics file", "file", file.Name(), tint.Err(err))
-			continue
-		}
-
-		err = json.Unmarshal(b, &metricsFromFile)
-		if err != nil {
-			slog.Warn("could not unmarshal metrics file", "file", file.Name(), tint.Err(err))
-			continue
-		}
-
-		slog.Debug("Loaded metrics from file", "count", len(metricsFromFile), "path", path)
-		metrics = append(metrics, metricsFromFile...)
-	}
-
-	return metrics, nil
 }

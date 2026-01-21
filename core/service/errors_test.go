@@ -58,6 +58,28 @@ func TestHandleDatabaseError(t *testing.T) {
 			},
 		},
 		{
+			name: "unique constraint error",
+			args: args{
+				err:          persistence.ErrUniqueConstraintFailed,
+				notFoundErrs: []error{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeAlreadyExists, cErr.Code())
+			},
+		},
+		{
+			name: "constraint error",
+			args: args{
+				err:          persistence.ErrConstraintFailed,
+				notFoundErrs: []error{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
+			},
+		},
+		{
 			name: "other error",
 			args: args{
 				err:          io.EOF,

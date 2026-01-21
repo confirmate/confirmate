@@ -5,9 +5,10 @@ import (
 	"log/slog"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
 	"confirmate.io/core/service"
+
 	"connectrpc.com/connect"
-	"github.com/lmittmann/tint"
 )
 
 // Subscribe subscribes to change events.
@@ -53,6 +54,8 @@ func (svc *Service) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Fil
 	}
 	svc.subscribersMutex.Unlock()
 
+	slog.Info("Registered subscriber", "id", id, "filter", filter)
+
 	return ch, id
 }
 
@@ -73,7 +76,7 @@ func (svc *Service) publishEvent(event *orchestrator.ChangeEvent) {
 	defer svc.subscribersMutex.RUnlock()
 
 	if err := service.ValidateEvent(event); err != nil {
-		slog.Error("Attempted to publish invalid event", "event", event, tint.Err(err))
+		slog.Error("Attempted to publish invalid event", "event", event, log.Err(err))
 		return
 	}
 

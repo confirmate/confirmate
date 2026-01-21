@@ -44,7 +44,7 @@ Use `var` blocks at the beginning of functions to group all variables needed in 
 ```go
 func NewService() (svc orchestratorconnect.OrchestratorHandler, err error) {
     var (
-        db *persistence.DB
+        db persistence.DB
     )
     
     db, err = persistence.NewDB(...)
@@ -284,7 +284,7 @@ package orchestrator
 // [orchestratorconnect.OrchestratorHandler]).
 type service struct {
     orchestratorconnect.UnimplementedOrchestratorHandler
-    db *persistence.DB
+    db persistence.DB
 }
 
 // NewService creates a new orchestrator service and returns a
@@ -309,7 +309,7 @@ package orchestrator
 
 type service struct {
     orchestratorconnect.UnimplementedOrchestratorHandler
-    db *persistence.DB
+    db persistence.DB
 }
 
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
@@ -428,7 +428,7 @@ func TestService_GetMetric(t *testing.T) {
 		req *orchestrator.GetMetricRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -445,7 +445,7 @@ func TestService_GetMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
 				}),
 			},
@@ -467,8 +467,7 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				cErr := assert.Is[*connect.Error](t, err)
-				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}
@@ -491,6 +490,92 @@ func TestService_GetMetric(t *testing.T) {
 
 Integration tests are an exception to the table-driven test pattern. They can be written in a more straightforward, sequential style when it makes the test clearer.
 
+### Database Assertions in Tests
+
+For create/update operations that modify the database, include a `wantDB` field in your table tests to verify that the database state matches expectations after the operation. This ensures data integrity and catches issues with persistence logic.
+
+The `wantDB` function receives the database instance and the response from the operation, allowing you to verify both that the data was saved and that it matches the expected state.
+
+**Example:**
+```go
+func TestService_CreateTargetOfEvaluation(t *testing.T) {
+    type args struct {
+        req *orchestrator.CreateTargetOfEvaluationRequest
+    }
+    type fields struct {
+        db persistence.DB
+    }
+    tests := []struct {
+        name    string
+        args    args
+        fields  fields
+        want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
+        wantErr assert.WantErr
+        wantDB  assert.Want[persistence.DB]
+    }{
+        {
+            name: "validation error - empty request",
+            args: args{
+                req: &orchestrator.CreateTargetOfEvaluationRequest{},
+            },
+            fields: fields{
+                db: persistencetest.NewInMemoryDB(t, types, joinTables),
+            },
+            want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+            wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+                return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+            },
+            wantDB: assert.NotNil[persistence.DB],
+        },
+        {
+            name: "happy path",
+            args: args{
+                req: &orchestrator.CreateTargetOfEvaluationRequest{
+                    TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+                        Name: "test-toe",
+                    },
+                },
+            },
+            fields: fields{
+                db: persistencetest.NewInMemoryDB(t, types, joinTables),
+            },
+            want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+                return assert.NotNil(t, got.Msg) &&
+                    assert.Equal(t, "test-toe", got.Msg.Name) &&
+                    assert.NotEmpty(t, got.Msg.Id)
+            },
+            wantErr: assert.NoError,
+            wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+                res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
+                assert.NotNil(t, res)
+
+                toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+                assert.Equal(t, "test-toe", toe.Name)
+                return true
+            },
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            svc := &Service{
+                db: tt.fields.db,
+            }
+            res, err := svc.CreateTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+            tt.want(t, res)
+            tt.wantErr(t, err)
+            tt.wantDB(t, tt.fields.db, res)
+        })
+    }
+}
+```
+
+**Key points:**
+- For error cases, use `assert.NotNil[persistence.DB]` to simply verify the DB still exists
+- For success cases, use `assert.Is` to type-assert the response, then `assert.InDB` to retrieve and verify the persisted entity
+- Always assert `NotNil` on the response before accessing nested fields like `res.Msg.Id`
+- Pass the complete response object to `wantDB`, not just the message field
+
 ### Use core/util/assert
 
 For test assertions, use the `core/util/assert` package instead of direct comparison or external assertion libraries. This helps maintain consistency and allows us to track and optimize assertion usage.
@@ -506,7 +591,7 @@ import (
 func Test_DB_Create(t *testing.T) {
     var (
         err    error
-        s      *DB
+        s      persistence.DB
         metric *assessment.Metric
     )
 
@@ -516,11 +601,7 @@ func Test_DB_Create(t *testing.T) {
         Description: MockMetricDescription1,
     }
 
-    s, err = NewDB(
-        WithInMemory(),
-        WithAutoMigration(&assessment.Metric{}),
-    )
-    assert.NoError(t, err)
+    s = persistencetest.NewInMemoryDB(t, []any{&assessment.Metric{}}, nil)
 
     err = s.Create(metric)
     assert.NoError(t, err)
@@ -550,7 +631,7 @@ func Test_DB_Create(t *testing.T) {
 - Do not use `log` or `logrus`
 - Use structured logging with appropriate log levels
 - Prefer using `slog.Any()` and typed attribute functions (e.g., `slog.String()`, `slog.Int()`) for clarity and to make key-value pairs more explicit
-- Use `tint.Err(err)` instead of `slog.Any("error", err)` for error logging
+- Use `log.Err(err)` instead of `slog.Any("error", err)` for error logging
 
 **Example:**
 ```go

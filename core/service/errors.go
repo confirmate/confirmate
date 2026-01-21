@@ -45,6 +45,17 @@ var (
 	// ErrEmptyRequest is returned when a nil request is passed.
 	ErrEmptyRequest = errors.New("empty request")
 
+	// ErrResourceAlreadyExists is returned when trying to create a resource that already exists.
+	ErrResourceAlreadyExists = errors.New("resource already exists")
+
+	// ErrConstraintFailed is returned when a database constraint is violated.
+	ErrConstraintFailed = errors.New("database constraint failed")
+
+	// ErrDatabaseError is returned for general database errors.
+	ErrDatabaseError = errors.New("database error")
+)
+
+var (
 	// IgnoreIDFilter is a validation filter that skips validation of "id" fields.
 	// Useful for Create operations where the ID is auto-generated after initial validation.
 	IgnoreIDFilter = protovalidate.FilterFunc(func(msg protoreflect.Message, desc protoreflect.Descriptor) bool {
@@ -57,9 +68,10 @@ var (
 	})
 )
 
-// ErrNotFound returns a [connect.CodeNotFound] error with the given entity name.
+// ErrNotFound returns a plain error with the given entity name.
+// This error is meant to be wrapped by [HandleDatabaseError] which converts it to a [connect.CodeNotFound] error.
 func ErrNotFound(entity string) error {
-	return connect.NewError(connect.CodeNotFound, fmt.Errorf("%s not found", entity))
+	return fmt.Errorf("%s not found", entity)
 }
 
 // Validate validates an incoming request using protovalidate.
@@ -119,20 +131,38 @@ func ValidateWithPrep[T any](req *connect.Request[T], prep func(), opts ...proto
 // HandleDatabaseError translates database errors into appropriate connect errors.
 //   - If the error is [persistence.ErrRecordNotFound], it returns a [connect.CodeNotFound]
 //     error with the provided notFoundErr (or a default error if not provided).
+//   - If err is already a [connect.Error], it returns it as-is.
 //   - For other errors, it returns a [connect.CodeInternal] error. If err is nil, it returns nil.
 func HandleDatabaseError(err error, notFoundErr ...error) error {
 	if err == nil {
 		return nil
 	}
 
+	// If it's already a [connect.Error], return it as-is
+	var connectErr *connect.Error
+	if errors.As(err, &connectErr) {
+		return err
+	}
+
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		if len(notFoundErr) == 0 {
 			notFoundErr = append(notFoundErr, ErrNotFound("entity"))
 		}
+
 		return connect.NewError(connect.CodeNotFound, notFoundErr[0])
 	}
 
-	return connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
+	if errors.Is(err, persistence.ErrUniqueConstraintFailed) {
+		return connect.NewError(connect.CodeAlreadyExists, ErrResourceAlreadyExists)
+	}
+
+	if errors.Is(err, persistence.ErrConstraintFailed) {
+		return connect.NewError(connect.CodeInvalidArgument, ErrConstraintFailed)
+	}
+
+	// We return the full error for internal errors to aid debugging. This is later replaced in the
+	// logging interceptor with a generic message to avoid leaking internal details to clients.
+	return connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", ErrDatabaseError, err))
 }
 
 // ValidateEvent validates a ChangeEvent using the shared validator.
