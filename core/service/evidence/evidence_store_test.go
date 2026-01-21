@@ -45,9 +45,12 @@ func TestNewService(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "EvidenceStoreServer created without options",
+			name: "EvidenceStoreServer created with in-memory DB",
+			args: args{opts: []service.Option[Service]{
+				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				// Storage should be default (in-memory storage). Hard to check since its type is not exported
+				// Storage should be in-memory storage
 				assert.NotNil(t, got.db)
 				return true
 			},
@@ -73,6 +76,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - no client provided",
 			args: args{opts: []service.Option[Service]{
+				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 				WithAssessmentConfig(assessmentConfig{
 					targetAddress: "localhost:9091",
 					client:        nil,
@@ -88,6 +92,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - with client",
 			args: args{opts: []service.Option[Service]{
+				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 				WithAssessmentConfig(assessmentConfig{
 					targetAddress: "localhost:9091",
 					client:        &http.Client{Timeout: time.Duration(1)},
@@ -124,10 +129,12 @@ func TestService_handleEvidence(t *testing.T) {
 	assert.NotNil(t, testSrv)
 
 	// Create Evidence Service
-	svc, err := NewService(WithAssessmentConfig(assessmentConfig{
-		targetAddress: testSrv.URL,
-		client:        testSrv.Client(),
-	}))
+	svc, err := NewService(
+		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+		WithAssessmentConfig(assessmentConfig{
+			targetAddress: testSrv.URL,
+			client:        testSrv.Client(),
+		}))
 	assert.NoError(t, err)
 
 	// handle Evidence (pass)
@@ -212,11 +219,15 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence1,
 				}},
 			},
-			fields: fields{svc: NewTestService(t, func(svc *Service) {
-				// Create evidence
-				err := svc.db.Create(evidencetest.MockEvidence1)
+			fields: fields{svc: func() *Service {
+				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					// Create evidence
+					err := db.Create(evidencetest.MockEvidence1)
+					assert.NoError(t, err)
+				})))
 				assert.NoError(t, err)
-			})},
+				return svc
+			}()},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
@@ -230,10 +241,11 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: NewTestServiceWithErrors(t, &StorageWithError{
-				CreateErr:          persistence.ErrDatabase,
-				FailOnCreateSchema: "Evidence",
-			})},
+			fields: fields{svc: func() *Service {
+				svc, err := NewService(WithDB(persistencetest.CreateErrorDB(t, persistence.ErrDatabase, types, nil)))
+				assert.NoError(t, err)
+				return svc
+			}()},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
@@ -247,11 +259,11 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: NewTestServiceWithErrors(t, &StorageWithError{
-				// Fail only Resource create inside Save(), not Evidence create
-				CreateErr:          persistence.ErrDatabase,
-				FailOnCreateSchema: "Resource",
-			})},
+			fields: fields{svc: func() *Service {
+				svc, err := NewService(WithDB(persistencetest.SaveErrorDB(t, persistence.ErrDatabase, types, nil)))
+				assert.NoError(t, err)
+				return svc
+			}()},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
@@ -265,7 +277,11 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields:  fields{svc: NewTestService(t, nil)},
+			fields: fields{svc: func() *Service {
+				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil)))
+				assert.NoError(t, err)
+				return svc
+			}()},
 			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: assert.NoError,
 		},
@@ -277,8 +293,12 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidenceNoResource,
 				}},
 			},
-			fields: fields{svc: NewTestService(t, nil)},
-			want:   assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			fields: fields{svc: func() *Service {
+				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil)))
+				assert.NoError(t, err)
+				return svc
+			}()},
+			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
@@ -291,13 +311,17 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: NewTestService(t, func(svc *Service) {
-				// Create a resource already such that `save` will update it instead of creating a new entry
-				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidence1.GetOntologyResource(), evidencetest.MockEvidence1.GetTargetOfEvaluationId(), evidencetest.MockEvidence1.GetToolId())
+			fields: fields{svc: func() *Service {
+				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					// Create a resource already such that `save` will update it instead of creating a new entry
+					r, err := evidence.ToEvidenceResource(evidencetest.MockEvidence1.GetOntologyResource(), evidencetest.MockEvidence1.GetTargetOfEvaluationId(), evidencetest.MockEvidence1.GetToolId())
+					assert.NoError(t, err)
+					err = db.Create(r)
+					assert.NoError(t, err)
+				})))
 				assert.NoError(t, err)
-				err = svc.db.Create(r)
-				assert.NoError(t, err)
-			})},
+				return svc
+			}()},
 			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: assert.NoError,
 		},
