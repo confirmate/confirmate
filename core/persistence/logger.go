@@ -26,7 +26,7 @@ import (
 )
 
 // slogGormLogger integrates GORM's logger with slog.
-// SQL queries are only logged at DEBUG level to reduce noise in production.
+// SQL queries are only logged at [log.LevelTrace] level to reduce noise in production.
 type slogGormLogger struct{}
 
 // newSlogGormLogger creates a new GORM logger that uses slog.
@@ -35,7 +35,7 @@ func newSlogGormLogger() logger.Interface {
 }
 
 // LogMode is a no-op since we control logging via slog's level configuration.
-func (l *slogGormLogger) LogMode(level logger.LogLevel) logger.Interface {
+func (l *slogGormLogger) LogMode(_ logger.LogLevel) logger.Interface {
 	return l
 }
 
