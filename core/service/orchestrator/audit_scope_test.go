@@ -34,7 +34,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 		req *orchestrator.CreateAuditScopeRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -42,7 +42,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.AuditScope]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -62,7 +62,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
@@ -84,7 +84,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "validation error - missing target of evaluation id",
@@ -103,7 +103,26 @@ func TestService_CreateAuditScope(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.IsValidationError(t, err, "audit_scope.target_of_evaluation_id")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "db error - unique constraint",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 	}
 
@@ -125,7 +144,7 @@ func TestService_GetAuditScope(t *testing.T) {
 		req *orchestrator.GetAuditScopeRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -142,7 +161,7 @@ func TestService_GetAuditScope(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
@@ -181,6 +200,21 @@ func TestService_GetAuditScope(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -200,7 +234,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 		req *orchestrator.ListAuditScopesRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -215,7 +249,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 				req: &orchestrator.ListAuditScopesRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAuditScope2)
@@ -238,7 +272,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAuditScope2)
@@ -261,7 +295,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAuditScope2)
@@ -293,7 +327,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 		req *orchestrator.UpdateAuditScopeRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -314,7 +348,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
@@ -375,6 +409,25 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - constraint",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -394,7 +447,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 		req *orchestrator.RemoveAuditScopeRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -411,7 +464,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
@@ -432,6 +485,21 @@ func TestService_RemoveAuditScope(t *testing.T) {
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.RemoveAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}

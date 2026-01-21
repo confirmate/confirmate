@@ -25,6 +25,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
@@ -39,7 +40,16 @@ import (
 // that it can continue working when the server comes back on the same address.
 func TestStreamRestartIntegration(t *testing.T) {
 	// Create service
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	// Create an initial test server

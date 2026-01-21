@@ -34,7 +34,7 @@ func TestService_CreateCertificate(t *testing.T) {
 		req *orchestrator.CreateCertificateRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -42,7 +42,7 @@ func TestService_CreateCertificate(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.Certificate]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "happy path",
@@ -59,7 +59,7 @@ func TestService_CreateCertificate(t *testing.T) {
 				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				cert := assert.InDB[orchestrator.Certificate](t, db, orchestratortest.MockCertificate1.Id)
 				assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name)
 				return true
@@ -77,7 +77,7 @@ func TestService_CreateCertificate(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
 			},
 		},
@@ -96,9 +96,25 @@ func TestService_CreateCertificate(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.IsValidationError(t, err, "certificate.target_of_evaluation_id")
 			},
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
 			},
+		},
+		{
+			name: "db error - unique constraint",
+			args: args{
+				req: &orchestrator.CreateCertificateRequest{
+					Certificate: orchestratortest.MockCertificate1,
+				},
+			},
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 	}
 
@@ -120,7 +136,7 @@ func TestService_GetCertificate(t *testing.T) {
 		req *orchestrator.GetCertificateRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -137,7 +153,7 @@ func TestService_GetCertificate(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCertificate1)
 					assert.NoError(t, err)
 				}),
@@ -176,6 +192,21 @@ func TestService_GetCertificate(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetCertificateRequest{
+					CertificateId: orchestratortest.MockCertificate1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -195,7 +226,7 @@ func TestService_ListCertificates(t *testing.T) {
 		req *orchestrator.ListCertificatesRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -210,7 +241,7 @@ func TestService_ListCertificates(t *testing.T) {
 				req: &orchestrator.ListCertificatesRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCertificate1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCertificate2)
@@ -256,7 +287,7 @@ func TestService_ListPublicCertificates(t *testing.T) {
 		req *orchestrator.ListPublicCertificatesRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -271,7 +302,7 @@ func TestService_ListPublicCertificates(t *testing.T) {
 				req: &orchestrator.ListPublicCertificatesRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(&orchestrator.Certificate{
 						Id:          orchestratortest.MockCertificate1.Id,
 						Name:        orchestratortest.MockCertificate1.Name,
@@ -321,7 +352,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 		req *orchestrator.UpdateCertificateRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -343,7 +374,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCertificate1)
 					assert.NoError(t, err)
 				}),
@@ -405,6 +436,26 @@ func TestService_UpdateCertificate(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - constraint",
+			args: args{
+				req: &orchestrator.UpdateCertificateRequest{
+					Certificate: &orchestrator.Certificate{
+						Id:                   orchestratortest.MockCertificate1.Id,
+						Name:                 "Updated Certificate",
+						Description:          "Updated description",
+						TargetOfEvaluationId: orchestratortest.MockToeID1,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -424,7 +475,7 @@ func TestService_RemoveCertificate(t *testing.T) {
 		req *orchestrator.RemoveCertificateRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -441,7 +492,7 @@ func TestService_RemoveCertificate(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCertificate1)
 					assert.NoError(t, err)
 				}),
@@ -462,6 +513,21 @@ func TestService_RemoveCertificate(t *testing.T) {
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.RemoveCertificateRequest{
+					CertificateId: orchestratortest.MockCertificate1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 	}

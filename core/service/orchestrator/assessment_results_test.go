@@ -37,7 +37,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		req *orchestrator.StoreAssessmentResultRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -45,7 +45,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.StoreAssessmentResultResponse]]
 		wantErr assert.WantErr
-		wantDB  assert.Want[*persistence.DB]
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "validation error - empty request",
@@ -60,7 +60,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "invalid request")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "validation error - missing metric id",
@@ -80,26 +80,23 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "metric_id")
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "db error",
+			name: "db error - unique constraint",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
 					Result: orchestratortest.MockAssessmentResult1,
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
-					err := d.Create(orchestratortest.MockAssessmentResult1)
-					assert.NoError(t, err)
-				}),
+				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInternal)
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
 			},
-			wantDB: assert.NotNil[*persistence.DB],
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name: "happy path",
@@ -113,7 +110,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			},
 			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db *persistence.DB, msgAndArgs ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				// Verify the result was persisted with correct timestamp
 				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultID3)
 				assert.NotNil(t, result.CreatedAt)
@@ -143,7 +140,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 		req *orchestrator.GetAssessmentResultRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -192,7 +189,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 				}),
@@ -218,6 +215,21 @@ func TestService_GetAssessmentResult(t *testing.T) {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetAssessmentResultRequest{
+					Id: orchestratortest.MockAssessmentResult1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.AssessmentResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -237,7 +249,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 		req *orchestrator.ListAssessmentResultsRequest
 	}
 	type fields struct {
-		db *persistence.DB
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -267,7 +279,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				req: &orchestrator.ListAssessmentResultsRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -290,7 +302,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -313,7 +325,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -336,7 +348,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -360,7 +372,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -384,7 +396,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
@@ -406,7 +418,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Create multiple results with different combinations of resource_id and metric_id
 					// to test that we get the latest for each unique (resource_id, metric_id) pair
 
@@ -527,7 +539,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Create results for different metrics and resources
 					result11old := &assessment.AssessmentResult{
 						Id:                   "result-1-1-old",

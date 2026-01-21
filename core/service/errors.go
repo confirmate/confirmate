@@ -140,6 +140,14 @@ func HandleDatabaseError(err error, notFoundErr ...error) error {
 		return connect.NewError(connect.CodeNotFound, notFoundErr[0])
 	}
 
+	if errors.Is(err, persistence.ErrUniqueConstraintFailed) {
+		return connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("resource already exists"))
+	}
+
+	if errors.Is(err, persistence.ErrConstraintFailed) {
+		return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("constraint failed"))
+	}
+
 	return connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 }
 
