@@ -170,7 +170,7 @@ func TestLoggingInterceptor_logRPCRequest(t *testing.T) {
 			ctx:      context.Background(),
 			method:   "RemoveTargetOfEvaluation",
 			duration: 10 * time.Millisecond,
-			req:      connect.NewRequest(&orchestrator.RemoveTargetOfEvaluationRequest{TargetOfEvaluationId: orchestratortest.MockToeID1}),
+			req:      connect.NewRequest(&orchestrator.RemoveTargetOfEvaluationRequest{TargetOfEvaluationId: orchestratortest.MockToeId1}),
 			res:      nil,
 			err:      nil,
 			wantFound: func(t *testing.T, got bool, _ ...any) bool {

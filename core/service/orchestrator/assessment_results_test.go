@@ -67,8 +67,8 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
 					Result: &assessment.AssessmentResult{
-						EvidenceId:           orchestratortest.MockEvidenceID1,
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						EvidenceId:           orchestratortest.MockEvidenceId1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					},
 				},
 			},
@@ -112,11 +112,11 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				// Verify the result was persisted with correct timestamp
-				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultID3)
+				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
 				assert.NotNil(t, result.CreatedAt)
 				assert.True(t, time.Since(result.CreatedAt.AsTime()) < 5*time.Second)
-				assert.Equal(t, orchestratortest.MockMetricID1, result.MetricId)
-				assert.Equal(t, orchestratortest.MockResourceIDNew, result.ResourceId)
+				assert.Equal(t, orchestratortest.MockMetricId1, result.MetricId)
+				assert.Equal(t, orchestratortest.MockResourceIdNew, result.ResourceId)
 				return true
 			},
 		},
@@ -204,7 +204,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetAssessmentResultRequest{
-					Id: orchestratortest.MockNonExistentID,
+					Id: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
@@ -367,7 +367,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
 					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-						TargetOfEvaluationId: util.Ref(orchestratortest.MockToeID1),
+						TargetOfEvaluationId: util.Ref(orchestratortest.MockToeId1),
 					},
 				},
 			},
@@ -428,21 +428,21 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result11middle := &assessment.AssessmentResult{
 						Id:                   "result-1-1-middle",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result11latest := &assessment.AssessmentResult{
 						Id:                   "result-1-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Resource 1, Metric 2: 2 results, latest should be result-1-2-latest
@@ -451,14 +451,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result12latest := &assessment.AssessmentResult{
 						Id:                   "result-1-2-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Resource 2, Metric 1: 2 results, latest should be result-2-1-latest
@@ -467,14 +467,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result21latest := &assessment.AssessmentResult{
 						Id:                   "result-2-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Resource 2, Metric 2: 1 result, should be returned
@@ -483,7 +483,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					// Insert in random order to ensure ordering by created_at works
@@ -546,14 +546,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result11latest := &assessment.AssessmentResult{
 						Id:                   "result-1-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					// This should be filtered out due to metric-2
 					result12latest := &assessment.AssessmentResult{
@@ -561,14 +561,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-2",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 					result21latest := &assessment.AssessmentResult{
 						Id:                   "result-2-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-2",
-						TargetOfEvaluationId: orchestratortest.MockToeID1,
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
 					}
 
 					results := []*assessment.AssessmentResult{

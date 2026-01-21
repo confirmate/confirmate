@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"confirmate.io/core/util"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -47,7 +48,7 @@ type PaginatedResponse interface {
 // GetResultsCount returns the count of results from a paginated response.
 // By convention, the first field in a paginated response contains the results slice.
 func GetResultsCount(res PaginatedResponse) int {
-	if res == nil {
+	if util.IsNil(res) {
 		return 0
 	}
 

@@ -218,9 +218,9 @@ func TestService_StoreAssessmentResults_ContextCancellation(t *testing.T) {
 		Result: &assessment.AssessmentResult{
 			Id:                   "00000000-0000-0000-0002-000000000999",
 			MetricId:             "metric-2",
-			EvidenceId:           orchestratortest.MockEvidenceID2,
+			EvidenceId:           orchestratortest.MockEvidenceId2,
 			ResourceId:           "resource-2",
-			TargetOfEvaluationId: orchestratortest.MockToeID1,
+			TargetOfEvaluationId: orchestratortest.MockToeId1,
 		},
 	})
 
