@@ -99,6 +99,31 @@ func RawErrorDB(t *testing.T, err error, types []any, joinTable []persistence.Cu
 	}
 }
 
+// MultiErrorDB returns an [persistence.DB] that can fail on multiple operations with the provided
+// errors.
+func MultiErrorDB(t *testing.T,
+	createErr,
+	saveErr,
+	updateErr,
+	deleteErr,
+	getErr,
+	listErr,
+	countErr,
+	rawErr error,
+	types []any, joinTable []persistence.CustomJoinTable, init ...func(persistence.DB)) persistence.DB {
+	return &errorDB{
+		createErr: createErr,
+		saveErr:   saveErr,
+		updateErr: updateErr,
+		deleteErr: deleteErr,
+		getErr:    getErr,
+		listErr:   listErr,
+		countErr:  countErr,
+		rawErr:    rawErr,
+		DB:        NewInMemoryDB(t, types, joinTable, init...),
+	}
+}
+
 func (t *errorDB) Create(r any) error {
 	if t.createErr != nil {
 		return t.createErr

@@ -155,3 +155,65 @@ func TestErrorDB_Injectors(t *testing.T) {
 		})
 	}
 }
+
+func TestErrorDB_Passthrough(t *testing.T) {
+	const (
+		testID   = "test-id"
+		testName = "alpha"
+	)
+
+	types := []any{&testRecord{}}
+
+	db := MultiErrorDB(t,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		types,
+		nil,
+	)
+
+	createRec := &testRecord{ID: testID, Name: testName}
+	assert.NoError(t, db.Create(createRec))
+
+	var got testRecord
+	assert.NoError(t, db.Get(&got, "id = ?", testID))
+	assert.Equal(t, testID, got.ID)
+	assert.Equal(t, testName, got.Name)
+
+	updateRec := &testRecord{ID: testID, Name: "beta"}
+	assert.NoError(t, db.Update(updateRec))
+
+	var gotUpdated testRecord
+	assert.NoError(t, db.Get(&gotUpdated, "id = ?", testID))
+	assert.Equal(t, "beta", gotUpdated.Name)
+
+	saveRec := &testRecord{ID: testID, Name: "gamma"}
+	assert.NoError(t, db.Save(saveRec))
+
+	var gotSaved testRecord
+	assert.NoError(t, db.Get(&gotSaved, "id = ?", testID))
+	assert.Equal(t, "gamma", gotSaved.Name)
+
+	var listed []testRecord
+	assert.NoError(t, db.List(&listed, "id", true, 0, 10))
+	assert.Equal(t, 1, len(listed))
+
+	count, err := db.Count(&testRecord{})
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+
+	var raw []testRecord
+	assert.NoError(t, db.Raw(&raw, "SELECT * FROM test_records WHERE id = ?", testID))
+	assert.Equal(t, 1, len(raw))
+
+	assert.NoError(t, db.Delete(&testRecord{}, "id = ?", testID))
+
+	count, err = db.Count(&testRecord{})
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
+}
