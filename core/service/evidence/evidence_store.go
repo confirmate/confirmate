@@ -55,7 +55,7 @@ type assessmentConfig struct {
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
-	db *persistence.DB
+	db persistence.DB
 
 	// TODO(lebogg): Test
 	assessmentClient assessmentconnect.AssessmentClient
@@ -83,14 +83,14 @@ func init() {
 	slog.SetDefault(logger)
 }
 
-func WithDB(db *persistence.DB) service.Option[*Service] {
+func WithDB(db persistence.DB) service.Option[Service] {
 	return func(svc *Service) {
 		svc.db = db
 	}
 }
 
 // WithAssessmentConfig is an option to configure the assessment service gRPC address.
-func WithAssessmentConfig(conf assessmentConfig) service.Option[*Service] {
+func WithAssessmentConfig(conf assessmentConfig) service.Option[Service] {
 	return func(s *Service) {
 		slog.Info("Assessment URL is set", slog.Any("target", conf.targetAddress))
 		s.assessmentConfig.targetAddress = conf.targetAddress
@@ -101,7 +101,7 @@ func WithAssessmentConfig(conf assessmentConfig) service.Option[*Service] {
 	}
 }
 
-func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
+func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	svc = &Service{
 		assessmentConfig: assessmentConfig{
 			targetAddress: DefaultAssessmentURL,
@@ -117,7 +117,9 @@ func NewService(opts ...service.Option[*Service]) (svc *Service, err error) {
 		svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
 
 	if svc.db == nil {
-		svc.db, err = persistence.NewDB(persistence.WithAutoMigration(types...))
+		var cfg = persistence.DefaultConfig
+		cfg.Types = types
+		svc.db, err = persistence.NewDB(persistence.WithConfig(cfg))
 		if err != nil {
 			err = fmt.Errorf("could not create db: %w", err)
 			return
@@ -329,6 +331,7 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	}
 
 	// Apply filter options
+	var conds []any
 	if filter := req.Msg.GetFilter(); filter != nil {
 		if TargetOfEvaluationId := filter.GetTargetOfEvaluationId(); TargetOfEvaluationId != "" {
 			query = append(query, "target_of_evaluation_id = ?")
@@ -340,9 +343,15 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 		}
 	}
 
+	// Build conditions for pagination
+	if len(query) > 0 {
+		conds = append(conds, strings.Join(query, " AND "))
+		conds = append(conds, args...)
+	}
+
 	// Paginate the evidences according to the request
 	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req.Msg, svc.db,
-		service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
+		service.DefaultPaginationOpts, conds...)
 
 	if err != nil {
 		err = connect.NewError(connect.CodeInternal, fmt.Errorf("could not paginate results: %w", err))
@@ -358,7 +367,6 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
 	res *connect.Response[evidence.Evidence], err error) {
 
-	var conds []any
 	res = connect.NewResponse(&evidence.Evidence{})
 
 	// Validate request
@@ -371,7 +379,7 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
 	}
 
-	err = svc.db.Get(res.Msg, conds...)
+	err = svc.db.Get(res.Msg, "id = ?", req.Msg.EvidenceId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		slog.Error("Evidence not found (GetEvidence)",
 			slog.String("evidence_id", req.Msg.EvidenceId))
