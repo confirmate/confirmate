@@ -290,7 +290,6 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 		// Assess evidence. This also validates the embedded resource and returns an error if validation fails.
 		_, err = svc.handleEvidence(ctx, evidence, resource, related)
 		if err != nil {
-			slog.Error("AssessEvidence: could not handle evidence:", log.Err(err))
 			return nil, err
 		}
 
