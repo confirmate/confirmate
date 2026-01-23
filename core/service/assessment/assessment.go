@@ -113,7 +113,7 @@ type Service struct {
 // WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
 func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[*Service] {
 	return func(svc *Service) {
-		slog.Info("Orchestrator URL is set", slog.Any("url", targetAddress))
+		slog.Info("Orchestrator URL is set", "url", targetAddress)
 
 		svc.orchestratorConfig.targetAddress = targetAddress
 		svc.orchestratorConfig.client = client
@@ -172,7 +172,7 @@ func (svc *Service) createOrchestratorStream() {
 
 	rs, err := stream.NewRestartableBidiStream(ctx, factory, config)
 	if err != nil {
-		slog.Error("Failed to create orchestrator stream", "error", err)
+		slog.Error("Failed to create orchestrator stream", log.Err(err))
 		return
 	}
 
@@ -185,7 +185,7 @@ func (svc *Service) createOrchestratorStreamFactory() stream.StreamFactory[orche
 	}
 }
 
-func (svc *Service) AssessEvidenceStream(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
+func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
 	var (
 		req *assessment.AssessEvidenceRequest
 		res *assessment.AssessEvidencesResponse
@@ -200,7 +200,7 @@ func (svc *Service) AssessEvidenceStream(ctx context.Context, stream *connect.Bi
 		}
 		if err != nil {
 			err = fmt.Errorf("cannot receive stream request: %w", err)
-			slog.Error(err.Error())
+			slog.Error(log.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 		assessmentReq := connect.NewRequest(&assessment.AssessEvidenceRequest{
@@ -209,7 +209,7 @@ func (svc *Service) AssessEvidenceStream(ctx context.Context, stream *connect.Bi
 
 		_, err = svc.AssessEvidence(ctx, assessmentReq)
 		if err != nil {
-			slog.Error("AssessEvidenceStream: could not assess evidence:", "error", err)
+			slog.Error("AssessEvidenceStream: could not assess evidence:", log.Err(err))
 			res = &assessment.AssessEvidencesResponse{
 				Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
 			}
@@ -217,7 +217,7 @@ func (svc *Service) AssessEvidenceStream(ctx context.Context, stream *connect.Bi
 
 		err = stream.Send(res)
 		if err != nil {
-			slog.Error("AssessEvidenceStream: could not send response:", slog.Any("error", err))
+			slog.Error("AssessEvidenceStream: could not send response:", log.Err(err))
 		}
 	}
 
@@ -235,13 +235,13 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	// Validate request
 	err = api.Validate(evidence)
 	if err != nil {
-		slog.Error("AssessEvidence: invalid request", "error", err)
+		slog.Error("AssessEvidence: invalid request", log.Err(err))
 		return nil, err
 	}
 
 	// // TODO: Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
 	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
-	// 	slog.Error("AssessEvidence: ", slog.Any("error", service.ErrPermissionDenied))
+	// 	slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
 	// 	return nil, service.ErrPermissionDenied
 	// }
 
@@ -249,7 +249,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	resource = evidence.GetOntologyResource()
 	if resource == nil {
 		err = ontology.ErrNotOntologyResource
-		slog.Error("AssessEvidence: Not an ontology resource:", "error", err)
+		slog.Error("AssessEvidence: Not an ontology resource:", log.Err(err))
 		return nil, err
 	}
 
@@ -289,7 +289,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 		// Assess evidence. This also validates the embedded resource and returns an error if validation fails.
 		_, err = svc.handleEvidence(ctx, evidence, resource, related)
 		if err != nil {
-			slog.Error("AssessEvidence: could not handle evidence:", "error", err)
+			slog.Error("AssessEvidence: could not handle evidence:", log.Err(err))
 			return nil, err
 		}
 
@@ -297,7 +297,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
 		})
 	} else {
-		slog.Debug("Evidence %s needs to wait for %d more resource(s) to assess evidence", evidence.Id, len(waitingFor))
+		slog.Debug("Evidence needs to wait for more resource(s) to assess evidence", "evidence", evidence, "waitingFor", len(waitingFor))
 
 		// Create a left-over request with all the necessary information
 		l := waitingRequest{
@@ -347,8 +347,8 @@ func (svc *Service) handleEvidence(
 		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
 	}
 
-	slog.Debug("Evaluating evidence %s (%s) collected by %s at %s", slog.Any("Evidence", ev.Id), slog.Any("Resource", resource.GetId()), slog.Any("ToolId", ev.ToolId), slog.Any("Timestamp", ev.Timestamp.AsTime()))
-	slog.Debug("Evidence:", slog.Any("evidence", ev))
+	slog.Debug("Evaluating evidence", "evidence", ev.Id, "Resource", resource.GetId(), "ToolId", ev.ToolId, "Timestamp", ev.Timestamp.AsTime())
+	slog.Debug("Evidence:", ev)
 
 	evaluations, err := svc.pe.Eval(ev, resource, related, svc)
 	if err != nil {
@@ -368,20 +368,19 @@ func (svc *Service) handleEvidence(
 	}
 
 	if len(evaluations) == 0 {
-		slog.Debug("No policy evaluation for evidence", slog.Any("Evidence", ev.Id), slog.Any("Resource", resource.GetId()), slog.Any("ToolId", ev.ToolId))
+		slog.Debug("No policy evaluation for evidence", "Evidence", ev.Id, "Resource", resource.GetId(), "ToolId", ev.ToolId)
 		return results, nil
 	}
 
 	for _, data := range evaluations {
 		// That there is an empty (nil) evaluation should be caught beforehand, but you never know.
 		if data == nil {
-			slog.Error("One empty policy evaluation detected for evidence. That should not happen.",
-				slog.Any("Evidence", ev.GetId()))
+			slog.Error("One empty policy evaluation detected for evidence. That should not happen.", "Evidence", ev.GetId())
 			continue
 		}
 		metricID := data.MetricID
 
-		slog.Debug("Evaluated evidence with metric", slog.Any("Evidence", ev.Id), slog.Any("MetricID", metricID), slog.Any("Compliant", data.Compliant))
+		slog.Debug("Evaluated evidence with metric", "Evidence", ev.Id, "MetricID", metricID, "Compliant", data.Compliant)
 
 		types = ontology.ResourceTypes(resource)
 
@@ -415,7 +414,7 @@ func (svc *Service) handleEvidence(
 		svc.streamMutex.Unlock()
 
 		if err != nil {
-			slog.Error("Failed to send assessment result to orchestrator", "error", err)
+			slog.Error("Failed to send assessment result to orchestrator", log.Err(err))
 			go svc.informHooks(ctx, nil, fmt.Errorf("failed to send result: %w", err))
 		}
 

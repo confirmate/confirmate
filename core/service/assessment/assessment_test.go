@@ -335,7 +335,7 @@ func TestService_AssessEvidence(t *testing.T) {
 	}
 }
 
-func TestService_AssessEvidenceStream(t *testing.T) {
+func TestService_AssessEvidences(t *testing.T) {
 	type args struct {
 		stream *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
 		req    *assessment.AssessEvidenceRequest
