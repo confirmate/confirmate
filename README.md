@@ -2,4 +2,7 @@
 
 # Confirmate
 
+[![CI](https://github.com/confirmate/confirmate/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/confirmate/confirmate/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/confirmate/confirmate/branch/main/graph/badge.svg)](https://codecov.io/gh/confirmate/confirmate)
+
 This is work in progress. We are currently in the process of preparing the open-source release for Confirmate Core. In the mean-time you can have a sneak peak at our [UI](http://github.com/confirmate/ui) or look at the [Clouditor](http://github.com/clouditor/clouditor) project, which is the technological basis for Confirmate.
