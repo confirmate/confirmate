@@ -160,6 +160,14 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 		return
 	}
 
+	// Run optional init function after migrations
+	if db.cfg.InitFunc != nil {
+		if err = db.cfg.InitFunc(db); err != nil {
+			err = fmt.Errorf("error during init function: %w", err)
+			return
+		}
+	}
+
 	s = db
 
 	return

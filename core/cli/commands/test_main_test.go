@@ -16,30 +16,14 @@
 package commands_test
 
 import (
+	"os"
 	"testing"
 
 	"confirmate.io/core/cli/commandstest"
-	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util/assert"
 )
 
-func TestToolsCommands(t *testing.T) {
-	t.Run("list", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "list")
-		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-		assert.Contains(t, output, orchestratortest.MockToolId2)
-	})
-
-	t.Run("get", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "get", orchestratortest.MockToolId1)
-		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-	})
-
-	t.Run("delete", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "delete", orchestratortest.MockToolId2)
-		assert.NoError(t, err)
-		assert.Contains(t, output, "Tool "+orchestratortest.MockToolId2+" deleted successfully")
-	})
+func TestMain(m *testing.M) {
+	code := m.Run()
+	commandstest.Cleanup()
+	os.Exit(code)
 }

@@ -23,23 +23,23 @@ import (
 	"confirmate.io/core/util/assert"
 )
 
-func TestToolsCommands(t *testing.T) {
+func TestCatalogsCommands(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "list")
+		output, err := commandstest.RunCLI(t, "catalogs", "list")
 		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-		assert.Contains(t, output, orchestratortest.MockToolId2)
+		assert.Contains(t, output, orchestratortest.MockCatalogId1)
+		assert.Contains(t, output, orchestratortest.MockCatalogId2)
 	})
 
 	t.Run("get", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "get", orchestratortest.MockToolId1)
+		output, err := commandstest.RunCLI(t, "catalogs", "get", orchestratortest.MockCatalogId1)
 		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
+		assert.Contains(t, output, orchestratortest.MockCatalogId1)
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "delete", orchestratortest.MockToolId2)
+		output, err := commandstest.RunCLI(t, "catalogs", "delete", orchestratortest.MockCatalogId2)
 		assert.NoError(t, err)
-		assert.Contains(t, output, "Tool "+orchestratortest.MockToolId2+" deleted successfully")
+		assert.Contains(t, output, "Catalog "+orchestratortest.MockCatalogId2+" deleted successfully")
 	})
 }
