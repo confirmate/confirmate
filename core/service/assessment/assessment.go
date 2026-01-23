@@ -130,7 +130,7 @@ func WithRegoPackageName(pkg string) service.Option[Service] {
 
 // NewService creates a new assessment service with default values.
 // TODO: should return assessmentconnect.AssessmentHandler?
-func NewService(opts ...service.Option[Service]) *Service {
+func NewService(opts ...service.Option[Service]) (handler assessmentconnect.AssessmentHandler, err error) {
 	svc := &Service{
 		orchestratorConfig: orchestratorConfig{
 			targetAddress: DefaultOrchestratorURL,
@@ -155,7 +155,7 @@ func NewService(opts ...service.Option[Service]) *Service {
 
 	svc.createOrchestratorStream()
 
-	return svc
+	return
 }
 
 // TODO create method initorchestratorstream; init in new service

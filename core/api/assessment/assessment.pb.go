@@ -712,12 +712,12 @@ const file_api_assessment_assessment_proto_rawDesc = "" +
 	"\x1dASSESSMENT_STATUS_UNSPECIFIED\x10\x00\x12)\n" +
 	"%ASSESSMENT_STATUS_WAITING_FOR_RELATED\x10\x01\x12\x1e\n" +
 	"\x1aASSESSMENT_STATUS_ASSESSED\x10\x02\x12\x1c\n" +
-	"\x18ASSESSMENT_STATUS_FAILED\x10\x032\x98\x03\n" +
+	"\x18ASSESSMENT_STATUS_FAILED\x10\x032\x92\x03\n" +
 	"\n" +
 	"Assessment\x12e\n" +
 	"\x13CalculateCompliance\x124.confirmate.assessment.v1.CalculateComplianceRequest\x1a\x16.google.protobuf.Empty\"\x00\x12\x9f\x01\n" +
-	"\x0eAssessEvidence\x12/.confirmate.assessment.v1.AssessEvidenceRequest\x1a0.confirmate.assessment.v1.AssessEvidenceResponse\"*\x82\xd3\xe4\x93\x02$:\bevidence\"\x18/v1/assessment/evidences\x12\x80\x01\n" +
-	"\x14AssessEvidenceStream\x12/.confirmate.assessment.v1.AssessEvidenceRequest\x1a1.confirmate.assessment.v1.AssessEvidencesResponse\"\x00(\x010\x01B#Z!confirmate.io/core/api/assessmentb\x06proto3"
+	"\x0eAssessEvidence\x12/.confirmate.assessment.v1.AssessEvidenceRequest\x1a0.confirmate.assessment.v1.AssessEvidenceResponse\"*\x82\xd3\xe4\x93\x02$:\bevidence\"\x18/v1/assessment/evidences\x12{\n" +
+	"\x0fAssessEvidences\x12/.confirmate.assessment.v1.AssessEvidenceRequest\x1a1.confirmate.assessment.v1.AssessEvidencesResponse\"\x00(\x010\x01B#Z!confirmate.io/core/api/assessmentb\x06proto3"
 
 var (
 	file_api_assessment_assessment_proto_rawDescOnce sync.Once
@@ -764,10 +764,10 @@ var file_api_assessment_assessment_proto_depIdxs = []int32{
 	13, // 10: confirmate.assessment.v1.ComparisonResult.target_value:type_name -> google.protobuf.Value
 	3,  // 11: confirmate.assessment.v1.Assessment.CalculateCompliance:input_type -> confirmate.assessment.v1.CalculateComplianceRequest
 	4,  // 12: confirmate.assessment.v1.Assessment.AssessEvidence:input_type -> confirmate.assessment.v1.AssessEvidenceRequest
-	4,  // 13: confirmate.assessment.v1.Assessment.AssessEvidenceStream:input_type -> confirmate.assessment.v1.AssessEvidenceRequest
+	4,  // 13: confirmate.assessment.v1.Assessment.AssessEvidences:input_type -> confirmate.assessment.v1.AssessEvidenceRequest
 	14, // 14: confirmate.assessment.v1.Assessment.CalculateCompliance:output_type -> google.protobuf.Empty
 	5,  // 15: confirmate.assessment.v1.Assessment.AssessEvidence:output_type -> confirmate.assessment.v1.AssessEvidenceResponse
-	6,  // 16: confirmate.assessment.v1.Assessment.AssessEvidenceStream:output_type -> confirmate.assessment.v1.AssessEvidencesResponse
+	6,  // 16: confirmate.assessment.v1.Assessment.AssessEvidences:output_type -> confirmate.assessment.v1.AssessEvidencesResponse
 	14, // [14:17] is the sub-list for method output_type
 	11, // [11:14] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name

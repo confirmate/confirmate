@@ -88,7 +88,8 @@ func TestNewService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewService(tt.args.opts...)
+			got, err := NewService(tt.args.opts...)
+			assert.NoError(t, err)
 
 			svc, err := orchestratorsvc.NewService()
 			assert.NoError(t, err)
@@ -100,7 +101,7 @@ func TestNewService(t *testing.T) {
 			)
 			defer testSrv.Close()
 
-			tt.want(t, got)
+			tt.want(t, got.(*Service))
 		})
 	}
 }
@@ -327,7 +328,8 @@ func TestService_AssessEvidence(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewService()
+			s, err := NewService()
+			assert.NoError(t, err)
 			res, err := s.AssessEvidence(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
@@ -446,7 +448,8 @@ func TestService_AssessEvidences(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create service
-			svc := NewService()
+			svc, err := NewService()
+			assert.NoError(t, err)
 
 			// Create an initial test server
 			_, testSrv1 := servertest.NewTestConnectServer(t,
@@ -599,7 +602,8 @@ func TestService_handleEvidence(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewService()
+			s := &Service{}
+
 			res, err := s.handleEvidence(context.Background(), tt.args.evidence, tt.args.resource, tt.args.related)
 			tt.want(t, res)
 			tt.wantErr(t, err)
@@ -739,7 +743,7 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hookCallCounter = 0
-			s := NewService()
+			s := &Service{}
 
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)

@@ -54,9 +54,9 @@ const (
 	// AssessmentAssessEvidenceProcedure is the fully-qualified name of the Assessment's AssessEvidence
 	// RPC.
 	AssessmentAssessEvidenceProcedure = "/confirmate.assessment.v1.Assessment/AssessEvidence"
-	// AssessmentAssessEvidenceStreamProcedure is the fully-qualified name of the Assessment's
-	// AssessEvidenceStream RPC.
-	AssessmentAssessEvidenceStreamProcedure = "/confirmate.assessment.v1.Assessment/AssessEvidenceStream"
+	// AssessmentAssessEvidencesProcedure is the fully-qualified name of the Assessment's
+	// AssessEvidences RPC.
+	AssessmentAssessEvidencesProcedure = "/confirmate.assessment.v1.Assessment/AssessEvidences"
 )
 
 // AssessmentClient is a client for the confirmate.assessment.v1.Assessment service.
@@ -69,7 +69,7 @@ type AssessmentClient interface {
 	AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error)
 	// Assesses stream of evidences sent by the discovery and returns a response
 	// stream. Part of the public API. Not exposed as REST.
-	AssessEvidenceStream(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+	AssessEvidences(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
 }
 
 // NewAssessmentClient constructs a client for the confirmate.assessment.v1.Assessment service. By
@@ -95,10 +95,10 @@ func NewAssessmentClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(assessmentMethods.ByName("AssessEvidence")),
 			connect.WithClientOptions(opts...),
 		),
-		assessEvidenceStream: connect.NewClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse](
+		assessEvidences: connect.NewClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse](
 			httpClient,
-			baseURL+AssessmentAssessEvidenceStreamProcedure,
-			connect.WithSchema(assessmentMethods.ByName("AssessEvidenceStream")),
+			baseURL+AssessmentAssessEvidencesProcedure,
+			connect.WithSchema(assessmentMethods.ByName("AssessEvidences")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -106,9 +106,9 @@ func NewAssessmentClient(httpClient connect.HTTPClient, baseURL string, opts ...
 
 // assessmentClient implements AssessmentClient.
 type assessmentClient struct {
-	calculateCompliance  *connect.Client[assessment.CalculateComplianceRequest, emptypb.Empty]
-	assessEvidence       *connect.Client[assessment.AssessEvidenceRequest, assessment.AssessEvidenceResponse]
-	assessEvidenceStream *connect.Client[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+	calculateCompliance *connect.Client[assessment.CalculateComplianceRequest, emptypb.Empty]
+	assessEvidence      *connect.Client[assessment.AssessEvidenceRequest, assessment.AssessEvidenceResponse]
+	assessEvidences     *connect.Client[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
 }
 
 // CalculateCompliance calls confirmate.assessment.v1.Assessment.CalculateCompliance.
@@ -121,9 +121,9 @@ func (c *assessmentClient) AssessEvidence(ctx context.Context, req *connect.Requ
 	return c.assessEvidence.CallUnary(ctx, req)
 }
 
-// AssessEvidenceStream calls confirmate.assessment.v1.Assessment.AssessEvidenceStream.
-func (c *assessmentClient) AssessEvidenceStream(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
-	return c.assessEvidenceStream.CallBidiStream(ctx)
+// AssessEvidences calls confirmate.assessment.v1.Assessment.AssessEvidences.
+func (c *assessmentClient) AssessEvidences(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
+	return c.assessEvidences.CallBidiStream(ctx)
 }
 
 // AssessmentHandler is an implementation of the confirmate.assessment.v1.Assessment service.
@@ -136,7 +136,7 @@ type AssessmentHandler interface {
 	AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error)
 	// Assesses stream of evidences sent by the discovery and returns a response
 	// stream. Part of the public API. Not exposed as REST.
-	AssessEvidenceStream(context.Context, *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error
+	AssessEvidences(context.Context, *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error
 }
 
 // NewAssessmentHandler builds an HTTP handler from the service implementation. It returns the path
@@ -158,10 +158,10 @@ func NewAssessmentHandler(svc AssessmentHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(assessmentMethods.ByName("AssessEvidence")),
 		connect.WithHandlerOptions(opts...),
 	)
-	assessmentAssessEvidenceStreamHandler := connect.NewBidiStreamHandler(
-		AssessmentAssessEvidenceStreamProcedure,
-		svc.AssessEvidenceStream,
-		connect.WithSchema(assessmentMethods.ByName("AssessEvidenceStream")),
+	assessmentAssessEvidencesHandler := connect.NewBidiStreamHandler(
+		AssessmentAssessEvidencesProcedure,
+		svc.AssessEvidences,
+		connect.WithSchema(assessmentMethods.ByName("AssessEvidences")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/confirmate.assessment.v1.Assessment/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -170,8 +170,8 @@ func NewAssessmentHandler(svc AssessmentHandler, opts ...connect.HandlerOption) 
 			assessmentCalculateComplianceHandler.ServeHTTP(w, r)
 		case AssessmentAssessEvidenceProcedure:
 			assessmentAssessEvidenceHandler.ServeHTTP(w, r)
-		case AssessmentAssessEvidenceStreamProcedure:
-			assessmentAssessEvidenceStreamHandler.ServeHTTP(w, r)
+		case AssessmentAssessEvidencesProcedure:
+			assessmentAssessEvidencesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -189,6 +189,6 @@ func (UnimplementedAssessmentHandler) AssessEvidence(context.Context, *connect.R
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.assessment.v1.Assessment.AssessEvidence is not implemented"))
 }
 
-func (UnimplementedAssessmentHandler) AssessEvidenceStream(context.Context, *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.assessment.v1.Assessment.AssessEvidenceStream is not implemented"))
+func (UnimplementedAssessmentHandler) AssessEvidences(context.Context, *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.assessment.v1.Assessment.AssessEvidences is not implemented"))
 }
