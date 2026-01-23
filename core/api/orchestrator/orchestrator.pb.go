@@ -172,58 +172,6 @@ func (RequestType) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{1}
 }
 
-type MetricChangeEvent_Type int32
-
-const (
-	MetricChangeEvent_TYPE_UNSPECIFIED            MetricChangeEvent_Type = 0
-	MetricChangeEvent_TYPE_CONFIG_CHANGED         MetricChangeEvent_Type = 1
-	MetricChangeEvent_TYPE_IMPLEMENTATION_CHANGED MetricChangeEvent_Type = 2
-	MetricChangeEvent_TYPE_METADATA_CHANGED       MetricChangeEvent_Type = 3
-)
-
-// Enum value maps for MetricChangeEvent_Type.
-var (
-	MetricChangeEvent_Type_name = map[int32]string{
-		0: "TYPE_UNSPECIFIED",
-		1: "TYPE_CONFIG_CHANGED",
-		2: "TYPE_IMPLEMENTATION_CHANGED",
-		3: "TYPE_METADATA_CHANGED",
-	}
-	MetricChangeEvent_Type_value = map[string]int32{
-		"TYPE_UNSPECIFIED":            0,
-		"TYPE_CONFIG_CHANGED":         1,
-		"TYPE_IMPLEMENTATION_CHANGED": 2,
-		"TYPE_METADATA_CHANGED":       3,
-	}
-)
-
-func (x MetricChangeEvent_Type) Enum() *MetricChangeEvent_Type {
-	p := new(MetricChangeEvent_Type)
-	*p = x
-	return p
-}
-
-func (x MetricChangeEvent_Type) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (MetricChangeEvent_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_orchestrator_orchestrator_proto_enumTypes[2].Descriptor()
-}
-
-func (MetricChangeEvent_Type) Type() protoreflect.EnumType {
-	return &file_api_orchestrator_orchestrator_proto_enumTypes[2]
-}
-
-func (x MetricChangeEvent_Type) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use MetricChangeEvent_Type.Descriptor instead.
-func (MetricChangeEvent_Type) EnumDescriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{31, 0}
-}
-
 // TargetType represents the type of the target of evaluation.
 type TargetOfEvaluation_TargetType int32
 
@@ -261,11 +209,11 @@ func (x TargetOfEvaluation_TargetType) String() string {
 }
 
 func (TargetOfEvaluation_TargetType) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_orchestrator_orchestrator_proto_enumTypes[3].Descriptor()
+	return file_api_orchestrator_orchestrator_proto_enumTypes[2].Descriptor()
 }
 
 func (TargetOfEvaluation_TargetType) Type() protoreflect.EnumType {
-	return &file_api_orchestrator_orchestrator_proto_enumTypes[3]
+	return &file_api_orchestrator_orchestrator_proto_enumTypes[2]
 }
 
 func (x TargetOfEvaluation_TargetType) Number() protoreflect.EnumNumber {
@@ -274,7 +222,7 @@ func (x TargetOfEvaluation_TargetType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TargetOfEvaluation_TargetType.Descriptor instead.
 func (TargetOfEvaluation_TargetType) EnumDescriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{33, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{32, 0}
 }
 
 type RegisterAssessmentToolRequest struct {
@@ -2004,71 +1952,6 @@ func (*ChangeEvent_MetricImplementation) isChangeEvent_Entity() {}
 
 func (*ChangeEvent_AssessmentTool) isChangeEvent_Entity() {}
 
-// MetricChangeEvent represents a change of either a metric configuration or
-// implementation.
-type MetricChangeEvent struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Type  MetricChangeEvent_Type `protobuf:"varint,1,opt,name=type,proto3,enum=confirmate.orchestrator.v1.MetricChangeEvent_Type" json:"type,omitempty"`
-	// The metric that is changing.
-	MetricId string `protobuf:"bytes,2,opt,name=metric_id,json=metricId,proto3" json:"metric_id,omitempty"`
-	// The target of evaluation id that is affected by this change. Primarily
-	// concerns metric configuration changes.
-	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *MetricChangeEvent) Reset() {
-	*x = MetricChangeEvent{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[31]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MetricChangeEvent) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MetricChangeEvent) ProtoMessage() {}
-
-func (x *MetricChangeEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[31]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MetricChangeEvent.ProtoReflect.Descriptor instead.
-func (*MetricChangeEvent) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{31}
-}
-
-func (x *MetricChangeEvent) GetType() MetricChangeEvent_Type {
-	if x != nil {
-		return x.Type
-	}
-	return MetricChangeEvent_TYPE_UNSPECIFIED
-}
-
-func (x *MetricChangeEvent) GetMetricId() string {
-	if x != nil {
-		return x.MetricId
-	}
-	return ""
-}
-
-func (x *MetricChangeEvent) GetTargetOfEvaluationId() string {
-	if x != nil {
-		return x.TargetOfEvaluationId
-	}
-	return ""
-}
-
 // Represents an external tool or service that offers assessments according to
 // certain metrics.
 type AssessmentTool struct {
@@ -2084,7 +1967,7 @@ type AssessmentTool struct {
 
 func (x *AssessmentTool) Reset() {
 	*x = AssessmentTool{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[32]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2096,7 +1979,7 @@ func (x *AssessmentTool) String() string {
 func (*AssessmentTool) ProtoMessage() {}
 
 func (x *AssessmentTool) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[32]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2109,7 +1992,7 @@ func (x *AssessmentTool) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssessmentTool.ProtoReflect.Descriptor instead.
 func (*AssessmentTool) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{32}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *AssessmentTool) GetId() string {
@@ -2160,7 +2043,7 @@ type TargetOfEvaluation struct {
 
 func (x *TargetOfEvaluation) Reset() {
 	*x = TargetOfEvaluation{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[33]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2172,7 +2055,7 @@ func (x *TargetOfEvaluation) String() string {
 func (*TargetOfEvaluation) ProtoMessage() {}
 
 func (x *TargetOfEvaluation) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[33]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2185,7 +2068,7 @@ func (x *TargetOfEvaluation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TargetOfEvaluation.ProtoReflect.Descriptor instead.
 func (*TargetOfEvaluation) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{33}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *TargetOfEvaluation) GetId() string {
@@ -2267,7 +2150,7 @@ type Catalog struct {
 
 func (x *Catalog) Reset() {
 	*x = Catalog{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[34]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2279,7 +2162,7 @@ func (x *Catalog) String() string {
 func (*Catalog) ProtoMessage() {}
 
 func (x *Catalog) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[34]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2292,7 +2175,7 @@ func (x *Catalog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Catalog.ProtoReflect.Descriptor instead.
 func (*Catalog) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{34}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *Catalog) GetId() string {
@@ -2364,7 +2247,7 @@ type Category struct {
 
 func (x *Category) Reset() {
 	*x = Category{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[35]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2376,7 +2259,7 @@ func (x *Category) String() string {
 func (*Category) ProtoMessage() {}
 
 func (x *Category) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[35]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2389,7 +2272,7 @@ func (x *Category) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Category.ProtoReflect.Descriptor instead.
 func (*Category) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{35}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *Category) GetName() string {
@@ -2456,7 +2339,7 @@ type Control struct {
 
 func (x *Control) Reset() {
 	*x = Control{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[36]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2468,7 +2351,7 @@ func (x *Control) String() string {
 func (*Control) ProtoMessage() {}
 
 func (x *Control) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[36]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2481,7 +2364,7 @@ func (x *Control) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Control.ProtoReflect.Descriptor instead.
 func (*Control) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{36}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *Control) GetId() string {
@@ -2578,7 +2461,7 @@ type AuditScope struct {
 
 func (x *AuditScope) Reset() {
 	*x = AuditScope{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[37]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2590,7 +2473,7 @@ func (x *AuditScope) String() string {
 func (*AuditScope) ProtoMessage() {}
 
 func (x *AuditScope) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[37]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2603,7 +2486,7 @@ func (x *AuditScope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditScope.ProtoReflect.Descriptor instead.
 func (*AuditScope) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{37}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *AuditScope) GetId() string {
@@ -2643,7 +2526,7 @@ type GetAssessmentResultRequest struct {
 
 func (x *GetAssessmentResultRequest) Reset() {
 	*x = GetAssessmentResultRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[38]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2655,7 +2538,7 @@ func (x *GetAssessmentResultRequest) String() string {
 func (*GetAssessmentResultRequest) ProtoMessage() {}
 
 func (x *GetAssessmentResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[38]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2668,7 +2551,7 @@ func (x *GetAssessmentResultRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssessmentResultRequest.ProtoReflect.Descriptor instead.
 func (*GetAssessmentResultRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{38}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetAssessmentResultRequest) GetId() string {
@@ -2693,7 +2576,7 @@ type ListAssessmentResultsRequest struct {
 
 func (x *ListAssessmentResultsRequest) Reset() {
 	*x = ListAssessmentResultsRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[39]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2705,7 +2588,7 @@ func (x *ListAssessmentResultsRequest) String() string {
 func (*ListAssessmentResultsRequest) ProtoMessage() {}
 
 func (x *ListAssessmentResultsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[39]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2718,7 +2601,7 @@ func (x *ListAssessmentResultsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssessmentResultsRequest.ProtoReflect.Descriptor instead.
 func (*ListAssessmentResultsRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{39}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListAssessmentResultsRequest) GetFilter() *ListAssessmentResultsRequest_Filter {
@@ -2773,7 +2656,7 @@ type ListAssessmentResultsResponse struct {
 
 func (x *ListAssessmentResultsResponse) Reset() {
 	*x = ListAssessmentResultsResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[40]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2785,7 +2668,7 @@ func (x *ListAssessmentResultsResponse) String() string {
 func (*ListAssessmentResultsResponse) ProtoMessage() {}
 
 func (x *ListAssessmentResultsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[40]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2798,7 +2681,7 @@ func (x *ListAssessmentResultsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssessmentResultsResponse.ProtoReflect.Descriptor instead.
 func (*ListAssessmentResultsResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{40}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListAssessmentResultsResponse) GetResults() []*assessment.AssessmentResult {
@@ -2824,7 +2707,7 @@ type CreateAuditScopeRequest struct {
 
 func (x *CreateAuditScopeRequest) Reset() {
 	*x = CreateAuditScopeRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[41]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2836,7 +2719,7 @@ func (x *CreateAuditScopeRequest) String() string {
 func (*CreateAuditScopeRequest) ProtoMessage() {}
 
 func (x *CreateAuditScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[41]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2849,7 +2732,7 @@ func (x *CreateAuditScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAuditScopeRequest.ProtoReflect.Descriptor instead.
 func (*CreateAuditScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{41}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CreateAuditScopeRequest) GetAuditScope() *AuditScope {
@@ -2869,7 +2752,7 @@ type RemoveAuditScopeRequest struct {
 
 func (x *RemoveAuditScopeRequest) Reset() {
 	*x = RemoveAuditScopeRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[42]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2881,7 +2764,7 @@ func (x *RemoveAuditScopeRequest) String() string {
 func (*RemoveAuditScopeRequest) ProtoMessage() {}
 
 func (x *RemoveAuditScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[42]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2894,7 +2777,7 @@ func (x *RemoveAuditScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveAuditScopeRequest.ProtoReflect.Descriptor instead.
 func (*RemoveAuditScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{42}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *RemoveAuditScopeRequest) GetAuditScopeId() string {
@@ -2920,7 +2803,7 @@ type GetAuditScopeRequest struct {
 
 func (x *GetAuditScopeRequest) Reset() {
 	*x = GetAuditScopeRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[43]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2932,7 +2815,7 @@ func (x *GetAuditScopeRequest) String() string {
 func (*GetAuditScopeRequest) ProtoMessage() {}
 
 func (x *GetAuditScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[43]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2945,7 +2828,7 @@ func (x *GetAuditScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuditScopeRequest.ProtoReflect.Descriptor instead.
 func (*GetAuditScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{43}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetAuditScopeRequest) GetAuditScopeId() string {
@@ -2968,7 +2851,7 @@ type ListAuditScopesRequest struct {
 
 func (x *ListAuditScopesRequest) Reset() {
 	*x = ListAuditScopesRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[44]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2980,7 +2863,7 @@ func (x *ListAuditScopesRequest) String() string {
 func (*ListAuditScopesRequest) ProtoMessage() {}
 
 func (x *ListAuditScopesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[44]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2993,7 +2876,7 @@ func (x *ListAuditScopesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditScopesRequest.ProtoReflect.Descriptor instead.
 func (*ListAuditScopesRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{44}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ListAuditScopesRequest) GetFilter() *ListAuditScopesRequest_Filter {
@@ -3041,7 +2924,7 @@ type ListAuditScopesResponse struct {
 
 func (x *ListAuditScopesResponse) Reset() {
 	*x = ListAuditScopesResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[45]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3053,7 +2936,7 @@ func (x *ListAuditScopesResponse) String() string {
 func (*ListAuditScopesResponse) ProtoMessage() {}
 
 func (x *ListAuditScopesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[45]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3066,7 +2949,7 @@ func (x *ListAuditScopesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditScopesResponse.ProtoReflect.Descriptor instead.
 func (*ListAuditScopesResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{45}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ListAuditScopesResponse) GetAuditScopes() []*AuditScope {
@@ -3092,7 +2975,7 @@ type UpdateAuditScopeRequest struct {
 
 func (x *UpdateAuditScopeRequest) Reset() {
 	*x = UpdateAuditScopeRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[46]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3104,7 +2987,7 @@ func (x *UpdateAuditScopeRequest) String() string {
 func (*UpdateAuditScopeRequest) ProtoMessage() {}
 
 func (x *UpdateAuditScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[46]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3117,7 +3000,7 @@ func (x *UpdateAuditScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAuditScopeRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAuditScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{46}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *UpdateAuditScopeRequest) GetAuditScope() *AuditScope {
@@ -3136,7 +3019,7 @@ type GetCertificateRequest struct {
 
 func (x *GetCertificateRequest) Reset() {
 	*x = GetCertificateRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[47]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3148,7 +3031,7 @@ func (x *GetCertificateRequest) String() string {
 func (*GetCertificateRequest) ProtoMessage() {}
 
 func (x *GetCertificateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[47]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3161,7 +3044,7 @@ func (x *GetCertificateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCertificateRequest.ProtoReflect.Descriptor instead.
 func (*GetCertificateRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{47}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetCertificateRequest) GetCertificateId() string {
@@ -3183,7 +3066,7 @@ type ListCertificatesRequest struct {
 
 func (x *ListCertificatesRequest) Reset() {
 	*x = ListCertificatesRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[48]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3195,7 +3078,7 @@ func (x *ListCertificatesRequest) String() string {
 func (*ListCertificatesRequest) ProtoMessage() {}
 
 func (x *ListCertificatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[48]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3208,7 +3091,7 @@ func (x *ListCertificatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCertificatesRequest.ProtoReflect.Descriptor instead.
 func (*ListCertificatesRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{48}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ListCertificatesRequest) GetPageSize() int32 {
@@ -3249,7 +3132,7 @@ type ListCertificatesResponse struct {
 
 func (x *ListCertificatesResponse) Reset() {
 	*x = ListCertificatesResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[49]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3261,7 +3144,7 @@ func (x *ListCertificatesResponse) String() string {
 func (*ListCertificatesResponse) ProtoMessage() {}
 
 func (x *ListCertificatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[49]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3274,7 +3157,7 @@ func (x *ListCertificatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCertificatesResponse.ProtoReflect.Descriptor instead.
 func (*ListCertificatesResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{49}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ListCertificatesResponse) GetCertificates() []*Certificate {
@@ -3303,7 +3186,7 @@ type ListPublicCertificatesRequest struct {
 
 func (x *ListPublicCertificatesRequest) Reset() {
 	*x = ListPublicCertificatesRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[50]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3315,7 +3198,7 @@ func (x *ListPublicCertificatesRequest) String() string {
 func (*ListPublicCertificatesRequest) ProtoMessage() {}
 
 func (x *ListPublicCertificatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[50]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3328,7 +3211,7 @@ func (x *ListPublicCertificatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPublicCertificatesRequest.ProtoReflect.Descriptor instead.
 func (*ListPublicCertificatesRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{50}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ListPublicCertificatesRequest) GetPageSize() int32 {
@@ -3369,7 +3252,7 @@ type ListPublicCertificatesResponse struct {
 
 func (x *ListPublicCertificatesResponse) Reset() {
 	*x = ListPublicCertificatesResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[51]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3381,7 +3264,7 @@ func (x *ListPublicCertificatesResponse) String() string {
 func (*ListPublicCertificatesResponse) ProtoMessage() {}
 
 func (x *ListPublicCertificatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[51]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3394,7 +3277,7 @@ func (x *ListPublicCertificatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPublicCertificatesResponse.ProtoReflect.Descriptor instead.
 func (*ListPublicCertificatesResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{51}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ListPublicCertificatesResponse) GetCertificates() []*Certificate {
@@ -3420,7 +3303,7 @@ type UpdateCertificateRequest struct {
 
 func (x *UpdateCertificateRequest) Reset() {
 	*x = UpdateCertificateRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[52]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3432,7 +3315,7 @@ func (x *UpdateCertificateRequest) String() string {
 func (*UpdateCertificateRequest) ProtoMessage() {}
 
 func (x *UpdateCertificateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[52]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3445,7 +3328,7 @@ func (x *UpdateCertificateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCertificateRequest.ProtoReflect.Descriptor instead.
 func (*UpdateCertificateRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{52}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *UpdateCertificateRequest) GetCertificate() *Certificate {
@@ -3464,7 +3347,7 @@ type CreateCatalogRequest struct {
 
 func (x *CreateCatalogRequest) Reset() {
 	*x = CreateCatalogRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[53]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3476,7 +3359,7 @@ func (x *CreateCatalogRequest) String() string {
 func (*CreateCatalogRequest) ProtoMessage() {}
 
 func (x *CreateCatalogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[53]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3489,7 +3372,7 @@ func (x *CreateCatalogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCatalogRequest.ProtoReflect.Descriptor instead.
 func (*CreateCatalogRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{53}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *CreateCatalogRequest) GetCatalog() *Catalog {
@@ -3508,7 +3391,7 @@ type RemoveCatalogRequest struct {
 
 func (x *RemoveCatalogRequest) Reset() {
 	*x = RemoveCatalogRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[54]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3520,7 +3403,7 @@ func (x *RemoveCatalogRequest) String() string {
 func (*RemoveCatalogRequest) ProtoMessage() {}
 
 func (x *RemoveCatalogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[54]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3533,7 +3416,7 @@ func (x *RemoveCatalogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveCatalogRequest.ProtoReflect.Descriptor instead.
 func (*RemoveCatalogRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{54}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *RemoveCatalogRequest) GetCatalogId() string {
@@ -3552,7 +3435,7 @@ type GetCatalogRequest struct {
 
 func (x *GetCatalogRequest) Reset() {
 	*x = GetCatalogRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[55]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3564,7 +3447,7 @@ func (x *GetCatalogRequest) String() string {
 func (*GetCatalogRequest) ProtoMessage() {}
 
 func (x *GetCatalogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[55]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3577,7 +3460,7 @@ func (x *GetCatalogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCatalogRequest.ProtoReflect.Descriptor instead.
 func (*GetCatalogRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{55}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *GetCatalogRequest) GetCatalogId() string {
@@ -3599,7 +3482,7 @@ type ListCatalogsRequest struct {
 
 func (x *ListCatalogsRequest) Reset() {
 	*x = ListCatalogsRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[56]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3611,7 +3494,7 @@ func (x *ListCatalogsRequest) String() string {
 func (*ListCatalogsRequest) ProtoMessage() {}
 
 func (x *ListCatalogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[56]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3624,7 +3507,7 @@ func (x *ListCatalogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCatalogsRequest.ProtoReflect.Descriptor instead.
 func (*ListCatalogsRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{56}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListCatalogsRequest) GetPageSize() int32 {
@@ -3665,7 +3548,7 @@ type ListCatalogsResponse struct {
 
 func (x *ListCatalogsResponse) Reset() {
 	*x = ListCatalogsResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[57]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3677,7 +3560,7 @@ func (x *ListCatalogsResponse) String() string {
 func (*ListCatalogsResponse) ProtoMessage() {}
 
 func (x *ListCatalogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[57]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3690,7 +3573,7 @@ func (x *ListCatalogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCatalogsResponse.ProtoReflect.Descriptor instead.
 func (*ListCatalogsResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{57}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ListCatalogsResponse) GetCatalogs() []*Catalog {
@@ -3716,7 +3599,7 @@ type UpdateCatalogRequest struct {
 
 func (x *UpdateCatalogRequest) Reset() {
 	*x = UpdateCatalogRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[58]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3728,7 +3611,7 @@ func (x *UpdateCatalogRequest) String() string {
 func (*UpdateCatalogRequest) ProtoMessage() {}
 
 func (x *UpdateCatalogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[58]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3741,7 +3624,7 @@ func (x *UpdateCatalogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCatalogRequest.ProtoReflect.Descriptor instead.
 func (*UpdateCatalogRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{58}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UpdateCatalogRequest) GetCatalog() *Catalog {
@@ -3761,7 +3644,7 @@ type GetCategoryRequest struct {
 
 func (x *GetCategoryRequest) Reset() {
 	*x = GetCategoryRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[59]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3773,7 +3656,7 @@ func (x *GetCategoryRequest) String() string {
 func (*GetCategoryRequest) ProtoMessage() {}
 
 func (x *GetCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[59]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3786,7 +3669,7 @@ func (x *GetCategoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCategoryRequest.ProtoReflect.Descriptor instead.
 func (*GetCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{59}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *GetCategoryRequest) GetCatalogId() string {
@@ -3814,7 +3697,7 @@ type GetControlRequest struct {
 
 func (x *GetControlRequest) Reset() {
 	*x = GetControlRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[60]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3826,7 +3709,7 @@ func (x *GetControlRequest) String() string {
 func (*GetControlRequest) ProtoMessage() {}
 
 func (x *GetControlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[60]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3839,7 +3722,7 @@ func (x *GetControlRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetControlRequest.ProtoReflect.Descriptor instead.
 func (*GetControlRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{60}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GetControlRequest) GetCatalogId() string {
@@ -3879,7 +3762,7 @@ type ListControlsRequest struct {
 
 func (x *ListControlsRequest) Reset() {
 	*x = ListControlsRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[61]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3891,7 +3774,7 @@ func (x *ListControlsRequest) String() string {
 func (*ListControlsRequest) ProtoMessage() {}
 
 func (x *ListControlsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[61]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3904,7 +3787,7 @@ func (x *ListControlsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListControlsRequest.ProtoReflect.Descriptor instead.
 func (*ListControlsRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{61}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *ListControlsRequest) GetCatalogId() string {
@@ -3966,7 +3849,7 @@ type ListControlsResponse struct {
 
 func (x *ListControlsResponse) Reset() {
 	*x = ListControlsResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[62]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3978,7 +3861,7 @@ func (x *ListControlsResponse) String() string {
 func (*ListControlsResponse) ProtoMessage() {}
 
 func (x *ListControlsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[62]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3991,7 +3874,7 @@ func (x *ListControlsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListControlsResponse.ProtoReflect.Descriptor instead.
 func (*ListControlsResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{62}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *ListControlsResponse) GetControls() []*Control {
@@ -4017,7 +3900,7 @@ type CreateCertificateRequest struct {
 
 func (x *CreateCertificateRequest) Reset() {
 	*x = CreateCertificateRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[63]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4029,7 +3912,7 @@ func (x *CreateCertificateRequest) String() string {
 func (*CreateCertificateRequest) ProtoMessage() {}
 
 func (x *CreateCertificateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[63]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4042,7 +3925,7 @@ func (x *CreateCertificateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCertificateRequest.ProtoReflect.Descriptor instead.
 func (*CreateCertificateRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{63}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *CreateCertificateRequest) GetCertificate() *Certificate {
@@ -4061,7 +3944,7 @@ type RemoveCertificateRequest struct {
 
 func (x *RemoveCertificateRequest) Reset() {
 	*x = RemoveCertificateRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[64]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4073,7 +3956,7 @@ func (x *RemoveCertificateRequest) String() string {
 func (*RemoveCertificateRequest) ProtoMessage() {}
 
 func (x *RemoveCertificateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[64]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4086,7 +3969,7 @@ func (x *RemoveCertificateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveCertificateRequest.ProtoReflect.Descriptor instead.
 func (*RemoveCertificateRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{64}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *RemoveCertificateRequest) GetCertificateId() string {
@@ -4116,7 +3999,7 @@ type Certificate struct {
 
 func (x *Certificate) Reset() {
 	*x = Certificate{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[65]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4128,7 +4011,7 @@ func (x *Certificate) String() string {
 func (*Certificate) ProtoMessage() {}
 
 func (x *Certificate) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[65]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4141,7 +4024,7 @@ func (x *Certificate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Certificate.ProtoReflect.Descriptor instead.
 func (*Certificate) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{65}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *Certificate) GetId() string {
@@ -4230,7 +4113,7 @@ type State struct {
 
 func (x *State) Reset() {
 	*x = State{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[66]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4242,7 +4125,7 @@ func (x *State) String() string {
 func (*State) ProtoMessage() {}
 
 func (x *State) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[66]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4255,7 +4138,7 @@ func (x *State) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use State.ProtoReflect.Descriptor instead.
 func (*State) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{66}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *State) GetId() string {
@@ -4301,7 +4184,7 @@ type ListAssessmentToolsRequest_Filter struct {
 
 func (x *ListAssessmentToolsRequest_Filter) Reset() {
 	*x = ListAssessmentToolsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4313,7 +4196,7 @@ func (x *ListAssessmentToolsRequest_Filter) String() string {
 func (*ListAssessmentToolsRequest_Filter) ProtoMessage() {}
 
 func (x *ListAssessmentToolsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4338,7 +4221,7 @@ type ListMetricsRequest_Filter struct {
 
 func (x *ListMetricsRequest_Filter) Reset() {
 	*x = ListMetricsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[68]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4350,7 +4233,7 @@ func (x *ListMetricsRequest_Filter) String() string {
 func (*ListMetricsRequest_Filter) ProtoMessage() {}
 
 func (x *ListMetricsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[68]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4389,7 +4272,7 @@ type SubscribeRequest_Filter struct {
 
 func (x *SubscribeRequest_Filter) Reset() {
 	*x = SubscribeRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4401,7 +4284,7 @@ func (x *SubscribeRequest_Filter) String() string {
 func (*SubscribeRequest_Filter) ProtoMessage() {}
 
 func (x *SubscribeRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4457,7 +4340,7 @@ type TargetOfEvaluation_Metadata struct {
 
 func (x *TargetOfEvaluation_Metadata) Reset() {
 	*x = TargetOfEvaluation_Metadata{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[71]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4469,7 +4352,7 @@ func (x *TargetOfEvaluation_Metadata) String() string {
 func (*TargetOfEvaluation_Metadata) ProtoMessage() {}
 
 func (x *TargetOfEvaluation_Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[71]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4482,7 +4365,7 @@ func (x *TargetOfEvaluation_Metadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TargetOfEvaluation_Metadata.ProtoReflect.Descriptor instead.
 func (*TargetOfEvaluation_Metadata) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{33, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{32, 0}
 }
 
 func (x *TargetOfEvaluation_Metadata) GetLabels() map[string]string {
@@ -4509,7 +4392,7 @@ type Catalog_Metadata struct {
 
 func (x *Catalog_Metadata) Reset() {
 	*x = Catalog_Metadata{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4521,7 +4404,7 @@ func (x *Catalog_Metadata) String() string {
 func (*Catalog_Metadata) ProtoMessage() {}
 
 func (x *Catalog_Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4534,7 +4417,7 @@ func (x *Catalog_Metadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Catalog_Metadata.ProtoReflect.Descriptor instead.
 func (*Catalog_Metadata) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{34, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{33, 0}
 }
 
 func (x *Catalog_Metadata) GetColor() string {
@@ -4563,7 +4446,7 @@ type ListAssessmentResultsRequest_Filter struct {
 
 func (x *ListAssessmentResultsRequest_Filter) Reset() {
 	*x = ListAssessmentResultsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4575,7 +4458,7 @@ func (x *ListAssessmentResultsRequest_Filter) String() string {
 func (*ListAssessmentResultsRequest_Filter) ProtoMessage() {}
 
 func (x *ListAssessmentResultsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4588,7 +4471,7 @@ func (x *ListAssessmentResultsRequest_Filter) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListAssessmentResultsRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListAssessmentResultsRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{39, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{38, 0}
 }
 
 func (x *ListAssessmentResultsRequest_Filter) GetTargetOfEvaluationId() string {
@@ -4645,7 +4528,7 @@ type ListAuditScopesRequest_Filter struct {
 
 func (x *ListAuditScopesRequest_Filter) Reset() {
 	*x = ListAuditScopesRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4657,7 +4540,7 @@ func (x *ListAuditScopesRequest_Filter) String() string {
 func (*ListAuditScopesRequest_Filter) ProtoMessage() {}
 
 func (x *ListAuditScopesRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4670,7 +4553,7 @@ func (x *ListAuditScopesRequest_Filter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditScopesRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListAuditScopesRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{44, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{43, 0}
 }
 
 func (x *ListAuditScopesRequest_Filter) GetTargetOfEvaluationId() string {
@@ -4697,7 +4580,7 @@ type ListControlsRequest_Filter struct {
 
 func (x *ListControlsRequest_Filter) Reset() {
 	*x = ListControlsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[76]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4709,7 +4592,7 @@ func (x *ListControlsRequest_Filter) String() string {
 func (*ListControlsRequest_Filter) ProtoMessage() {}
 
 func (x *ListControlsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[76]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4722,7 +4605,7 @@ func (x *ListControlsRequest_Filter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListControlsRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListControlsRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{61, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{60, 0}
 }
 
 func (x *ListControlsRequest_Filter) GetAssuranceLevels() []string {
@@ -4870,17 +4753,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x15metric_implementation\x18\x0f \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x00R\x14metricImplementation\x12U\n" +
 	"\x0fassessment_tool\x18\x10 \x01(\v2*.confirmate.orchestrator.v1.AssessmentToolH\x00R\x0eassessmentToolB\b\n" +
 	"\x06entityB\x1a\n" +
-	"\x18_target_of_evaluation_id\"\xc8\x02\n" +
-	"\x11MetricChangeEvent\x12S\n" +
-	"\x04type\x18\x01 \x01(\x0e22.confirmate.orchestrator.v1.MetricChangeEvent.TypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12'\n" +
-	"\tmetric_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bmetricId\x12B\n" +
-	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\"q\n" +
-	"\x04Type\x12\x14\n" +
-	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13TYPE_CONFIG_CHANGED\x10\x01\x12\x1f\n" +
-	"\x1bTYPE_IMPLEMENTATION_CHANGED\x10\x02\x12\x19\n" +
-	"\x15TYPE_METADATA_CHANGED\x10\x03\"\xc5\x01\n" +
+	"\x18_target_of_evaluation_id\"\xc5\x01\n" +
 	"\x0eAssessmentTool\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
@@ -5212,253 +5085,250 @@ func file_api_orchestrator_orchestrator_proto_rawDescGZIP() []byte {
 	return file_api_orchestrator_orchestrator_proto_rawDescData
 }
 
-var file_api_orchestrator_orchestrator_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_api_orchestrator_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 77)
+var file_api_orchestrator_orchestrator_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_api_orchestrator_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 76)
 var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(EventCategory)(0),                              // 0: confirmate.orchestrator.v1.EventCategory
 	(RequestType)(0),                                // 1: confirmate.orchestrator.v1.RequestType
-	(MetricChangeEvent_Type)(0),                     // 2: confirmate.orchestrator.v1.MetricChangeEvent.Type
-	(TargetOfEvaluation_TargetType)(0),              // 3: confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
-	(*RegisterAssessmentToolRequest)(nil),           // 4: confirmate.orchestrator.v1.RegisterAssessmentToolRequest
-	(*ListAssessmentToolsRequest)(nil),              // 5: confirmate.orchestrator.v1.ListAssessmentToolsRequest
-	(*ListAssessmentToolsResponse)(nil),             // 6: confirmate.orchestrator.v1.ListAssessmentToolsResponse
-	(*GetAssessmentToolRequest)(nil),                // 7: confirmate.orchestrator.v1.GetAssessmentToolRequest
-	(*UpdateAssessmentToolRequest)(nil),             // 8: confirmate.orchestrator.v1.UpdateAssessmentToolRequest
-	(*DeregisterAssessmentToolRequest)(nil),         // 9: confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
-	(*StoreAssessmentResultRequest)(nil),            // 10: confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	(*StoreAssessmentResultResponse)(nil),           // 11: confirmate.orchestrator.v1.StoreAssessmentResultResponse
-	(*StoreAssessmentResultsResponse)(nil),          // 12: confirmate.orchestrator.v1.StoreAssessmentResultsResponse
-	(*CreateMetricRequest)(nil),                     // 13: confirmate.orchestrator.v1.CreateMetricRequest
-	(*UpdateMetricRequest)(nil),                     // 14: confirmate.orchestrator.v1.UpdateMetricRequest
-	(*GetMetricRequest)(nil),                        // 15: confirmate.orchestrator.v1.GetMetricRequest
-	(*ListMetricsRequest)(nil),                      // 16: confirmate.orchestrator.v1.ListMetricsRequest
-	(*RemoveMetricRequest)(nil),                     // 17: confirmate.orchestrator.v1.RemoveMetricRequest
-	(*ListMetricsResponse)(nil),                     // 18: confirmate.orchestrator.v1.ListMetricsResponse
-	(*GetTargetOfEvaluationRequest)(nil),            // 19: confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
-	(*CreateTargetOfEvaluationRequest)(nil),         // 20: confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
-	(*UpdateTargetOfEvaluationRequest)(nil),         // 21: confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
-	(*RemoveTargetOfEvaluationRequest)(nil),         // 22: confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
-	(*ListTargetsOfEvaluationRequest)(nil),          // 23: confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
-	(*ListTargetsOfEvaluationResponse)(nil),         // 24: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
-	(*GetTargetOfEvaluationStatisticsRequest)(nil),  // 25: confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
-	(*GetTargetOfEvaluationStatisticsResponse)(nil), // 26: confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
-	(*UpdateMetricConfigurationRequest)(nil),        // 27: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
-	(*GetMetricConfigurationRequest)(nil),           // 28: confirmate.orchestrator.v1.GetMetricConfigurationRequest
-	(*ListMetricConfigurationRequest)(nil),          // 29: confirmate.orchestrator.v1.ListMetricConfigurationRequest
-	(*ListMetricConfigurationResponse)(nil),         // 30: confirmate.orchestrator.v1.ListMetricConfigurationResponse
-	(*UpdateMetricImplementationRequest)(nil),       // 31: confirmate.orchestrator.v1.UpdateMetricImplementationRequest
-	(*GetMetricImplementationRequest)(nil),          // 32: confirmate.orchestrator.v1.GetMetricImplementationRequest
-	(*SubscribeRequest)(nil),                        // 33: confirmate.orchestrator.v1.SubscribeRequest
-	(*ChangeEvent)(nil),                             // 34: confirmate.orchestrator.v1.ChangeEvent
-	(*MetricChangeEvent)(nil),                       // 35: confirmate.orchestrator.v1.MetricChangeEvent
-	(*AssessmentTool)(nil),                          // 36: confirmate.orchestrator.v1.AssessmentTool
-	(*TargetOfEvaluation)(nil),                      // 37: confirmate.orchestrator.v1.TargetOfEvaluation
-	(*Catalog)(nil),                                 // 38: confirmate.orchestrator.v1.Catalog
-	(*Category)(nil),                                // 39: confirmate.orchestrator.v1.Category
-	(*Control)(nil),                                 // 40: confirmate.orchestrator.v1.Control
-	(*AuditScope)(nil),                              // 41: confirmate.orchestrator.v1.AuditScope
-	(*GetAssessmentResultRequest)(nil),              // 42: confirmate.orchestrator.v1.GetAssessmentResultRequest
-	(*ListAssessmentResultsRequest)(nil),            // 43: confirmate.orchestrator.v1.ListAssessmentResultsRequest
-	(*ListAssessmentResultsResponse)(nil),           // 44: confirmate.orchestrator.v1.ListAssessmentResultsResponse
-	(*CreateAuditScopeRequest)(nil),                 // 45: confirmate.orchestrator.v1.CreateAuditScopeRequest
-	(*RemoveAuditScopeRequest)(nil),                 // 46: confirmate.orchestrator.v1.RemoveAuditScopeRequest
-	(*GetAuditScopeRequest)(nil),                    // 47: confirmate.orchestrator.v1.GetAuditScopeRequest
-	(*ListAuditScopesRequest)(nil),                  // 48: confirmate.orchestrator.v1.ListAuditScopesRequest
-	(*ListAuditScopesResponse)(nil),                 // 49: confirmate.orchestrator.v1.ListAuditScopesResponse
-	(*UpdateAuditScopeRequest)(nil),                 // 50: confirmate.orchestrator.v1.UpdateAuditScopeRequest
-	(*GetCertificateRequest)(nil),                   // 51: confirmate.orchestrator.v1.GetCertificateRequest
-	(*ListCertificatesRequest)(nil),                 // 52: confirmate.orchestrator.v1.ListCertificatesRequest
-	(*ListCertificatesResponse)(nil),                // 53: confirmate.orchestrator.v1.ListCertificatesResponse
-	(*ListPublicCertificatesRequest)(nil),           // 54: confirmate.orchestrator.v1.ListPublicCertificatesRequest
-	(*ListPublicCertificatesResponse)(nil),          // 55: confirmate.orchestrator.v1.ListPublicCertificatesResponse
-	(*UpdateCertificateRequest)(nil),                // 56: confirmate.orchestrator.v1.UpdateCertificateRequest
-	(*CreateCatalogRequest)(nil),                    // 57: confirmate.orchestrator.v1.CreateCatalogRequest
-	(*RemoveCatalogRequest)(nil),                    // 58: confirmate.orchestrator.v1.RemoveCatalogRequest
-	(*GetCatalogRequest)(nil),                       // 59: confirmate.orchestrator.v1.GetCatalogRequest
-	(*ListCatalogsRequest)(nil),                     // 60: confirmate.orchestrator.v1.ListCatalogsRequest
-	(*ListCatalogsResponse)(nil),                    // 61: confirmate.orchestrator.v1.ListCatalogsResponse
-	(*UpdateCatalogRequest)(nil),                    // 62: confirmate.orchestrator.v1.UpdateCatalogRequest
-	(*GetCategoryRequest)(nil),                      // 63: confirmate.orchestrator.v1.GetCategoryRequest
-	(*GetControlRequest)(nil),                       // 64: confirmate.orchestrator.v1.GetControlRequest
-	(*ListControlsRequest)(nil),                     // 65: confirmate.orchestrator.v1.ListControlsRequest
-	(*ListControlsResponse)(nil),                    // 66: confirmate.orchestrator.v1.ListControlsResponse
-	(*CreateCertificateRequest)(nil),                // 67: confirmate.orchestrator.v1.CreateCertificateRequest
-	(*RemoveCertificateRequest)(nil),                // 68: confirmate.orchestrator.v1.RemoveCertificateRequest
-	(*Certificate)(nil),                             // 69: confirmate.orchestrator.v1.Certificate
-	(*State)(nil),                                   // 70: confirmate.orchestrator.v1.State
-	(*ListAssessmentToolsRequest_Filter)(nil),       // 71: confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
-	(*ListMetricsRequest_Filter)(nil),               // 72: confirmate.orchestrator.v1.ListMetricsRequest.Filter
-	nil,                                             // 73: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
-	(*SubscribeRequest_Filter)(nil),                 // 74: confirmate.orchestrator.v1.SubscribeRequest.Filter
-	(*TargetOfEvaluation_Metadata)(nil),             // 75: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
-	nil,                                             // 76: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	(*Catalog_Metadata)(nil),                        // 77: confirmate.orchestrator.v1.Catalog.Metadata
-	(*ListAssessmentResultsRequest_Filter)(nil),     // 78: confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
-	(*ListAuditScopesRequest_Filter)(nil),           // 79: confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
-	(*ListControlsRequest_Filter)(nil),              // 80: confirmate.orchestrator.v1.ListControlsRequest.Filter
-	(*assessment.AssessmentResult)(nil),             // 81: confirmate.assessment.v1.AssessmentResult
-	(*assessment.Metric)(nil),                       // 82: confirmate.assessment.v1.Metric
-	(*assessment.MetricConfiguration)(nil),          // 83: confirmate.assessment.v1.MetricConfiguration
-	(*assessment.MetricImplementation)(nil),         // 84: confirmate.assessment.v1.MetricImplementation
-	(*timestamppb.Timestamp)(nil),                   // 85: google.protobuf.Timestamp
-	(*common.GetRuntimeInfoRequest)(nil),            // 86: confirmate.common.v1.GetRuntimeInfoRequest
-	(*emptypb.Empty)(nil),                           // 87: google.protobuf.Empty
-	(*common.Runtime)(nil),                          // 88: confirmate.common.v1.Runtime
+	(TargetOfEvaluation_TargetType)(0),              // 2: confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
+	(*RegisterAssessmentToolRequest)(nil),           // 3: confirmate.orchestrator.v1.RegisterAssessmentToolRequest
+	(*ListAssessmentToolsRequest)(nil),              // 4: confirmate.orchestrator.v1.ListAssessmentToolsRequest
+	(*ListAssessmentToolsResponse)(nil),             // 5: confirmate.orchestrator.v1.ListAssessmentToolsResponse
+	(*GetAssessmentToolRequest)(nil),                // 6: confirmate.orchestrator.v1.GetAssessmentToolRequest
+	(*UpdateAssessmentToolRequest)(nil),             // 7: confirmate.orchestrator.v1.UpdateAssessmentToolRequest
+	(*DeregisterAssessmentToolRequest)(nil),         // 8: confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
+	(*StoreAssessmentResultRequest)(nil),            // 9: confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	(*StoreAssessmentResultResponse)(nil),           // 10: confirmate.orchestrator.v1.StoreAssessmentResultResponse
+	(*StoreAssessmentResultsResponse)(nil),          // 11: confirmate.orchestrator.v1.StoreAssessmentResultsResponse
+	(*CreateMetricRequest)(nil),                     // 12: confirmate.orchestrator.v1.CreateMetricRequest
+	(*UpdateMetricRequest)(nil),                     // 13: confirmate.orchestrator.v1.UpdateMetricRequest
+	(*GetMetricRequest)(nil),                        // 14: confirmate.orchestrator.v1.GetMetricRequest
+	(*ListMetricsRequest)(nil),                      // 15: confirmate.orchestrator.v1.ListMetricsRequest
+	(*RemoveMetricRequest)(nil),                     // 16: confirmate.orchestrator.v1.RemoveMetricRequest
+	(*ListMetricsResponse)(nil),                     // 17: confirmate.orchestrator.v1.ListMetricsResponse
+	(*GetTargetOfEvaluationRequest)(nil),            // 18: confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
+	(*CreateTargetOfEvaluationRequest)(nil),         // 19: confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
+	(*UpdateTargetOfEvaluationRequest)(nil),         // 20: confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
+	(*RemoveTargetOfEvaluationRequest)(nil),         // 21: confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
+	(*ListTargetsOfEvaluationRequest)(nil),          // 22: confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
+	(*ListTargetsOfEvaluationResponse)(nil),         // 23: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
+	(*GetTargetOfEvaluationStatisticsRequest)(nil),  // 24: confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
+	(*GetTargetOfEvaluationStatisticsResponse)(nil), // 25: confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
+	(*UpdateMetricConfigurationRequest)(nil),        // 26: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
+	(*GetMetricConfigurationRequest)(nil),           // 27: confirmate.orchestrator.v1.GetMetricConfigurationRequest
+	(*ListMetricConfigurationRequest)(nil),          // 28: confirmate.orchestrator.v1.ListMetricConfigurationRequest
+	(*ListMetricConfigurationResponse)(nil),         // 29: confirmate.orchestrator.v1.ListMetricConfigurationResponse
+	(*UpdateMetricImplementationRequest)(nil),       // 30: confirmate.orchestrator.v1.UpdateMetricImplementationRequest
+	(*GetMetricImplementationRequest)(nil),          // 31: confirmate.orchestrator.v1.GetMetricImplementationRequest
+	(*SubscribeRequest)(nil),                        // 32: confirmate.orchestrator.v1.SubscribeRequest
+	(*ChangeEvent)(nil),                             // 33: confirmate.orchestrator.v1.ChangeEvent
+	(*AssessmentTool)(nil),                          // 34: confirmate.orchestrator.v1.AssessmentTool
+	(*TargetOfEvaluation)(nil),                      // 35: confirmate.orchestrator.v1.TargetOfEvaluation
+	(*Catalog)(nil),                                 // 36: confirmate.orchestrator.v1.Catalog
+	(*Category)(nil),                                // 37: confirmate.orchestrator.v1.Category
+	(*Control)(nil),                                 // 38: confirmate.orchestrator.v1.Control
+	(*AuditScope)(nil),                              // 39: confirmate.orchestrator.v1.AuditScope
+	(*GetAssessmentResultRequest)(nil),              // 40: confirmate.orchestrator.v1.GetAssessmentResultRequest
+	(*ListAssessmentResultsRequest)(nil),            // 41: confirmate.orchestrator.v1.ListAssessmentResultsRequest
+	(*ListAssessmentResultsResponse)(nil),           // 42: confirmate.orchestrator.v1.ListAssessmentResultsResponse
+	(*CreateAuditScopeRequest)(nil),                 // 43: confirmate.orchestrator.v1.CreateAuditScopeRequest
+	(*RemoveAuditScopeRequest)(nil),                 // 44: confirmate.orchestrator.v1.RemoveAuditScopeRequest
+	(*GetAuditScopeRequest)(nil),                    // 45: confirmate.orchestrator.v1.GetAuditScopeRequest
+	(*ListAuditScopesRequest)(nil),                  // 46: confirmate.orchestrator.v1.ListAuditScopesRequest
+	(*ListAuditScopesResponse)(nil),                 // 47: confirmate.orchestrator.v1.ListAuditScopesResponse
+	(*UpdateAuditScopeRequest)(nil),                 // 48: confirmate.orchestrator.v1.UpdateAuditScopeRequest
+	(*GetCertificateRequest)(nil),                   // 49: confirmate.orchestrator.v1.GetCertificateRequest
+	(*ListCertificatesRequest)(nil),                 // 50: confirmate.orchestrator.v1.ListCertificatesRequest
+	(*ListCertificatesResponse)(nil),                // 51: confirmate.orchestrator.v1.ListCertificatesResponse
+	(*ListPublicCertificatesRequest)(nil),           // 52: confirmate.orchestrator.v1.ListPublicCertificatesRequest
+	(*ListPublicCertificatesResponse)(nil),          // 53: confirmate.orchestrator.v1.ListPublicCertificatesResponse
+	(*UpdateCertificateRequest)(nil),                // 54: confirmate.orchestrator.v1.UpdateCertificateRequest
+	(*CreateCatalogRequest)(nil),                    // 55: confirmate.orchestrator.v1.CreateCatalogRequest
+	(*RemoveCatalogRequest)(nil),                    // 56: confirmate.orchestrator.v1.RemoveCatalogRequest
+	(*GetCatalogRequest)(nil),                       // 57: confirmate.orchestrator.v1.GetCatalogRequest
+	(*ListCatalogsRequest)(nil),                     // 58: confirmate.orchestrator.v1.ListCatalogsRequest
+	(*ListCatalogsResponse)(nil),                    // 59: confirmate.orchestrator.v1.ListCatalogsResponse
+	(*UpdateCatalogRequest)(nil),                    // 60: confirmate.orchestrator.v1.UpdateCatalogRequest
+	(*GetCategoryRequest)(nil),                      // 61: confirmate.orchestrator.v1.GetCategoryRequest
+	(*GetControlRequest)(nil),                       // 62: confirmate.orchestrator.v1.GetControlRequest
+	(*ListControlsRequest)(nil),                     // 63: confirmate.orchestrator.v1.ListControlsRequest
+	(*ListControlsResponse)(nil),                    // 64: confirmate.orchestrator.v1.ListControlsResponse
+	(*CreateCertificateRequest)(nil),                // 65: confirmate.orchestrator.v1.CreateCertificateRequest
+	(*RemoveCertificateRequest)(nil),                // 66: confirmate.orchestrator.v1.RemoveCertificateRequest
+	(*Certificate)(nil),                             // 67: confirmate.orchestrator.v1.Certificate
+	(*State)(nil),                                   // 68: confirmate.orchestrator.v1.State
+	(*ListAssessmentToolsRequest_Filter)(nil),       // 69: confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
+	(*ListMetricsRequest_Filter)(nil),               // 70: confirmate.orchestrator.v1.ListMetricsRequest.Filter
+	nil,                                             // 71: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
+	(*SubscribeRequest_Filter)(nil),                 // 72: confirmate.orchestrator.v1.SubscribeRequest.Filter
+	(*TargetOfEvaluation_Metadata)(nil),             // 73: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
+	nil,                                             // 74: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
+	(*Catalog_Metadata)(nil),                        // 75: confirmate.orchestrator.v1.Catalog.Metadata
+	(*ListAssessmentResultsRequest_Filter)(nil),     // 76: confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
+	(*ListAuditScopesRequest_Filter)(nil),           // 77: confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
+	(*ListControlsRequest_Filter)(nil),              // 78: confirmate.orchestrator.v1.ListControlsRequest.Filter
+	(*assessment.AssessmentResult)(nil),             // 79: confirmate.assessment.v1.AssessmentResult
+	(*assessment.Metric)(nil),                       // 80: confirmate.assessment.v1.Metric
+	(*assessment.MetricConfiguration)(nil),          // 81: confirmate.assessment.v1.MetricConfiguration
+	(*assessment.MetricImplementation)(nil),         // 82: confirmate.assessment.v1.MetricImplementation
+	(*timestamppb.Timestamp)(nil),                   // 83: google.protobuf.Timestamp
+	(*common.GetRuntimeInfoRequest)(nil),            // 84: confirmate.common.v1.GetRuntimeInfoRequest
+	(*emptypb.Empty)(nil),                           // 85: google.protobuf.Empty
+	(*common.Runtime)(nil),                          // 86: confirmate.common.v1.Runtime
 }
 var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
-	36,  // 0: confirmate.orchestrator.v1.RegisterAssessmentToolRequest.tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	71,  // 1: confirmate.orchestrator.v1.ListAssessmentToolsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
-	36,  // 2: confirmate.orchestrator.v1.ListAssessmentToolsResponse.tools:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	36,  // 3: confirmate.orchestrator.v1.UpdateAssessmentToolRequest.tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	81,  // 4: confirmate.orchestrator.v1.StoreAssessmentResultRequest.result:type_name -> confirmate.assessment.v1.AssessmentResult
-	82,  // 5: confirmate.orchestrator.v1.CreateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
-	82,  // 6: confirmate.orchestrator.v1.UpdateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
-	72,  // 7: confirmate.orchestrator.v1.ListMetricsRequest.filter:type_name -> confirmate.orchestrator.v1.ListMetricsRequest.Filter
-	82,  // 8: confirmate.orchestrator.v1.ListMetricsResponse.metrics:type_name -> confirmate.assessment.v1.Metric
-	37,  // 9: confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
-	37,  // 10: confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
-	37,  // 11: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse.targets_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
-	83,  // 12: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest.configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
-	73,  // 13: confirmate.orchestrator.v1.ListMetricConfigurationResponse.configurations:type_name -> confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
-	84,  // 14: confirmate.orchestrator.v1.UpdateMetricImplementationRequest.implementation:type_name -> confirmate.assessment.v1.MetricImplementation
-	74,  // 15: confirmate.orchestrator.v1.SubscribeRequest.filter:type_name -> confirmate.orchestrator.v1.SubscribeRequest.Filter
-	85,  // 16: confirmate.orchestrator.v1.ChangeEvent.timestamp:type_name -> google.protobuf.Timestamp
+	34,  // 0: confirmate.orchestrator.v1.RegisterAssessmentToolRequest.tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
+	69,  // 1: confirmate.orchestrator.v1.ListAssessmentToolsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
+	34,  // 2: confirmate.orchestrator.v1.ListAssessmentToolsResponse.tools:type_name -> confirmate.orchestrator.v1.AssessmentTool
+	34,  // 3: confirmate.orchestrator.v1.UpdateAssessmentToolRequest.tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
+	79,  // 4: confirmate.orchestrator.v1.StoreAssessmentResultRequest.result:type_name -> confirmate.assessment.v1.AssessmentResult
+	80,  // 5: confirmate.orchestrator.v1.CreateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
+	80,  // 6: confirmate.orchestrator.v1.UpdateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
+	70,  // 7: confirmate.orchestrator.v1.ListMetricsRequest.filter:type_name -> confirmate.orchestrator.v1.ListMetricsRequest.Filter
+	80,  // 8: confirmate.orchestrator.v1.ListMetricsResponse.metrics:type_name -> confirmate.assessment.v1.Metric
+	35,  // 9: confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35,  // 10: confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35,  // 11: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse.targets_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
+	81,  // 12: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest.configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
+	71,  // 13: confirmate.orchestrator.v1.ListMetricConfigurationResponse.configurations:type_name -> confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
+	82,  // 14: confirmate.orchestrator.v1.UpdateMetricImplementationRequest.implementation:type_name -> confirmate.assessment.v1.MetricImplementation
+	72,  // 15: confirmate.orchestrator.v1.SubscribeRequest.filter:type_name -> confirmate.orchestrator.v1.SubscribeRequest.Filter
+	83,  // 16: confirmate.orchestrator.v1.ChangeEvent.timestamp:type_name -> google.protobuf.Timestamp
 	0,   // 17: confirmate.orchestrator.v1.ChangeEvent.category:type_name -> confirmate.orchestrator.v1.EventCategory
 	1,   // 18: confirmate.orchestrator.v1.ChangeEvent.request_type:type_name -> confirmate.orchestrator.v1.RequestType
-	82,  // 19: confirmate.orchestrator.v1.ChangeEvent.metric:type_name -> confirmate.assessment.v1.Metric
-	37,  // 20: confirmate.orchestrator.v1.ChangeEvent.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
-	41,  // 21: confirmate.orchestrator.v1.ChangeEvent.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	81,  // 22: confirmate.orchestrator.v1.ChangeEvent.assessment_result:type_name -> confirmate.assessment.v1.AssessmentResult
-	83,  // 23: confirmate.orchestrator.v1.ChangeEvent.metric_configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
-	84,  // 24: confirmate.orchestrator.v1.ChangeEvent.metric_implementation:type_name -> confirmate.assessment.v1.MetricImplementation
-	36,  // 25: confirmate.orchestrator.v1.ChangeEvent.assessment_tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	2,   // 26: confirmate.orchestrator.v1.MetricChangeEvent.type:type_name -> confirmate.orchestrator.v1.MetricChangeEvent.Type
-	82,  // 27: confirmate.orchestrator.v1.TargetOfEvaluation.configured_metrics:type_name -> confirmate.assessment.v1.Metric
-	85,  // 28: confirmate.orchestrator.v1.TargetOfEvaluation.created_at:type_name -> google.protobuf.Timestamp
-	85,  // 29: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
-	75,  // 30: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
-	3,   // 31: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
-	39,  // 32: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
-	77,  // 33: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
-	40,  // 34: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
-	40,  // 35: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
-	82,  // 36: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
-	78,  // 37: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
-	81,  // 38: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
-	41,  // 39: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	79,  // 40: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
-	41,  // 41: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
-	41,  // 42: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	69,  // 43: confirmate.orchestrator.v1.ListCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
-	69,  // 44: confirmate.orchestrator.v1.ListPublicCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
-	69,  // 45: confirmate.orchestrator.v1.UpdateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
-	38,  // 46: confirmate.orchestrator.v1.CreateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
-	38,  // 47: confirmate.orchestrator.v1.ListCatalogsResponse.catalogs:type_name -> confirmate.orchestrator.v1.Catalog
-	38,  // 48: confirmate.orchestrator.v1.UpdateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
-	80,  // 49: confirmate.orchestrator.v1.ListControlsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsRequest.Filter
-	40,  // 50: confirmate.orchestrator.v1.ListControlsResponse.controls:type_name -> confirmate.orchestrator.v1.Control
-	69,  // 51: confirmate.orchestrator.v1.CreateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
-	70,  // 52: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
-	83,  // 53: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
-	0,   // 54: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
-	76,  // 55: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	4,   // 56: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:input_type -> confirmate.orchestrator.v1.RegisterAssessmentToolRequest
-	5,   // 57: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:input_type -> confirmate.orchestrator.v1.ListAssessmentToolsRequest
-	7,   // 58: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:input_type -> confirmate.orchestrator.v1.GetAssessmentToolRequest
-	8,   // 59: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:input_type -> confirmate.orchestrator.v1.UpdateAssessmentToolRequest
-	9,   // 60: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:input_type -> confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
-	10,  // 61: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	10,  // 62: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	42,  // 63: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:input_type -> confirmate.orchestrator.v1.GetAssessmentResultRequest
-	43,  // 64: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:input_type -> confirmate.orchestrator.v1.ListAssessmentResultsRequest
-	13,  // 65: confirmate.orchestrator.v1.Orchestrator.CreateMetric:input_type -> confirmate.orchestrator.v1.CreateMetricRequest
-	14,  // 66: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:input_type -> confirmate.orchestrator.v1.UpdateMetricRequest
-	15,  // 67: confirmate.orchestrator.v1.Orchestrator.GetMetric:input_type -> confirmate.orchestrator.v1.GetMetricRequest
-	16,  // 68: confirmate.orchestrator.v1.Orchestrator.ListMetrics:input_type -> confirmate.orchestrator.v1.ListMetricsRequest
-	17,  // 69: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:input_type -> confirmate.orchestrator.v1.RemoveMetricRequest
-	20,  // 70: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
-	21,  // 71: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
-	19,  // 72: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
-	23,  // 73: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:input_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
-	22,  // 74: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
-	25,  // 75: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
-	27,  // 76: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:input_type -> confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
-	28,  // 77: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:input_type -> confirmate.orchestrator.v1.GetMetricConfigurationRequest
-	29,  // 78: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:input_type -> confirmate.orchestrator.v1.ListMetricConfigurationRequest
-	31,  // 79: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
-	32,  // 80: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
-	33,  // 81: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
-	67,  // 82: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:input_type -> confirmate.orchestrator.v1.CreateCertificateRequest
-	51,  // 83: confirmate.orchestrator.v1.Orchestrator.GetCertificate:input_type -> confirmate.orchestrator.v1.GetCertificateRequest
-	52,  // 84: confirmate.orchestrator.v1.Orchestrator.ListCertificates:input_type -> confirmate.orchestrator.v1.ListCertificatesRequest
-	54,  // 85: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:input_type -> confirmate.orchestrator.v1.ListPublicCertificatesRequest
-	56,  // 86: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:input_type -> confirmate.orchestrator.v1.UpdateCertificateRequest
-	68,  // 87: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:input_type -> confirmate.orchestrator.v1.RemoveCertificateRequest
-	57,  // 88: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:input_type -> confirmate.orchestrator.v1.CreateCatalogRequest
-	60,  // 89: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:input_type -> confirmate.orchestrator.v1.ListCatalogsRequest
-	59,  // 90: confirmate.orchestrator.v1.Orchestrator.GetCatalog:input_type -> confirmate.orchestrator.v1.GetCatalogRequest
-	58,  // 91: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:input_type -> confirmate.orchestrator.v1.RemoveCatalogRequest
-	62,  // 92: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:input_type -> confirmate.orchestrator.v1.UpdateCatalogRequest
-	63,  // 93: confirmate.orchestrator.v1.Orchestrator.GetCategory:input_type -> confirmate.orchestrator.v1.GetCategoryRequest
-	65,  // 94: confirmate.orchestrator.v1.Orchestrator.ListControls:input_type -> confirmate.orchestrator.v1.ListControlsRequest
-	64,  // 95: confirmate.orchestrator.v1.Orchestrator.GetControl:input_type -> confirmate.orchestrator.v1.GetControlRequest
-	45,  // 96: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:input_type -> confirmate.orchestrator.v1.CreateAuditScopeRequest
-	47,  // 97: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:input_type -> confirmate.orchestrator.v1.GetAuditScopeRequest
-	48,  // 98: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:input_type -> confirmate.orchestrator.v1.ListAuditScopesRequest
-	50,  // 99: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:input_type -> confirmate.orchestrator.v1.UpdateAuditScopeRequest
-	46,  // 100: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:input_type -> confirmate.orchestrator.v1.RemoveAuditScopeRequest
-	86,  // 101: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:input_type -> confirmate.common.v1.GetRuntimeInfoRequest
-	36,  // 102: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	6,   // 103: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
-	36,  // 104: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	36,  // 105: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	87,  // 106: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:output_type -> google.protobuf.Empty
-	11,  // 107: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultResponse
-	12,  // 108: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultsResponse
-	81,  // 109: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:output_type -> confirmate.assessment.v1.AssessmentResult
-	44,  // 110: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:output_type -> confirmate.orchestrator.v1.ListAssessmentResultsResponse
-	82,  // 111: confirmate.orchestrator.v1.Orchestrator.CreateMetric:output_type -> confirmate.assessment.v1.Metric
-	82,  // 112: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:output_type -> confirmate.assessment.v1.Metric
-	82,  // 113: confirmate.orchestrator.v1.Orchestrator.GetMetric:output_type -> confirmate.assessment.v1.Metric
-	18,  // 114: confirmate.orchestrator.v1.Orchestrator.ListMetrics:output_type -> confirmate.orchestrator.v1.ListMetricsResponse
-	87,  // 115: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:output_type -> google.protobuf.Empty
-	37,  // 116: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	37,  // 117: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	37,  // 118: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	24,  // 119: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:output_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
-	87,  // 120: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:output_type -> google.protobuf.Empty
-	26,  // 121: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:output_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
-	83,  // 122: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
-	83,  // 123: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
-	30,  // 124: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:output_type -> confirmate.orchestrator.v1.ListMetricConfigurationResponse
-	84,  // 125: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
-	84,  // 126: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
-	34,  // 127: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
-	69,  // 128: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	69,  // 129: confirmate.orchestrator.v1.Orchestrator.GetCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	53,  // 130: confirmate.orchestrator.v1.Orchestrator.ListCertificates:output_type -> confirmate.orchestrator.v1.ListCertificatesResponse
-	55,  // 131: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:output_type -> confirmate.orchestrator.v1.ListPublicCertificatesResponse
-	69,  // 132: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	87,  // 133: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:output_type -> google.protobuf.Empty
-	38,  // 134: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	61,  // 135: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:output_type -> confirmate.orchestrator.v1.ListCatalogsResponse
-	38,  // 136: confirmate.orchestrator.v1.Orchestrator.GetCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	87,  // 137: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:output_type -> google.protobuf.Empty
-	38,  // 138: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	39,  // 139: confirmate.orchestrator.v1.Orchestrator.GetCategory:output_type -> confirmate.orchestrator.v1.Category
-	66,  // 140: confirmate.orchestrator.v1.Orchestrator.ListControls:output_type -> confirmate.orchestrator.v1.ListControlsResponse
-	40,  // 141: confirmate.orchestrator.v1.Orchestrator.GetControl:output_type -> confirmate.orchestrator.v1.Control
-	41,  // 142: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	41,  // 143: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	49,  // 144: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:output_type -> confirmate.orchestrator.v1.ListAuditScopesResponse
-	41,  // 145: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	87,  // 146: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:output_type -> google.protobuf.Empty
-	88,  // 147: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:output_type -> confirmate.common.v1.Runtime
-	102, // [102:148] is the sub-list for method output_type
-	56,  // [56:102] is the sub-list for method input_type
-	56,  // [56:56] is the sub-list for extension type_name
-	56,  // [56:56] is the sub-list for extension extendee
-	0,   // [0:56] is the sub-list for field type_name
+	80,  // 19: confirmate.orchestrator.v1.ChangeEvent.metric:type_name -> confirmate.assessment.v1.Metric
+	35,  // 20: confirmate.orchestrator.v1.ChangeEvent.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
+	39,  // 21: confirmate.orchestrator.v1.ChangeEvent.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	79,  // 22: confirmate.orchestrator.v1.ChangeEvent.assessment_result:type_name -> confirmate.assessment.v1.AssessmentResult
+	81,  // 23: confirmate.orchestrator.v1.ChangeEvent.metric_configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
+	82,  // 24: confirmate.orchestrator.v1.ChangeEvent.metric_implementation:type_name -> confirmate.assessment.v1.MetricImplementation
+	34,  // 25: confirmate.orchestrator.v1.ChangeEvent.assessment_tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
+	80,  // 26: confirmate.orchestrator.v1.TargetOfEvaluation.configured_metrics:type_name -> confirmate.assessment.v1.Metric
+	83,  // 27: confirmate.orchestrator.v1.TargetOfEvaluation.created_at:type_name -> google.protobuf.Timestamp
+	83,  // 28: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
+	73,  // 29: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
+	2,   // 30: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
+	37,  // 31: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
+	75,  // 32: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
+	38,  // 33: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
+	38,  // 34: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
+	80,  // 35: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
+	76,  // 36: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
+	79,  // 37: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
+	39,  // 38: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	77,  // 39: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
+	39,  // 40: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
+	39,  // 41: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	67,  // 42: confirmate.orchestrator.v1.ListCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
+	67,  // 43: confirmate.orchestrator.v1.ListPublicCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
+	67,  // 44: confirmate.orchestrator.v1.UpdateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
+	36,  // 45: confirmate.orchestrator.v1.CreateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
+	36,  // 46: confirmate.orchestrator.v1.ListCatalogsResponse.catalogs:type_name -> confirmate.orchestrator.v1.Catalog
+	36,  // 47: confirmate.orchestrator.v1.UpdateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
+	78,  // 48: confirmate.orchestrator.v1.ListControlsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsRequest.Filter
+	38,  // 49: confirmate.orchestrator.v1.ListControlsResponse.controls:type_name -> confirmate.orchestrator.v1.Control
+	67,  // 50: confirmate.orchestrator.v1.CreateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
+	68,  // 51: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
+	81,  // 52: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
+	0,   // 53: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
+	74,  // 54: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
+	3,   // 55: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:input_type -> confirmate.orchestrator.v1.RegisterAssessmentToolRequest
+	4,   // 56: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:input_type -> confirmate.orchestrator.v1.ListAssessmentToolsRequest
+	6,   // 57: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:input_type -> confirmate.orchestrator.v1.GetAssessmentToolRequest
+	7,   // 58: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:input_type -> confirmate.orchestrator.v1.UpdateAssessmentToolRequest
+	8,   // 59: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:input_type -> confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
+	9,   // 60: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	9,   // 61: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	40,  // 62: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:input_type -> confirmate.orchestrator.v1.GetAssessmentResultRequest
+	41,  // 63: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:input_type -> confirmate.orchestrator.v1.ListAssessmentResultsRequest
+	12,  // 64: confirmate.orchestrator.v1.Orchestrator.CreateMetric:input_type -> confirmate.orchestrator.v1.CreateMetricRequest
+	13,  // 65: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:input_type -> confirmate.orchestrator.v1.UpdateMetricRequest
+	14,  // 66: confirmate.orchestrator.v1.Orchestrator.GetMetric:input_type -> confirmate.orchestrator.v1.GetMetricRequest
+	15,  // 67: confirmate.orchestrator.v1.Orchestrator.ListMetrics:input_type -> confirmate.orchestrator.v1.ListMetricsRequest
+	16,  // 68: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:input_type -> confirmate.orchestrator.v1.RemoveMetricRequest
+	19,  // 69: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
+	20,  // 70: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
+	18,  // 71: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
+	22,  // 72: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:input_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
+	21,  // 73: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
+	24,  // 74: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
+	26,  // 75: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:input_type -> confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
+	27,  // 76: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:input_type -> confirmate.orchestrator.v1.GetMetricConfigurationRequest
+	28,  // 77: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:input_type -> confirmate.orchestrator.v1.ListMetricConfigurationRequest
+	30,  // 78: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
+	31,  // 79: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
+	32,  // 80: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
+	65,  // 81: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:input_type -> confirmate.orchestrator.v1.CreateCertificateRequest
+	49,  // 82: confirmate.orchestrator.v1.Orchestrator.GetCertificate:input_type -> confirmate.orchestrator.v1.GetCertificateRequest
+	50,  // 83: confirmate.orchestrator.v1.Orchestrator.ListCertificates:input_type -> confirmate.orchestrator.v1.ListCertificatesRequest
+	52,  // 84: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:input_type -> confirmate.orchestrator.v1.ListPublicCertificatesRequest
+	54,  // 85: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:input_type -> confirmate.orchestrator.v1.UpdateCertificateRequest
+	66,  // 86: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:input_type -> confirmate.orchestrator.v1.RemoveCertificateRequest
+	55,  // 87: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:input_type -> confirmate.orchestrator.v1.CreateCatalogRequest
+	58,  // 88: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:input_type -> confirmate.orchestrator.v1.ListCatalogsRequest
+	57,  // 89: confirmate.orchestrator.v1.Orchestrator.GetCatalog:input_type -> confirmate.orchestrator.v1.GetCatalogRequest
+	56,  // 90: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:input_type -> confirmate.orchestrator.v1.RemoveCatalogRequest
+	60,  // 91: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:input_type -> confirmate.orchestrator.v1.UpdateCatalogRequest
+	61,  // 92: confirmate.orchestrator.v1.Orchestrator.GetCategory:input_type -> confirmate.orchestrator.v1.GetCategoryRequest
+	63,  // 93: confirmate.orchestrator.v1.Orchestrator.ListControls:input_type -> confirmate.orchestrator.v1.ListControlsRequest
+	62,  // 94: confirmate.orchestrator.v1.Orchestrator.GetControl:input_type -> confirmate.orchestrator.v1.GetControlRequest
+	43,  // 95: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:input_type -> confirmate.orchestrator.v1.CreateAuditScopeRequest
+	45,  // 96: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:input_type -> confirmate.orchestrator.v1.GetAuditScopeRequest
+	46,  // 97: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:input_type -> confirmate.orchestrator.v1.ListAuditScopesRequest
+	48,  // 98: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:input_type -> confirmate.orchestrator.v1.UpdateAuditScopeRequest
+	44,  // 99: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:input_type -> confirmate.orchestrator.v1.RemoveAuditScopeRequest
+	84,  // 100: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:input_type -> confirmate.common.v1.GetRuntimeInfoRequest
+	34,  // 101: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	5,   // 102: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
+	34,  // 103: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	34,  // 104: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	85,  // 105: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:output_type -> google.protobuf.Empty
+	10,  // 106: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultResponse
+	11,  // 107: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultsResponse
+	79,  // 108: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:output_type -> confirmate.assessment.v1.AssessmentResult
+	42,  // 109: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:output_type -> confirmate.orchestrator.v1.ListAssessmentResultsResponse
+	80,  // 110: confirmate.orchestrator.v1.Orchestrator.CreateMetric:output_type -> confirmate.assessment.v1.Metric
+	80,  // 111: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:output_type -> confirmate.assessment.v1.Metric
+	80,  // 112: confirmate.orchestrator.v1.Orchestrator.GetMetric:output_type -> confirmate.assessment.v1.Metric
+	17,  // 113: confirmate.orchestrator.v1.Orchestrator.ListMetrics:output_type -> confirmate.orchestrator.v1.ListMetricsResponse
+	85,  // 114: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:output_type -> google.protobuf.Empty
+	35,  // 115: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35,  // 116: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35,  // 117: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	23,  // 118: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:output_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
+	85,  // 119: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:output_type -> google.protobuf.Empty
+	25,  // 120: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:output_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
+	81,  // 121: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
+	81,  // 122: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
+	29,  // 123: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:output_type -> confirmate.orchestrator.v1.ListMetricConfigurationResponse
+	82,  // 124: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
+	82,  // 125: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
+	33,  // 126: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
+	67,  // 127: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	67,  // 128: confirmate.orchestrator.v1.Orchestrator.GetCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	51,  // 129: confirmate.orchestrator.v1.Orchestrator.ListCertificates:output_type -> confirmate.orchestrator.v1.ListCertificatesResponse
+	53,  // 130: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:output_type -> confirmate.orchestrator.v1.ListPublicCertificatesResponse
+	67,  // 131: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	85,  // 132: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:output_type -> google.protobuf.Empty
+	36,  // 133: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	59,  // 134: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:output_type -> confirmate.orchestrator.v1.ListCatalogsResponse
+	36,  // 135: confirmate.orchestrator.v1.Orchestrator.GetCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	85,  // 136: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:output_type -> google.protobuf.Empty
+	36,  // 137: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	37,  // 138: confirmate.orchestrator.v1.Orchestrator.GetCategory:output_type -> confirmate.orchestrator.v1.Category
+	64,  // 139: confirmate.orchestrator.v1.Orchestrator.ListControls:output_type -> confirmate.orchestrator.v1.ListControlsResponse
+	38,  // 140: confirmate.orchestrator.v1.Orchestrator.GetControl:output_type -> confirmate.orchestrator.v1.Control
+	39,  // 141: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	39,  // 142: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	47,  // 143: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:output_type -> confirmate.orchestrator.v1.ListAuditScopesResponse
+	39,  // 144: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	85,  // 145: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:output_type -> google.protobuf.Empty
+	86,  // 146: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:output_type -> confirmate.common.v1.Runtime
+	101, // [101:147] is the sub-list for method output_type
+	55,  // [55:101] is the sub-list for method input_type
+	55,  // [55:55] is the sub-list for extension type_name
+	55,  // [55:55] is the sub-list for extension extendee
+	0,   // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_orchestrator_proto_init() }
@@ -5477,25 +5347,25 @@ func file_api_orchestrator_orchestrator_proto_init() {
 		(*ChangeEvent_MetricImplementation)(nil),
 		(*ChangeEvent_AssessmentTool)(nil),
 	}
+	file_api_orchestrator_orchestrator_proto_msgTypes[32].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[33].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[34].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[35].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[36].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[37].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[39].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[44].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[61].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[68].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[71].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[38].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[43].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[60].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[67].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[70].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[72].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[73].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[74].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[75].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_orchestrator_proto_rawDesc), len(file_api_orchestrator_orchestrator_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   77,
+			NumEnums:      3,
+			NumMessages:   76,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

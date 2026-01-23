@@ -193,15 +193,15 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 
 // HandleMetricEvent takes care of handling metric events, such as evicting cache entries for the
 // appropriate metrics.
-func (re *regoEval) HandleMetricEvent(event *orchestrator.MetricChangeEvent) (err error) {
-	if event.Type == orchestrator.MetricChangeEvent_TYPE_IMPLEMENTATION_CHANGED {
-		slog.Info("Implementation of metric has changed. Clearing cache for this metric", slog.Any("metric_id", event.MetricId))
-	} else if event.Type == orchestrator.MetricChangeEvent_TYPE_CONFIG_CHANGED {
-		slog.Info("Configuration of metric has changed. Clearing cache for this metric", slog.Any("metric_id", event.MetricId))
+func (re *regoEval) HandleMetricEvent(event *orchestrator.ChangeEvent) (err error) {
+	if event.Category.String() == "EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION" {
+		slog.Info("Implementation of metric has changed. Clearing cache for this metric", "ID", event.EntityId)
+	} else if event.Category.String() == "EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION" {
+		slog.Info("Configuration of metric has changed. Clearing cache for this metric", slog.Any("metric_id", event.EntityId))
 	}
 
 	// Evict the cache for the given metric
-	re.qc.Evict(event.MetricId)
+	re.qc.Evict(event.EntityId)
 
 	return nil
 }
@@ -233,12 +233,12 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 		)
 
 		// Create paths for bundle directory and utility functions file
-		bundle := fmt.Sprintf("%s/policies/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Id)
+		bundle := fmt.Sprintf("%s/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Id)
 		if err != nil {
 			return nil, fmt.Errorf("could not find metric: %w", err)
 		}
 
-		operators := fmt.Sprintf("%s/policies/security-metrics/metrics/operators.rego", baseDir)
+		operators := fmt.Sprintf("%s/security-metrics/metrics/operators.rego", baseDir)
 
 		// The contents of the data map is available as the data variable within the Rego evaluation
 		data := map[string]interface{}{

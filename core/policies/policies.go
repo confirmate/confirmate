@@ -39,11 +39,11 @@ type metricsCache struct {
 
 // PolicyEval is an interface for the policy evaluation engine
 type PolicyEval interface {
-	// Eval evaluates a given evidence against a metric coming from the metrics source. In order to avoid unnecessarily
+	// Eval evaluates a given evidence against a metric coming from the metrics source. In order to avoid unnecessary
 	// unwrapping, the callee of this function needs to supply the unwrapped ontology resource, since they most likely
 	// unwrapped the resource already, e.g. to check for validation.
 	Eval(evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error)
-	HandleMetricEvent(event *orchestrator.MetricChangeEvent) (err error)
+	HandleMetricEvent(event *orchestrator.ChangeEvent) (err error)
 }
 
 type CombinedResult struct {

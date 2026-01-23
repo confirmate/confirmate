@@ -645,35 +645,6 @@ message ChangeEvent {
   }
 }
 
-// MetricChangeEvent represents a change of either a metric configuration or
-// implementation.
-message MetricChangeEvent {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_CONFIG_CHANGED = 1;
-    TYPE_IMPLEMENTATION_CHANGED = 2;
-    TYPE_METADATA_CHANGED = 3;
-  }
-
-  Type type = 1 [
-    (buf.validate.field).enum.defined_only = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The metric that is changing.
-  string metric_id = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The target of evaluation id that is affected by this change. Primarily
-  // concerns metric configuration changes.
-  string target_of_evaluation_id = 3 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
 // Represents an external tool or service that offers assessments according to
 // certain metrics.
 message AssessmentTool {
