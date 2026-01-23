@@ -128,8 +128,7 @@ func WithRegoPackageName(pkg string) service.Option[Service] {
 	}
 }
 
-// NewService creates a new assessment service with default values.
-// TODO: should return assessmentconnect.AssessmentHandler?
+// NewService creates a new assessment service handler with default values.
 func NewService(opts ...service.Option[Service]) (handler assessmentconnect.AssessmentHandler, err error) {
 	svc := &Service{
 		orchestratorConfig: orchestratorConfig{
@@ -153,17 +152,16 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
 
-	svc.createOrchestratorStream()
+	err = svc.initOrchestratorStream()
 
 	return
 }
 
-// TODO create method initorchestratorstream; init in new service
 func (svc *Service) Init() {
 
 }
 
-func (svc *Service) createOrchestratorStream() {
+func (svc *Service) initOrchestratorStream() (err error) {
 	config := stream.DefaultRestartConfig()
 	config.MaxRetries = 5
 
@@ -178,6 +176,8 @@ func (svc *Service) createOrchestratorStream() {
 	}
 
 	svc.orchestratorStream = rs
+
+	return
 }
 
 func (svc *Service) createOrchestratorStreamFactory() stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
