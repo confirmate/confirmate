@@ -32,6 +32,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/log"
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
@@ -111,9 +112,9 @@ type Service struct {
 }
 
 // WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
-func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[*Service] {
+func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[Service] {
 	return func(svc *Service) {
-		slog.Info("Orchestrator URL is set", "url", targetAddress)
+		slog.Info("Orchestrator URL is set", slog.String("url", targetAddress))
 
 		svc.orchestratorConfig.targetAddress = targetAddress
 		svc.orchestratorConfig.client = client
@@ -121,7 +122,7 @@ func WithOrchestratorConfig(targetAddress string, client *http.Client) service.O
 }
 
 // WithRegoPackageName is an option to configure the Rego package name
-func WithRegoPackageName(pkg string) service.Option[*Service] {
+func WithRegoPackageName(pkg string) service.Option[Service] {
 	return func(s *Service) {
 		s.evalPkg = pkg
 	}
@@ -129,7 +130,7 @@ func WithRegoPackageName(pkg string) service.Option[*Service] {
 
 // NewService creates a new assessment service with default values.
 // TODO: should return assessmentconnect.AssessmentHandler?
-func NewService(opts ...service.Option[*Service]) *Service {
+func NewService(opts ...service.Option[Service]) *Service {
 	svc := &Service{
 		orchestratorConfig: orchestratorConfig{
 			targetAddress: DefaultOrchestratorURL,
@@ -200,7 +201,7 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 		}
 		if err != nil {
 			err = fmt.Errorf("cannot receive stream request: %w", err)
-			slog.Error(log.Err(err))
+			slog.Error("cannot receive stream request", log.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 		assessmentReq := connect.NewRequest(&assessment.AssessEvidenceRequest{
@@ -297,7 +298,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
 		})
 	} else {
-		slog.Debug("Evidence needs to wait for more resource(s) to assess evidence", "evidence", evidence, "waitingFor", len(waitingFor))
+		slog.Debug("Evidence needs to wait for more resource(s) to assess evidence", slog.Any("evidence", evidence), slog.Int("waitingFor", len(waitingFor)))
 
 		// Create a left-over request with all the necessary information
 		l := waitingRequest{
@@ -347,8 +348,12 @@ func (svc *Service) handleEvidence(
 		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
 	}
 
-	slog.Debug("Evaluating evidence", "evidence", ev.Id, "Resource", resource.GetId(), "ToolId", ev.ToolId, "Timestamp", ev.Timestamp.AsTime())
-	slog.Debug("Evidence:", ev)
+	slog.Debug("Evaluating evidence",
+		slog.String("Evidence", ev.Id),
+		slog.String("Resource", resource.GetId()),
+		slog.String("ToolId", ev.ToolId),
+		slog.Any("Timestamp", ev.Timestamp.AsTime()),
+	)
 
 	evaluations, err := svc.pe.Eval(ev, resource, related, svc)
 	if err != nil {
@@ -368,19 +373,19 @@ func (svc *Service) handleEvidence(
 	}
 
 	if len(evaluations) == 0 {
-		slog.Debug("No policy evaluation for evidence", "Evidence", ev.Id, "Resource", resource.GetId(), "ToolId", ev.ToolId)
+		slog.Debug("No policy evaluation for evidence", slog.String("Evidence", ev.Id), slog.String("Resource", resource.GetId()), slog.String("ToolId", ev.ToolId))
 		return results, nil
 	}
 
 	for _, data := range evaluations {
 		// That there is an empty (nil) evaluation should be caught beforehand, but you never know.
 		if data == nil {
-			slog.Error("One empty policy evaluation detected for evidence. That should not happen.", "Evidence", ev.GetId())
+			slog.Error("One empty policy evaluation detected for evidence. That should not happen.", slog.String("Evidence", ev.GetId()))
 			continue
 		}
 		metricID := data.MetricID
 
-		slog.Debug("Evaluated evidence with metric", "Evidence", ev.Id, "MetricID", metricID, "Compliant", data.Compliant)
+		slog.Debug("Evaluated evidence with metric", slog.String("Evidence", ev.Id), slog.String("MetricID", metricID), slog.Bool("Compliant", data.Compliant))
 
 		types = ontology.ResourceTypes(resource)
 

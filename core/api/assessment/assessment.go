@@ -18,8 +18,6 @@ package assessment
 import (
 	"context"
 	"errors"
-
-	"google.golang.org/protobuf/proto"
 )
 
 type ResultHookFunc func(ctx context.Context, result *AssessmentResult, err error)
@@ -37,10 +35,6 @@ const (
 )
 
 const AssessmentToolId = "Clouditor Assessment"
-
-func (req *AssessEvidenceRequest) GetPayload() proto.Message {
-	return req.Evidence
-}
 
 // GetTargetOfEvaluationId is a shortcut to implement TargetOfEvaluationRequest. It returns the target of evaluation ID of the inner
 // object.

@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 // TestNewService is a simply test for NewService
 func TestNewService(t *testing.T) {
 	type args struct {
-		opts []service.Option[*Service]
+		opts []service.Option[Service]
 	}
 	tests := []struct {
 		name string
@@ -65,7 +65,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "AssessmentServer created with option rego package name",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithRegoPackageName("testPkg"),
 				},
 			},
@@ -76,7 +76,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "AssessmentServer created with options",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithOrchestratorConfig("localhost:9092", nil),
 				},
 			},

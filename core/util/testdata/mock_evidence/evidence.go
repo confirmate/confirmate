@@ -20,7 +20,6 @@ import (
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util/prototest"
 	"confirmate.io/core/util/testdata"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -55,17 +54,6 @@ var (
 				},
 			},
 		},
-	}
-	MockEvidence4 = &evidence.Evidence{
-		Id:                   testdata.MockEvidenceID1,
-		ToolId:               testdata.MockEvidenceToolID1,
-		Timestamp:            timestamppb.Now(),
-		TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-			Id:   testdata.MockVirtualMachineID1,
-			Name: testdata.MockVirtualMachineName1,
-		}),
-		ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 	}
 	MockVirtualMachineResource1 = &evidence.Resource{
 		Id:                   testdata.MockVirtualMachineID1,

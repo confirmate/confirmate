@@ -13,6 +13,13 @@
 //
 // This file is part of Confirmate Core.
 
-// Package service implements common service functionality.
+package assessment
 
-package service
+import (
+	"google.golang.org/protobuf/proto"
+)
+
+// GetPayload returns the embedded evidence from [AssessEvidenceRequest].
+func (r *AssessEvidenceRequest) GetPayload() proto.Message {
+	return r.GetEvidence()
+}
