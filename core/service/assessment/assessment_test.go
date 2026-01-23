@@ -466,7 +466,7 @@ func TestService_AssessEvidences(t *testing.T) {
 
 			client := assessmentconnect.NewAssessmentClient(httpClient, serverURL)
 			factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
-				return client.AssessEvidenceStream(ctx)
+				return client.AssessEvidences(ctx)
 			}
 			ctx := context.Background()
 			rs, err := stream.NewRestartableBidiStream(ctx, factory, stream.DefaultRestartConfig())
