@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"confirmate.io/core/util"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -27,7 +28,8 @@ import (
 // PageTokenField is the protobuf field that contains our page token.
 const PageTokenField = "page_token"
 
-// PaginatedRequest contains the typical parameters for a paginated request, usually a request for a List gRPC call.
+// PaginatedRequest contains the typical parameters for a paginated request, usually a request for a
+// List gRPC call.
 type PaginatedRequest interface {
 	GetPageToken() string
 	GetPageSize() int32
@@ -36,9 +38,36 @@ type PaginatedRequest interface {
 	proto.Message
 }
 
-// PaginatedResponse contains the typical parameters for a paginated response, usually a response for a List gRPC call.
+// PaginatedResponse contains the typical parameters for a paginated response, usually a response
+// for a List gRPC call.
 type PaginatedResponse interface {
 	GetNextPageToken() string
+	proto.Message
+}
+
+// GetResultsCount returns the count of results from a paginated response.
+// By convention, the first field in a paginated response contains the results slice.
+func GetResultsCount(res PaginatedResponse) int {
+	if util.IsNil(res) {
+		return 0
+	}
+
+	// Get the first field using protoreflect (which contains the results by convention)
+	m := res.ProtoReflect()
+	fields := m.Descriptor().Fields()
+	if fields.Len() == 0 {
+		return 0
+	}
+
+	firstField := fields.Get(0)
+	v := m.Get(firstField)
+
+	// Check if it's a list and return its length
+	if firstField.IsList() {
+		return v.List().Len()
+	}
+
+	return 0
 }
 
 // Encode encodes this page token into a base64 URL encoded string.

@@ -46,7 +46,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/stretchr/testify v1.11.1
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 // build dependencies
@@ -57,9 +57,9 @@ require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
-	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	golang.org/x/mod v0.32.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/tools v0.41.0 // indirect
 )
 
 require (
@@ -115,9 +115,14 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 )
 
+require github.com/mattn/go-isatty v0.0.17
+
+require golang.org/x/sys v0.40.0 // indirect
+
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20251206221700-1cd6b39426a4
+
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260113124646-95fa67ef4cd8
 
 replace cloud.google.com/go => cloud.google.com/go v0.115.0
 

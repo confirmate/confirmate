@@ -23,14 +23,14 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
-
 	"connectrpc.com/connect"
 )
 
@@ -40,7 +40,16 @@ import (
 // that it can continue working when the server comes back on the same address.
 func TestStreamRestartIntegration(t *testing.T) {
 	// Create service
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	// Create an initial test server
@@ -86,11 +95,8 @@ func TestStreamRestartIntegration(t *testing.T) {
 
 	// Send a message on the initial stream
 	err = rs.Send(&orchestrator.StoreAssessmentResultRequest{
-		Result: &assessment.AssessmentResult{
-			Id: "test-1",
-		},
+		Result: orchestratortest.MockAssessmentResult1,
 	})
-	assert.NoError(t, err)
 
 	// Wait until the first result is stored
 	_, err = rs.Receive()
@@ -118,9 +124,7 @@ func TestStreamRestartIntegration(t *testing.T) {
 
 	// Try to send again - this will trigger restart automatically
 	err = rs.Send(&orchestrator.StoreAssessmentResultRequest{
-		Result: &assessment.AssessmentResult{
-			Id: "test-2",
-		},
+		Result: orchestratortest.MockAssessmentResult2,
 	})
 	assert.NoError(t, err)
 
