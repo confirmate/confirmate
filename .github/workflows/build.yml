@@ -27,7 +27,7 @@ jobs:
         with:
           go-version-file: core/go.mod
           cache: true
-          dependency-cache-path: core/go.sum
+          cache-dependency-path: core/go.sum
       - name: Install buf
         uses: bufbuild/buf-setup-action@v1.50.0
         with:
