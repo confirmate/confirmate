@@ -11,7 +11,6 @@ import (
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
-	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
@@ -22,7 +21,6 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMain(m *testing.M) {
@@ -611,20 +609,6 @@ func TestService_StoreEvidences_SendErrors(t *testing.T) {
 
 // TestService_ListEvidences uses table tests to cover filters and pagination behaviors.
 func TestService_ListEvidences(t *testing.T) {
-	makeEvidence := func(id, toe, tool, resourceID string) *evidence.Evidence {
-		return &evidence.Evidence{
-			Id:                   id,
-			Timestamp:            timestamppb.Now(),
-			TargetOfEvaluationId: toe,
-			ToolId:               tool,
-			Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
-				VirtualMachine: &ontology.VirtualMachine{
-					Id:   resourceID,
-					Name: "vm-" + resourceID,
-				},
-			}},
-		}
-	}
 	assertEvidenceIDs := func(t *testing.T, got []*evidence.Evidence, want []string) bool {
 		t.Helper()
 		if !assert.Equal(t, len(want), len(got)) {
@@ -642,13 +626,9 @@ func TestService_ListEvidences(t *testing.T) {
 		return true
 	}
 
-	toeA := "11111111-1111-1111-1111-111111111111"
-	toeB := "22222222-2222-2222-2222-222222222222"
-	toolA := "tool-a"
-	toolB := "tool-b"
-	ev1 := makeEvidence("00000000-0000-0000-0000-000000000001", toeA, toolA, "vm-1")
-	ev2 := makeEvidence("00000000-0000-0000-0000-000000000002", toeB, toolA, "vm-2")
-	ev3 := makeEvidence("00000000-0000-0000-0000-000000000003", toeA, toolB, "vm-3")
+	ev1 := evidencetest.MockEvidenceListA
+	ev2 := evidencetest.MockEvidenceListB
+	ev3 := evidencetest.MockEvidenceListC
 
 	type fields struct {
 		db persistence.DB
@@ -673,6 +653,15 @@ func TestService_ListEvidences(t *testing.T) {
 			},
 		},
 		{
+			name:   "error - list failure",
+			fields: fields{db: persistencetest.ListErrorDB(t, errors.New("list failed"), types, nil)},
+			req:    &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{}},
+			want:   assert.Nil[*connect.Response[evidence.ListEvidencesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
+			},
+		},
+		{
 			name: "happy path - no filter",
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
 				assert.NoError(t, db.Create(ev1))
@@ -694,7 +683,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{TargetOfEvaluationId: util.Ref(toeA)},
+				Filter: &evidence.Filter{TargetOfEvaluationId: util.Ref(ev1.TargetOfEvaluationId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -710,7 +699,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{ToolId: util.Ref(toolA)},
+				Filter: &evidence.Filter{ToolId: util.Ref(ev1.ToolId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
