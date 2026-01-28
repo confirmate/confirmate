@@ -777,6 +777,75 @@ func TestService_ListEvidences(t *testing.T) {
 	}
 }
 
+// TestService_GetEvidence uses table tests to cover validation, not found, and success paths.
+func TestService_GetEvidence(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		req     *connect.Request[evidence.GetEvidenceRequest]
+		want    assert.Want[*connect.Response[evidence.Evidence]]
+		wantErr assert.WantErr
+	}{
+		{
+			name:   "error - nil request",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
+			req:    nil,
+			want:   assert.Nil[*connect.Response[evidence.Evidence]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name:   "error - not found",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
+			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
+				EvidenceId: "00000000-0000-0000-0000-000000000000",
+			}},
+			want: assert.Nil[*connect.Response[evidence.Evidence]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name:   "error - database failure",
+			fields: fields{db: persistencetest.GetErrorDB(t, errors.New("get failed"), types, nil)},
+			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
+				EvidenceId: evidencetest.MockEvidence1.Id,
+			}},
+			want: assert.Nil[*connect.Response[evidence.Evidence]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
+			},
+		},
+		{
+			name: "happy path - returns evidence",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(evidencetest.MockEvidence1))
+			})},
+			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
+				EvidenceId: evidencetest.MockEvidence1.Id,
+			}},
+			want: func(t *testing.T, got *connect.Response[evidence.Evidence], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, evidencetest.MockEvidence1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+			res, err := svc.GetEvidence(context.Background(), tt.req)
+			tt.wantErr(t, err)
+			tt.want(t, res)
+		})
+	}
+}
+
 func TestService_initEvidenceChannel(t *testing.T) {
 	assessmentRecorder, _, testSrv := newAssessmentTestServer(t)
 	defer testSrv.Close()
