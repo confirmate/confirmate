@@ -40,6 +40,9 @@ func (s *gormDB) Create(r any) (err error) {
 		strings.Contains(err.Error(), "duplicate key value violates unique constraint")) {
 		return ErrUniqueConstraintFailed
 	}
+	if err != nil && strings.Contains(err.Error(), ErrPrimaryKeyViolation.Error()) {
+		return ErrPrimaryKeyViolation
+	}
 
 	if err != nil && strings.Contains(err.Error(), "constraint failed") {
 		return ErrConstraintFailed
