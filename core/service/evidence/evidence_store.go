@@ -224,6 +224,10 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+	slog.Debug("evidence stored",
+		slog.String("evidence_id", req.Msg.Evidence.Id),
+		slog.String("tool_id", req.Msg.Evidence.ToolId),
+		slog.String("target_of_evaluation_id", req.Msg.Evidence.TargetOfEvaluationId))
 
 	// Store Resource:
 	// Build a resource struct. This will hold the latest sync state of the
@@ -238,6 +242,10 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+	slog.Debug("resource upserted for evidence",
+		slog.String("resource_id", r.Id),
+		slog.String("resource_type", r.ResourceType),
+		slog.String("evidence_id", req.Msg.Evidence.Id))
 
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
 
@@ -355,6 +363,9 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	if len(query) > 0 {
 		conds = append(conds, strings.Join(query, " AND "))
 		conds = append(conds, args...)
+		slog.Debug("ListEvidences filters applied", slog.Any("filters", args))
+	} else {
+		slog.Debug("ListEvidences without filters")
 	}
 
 	// Paginate the evidences according to the request
@@ -439,6 +450,11 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 			query = append(query, "tool_id = ?")
 			args = append(args, f.GetToolId())
 		}
+	}
+	if len(query) > 0 {
+		slog.Debug("ListResources filters applied", slog.Any("filters", args))
+	} else {
+		slog.Debug("ListResources without filters")
 	}
 
 	res.Msg = new(evidence.ListResourcesResponse)

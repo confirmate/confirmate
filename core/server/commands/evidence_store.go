@@ -16,6 +16,7 @@ package commands
 
 import (
 	"context"
+	"log/slog"
 
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/persistence"
@@ -36,6 +37,17 @@ var EvidenceCommand = &cli.Command{
 		assessmentClient := &http.Client{
 			Timeout: cmd.Duration("assessment-timeout"),
 		}
+		slog.Info("Starting Evidence Store",
+			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
+			slog.String("log_level", cmd.String("log-level")),
+			slog.String("db_host", cmd.String("db-host")),
+			slog.Int("db_port", cmd.Int("db-port")),
+			slog.String("db_name", cmd.String("db-name")),
+			slog.String("db_user", cmd.String("db-user")),
+			slog.Bool("db_in_memory", cmd.Bool("db-in-memory")),
+			slog.Int("db_max_connections", cmd.Int("db-max-connections")),
+			slog.String("assessment_address", cmd.String("assessment-address")),
+			slog.Duration("assessment_timeout", cmd.Duration("assessment-timeout")))
 		svc, err := evidence.NewService(
 			evidence.WithDBConfig(persistence.Config{
 				Host:       cmd.String("db-host"),
