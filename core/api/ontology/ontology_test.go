@@ -228,3 +228,23 @@ func TestListResourceTypes(t *testing.T) {
 		})
 	}
 }
+
+func TestResourceJSONRoundTrip(t *testing.T) {
+	want := &Resource{
+		Type: &Resource_VirtualMachine{
+			VirtualMachine: &VirtualMachine{
+				Id:   "vm-1",
+				Name: "vm-name",
+			},
+		},
+	}
+
+	data, err := want.MarshalJSON()
+	assert.NoError(t, err)
+
+	got := new(Resource)
+	err = got.UnmarshalJSON(data)
+	assert.NoError(t, err)
+
+	assert.Equal(t, want, got)
+}
