@@ -176,7 +176,8 @@ func (svc *Service) initEvidenceChannel() {
 		svc.channelEvidence = make(chan *evidence.Evidence, defaultEvidenceQueueSize)
 	}
 
-	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the fire-and-forget strategy.
+	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the
+	// fire-and-forget strategy.
 	// NOTE: This simple approach has a few limitations: a full queue will block StoreEvidence, the worker
 	// has no shutdown signal, errors are only logged (no retry), and throughput is limited to a single goroutine.
 	go func() {

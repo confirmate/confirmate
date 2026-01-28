@@ -208,6 +208,32 @@ func TestService_sendToAssessment(t *testing.T) {
 	assert.ErrorContains(t, err, "assessment stream is not initialized")
 }
 
+// TestService_initAssessmentStream verifies creation and idempotency.
+func TestService_initAssessmentStream(t *testing.T) {
+	_, _, testSrv := newAssessmentTestServer(t)
+	defer testSrv.Close()
+
+	svc, err := NewService(
+		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+		WithAssessmentConfig(assessmentConfig{
+			targetAddress: testSrv.URL,
+			client:        testSrv.Client(),
+		}),
+	)
+	assert.NoError(t, err)
+
+	// Force re-init for coverage of the creation path.
+	svc.assessmentStream = nil
+	err = svc.initAssessmentStream()
+	assert.NoError(t, err)
+	assert.NotNil(t, svc.assessmentStream)
+
+	streamBefore := svc.assessmentStream
+	err = svc.initAssessmentStream()
+	assert.NoError(t, err)
+	assert.Same(t, streamBefore, svc.assessmentStream)
+}
+
 // TestService_StoreEvidence tests the StoreEvidence method of the Service implementation
 func TestService_StoreEvidence(t *testing.T) {
 	type args struct {
