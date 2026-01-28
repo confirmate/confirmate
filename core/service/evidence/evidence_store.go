@@ -377,6 +377,7 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	// Validate request
 	if err = service.Validate(req); err != nil {
 		// TODO(lebogg): Create issue for uniform slog usage (in particular with API endpoints)
+		// Avoid nil access while still logging the evidence ID when available.
 		evidenceID := ""
 		if req != nil && req.Msg != nil {
 			evidenceID = req.Msg.EvidenceId

@@ -799,6 +799,17 @@ func TestService_GetEvidence(t *testing.T) {
 			},
 		},
 		{
+			name:   "error - invalid evidence id",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
+			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
+				EvidenceId: "not-a-uuid",
+			}},
+			want: assert.Nil[*connect.Response[evidence.Evidence]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
 			name:   "error - not found",
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
 			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
