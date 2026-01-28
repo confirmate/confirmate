@@ -196,6 +196,13 @@ func TestService_sendToAssessment(t *testing.T) {
 	err = svc.sendToAssessment(evidenceTwo)
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "failed to send evidence")
+
+	// Step 5: Nil stream guard.
+	svc.assessmentStream = nil
+	evidenceThree := &evidence.Evidence{Id: uuid.NewString()}
+	err = svc.sendToAssessment(evidenceThree)
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "assessment stream is not initialized")
 }
 
 // TestService_StoreEvidence tests the StoreEvidence method of the Service implementation
