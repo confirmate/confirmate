@@ -389,7 +389,10 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	}
 
 	err = svc.db.Get(res.Msg, "id = ?", req.Msg.EvidenceId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("evidence")); err != nil {
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("evidence with id "+req.Msg.EvidenceId)); err != nil {
+		slog.Error("GetEvidence database error",
+			slog.String("evidence_id", req.Msg.EvidenceId),
+			slog.Any("error", err))
 		return nil, err
 	}
 
