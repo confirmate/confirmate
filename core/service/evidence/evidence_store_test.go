@@ -1020,6 +1020,7 @@ func TestService_ListResources(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		// TODO(Oxisto: Fix RamSQL please
 		//{
 		//	name: "happy path - filter by type (Currently fails due to ramsql LIKE limitation)",
 		//	fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
