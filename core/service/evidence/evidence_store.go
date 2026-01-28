@@ -57,7 +57,6 @@ type assessmentConfig struct {
 type Service struct {
 	db persistence.DB
 
-	// TODO(lebogg): Test
 	assessmentClient assessmentconnect.AssessmentClient
 	assessmentStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
 	assessmentConfig assessmentConfig
@@ -178,6 +177,8 @@ func (svc *Service) initEvidenceChannel() {
 	}
 
 	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the fire-and-forget strategy.
+	// NOTE: This simple approach has a few limitations: a full queue will block StoreEvidence, the worker
+	// has no shutdown signal, errors are only logged (no retry), and throughput is limited to a single goroutine.
 	go func() {
 		for e := range svc.channelEvidence { // exits when channel is closed
 			if e == nil {
