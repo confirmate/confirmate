@@ -54,7 +54,8 @@ type assessmentConfig struct {
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
-	db persistence.DB
+	db       persistence.DB
+	dbConfig persistence.Config
 
 	assessmentClient assessmentconnect.AssessmentClient
 	assessmentStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
@@ -86,6 +87,13 @@ func WithDB(db persistence.DB) service.Option[Service] {
 	}
 }
 
+// WithDBConfig overrides persistence settings used when no DB is injected.
+func WithDBConfig(cfg persistence.Config) service.Option[Service] {
+	return func(svc *Service) {
+		svc.dbConfig = cfg
+	}
+}
+
 // WithAssessmentConfig is an option to configure the assessment service gRPC address.
 func WithAssessmentConfig(conf assessmentConfig) service.Option[Service] {
 	return func(s *Service) {
@@ -111,6 +119,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 			targetAddress: DefaultAssessmentURL,
 			client:        http.DefaultClient,
 		},
+		dbConfig: persistence.DefaultConfig,
 	}
 
 	for _, o := range opts {
@@ -123,7 +132,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	}
 
 	if svc.db == nil {
-		var cfg = persistence.DefaultConfig
+		cfg := svc.dbConfig
 		cfg.Types = types
 		svc.db, err = persistence.NewDB(persistence.WithConfig(cfg))
 		if err != nil {
