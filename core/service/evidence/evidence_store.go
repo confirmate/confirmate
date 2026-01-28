@@ -216,18 +216,12 @@ func (svc *Service) initEvidenceChannel() {
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	// Validate request
 	if err := service.Validate(req); err != nil {
-		slog.Error("StoreEvidence invalid request",
-			slog.String("evidence_id", req.Msg.GetEvidenceId()),
-			slog.Any("error", err))
 		return nil, err
 	}
 
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
 	if err = service.HandleDatabaseError(err); err != nil {
-		slog.Error("StoreEvidence database error",
-			slog.String("evidence_id", req.Msg.Evidence.Id),
-			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -236,19 +230,12 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// resource for our storage layer. This is needed to store the resource in our DBs
 	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
-		slog.Error("Could not convert proto resource to DB resource",
-			slog.String("evidence_id", req.Msg.Evidence.Id),
-			slog.Any("error", err))
 		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
 	}
 	// Persist the latest state of the resource; Save already uses the primary key.
 	err = svc.db.Save(r)
 	if err = service.HandleDatabaseError(err); err != nil {
-		slog.Error("StoreEvidence resource save error",
-			slog.String("resource_id", r.Id),
-			slog.String("evidence_id", req.Msg.Evidence.Id),
-			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -348,8 +335,6 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
-		slog.Error("ListEvidences invalid request",
-			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -391,23 +376,11 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
-		slog.Error("Evidence invalid (GetEvidence)",
-			slog.String("evidence_id", req.Msg.GetEvidenceId()),
-			slog.Any("error", err))
 		return nil, err
 	}
 
 	err = svc.db.Get(res.Msg, "id = ?", req.Msg.EvidenceId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("evidence with id "+req.Msg.EvidenceId)); err != nil {
-		var connectErr *connect.Error
-		if errors.As(err, &connectErr) && connectErr.Code() == connect.CodeNotFound {
-			slog.Info("Evidence not found (GetEvidence)",
-				slog.String("evidence_id", req.Msg.EvidenceId))
-		} else {
-			slog.Error("GetEvidence database error",
-				slog.String("evidence_id", req.Msg.EvidenceId),
-				slog.Any("error", err))
-		}
 		return nil, err
 	}
 
@@ -423,8 +396,6 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
-		slog.Error("ListSupportedResourceTypes invalid request",
-			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -448,8 +419,6 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
-		slog.Error("ListResources invalid request",
-			slog.Any("error", err))
 		return nil, err
 	}
 
