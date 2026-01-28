@@ -2,27 +2,19 @@ package evidence
 
 import (
 	"context"
-	"errors"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
 
-	"confirmate.io/core/api/assessment"
-	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
-	"confirmate.io/core/server"
-	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestMain(m *testing.M) {
@@ -133,54 +125,6 @@ func TestNewService(t *testing.T) {
 	}
 }
 
-type assessmentStreamRecorder struct {
-	assessmentconnect.UnimplementedAssessmentHandler
-	received chan *assessment.AssessEvidenceRequest
-}
-
-func (r *assessmentStreamRecorder) AssessEvidences(
-	_ context.Context,
-	stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse],
-) error {
-	for {
-		msg, err := stream.Receive()
-		if errors.Is(err, io.EOF) {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		r.received <- msg
-		if err = stream.Send(&assessment.AssessEvidencesResponse{
-			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
-		}); err != nil {
-			return err
-		}
-	}
-}
-
-func newAssessmentTestServer(t *testing.T) (*assessmentStreamRecorder, *server.Server, *httptest.Server) {
-	t.Helper()
-	recorder := &assessmentStreamRecorder{
-		received: make(chan *assessment.AssessEvidenceRequest, 10),
-	}
-	srv, testSrv := servertest.NewTestConnectServer(
-		t,
-		server.WithHandler(assessmentconnect.NewAssessmentHandler(recorder)),
-	)
-	return recorder, srv, testSrv
-}
-
-func awaitAssessmentRequest(t *testing.T, ch <-chan *assessment.AssessEvidenceRequest, wantID string) {
-	t.Helper()
-	select {
-	case msg := <-ch:
-		assert.Equal(t, wantID, msg.GetEvidence().GetId())
-	case <-time.After(2 * time.Second):
-		assert.Fail(t, "timed out waiting for assessment request")
-	}
-}
-
 // TestService_sendToAssessment validates the evidence->assessment wiring.
 // NOTE: We intentionally do not validate restart behavior here; that is covered
 // in core/stream tests and would make this integration test flaky.
@@ -285,20 +229,6 @@ func TestService_initAssessmentStream(t *testing.T) {
 			}
 		})
 	}
-}
-
-type nilAssessmentClient struct{}
-
-func (nilAssessmentClient) CalculateCompliance(context.Context, *connect.Request[assessment.CalculateComplianceRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, errors.New("not implemented")
-}
-
-func (nilAssessmentClient) AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error) {
-	return nil, errors.New("not implemented")
-}
-
-func (nilAssessmentClient) AssessEvidences(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
-	return nil
 }
 
 // TestService_StoreEvidence tests the StoreEvidence method of the Service implementation
@@ -452,4 +382,27 @@ func TestService_StoreEvidence(t *testing.T) {
 			tt.want(t, res)
 		})
 	}
+}
+
+func TestService_initEvidenceChannel(t *testing.T) {
+	assessmentRecorder, _, testSrv := newAssessmentTestServer(t)
+	defer testSrv.Close()
+
+	svc, err := NewService(
+		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+		WithAssessmentConfig(assessmentConfig{
+			targetAddress: testSrv.URL,
+			client:        testSrv.Client(),
+		}),
+	)
+	assert.NoError(t, err)
+	defer func() {
+		if svc.assessmentStream != nil {
+			_ = svc.assessmentStream.Close()
+		}
+	}()
+
+	ev := &evidence.Evidence{Id: uuid.NewString()}
+	svc.channelEvidence <- ev
+	awaitAssessmentRequest(t, assessmentRecorder.received, ev.Id)
 }
