@@ -485,7 +485,6 @@ func (svc *Service) informHooks(ctx context.Context, result *evidence.Evidence, 
 	// Inform our hook if we have any
 	if svc.evidenceHooks != nil {
 		for _, hook := range svc.evidenceHooks {
-			// TODO(all): We could do hook concurrent again (assuming different hooks don't interfere with each other)
 			hook(ctx, result, err)
 		}
 	}
