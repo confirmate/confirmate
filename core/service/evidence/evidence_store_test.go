@@ -396,13 +396,28 @@ func TestService_initEvidenceChannel(t *testing.T) {
 		}),
 	)
 	assert.NoError(t, err)
+	// Keep a handle for shutdown even if svc.assessmentStream is set to nil later.
+	stream := svc.assessmentStream
 	defer func() {
-		if svc.assessmentStream != nil {
-			_ = svc.assessmentStream.Close()
+		if stream != nil {
+			_ = stream.Close()
 		}
 	}()
+
+	// Nil evidence should be ignored.
+	svc.channelEvidence <- nil
 
 	ev := &evidence.Evidence{Id: uuid.NewString()}
 	svc.channelEvidence <- ev
 	awaitAssessmentRequest(t, assessmentRecorder.received, ev.Id)
+
+	// Error path: no assessment stream available.
+	svc.assessmentStream = nil
+	svc.channelEvidence <- &evidence.Evidence{Id: uuid.NewString()}
+	close(svc.channelEvidence)
+	select {
+	case <-assessmentRecorder.received:
+		assert.Fail(t, "unexpected assessment request after stream was removed")
+	case <-time.After(200 * time.Millisecond):
+	}
 }
