@@ -215,15 +215,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
-	// TODO(lebogg): errors.Is should work since it should returned in Create
-	if err != nil && (strings.Contains(err.Error(), persistence.ErrUniqueConstraintFailed.Error()) || strings.Contains(err.Error(), persistence.ErrPrimaryKeyViolation.Error())) {
-		return nil, connect.NewError(connect.CodeAlreadyExists, persistence.ErrEntryAlreadyExists)
-	} else if err != nil {
-		slog.Error("Could not store evidence to storage",
-			slog.Any("Evidence", req.Msg.Evidence.Id),
-			slog.Any("err", err))
-		// Only reveal limited information about the error to the client
-		return nil, connect.NewError(connect.CodeInternal, persistence.ErrDatabase)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	// Store Resource:
@@ -241,12 +234,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// Persist the latest state of the resource
 	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I guess we can remove conds.
 	err = svc.db.Save(r, "id = ?", r.Id)
-	if err != nil {
-		// TODO(lebogg): use buf errors
-		slog.Error("Could not save resource to DB",
-			slog.Any("Resource", r.Id),
-			slog.Any("err", err))
-		return nil, connect.NewError(connect.CodeInternal, persistence.ErrDatabase)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
@@ -356,10 +345,8 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	// Paginate the evidences according to the request
 	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req.Msg, svc.db,
 		service.DefaultPaginationOpts, conds...)
-
-	if err != nil {
-		err = connect.NewError(connect.CodeInternal, fmt.Errorf("could not paginate results: %w", err))
-		return
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 
 	return
@@ -387,15 +374,8 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	}
 
 	err = svc.db.Get(res.Msg, "id = ?", req.Msg.EvidenceId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		slog.Error("Evidence not found (GetEvidence)",
-			slog.String("evidence_id", req.Msg.EvidenceId))
-		return nil, connect.NewError(connect.CodeNotFound, errors.New("evidence not found"))
-	} else if err != nil {
-		slog.Error("Database error (GetEvidence)",
-			slog.String("evidence_id", req.Msg.EvidenceId),
-			slog.Any("error", err))
-		return nil, connect.NewError(connect.CodeInternal, errors.New("database error"))
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("evidence")); err != nil {
+		return nil, err
 	}
 
 	return
@@ -461,6 +441,9 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	args = append([]any{strings.Join(query, " AND ")}, args...)
 
 	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Resource](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
 
 	return
 }
