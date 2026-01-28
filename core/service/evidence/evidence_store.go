@@ -70,8 +70,6 @@ type Service struct {
 	// mu is used for (un)locking result hook calls
 	mu sync.Mutex
 
-	// TODO(all): Add authorization strategy
-
 	evidenceconnect.EvidenceStoreHandler
 }
 
@@ -155,7 +153,6 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 // sendToAssessment forwards evidence to the assessment service using the restartable stream.
 func (svc *Service) sendToAssessment(evidence *evidence.Evidence) error {
-	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
 	if svc.assessmentStream == nil {
 		return fmt.Errorf("assessment stream is not initialized")
 	}
@@ -239,16 +236,14 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// resource for our storage layer. This is needed to store the resource in our DBs
 	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
-		// TODO(lebogg): use buf errors
 		slog.Error("Could not convert proto resource to DB resource",
 			slog.String("evidence_id", req.Msg.Evidence.Id),
 			slog.Any("error", err))
 		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
 	}
-	// Persist the latest state of the resource
-	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I guess we can remove conds.
-	err = svc.db.Save(r, "id = ?", r.Id)
+	// Persist the latest state of the resource; Save already uses the primary key.
+	err = svc.db.Save(r)
 	if err = service.HandleDatabaseError(err); err != nil {
 		slog.Error("StoreEvidence resource save error",
 			slog.String("resource_id", r.Id),
@@ -342,7 +337,6 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 
 // ListEvidences returns all evidence.
 // This implements the [evidenceconnect.EvidenceStoreHandler.ListEvidences] RPC method.
-// TODO(all): Add authorization (we currently just list all evidence, i.e. evidence for all TOEs
 func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (
 	res *connect.Response[evidence.ListEvidencesResponse], err error) {
 
@@ -390,7 +384,6 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 
 // GetEvidence receives an evidenc ID and returns the corresponding evidence of the storage
 // This implements the [evidenceconnect.EvidenceStoreHandler.GetEvidence] RPC method.
-// TODO(all): Add authorization
 func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
 	res *connect.Response[evidence.Evidence], err error) {
 
