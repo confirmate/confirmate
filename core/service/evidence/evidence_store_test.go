@@ -166,6 +166,9 @@ func awaitAssessmentRequest(t *testing.T, ch <-chan *assessment.AssessEvidenceRe
 	}
 }
 
+// TestService_sendToAssessment validates the evidence->assessment wiring.
+// NOTE: We intentionally do not validate restart behavior here; that is covered
+// in core/stream tests and would make this integration test flaky.
 func TestService_sendToAssessment(t *testing.T) {
 	// Step 1: Start assessment server.
 	recorder, srv, testSrv := newAssessmentTestServer(t)
