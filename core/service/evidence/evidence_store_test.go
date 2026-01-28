@@ -11,6 +11,7 @@ import (
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
+	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
@@ -851,6 +852,43 @@ func TestService_GetEvidence(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{db: tt.fields.db}
 			res, err := svc.GetEvidence(context.Background(), tt.req)
+			tt.wantErr(t, err)
+			tt.want(t, res)
+		})
+	}
+}
+
+// TestService_ListSupportedResourceTypes covers validation and happy-path responses.
+func TestService_ListSupportedResourceTypes(t *testing.T) {
+	tests := []struct {
+		name    string
+		req     *connect.Request[evidence.ListSupportedResourceTypesRequest]
+		want    assert.Want[*connect.Response[evidence.ListSupportedResourceTypesResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error - nil request",
+			req:  nil,
+			want: assert.Nil[*connect.Response[evidence.ListSupportedResourceTypesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "happy path - returns resource types",
+			req:  &connect.Request[evidence.ListSupportedResourceTypesRequest]{Msg: &evidence.ListSupportedResourceTypesRequest{}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListSupportedResourceTypesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, ontology.ListResourceTypes(), got.Msg.ResourceType)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{}
+			res, err := svc.ListSupportedResourceTypes(context.Background(), tt.req)
 			tt.wantErr(t, err)
 			tt.want(t, res)
 		})
