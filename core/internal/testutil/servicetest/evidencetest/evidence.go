@@ -77,6 +77,27 @@ var (
 			},
 		}},
 	}
+	MockResourceListA = &evidence.Resource{
+		Id:                   "vm-1",
+		ResourceType:         "virtual_machine",
+		TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
+		ToolId:               "tool-a",
+		Properties:           nil,
+	}
+	MockResourceListB = &evidence.Resource{
+		Id:                   "app-1",
+		ResourceType:         "application",
+		TargetOfEvaluationId: "22222222-2222-2222-2222-222222222222",
+		ToolId:               "tool-a",
+		Properties:           nil,
+	}
+	MockResourceListC = &evidence.Resource{
+		Id:                   "vm-2",
+		ResourceType:         "virtual_machine",
+		TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
+		ToolId:               "tool-b",
+		Properties:           nil,
+	}
 )
 var InitDBWithEvidence = func(db persistence.DB) {
 	err := db.Create(MockEvidence1)

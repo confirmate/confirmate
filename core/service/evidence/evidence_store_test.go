@@ -895,6 +895,200 @@ func TestService_ListSupportedResourceTypes(t *testing.T) {
 	}
 }
 
+// TestService_ListResources uses table tests to cover filters, pagination, and error handling.
+func TestService_ListResources(t *testing.T) {
+	res1 := evidencetest.MockResourceListA
+	res2 := evidencetest.MockResourceListB
+	res3 := evidencetest.MockResourceListC
+
+	type fields struct {
+		db persistence.DB
+	}
+	type args struct {
+		ctx context.Context
+		req *connect.Request[evidence.ListResourcesRequest]
+	}
+	tests := []struct {
+		name        string
+		fields      fields
+		args        args
+		wantRes     assert.Want[*connect.Response[evidence.ListResourcesResponse]]
+		wantErr     assert.WantErr
+		nextReq     func(res *connect.Response[evidence.ListResourcesResponse]) *connect.Request[evidence.ListResourcesRequest]
+		wantNext    assert.Want[*connect.Response[evidence.ListResourcesResponse]]
+		wantNextErr assert.WantErr
+	}{
+		{
+			name:   "error - nil request",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
+			args: args{
+				ctx: context.Background(),
+				req: nil,
+			},
+			wantRes: assert.Nil[*connect.Response[evidence.ListResourcesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name:   "error - list failure",
+			fields: fields{db: persistencetest.ListErrorDB(t, errors.New("list failed"), types, nil)},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{}},
+			},
+			wantRes: assert.Nil[*connect.Response[evidence.ListResourcesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
+			},
+		},
+		{
+			name: "happy path - no filter",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(res1))
+				assert.NoError(t, db.Create(res2))
+				assert.NoError(t, db.Create(res3))
+			})},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{}},
+			},
+			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, 3, len(got.Msg.Results))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filter by target of evaluation",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(res1))
+				assert.NoError(t, db.Create(res2))
+				assert.NoError(t, db.Create(res3))
+			})},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
+					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: util.Ref(res1.TargetOfEvaluationId)},
+				}},
+			},
+			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
+				ids := []string{got.Msg.Results[0].Id, got.Msg.Results[1].Id}
+				assert.Contains(t, ids, res1.Id)
+				assert.Contains(t, ids, res3.Id)
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filter by tool",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(res1))
+				assert.NoError(t, db.Create(res2))
+				assert.NoError(t, db.Create(res3))
+			})},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
+					Filter: &evidence.ListResourcesRequest_Filter{ToolId: util.Ref(res1.ToolId)},
+				}},
+			},
+			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
+				ids := []string{got.Msg.Results[0].Id, got.Msg.Results[1].Id}
+				assert.Contains(t, ids, res1.Id)
+				assert.Contains(t, ids, res2.Id)
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error - filter by type (ramsql LIKE limitation)",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(res1))
+				assert.NoError(t, db.Create(res2))
+				assert.NoError(t, db.Create(res3))
+			})},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
+					Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
+				}},
+			},
+			wantRes: assert.Nil[*connect.Response[evidence.ListResourcesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
+			},
+		},
+		{
+			name: "happy path - pagination",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(res1))
+				assert.NoError(t, db.Create(res2))
+				assert.NoError(t, db.Create(res3))
+			})},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
+					PageSize: 1,
+					OrderBy:  "id",
+					Asc:      true,
+				}},
+			},
+			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.NotEmpty(t, got.Msg.NextPageToken)
+			},
+			wantErr: assert.NoError,
+			nextReq: func(res *connect.Response[evidence.ListResourcesResponse]) *connect.Request[evidence.ListResourcesRequest] {
+				return &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
+					PageSize:  1,
+					OrderBy:   "id",
+					Asc:       true,
+					PageToken: res.Msg.NextPageToken,
+				}}
+			},
+			wantNext: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				firstID, _ := msgAndArgs[0].(string)
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 1, len(got.Msg.Results)) {
+					return false
+				}
+				return assert.NotEqual(t, firstID, got.Msg.Results[0].Id)
+			},
+			wantNextErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			res, err := svc.ListResources(tt.args.ctx, tt.args.req)
+			tt.wantErr(t, err)
+			tt.wantRes(t, res)
+
+			if tt.nextReq != nil {
+				firstID := ""
+				if res != nil && len(res.Msg.Results) > 0 {
+					firstID = res.Msg.Results[0].Id
+				}
+				nextRes, nextErr := svc.ListResources(context.Background(), tt.nextReq(res))
+				tt.wantNextErr(t, nextErr)
+				tt.wantNext(t, nextRes, firstID)
+			}
+		})
+	}
+}
+
 func TestService_initEvidenceChannel(t *testing.T) {
 	assessmentRecorder, _, testSrv := newAssessmentTestServer(t)
 	defer testSrv.Close()
