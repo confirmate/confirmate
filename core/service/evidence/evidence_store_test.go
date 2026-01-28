@@ -22,6 +22,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestMain(m *testing.M) {
@@ -208,8 +209,9 @@ func TestService_sendToAssessment(t *testing.T) {
 	assert.ErrorContains(t, err, "assessment stream is not initialized")
 }
 
-// TestService_initAssessmentStream verifies creation and idempotency.
+// TestService_initAssessmentStream verifies creation, idempotency, and error handling.
 func TestService_initAssessmentStream(t *testing.T) {
+	// Start an assessment server for the stream factory.
 	_, _, testSrv := newAssessmentTestServer(t)
 	defer testSrv.Close()
 
@@ -222,16 +224,67 @@ func TestService_initAssessmentStream(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	// Force re-init for coverage of the creation path.
-	svc.assessmentStream = nil
-	err = svc.initAssessmentStream()
-	assert.NoError(t, err)
-	assert.NotNil(t, svc.assessmentStream)
+	tests := []struct {
+		name             string
+		resetStream      bool
+		overrideClient   bool
+		expectErr        bool
+		expectSameStream bool
+	}{
+		{
+			name:        "happy path: create stream when nil",
+			resetStream: true,
+		},
+		{
+			name:             "happy path: idempotent when stream exists",
+			expectSameStream: true,
+		},
+		{
+			name:           "error: factory returns nil",
+			resetStream:    true,
+			overrideClient: true,
+			expectErr:      true,
+		},
+	}
 
-	streamBefore := svc.assessmentStream
-	err = svc.initAssessmentStream()
-	assert.NoError(t, err)
-	assert.Same(t, streamBefore, svc.assessmentStream)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			streamBefore := svc.assessmentStream
+			if tt.resetStream {
+				svc.assessmentStream = nil
+			}
+			if tt.overrideClient {
+				svc.assessmentClient = nilAssessmentClient{}
+			}
+
+			err = svc.initAssessmentStream()
+			if tt.expectErr {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, "factory returned nil stream")
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotNil(t, svc.assessmentStream)
+			if tt.expectSameStream {
+				assert.Same(t, streamBefore, svc.assessmentStream)
+			}
+		})
+	}
+}
+
+type nilAssessmentClient struct{}
+
+func (nilAssessmentClient) CalculateCompliance(context.Context, *connect.Request[assessment.CalculateComplianceRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, errors.New("not implemented")
+}
+
+func (nilAssessmentClient) AssessEvidence(context.Context, *connect.Request[assessment.AssessEvidenceRequest]) (*connect.Response[assessment.AssessEvidenceResponse], error) {
+	return nil, errors.New("not implemented")
+}
+
+func (nilAssessmentClient) AssessEvidences(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
+	return nil
 }
 
 // TestService_StoreEvidence tests the StoreEvidence method of the Service implementation
