@@ -391,7 +391,6 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
-		// TODO(lebogg): Create issue for uniform slog usage (in particular with API endpoints)
 		slog.Error("Evidence invalid (GetEvidence)",
 			slog.String("evidence_id", req.Msg.GetEvidenceId()),
 			slog.Any("error", err))
