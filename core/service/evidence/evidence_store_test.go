@@ -2,15 +2,15 @@ package evidence
 
 import (
 	"context"
-	"log/slog"
+	"errors"
+	"io"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
-	"github.com/google/uuid"
-
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
@@ -20,6 +20,8 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
+	"connectrpc.com/connect"
+	"github.com/google/uuid"
 )
 
 func TestMain(m *testing.M) {
@@ -116,70 +118,84 @@ func TestNewService(t *testing.T) {
 	}
 }
 
-// TODO(lebogg): Continue. Fix test. Check Stream stuff again (also other PRs)
-func TestService_handleEvidence(t *testing.T) {
-	// Create Assessment Service + Server
-	assessmentService := assessmentconnect.UnimplementedAssessmentHandler{}
+type assessmentStreamRecorder struct {
+	assessmentconnect.UnimplementedAssessmentHandler
+	received chan *assessment.AssessEvidenceRequest
+}
+
+func (r *assessmentStreamRecorder) AssessEvidences(
+	_ context.Context,
+	stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse],
+) error {
+	for {
+		msg, err := stream.Receive()
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		r.received <- msg
+		if err = stream.Send(&assessment.AssessEvidencesResponse{
+			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
+		}); err != nil {
+			return err
+		}
+	}
+}
+
+func newAssessmentTestServer(t *testing.T) (*assessmentStreamRecorder, *server.Server, *httptest.Server) {
+	t.Helper()
+	recorder := &assessmentStreamRecorder{
+		received: make(chan *assessment.AssessEvidenceRequest, 10),
+	}
 	srv, testSrv := servertest.NewTestConnectServer(
 		t,
-		server.WithHandler(assessmentconnect.NewAssessmentHandler(assessmentService)),
+		server.WithHandler(assessmentconnect.NewAssessmentHandler(recorder)),
 	)
+	return recorder, srv, testSrv
+}
+
+func awaitAssessmentRequest(t *testing.T, ch <-chan *assessment.AssessEvidenceRequest, wantID string) {
+	t.Helper()
+	select {
+	case msg := <-ch:
+		assert.Equal(t, wantID, msg.GetEvidence().GetId())
+	case <-time.After(2 * time.Second):
+		assert.Fail(t, "timed out waiting for assessment request")
+	}
+}
+
+func TestService_sendToAssessment(t *testing.T) {
+	// Step 1: Start assessment server.
+	recorder, srv, testSrv := newAssessmentTestServer(t)
 	defer testSrv.Close()
 	assert.NotNil(t, srv)
 	assert.NotNil(t, testSrv)
 
-	// Create Evidence Service
+	// Step 2: Create service with assessment client.
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithAssessmentConfig(assessmentConfig{
 			targetAddress: testSrv.URL,
 			client:        testSrv.Client(),
-		}))
+		}),
+	)
 	assert.NoError(t, err)
+	assert.NotNil(t, svc.assessmentStream)
 
-	// handle Evidence (pass)
-	e := &evidence.Evidence{
-		Id: uuid.NewString(),
-	}
-	err = svc.handleEvidence(e,
-		1)
+	// Step 3: Happy path send.
+	evidenceOne := &evidence.Evidence{Id: uuid.NewString()}
+	err = svc.sendToAssessment(evidenceOne)
 	assert.NoError(t, err)
-	slog.Info("Sent evidence", slog.Any("id", e.Id))
+	awaitAssessmentRequest(t, recorder.received, evidenceOne.Id)
 
-	// handle another Evidence (pass)
-	e = &evidence.Evidence{
-		Id: uuid.NewString(),
-	}
-	err = svc.handleEvidence(e,
-		1)
-	assert.NoError(t, err)
-	slog.Info("Sent evidence", slog.Any("id", e.Id))
-
-	// Break up stream from the assessment side
-	testSrv.Close()
-	go func() {
-		// Restart server. In production, we will have a fixed URL but here we have to adapt to the test server
-		time.Sleep(15 * time.Second)
-		srv, testSrv = servertest.NewTestConnectServer(
-			t,
-			server.WithHandler(assessmentconnect.NewAssessmentHandler(assessmentService)),
-		)
-		// Since we have new server, we need to update the config
-		svc.assessmentConfig = assessmentConfig{
-			targetAddress: testSrv.URL,
-			client:        testSrv.Client(),
-		}
-		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-			svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
-	}()
-
-	// handle another Evidence (automatically recreate stream, pass)
-	e = &evidence.Evidence{
-		Id: uuid.NewString(),
-	}
-	err = svc.handleEvidence(e,
-		1)
-	assert.NoError(t, err)
+	// Step 4: Close stream and verify send error.
+	assert.NoError(t, svc.assessmentStream.Close())
+	evidenceTwo := &evidence.Evidence{Id: uuid.NewString()}
+	err = svc.sendToAssessment(evidenceTwo)
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "failed to send evidence")
 }
 
 // TestService_StoreEvidence tests the StoreEvidence method of the Service implementation

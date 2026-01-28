@@ -24,7 +24,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
@@ -33,6 +32,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
+	"confirmate.io/core/stream"
 
 	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
@@ -59,8 +59,7 @@ type Service struct {
 
 	// TODO(lebogg): Test
 	assessmentClient assessmentconnect.AssessmentClient
-	assessmentStream *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-	streamMu         sync.Mutex
+	assessmentStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
 	assessmentConfig assessmentConfig
 
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
@@ -129,48 +128,44 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	// Create a channel to send evidence to the worker thread
 	svc.initEvidenceChannel()
 
+	// Initialize the restartable stream for assessment service
+	err = svc.initAssessmentStream()
+	if err != nil {
+		return nil, err
+	}
+
 	return
 }
 
-// handleEvidence processes an evidence, sending it to the assessment service via a persistent stream.
-func (svc *Service) handleEvidence(evidence *evidence.Evidence, attempt int) error {
-	const (
-		maxAttempts         = 5
-		waitBetweenAttempts = 1 * time.Second
-	)
+// sendToAssessment forwards evidence to the assessment service using the restartable stream.
+func (svc *Service) sendToAssessment(evidence *evidence.Evidence) error {
 	// TODO(anatheka): It must be checked if the evidence changed since the last time and then send to the assessment service. Add in separate PR
-	// Get or create the stream (lazy initialization)
-	stream, err := svc.getOrCreateStream()
-	if err != nil {
-		return fmt.Errorf("could not get assessment stream: %w", err)
+	if svc.assessmentStream == nil {
+		return fmt.Errorf("assessment stream is not initialized")
 	}
-
 	// Send evidence to the assessment service using the persistent stream
-	// TODO(lebogg): Check EOF response of server
-	err = stream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
-	// TODO(lebogg): Use it later
-	//if errors.Is(err, io.EOF) {
-	//	return fmt.Errorf("assessment service closed the stream: %w", err)
-	//}
-
+	err := svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
 	if err != nil {
-		// Invalidate the stream so it will be recreated on the next attempt
-		svc.streamMu.Lock()
-		svc.assessmentStream = nil
-		svc.streamMu.Unlock()
-
-		if attempt == maxAttempts {
-			return fmt.Errorf("could not send evidence to assessment service, tried %d times: %w", attempt, err)
-		}
-		if attempt < maxAttempts {
-			slog.Warn("could not send evidence to assessment service, retrying.", slog.Any("attempt", attempt))
-			time.Sleep(waitBetweenAttempts)
-			return svc.handleEvidence(evidence, attempt+1)
-		}
-
 		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
 	}
+	return nil
+}
 
+// initAssessmentStream creates the restartable assessment stream once during service startup.
+func (svc *Service) initAssessmentStream() error {
+	if svc.assessmentStream != nil {
+		return nil
+	}
+
+	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.assessmentConfig.targetAddress))
+	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
+		return svc.assessmentClient.AssessEvidences(ctx)
+	}
+	restartableStream, err := stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "AssessEvidences")
+	if err != nil {
+		return err
+	}
+	svc.assessmentStream = restartableStream
 	return nil
 }
 
@@ -188,8 +183,9 @@ func (svc *Service) initEvidenceChannel() {
 			if e == nil {
 				continue
 			}
-			if err := svc.handleEvidence(e, 0); err != nil {
-				slog.Error("error while processing evidence",
+			// Fire-and-forget dispatch; errors are only logged here.
+			if err := svc.sendToAssessment(e); err != nil {
+				slog.Error("error while sending evidence",
 					slog.String("evidence_id", e.GetId()),
 					slog.String("tool_id", e.GetToolId()),
 					slog.Any("error", err),
