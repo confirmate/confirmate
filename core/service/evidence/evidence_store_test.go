@@ -1009,31 +1009,31 @@ func TestService_ListResources(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
-		//{
-		//	name: "error - filter by type (ramsql LIKE limitation)",
-		//	fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
-		//		assert.NoError(t, db.Create(res1))
-		//		assert.NoError(t, db.Create(res2))
-		//		assert.NoError(t, db.Create(res3))
-		//	})},
-		//	args: args{
-		//		ctx: context.Background(),
-		//		req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-		//			Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
-		//		}},
-		//	},
-		//	wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
-		//		assert.NotNil(t, got)
-		//		if !assert.Equal(t, 2, len(got.Msg.Results)) {
-		//			return false
-		//		}
-		//		ids := []string{got.Msg.Results[0].Id, got.Msg.Results[1].Id}
-		//		assert.Contains(t, ids, res1.Id)
-		//		assert.Contains(t, ids, res3.Id)
-		//		return true
-		//	},
-		//	wantErr: assert.NoError,
-		//},
+		{
+			name: "happy path - filter by type (Currently fails due to ramsql LIKE limitation)",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(res1))
+				assert.NoError(t, db.Create(res2))
+				assert.NoError(t, db.Create(res3))
+			})},
+			args: args{
+				ctx: context.Background(),
+				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
+					Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
+				}},
+			},
+			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
+				ids := []string{got.Msg.Results[0].Id, got.Msg.Results[1].Id}
+				assert.Contains(t, ids, res1.Id)
+				assert.Contains(t, ids, res3.Id)
+				return true
+			},
+			wantErr: assert.NoError,
+		},
 		{
 			name: "happy path - pagination",
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {

@@ -69,4 +69,4 @@ require golang.org/x/sys v0.40.0 // indirect
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260113124646-95fa67ef4cd8
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260128134402-53d22252daf4
