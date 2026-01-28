@@ -519,6 +519,41 @@ func TestService_StoreEvidences(t *testing.T) {
 	}
 }
 
+func TestService_StoreEvidences_ReceiveError(t *testing.T) {
+	_, _, assessmentSrv := newAssessmentTestServer(t)
+	defer assessmentSrv.Close()
+
+	svc, err := NewService(
+		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+		WithAssessmentConfig(assessmentConfig{
+			targetAddress: assessmentSrv.URL,
+			client:        assessmentSrv.Client(),
+		}),
+	)
+	assert.NoError(t, err)
+	streamHandle := svc.assessmentStream
+	defer func() {
+		if streamHandle != nil {
+			_ = streamHandle.Close()
+		}
+	}()
+
+	_, storeSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(svc)),
+	)
+	defer storeSrv.Close()
+
+	client := evidenceconnect.NewEvidenceStoreClient(storeSrv.Client(), storeSrv.URL)
+	stream := client.StoreEvidences(context.Background())
+	assert.NoError(t, stream.Send(&evidence.StoreEvidenceRequest{Evidence: evidencetest.MockEvidence1}))
+	_, recvErr := stream.Receive()
+	assert.NoError(t, recvErr)
+
+	storeSrv.CloseClientConnections()
+	_, recvErr = stream.Receive()
+	assert.Error(t, recvErr)
+}
+
 func TestService_initEvidenceChannel(t *testing.T) {
 	assessmentRecorder, _, testSrv := newAssessmentTestServer(t)
 	defer testSrv.Close()
