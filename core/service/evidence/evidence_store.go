@@ -210,12 +210,18 @@ func (svc *Service) initEvidenceChannel() {
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	// Validate request
 	if err := service.Validate(req); err != nil {
+		slog.Error("StoreEvidence invalid request",
+			slog.String("evidence_id", req.Msg.GetEvidenceId()),
+			slog.Any("error", err))
 		return nil, err
 	}
 
 	// Store evidence
 	err = svc.db.Create(req.Msg.Evidence)
 	if err = service.HandleDatabaseError(err); err != nil {
+		slog.Error("StoreEvidence database error",
+			slog.String("evidence_id", req.Msg.Evidence.Id),
+			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -226,8 +232,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err != nil {
 		// TODO(lebogg): use buf errors
 		slog.Error("Could not convert proto resource to DB resource",
-			slog.Any("Evidence", req.Msg.Evidence.Id),
-			slog.Any("Error", err))
+			slog.String("evidence_id", req.Msg.Evidence.Id),
+			slog.Any("error", err))
 		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
 	}
@@ -235,6 +241,10 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I guess we can remove conds.
 	err = svc.db.Save(r, "id = ?", r.Id)
 	if err = service.HandleDatabaseError(err); err != nil {
+		slog.Error("StoreEvidence resource save error",
+			slog.String("resource_id", r.Id),
+			slog.String("evidence_id", req.Msg.Evidence.Id),
+			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -245,7 +255,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	svc.channelEvidence <- req.Msg.Evidence
 
 	slog.Debug("received and handled store evidence request",
-		slog.Any("evidence ID", req.Msg.Evidence.Id))
+		slog.String("evidence_id", req.Msg.Evidence.Id))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
 }
@@ -283,7 +293,8 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 		}
 		if err != nil {
 			err = fmt.Errorf("cannot receive stream request: %w", err)
-			slog.Error(err.Error())
+			slog.Error("failed to receive stream request",
+				slog.Any("error", err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 
@@ -334,6 +345,8 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
+		slog.Error("ListEvidences invalid request",
+			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -377,13 +390,8 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	// Validate request
 	if err = service.Validate(req); err != nil {
 		// TODO(lebogg): Create issue for uniform slog usage (in particular with API endpoints)
-		// Avoid nil access while still logging the evidence ID when available.
-		evidenceID := ""
-		if req != nil && req.Msg != nil {
-			evidenceID = req.Msg.EvidenceId
-		}
 		slog.Error("Evidence invalid (GetEvidence)",
-			slog.String("evidence_id", evidenceID),
+			slog.String("evidence_id", req.Msg.GetEvidenceId()),
 			slog.Any("error", err))
 		return nil, err
 	}
@@ -414,6 +422,8 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
+		slog.Error("ListSupportedResourceTypes invalid request",
+			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -437,6 +447,8 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
+		slog.Error("ListResources invalid request",
+			slog.Any("error", err))
 		return nil, err
 	}
 

@@ -22,6 +22,14 @@ func (req *StoreEvidenceRequest) GetTargetOfEvaluationId() string {
 	return req.GetEvidence().GetTargetOfEvaluationId()
 }
 
+// GetEvidenceId returns the evidence ID
+func (req *StoreEvidenceRequest) GetEvidenceId() string {
+	if req.GetEvidence() == nil {
+		return ""
+	}
+	return req.GetEvidence().GetId()
+}
+
 // GetPayload is a shortcut to implement EvidenceRequest. It returns the Evidence of the request.
 func (req *StoreEvidenceRequest) GetPayload() proto.Message {
 	return req.Evidence
