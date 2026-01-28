@@ -11,15 +11,18 @@ import (
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
+	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMain(m *testing.M) {
@@ -602,6 +605,174 @@ func TestService_StoreEvidences_SendErrors(t *testing.T) {
 
 			err := svc.storeEvidencesStream(context.Background(), stream)
 			tt.wantErr(t, err)
+		})
+	}
+}
+
+// TestService_ListEvidences uses table tests to cover filters and pagination behaviors.
+func TestService_ListEvidences(t *testing.T) {
+	makeEvidence := func(id, toe, tool, resourceID string) *evidence.Evidence {
+		return &evidence.Evidence{
+			Id:                   id,
+			Timestamp:            timestamppb.Now(),
+			TargetOfEvaluationId: toe,
+			ToolId:               tool,
+			Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
+				VirtualMachine: &ontology.VirtualMachine{
+					Id:   resourceID,
+					Name: "vm-" + resourceID,
+				},
+			}},
+		}
+	}
+	assertEvidenceIDs := func(t *testing.T, got []*evidence.Evidence, want []string) bool {
+		t.Helper()
+		if !assert.Equal(t, len(want), len(got)) {
+			return false
+		}
+		gotSet := make(map[string]struct{}, len(got))
+		for _, ev := range got {
+			gotSet[ev.Id] = struct{}{}
+		}
+		for _, id := range want {
+			if _, ok := gotSet[id]; !ok {
+				return assert.Fail(t, "missing expected evidence ID", id)
+			}
+		}
+		return true
+	}
+
+	toeA := "11111111-1111-1111-1111-111111111111"
+	toeB := "22222222-2222-2222-2222-222222222222"
+	toolA := "tool-a"
+	toolB := "tool-b"
+	ev1 := makeEvidence("00000000-0000-0000-0000-000000000001", toeA, toolA, "vm-1")
+	ev2 := makeEvidence("00000000-0000-0000-0000-000000000002", toeB, toolA, "vm-2")
+	ev3 := makeEvidence("00000000-0000-0000-0000-000000000003", toeA, toolB, "vm-3")
+
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name        string
+		fields      fields
+		req         *connect.Request[evidence.ListEvidencesRequest]
+		want        assert.Want[*connect.Response[evidence.ListEvidencesResponse]]
+		wantErr     assert.WantErr
+		nextReq     func(res *connect.Response[evidence.ListEvidencesResponse]) *connect.Request[evidence.ListEvidencesRequest]
+		wantNext    assert.Want[*connect.Response[evidence.ListEvidencesResponse]]
+		wantNextErr assert.WantErr
+	}{
+		{
+			name:   "error - nil request",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
+			req:    nil,
+			want:   assert.Nil[*connect.Response[evidence.ListEvidencesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "happy path - no filter",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(ev1))
+				assert.NoError(t, db.Create(ev2))
+				assert.NoError(t, db.Create(ev3))
+			})},
+			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assertEvidenceIDs(t, got.Msg.Evidences, []string{ev1.Id, ev2.Id, ev3.Id})
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filter by target of evaluation",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(ev1))
+				assert.NoError(t, db.Create(ev2))
+				assert.NoError(t, db.Create(ev3))
+			})},
+			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
+				Filter: &evidence.Filter{TargetOfEvaluationId: util.Ref(toeA)},
+			}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assertEvidenceIDs(t, got.Msg.Evidences, []string{ev1.Id, ev3.Id})
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - filter by tool",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(ev1))
+				assert.NoError(t, db.Create(ev2))
+				assert.NoError(t, db.Create(ev3))
+			})},
+			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
+				Filter: &evidence.Filter{ToolId: util.Ref(toolA)},
+			}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assertEvidenceIDs(t, got.Msg.Evidences, []string{ev1.Id, ev2.Id})
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - pagination",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				assert.NoError(t, db.Create(ev1))
+				assert.NoError(t, db.Create(ev2))
+				assert.NoError(t, db.Create(ev3))
+			})},
+			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
+				PageSize: 1,
+				OrderBy:  "id",
+				Asc:      true,
+			}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Evidences))
+				return assert.NotEmpty(t, got.Msg.NextPageToken)
+			},
+			wantErr: assert.NoError,
+			nextReq: func(res *connect.Response[evidence.ListEvidencesResponse]) *connect.Request[evidence.ListEvidencesRequest] {
+				return &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
+					PageSize:  1,
+					OrderBy:   "id",
+					Asc:       true,
+					PageToken: res.Msg.NextPageToken,
+				}}
+			},
+			wantNext: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
+				firstID, _ := msgAndArgs[0].(string)
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 1, len(got.Msg.Evidences)) {
+					return false
+				}
+				return assert.NotEqual(t, firstID, got.Msg.Evidences[0].Id)
+			},
+			wantNextErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			res, err := svc.ListEvidences(context.Background(), tt.req)
+			tt.wantErr(t, err)
+			tt.want(t, res)
+
+			if tt.nextReq != nil {
+				firstID := ""
+				if res != nil && len(res.Msg.Evidences) > 0 {
+					firstID = res.Msg.Evidences[0].Id
+				}
+				nextRes, nextErr := svc.ListEvidences(context.Background(), tt.nextReq(res))
+				tt.wantNextErr(t, nextErr)
+				tt.wantNext(t, nextRes, firstID)
+			}
 		})
 	}
 }
