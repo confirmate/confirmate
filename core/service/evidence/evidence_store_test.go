@@ -609,23 +609,6 @@ func TestService_StoreEvidences_SendErrors(t *testing.T) {
 
 // TestService_ListEvidences uses table tests to cover filters and pagination behaviors.
 func TestService_ListEvidences(t *testing.T) {
-	assertEvidenceIDs := func(t *testing.T, got []*evidence.Evidence, want []string) bool {
-		t.Helper()
-		if !assert.Equal(t, len(want), len(got)) {
-			return false
-		}
-		gotSet := make(map[string]struct{}, len(got))
-		for _, ev := range got {
-			gotSet[ev.Id] = struct{}{}
-		}
-		for _, id := range want {
-			if _, ok := gotSet[id]; !ok {
-				return assert.Fail(t, "missing expected evidence ID", id)
-			}
-		}
-		return true
-	}
-
 	ev1 := evidencetest.MockEvidenceListA
 	ev2 := evidencetest.MockEvidenceListB
 	ev3 := evidencetest.MockEvidenceListC
@@ -671,7 +654,17 @@ func TestService_ListEvidences(t *testing.T) {
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
-				return assertEvidenceIDs(t, got.Msg.Evidences, []string{ev1.Id, ev2.Id, ev3.Id})
+				if !assert.Equal(t, 3, len(got.Msg.Evidences)) {
+					return false
+				}
+				ids := make([]string, 0, len(got.Msg.Evidences))
+				for _, ev := range got.Msg.Evidences {
+					ids = append(ids, ev.Id)
+				}
+				assert.Contains(t, ids, ev1.Id)
+				assert.Contains(t, ids, ev2.Id)
+				assert.Contains(t, ids, ev3.Id)
+				return true
 			},
 			wantErr: assert.NoError,
 		},
@@ -687,7 +680,16 @@ func TestService_ListEvidences(t *testing.T) {
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
-				return assertEvidenceIDs(t, got.Msg.Evidences, []string{ev1.Id, ev3.Id})
+				if !assert.Equal(t, 2, len(got.Msg.Evidences)) {
+					return false
+				}
+				ids := make([]string, 0, len(got.Msg.Evidences))
+				for _, ev := range got.Msg.Evidences {
+					ids = append(ids, ev.Id)
+				}
+				assert.Contains(t, ids, ev1.Id)
+				assert.Contains(t, ids, ev3.Id)
+				return true
 			},
 			wantErr: assert.NoError,
 		},
@@ -703,7 +705,16 @@ func TestService_ListEvidences(t *testing.T) {
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
-				return assertEvidenceIDs(t, got.Msg.Evidences, []string{ev1.Id, ev2.Id})
+				if !assert.Equal(t, 2, len(got.Msg.Evidences)) {
+					return false
+				}
+				ids := make([]string, 0, len(got.Msg.Evidences))
+				for _, ev := range got.Msg.Evidences {
+					ids = append(ids, ev.Id)
+				}
+				assert.Contains(t, ids, ev1.Id)
+				assert.Contains(t, ids, ev2.Id)
+				return true
 			},
 			wantErr: assert.NoError,
 		},
