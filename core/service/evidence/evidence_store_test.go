@@ -8,9 +8,12 @@ import (
 	"time"
 
 	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/internal/testutil/servicetest/evidencetest"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/server"
+	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
@@ -380,6 +383,138 @@ func TestService_StoreEvidence(t *testing.T) {
 			res, err := tt.fields.svc.StoreEvidence(tt.args.ctx, tt.args.req)
 			tt.wantErr(t, err)
 			tt.want(t, res)
+		})
+	}
+}
+
+// TestService_StoreEvidences tests the streaming StoreEvidences RPC.
+// This focuses on Send/Receive cycles and per-message status handling.
+func TestService_StoreEvidences(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name         string
+		fields       fields
+		evidences    []*evidence.Evidence
+		wantStatuses assert.Want[[]evidence.EvidenceStatus]
+		wantErr      assert.WantErr
+	}{
+		{
+			name: "stream - single evidence",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			evidences: []*evidence.Evidence{
+				evidencetest.MockEvidence1,
+			},
+			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
+				return assert.Equal(t, []evidence.EvidenceStatus{evidence.EvidenceStatus_EVIDENCE_STATUS_OK}, got)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "stream - multiple evidences in sequence",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			evidences: []*evidence.Evidence{
+				evidencetest.MockEvidence1,
+				evidencetest.MockEvidence2SameResourceAs1,
+			},
+			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
+				return assert.Equal(t, []evidence.EvidenceStatus{
+					evidence.EvidenceStatus_EVIDENCE_STATUS_OK,
+					evidence.EvidenceStatus_EVIDENCE_STATUS_OK,
+				}, got)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "stream - resilience with partial failures",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					assert.NoError(t, db.Create(evidencetest.MockEvidence1))
+				}),
+			},
+			evidences: []*evidence.Evidence{
+				evidencetest.MockEvidence1,                // duplicate - should fail
+				evidencetest.MockEvidence2SameResourceAs1, // should succeed
+			},
+			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
+				return assert.Equal(t, []evidence.EvidenceStatus{
+					evidence.EvidenceStatus_EVIDENCE_STATUS_ERROR,
+					evidence.EvidenceStatus_EVIDENCE_STATUS_OK,
+				}, got)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "stream - empty (no messages)",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			evidences: []*evidence.Evidence{},
+			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
+				return len(got) == 0
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				err      error
+				statuses []evidence.EvidenceStatus
+			)
+
+			_, _, assessmentSrv := newAssessmentTestServer(t)
+			defer assessmentSrv.Close()
+
+			svc, svcErr := NewService(
+				WithDB(tt.fields.db),
+				WithAssessmentConfig(assessmentConfig{
+					targetAddress: assessmentSrv.URL,
+					client:        assessmentSrv.Client(),
+				}),
+			)
+			assert.NoError(t, svcErr)
+			streamHandle := svc.assessmentStream
+			defer func() {
+				if streamHandle != nil {
+					_ = streamHandle.Close()
+				}
+			}()
+
+			_, storeSrv := servertest.NewTestConnectServer(t,
+				server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(svc)),
+			)
+			defer storeSrv.Close()
+
+			client := evidenceconnect.NewEvidenceStoreClient(storeSrv.Client(), storeSrv.URL)
+			stream := client.StoreEvidences(context.Background())
+
+			for _, ev := range tt.evidences {
+				sendErr := stream.Send(&evidence.StoreEvidenceRequest{Evidence: ev})
+				assert.NoError(t, sendErr)
+				if sendErr != nil {
+					err = sendErr
+					break
+				}
+
+				res, recvErr := stream.Receive()
+				if recvErr != nil {
+					err = recvErr
+					break
+				}
+				statuses = append(statuses, res.Status)
+			}
+
+			_ = stream.CloseRequest()
+
+			tt.wantStatuses(t, statuses)
+			tt.wantErr(t, err)
 		})
 	}
 }
