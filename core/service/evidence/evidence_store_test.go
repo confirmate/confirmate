@@ -1022,10 +1022,17 @@ func TestService_ListResources(t *testing.T) {
 					Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
 				}},
 			},
-			wantRes: assert.Nil[*connect.Response[evidence.ListResourcesResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInternal)
+			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
+				ids := []string{got.Msg.Results[0].Id, got.Msg.Results[1].Id}
+				assert.Contains(t, ids, res1.Id)
+				assert.Contains(t, ids, res3.Id)
+				return true
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path - pagination",
