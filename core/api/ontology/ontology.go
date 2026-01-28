@@ -18,7 +18,6 @@ package ontology
 import (
 	"encoding/json"
 	"errors"
-	"slices"
 	"strings"
 
 	// "confirmate.io/core/internal/util"
@@ -127,10 +126,6 @@ func ListResourceTypes() []string {
 	return types
 }
 
-func HasType(r IsResource, typ string) bool {
-	return slices.Contains(ResourceTypes(r), typ)
-}
-
 // ResourceMap contains the properties of the resource as a map[string]any, based on its JSON representation.
 // This also does some magic to include the resource types in the special key "type".
 func ResourceMap(r IsResource) (props map[string]any, err error) {
@@ -155,21 +150,6 @@ func ResourceMap(r IsResource) (props map[string]any, err error) {
 
 	props["type"] = ResourceTypes(r)
 
-	return
-}
-
-func ToPrettyJSON(r IsResource) (s string, err error) {
-	m, err := ResourceMap(r)
-	if err != nil {
-		return "", err
-	}
-
-	b, err := json.MarshalIndent(m, "", "  ")
-	if err != nil {
-		return "", err
-	}
-
-	s = string(b)
 	return
 }
 
