@@ -10,6 +10,7 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/util/assert"
@@ -82,4 +83,32 @@ func (nilAssessmentClient) AssessEvidence(context.Context, *connect.Request[asse
 
 func (nilAssessmentClient) AssessEvidences(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 	return nil
+}
+
+// fakeReceive describes the next Receive result for a fake stream.
+type fakeReceive struct {
+	req *evidence.StoreEvidenceRequest
+	err error
+}
+
+// fakeEvidenceStream simulates a bidi stream with configurable receive/send behavior.
+type fakeEvidenceStream struct {
+	receives []fakeReceive
+	idx      int
+	sendErr  error
+}
+
+// Receive returns predefined messages and errors in order.
+func (f *fakeEvidenceStream) Receive() (*evidence.StoreEvidenceRequest, error) {
+	if f.idx >= len(f.receives) {
+		return nil, io.EOF
+	}
+	item := f.receives[f.idx]
+	f.idx++
+	return item.req, item.err
+}
+
+// Send returns the configured error to simulate send failures.
+func (f *fakeEvidenceStream) Send(*evidence.StoreEvidencesResponse) error {
+	return f.sendErr
 }

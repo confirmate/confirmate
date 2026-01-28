@@ -255,6 +255,20 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 // success or failure. This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidences] RPC method.
 func (svc *Service) StoreEvidences(ctx context.Context,
 	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error {
+	// Delegate to a stream-agnostic helper for unit testing with fakes.
+	return svc.storeEvidencesStream(ctx, stream)
+}
+
+// evidenceStream abstracts the bidi stream to allow deterministic unit tests, including send error cases.
+// The production path still uses the concrete Connect stream.
+type evidenceStream interface {
+	Receive() (*evidence.StoreEvidenceRequest, error)
+	Send(*evidence.StoreEvidencesResponse) error
+}
+
+// storeEvidencesStream receives evidence items, stores each one, and returns a status response per item.
+// On input errors it terminates the stream, and on send errors it stops after returning the appropriate error.
+func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStream) error {
 	var (
 		req *evidence.StoreEvidenceRequest
 		res *evidence.StoreEvidencesResponse

@@ -2,6 +2,8 @@ package evidence
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -388,7 +390,7 @@ func TestService_StoreEvidence(t *testing.T) {
 }
 
 // TestService_StoreEvidences tests the streaming StoreEvidences RPC.
-// This focuses on Send/Receive cycles and per-message status handling.
+// It focuses on happy-path Send/Receive cycles and per-message status handling.
 func TestService_StoreEvidences(t *testing.T) {
 	type fields struct {
 		db persistence.DB
@@ -519,6 +521,7 @@ func TestService_StoreEvidences(t *testing.T) {
 	}
 }
 
+// TestService_StoreEvidences_ReceiveError isolates transport-level receive failures.
 func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 	_, _, assessmentSrv := newAssessmentTestServer(t)
 	defer assessmentSrv.Close()
@@ -552,6 +555,55 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 	storeSrv.CloseClientConnections()
 	_, recvErr = stream.Receive()
 	assert.Error(t, recvErr)
+}
+
+// TestService_StoreEvidences_SendErrors uses a fake stream to deterministically trigger send EOF/error paths.
+func TestService_StoreEvidences_SendErrors(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		sendErr error
+		wantErr assert.WantErr
+	}{
+		{
+			name: "send EOF returns nil",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			sendErr: io.EOF,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "send error returns CodeUnknown",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			sendErr: errors.New("send failed"),
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeUnknown)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:              tt.fields.db,
+				channelEvidence: make(chan *evidence.Evidence, 1),
+			}
+
+			stream := &fakeEvidenceStream{
+				receives: []fakeReceive{{req: &evidence.StoreEvidenceRequest{Evidence: evidencetest.MockEvidence1}}},
+				sendErr:  tt.sendErr,
+			}
+
+			err := svc.storeEvidencesStream(context.Background(), stream)
+			tt.wantErr(t, err)
+		})
+	}
 }
 
 func TestService_initEvidenceChannel(t *testing.T) {
