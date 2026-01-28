@@ -47,9 +47,9 @@ const (
 	defaultEvidenceQueueSize = 1024
 )
 
-type assessmentConfig struct {
-	targetAddress string
-	client        *http.Client
+type AssessmentConfig struct {
+	TargetAddress string
+	Client        *http.Client
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
@@ -59,7 +59,7 @@ type Service struct {
 
 	assessmentClient assessmentconnect.AssessmentClient
 	assessmentStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-	assessmentConfig assessmentConfig
+	assessmentConfig AssessmentConfig
 
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
 	channelEvidence chan *evidence.Evidence
@@ -95,13 +95,13 @@ func WithDBConfig(cfg persistence.Config) service.Option[Service] {
 }
 
 // WithAssessmentConfig is an option to configure the assessment service gRPC address.
-func WithAssessmentConfig(conf assessmentConfig) service.Option[Service] {
+func WithAssessmentConfig(conf AssessmentConfig) service.Option[Service] {
 	return func(s *Service) {
-		slog.Info("Assessment URL is set", slog.Any("target", conf.targetAddress))
-		s.assessmentConfig.targetAddress = conf.targetAddress
+		slog.Info("Assessment URL is set", slog.Any("target", conf.TargetAddress))
+		s.assessmentConfig.TargetAddress = conf.TargetAddress
 		// Avoid overriding the default client if no client is provided
-		if conf.client != nil {
-			s.assessmentConfig.client = conf.client
+		if conf.Client != nil {
+			s.assessmentConfig.Client = conf.Client
 		}
 	}
 }
@@ -115,9 +115,9 @@ func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Opt
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	svc = &Service{
-		assessmentConfig: assessmentConfig{
-			targetAddress: DefaultAssessmentURL,
-			client:        http.DefaultClient,
+		assessmentConfig: AssessmentConfig{
+			TargetAddress: DefaultAssessmentURL,
+			Client:        http.DefaultClient,
 		},
 		dbConfig: persistence.DefaultConfig,
 	}
@@ -128,7 +128,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 	if svc.assessmentClient == nil {
 		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-			svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
+			svc.assessmentConfig.Client, svc.assessmentConfig.TargetAddress)
 	}
 
 	if svc.db == nil {
@@ -173,7 +173,7 @@ func (svc *Service) initAssessmentStream() error {
 		return nil
 	}
 
-	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.assessmentConfig.targetAddress))
+	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.assessmentConfig.TargetAddress))
 	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 		return svc.assessmentClient.AssessEvidences(ctx)
 	}

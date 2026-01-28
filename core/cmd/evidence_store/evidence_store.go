@@ -15,9 +15,16 @@
 package main
 
 import (
+	"log/slog"
+	"os"
+
+	"confirmate.io/core/log"
 	"confirmate.io/core/server/commands"
 )
 
 func main() {
-	commands.ParseAndRun(commands.EvidenceCommand)
+	if err := commands.ParseAndRun(commands.EvidenceCommand); err != nil {
+		slog.Error("Failed to start Evidence Store", log.Err(err))
+		os.Exit(1)
+	}
 }

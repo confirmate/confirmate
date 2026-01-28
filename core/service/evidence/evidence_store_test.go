@@ -81,16 +81,16 @@ func TestNewService(t *testing.T) {
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - no client provided",
 			args: args{opts: []service.Option[Service]{
 				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-				WithAssessmentConfig(assessmentConfig{
-					targetAddress: "localhost:9091",
-					client:        nil,
+				WithAssessmentConfig(AssessmentConfig{
+					TargetAddress: "localhost:9091",
+					Client:        nil,
 				}),
 			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We didn't provide a client, so it should be the default (timeout is zero value)
-				assert.Equal(t, 0, got.assessmentConfig.client.Timeout)
+				assert.Equal(t, 0, got.assessmentConfig.Client.Timeout)
 				assert.NotNil(t, got.assessmentStream)
-				return assert.Equal(t, "localhost:9091", got.assessmentConfig.targetAddress)
+				return assert.Equal(t, "localhost:9091", got.assessmentConfig.TargetAddress)
 			},
 			wantErr: assert.NoError,
 		},
@@ -98,16 +98,16 @@ func TestNewService(t *testing.T) {
 			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - with client",
 			args: args{opts: []service.Option[Service]{
 				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-				WithAssessmentConfig(assessmentConfig{
-					targetAddress: "localhost:9091",
-					client:        &http.Client{Timeout: time.Duration(1)},
+				WithAssessmentConfig(AssessmentConfig{
+					TargetAddress: "localhost:9091",
+					Client:        &http.Client{Timeout: time.Duration(1)},
 				}),
 			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We provided a client with timeout set to 1 second
-				assert.Equal(t, 1, got.assessmentConfig.client.Timeout)
+				assert.Equal(t, 1, got.assessmentConfig.Client.Timeout)
 				assert.NotNil(t, got.assessmentStream)
-				return assert.Equal(t, "localhost:9091", got.assessmentConfig.targetAddress)
+				return assert.Equal(t, "localhost:9091", got.assessmentConfig.TargetAddress)
 			},
 			wantErr: assert.NoError,
 		},
@@ -145,9 +145,9 @@ func TestService_sendToAssessment(t *testing.T) {
 	// Step 2: Create service with assessment client.
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(assessmentConfig{
-			targetAddress: testSrv.URL,
-			client:        testSrv.Client(),
+		WithAssessmentConfig(AssessmentConfig{
+			TargetAddress: testSrv.URL,
+			Client:        testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -182,9 +182,9 @@ func TestService_initAssessmentStream(t *testing.T) {
 
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(assessmentConfig{
-			targetAddress: testSrv.URL,
-			client:        testSrv.Client(),
+		WithAssessmentConfig(AssessmentConfig{
+			TargetAddress: testSrv.URL,
+			Client:        testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -478,9 +478,9 @@ func TestService_StoreEvidences(t *testing.T) {
 
 			svc, svcErr := NewService(
 				WithDB(tt.fields.db),
-				WithAssessmentConfig(assessmentConfig{
-					targetAddress: assessmentSrv.URL,
-					client:        assessmentSrv.Client(),
+				WithAssessmentConfig(AssessmentConfig{
+					TargetAddress: assessmentSrv.URL,
+					Client:        assessmentSrv.Client(),
 				}),
 			)
 			assert.NoError(t, svcErr)
@@ -530,9 +530,9 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(assessmentConfig{
-			targetAddress: assessmentSrv.URL,
-			client:        assessmentSrv.Client(),
+		WithAssessmentConfig(AssessmentConfig{
+			TargetAddress: assessmentSrv.URL,
+			Client:        assessmentSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -1127,9 +1127,9 @@ func TestService_initEvidenceChannel(t *testing.T) {
 
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(assessmentConfig{
-			targetAddress: testSrv.URL,
-			client:        testSrv.Client(),
+		WithAssessmentConfig(AssessmentConfig{
+			TargetAddress: testSrv.URL,
+			Client:        testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
