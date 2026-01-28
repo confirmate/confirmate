@@ -34,7 +34,6 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
 
-	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
 )
@@ -210,9 +209,8 @@ func (svc *Service) initEvidenceChannel() {
 // This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	// Validate request
-	if protovalidate.Validate(req.Msg) != nil {
-		err = connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
-		return
+	if err := service.Validate(req); err != nil {
+		return nil, err
 	}
 
 	// Store evidence
@@ -241,7 +239,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
 	}
 	// Persist the latest state of the resource
-	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I assume we can remove conds.
+	// TODO(lebogg): Inspecting gorm logs, I see the where clause is being executed twice. I guess we can remove conds.
 	err = svc.db.Save(r, "id = ?", r.Id)
 	if err != nil {
 		// TODO(lebogg): use buf errors
@@ -332,9 +330,8 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	res = connect.NewResponse(&evidence.ListEvidencesResponse{})
 
 	// Validate request
-	err = protovalidate.Validate(req.Msg)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
+	if err = service.Validate(req); err != nil {
+		return nil, err
 	}
 
 	// Apply filter options
@@ -377,13 +374,16 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	res = connect.NewResponse(&evidence.Evidence{})
 
 	// Validate request
-	err = protovalidate.Validate(req.Msg)
-	if err != nil {
+	if err = service.Validate(req); err != nil {
 		// TODO(lebogg): Create issue for uniform slog usage (in particular with API endpoints)
+		evidenceID := ""
+		if req != nil && req.Msg != nil {
+			evidenceID = req.Msg.EvidenceId
+		}
 		slog.Error("Evidence invalid (GetEvidence)",
-			slog.String("evidence_id", req.Msg.EvidenceId),
+			slog.String("evidence_id", evidenceID),
 			slog.Any("error", err))
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
+		return nil, err
 	}
 
 	err = svc.db.Get(res.Msg, "id = ?", req.Msg.EvidenceId)
@@ -409,9 +409,8 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 	res = connect.NewResponse(&evidence.ListSupportedResourceTypesResponse{})
 
 	// Validate request
-	err = protovalidate.Validate(req.Msg)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
+	if err = service.Validate(req); err != nil {
+		return nil, err
 	}
 
 	// Get the supported resource types
@@ -433,9 +432,8 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	res = connect.NewResponse(&evidence.ListResourcesResponse{})
 
 	// Validate request
-	err = protovalidate.Validate(req.Msg)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: %w", err))
+	if err = service.Validate(req); err != nil {
+		return nil, err
 	}
 
 	// Filtering the resources by
