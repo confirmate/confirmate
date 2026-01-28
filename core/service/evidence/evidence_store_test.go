@@ -132,6 +132,17 @@ func TestNewService(t *testing.T) {
 	}
 }
 
+// TestNewService_WithDBConfig ensures DB config is honored during initialization.
+func TestNewService_WithDBConfig(t *testing.T) {
+	cfg := persistence.DefaultConfig
+	cfg.InMemoryDB = true
+
+	svc, err := NewService(WithDBConfig(cfg))
+	assert.NoError(t, err)
+	assert.NotNil(t, svc)
+	assert.NotNil(t, svc.db)
+}
+
 // TestService_sendToAssessment validates the evidence->assessment wiring.
 // NOTE: We intentionally do not validate restart behavior here; that is covered
 // in core/stream tests and would make this integration test flaky.
