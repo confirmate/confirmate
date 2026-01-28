@@ -99,6 +99,13 @@ func WithAssessmentConfig(conf assessmentConfig) service.Option[Service] {
 	}
 }
 
+// WithAssessmentClient overrides the assessment client (useful for testing).
+func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Option[Service] {
+	return func(s *Service) {
+		s.assessmentClient = client
+	}
+}
+
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	svc = &Service{
 		assessmentConfig: assessmentConfig{
@@ -111,8 +118,10 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		o(svc)
 	}
 
-	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-		svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
+	if svc.assessmentClient == nil {
+		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+			svc.assessmentConfig.client, svc.assessmentConfig.targetAddress)
+	}
 
 	if svc.db == nil {
 		var cfg = persistence.DefaultConfig

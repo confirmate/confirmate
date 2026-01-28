@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 
 // TestNewService provides simple tests for NewService
 // What we could not test:
-// - Error when a new DB has to be created (because of the way the DB is initialized in the evidence service)
+// - Error when a new DB has to be created (NewService doesn't expose a way to inject failing DB creation)
 func TestNewService(t *testing.T) {
 	type args struct {
 		opts []service.Option[Service]
@@ -55,6 +55,7 @@ func TestNewService(t *testing.T) {
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// Storage should be in-memory storage
 				assert.NotNil(t, got.db)
+				assert.NotNil(t, got.assessmentStream)
 				return true
 			},
 			wantErr: assert.NoError,
@@ -66,6 +67,7 @@ func TestNewService(t *testing.T) {
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// Storage should be gorm (in-memory storage). Hard to check since its type is not exported
 				assert.NotNil(t, got.db)
+				assert.NotNil(t, got.assessmentStream)
 				// But we can check if we can get the evidence we inserted into the custom DB
 				gotEvidence, err := got.GetEvidence(context.Background(), &connect.Request[evidence.GetEvidenceRequest]{
 					Msg: &evidence.GetEvidenceRequest{EvidenceId: evidencetest.MockEvidence1.Id}})
@@ -88,6 +90,7 @@ func TestNewService(t *testing.T) {
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We didn't provide a client, so it should be the default (timeout is zero value)
 				assert.Equal(t, 0, got.assessmentConfig.client.Timeout)
+				assert.NotNil(t, got.assessmentStream)
 				return assert.Equal(t, "localhost:9091", got.assessmentConfig.targetAddress)
 			},
 			wantErr: assert.NoError,
@@ -104,15 +107,26 @@ func TestNewService(t *testing.T) {
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We provided a client with timeout set to 1 second
 				assert.Equal(t, 1, got.assessmentConfig.client.Timeout)
+				assert.NotNil(t, got.assessmentStream)
 				return assert.Equal(t, "localhost:9091", got.assessmentConfig.targetAddress)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "Error - assessment stream init fails",
+			args: args{opts: []service.Option[Service]{
+				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+				WithAssessmentClient(nilAssessmentClient{}),
+			}},
+			want: assert.Nil[*Service],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "factory returned nil stream")
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewService(tt.args.opts...)
-			assert.Nil(t, err)
 			tt.want(t, got)
 			tt.wantErr(t, err)
 		})
