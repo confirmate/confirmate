@@ -390,9 +390,15 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 
 	err = svc.db.Get(res.Msg, "id = ?", req.Msg.EvidenceId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("evidence with id "+req.Msg.EvidenceId)); err != nil {
-		slog.Error("GetEvidence database error",
-			slog.String("evidence_id", req.Msg.EvidenceId),
-			slog.Any("error", err))
+		var connectErr *connect.Error
+		if errors.As(err, &connectErr) && connectErr.Code() == connect.CodeNotFound {
+			slog.Info("Evidence not found (GetEvidence)",
+				slog.String("evidence_id", req.Msg.EvidenceId))
+		} else {
+			slog.Error("GetEvidence database error",
+				slog.String("evidence_id", req.Msg.EvidenceId),
+				slog.Any("error", err))
+		}
 		return nil, err
 	}
 
