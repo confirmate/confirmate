@@ -115,7 +115,7 @@ func TestValidate(t *testing.T) {
 					Metric: &assessment.Metric{
 						Id:          "metric-1",
 						Description: "Test Metric",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "awesome",
 					},
 				}),

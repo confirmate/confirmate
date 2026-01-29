@@ -21,7 +21,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
-import "policies/security-metrics/ontology/1.0/ontology.proto";
+import "policies/security-metrics/ontology/v1/ontology.proto";
 
 option go_package = "confirmate.io/core/api/evidence";
 

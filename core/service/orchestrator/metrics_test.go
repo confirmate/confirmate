@@ -296,7 +296,7 @@ func TestService_UpdateMetric(t *testing.T) {
 					Metric: &assessment.Metric{
 						Id:          orchestratortest.MockMetric1.Id,
 						Description: "Updated description",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "test-category",
 					},
 				},
@@ -351,7 +351,7 @@ func TestService_UpdateMetric(t *testing.T) {
 					Metric: &assessment.Metric{
 						Id:          "non-existent",
 						Description: "Updated description",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "test-category",
 					},
 				},
@@ -371,7 +371,7 @@ func TestService_UpdateMetric(t *testing.T) {
 					Metric: &assessment.Metric{
 						Id:          orchestratortest.MockMetric1.Id,
 						Description: "Updated description",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "test-category",
 					},
 				},

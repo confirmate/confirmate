@@ -63,7 +63,7 @@ const (
 	MockToolId1          = "tool-1"
 	MockToolIdConcurrent = "tool-concurrent"
 	MockTestCategory     = "test-category"
-	MockDefaultVersion   = "1.0.0"
+	MockDefaultVersion   = "v1"
 )
 
 var (

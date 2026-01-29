@@ -412,7 +412,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				metric: &assessment.Metric{
 					Id:       "AutomaticUpdatesEnabled",
 					Category: "EndpointSecurity",
-					Version:  "1.0",
+					Version:  "v1",
 					Comments: "Test comments",
 				},
 				baseDir: ".",

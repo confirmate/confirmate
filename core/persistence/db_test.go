@@ -33,7 +33,7 @@ const (
 	MockMetricId1          = "Mock Metric 1"
 	MockMetricDescription1 = "This is a mock metric"
 	MockMetricCategory1    = "Mock Category 1"
-	MockMetricVersion1     = "1.0"
+	MockMetricVersion1     = "v1"
 	MockMetricComments1    = "Mock metric comments 1"
 
 	MockTargetOfEvaluationId1          = "Mock TOE 1"
