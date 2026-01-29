@@ -90,7 +90,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		types   []string
 	)
 
-	baseDir = "."
+	baseDir = "./"
 
 	m, err = ontology.ResourceMap(r)
 	if err != nil {
@@ -132,10 +132,10 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		// start at the exactly same time.
 		cached = []*assessment.Metric{}
 		for _, metric := range metrics {
-			// Try to evaluate it and check, if the metric is applicable (in which case we are getting a result). We
+			// Try to evaluate it and check if the metric is applicable (in which case we are getting a result). We
 			// need to differentiate here between an execution error (which might be temporary) and an error if the
 			// metric configuration or implementation is not found. The latter case happens if the metric is not
-			// assessed within the Clouditor toolset but we need to know that the metric exists, e.g., because it is
+			// assessed within the toolset but we need to know that the metric exists, e.g., because it is
 			// evaluated by an external tool. In this case, we can just pretend that the metric is not applicable for us
 			// and continue.
 			runMap, err := re.evalMap(baseDir, evidence.TargetOfEvaluationId, metric, m, src)
@@ -233,12 +233,12 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 		)
 
 		// Create paths for bundle directory and utility functions file
-		bundle := fmt.Sprintf("%s/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Id)
+		bundle := fmt.Sprintf("%s/policies/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Id)
 		if err != nil {
 			return nil, fmt.Errorf("could not find metric: %w", err)
 		}
 
-		operators := fmt.Sprintf("%s/security-metrics/metrics/operators.rego", baseDir)
+		operators := fmt.Sprintf("%s/policies/security-metrics/metrics/operators.rego", baseDir)
 
 		// The contents of the data map is available as the data variable within the Rego evaluation
 		data := map[string]interface{}{

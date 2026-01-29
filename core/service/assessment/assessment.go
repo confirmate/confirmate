@@ -135,7 +135,9 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 			targetAddress: DefaultOrchestratorURL,
 			client:        http.DefaultClient,
 		},
-		evidenceResourceMap: make(map[string]*evidence.Evidence),
+		evidenceResourceMap:  make(map[string]*evidence.Evidence),
+		requests:             make(map[string]waitingRequest),
+		cachedConfigurations: make(map[string]cachedConfiguration),
 	}
 
 	for _, o := range opts {
@@ -154,11 +156,8 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 
 	err = svc.initOrchestratorStream()
 
+	handler = svc
 	return
-}
-
-func (svc *Service) Init() {
-
 }
 
 func (svc *Service) initOrchestratorStream() (err error) {
@@ -212,7 +211,8 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 		if err != nil {
 			slog.Error("AssessEvidenceStream: could not assess evidence:", log.Err(err))
 			res = &assessment.AssessEvidencesResponse{
-				Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
+				Status:        assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
+				StatusMessage: err.Error(),
 			}
 		}
 
@@ -231,6 +231,11 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	var (
 		resource ontology.IsResource
 	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
 
 	evidence := req.Msg.Evidence
 	// Validate request
@@ -456,11 +461,10 @@ func (svc *Service) Metrics() (metrics []*assessment.Metric, err error) {
 		connect.NewRequest(
 			&orchestrator.ListMetricsRequest{}),
 	)
-	metrics = res.Msg.Metrics
-
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve metric list from orchestrator: %w", err)
 	}
+	metrics = res.Msg.Metrics
 
 	return metrics, nil
 }
@@ -486,7 +490,7 @@ func (svc *Service) MetricImplementation(lang assessment.MetricImplementation_La
 }
 
 // MetricConfiguration implements MetricsSource by getting the corresponding metric configuration for the
-// default target of evaluation
+// given target of evaluation
 func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *assessment.Metric) (config *assessment.MetricConfiguration, err error) {
 	var (
 		ok    bool
