@@ -18,12 +18,93 @@ package commands
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 )
+
+func TargetsCreateCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "create",
+		Usage: "Create a target of evaluation",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "name",
+				Usage:    "Target name",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     "description",
+				Usage:    "Target description",
+				Required: false,
+			},
+			&cli.StringFlag{
+				Name:     "target-type",
+				Usage:    "Target type (cloud|product|organization)",
+				Required: true,
+			},
+			&cli.StringSliceFlag{
+				Name:     "metric-id",
+				Usage:    "Metric ID to configure (repeatable or comma-separated)",
+				Required: true,
+			},
+		},
+		Action: func(ctx context.Context, c *cli.Command) error {
+			metricsIDs := ExpandCommaSeparated(c.StringSlice("metric-id"))
+			if len(metricsIDs) == 0 {
+				return fmt.Errorf("at least one --metric-id is required")
+			}
+
+			targetType, err := parseTargetType(c.String("target-type"))
+			if err != nil {
+				return err
+			}
+
+			client := OrchestratorClient(ctx, c)
+			metrics := make([]*assessment.Metric, 0, len(metricsIDs))
+			for _, id := range metricsIDs {
+				resp, getErr := client.GetMetric(ctx, connect.NewRequest(&orchestrator.GetMetricRequest{
+					MetricId: id,
+				}))
+				if getErr != nil {
+					return getErr
+				}
+				metrics = append(metrics, resp.Msg)
+			}
+
+			resp, err := client.CreateTargetOfEvaluation(ctx, connect.NewRequest(&orchestrator.CreateTargetOfEvaluationRequest{
+				TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+					Name:              c.String("name"),
+					Description:       c.String("description"),
+					ConfiguredMetrics: metrics,
+					TargetType:        targetType,
+				},
+			}))
+			if err != nil {
+				return err
+			}
+			return PrettyPrint(resp.Msg)
+		},
+	}
+}
+
+func parseTargetType(value string) (orchestrator.TargetOfEvaluation_TargetType, error) {
+	normalized := strings.ToLower(strings.TrimSpace(value))
+	switch normalized {
+	case "cloud", "target_type_cloud":
+		return orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD, nil
+	case "product", "target_type_product":
+		return orchestrator.TargetOfEvaluation_TARGET_TYPE_PRODUCT, nil
+	case "organization", "target_type_organization":
+		return orchestrator.TargetOfEvaluation_TARGET_TYPE_ORGANIZATION, nil
+	default:
+		return orchestrator.TargetOfEvaluation_TARGET_TYPE_UNSPECIFIED, fmt.Errorf("invalid target type: %s", value)
+	}
+}
 
 func TargetsListCommand() *cli.Command {
 	return &cli.Command{

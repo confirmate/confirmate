@@ -38,6 +38,7 @@ func NewRootCommand() *cli.Command {
 				Name:  "tools",
 				Usage: "Assessment tool operations",
 				Commands: []*cli.Command{
+					ToolsCreateCommand(),
 					ToolsListCommand(),
 					ToolsGetCommand(),
 					ToolsDeleteCommand(),
@@ -57,6 +58,7 @@ func NewRootCommand() *cli.Command {
 				Aliases: []string{"toe"},
 				Usage:   "Target of evaluation operations",
 				Commands: []*cli.Command{
+					TargetsCreateCommand(),
 					TargetsListCommand(),
 					TargetsGetCommand(),
 					TargetsDeleteCommand(),

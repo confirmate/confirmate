@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
-	"github.com/fatih/color"
 	"github.com/hokaccha/go-prettyjson"
 	"github.com/urfave/cli/v3"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -64,11 +64,25 @@ func OrchestratorClient(ctx context.Context, c *cli.Command) orchestratorconnect
 	)
 }
 
+// ExpandCommaSeparated flattens values that may contain comma-separated items.
+func ExpandCommaSeparated(values []string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	var out []string
+	for _, value := range values {
+		for _, part := range strings.Split(value, ",") {
+			item := strings.TrimSpace(part)
+			if item != "" {
+				out = append(out, item)
+			}
+		}
+	}
+	return out
+}
+
 // PrettyPrint prints a proto message as pretty-printed JSON to stdout.
 func PrettyPrint(msg proto.Message) error {
-	// Force colors for now to see if they show up
-	color.NoColor = false
-
 	m := protojson.MarshalOptions{
 		EmitUnpopulated: false,
 	}
