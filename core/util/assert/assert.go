@@ -23,7 +23,6 @@ import (
 	"reflect"
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -141,27 +140,4 @@ func Optional[T any](t *testing.T, want Want[T], got T) bool {
 	}
 
 	return true
-}
-
-// WantResponse is a helper to assert a [connect.Response] (including error) in tests.
-func WantResponse[T any](t *testing.T, got *connect.Response[T], gotErr error, want Want[*T], wantErr WantErr) bool {
-	t.Helper()
-
-	// Assert error first, if we "want" an error
-	if wantErr != nil {
-		cErr := Is[*connect.Error](t, gotErr)
-		if !wantErr(t, cErr) {
-			return false
-		}
-	} else {
-		if !Nil(t, gotErr) {
-			return false
-		}
-	}
-
-	if want == nil {
-		return assert.Nil(t, got)
-	} else {
-		return want(t, got.Msg)
-	}
 }
