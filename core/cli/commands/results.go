@@ -51,11 +51,11 @@ func ResultsListCommand() *cli.Command {
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
 			}
-			
+
 			// Apply filters if provided
 			if c.String("target") != "" || c.String("metric") != "" || c.IsSet("compliant") {
 				filter := &orchestrator.ListAssessmentResultsRequest_Filter{}
-				
+
 				if targetID := c.String("target"); targetID != "" {
 					filter.TargetOfEvaluationId = &targetID
 				}
@@ -66,11 +66,11 @@ func ResultsListCommand() *cli.Command {
 					compliant := c.Bool("compliant")
 					filter.Compliant = &compliant
 				}
-				
+
 				req.Filter = filter
 			}
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.ListAssessmentResults(ctx, connect.NewRequest(req))
 			if err != nil {
 				return err
@@ -90,8 +90,8 @@ func ResultsGetCommand() *cli.Command {
 				return fmt.Errorf("result ID required")
 			}
 			resultID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.GetAssessmentResult(ctx, connect.NewRequest(&orchestrator.GetAssessmentResultRequest{
 				Id: resultID,
 			}))

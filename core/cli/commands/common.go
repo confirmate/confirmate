@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -29,9 +30,38 @@ import (
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 )
 
-// OrchestratorClient returns an orchestrator client based on the addr flag.
-func OrchestratorClient(c *cli.Command) orchestratorconnect.OrchestratorClient {
-	return orchestratorconnect.NewOrchestratorClient(http.DefaultClient, c.Root().String("addr"))
+type httpClientKey struct{}
+
+// WithHTTPClient returns a new context carrying an HTTP client override.
+// If client is nil, ctx is returned unchanged.
+func WithHTTPClient(ctx context.Context, client *http.Client) context.Context {
+	if client == nil {
+		return ctx
+	}
+
+	return context.WithValue(ctx, httpClientKey{}, client)
+}
+
+// httpClientFromContext extracts an HTTP client from the context.
+// If no client is found, [http.DefaultClient] is returned.
+func httpClientFromContext(ctx context.Context) *http.Client {
+	if ctx != nil {
+		if client, ok := ctx.Value(httpClientKey{}).(*http.Client); ok && client != nil {
+			return client
+		}
+	}
+
+	return http.DefaultClient
+}
+
+// OrchestratorClient returns an orchestrator client. It is configured by the
+// "addr" flag and its HTTP client can be overriden by setting an
+// [httpClientKey] in the ctx.
+func OrchestratorClient(ctx context.Context, c *cli.Command) orchestratorconnect.OrchestratorClient {
+	return orchestratorconnect.NewOrchestratorClient(
+		httpClientFromContext(ctx),
+		c.Root().String("addr"),
+	)
 }
 
 // PrettyPrint prints a proto message as pretty-printed JSON to stdout.

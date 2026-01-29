@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"net/http"
 	"net/http/httptest"
 	"os"
 	"sync"
@@ -56,36 +55,12 @@ func ensureHarness(t *testing.T) error {
 
 	setupOnce.Do(func() {
 		setupErr = func() error {
-			var (
-				err error
-				svc orchestratorconnect.OrchestratorHandler
-				srv *server.Server
-			)
-
-			svc, err = orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
-				DefaultMetricsPath:              "../../policies/security-metrics/metrics",
-				LoadDefaultMetrics:              false,
-				LoadDefaultCatalogs:             false,
-				CreateDefaultTargetOfEvaluation: false,
-				PersistenceConfig: persistence.Config{
-					InMemoryDB: true,
-					InitFunc: func(db persistence.DB) error {
-						seedCLIData(t, db)
-						return nil
-					},
-				},
-			}))
+			var err error
+			testServer, err = newTestServer(t)
 			if err != nil {
 				return err
 			}
-
-			srv, testServer = servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
-			)
-			_ = srv
-
 			testServerURL = testServer.URL
-			http.DefaultClient = testServer.Client()
 			cleanup = func() {
 				testServer.Close()
 			}
@@ -97,18 +72,59 @@ func ensureHarness(t *testing.T) error {
 	return setupErr
 }
 
-// RunCLI executes the CLI command and returns combined stdout/stderr output.
+func newTestServer(t *testing.T) (*httptest.Server, error) {
+	var (
+		err     error
+		svc     orchestratorconnect.OrchestratorHandler
+		srv     *server.Server
+		testSrv *httptest.Server
+	)
+
+	svc, err = orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
+		DefaultMetricsPath:              "../../policies/security-metrics/metrics",
+		LoadDefaultMetrics:              false,
+		LoadDefaultCatalogs:             false,
+		CreateDefaultTargetOfEvaluation: false,
+		PersistenceConfig: persistence.Config{
+			InMemoryDB: true,
+			InitFunc: func(db persistence.DB) error {
+				seedCLIData(t, db)
+				return nil
+			},
+		},
+	}))
+	if err != nil {
+		return nil, err
+	}
+
+	srv, testSrv = servertest.NewTestConnectServer(t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+	)
+	_ = srv
+
+	return testSrv, nil
+}
+
+// RunCLI executes the CLI against a fresh in-memory DB to avoid shared-state between tests.
 func RunCLI(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 
-	if err := ensureHarness(t); err != nil {
+	testSrv, err := newTestServer(t)
+	if err != nil {
 		return "", err
 	}
+	defer testSrv.Close()
+
+	ctx := commands.WithHTTPClient(context.Background(), testSrv.Client())
+	return runCLI(t, ctx, testSrv.URL, args...)
+}
+
+func runCLI(t *testing.T, ctx context.Context, serverURL string, args ...string) (string, error) {
+	t.Helper()
 
 	cmd := commands.NewRootCommand()
-	ctx := context.Background()
 	return captureOutput(t, func() error {
-		return cmd.Run(ctx, append([]string{"cf", "--addr", testServerURL}, args...))
+		return cmd.Run(ctx, append([]string{"cf", "--addr", serverURL}, args...))
 	})
 }
 

@@ -31,7 +31,7 @@ func MetricsListCommand() *cli.Command {
 		Usage: "List all metrics",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			client := OrchestratorClient(c)
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.ListMetrics(ctx, connect.NewRequest(&orchestrator.ListMetricsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
@@ -55,15 +55,15 @@ func MetricsGetCommand() *cli.Command {
 				return fmt.Errorf("metric ID required")
 			}
 			metricID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.GetMetric(ctx, connect.NewRequest(&orchestrator.GetMetricRequest{
 				MetricId: metricID,
 			}))
 			if err != nil {
 				return err
 			}
-			
+
 			return PrettyPrint(resp.Msg)
 		},
 	}
@@ -80,8 +80,8 @@ func MetricsDeleteCommand() *cli.Command {
 				return fmt.Errorf("metric ID required")
 			}
 			metricID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			_, err := client.RemoveMetric(ctx, connect.NewRequest(&orchestrator.RemoveMetricRequest{
 				MetricId: metricID,
 			}))

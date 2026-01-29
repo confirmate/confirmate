@@ -31,7 +31,7 @@ func CatalogsListCommand() *cli.Command {
 		Usage: "List all catalogs",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			client := OrchestratorClient(c)
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.ListCatalogs(ctx, connect.NewRequest(&orchestrator.ListCatalogsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
@@ -54,8 +54,8 @@ func CatalogsGetCommand() *cli.Command {
 				return fmt.Errorf("catalog ID required")
 			}
 			catalogID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
 				CatalogId: catalogID,
 			}))
@@ -78,8 +78,8 @@ func CatalogsDeleteCommand() *cli.Command {
 				return fmt.Errorf("catalog ID required")
 			}
 			catalogID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			_, err := client.RemoveCatalog(ctx, connect.NewRequest(&orchestrator.RemoveCatalogRequest{
 				CatalogId: catalogID,
 			}))

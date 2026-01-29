@@ -31,7 +31,7 @@ func TargetsListCommand() *cli.Command {
 		Usage: "List all targets of evaluation",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			client := OrchestratorClient(c)
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestrator.ListTargetsOfEvaluationRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
@@ -54,8 +54,8 @@ func TargetsGetCommand() *cli.Command {
 				return fmt.Errorf("target ID required")
 			}
 			targetID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.GetTargetOfEvaluation(ctx, connect.NewRequest(&orchestrator.GetTargetOfEvaluationRequest{
 				TargetOfEvaluationId: targetID,
 			}))
@@ -78,8 +78,8 @@ func TargetsDeleteCommand() *cli.Command {
 				return fmt.Errorf("target ID required")
 			}
 			targetID := c.Args().Get(0)
-			
-			client := OrchestratorClient(c)
+
+			client := OrchestratorClient(ctx, c)
 			_, err := client.RemoveTargetOfEvaluation(ctx, connect.NewRequest(&orchestrator.RemoveTargetOfEvaluationRequest{
 				TargetOfEvaluationId: targetID,
 			}))
