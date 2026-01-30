@@ -133,7 +133,7 @@ func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessm
 // MetricImplementation returns the Rego implementation for a given metric
 func (m *mockMetricsSource) MetricImplementation(_ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
 	// Fetch the metric implementation directly from our file
-	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Id)
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Name)
 
 	b, err := os.ReadFile(bundle)
 	assert.NoError(m.t, err)

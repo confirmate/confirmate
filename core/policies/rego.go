@@ -90,7 +90,6 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		types   []string
 	)
 
-	// correct for assessment_test: baseDir = "./../../../core/policies"
 	baseDir = "."
 
 	m, err = ontology.ResourceMap(r)
@@ -234,12 +233,12 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 		)
 
 		// Create paths for bundle directory and utility functions file
-		bundle := fmt.Sprintf("%s/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Name)
+		bundle := fmt.Sprintf("%s/policies/security-metrics/metrics/%s/%s/", baseDir, metric.Category, metric.Name)
 		if err != nil {
 			return nil, fmt.Errorf("could not find metric: %w", err)
 		}
 
-		operators := fmt.Sprintf("%s/security-metrics/metrics/operators.rego", baseDir)
+		operators := fmt.Sprintf("%s/policies/security-metrics/metrics/operators.rego", baseDir)
 
 		// The contents of the data map is available as the data variable within the Rego evaluation
 		data := map[string]interface{}{
