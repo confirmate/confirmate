@@ -594,36 +594,22 @@ func TestService_handleEvidence(t *testing.T) {
 					Id:                   testdata.MockEvidenceID1,
 					ToolId:               testdata.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
-					Resource: prototest.NewProtobufResource(t, &ontology.Application{
-						Id:   "Application",
-						Name: "Application",
-						Functionalities: []*ontology.Functionality{
-							{
-								Type: &ontology.Functionality_HttpEndpoint{
-									HttpEndpoint: &ontology.HttpEndpoint{
-										TransportEncryption: &ontology.TransportEncryption{
-											Enabled: true,
-										},
-									},
-								},
-							},
+					TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+						Id:   testdata.MockVirtualMachineID1,
+						Name: testdata.MockVirtualMachineName1,
+						BootLogging: &ontology.BootLogging{
+							LoggingServiceIds: nil,
+							Enabled:           true,
 						},
 					}),
 				},
-				resource: &ontology.Application{
-					Id:   "Application",
-					Name: "Application",
-					Functionalities: []*ontology.Functionality{
-						{
-							Type: &ontology.Functionality_HttpEndpoint{
-								HttpEndpoint: &ontology.HttpEndpoint{
-									TransportEncryption: &ontology.TransportEncryption{
-										Enabled: true,
-									},
-								},
-							},
-						},
+				resource: &ontology.VirtualMachine{
+					Id:   testdata.MockVirtualMachineID1,
+					Name: testdata.MockVirtualMachineName1,
+					BootLogging: &ontology.BootLogging{
+						LoggingServiceIds: nil,
+						Enabled:           true,
 					},
 				},
 			},
@@ -707,13 +693,14 @@ func TestService_handleEvidence(t *testing.T) {
 			)
 
 			metric := &assessment.Metric{
-				Id:          "StrongCryptographicHash",
+				Id:          "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
+				Name:        "StrongCryptographicHash",
 				Category:    "ApplicationSecurity",
 				Description: testdata.MockMetricDescription1,
 				Version:     testdata.MockMetricVersion1,
 				Comments:    testdata.MockMetricComments1,
 				Implementation: &assessment.MetricImplementation{
-					MetricId: "StrongCryptographicHash",
+					MetricId: "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
 					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
 					Code:     ValidRego(),
 				},
@@ -733,7 +720,7 @@ func TestService_handleEvidence(t *testing.T) {
 						Operator:             "==",
 						TargetValue:          testdata.MockMetricConfigurationTargetValueString,
 						IsDefault:            false,
-						MetricId:             "StrongCryptographicHash",
+						MetricId:             "14f72a16-4939-47a9-b4d7-3514ee2a8c44", // StrongCryptographicHash
 						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 					},
 				}),
@@ -956,6 +943,7 @@ func TestService_Metrics(t *testing.T) {
 
 			metric = &assessment.Metric{
 				Id:          testdata.MockMetricID1,
+				Name:        testdata.MockMetricName1,
 				Category:    testdata.MockMetricCategory1,
 				Description: testdata.MockMetricDescription1,
 				Version:     testdata.MockMetricVersion1,
@@ -1045,6 +1033,7 @@ func TestService_MetricImplementation(t *testing.T) {
 
 			metric = &assessment.Metric{
 				Id:             testdata.MockMetricID1,
+				Name:           testdata.MockMetricName1,
 				Category:       testdata.MockMetricCategory1,
 				Description:    testdata.MockMetricDescription1,
 				Version:        testdata.MockMetricVersion1,
@@ -1113,6 +1102,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			toeID: testdata.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
 				Id:          testdata.MockMetricID1,
+				Name:        testdata.MockMetricName1,
 				Description: testdata.MockMetricDescription1,
 				Category:    testdata.MockMetricCategory1,
 				Version:     testdata.MockMetricVersion1,
@@ -1128,6 +1118,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			name: "Successfully retrieve and cache configuration",
 			metric: &assessment.Metric{
 				Id:          testdata.MockMetricID1,
+				Name:        testdata.MockMetricName1,
 				Description: testdata.MockMetricDescription1,
 				Category:    testdata.MockMetricCategory1,
 				Version:     testdata.MockMetricVersion1,
@@ -1150,6 +1141,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			toeID: testdata.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
 				Id:          testdata.MockMetricID1,
+				Name:        testdata.MockMetricName1,
 				Description: testdata.MockMetricDescription1,
 				Category:    testdata.MockMetricCategory1,
 				Version:     testdata.MockMetricVersion1,
