@@ -70,7 +70,8 @@ var _ MetricsSource = (*mockMetricsSource)(nil)
 
 // Metrics returns all metrics loaded from the metrics directory
 func (m *mockMetricsSource) Metrics() ([]*assessment.Metric, error) {
-	metricsPath := "security-metrics/metrics"
+	metricsPath := "./policies/security-metrics/metrics"
+	fmt.Println(os.Executable())
 	metrics := make([]*assessment.Metric, 0)
 
 	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
@@ -113,7 +114,7 @@ func (m *mockMetricsSource) Metrics() ([]*assessment.Metric, error) {
 // MetricConfiguration returns the default configuration for a given metric
 func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
 	// Fetch the metric configuration directly from our file
-	bundle := fmt.Sprintf("./security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Id)
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Name)
 
 	b, err := os.ReadFile(bundle)
 	assert.NoError(m.t, err)
@@ -132,7 +133,7 @@ func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessm
 // MetricImplementation returns the Rego implementation for a given metric
 func (m *mockMetricsSource) MetricImplementation(_ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
 	// Fetch the metric implementation directly from our file
-	bundle := fmt.Sprintf("./security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Id)
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Id)
 
 	b, err := os.ReadFile(bundle)
 	assert.NoError(m.t, err)
@@ -308,7 +309,7 @@ func TestUpdatedMockMetricsSource_MetricConfiguration(t *testing.T) {
 		mockMetricsSource: mockMetricsSource{t: t},
 	}
 
-	config, err := mock.MetricConfiguration("test-target", &assessment.Metric{Id: "test-metric"})
+	config, err := mock.MetricConfiguration("test-target", &assessment.Metric{Name: "test-metric"})
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 	assert.False(t, config.IsDefault)
