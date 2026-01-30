@@ -35,6 +35,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/clitest"
 )
 
 // Mock resource IDs for testing
@@ -53,10 +54,9 @@ const (
 
 // TestMain provides setup and teardown for all tests in this package
 func TestMain(m *testing.M) {
-	// TODO: enable cli test helpers again
-	// clitest.AutoChdir()
-
-	os.Exit(m.Run())
+	clitest.AutoChdir()
+	code := m.Run()
+	os.Exit(code)
 }
 
 // mockMetricsSource implements the MetricsSource interface for testing.
