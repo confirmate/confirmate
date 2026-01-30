@@ -372,7 +372,7 @@ func Test_regoEval_Eval(t *testing.T) {
 
 			for _, result := range results {
 				if result.Applicable {
-					compliants[result.MetricID] = result.Compliant
+					compliants[result.MetricName] = result.Compliant
 				}
 			}
 
@@ -411,7 +411,8 @@ func Test_regoEval_evalMap(t *testing.T) {
 			args: args{
 				targetID: testdata.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
-					Id:       "AutomaticUpdatesEnabled",
+					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
+					Name:     "AutomaticUpdatesEnabled",
 					Category: "EndpointSecurity",
 					Version:  "v1",
 					Comments: "Test comments",
@@ -430,13 +431,14 @@ func Test_regoEval_evalMap(t *testing.T) {
 					Compliant:   true,
 					TargetValue: true,
 					Operator:    "==",
-					MetricID:    "AutomaticUpdatesEnabled",
+					MetricID:    "84eaed86-759d-4419-9954-f3d3ea1f5200",
+					MetricName:  "AutomaticUpdatesEnabled",
 					Config: &assessment.MetricConfiguration{
 						Operator:             "==",
 						TargetValue:          structpb.NewBoolValue(true),
 						IsDefault:            true,
 						UpdatedAt:            nil,
-						MetricId:             "AutomaticUpdatesEnabled",
+						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
 					},
 					Message: assessment.DefaultCompliantMessage,
@@ -456,7 +458,8 @@ func Test_regoEval_evalMap(t *testing.T) {
 			args: args{
 				targetID: testdata.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
-					Id:       "AutomaticUpdatesEnabled",
+					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
+					Name:     "AutomaticUpdatesEnabled",
 					Category: "EndpointSecurity",
 				},
 				baseDir: ".",
@@ -473,13 +476,14 @@ func Test_regoEval_evalMap(t *testing.T) {
 					Compliant:   false,
 					TargetValue: false,
 					Operator:    "==",
-					MetricID:    "AutomaticUpdatesEnabled",
+					MetricID:    "84eaed86-759d-4419-9954-f3d3ea1f5200",
+					MetricName:  "AutomaticUpdatesEnabled",
 					Config: &assessment.MetricConfiguration{
 						Operator:             "==",
 						TargetValue:          structpb.NewBoolValue(false),
 						IsDefault:            false,
 						UpdatedAt:            timestamppb.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
-						MetricId:             "AutomaticUpdatesEnabled",
+						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
 					},
 					Message: assessment.DefaultNonCompliantMessage,
