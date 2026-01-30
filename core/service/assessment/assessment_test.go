@@ -682,7 +682,7 @@ func TestService_handleEvidence(t *testing.T) {
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
-					LoadDefaultMetrics:              true,
+					LoadDefaultMetrics:              false,
 					CreateDefaultTargetOfEvaluation: true,
 				}),
 			)
@@ -1553,47 +1553,21 @@ func TestService_createOrchestratorStreamFactory(t *testing.T) {
 }
 
 func ValidRego() string {
-	return `package cch.metrics.strong_cryptographic_hash
+	return `package cch.metrics.boot_logging_enabled
 
-import data.cch.compare
-import rego.v1
-import input as app
+	import data.cch.compare
+	import rego.v1
+	import input.bootLogging as logging
 
-default applicable = false
+	default applicable = false
 
-default compliant = false
+	default compliant = false
 
-hashes := [func | func := app.functionalities[_]; func.cryptographicHash]
-
-applicable if {
-	#some i
-	#functionalities[i].cryptographicHash
-
-	# the resource type should be an application
-	app.type[_] == "Application"
-}
-
-compliant if {
-	count(violations) == 0
-}
-
-message := "The anaylzed resource uses strong cryptographic hashes." if {
-	compliant
-} else := "The anaylzed resource contains evidence that weak cryptographic hashes are used." if {
-	not compliant
-}
-
-results := [
-mapped |
-	func := app.functionalities[_]
-	mapped := {
-		"property": "cryptographicHash.algorithm",
-		"value": func.cryptographicHash.algorithm,
-		"target_value": data.target_value,
-		"operator": data.operator,
-		"success": compare(data.operator, data.target_value, func.cryptographicHash.algorithm),
+	applicable if {
+		logging
 	}
-]
 
-violations := [x | y := results[_]; y.success == false; x = y]`
+	compliant if {
+		compare(data.operator, data.target_value, logging.enabled)
+	}`
 }
