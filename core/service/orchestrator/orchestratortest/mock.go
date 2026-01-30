@@ -44,9 +44,12 @@ const (
 
 // Mock string IDs for consistent testing
 const (
-	MockMetricId1        = "metric-1"
-	MockMetricId2        = "metric-2"
-	MockMetricId3        = "metric-3"
+	MockMetricId1        = "00000000-0000-0000-0000-000000000001"
+	MockMetricId2        = "00000000-0000-0000-0000-000000000002"
+	MockMetricId3        = "00000000-0000-0000-0000-00000000000"
+	MockMetricName1      = "Mock Metric 1"
+	MockMetricName2      = "Mock Metric 2"
+	MockMetricName3      = "Mock Metric 3"
 	MockMetricIdDefault  = "metric-default"
 	MockCatalogId1       = "catalog-1"
 	MockCatalogId2       = "catalog-2"
@@ -70,18 +73,21 @@ var (
 	// Mock Metrics
 	MockMetric1 = &assessment.Metric{
 		Id:          MockMetricId1,
+		Name:        MockMetricName1,
 		Description: "Mock Metric 1",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
 	}
 	MockMetric2 = &assessment.Metric{
 		Id:          MockMetricId2,
+		Name:        MockMetricName2,
 		Description: "Mock Metric 2",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
 	}
 	MockMetric3 = &assessment.Metric{
 		Id:          MockMetricId3,
+		Name:        MockMetricName3,
 		Description: "Mock Metric 3",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
