@@ -52,9 +52,10 @@ type CombinedResult struct {
 	// TODO(oxisto): They are now part of the individual comparison results
 	TargetValue interface{}
 	// TODO(oxisto): They are now part of the individual comparison results
-	Operator string
-	MetricID string
-	Config   *assessment.MetricConfiguration
+	Operator   string
+	MetricID   string
+	MetricName string
+	Config     *assessment.MetricConfiguration
 
 	// ComparisonResult is an optional feature to get more infos about the comparisons
 	ComparisonResult []*assessment.ComparisonResult

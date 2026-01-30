@@ -104,6 +104,9 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 
 	db = &gormDB{
 		cfg: DefaultConfig,
+		gcfg: gorm.Config{
+			Logger: newSlogGormLogger(),
+		},
 	}
 
 	// Add options and/or override default ones

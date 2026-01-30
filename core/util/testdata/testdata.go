@@ -46,6 +46,7 @@ const (
 	MockAuthClientSecret = "secret"
 
 	// Target of Evaluation
+	MockTargetOfEvaluationZerosID      = "00000000-0000-0000-0000-000000000000"
 	MockTargetOfEvaluationID1          = "11111111-1111-1111-1111-111111111111"
 	MockTargetOfEvaluationName1        = "Mock Target of Evaluation"
 	MockTargetOfEvaluationDescription1 = "This is a mock target of evaluation"

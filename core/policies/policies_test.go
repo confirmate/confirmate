@@ -113,7 +113,7 @@ func (m *mockMetricsSource) Metrics() ([]*assessment.Metric, error) {
 // MetricConfiguration returns the default configuration for a given metric
 func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
 	// Fetch the metric configuration directly from our file
-	bundle := fmt.Sprintf("security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Id)
+	bundle := fmt.Sprintf("./security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Id)
 
 	b, err := os.ReadFile(bundle)
 	assert.NoError(m.t, err)
@@ -132,7 +132,7 @@ func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessm
 // MetricImplementation returns the Rego implementation for a given metric
 func (m *mockMetricsSource) MetricImplementation(_ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
 	// Fetch the metric implementation directly from our file
-	bundle := fmt.Sprintf("policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Id)
+	bundle := fmt.Sprintf("./security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Id)
 
 	b, err := os.ReadFile(bundle)
 	assert.NoError(m.t, err)

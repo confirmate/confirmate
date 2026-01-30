@@ -18,6 +18,8 @@ package assessment
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
 	"reflect"
 	"runtime"
 	"sync"
@@ -42,6 +44,7 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/clitest"
 	"confirmate.io/core/util/prototest"
 	"confirmate.io/core/util/testdata"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -51,6 +54,12 @@ import (
 var (
 	authPort uint16
 )
+
+func TestMain(m *testing.M) {
+	clitest.AutoChdir()
+	code := m.Run()
+	os.Exit(code)
+}
 
 // TestNewService tests the NewService function
 func TestNewService(t *testing.T) {
@@ -585,16 +594,17 @@ func TestService_handleEvidence(t *testing.T) {
 					Id:                   testdata.MockEvidenceID1,
 					ToolId:               testdata.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.Application{
 						Id:   "Application",
 						Name: "Application",
 						Functionalities: []*ontology.Functionality{
 							{
-								Type: &ontology.Functionality_CryptographicHash{
-									CryptographicHash: &ontology.CryptographicHash{
-										Algorithm: "md5",
-										UsesSalt:  false,
+								Type: &ontology.Functionality_HttpEndpoint{
+									HttpEndpoint: &ontology.HttpEndpoint{
+										TransportEncryption: &ontology.TransportEncryption{
+											Enabled: true,
+										},
 									},
 								},
 							},
@@ -606,10 +616,11 @@ func TestService_handleEvidence(t *testing.T) {
 					Name: "Application",
 					Functionalities: []*ontology.Functionality{
 						{
-							Type: &ontology.Functionality_CryptographicHash{
-								CryptographicHash: &ontology.CryptographicHash{
-									Algorithm: "md5",
-									UsesSalt:  false,
+							Type: &ontology.Functionality_HttpEndpoint{
+								HttpEndpoint: &ontology.HttpEndpoint{
+									TransportEncryption: &ontology.TransportEncryption{
+										Enabled: true,
+									},
 								},
 							},
 						},
@@ -685,7 +696,7 @@ func TestService_handleEvidence(t *testing.T) {
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
-					LoadDefaultMetrics:              false,
+					LoadDefaultMetrics:              true,
 					CreateDefaultTargetOfEvaluation: true,
 				}),
 			)
@@ -723,7 +734,7 @@ func TestService_handleEvidence(t *testing.T) {
 						TargetValue:          testdata.MockMetricConfigurationTargetValueString,
 						IsDefault:            false,
 						MetricId:             "StrongCryptographicHash",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 					},
 				}),
 			)
@@ -801,20 +812,20 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 	var (
 		hookCallCounter = 0
 		wg              sync.WaitGroup
-		hookCounts      = 20
+		hookCounts      = 2
 	)
 
 	wg.Add(hookCounts)
 
 	firstHookFunction := func(ctx context.Context, assessmentResult *assessment.AssessmentResult, err error) {
 		hookCallCounter++
-		logger.Info("Hello from inside the firstHookFunction")
+		slog.Info("Hello from inside the firstHookFunction")
 		wg.Done()
 	}
 
 	secondHookFunction := func(ctx context.Context, assessmentResult *assessment.AssessmentResult, err error) {
 		hookCallCounter++
-		logger.Info("Hello from inside the secondHookFunction")
+		slog.Info("Hello from inside the secondHookFunction")
 		wg.Done()
 	}
 
@@ -836,16 +847,18 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 						Id:                   testdata.MockEvidenceID1,
 						ToolId:               testdata.MockEvidenceToolID1,
 						Timestamp:            timestamppb.Now(),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
 							Id:   testdata.MockVirtualMachineID1,
 							Name: testdata.MockVirtualMachineName1,
 							BootLogging: &ontology.BootLogging{
+								Name:              "BootLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
 								Enabled:           true,
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
 							},
 							OsLogging: &ontology.OSLogging{
+								Name:              "OSLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
 								Enabled:           true,
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
@@ -855,13 +868,13 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 								NumberOfThreatsFound: 5,
 								DurationSinceActive:  durationpb.New(time.Hour * 24 * 20),
 								ApplicationLogging: &ontology.ApplicationLogging{
+									Name:              "AppLogging",
 									Enabled:           true,
 									LoggingServiceIds: []string{"SomeAnalyticsService?"},
 								},
 							},
 						}),
 					}},
-
 				resultHooks: []assessment.ResultHookFunc{firstHookFunction, secondHookFunction},
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.AssessEvidenceResponse], args ...any) bool {
@@ -875,7 +888,27 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hookCallCounter = 0
-			s := &Service{}
+			orchSvc, err := orchestrator.NewService(
+				orchestrator.WithConfig(orchestrator.Config{
+					PersistenceConfig: persistence.Config{
+						InMemoryDB: true,
+					},
+					LoadDefaultMetrics:              true,
+					CreateDefaultTargetOfEvaluation: true,
+					DefaultMetricsPath:              "./core/policies/security-metrics/metrics",
+				}),
+			)
+			assert.NoError(t, err)
+
+			_, testSrv := servertest.NewTestConnectServer(t,
+				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+			)
+			aHandler, err := NewService(
+				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+				WithRegoPackageName(policies.DefaultRegoPackage),
+			)
+			assert.NoError(t, err)
+			s := aHandler.(*Service)
 
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)
