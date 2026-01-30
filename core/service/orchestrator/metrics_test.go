@@ -295,6 +295,7 @@ func TestService_UpdateMetric(t *testing.T) {
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
 						Id:          orchestratortest.MockMetric1.Id,
+						Name:        orchestratortest.MockMetricName1,
 						Description: "Updated description",
 						Version:     "v1",
 						Category:    "test-category",
@@ -349,7 +350,8 @@ func TestService_UpdateMetric(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
-						Id:          "non-existent",
+						Id:          "99999999-9999-9999-9999-999999999999",
+						Name:        orchestratortest.MockMetricName1,
 						Description: "Updated description",
 						Version:     "v1",
 						Category:    "test-category",
@@ -370,6 +372,7 @@ func TestService_UpdateMetric(t *testing.T) {
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
 						Id:          orchestratortest.MockMetric1.Id,
+						Name:        orchestratortest.MockMetricName1,
 						Description: "Updated description",
 						Version:     "v1",
 						Category:    "test-category",
