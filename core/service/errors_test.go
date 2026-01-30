@@ -113,7 +113,8 @@ func TestValidate(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&orchestrator.CreateMetricRequest{
 					Metric: &assessment.Metric{
-						Id:          "metric-1",
+						Id:          "ff976ec9-e36d-43a1-b6d8-1dc8b4749619",
+						Name:        "Test Metric",
 						Description: "Test Metric",
 						Version:     "v1",
 						Category:    "awesome",
