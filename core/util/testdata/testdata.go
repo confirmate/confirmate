@@ -169,6 +169,13 @@ var (
 		},
 	}
 
+	// Metric Configuration
+	MockMetricConfigurationTargetValueTrue = &structpb.Value{
+		Kind: &structpb.Value_BoolValue{
+			BoolValue: true,
+		},
+	}
+
 	// Resource Types
 	MockVirtualMachineTypes = []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"}
 	MockBlockStorageTypes   = []string{"BlockStorage", "Storage", "Infrastructure", "Resource"}

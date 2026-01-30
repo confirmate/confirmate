@@ -34,9 +34,9 @@ import (
 	apiOrch "confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/policies"
-	"confirmate.io/core/stream"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
@@ -393,183 +393,179 @@ func TestService_AssessEvidence(t *testing.T) {
 }
 
 func TestService_AssessEvidences(t *testing.T) {
-	type args struct {
-		stream *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-		req    *assessment.AssessEvidenceRequest
-	}
-	type fields struct {
-		svc *Service
-	}
 	tests := []struct {
 		name         string
 		needsOrch    bool
 		evidences    []*evidence.Evidence
-		args         args
-		fields       fields
-		wantStatuses assert.Want[[]assessment.AssessmentStatus]
+		wantStatuses []assessment.AssessmentStatus
 		wantErr      assert.WantErr
 	}{
 		{
 			name: "Missing toolId",
-			evidences: []*evidence.Evidence{
-				&evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
-				},
-			},
-			wantStatuses: func(t *testing.T, got []assessment.AssessmentStatus, args ...any) bool {
-				assert.Equal(t, []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED}, got)
-				return true
-			},
-			wantErr: assert.NoError,
+			evidences: []*evidence.Evidence{{
+				Id:                   testdata.MockEvidenceID1,
+				Timestamp:            timestamppb.Now(),
+				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+				Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
+			}},
+			wantStatuses: []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED},
+			wantErr:      assert.NoError,
 		},
 		{
 			name: "Missing evidenceID",
-			evidences: []*evidence.Evidence{
-				&evidence.Evidence{
-					Timestamp:            timestamppb.Now(),
-					ToolId:               testdata.MockEvidenceToolID1,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
-				},
-			},
-			wantErr: assert.NoError,
-			wantStatuses: func(t *testing.T, got []assessment.AssessmentStatus, args ...any) bool {
-				assert.Equal(t, []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED}, got)
-				return true
-			},
+			evidences: []*evidence.Evidence{{
+				Timestamp:            timestamppb.Now(),
+				ToolId:               testdata.MockEvidenceToolID1,
+				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+					Id:   testdata.MockVirtualMachineID1,
+					Name: testdata.MockVirtualMachineName1,
+				}),
+			}},
+			wantStatuses: []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED},
+			wantErr:      assert.NoError,
 		},
 		{
-			name:      "Assess evidences",
+			name:      "Assess evidences successfully",
 			needsOrch: true,
 			evidences: []*evidence.Evidence{
-				&evidence.Evidence{
+				{
 					Id:                   testdata.MockEvidenceID1,
 					Timestamp:            timestamppb.Now(),
 					ToolId:               testdata.MockEvidenceToolID1,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
 						Id:   testdata.MockVirtualMachineID1,
 						Name: testdata.MockVirtualMachineName1,
+						BootLogging: &ontology.BootLogging{
+							Name:              "loglog",
+							LoggingServiceIds: nil,
+							Enabled:           true,
+						},
+					}),
+				},
+				{
+					Id:                   testdata.MockEvidenceID2,
+					Timestamp:            timestamppb.Now(),
+					ToolId:               testdata.MockEvidenceToolID2,
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+						Id:   testdata.MockVirtualMachineID2,
+						Name: testdata.MockVirtualMachineName2,
+						BootLogging: &ontology.BootLogging{
+							Name:              "loglog",
+							LoggingServiceIds: nil,
+							Enabled:           false,
+						},
 					}),
 				},
 			},
-			wantStatuses: func(t *testing.T, got []assessment.AssessmentStatus, args ...any) bool {
-				assert.Equal(t, []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED}, got)
-				return true
+			wantStatuses: []assessment.AssessmentStatus{
+				assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
+				assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
 			},
 			wantErr: assert.NoError,
 		},
-		{
-			name: "Error in stream to client - Send()-err",
-			evidences: []*evidence.Evidence{
-				&evidence.Evidence{
-					Timestamp:            timestamppb.Now(),
-					ToolId:               testdata.MockEvidenceToolID1,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
-				},
-			},
-			wantStatuses: func(t *testing.T, got []assessment.AssessmentStatus, args ...any) bool {
-				assert.Equal(t, []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED}, got)
-				return true
-			},
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "rpc error: code = Unknown desc = cannot send response to the client")
-			},
-		},
-		{
-			name: "Error in stream to server - Recv()-err",
-			evidences: []*evidence.Evidence{
-				&evidence.Evidence{
-					Timestamp:            timestamppb.Now(),
-					ToolId:               testdata.MockEvidenceToolID1,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-					Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
-				},
-			},
-			wantStatuses: func(t *testing.T, got []assessment.AssessmentStatus, args ...any) bool {
-				assert.Equal(t, []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED}, got)
-				return true
-			},
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "rpc error: code = Unknown desc = cannot receive stream request")
-			},
+	}
+
+	metric := &assessment.Metric{
+		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+		Name:        "BootLoggingEnabled",
+		Category:    "LoggingMonitoring",
+		Description: testdata.MockMetricDescription1,
+		Version:     testdata.MockMetricVersion1,
+		Comments:    testdata.MockMetricComments1,
+		Implementation: &assessment.MetricImplementation{
+			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     ValidRego(),
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			var s *Service
-			var err error
-			var statuses []assessment.AssessmentStatus
-
-			// Only setup orchestrator if needed
-			if tt.needsOrch {
-				orchSvc, err := orchestrator.NewService(
-					orchestrator.WithConfig(orchestrator.Config{
-						PersistenceConfig: persistence.Config{
-							InMemoryDB: true,
-						},
-					}),
-				)
-				assert.NoError(t, err)
-
-				_, testSrv := servertest.NewTestConnectServer(t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-				)
-				defer testSrv.Close()
-
-				aHandler, err := NewService(
-					WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
-				)
-				s = aHandler.(*Service)
-				assert.NoError(t, err)
-			} else {
-				aHandler, err := NewService()
-				s = aHandler.(*Service)
-				assert.NoError(t, err)
-			}
-
-			// Create an assessment test server
-			_, testSrvAssessment := servertest.NewTestConnectServer(t,
-				server.WithHandler(
-					assessmentconnect.NewAssessmentHandler(s),
-				),
+			var (
+				err      error
+				statuses []assessment.AssessmentStatus
 			)
-			serverURL := testSrvAssessment.URL
-			httpClient := testSrvAssessment.Client()
 
-			client := assessmentconnect.NewAssessmentClient(httpClient, serverURL)
-			factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
-				return client.AssessEvidences(ctx)
-			}
-			ctx := context.Background()
-			rs, err := stream.NewRestartableBidiStream(ctx, factory, stream.DefaultRestartConfig())
+			orchSvc, err := orchestrator.NewService(
+				orchestrator.WithConfig(orchestrator.Config{
+					PersistenceConfig: persistence.Config{
+						InMemoryDB: true,
+					},
+					LoadDefaultMetrics:              false,
+					CreateDefaultTargetOfEvaluation: true,
+				}),
+			)
+			_, testSrv := servertest.NewTestConnectServer(t,
+				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+			)
+			defer testSrv.Close()
+
+			aHandler, err := NewService(
+				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+			)
+			require.NoError(t, err)
+			s := aHandler.(*Service)
+
+			streamHandle := s.orchestratorStream
+			defer func() {
+				if streamHandle != nil {
+					_ = streamHandle.Close()
+				}
+			}()
+
+			_, assSrv := servertest.NewTestConnectServer(t,
+				server.WithHandler(assessmentconnect.NewAssessmentHandler(s)),
+			)
+			defer assSrv.Close()
+
+			client := assessmentconnect.NewAssessmentClient(assSrv.Client(), assSrv.URL)
+			stream := client.AssessEvidences(context.Background())
+
+			// Create metric in orchestrator
+			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+				Metric: metric,
+			},
+			))
+			assert.NoError(t, err)
+
+			_, err = orchSvc.UpdateMetricConfiguration(
+				context.Background(),
+				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						Operator:             "==",
+						TargetValue:          testdata.MockMetricConfigurationTargetValueTrue,
+						IsDefault:            false,
+						MetricId:             metric.Id,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					},
+				}),
+			)
 			assert.NoError(t, err)
 
 			for _, ev := range tt.evidences {
-				req := &assessment.AssessEvidenceRequest{
+				sendErr := stream.Send(&assessment.AssessEvidenceRequest{
 					Evidence: ev,
-				}
-				sendErr := rs.Send(req)
+				})
 				assert.NoError(t, sendErr)
 				if sendErr != nil {
 					err = sendErr
 					break
 				}
 
-				res, recvErr := rs.Receive()
+				res, recvErr := stream.Receive()
 				if recvErr != nil {
 					err = recvErr
 					break
 				}
 				statuses = append(statuses, res.Status)
 			}
-			rs.CloseRequest()
-			tt.wantStatuses(t, statuses)
+
+			_ = stream.CloseRequest()
+
+			assert.Equal(t, tt.wantStatuses, statuses)
 			tt.wantErr(t, err)
 		})
 	}
@@ -579,6 +575,7 @@ func TestService_handleEvidence(t *testing.T) {
 	type args struct {
 		evidence *evidence.Evidence
 		resource ontology.IsResource
+		metric   *assessment.Metric
 		related  map[string]ontology.IsResource
 	}
 	tests := []struct {
@@ -588,13 +585,79 @@ func TestService_handleEvidence(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "nil resource",
+			args: args{
+				evidence: &evidence.Evidence{
+					Id:                   testdata.MockEvidenceID1,
+					ToolId:               testdata.MockEvidenceToolID1,
+					Timestamp:            timestamppb.Now(),
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+				},
+				resource: nil,
+			},
+			want: assert.Nil[[]*assessment.AssessmentResult],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "invalid embedded resource")
+			},
+		},
+		{
 			name: "correct evidence: using metrics which return comparison results",
 			args: args{
 				evidence: &evidence.Evidence{
 					Id:                   testdata.MockEvidenceID1,
 					ToolId:               testdata.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+						Id:   testdata.MockVirtualMachineID1,
+						Name: testdata.MockVirtualMachineName1,
+						BootLogging: &ontology.BootLogging{
+							Name:              "loglog",
+							LoggingServiceIds: nil,
+							Enabled:           true,
+						},
+					}),
+				},
+				resource: &ontology.VirtualMachine{
+					Id:   testdata.MockVirtualMachineID1,
+					Name: testdata.MockVirtualMachineName1,
+					BootLogging: &ontology.BootLogging{
+						Name:              "loglog",
+						LoggingServiceIds: nil,
+						Enabled:           true,
+					},
+				},
+				metric: &assessment.Metric{
+					Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+					Name:        "BootLoggingEnabled",
+					Category:    "LoggingMonitoring",
+					Description: testdata.MockMetricDescription1,
+					Version:     testdata.MockMetricVersion1,
+					Comments:    testdata.MockMetricComments1,
+					Implementation: &assessment.MetricImplementation{
+						MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+						Code:     ValidRego(),
+					},
+				},
+			},
+			want: func(t *testing.T, got []*assessment.AssessmentResult, msgAndArgs ...any) bool {
+				for _, result := range got {
+					err := api.Validate(result)
+					assert.NoError(t, err)
+				}
+				return assert.True(t, got[0].MetricId == "bb41142b-ce8c-4c5c-9b42-360f015fd325" && got[0].Compliant == true)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "correct evidence: using metrics which do not return comparison results",
+			args: args{
+				evidence: &evidence.Evidence{
+					Id:                   testdata.MockEvidenceID1,
+					ToolId:               testdata.MockEvidenceToolID1,
+					Timestamp:            timestamppb.Now(),
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
 						Id:   testdata.MockVirtualMachineID1,
 						Name: testdata.MockVirtualMachineName1,
@@ -612,67 +675,41 @@ func TestService_handleEvidence(t *testing.T) {
 						Enabled:           true,
 					},
 				},
+				metric: &assessment.Metric{
+					Id:          "4fbcbf09-35c3-4d7b-b9a9-97c7ba36f0de",
+					Name:        "ApprovedCommitAuthorEnforced",
+					Category:    "DevelopmentLifeCycle",
+					Description: testdata.MockMetricDescription1,
+					Version:     testdata.MockMetricVersion1,
+					Comments:    testdata.MockMetricComments1,
+					Implementation: &assessment.MetricImplementation{
+						MetricId: "4fbcbf09-35c3-4d7b-b9a9-97c7ba36f0de",
+						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+						Code:     ValidRego(),
+					},
+				},
 			},
-			want: func(t *testing.T, got []*assessment.AssessmentResult, msgAndArgs ...any) bool {
-				for _, result := range got {
-					err := api.Validate(result)
-					assert.NoError(t, err)
-				}
-				return assert.True(t, len(got) > 0)
+			want: assert.Nil[[]*assessment.AssessmentResult],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Contains(t, err.Error(), fmt.Sprintf("no results"))
 			},
-			wantErr: assert.NoError,
 		},
-		// {
-		// 	name: "correct evidence: using metrics which do not return comparison results",
-		// 	args: args{
-		// 		evidence: &evidence.Evidence{
-		// 			Id:                   testdata.MockEvidenceID1,
-		// 			ToolId:               testdata.MockEvidenceToolID1,
-		// 			Timestamp:            timestamppb.Now(),
-		// 			TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-		// 			Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 				Id:   testdata.MockVirtualMachineID1,
-		// 				Name: testdata.MockVirtualMachineName1,
-		// 				BootLogging: &ontology.BootLogging{
-		// 					LoggingServiceIds: nil,
-		// 					Enabled:           true,
-		// 				},
-		// 			}),
-		// 		},
-		// 		resource: &ontology.VirtualMachine{
-		// 			Id:   testdata.MockVirtualMachineID1,
-		// 			Name: testdata.MockVirtualMachineName1,
-		// 			BootLogging: &ontology.BootLogging{
-		// 				LoggingServiceIds: nil,
-		// 				Enabled:           true,
-		// 			},
-		// 		},
-		// 	},
-		// 	want: func(t *testing.T, got []*assessment.AssessmentResult, msgAndArgs ...any) bool {
-		// 		for _, result := range got {
-		// 			err := api.Validate(result)
-		// 			assert.NoError(t, err)
-		// 		}
-		// 		return assert.Equal(t, 9, len(got))
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "broken Any message",
-		// 	args: args{
-		// 		evidence: &evidence.Evidence{
-		// 			Id:                   testdata.MockEvidenceID1,
-		// 			ToolId:               testdata.MockEvidenceToolID1,
-		// 			Timestamp:            timestamppb.Now(),
-		// 			TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-		// 			Resource:             &ontology.Resource{},
-		// 		},
-		// 	},
-		// 	want: assert.Nil[[]*assessment.AssessmentResult],
-		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-		// 		return assert.Contains(t, err.Error(), ontology.ErrNotOntologyResource.Error())
-		// 	},
-		// },
+		{
+			name: "broken Any message",
+			args: args{
+				evidence: &evidence.Evidence{
+					Id:                   testdata.MockEvidenceID1,
+					ToolId:               testdata.MockEvidenceToolID1,
+					Timestamp:            timestamppb.Now(),
+					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					Resource:             &ontology.Resource{},
+				},
+			},
+			want: assert.Nil[[]*assessment.AssessmentResult],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Contains(t, err.Error(), ontology.ErrNotOntologyResource.Error())
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -692,40 +729,28 @@ func TestService_handleEvidence(t *testing.T) {
 				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
 			)
 
-			metric := &assessment.Metric{
-				Id:          "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
-				Name:        "StrongCryptographicHash",
-				Category:    "ApplicationSecurity",
-				Description: testdata.MockMetricDescription1,
-				Version:     testdata.MockMetricVersion1,
-				Comments:    testdata.MockMetricComments1,
-				Implementation: &assessment.MetricImplementation{
-					MetricId: "14f72a16-4939-47a9-b4d7-3514ee2a8c44",
-					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
-					Code:     ValidRego(),
+			// Create metric and configuration if metric is provided
+			if tt.args.metric != nil {
+				_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+					Metric: tt.args.metric,
 				},
+				))
+				assert.NoError(t, err)
+
+				_, err = orchSvc.UpdateMetricConfiguration(
+					context.Background(),
+					connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+						Configuration: &assessment.MetricConfiguration{
+							Operator:             "==",
+							TargetValue:          testdata.MockMetricConfigurationTargetValueTrue,
+							IsDefault:            false,
+							MetricId:             tt.args.metric.Id,
+							TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+						},
+					}),
+				)
+				assert.NoError(t, err)
 			}
-
-			// Create metric
-			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-				Metric: metric,
-			},
-			))
-			assert.NoError(t, err)
-
-			_, err = orchSvc.UpdateMetricConfiguration(
-				context.Background(),
-				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-					Configuration: &assessment.MetricConfiguration{
-						Operator:             "==",
-						TargetValue:          testdata.MockMetricConfigurationTargetValueString,
-						IsDefault:            false,
-						MetricId:             "14f72a16-4939-47a9-b4d7-3514ee2a8c44", // StrongCryptographicHash
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
-					},
-				}),
-			)
-			assert.NoError(t, err)
 
 			aHandler, err := NewService(
 				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
@@ -748,18 +773,70 @@ func TestService_handleEvidence(t *testing.T) {
 // AssessEvidence-handleEvidence (assessment.go) which loops over all evaluations
 // Todo: Add it to table test above (would probably need some function injection in test cases like we do with storage)
 func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached(t *testing.T) {
-	s := &Service{
-		cachedConfigurations: make(map[string]cachedConfiguration),
-		evidenceResourceMap:  make(map[string]*evidence.Evidence),
-		pe:                   policies.NewRegoEval(policies.WithPackageName(policies.DefaultRegoPackage)),
+
+	orchSvc, err := orchestrator.NewService(
+		orchestrator.WithConfig(orchestrator.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			LoadDefaultMetrics:              false,
+			CreateDefaultTargetOfEvaluation: true,
+		}),
+	)
+	assert.NoError(t, err)
+
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+	)
+	aHandler, err := NewService(
+		WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+		WithRegoPackageName(policies.DefaultRegoPackage),
+	)
+	assert.NoError(t, err)
+	s := aHandler.(*Service)
+
+	// Create metric
+	metric := &assessment.Metric{
+		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+		Name:        "BootLoggingEnabled",
+		Category:    "LoggingMonitoring",
+		Description: testdata.MockMetricDescription1,
+		Version:     testdata.MockMetricVersion1,
+		Comments:    testdata.MockMetricComments1,
+		Implementation: &assessment.MetricImplementation{
+			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     ValidRego(),
+		},
 	}
+
+	_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+		Metric: metric,
+	},
+	))
+	assert.NoError(t, err)
+
+	_, err = orchSvc.UpdateMetricConfiguration(
+		context.Background(),
+		connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+			Configuration: &assessment.MetricConfiguration{
+				Operator:             "==",
+				TargetValue:          testdata.MockMetricConfigurationTargetValueString,
+				IsDefault:            false,
+				MetricId:             metric.Id,
+				TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+			},
+		}),
+	)
+	assert.NoError(t, err)
+
 	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
 	// tool id (="VirtualMachine-{testdata.MockEvidenceToolID}")
 	e := &evidence.Evidence{
 		Id:                   testdata.MockEvidenceID1,
 		ToolId:               testdata.MockEvidenceToolID1,
 		Timestamp:            timestamppb.Now(),
-		TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+		TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
 			Id:   testdata.MockVirtualMachineID1,
 			Name: testdata.MockVirtualMachineName1,
@@ -770,7 +847,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		Id:   testdata.MockVirtualMachineID1,
 		Name: testdata.MockVirtualMachineName1,
 	})
-	_, err := s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e}))
+	_, err = s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e}))
 	assert.NoError(t, err)
 
 	// Now assess a new evidence which has not a valid format other than the resource type and tool id is set correctly
@@ -781,12 +858,13 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 	})
 
 	assert.NoError(t, err)
+
 	_, err = s.AssessEvidence(context.Background(), connect.NewRequest(
 		&assessment.AssessEvidenceRequest{
 			Evidence: &evidence.Evidence{
 				Id:                   uuid.NewString(),
 				Timestamp:            timestamppb.Now(),
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+				TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
 				// Make sure both evidences have the same tool id (for caching key)
 				ToolId:   e.ToolId,
 				Resource: a,
@@ -880,9 +958,8 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
-					LoadDefaultMetrics:              true,
+					LoadDefaultMetrics:              false,
 					CreateDefaultTargetOfEvaluation: true,
-					DefaultMetricsPath:              "./core/policies/security-metrics/metrics",
 				}),
 			)
 			assert.NoError(t, err)
@@ -896,6 +973,41 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 			)
 			assert.NoError(t, err)
 			s := aHandler.(*Service)
+
+			// Create metric
+			metric := &assessment.Metric{
+				Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+				Name:        "BootLoggingEnabled",
+				Category:    "LoggingMonitoring",
+				Description: testdata.MockMetricDescription1,
+				Version:     testdata.MockMetricVersion1,
+				Comments:    testdata.MockMetricComments1,
+				Implementation: &assessment.MetricImplementation{
+					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+					Code:     ValidRego(),
+				},
+			}
+
+			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+				Metric: metric,
+			},
+			))
+			assert.NoError(t, err)
+
+			_, err = orchSvc.UpdateMetricConfiguration(
+				context.Background(),
+				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						Operator:             "==",
+						TargetValue:          testdata.MockMetricConfigurationTargetValueString,
+						IsDefault:            false,
+						MetricId:             metric.Id,
+						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					},
+				}),
+			)
+			assert.NoError(t, err)
 
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)
@@ -951,21 +1063,21 @@ func TestService_Metrics(t *testing.T) {
 			}
 
 			// Create an orchestrator service for testing
-			svc, err := orchestrator.NewService(
+			orchSvc, err := orchestrator.NewService(
 				orchestrator.WithConfig(orchestrator.Config{
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
-					CreateDefaultTargetOfEvaluation: false,
+					CreateDefaultTargetOfEvaluation: true,
 					LoadDefaultCatalogs:             false,
 					LoadDefaultMetrics:              false,
 				}),
 			)
 			assert.NoError(t, err)
-			assert.NotNil(t, svc)
+			assert.NotNil(t, orchSvc)
 
 			srv, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
 			)
 			defer testSrv.Close()
 
@@ -973,7 +1085,7 @@ func TestService_Metrics(t *testing.T) {
 			assert.NotNil(t, testSrv)
 
 			// Create metric
-			_, err = svc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
 				Metric: metric,
 			},
 			))
@@ -1303,120 +1415,6 @@ func TestService_initOrchestratorStream(t *testing.T) {
 			}
 		})
 	}
-}
-
-// TestService_Concurrency tests concurrent access to the service
-func TestService_Concurrency(t *testing.T) {
-	orchSvc, err := orchestrator.NewService(
-		orchestrator.WithConfig(orchestrator.Config{
-			PersistenceConfig: persistence.Config{
-				InMemoryDB: true,
-			},
-			CreateDefaultTargetOfEvaluation: false,
-			LoadDefaultCatalogs:             false,
-			LoadDefaultMetrics:              true,
-		}),
-	)
-	assert.NoError(t, err)
-	assert.NotNil(t, orchSvc)
-
-	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-	)
-	defer testSrv.Close()
-
-	t.Run("Concurrent AssessEvidence calls", func(t *testing.T) {
-		handler, err := NewService()
-		assert.NoError(t, err)
-
-		svc := handler.(*Service)
-		svc.evidenceResourceMap = make(map[string]*evidence.Evidence)
-
-		var wg sync.WaitGroup
-		numGoroutines := 10
-
-		for i := 0; i < numGoroutines; i++ {
-			wg.Add(1)
-			go func(idx int) {
-				defer wg.Done()
-
-				req := &assessment.AssessEvidenceRequest{
-					Evidence: &evidence.Evidence{
-						Id:                   uuid.NewString(),
-						ToolId:               testdata.MockEvidenceToolID1,
-						Timestamp:            timestamppb.Now(),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   fmt.Sprintf("vm-%d", idx),
-							Name: fmt.Sprintf("VM %d", idx),
-						}),
-					},
-				}
-
-				_, err := svc.AssessEvidence(context.Background(), connect.NewRequest(req))
-				if err != nil {
-					t.Logf("Expected error in concurrent test: %v", err)
-				}
-			}(i)
-		}
-
-		wg.Wait()
-	})
-
-	t.Run("Concurrent cache access", func(t *testing.T) {
-
-		// Create service
-		handler, err := NewService(
-			WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
-		)
-		assert.NoError(t, err)
-
-		svc := handler.(*Service)
-		svc.cachedConfigurations = make(map[string]cachedConfiguration)
-
-		var wg sync.WaitGroup
-		numGoroutines := 20
-
-		metric := &assessment.Metric{
-			Id:          "TestMetric",
-			Description: "Concurrent Test Metric",
-		}
-
-		for i := 0; i < numGoroutines; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				_, _ = svc.MetricConfiguration(testdata.MockTargetOfEvaluationID1, metric)
-			}()
-		}
-
-		wg.Wait()
-	})
-
-	t.Run("Concurrent hook registration and invocation", func(t *testing.T) {
-		svc := &Service{
-			resultHooks: []assessment.ResultHookFunc{},
-		}
-
-		var wg sync.WaitGroup
-		numGoroutines := 10
-
-		// Register hooks concurrently
-		for i := 0; i < numGoroutines; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				svc.RegisterAssessmentResultHook(func(ctx context.Context, result *assessment.AssessmentResult, err error) {
-					// No-op hook
-				})
-			}()
-		}
-
-		wg.Wait()
-
-		// Verify all hooks were registered
-		assert.Equal(t, numGoroutines, len(svc.resultHooks))
-	})
 }
 
 // TestService_informHooks tests the informHooks method

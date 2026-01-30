@@ -153,6 +153,10 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	svc.pe = policies.NewRegoEval(policies.WithPackageName(svc.evalPkg))
 
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
+	err = svc.initOrchestratorStream()
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.initOrchestratorStream()
 
@@ -161,21 +165,14 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 }
 
 func (svc *Service) initOrchestratorStream() (err error) {
-	config := stream.DefaultRestartConfig()
-	config.MaxRetries = 5
-
-	ctx := context.Background()
-
-	factory := svc.createOrchestratorStreamFactory()
-
-	rs, err := stream.NewRestartableBidiStream(ctx, factory, config)
-	if err != nil {
-		slog.Error("Failed to create orchestrator stream", log.Err(err))
-		return
+	factory := func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
+		return svc.orchestratorClient.StoreAssessmentResults(ctx)
 	}
-
-	svc.orchestratorStream = rs
-
+	restartableStream, err := stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "StoreAssessmentResults")
+	if err != nil {
+		return err
+	}
+	svc.orchestratorStream = restartableStream
 	return
 }
 
@@ -207,12 +204,16 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 			Evidence: req.Evidence,
 		})
 
-		_, err = svc.AssessEvidence(ctx, assessmentReq)
+		assessmentRes, err := svc.AssessEvidence(ctx, assessmentReq)
 		if err != nil {
 			slog.Error("AssessEvidenceStream: could not assess evidence:", log.Err(err))
 			res = &assessment.AssessEvidencesResponse{
 				Status:        assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
 				StatusMessage: err.Error(),
+			}
+		} else {
+			res = &assessment.AssessEvidencesResponse{
+				Status: assessmentRes.Msg.Status,
 			}
 		}
 
