@@ -850,7 +850,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 	_, err = s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e}))
 	assert.NoError(t, err)
 
-	// Now assess a new evidence which has not a valid format other than the resource type and tool id is set correctly
+	// Assess a new evidence which has not a valid format other than the resource type and tool id is set correctly
 	// Prepare resource. Make sure both evidences have the same type (for caching key)
 	a := prototest.NewProtobufResource(t, &ontology.VirtualMachine{
 		Id:   uuid.NewString(),
