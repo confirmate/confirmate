@@ -27,8 +27,10 @@ import (
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
+	apiOrch "confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
+	"confirmate.io/core/policies"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator"
@@ -178,8 +180,61 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 // TestService_AssessEvidenceWaitFor_Integration is an alternative integration-style test
 // that tests the entire flow as a single scenario
 func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
-	ctx := context.Background()
-	svc, err := NewService()
+
+	orchSvc, err := orchestrator.NewService(
+		orchestrator.WithConfig(orchestrator.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			LoadDefaultMetrics:              false,
+			CreateDefaultTargetOfEvaluation: true,
+		}),
+	)
+	assert.NoError(t, err)
+
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+	)
+	aHandler, err := NewService(
+		WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+		WithRegoPackageName(policies.DefaultRegoPackage),
+	)
+	assert.NoError(t, err)
+	s := aHandler.(*Service)
+
+	// Create metric
+	metric := &assessment.Metric{
+		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+		Name:        "BootLoggingEnabled",
+		Category:    "LoggingMonitoring",
+		Description: testdata.MockMetricDescription1,
+		Version:     testdata.MockMetricVersion1,
+		Comments:    testdata.MockMetricComments1,
+		Implementation: &assessment.MetricImplementation{
+			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     ValidRego(),
+		},
+	}
+
+	_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+		Metric: metric,
+	},
+	))
+	assert.NoError(t, err)
+
+	_, err = orchSvc.UpdateMetricConfiguration(
+		context.Background(),
+		connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+			Configuration: &assessment.MetricConfiguration{
+				Operator:             "==",
+				TargetValue:          testdata.MockMetricConfigurationTargetValueString,
+				IsDefault:            false,
+				MetricId:             metric.Id,
+				TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+			},
+		}),
+	)
 	assert.NoError(t, err)
 
 	// Step 1: Add first evidence waiting for related resource
@@ -190,13 +245,13 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 			Name:            "my resource",
 			BlockStorageIds: []string{testResourceID3},
 		}),
-		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationID1,
+		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
 		Timestamp:                      timestamppb.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID3},
 	}
 
-	resp1, err := svc.AssessEvidence(ctx, connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e1}))
+	resp1, err := s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e1}))
 	assert.NoError(t, err)
 	assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_WAITING_FOR_RELATED, resp1.Msg.Status)
 
@@ -208,13 +263,13 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 			Name:            "my other resource",
 			BlockStorageIds: []string{testResourceID3},
 		}),
-		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationID1,
+		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
 		Timestamp:                      timestamppb.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID3},
 	}
 
-	resp2, err := svc.AssessEvidence(ctx, connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e2}))
+	resp2, err := s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e2}))
 	assert.NoError(t, err)
 	assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_WAITING_FOR_RELATED, resp2.Msg.Status)
 
@@ -225,23 +280,21 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 			Id:   testResourceID3,
 			Name: "my third resource",
 		}),
-		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationID1,
+		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
 		Timestamp:                      timestamppb.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID1},
 	}
 
-	resp3, err := svc.AssessEvidence(ctx, connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e3}))
+	resp3, err := s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e3}))
 	assert.NoError(t, err)
 	assert.Equal(t, assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED, resp3.Msg.Status)
 
 	// Wait for background processing with timeout
-	waitForServiceWithTimeout(t, svc, 5*time.Second)
+	waitForServiceWithTimeout(t, s, 5*time.Second)
 
 	// Verify: no requests should be left over
-	if s, ok := svc.(*Service); ok {
-		assert.Empty(t, s.requests, "expected all requests to be processed")
-	}
+	assert.Empty(t, s.requests, "expected all requests to be processed")
 }
 
 // waitForServiceWithTimeout waits for the service to complete background work
