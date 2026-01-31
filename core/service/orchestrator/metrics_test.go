@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"os"
 	"testing"
 
@@ -932,51 +933,51 @@ func TestService_loadMetrics(t *testing.T) {
 		fields  fields
 		wantErr assert.WantErr
 	}{
-		// {
-		// 	name: "no metrics to load",
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 		cfg: Config{
-		// 			LoadDefaultMetrics: false,
-		// 			LoadMetricsFunc:    nil,
-		// 		},
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "load from custom function",
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 		cfg: Config{
-		// 			LoadDefaultMetrics: false,
-		// 			LoadMetricsFunc: func(svc *Service) ([]*assessment.Metric, error) {
-		// 				return []*assessment.Metric{
-		// 					{
-		// 						Id:          "custom-metric",
-		// 						Description: "Custom Metric",
-		// 					},
-		// 				}, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "custom function returns error",
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 		cfg: Config{
-		// 			LoadDefaultMetrics: false,
-		// 			LoadMetricsFunc: func(svc *Service) ([]*assessment.Metric, error) {
-		// 				return nil, errors.New("custom error")
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-		// 		return assert.Error(t, err) &&
-		// 			assert.ErrorContains(t, err, "could not load additional metrics")
-		// 	},
-		// },
+		{
+			name: "no metrics to load",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: false,
+					LoadMetricsFunc:    nil,
+				},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "load from custom function",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: false,
+					LoadMetricsFunc: func(svc *Service) ([]*assessment.Metric, error) {
+						return []*assessment.Metric{
+							{
+								Id:          "custom-metric",
+								Description: "Custom Metric",
+							},
+						}, nil
+					},
+				},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "custom function returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: false,
+					LoadMetricsFunc: func(svc *Service) ([]*assessment.Metric, error) {
+						return nil, errors.New("custom error")
+					},
+				},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Error(t, err) &&
+					assert.ErrorContains(t, err, "could not load additional metrics")
+			},
+		},
 		{
 			name: "load default",
 			fields: fields{
