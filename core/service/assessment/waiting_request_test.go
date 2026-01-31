@@ -24,7 +24,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/assessment"
-	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
 	apiOrch "confirmate.io/core/api/orchestrator"
@@ -297,13 +296,14 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 	assert.Empty(t, s.requests, "expected all requests to be processed")
 }
 
-// waitForServiceWithTimeout waits for the service to complete background work
-func waitForServiceWithTimeout(t *testing.T, svc assessmentconnect.AssessmentHandler, timeout time.Duration) {
+// waitForServiceWithTimeout waits for the service to complete background work.
+// It accepts *Service so the helper does not depend on the Connect handler type.
+func waitForServiceWithTimeout(t *testing.T, s *Service, timeout time.Duration) {
 	t.Helper()
 
 	done := make(chan struct{})
 	go func() {
-		svc.(*Service).wg.Wait()
+		s.wg.Wait()
 		close(done)
 	}()
 

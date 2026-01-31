@@ -51,10 +51,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var (
-	authPort uint16
-)
-
 func TestMain(m *testing.M) {
 	clitest.AutoChdir()
 	code := m.Run()
@@ -386,8 +382,8 @@ func TestService_AssessEvidence(t *testing.T) {
 			}
 
 			res, err := s.AssessEvidence(context.Background(), connect.NewRequest(tt.args.req))
-			tt.want(t, res)
 			tt.wantErr(t, err)
+			tt.want(t, res)
 		})
 	}
 }
@@ -400,6 +396,12 @@ func TestService_AssessEvidences(t *testing.T) {
 		wantStatuses []assessment.AssessmentStatus
 		wantErr      assert.WantErr
 	}{
+		{
+			name:         "Empty stream (client sends no messages, closes request)",
+			evidences:    nil,
+			wantStatuses: nil,
+			wantErr:      assert.NoError,
+		},
 		{
 			name: "Missing toolId",
 			evidences: []*evidence.Evidence{{
@@ -563,7 +565,9 @@ func TestService_AssessEvidences(t *testing.T) {
 				statuses = append(statuses, res.Status)
 			}
 
-			_ = stream.CloseRequest()
+			// Close request side so server's Receive() gets EOF and handler returns.
+			closeErr := stream.CloseRequest()
+			assert.NoError(t, closeErr)
 
 			assert.Equal(t, tt.wantStatuses, statuses)
 			tt.wantErr(t, err)
@@ -1210,7 +1214,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 		wantErr        assert.WantErr
 	}{
 		{
-			name:  "Successfully retrieve and cache configuration",
+			name:  "Successfully retrieve and cache configuration (no pre-cache)",
 			toeID: testdata.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
 				Id:          testdata.MockMetricID1,
@@ -1227,7 +1231,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			wantErr:    assert.NoError,
 		},
 		{
-			name: "Successfully retrieve and cache configuration",
+			name: "Successfully retrieve configuration (pre-cache hit)",
 			metric: &assessment.Metric{
 				Id:          testdata.MockMetricID1,
 				Name:        testdata.MockMetricName1,
@@ -1249,7 +1253,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			wantErr:    assert.NoError,
 		},
 		{
-			name:  "Successfully retrieve and cache configuration",
+			name:  "Successfully retrieve configuration (expired cache refreshed)",
 			toeID: testdata.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
 				Id:          testdata.MockMetricID1,

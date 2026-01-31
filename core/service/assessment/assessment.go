@@ -220,10 +220,9 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 		err = stream.Send(res)
 		if err != nil {
 			slog.Error("AssessEvidenceStream: could not send response:", log.Err(err))
+			return connect.NewError(connect.CodeUnknown, fmt.Errorf("could not send stream response: %w", err))
 		}
 	}
-
-	return err
 }
 
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
