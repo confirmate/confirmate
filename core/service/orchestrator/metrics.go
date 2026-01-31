@@ -424,6 +424,7 @@ func (svc *Service) loadMetrics() (err error) {
 		return svc.db.Save(metrics)
 	}
 
+	// Here we have return nil, as the previous errors are only a warning and not a real error for the calling function.
 	return nil
 }
 
@@ -463,12 +464,20 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 			return fmt.Errorf("error decoding metric %s: %w", path, err)
 		}
 
-		metrics = append(metrics, &metric)
+		metricDir := filepath.Dir(path)
 
 		// Load default configuration from data.json if it exists
 		if err := prepareMetric(&metric, path); err != nil {
 			slog.Warn("Could not prepare metric", "metric", metric.Id, log.Err(err))
 		}
+
+		// Load metric implementation from metric.rego in the same directory
+		metric.Implementation, err = loadMetricImplementation(metric.Id, metricDir)
+		if err != nil {
+			slog.Debug("Could not load metric implementation", "metric", metric.Id, log.Err(err))
+		}
+
+		metrics = append(metrics, &metric)
 
 		return nil
 	})
@@ -516,4 +525,30 @@ func prepareMetric(m *assessment.Metric, metricPath string) (err error) {
 	defaultMetricConfigurations[m.Id] = config
 
 	return nil
+}
+
+// loadMetricImplementation loads a metric implementation from metric.rego in the given directory.
+func loadMetricImplementation(metricID, metricDir string) (impl *assessment.MetricImplementation, err error) {
+	regoPath := filepath.Join(metricDir, "metric.rego")
+
+	// Check if metric.rego exists
+	if _, err := os.Stat(regoPath); os.IsNotExist(err) {
+		// No implementation file found; this is not an error
+		return nil, nil
+	}
+
+	// Read the metric.rego file
+	b, err := os.ReadFile(regoPath)
+	if err != nil {
+		return nil, fmt.Errorf("could not read metric.rego: %w", err)
+	}
+
+	impl = &assessment.MetricImplementation{
+		MetricId:  metricID,
+		Lang:      assessment.MetricImplementation_LANGUAGE_REGO,
+		Code:      string(b),
+		UpdatedAt: timestamppb.Now(),
+	}
+
+	return impl, nil
 }
