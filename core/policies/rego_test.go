@@ -16,15 +16,18 @@
 package policies
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
 	"confirmate.io/core/util/testdata"
+	"github.com/open-policy-agent/opa/v1/rego"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -581,4 +584,237 @@ func Test_reencode(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+// Test_regoEval_HandleMetricEvent tests cache eviction on metric events
+func Test_regoEval_HandleMetricEvent_EvictOnImplementationChange(t *testing.T) {
+	re := &regoEval{
+		qc:   newQueryCache(),
+		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+		pkg:  DefaultRegoPackage,
+	}
+
+	// Add a query to cache (cast to interface{} then back)
+	re.qc.cache["metric-123-target1"] = &rego.PreparedEvalQuery{}
+
+	// Verify cache has entry
+	assert.Equal(t, 1, len(re.qc.cache))
+
+	// Handle metric implementation change event
+	event := &orchestrator.ChangeEvent{
+		Category: orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+		EntityId: "metric-123",
+	}
+
+	err := re.HandleMetricEvent(event)
+	assert.NoError(t, err)
+
+	// Verify cache entry is evicted
+	assert.Equal(t, 0, len(re.qc.cache))
+}
+
+// Test_regoEval_HandleMetricEvent_EvictOnConfigurationChange tests eviction for configuration changes
+func Test_regoEval_HandleMetricEvent_EvictOnConfigurationChange(t *testing.T) {
+	re := &regoEval{
+		qc:   newQueryCache(),
+		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+		pkg:  DefaultRegoPackage,
+	}
+
+	// Add multiple queries to cache for the same metric
+	re.qc.cache["metric-456-target1"] = &rego.PreparedEvalQuery{}
+	re.qc.cache["metric-456-target2"] = &rego.PreparedEvalQuery{}
+	re.qc.cache["metric-789-target1"] = &rego.PreparedEvalQuery{}
+
+	// Verify cache has 3 entries
+	assert.Equal(t, 3, len(re.qc.cache))
+
+	// Handle metric configuration change event for metric-456
+	event := &orchestrator.ChangeEvent{
+		Category: orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
+		EntityId: "metric-456",
+	}
+
+	err := re.HandleMetricEvent(event)
+	assert.NoError(t, err)
+
+	// Verify only metric-456 entries are evicted
+	assert.Equal(t, 1, len(re.qc.cache))
+	_, exists := re.qc.cache["metric-789-target1"]
+	assert.True(t, exists, "metric-789-target1 should still exist")
+}
+
+// Test_regoEval_HandleMetricEvent_PartialKeyMatching verifies prefix-based eviction
+func Test_regoEval_HandleMetricEvent_PartialKeyMatching(t *testing.T) {
+	re := &regoEval{
+		qc:   newQueryCache(),
+		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+		pkg:  DefaultRegoPackage,
+	}
+
+	// Add cache entries with similar keys
+	// Note: Evict uses HasPrefix, so "metric-123" will match "metric-123*" AND "metric-1234*"
+	re.qc.cache["metric-123-config1"] = &rego.PreparedEvalQuery{}
+	re.qc.cache["metric-123-config2"] = &rego.PreparedEvalQuery{}
+	re.qc.cache["metric-456-config1"] = &rego.PreparedEvalQuery{}
+
+	// Evict metric-123
+	event := &orchestrator.ChangeEvent{
+		Category: orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+		EntityId: "metric-123",
+	}
+	err := re.HandleMetricEvent(event)
+	assert.NoError(t, err)
+
+	// Verify only metric-123 entries are evicted
+	assert.Equal(t, 1, len(re.qc.cache))
+	_, exists := re.qc.cache["metric-456-config1"]
+	assert.True(t, exists, "metric-456-config1 should still exist")
+}
+
+// Test_queryCache_GetExecutesOrElseOnMiss tests cache hit/miss behavior
+func Test_queryCache_GetExecutesOrElseOnMiss(t *testing.T) {
+	qc := newQueryCache()
+
+	callCount := 0
+	orElseFn := func(key string) (*rego.PreparedEvalQuery, error) {
+		callCount++
+		return &rego.PreparedEvalQuery{}, nil
+	}
+
+	// First call should execute orElseFn
+	result1, err := qc.Get("key1", orElseFn)
+	assert.NoError(t, err)
+	assert.NotNil(t, result1)
+	assert.Equal(t, 1, callCount)
+
+	// Second call should NOT execute orElseFn (cache hit)
+	orElseFn2 := func(key string) (*rego.PreparedEvalQuery, error) {
+		t.Fatal("orElseFn should not be called on cache hit")
+		return nil, nil
+	}
+	result2, err := qc.Get("key1", orElseFn2)
+	assert.NoError(t, err)
+	assert.NotNil(t, result2)
+	assert.Equal(t, 1, callCount) // Still 1, not incremented
+}
+
+// Test_queryCache_EvictRemovesMatchingPrefixes tests prefix-based eviction
+func Test_queryCache_EvictRemovesMatchingPrefixes(t *testing.T) {
+	qc := newQueryCache()
+
+	// Add cache entries
+	qc.cache["metric-123-config1"] = &rego.PreparedEvalQuery{}
+	qc.cache["metric-123-config2"] = &rego.PreparedEvalQuery{}
+	qc.cache["metric-456-config1"] = &rego.PreparedEvalQuery{}
+
+	// Evict entries for metric-123
+	qc.Evict("metric-123")
+
+	// Verify correct entries removed
+	assert.Equal(t, 1, len(qc.cache))
+	_, exists := qc.cache["metric-456-config1"]
+	assert.True(t, exists, "metric-456-config1 should remain")
+}
+
+// Test_queryCache_EmptyClears verifies Empty() clears all cache
+func Test_queryCache_EmptyClears(t *testing.T) {
+	qc := newQueryCache()
+
+	// Add multiple entries
+	qc.cache["key1"] = &rego.PreparedEvalQuery{}
+	qc.cache["key2"] = &rego.PreparedEvalQuery{}
+	qc.cache["key3"] = &rego.PreparedEvalQuery{}
+	assert.Equal(t, 3, len(qc.cache))
+
+	// Clear cache
+	qc.Empty()
+
+	// Verify completely empty
+	assert.Equal(t, 0, len(qc.cache))
+}
+
+// Test_queryCache_ConcurrentAccess tests thread-safety with concurrent operations
+func Test_queryCache_ConcurrentAccess(t *testing.T) {
+	qc := newQueryCache()
+
+	// Add initial entries
+	qc.cache["initial-1"] = &rego.PreparedEvalQuery{}
+	qc.cache["initial-2"] = &rego.PreparedEvalQuery{}
+
+	done := make(chan bool)
+	errors := make(chan error, 10)
+
+	// Concurrent Get operations
+	for i := 0; i < 3; i++ {
+		go func(id int) {
+			key := fmt.Sprintf("key-%d", id)
+			counter := 0
+			_, err := qc.Get(key, func(k string) (*rego.PreparedEvalQuery, error) {
+				counter++
+				if counter > 1 {
+					errors <- fmt.Errorf("orElseFn called multiple times for key %s", k)
+				}
+				return &rego.PreparedEvalQuery{}, nil
+			})
+			if err != nil {
+				errors <- err
+			}
+			done <- true
+		}(i)
+	}
+
+	// Concurrent Evict operations
+	for i := 0; i < 2; i++ {
+		go func(prefix string) {
+			qc.Evict(prefix)
+			done <- true
+		}(fmt.Sprintf("prefix-%d", i))
+	}
+
+	// Wait for all goroutines
+	for i := 0; i < 5; i++ {
+		<-done
+	}
+
+	// Check for errors
+	select {
+	case err := <-errors:
+		t.Fatalf("Concurrent access error: %v", err)
+	default:
+		// No errors
+	}
+
+	// Verify cache is still in valid state
+	assert.NotNil(t, qc.cache)
+}
+
+// Test_queryCache_GetHandlesOrElseError tests error handling
+func Test_queryCache_GetHandlesOrElseError(t *testing.T) {
+	qc := newQueryCache()
+
+	testError := fmt.Errorf("test error from orElse")
+	orElseFn := func(key string) (*rego.PreparedEvalQuery, error) {
+		return nil, testError
+	}
+
+	// First call returns error
+	result, err := qc.Get("key1", orElseFn)
+	assert.Nil(t, result)
+	assert.ErrorContains(t, err, "test error from orElse")
+
+	// Verify key is NOT cached after error
+	assert.Equal(t, 0, len(qc.cache))
+
+	// Second call should re-execute orElseFn (not cached)
+	callCount := 0
+	orElseFn2 := func(key string) (*rego.PreparedEvalQuery, error) {
+		callCount++
+		return nil, testError
+	}
+
+	result2, err2 := qc.Get("key1", orElseFn2)
+	assert.Nil(t, result2)
+	assert.ErrorContains(t, err2, "test error from orElse")
+	assert.Equal(t, 1, callCount)
 }
