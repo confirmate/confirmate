@@ -66,6 +66,12 @@ type cachedConfiguration struct {
 	*assessment.MetricConfiguration
 }
 
+// subscriber represents a subscription to metric change events
+type subscriber struct {
+	ch     chan *orchestrator.ChangeEvent
+	filter *orchestrator.SubscribeRequest_Filter
+}
+
 // Service is an implementation of the Clouditor Assessment service. It should not be used directly,
 // but rather the NewService constructor should be used. It implements the AssessmentServer interface.
 type Service struct {
@@ -109,6 +115,11 @@ type Service struct {
 
 	// evalPkg specifies the package used for the evaluation engine
 	evalPkg string
+
+	// subscribers is a map of subscribers for metric change events
+	subscribers      map[int64]*subscriber
+	subscribersMutex sync.RWMutex
+	nextSubscriberId int64
 }
 
 // WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
@@ -138,6 +149,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		evidenceResourceMap:  make(map[string]*evidence.Evidence),
 		requests:             make(map[string]waitingRequest),
 		cachedConfigurations: make(map[string]cachedConfiguration),
+		subscribers:          make(map[int64]*subscriber),
 	}
 
 	for _, o := range opts {
@@ -149,8 +161,11 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		svc.evalPkg = policies.DefaultRegoPackage
 	}
 
-	// Initialize the policy evaluator after options are set
-	svc.pe = policies.NewRegoEval(policies.WithPackageName(svc.evalPkg))
+	// Initialize the policy evaluator with event subscription
+	svc.pe = policies.NewRegoEval(
+		policies.WithPackageName(svc.evalPkg),
+		policies.WithEventSubscriber(svc),
+	)
 
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
 	err = svc.initOrchestratorStream()
@@ -532,4 +547,47 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 	}
 
 	return cache.MetricConfiguration, nil
+}
+
+// RegisterSubscriber registers a new subscriber for metric change events.
+// It returns a channel to receive events and a subscriber ID for later unregistration.
+func (svc *Service) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (<-chan *orchestrator.ChangeEvent, int64) {
+	svc.subscribersMutex.Lock()
+	defer svc.subscribersMutex.Unlock()
+
+	ch := make(chan *orchestrator.ChangeEvent, 100)
+	id := svc.nextSubscriberId
+	svc.nextSubscriberId++
+
+	svc.subscribers[id] = &subscriber{
+		ch:     ch,
+		filter: filter,
+	}
+
+	return ch, id
+}
+
+// UnregisterSubscriber removes a subscriber from receiving metric change events.
+func (svc *Service) UnregisterSubscriber(id int64) {
+	svc.subscribersMutex.Lock()
+	defer svc.subscribersMutex.Unlock()
+
+	if sub, ok := svc.subscribers[id]; ok {
+		delete(svc.subscribers, id)
+		close(sub.ch)
+	}
+}
+
+// publishEvent publishes a metric change event to all registered subscribers.
+func (svc *Service) publishEvent(event *orchestrator.ChangeEvent) {
+	svc.subscribersMutex.RLock()
+	defer svc.subscribersMutex.RUnlock()
+
+	for _, sub := range svc.subscribers {
+		select {
+		case sub.ch <- event:
+		default:
+			// Channel full, skip (non-blocking send)
+		}
+	}
 }

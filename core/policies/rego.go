@@ -38,6 +38,12 @@ import (
 // DefaultRegoPackage is the default package name for the Rego files
 const DefaultRegoPackage = "cch.metrics"
 
+// EventSubscriber defines the methods needed for event subscription
+type EventSubscriber interface {
+	RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (<-chan *orchestrator.ChangeEvent, int64)
+	UnregisterSubscriber(id int64)
+}
+
 type regoEval struct {
 	// qc contains cached Rego queries
 	qc *queryCache
@@ -47,6 +53,21 @@ type regoEval struct {
 
 	// pkg is the base package name that is used in the Rego files
 	pkg string
+
+	// eventSubscriber is used for subscribing to metric change events (typically orchestrator.Service)
+	eventSubscriber EventSubscriber
+
+	// eventCtx is used to cancel the event subscription goroutine
+	eventCtx context.Context
+
+	// eventCancel cancels the event subscription
+	eventCancel context.CancelFunc
+
+	// subscriberID tracks the event subscription
+	subscriberID int64
+
+	// eventMutex protects event subscription state
+	eventMutex sync.Mutex
 }
 
 type queryCache struct {
@@ -65,18 +86,78 @@ func WithPackageName(pkg string) RegoEvalOption {
 	}
 }
 
+// WithEventSubscriber is an option to configure the event subscriber for metric change events
+func WithEventSubscriber(sub EventSubscriber) RegoEvalOption {
+	return func(re *regoEval) {
+		re.eventSubscriber = sub
+	}
+}
+
 func NewRegoEval(opts ...RegoEvalOption) PolicyEval {
+	ctx, cancel := context.WithCancel(context.Background())
 	re := regoEval{
-		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
-		qc:   newQueryCache(),
-		pkg:  DefaultRegoPackage,
+		mrtc:         &metricsCache{m: make(map[string][]*assessment.Metric)},
+		qc:           newQueryCache(),
+		pkg:          DefaultRegoPackage,
+		eventCtx:     ctx,
+		eventCancel:  cancel,
+		subscriberID: -1,
 	}
 
 	for _, o := range opts {
 		o(&re)
 	}
 
+	// Start event subscription if event subscriber is provided
+	if re.eventSubscriber != nil {
+		go re.subscribeToEvents()
+	}
+
 	return &re
+}
+
+// subscribeToEvents subscribes to metric change events and updates the cache accordingly
+func (re *regoEval) subscribeToEvents() {
+	filter := &orchestrator.SubscribeRequest_Filter{
+		Categories: []orchestrator.EventCategory{
+			orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+			orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
+		},
+	}
+
+	re.eventMutex.Lock()
+	ch, id := re.eventSubscriber.RegisterSubscriber(filter)
+	re.subscriberID = id
+	re.eventMutex.Unlock()
+
+	defer func() {
+		re.eventMutex.Lock()
+		re.eventSubscriber.UnregisterSubscriber(re.subscriberID)
+		re.subscriberID = -1
+		re.eventMutex.Unlock()
+	}()
+
+	for {
+		select {
+		case <-re.eventCtx.Done():
+			return
+		case event, ok := <-ch:
+			if !ok {
+				return
+			}
+			if event != nil {
+				_ = re.HandleMetricEvent(event)
+			}
+		}
+	}
+}
+
+// Close shuts down the event subscription gracefully
+func (re *regoEval) Close() error {
+	if re.eventCancel != nil {
+		re.eventCancel()
+	}
+	return nil
 }
 
 // Eval evaluates a given evidence against all available Rego policies and returns the result of all policies that were

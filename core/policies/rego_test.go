@@ -17,6 +17,7 @@ package policies
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -817,4 +818,236 @@ func Test_queryCache_GetHandlesOrElseError(t *testing.T) {
 	assert.Nil(t, result2)
 	assert.ErrorContains(t, err2, "test error from orElse")
 	assert.Equal(t, 1, callCount)
+}
+
+// Test_NewRegoEval_WithoutEventPublisher tests regoEval creation without event subscription
+func Test_NewRegoEval_WithoutEventSubscriber(t *testing.T) {
+	re := NewRegoEval()
+	assert.NotNil(t, re)
+
+	// Should be able to use it without events
+	regoEvalInstance := re.(*regoEval)
+	assert.Nil(t, regoEvalInstance.eventSubscriber)
+	assert.Equal(t, int64(-1), regoEvalInstance.subscriberID)
+}
+
+// Test_NewRegoEval_WithEventPublisher tests regoEval creation with event subscription
+func Test_NewRegoEval_WithEventSubscriber(t *testing.T) {
+	mockSub := &mockEventSubscriber{
+		subscribers: make(map[int64]*mockSubscriber),
+	}
+
+	re := NewRegoEval(WithEventSubscriber(mockSub))
+	assert.NotNil(t, re)
+
+	regoEvalInstance := re.(*regoEval)
+	assert.NotNil(t, regoEvalInstance.eventSubscriber)
+
+	// Give subscription goroutine time to start
+	time.Sleep(50 * time.Millisecond)
+
+	// Should have registered as a subscriber
+	assert.True(t, mockSub.subscriberCount() > 0)
+
+	// Cleanup
+	regoEvalInstance.Close()
+	time.Sleep(50 * time.Millisecond)
+}
+
+// Test_regoEval_EventSubscriptionReceivesMetricEvents tests event handling
+func Test_regoEval_EventSubscriptionReceivesMetricEvents(t *testing.T) {
+	mockSub := &mockEventSubscriber{
+		subscribers: make(map[int64]*mockSubscriber),
+	}
+
+	re := NewRegoEval(WithEventSubscriber(mockSub))
+	regoEvalInstance := re.(*regoEval)
+
+	// Wait for subscription to start
+	time.Sleep(50 * time.Millisecond)
+
+	// Add some cache entries
+	regoEvalInstance.qc.cache["metric-123-config1"] = &rego.PreparedEvalQuery{}
+	regoEvalInstance.qc.cache["metric-456-config1"] = &rego.PreparedEvalQuery{}
+	assert.Equal(t, 2, len(regoEvalInstance.qc.cache))
+
+	// Publish an implementation change event
+	event := &orchestrator.ChangeEvent{
+		Category: orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+		EntityId: "metric-123",
+	}
+	mockSub.PublishEvent(event)
+
+	// Give event processing time
+	time.Sleep(100 * time.Millisecond)
+
+	// Verify cache was evicted for metric-123
+	assert.Equal(t, 1, len(regoEvalInstance.qc.cache))
+	_, exists := regoEvalInstance.qc.cache["metric-456-config1"]
+	assert.True(t, exists, "metric-456-config1 should still exist")
+
+	// Cleanup
+	regoEvalInstance.Close()
+}
+
+// Test_regoEval_EventSubscriptionHandlesMultipleEvents tests multiple event handling
+func Test_regoEval_EventSubscriptionHandlesMultipleEvents(t *testing.T) {
+	mockSub := &mockEventSubscriber{
+		subscribers: make(map[int64]*mockSubscriber),
+	}
+
+	re := NewRegoEval(WithEventSubscriber(mockSub))
+	regoEvalInstance := re.(*regoEval)
+
+	time.Sleep(50 * time.Millisecond)
+
+	// Add cache entries for multiple metrics
+	regoEvalInstance.qc.cache["metric-111-config1"] = &rego.PreparedEvalQuery{}
+	regoEvalInstance.qc.cache["metric-222-config1"] = &rego.PreparedEvalQuery{}
+	regoEvalInstance.qc.cache["metric-333-config1"] = &rego.PreparedEvalQuery{}
+	assert.Equal(t, 3, len(regoEvalInstance.qc.cache))
+
+	// Publish configuration change for metric-222
+	event1 := &orchestrator.ChangeEvent{
+		Category: orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
+		EntityId: "metric-222",
+	}
+	mockSub.PublishEvent(event1)
+
+	time.Sleep(50 * time.Millisecond)
+
+	// Publish implementation change for metric-333
+	event2 := &orchestrator.ChangeEvent{
+		Category: orchestrator.EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION,
+		EntityId: "metric-333",
+	}
+	mockSub.PublishEvent(event2)
+
+	time.Sleep(50 * time.Millisecond)
+
+	// Verify correct entries were evicted
+	assert.Equal(t, 1, len(regoEvalInstance.qc.cache))
+	_, exists := regoEvalInstance.qc.cache["metric-111-config1"]
+	assert.True(t, exists, "metric-111-config1 should remain")
+
+	regoEvalInstance.Close()
+}
+
+// Test_regoEval_CloseUnsubscribesFromEvents tests cleanup and unsubscription
+func Test_regoEval_CloseUnsubscribesFromEvents(t *testing.T) {
+	mockSub := &mockEventSubscriber{
+		subscribers: make(map[int64]*mockSubscriber),
+	}
+
+	re := NewRegoEval(WithEventSubscriber(mockSub))
+	regoEvalInstance := re.(*regoEval)
+
+	time.Sleep(50 * time.Millisecond)
+
+	initialCount := mockSub.subscriberCount()
+	assert.True(t, initialCount > 0)
+
+	// Close the regoEval
+	err := regoEvalInstance.Close()
+	assert.NoError(t, err)
+
+	time.Sleep(50 * time.Millisecond)
+
+	// Verify subscriber was unregistered
+	assert.Equal(t, 0, mockSub.subscriberCount())
+}
+
+// Test_regoEval_EventSubscriptionIgnoresNilEvents tests nil event handling
+func Test_regoEval_EventSubscriptionIgnoresNilEvents(t *testing.T) {
+	mockSub := &mockEventSubscriber{
+		subscribers: make(map[int64]*mockSubscriber),
+	}
+
+	re := NewRegoEval(WithEventSubscriber(mockSub))
+	regoEvalInstance := re.(*regoEval)
+
+	time.Sleep(50 * time.Millisecond)
+
+	regoEvalInstance.qc.cache["metric-123-config1"] = &rego.PreparedEvalQuery{}
+
+	// Publish a nil event (should be ignored gracefully)
+	mockSub.PublishNilEvent()
+
+	time.Sleep(50 * time.Millisecond)
+
+	// Cache should remain unchanged
+	assert.Equal(t, 1, len(regoEvalInstance.qc.cache))
+
+	regoEvalInstance.Close()
+}
+
+// Mock event subscriber for testing
+type mockEventSubscriber struct {
+	subscribers map[int64]*mockSubscriber
+	nextID      int64
+	mutex       sync.Mutex
+}
+
+type mockSubscriber struct {
+	ch     chan *orchestrator.ChangeEvent
+	filter *orchestrator.SubscribeRequest_Filter
+}
+
+func (m *mockEventSubscriber) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (<-chan *orchestrator.ChangeEvent, int64) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	ch := make(chan *orchestrator.ChangeEvent, 100)
+	id := m.nextID
+	m.nextID++
+
+	m.subscribers[id] = &mockSubscriber{
+		ch:     ch,
+		filter: filter,
+	}
+
+	return ch, id
+}
+
+func (m *mockEventSubscriber) UnregisterSubscriber(id int64) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	if sub, ok := m.subscribers[id]; ok {
+		delete(m.subscribers, id)
+		close(sub.ch)
+	}
+}
+
+func (m *mockEventSubscriber) PublishEvent(event *orchestrator.ChangeEvent) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	for _, sub := range m.subscribers {
+		select {
+		case sub.ch <- event:
+		default:
+			// Channel full, skip
+		}
+	}
+}
+
+func (m *mockEventSubscriber) PublishNilEvent() {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	for _, sub := range m.subscribers {
+		select {
+		case sub.ch <- nil:
+		default:
+			// Channel full, skip
+		}
+	}
+}
+
+func (m *mockEventSubscriber) subscriberCount() int {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	return len(m.subscribers)
 }
