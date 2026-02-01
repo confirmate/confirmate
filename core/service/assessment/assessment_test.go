@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"reflect"
 	"runtime"
@@ -36,7 +37,6 @@ import (
 	"confirmate.io/core/policies"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/require"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
@@ -48,6 +48,7 @@ import (
 	"confirmate.io/core/util/prototest"
 	"confirmate.io/core/util/testdata"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -347,33 +348,19 @@ func TestService_AssessEvidence(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var s *Service
-			var err error
 
 			// Only setup orchestrator if needed
 			if tt.needsOrch {
-				orchSvc, err := orchestrator.NewService(
-					orchestrator.WithConfig(orchestrator.Config{
-						PersistenceConfig: persistence.Config{
-							InMemoryDB: true,
-						},
-					}),
-				)
-				assert.NoError(t, err)
-
-				_, testSrv := servertest.NewTestConnectServer(t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-				)
-				defer testSrv.Close()
-
+				_, client, url := setupOrchestratorForTesting(t)
 				aHandler, err := NewService(
-					WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+					WithOrchestratorConfig(url, client),
 				)
-				s = aHandler.(*Service)
 				assert.NoError(t, err)
+				s = aHandler.(*Service)
 			} else {
 				aHandler, err := NewService()
-				s = aHandler.(*Service)
 				assert.NoError(t, err)
+				s = aHandler.(*Service)
 			}
 
 			// Set evidence resource map if provided
@@ -486,66 +473,35 @@ func TestService_AssessEvidences(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var (
-				err      error
-				statuses []assessment.AssessmentStatus
-			)
+			var statuses []assessment.AssessmentStatus
 
-			orchSvc, err := orchestrator.NewService(
-				orchestrator.WithConfig(orchestrator.Config{
-					PersistenceConfig: persistence.Config{
-						InMemoryDB: true,
-					},
-					LoadDefaultMetrics:              false,
-					CreateDefaultTargetOfEvaluation: true,
-				}),
-			)
-			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-			)
-			defer testSrv.Close()
+			orchSvc := newTestOrchestratorService(t)
+			client, url := setupOrchestratorServer(t, orchSvc)
 
 			aHandler, err := NewService(
-				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+				WithOrchestratorConfig(url, client),
 			)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 			s := aHandler.(*Service)
 
 			streamHandle := s.orchestratorStream
-			defer func() {
+			t.Cleanup(func() {
 				if streamHandle != nil {
 					_ = streamHandle.Close()
 				}
-			}()
+			})
 
 			_, assSrv := servertest.NewTestConnectServer(t,
 				server.WithHandler(assessmentconnect.NewAssessmentHandler(s)),
 			)
-			defer assSrv.Close()
+			t.Cleanup(func() { assSrv.Close() })
 
-			client := assessmentconnect.NewAssessmentClient(assSrv.Client(), assSrv.URL)
-			stream := client.AssessEvidences(context.Background())
+			client2 := assessmentconnect.NewAssessmentClient(assSrv.Client(), assSrv.URL)
+			stream := client2.AssessEvidences(context.Background())
 
 			// Create metric in orchestrator
-			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-				Metric: metric,
-			},
-			))
-			assert.NoError(t, err)
-
-			_, err = orchSvc.UpdateMetricConfiguration(
-				context.Background(),
-				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-					Configuration: &assessment.MetricConfiguration{
-						Operator:             "==",
-						TargetValue:          testdata.MockMetricConfigurationTargetValueTrue,
-						IsDefault:            false,
-						MetricId:             metric.Id,
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
-					},
-				}),
-			)
-			assert.NoError(t, err)
+			createTestMetric(t, orchSvc, metric)
+			configureTestMetric(t, orchSvc, metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueTrue)
 
 			for _, ev := range tt.evidences {
 				sendErr := stream.Send(&assessment.AssessEvidenceRequest{
@@ -718,50 +674,29 @@ func TestService_handleEvidence(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			orchSvc, err := orchestrator.NewService(
-				orchestrator.WithConfig(orchestrator.Config{
-					PersistenceConfig: persistence.Config{
-						InMemoryDB: true,
-					},
-					LoadDefaultMetrics:              false,
-					CreateDefaultTargetOfEvaluation: true,
-				}),
-			)
-			assert.NoError(t, err)
-
-			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-			)
+			orchSvc := newTestOrchestratorService(t)
+			client, url := setupOrchestratorServer(t, orchSvc)
 
 			// Create metric and configuration if metric is provided
 			if tt.args.metric != nil {
-				_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-					Metric: tt.args.metric,
-				},
-				))
-				assert.NoError(t, err)
-
-				_, err = orchSvc.UpdateMetricConfiguration(
-					context.Background(),
-					connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-						Configuration: &assessment.MetricConfiguration{
-							Operator:             "==",
-							TargetValue:          testdata.MockMetricConfigurationTargetValueTrue,
-							IsDefault:            false,
-							MetricId:             tt.args.metric.Id,
-							TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
-						},
-					}),
-				)
-				assert.NoError(t, err)
+				createTestMetric(t, orchSvc, tt.args.metric)
+				configureTestMetric(t, orchSvc, tt.args.metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueTrue)
 			}
 
 			aHandler, err := NewService(
-				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+				WithOrchestratorConfig(url, client),
 				WithRegoPackageName(policies.DefaultRegoPackage),
 			)
-			s := aHandler.(*Service)
 			assert.NoError(t, err)
+			s := aHandler.(*Service)
+
+			// Cleanup orchestrator stream
+			streamHandle := s.orchestratorStream
+			t.Cleanup(func() {
+				if streamHandle != nil {
+					_ = streamHandle.Close()
+				}
+			})
 
 			res, err := s.handleEvidence(context.Background(), tt.args.evidence, tt.args.resource, tt.args.related)
 			tt.want(t, res)
@@ -778,26 +713,23 @@ func TestService_handleEvidence(t *testing.T) {
 // Todo: Add it to table test above (would probably need some function injection in test cases like we do with storage)
 func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached(t *testing.T) {
 
-	orchSvc, err := orchestrator.NewService(
-		orchestrator.WithConfig(orchestrator.Config{
-			PersistenceConfig: persistence.Config{
-				InMemoryDB: true,
-			},
-			LoadDefaultMetrics:              false,
-			CreateDefaultTargetOfEvaluation: true,
-		}),
-	)
-	assert.NoError(t, err)
+	orchSvc := newTestOrchestratorService(t)
+	client, url := setupOrchestratorServer(t, orchSvc)
 
-	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-	)
 	aHandler, err := NewService(
-		WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+		WithOrchestratorConfig(url, client),
 		WithRegoPackageName(policies.DefaultRegoPackage),
 	)
 	assert.NoError(t, err)
 	s := aHandler.(*Service)
+
+	// Cleanup orchestrator stream before server cleanup
+	streamHandle := s.orchestratorStream
+	t.Cleanup(func() {
+		if streamHandle != nil {
+			_ = streamHandle.Close()
+		}
+	})
 
 	// Create metric
 	metric := &assessment.Metric{
@@ -814,25 +746,8 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		},
 	}
 
-	_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-		Metric: metric,
-	},
-	))
-	assert.NoError(t, err)
-
-	_, err = orchSvc.UpdateMetricConfiguration(
-		context.Background(),
-		connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-			Configuration: &assessment.MetricConfiguration{
-				Operator:             "==",
-				TargetValue:          testdata.MockMetricConfigurationTargetValueString,
-				IsDefault:            false,
-				MetricId:             metric.Id,
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
-			},
-		}),
-	)
-	assert.NoError(t, err)
+	createTestMetric(t, orchSvc, metric)
+	configureTestMetric(t, orchSvc, metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueString)
 
 	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
 	// tool id (="VirtualMachine-{testdata.MockEvidenceToolID}")
@@ -957,26 +872,23 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hookCallCounter = 0
-			orchSvc, err := orchestrator.NewService(
-				orchestrator.WithConfig(orchestrator.Config{
-					PersistenceConfig: persistence.Config{
-						InMemoryDB: true,
-					},
-					LoadDefaultMetrics:              false,
-					CreateDefaultTargetOfEvaluation: true,
-				}),
-			)
-			assert.NoError(t, err)
+			orchSvc := newTestOrchestratorService(t)
+			client, url := setupOrchestratorServer(t, orchSvc)
 
-			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-			)
 			aHandler, err := NewService(
-				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+				WithOrchestratorConfig(url, client),
 				WithRegoPackageName(policies.DefaultRegoPackage),
 			)
 			assert.NoError(t, err)
 			s := aHandler.(*Service)
+
+			// Cleanup orchestrator stream before server cleanup
+			streamHandle := s.orchestratorStream
+			t.Cleanup(func() {
+				if streamHandle != nil {
+					_ = streamHandle.Close()
+				}
+			})
 
 			// Create metric
 			metric := &assessment.Metric{
@@ -993,26 +905,8 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				},
 			}
 
-			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-				Metric: metric,
-			},
-			))
-			assert.NoError(t, err)
-
-			_, err = orchSvc.UpdateMetricConfiguration(
-				context.Background(),
-				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-					Configuration: &assessment.MetricConfiguration{
-						Operator:             "==",
-						TargetValue:          testdata.MockMetricConfigurationTargetValueString,
-						IsDefault:            false,
-						MetricId:             metric.Id,
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
-					},
-				}),
-			)
-			assert.NoError(t, err)
-
+			createTestMetric(t, orchSvc, metric)
+			configureTestMetric(t, orchSvc, metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueString)
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)
 
@@ -1282,34 +1176,13 @@ func TestService_MetricConfiguration(t *testing.T) {
 				assSvc *Service
 			)
 
-			orchSvc, err := orchestrator.NewService(
-				orchestrator.WithConfig(orchestrator.Config{
-					PersistenceConfig: persistence.Config{
-						InMemoryDB: true,
-					},
-					LoadDefaultCatalogs:             false,
-					LoadDefaultMetrics:              false,
-					CreateDefaultTargetOfEvaluation: false,
-				}),
-			)
-			assert.NoError(t, err)
-			assert.NotNil(t, orchSvc)
+			orchSvc := newTestOrchestratorService(t)
+			testClient, url := setupOrchestratorServer(t, orchSvc)
 
-			srv, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
-			)
-			defer testSrv.Close()
+			// Create metric
+			createTestMetric(t, orchSvc, tt.metric)
 
-			assert.NotNil(t, srv)
-			assert.NotNil(t, testSrv)
-
-			// Create metric and implementation
-			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-				Metric: tt.metric,
-			},
-			))
-			assert.NoError(t, err)
-
+			// Create target of evaluation
 			res, err := orchSvc.CreateTargetOfEvaluation(
 				context.Background(),
 				connect.NewRequest(&apiOrch.CreateTargetOfEvaluationRequest{
@@ -1321,23 +1194,12 @@ func TestService_MetricConfiguration(t *testing.T) {
 			)
 			assert.NoError(t, err)
 
-			_, err = orchSvc.UpdateMetricConfiguration(
-				context.Background(),
-				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-					Configuration: &assessment.MetricConfiguration{
-						Operator:             "==",
-						TargetValue:          testdata.MockMetricConfigurationTargetValueString,
-						IsDefault:            false,
-						MetricId:             testdata.MockMetricID1,
-						TargetOfEvaluationId: res.Msg.Id,
-					},
-				}),
-			)
-			assert.NoError(t, err)
+			// Configure metric
+			configureTestMetric(t, orchSvc, testdata.MockMetricID1, res.Msg.Id, testdata.MockMetricConfigurationTargetValueString)
 
 			// Create assessment service
 			handler, err := NewService(
-				WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+				WithOrchestratorConfig(url, testClient),
 			)
 			assert.NoError(t, err)
 			assSvc = handler.(*Service)
@@ -1380,28 +1242,14 @@ func TestService_initOrchestratorStream(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Setup orchestrator
-			orchSvc, err := orchestrator.NewService(
-				orchestrator.WithConfig(orchestrator.Config{
-					PersistenceConfig: persistence.Config{
-						InMemoryDB: true,
-					},
-				}),
-			)
-			assert.NoError(t, err)
-			assert.NotNil(t, orchSvc)
-
-			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(
-					orchestratorconnect.NewOrchestratorHandler(orchSvc),
-				),
-			)
-			defer testSrv.Close()
+			orchSvc := newTestOrchestratorService(t)
+			testClient, url := setupOrchestratorServer(t, orchSvc)
 
 			// Create service
 			assSvc := &Service{
 				orchestratorConfig: orchestratorConfig{
-					targetAddress: testSrv.URL,
-					client:        testSrv.Client(),
+					targetAddress: url,
+					client:        testClient,
 				},
 			}
 
@@ -1411,7 +1259,7 @@ func TestService_initOrchestratorStream(t *testing.T) {
 			)
 
 			// Execute test
-			err = assSvc.initOrchestratorStream()
+			err := assSvc.initOrchestratorStream()
 			tt.wantErr(t, err)
 
 			if err == nil {
@@ -1519,26 +1367,12 @@ func TestService_RegisterAssessmentResultHook(t *testing.T) {
 func TestService_createOrchestratorStreamFactory(t *testing.T) {
 	t.Run("Create and use stream factory", func(t *testing.T) {
 		// Setup orchestrator
-		orchSvc, err := orchestrator.NewService(
-			orchestrator.WithConfig(orchestrator.Config{
-				PersistenceConfig: persistence.Config{
-					InMemoryDB: true,
-				},
-			}),
-		)
-		assert.NoError(t, err)
-		assert.NotNil(t, orchSvc)
-
-		_, testSrv := servertest.NewTestConnectServer(t,
-			server.WithHandler(
-				orchestratorconnect.NewOrchestratorHandler(orchSvc),
-			),
-		)
-		defer testSrv.Close()
+		orchSvc := newTestOrchestratorService(t)
+		testClient, url := setupOrchestratorServer(t, orchSvc)
 
 		// Create service
 		handler, err := NewService(
-			WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+			WithOrchestratorConfig(url, testClient),
 		)
 		assert.NoError(t, err)
 
@@ -1552,6 +1386,76 @@ func TestService_createOrchestratorStreamFactory(t *testing.T) {
 		stream := factory(context.Background())
 		assert.NotNil(t, stream)
 	})
+}
+
+// Helper Functions for Test Setup
+
+// newTestOrchestratorService creates an orchestrator service handler with standard test configuration
+func newTestOrchestratorService(t *testing.T) orchestratorconnect.OrchestratorHandler {
+	t.Helper()
+	svc, err := orchestrator.NewService(
+		orchestrator.WithConfig(orchestrator.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			LoadDefaultMetrics:              false,
+			CreateDefaultTargetOfEvaluation: true,
+		}),
+	)
+	assert.NoError(t, err)
+	return svc
+}
+
+// setupOrchestratorServer creates a test server for the orchestrator service
+func setupOrchestratorServer(t *testing.T, handler orchestratorconnect.OrchestratorHandler) (*http.Client, string) {
+	t.Helper()
+	path, httpHandler := orchestratorconnect.NewOrchestratorHandler(handler)
+	_, testSrv := servertest.NewTestConnectServer(t,
+		server.WithHandler(path, httpHandler),
+	)
+	t.Cleanup(func() { testSrv.Close() })
+	return testSrv.Client(), testSrv.URL
+}
+
+// setupOrchestratorForTesting is a combined helper that creates and configures orchestrator for testing
+func setupOrchestratorForTesting(t *testing.T) (orchestratorconnect.OrchestratorHandler, *http.Client, string) {
+	t.Helper()
+	svc := newTestOrchestratorService(t)
+	client, url := setupOrchestratorServer(t, svc)
+	return svc, client, url
+}
+
+// createTestMetric creates a metric in the orchestrator service
+func createTestMetric(t *testing.T, handler orchestratorconnect.OrchestratorHandler, metric *assessment.Metric) {
+	t.Helper()
+	_, err := handler.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+		Metric: metric,
+	}))
+	assert.NoError(t, err)
+}
+
+// configureTestMetric configures a metric with a specific target of evaluation
+func configureTestMetric(t *testing.T, handler orchestratorconnect.OrchestratorHandler, metricID, toeID string, targetValue interface{}) {
+	t.Helper()
+	// targetValue is expected to be *structpb.Value from testdata
+	val, ok := targetValue.(*structpb.Value)
+	if !ok {
+		t.Fatalf("configureTestMetric expects *structpb.Value, got %T", targetValue)
+	}
+
+	_, err := handler.UpdateMetricConfiguration(
+		context.Background(),
+		connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+			Configuration: &assessment.MetricConfiguration{
+				Operator:             "==",
+				TargetValue:          val,
+				IsDefault:            false,
+				MetricId:             metricID,
+				TargetOfEvaluationId: toeID,
+			},
+		}),
+	)
+	assert.NoError(t, err)
 }
 
 func ValidRego() string {
