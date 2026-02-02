@@ -262,14 +262,14 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
 func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[assessment.AssessEvidenceRequest]) (res *connect.Response[assessment.AssessEvidenceResponse], err error) {
 	var (
-		resource      ontology.IsResource
-		ev            *evidence.Evidence
-		canHandle     bool
-		waitingFor    map[string]bool
-		related       map[string]ontology.IsResource
-		ok            bool
-		relatedEviden *evidence.Evidence
-		l             waitingRequest
+		resource         ontology.IsResource
+		ev               *evidence.Evidence
+		canHandle        bool
+		waitingFor       map[string]bool
+		related          map[string]ontology.IsResource
+		ok               bool
+		relatedEvidence  *evidence.Evidence
+		l                waitingRequest
 	)
 
 	// Validate the request
@@ -312,9 +312,9 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	for _, r := range ev.ExperimentalRelatedResourceIds {
 		// If any of the related resource is not available, we cannot handle them immediately, but we need to add it to
 		// our waitingFor slice
-		relatedEviden, ok = svc.evidenceResourceMap[r]
+		relatedEvidence, ok = svc.evidenceResourceMap[r]
 		if ok {
-			related[r] = relatedEviden.GetOntologyResource()
+			related[r] = relatedEvidence.GetOntologyResource()
 		} else {
 			canHandle = false
 			waitingFor[r] = true
