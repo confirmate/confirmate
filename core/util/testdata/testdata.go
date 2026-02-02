@@ -20,8 +20,6 @@ import (
 )
 
 const (
-	MockGRPCTarget = "localhost"
-
 	// Azure
 	MockLocationWestEurope     = "West Europe"
 	MockLocationEastUs         = "eastus"
@@ -39,8 +37,8 @@ const (
 	MockAuditScopeName3 = "Mock Audit Scope 3"
 
 	// Auth
-	MockAuthUser     = "clouditor"
-	MockAuthPassword = "clouditor"
+	MockAuthUser     = "confirmate"
+	MockAuthPassword = "confirmate"
 
 	MockAuthClientID     = "client"
 	MockAuthClientSecret = "secret"

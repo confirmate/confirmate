@@ -25,7 +25,7 @@ import (
 	"sync"
 	"time"
 
-	"confirmate.io/core/api"
+	"buf.build/go/protovalidate"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -95,8 +95,6 @@ type Service struct {
 	// Embedded for FWD compatibility
 	assessmentconnect.UnimplementedAssessmentHandler
 
-	authz service.AuthorizationStrategy
-
 	// TODO: we can remove the client if we handle everything via the bidistream
 	orchestratorClient orchestratorconnect.OrchestratorClient
 	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
@@ -154,7 +152,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	)
 
 	svc = &Service{
-		cfg:                  DefaultConfig,
+		cfg: DefaultConfig,
 		orchestratorConfig: orchestratorConfig{
 			targetAddress: DefaultOrchestratorURL,
 			client:        http.DefaultClient,
@@ -262,14 +260,14 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
 func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[assessment.AssessEvidenceRequest]) (res *connect.Response[assessment.AssessEvidenceResponse], err error) {
 	var (
-		resource         ontology.IsResource
-		ev               *evidence.Evidence
-		canHandle        bool
-		waitingFor       map[string]bool
-		related          map[string]ontology.IsResource
-		ok               bool
-		relatedEvidence  *evidence.Evidence
-		l                waitingRequest
+		resource        ontology.IsResource
+		ev              *evidence.Evidence
+		canHandle       bool
+		waitingFor      map[string]bool
+		related         map[string]ontology.IsResource
+		ok              bool
+		relatedEvidence *evidence.Evidence
+		l               waitingRequest
 	)
 
 	// Validate the request
@@ -279,7 +277,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	ev = req.Msg.Evidence
 	// Validate request
-	err = api.Validate(ev)
+	err = protovalidate.Validate(ev)
 	if err != nil {
 		slog.Error("AssessEvidence: invalid request", log.Err(err))
 		return nil, err

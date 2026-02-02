@@ -62,11 +62,7 @@ require (
 	golang.org/x/tools v0.41.0 // indirect
 )
 
-require (
-	github.com/golang-jwt/jwt/v5 v5.3.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	google.golang.org/grpc v1.77.0
-)
+require google.golang.org/grpc v1.77.0
 
 require (
 	github.com/agnivade/levenshtein v1.2.1 // indirect
@@ -110,12 +106,10 @@ require (
 )
 
 require (
+	github.com/mattn/go-isatty v0.0.19
 	github.com/open-policy-agent/opa v1.12.1
-	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 )
-
-require github.com/mattn/go-isatty v0.0.19
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.

@@ -17,17 +17,9 @@ package assessment
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 
 	"google.golang.org/protobuf/encoding/protojson"
-)
-
-var (
-	ErrMetricNameMissing             = errors.New("metric name is missing")
-	ErrMetricEmpty                   = errors.New("metric is missing or empty")
-	ErrTargetOfEvaluationIDIsMissing = errors.New("target of evaluation id is missing")
-	ErrTargetOfEvaluationIDIsInvalid = errors.New("target of evaluation id is invalid")
 )
 
 // Hash provides a simple string based hash for this metric configuration. It can be used

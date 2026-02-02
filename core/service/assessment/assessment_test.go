@@ -27,7 +27,7 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/api"
+	"buf.build/go/protovalidate"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -619,7 +619,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: func(t *testing.T, got []*assessment.AssessmentResult, msgAndArgs ...any) bool {
 				for _, result := range got {
-					err := api.Validate(result)
+					err := protovalidate.Validate(result)
 					assert.NoError(t, err)
 				}
 				return assert.True(t, got[0].MetricId == "bb41142b-ce8c-4c5c-9b42-360f015fd325" && got[0].Compliant == true)

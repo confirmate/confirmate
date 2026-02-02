@@ -23,3 +23,9 @@ import (
 func (r *AssessEvidenceRequest) GetPayload() proto.Message {
 	return r.GetEvidence()
 }
+
+// GetTargetOfEvaluationId is a shortcut to implement TargetOfEvaluationRequest. It returns the target of evaluation ID of the inner
+// object.
+func (req *AssessEvidenceRequest) GetTargetOfEvaluationId() string {
+	return req.GetEvidence().GetTargetOfEvaluationId()
+}

@@ -31,10 +31,10 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// EngineCommand starts the full engine: orchestrator and assessment services on one server.
-var EngineCommand = &cli.Command{
-	Name:  "engine",
-	Usage: "Launches the engine (orchestrator and assessment services)",
+// ConfirmateCommand starts the full framework: orchestrator and assessment services on one server.
+var ConfirmateCommand = &cli.Command{
+	Name:  "confirmate",
+	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		svc, err := orchestrator.NewService(
 			orchestrator.WithConfig(orchestrator.Config{
@@ -66,6 +66,7 @@ var EngineCommand = &cli.Command{
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: orchestratorURL,
 				OrchestratorClient:  http.DefaultClient,
+				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
 		)
 		if err != nil {
@@ -180,6 +181,11 @@ var EngineCommand = &cli.Command{
 			Name:  "db-max-connections",
 			Usage: "Specifies the maximum number of database connections",
 			Value: persistence.DefaultConfig.MaxConn,
+		},
+		&cli.StringFlag{
+			Name:  "assessment-rego-package",
+			Usage: "Rego package to use for assessments",
+			Value: assessment.DefaultConfig.RegoPackage,
 		},
 	},
 }

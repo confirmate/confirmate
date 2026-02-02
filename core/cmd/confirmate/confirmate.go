@@ -1,4 +1,4 @@
-// Copyright 2025 Fraunhofer AISEC
+// Copyright 2026 Fraunhofer AISEC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package api
+package main
 
 import (
-	"errors"
+	"log/slog"
+	"os"
+
+	"confirmate.io/core/log"
+	"confirmate.io/core/server/commands"
 )
 
-var (
-	ErrInvalidColumnName     = errors.New("column name is invalid")
-	ErrEmptyRequest          = errors.New("empty request")
-	ErrInvalidRequest        = errors.New("invalid request")
-	ErrCatalogIdIsMissing    = errors.New("catalog_id is missing")
-	ErrCategoryNameIsMissing = errors.New("category_name is missing")
-	ErrControlIdIsMissing    = errors.New("control_id is missing")
-	ErrControlNotAvailable   = errors.New("control not available")
-	ErrAuditScopeNotFound    = errors.New("audit scope not found")
-)
+func main() {
+	if err := commands.ParseAndRun(commands.ConfirmateCommand); err != nil {
+		slog.Error("Failed to start confirmate", log.Err(err))
+		os.Exit(1)
+	}
+}

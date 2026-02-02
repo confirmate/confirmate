@@ -23,8 +23,8 @@ import (
 )
 
 func main() {
-	if err := commands.ParseAndRun(commands.EngineCommand); err != nil {
-		slog.Error("Failed to start engine", log.Err(err))
+	if err := commands.ParseAndRun(commands.AssessmentCommand); err != nil {
+		slog.Error("Failed to start assessment", log.Err(err))
 		os.Exit(1)
 	}
 }

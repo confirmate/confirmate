@@ -17,16 +17,9 @@ package assessment
 
 import (
 	"context"
-	"errors"
 )
 
 type ResultHookFunc func(ctx context.Context, result *AssessmentResult, err error)
-
-var (
-	ErrMetricConfigurationMissing            = errors.New("metric configuration in assessment result is missing")
-	ErrMetricConfigurationOperatorMissing    = errors.New("operator in metric data is missing")
-	ErrMetricConfigurationTargetValueMissing = errors.New("target value in metric data is missing")
-)
 
 const (
 	DefaultNonCompliantMessage = "The result of the metric indicates that the resource contains properties that are not compliant with the target value."
@@ -35,9 +28,3 @@ const (
 )
 
 const AssessmentToolId = "Clouditor Assessment"
-
-// GetTargetOfEvaluationId is a shortcut to implement TargetOfEvaluationRequest. It returns the target of evaluation ID of the inner
-// object.
-func (req *AssessEvidenceRequest) GetTargetOfEvaluationId() string {
-	return req.GetEvidence().GetTargetOfEvaluationId()
-}
