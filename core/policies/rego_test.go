@@ -431,12 +431,10 @@ func Test_regoEval_evalMap(t *testing.T) {
 			},
 			want: func(t *testing.T, got *CombinedResult, args ...any) bool {
 				want := &CombinedResult{
-					Applicable:  true,
-					Compliant:   true,
-					TargetValue: true,
-					Operator:    "==",
-					MetricID:    "84eaed86-759d-4419-9954-f3d3ea1f5200",
-					MetricName:  "AutomaticUpdatesEnabled",
+					Applicable: true,
+					Compliant:  true,
+					MetricID:   "84eaed86-759d-4419-9954-f3d3ea1f5200",
+					MetricName: "AutomaticUpdatesEnabled",
 					Config: &assessment.MetricConfiguration{
 						Operator:             "==",
 						TargetValue:          structpb.NewBoolValue(true),
@@ -476,12 +474,10 @@ func Test_regoEval_evalMap(t *testing.T) {
 			},
 			want: func(t *testing.T, got *CombinedResult, args ...any) bool {
 				want := &CombinedResult{
-					Applicable:  true,
-					Compliant:   false,
-					TargetValue: false,
-					Operator:    "==",
-					MetricID:    "84eaed86-759d-4419-9954-f3d3ea1f5200",
-					MetricName:  "AutomaticUpdatesEnabled",
+					Applicable: true,
+					Compliant:  false,
+					MetricID:   "84eaed86-759d-4419-9954-f3d3ea1f5200",
+					MetricName: "AutomaticUpdatesEnabled",
 					Config: &assessment.MetricConfiguration{
 						Operator:             "==",
 						TargetValue:          structpb.NewBoolValue(false),

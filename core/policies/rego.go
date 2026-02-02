@@ -399,12 +399,10 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 	}
 
 	result = &CombinedResult{
-		Applicable:  results[0].Bindings["applicable"].(bool),
-		Compliant:   results[0].Bindings["compliant"].(bool),
-		Operator:    results[0].Bindings["operator"].(string),
-		TargetValue: results[0].Bindings["target_value"],
-		MetricID:    metric.Id,
-		MetricName:  metric.Name,
+		Applicable: results[0].Bindings["applicable"].(bool),
+		Compliant:  results[0].Bindings["compliant"].(bool),
+		MetricID:   metric.Id,
+		MetricName: metric.Name,
 	}
 
 	// A little trick to convert the map-based metric configuration back to a real object

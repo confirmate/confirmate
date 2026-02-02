@@ -48,10 +48,6 @@ type PolicyEval interface {
 type CombinedResult struct {
 	Applicable bool
 	Compliant  bool
-	// TODO(oxisto): They are now part of the individual comparison results
-	TargetValue interface{}
-	// TODO(oxisto): They are now part of the individual comparison results
-	Operator   string
 	MetricID   string
 	MetricName string
 	Config     *assessment.MetricConfiguration
