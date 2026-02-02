@@ -46,7 +46,7 @@ const (
 const (
 	MockMetricId1        = "00000000-0000-0000-0000-000000000001"
 	MockMetricId2        = "00000000-0000-0000-0000-000000000002"
-	MockMetricId3        = "00000000-0000-0000-0000-00000000000"
+	MockMetricId3        = "00000000-0000-0000-0000-000000000003"
 	MockMetricName1      = "Mock Metric 1"
 	MockMetricName2      = "Mock Metric 2"
 	MockMetricName3      = "Mock Metric 3"

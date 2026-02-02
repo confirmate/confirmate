@@ -173,8 +173,6 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		return nil, err
 	}
 
-	err = svc.initOrchestratorStream()
-
 	handler = svc
 	return
 }
