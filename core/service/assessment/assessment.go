@@ -51,6 +51,23 @@ var (
 
 const DefaultOrchestratorURL = "http://localhost:9090"
 
+// DefaultConfig is the default configuration for the assessment [Service].
+var DefaultConfig = Config{
+	OrchestratorAddress: DefaultOrchestratorURL,
+	OrchestratorClient:  http.DefaultClient,
+	RegoPackage:         policies.DefaultRegoPackage,
+}
+
+// Config represents the configuration for the assessment [Service].
+type Config struct {
+	// OrchestratorAddress is the address of the orchestrator service.
+	OrchestratorAddress string
+	// OrchestratorClient is the HTTP client to use for orchestrator communication.
+	OrchestratorClient *http.Client
+	// RegoPackage is the package name to use for Rego policy evaluation.
+	RegoPackage string
+}
+
 type orchestratorConfig struct {
 	targetAddress string
 	client        *http.Client
@@ -113,8 +130,8 @@ type Service struct {
 	// pe contains the actual policy evaluation engine we use
 	pe policies.PolicyEval
 
-	// evalPkg specifies the package used for the evaluation engine
-	evalPkg string
+	// cfg contains the service configuration
+	cfg Config
 
 	// subscribers is a map of subscribers for metric change events
 	subscribers      map[int64]*subscriber
@@ -122,26 +139,22 @@ type Service struct {
 	nextSubscriberId int64
 }
 
-// WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
-func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[Service] {
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
-		slog.Info("Orchestrator URL is set", slog.String("url", targetAddress))
-
-		svc.orchestratorConfig.targetAddress = targetAddress
-		svc.orchestratorConfig.client = client
-	}
-}
-
-// WithRegoPackageName is an option to configure the Rego package name
-func WithRegoPackageName(pkg string) service.Option[Service] {
-	return func(s *Service) {
-		s.evalPkg = pkg
+		svc.cfg = cfg
 	}
 }
 
 // NewService creates a new assessment service handler with default values.
 func NewService(opts ...service.Option[Service]) (handler assessmentconnect.AssessmentHandler, err error) {
-	svc := &Service{
+	var (
+		svc *Service
+		o   service.Option[Service]
+	)
+
+	svc = &Service{
+		cfg:                  DefaultConfig,
 		orchestratorConfig: orchestratorConfig{
 			targetAddress: DefaultOrchestratorURL,
 			client:        http.DefaultClient,
@@ -152,18 +165,19 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		subscribers:          make(map[int64]*subscriber),
 	}
 
-	for _, o := range opts {
+	for _, o = range opts {
 		o(svc)
 	}
 
-	// Set to default Rego package
-	if svc.evalPkg == "" {
-		svc.evalPkg = policies.DefaultRegoPackage
-	}
+	// Apply configuration to internal fields
+	svc.orchestratorConfig.targetAddress = svc.cfg.OrchestratorAddress
+	svc.orchestratorConfig.client = svc.cfg.OrchestratorClient
+
+	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
 	// Initialize the policy evaluator with event subscription
 	svc.pe = policies.NewRegoEval(
-		policies.WithPackageName(svc.evalPkg),
+		policies.WithPackageName(svc.cfg.RegoPackage),
 		policies.WithEventSubscriber(svc),
 	)
 
