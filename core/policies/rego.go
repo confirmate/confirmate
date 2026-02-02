@@ -40,8 +40,8 @@ const DefaultRegoPackage = "cch.metrics"
 
 // EventSubscriber defines the methods needed for event subscription
 type EventSubscriber interface {
-	RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (<-chan *orchestrator.ChangeEvent, int64)
-	UnregisterSubscriber(id int64)
+	RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (ch <-chan *orchestrator.ChangeEvent, id int64)
+	UnregisterSubscriber(id int64) (err error)
 }
 
 type regoEval struct {
@@ -132,7 +132,7 @@ func (re *regoEval) subscribeToEvents() {
 
 	defer func() {
 		re.eventMutex.Lock()
-		re.eventSubscriber.UnregisterSubscriber(re.subscriberID)
+		_ = re.eventSubscriber.UnregisterSubscriber(re.subscriberID)
 		re.subscriberID = -1
 		re.eventMutex.Unlock()
 	}()

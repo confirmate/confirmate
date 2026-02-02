@@ -549,24 +549,24 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 
 // RegisterSubscriber registers a new subscriber for metric change events.
 // It returns a channel to receive events and a subscriber ID for later unregistration.
-func (svc *Service) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (<-chan *orchestrator.ChangeEvent, int64) {
+func (svc *Service) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (ch <-chan *orchestrator.ChangeEvent, id int64) {
 	svc.subscribersMutex.Lock()
 	defer svc.subscribersMutex.Unlock()
 
-	ch := make(chan *orchestrator.ChangeEvent, 100)
-	id := svc.nextSubscriberId
+	channelBuf := make(chan *orchestrator.ChangeEvent, 100)
+	id = svc.nextSubscriberId
 	svc.nextSubscriberId++
 
 	svc.subscribers[id] = &subscriber{
-		ch:     ch,
+		ch:     channelBuf,
 		filter: filter,
 	}
 
-	return ch, id
+	return channelBuf, id
 }
 
 // UnregisterSubscriber removes a subscriber from receiving metric change events.
-func (svc *Service) UnregisterSubscriber(id int64) {
+func (svc *Service) UnregisterSubscriber(id int64) (err error) {
 	svc.subscribersMutex.Lock()
 	defer svc.subscribersMutex.Unlock()
 
@@ -574,6 +574,8 @@ func (svc *Service) UnregisterSubscriber(id int64) {
 		delete(svc.subscribers, id)
 		close(sub.ch)
 	}
+
+	return nil
 }
 
 // publishEvent publishes a metric change event to all registered subscribers.
