@@ -81,7 +81,7 @@ func (l *waitingRequest) WaitAndHandle() {
 
 			duration := time.Since(l.started)
 
-			slog.Info("Evidence %s was waiting for %s", l.Evidence.Id, duration)
+			slog.Info("Evidence was waiting", slog.String("evidenceId", l.Evidence.Id), slog.Duration("duration", duration))
 			break
 		}
 	}
