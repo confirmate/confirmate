@@ -831,7 +831,7 @@ func Test_NewRegoEval_WithoutEventSubscriber(t *testing.T) {
 	assert.Equal(t, int64(-1), regoEvalInstance.subscriberID)
 }
 
-// Test_NewRegoEval_WithEventPublisher tests regoEval creation with event subscription
+// Test_NewRegoEval_WithEventSubscriber tests regoEval creation with event subscription
 func Test_NewRegoEval_WithEventSubscriber(t *testing.T) {
 	mockSub := &mockEventSubscriber{
 		subscribers: make(map[int64]*mockSubscriber),
@@ -993,23 +993,23 @@ type mockSubscriber struct {
 	filter *orchestrator.SubscribeRequest_Filter
 }
 
-func (m *mockEventSubscriber) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (<-chan *orchestrator.ChangeEvent, int64) {
+func (m *mockEventSubscriber) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (ch <-chan *orchestrator.ChangeEvent, id int64) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	ch := make(chan *orchestrator.ChangeEvent, 100)
-	id := m.nextID
+	channelBuf := make(chan *orchestrator.ChangeEvent, 100)
+	id = m.nextID
 	m.nextID++
 
 	m.subscribers[id] = &mockSubscriber{
-		ch:     ch,
+		ch:     channelBuf,
 		filter: filter,
 	}
 
-	return ch, id
+	return channelBuf, id
 }
 
-func (m *mockEventSubscriber) UnregisterSubscriber(id int64) {
+func (m *mockEventSubscriber) UnregisterSubscriber(id int64) (err error) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
@@ -1017,6 +1017,8 @@ func (m *mockEventSubscriber) UnregisterSubscriber(id int64) {
 		delete(m.subscribers, id)
 		close(sub.ch)
 	}
+
+	return nil
 }
 
 func (m *mockEventSubscriber) PublishEvent(event *orchestrator.ChangeEvent) {
