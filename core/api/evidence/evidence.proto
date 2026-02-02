@@ -83,7 +83,7 @@ message Resource {
   ];
 
   // Properties contains a protobuf message that describe the resource in the
-  // terms of our Clouditor ontology.
+  // terms of our ontology.
   google.protobuf.Any properties = 10 [
     (tagger.tags) = "gorm:\"serializer:anypb;type:json\"",
     (buf.validate.field).required = true,

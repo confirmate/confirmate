@@ -89,7 +89,7 @@ type subscriber struct {
 	filter *orchestrator.SubscribeRequest_Filter
 }
 
-// Service is an implementation of the Clouditor Assessment service. It should not be used directly,
+// Service is an implementation of the Assessment service. It should not be used directly,
 // but rather the NewService constructor should be used. It implements the AssessmentServer interface.
 type Service struct {
 	// Embedded for FWD compatibility
