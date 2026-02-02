@@ -63,7 +63,10 @@ var EngineCommand = &cli.Command{
 		orchestratorURL := fmt.Sprintf("http://localhost:%d", apiPort)
 
 		assessmentSvc, err := assessment.NewService(
-			assessment.WithOrchestratorConfig(orchestratorURL, http.DefaultClient),
+			assessment.WithConfig(assessment.Config{
+				OrchestratorAddress: orchestratorURL,
+				OrchestratorClient:  http.DefaultClient,
+			}),
 		)
 		if err != nil {
 			return err

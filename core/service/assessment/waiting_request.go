@@ -43,9 +43,18 @@ type waitingRequest struct {
 }
 
 func (l *waitingRequest) WaitAndHandle() {
+	var (
+		resource   string
+		additional map[string]ontology.IsResource
+		e          *evidence.Evidence
+		ok         bool
+		msg        ontology.IsResource
+		duration   time.Duration
+	)
+
 	for {
 		// Wait for an incoming resource
-		resource := <-l.newResources
+		resource = <-l.newResources
 
 		// Check, if the incoming resource is of interest for us
 		delete(l.waitingFor, resource)
@@ -55,12 +64,12 @@ func (l *waitingRequest) WaitAndHandle() {
 			slog.Info("Evidence is now ready to assess", slog.Any("Evidence", l.Evidence.Id))
 
 			// Gather our additional resources
-			additional := make(map[string]ontology.IsResource)
+			additional = make(map[string]ontology.IsResource)
 
 			for _, r := range l.Evidence.ExperimentalRelatedResourceIds {
 				l.s.em.RLock()
 
-				e, ok := l.s.evidenceResourceMap[r]
+				e, ok = l.s.evidenceResourceMap[r]
 				l.s.em.RUnlock()
 
 				if !ok {
@@ -68,7 +77,7 @@ func (l *waitingRequest) WaitAndHandle() {
 					break
 				}
 
-				msg := e.GetOntologyResource()
+				msg = e.GetOntologyResource()
 				if msg == nil {
 					break
 				}
@@ -79,7 +88,7 @@ func (l *waitingRequest) WaitAndHandle() {
 			// Let's go
 			_, _ = l.s.handleEvidence(l.ctx, l.Evidence, l.Evidence.GetOntologyResource(), additional)
 
-			duration := time.Since(l.started)
+			duration = time.Since(l.started)
 
 			slog.Info("Evidence was waiting", slog.String("evidenceId", l.Evidence.Id), slog.Duration("duration", duration))
 			break

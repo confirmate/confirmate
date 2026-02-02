@@ -132,7 +132,11 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 
 	// Create assessment service with orchestrator
 	svc, err := NewService(
-		WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
+		WithConfig(Config{
+			OrchestratorAddress: testSrv.URL,
+			OrchestratorClient:  testSrv.Client(),
+			RegoPackage:         policies.DefaultRegoPackage,
+		}),
 	)
 	assert.NoError(t, err)
 
@@ -195,8 +199,11 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
 	)
 	aHandler, err := NewService(
-		WithOrchestratorConfig(testSrv.URL, testSrv.Client()),
-		WithRegoPackageName(policies.DefaultRegoPackage),
+		WithConfig(Config{
+			OrchestratorAddress: testSrv.URL,
+			OrchestratorClient:  testSrv.Client(),
+			RegoPackage:         policies.DefaultRegoPackage,
+		}),
 	)
 	assert.NoError(t, err)
 	s := aHandler.(*Service)

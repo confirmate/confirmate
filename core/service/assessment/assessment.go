@@ -51,6 +51,23 @@ var (
 
 const DefaultOrchestratorURL = "http://localhost:9090"
 
+// DefaultConfig is the default configuration for the assessment [Service].
+var DefaultConfig = Config{
+	OrchestratorAddress: DefaultOrchestratorURL,
+	OrchestratorClient:  http.DefaultClient,
+	RegoPackage:         policies.DefaultRegoPackage,
+}
+
+// Config represents the configuration for the assessment [Service].
+type Config struct {
+	// OrchestratorAddress is the address of the orchestrator service.
+	OrchestratorAddress string
+	// OrchestratorClient is the HTTP client to use for orchestrator communication.
+	OrchestratorClient *http.Client
+	// RegoPackage is the package name to use for Rego policy evaluation.
+	RegoPackage string
+}
+
 type orchestratorConfig struct {
 	targetAddress string
 	client        *http.Client
@@ -113,8 +130,8 @@ type Service struct {
 	// pe contains the actual policy evaluation engine we use
 	pe policies.PolicyEval
 
-	// evalPkg specifies the package used for the evaluation engine
-	evalPkg string
+	// cfg contains the service configuration
+	cfg Config
 
 	// subscribers is a map of subscribers for metric change events
 	subscribers      map[int64]*subscriber
@@ -122,26 +139,22 @@ type Service struct {
 	nextSubscriberId int64
 }
 
-// WithOrchestratorConfig is an option to configure the orchestrator gRPC address.
-func WithOrchestratorConfig(targetAddress string, client *http.Client) service.Option[Service] {
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
-		slog.Info("Orchestrator URL is set", slog.String("url", targetAddress))
-
-		svc.orchestratorConfig.targetAddress = targetAddress
-		svc.orchestratorConfig.client = client
-	}
-}
-
-// WithRegoPackageName is an option to configure the Rego package name
-func WithRegoPackageName(pkg string) service.Option[Service] {
-	return func(s *Service) {
-		s.evalPkg = pkg
+		svc.cfg = cfg
 	}
 }
 
 // NewService creates a new assessment service handler with default values.
 func NewService(opts ...service.Option[Service]) (handler assessmentconnect.AssessmentHandler, err error) {
-	svc := &Service{
+	var (
+		svc *Service
+		o   service.Option[Service]
+	)
+
+	svc = &Service{
+		cfg:                  DefaultConfig,
 		orchestratorConfig: orchestratorConfig{
 			targetAddress: DefaultOrchestratorURL,
 			client:        http.DefaultClient,
@@ -152,18 +165,19 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		subscribers:          make(map[int64]*subscriber),
 	}
 
-	for _, o := range opts {
+	for _, o = range opts {
 		o(svc)
 	}
 
-	// Set to default Rego package
-	if svc.evalPkg == "" {
-		svc.evalPkg = policies.DefaultRegoPackage
-	}
+	// Apply configuration to internal fields
+	svc.orchestratorConfig.targetAddress = svc.cfg.OrchestratorAddress
+	svc.orchestratorConfig.client = svc.cfg.OrchestratorClient
+
+	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
 	// Initialize the policy evaluator with event subscription
 	svc.pe = policies.NewRegoEval(
-		policies.WithPackageName(svc.evalPkg),
+		policies.WithPackageName(svc.cfg.RegoPackage),
 		policies.WithEventSubscriber(svc),
 	)
 
@@ -178,10 +192,15 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 }
 
 func (svc *Service) initOrchestratorStream() (err error) {
-	factory := func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
+	var (
+		factory           stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+		restartableStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+	)
+
+	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)
 	}
-	restartableStream, err := stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "StoreAssessmentResults")
+	restartableStream, err = stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "StoreAssessmentResults")
 	if err != nil {
 		return err
 	}
@@ -189,17 +208,19 @@ func (svc *Service) initOrchestratorStream() (err error) {
 	return
 }
 
-func (svc *Service) createOrchestratorStreamFactory() stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
-	return func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
+func (svc *Service) createOrchestratorStreamFactory() (factory stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) {
+	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)
 	}
+	return
 }
 
-func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) error {
+func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) (err error) {
 	var (
-		req *assessment.AssessEvidenceRequest
-		res *assessment.AssessEvidencesResponse
-		err error
+		req           *assessment.AssessEvidenceRequest
+		res           *assessment.AssessEvidencesResponse
+		assessmentReq *connect.Request[assessment.AssessEvidenceRequest]
+		assessmentRes *connect.Response[assessment.AssessEvidenceResponse]
 	)
 
 	for {
@@ -213,11 +234,11 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 			slog.Error("cannot receive stream request", log.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
-		assessmentReq := connect.NewRequest(&assessment.AssessEvidenceRequest{
+		assessmentReq = connect.NewRequest(&assessment.AssessEvidenceRequest{
 			Evidence: req.Evidence,
 		})
 
-		assessmentRes, err := svc.AssessEvidence(ctx, assessmentReq)
+		assessmentRes, err = svc.AssessEvidence(ctx, assessmentReq)
 		if err != nil {
 			slog.Error("AssessEvidenceStream: could not assess evidence:", log.Err(err))
 			res = &assessment.AssessEvidencesResponse{
@@ -240,9 +261,15 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 
 // AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
 func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[assessment.AssessEvidenceRequest]) (res *connect.Response[assessment.AssessEvidenceResponse], err error) {
-
 	var (
-		resource ontology.IsResource
+		resource         ontology.IsResource
+		ev               *evidence.Evidence
+		canHandle        bool
+		waitingFor       map[string]bool
+		related          map[string]ontology.IsResource
+		ok               bool
+		relatedEvidence  *evidence.Evidence
+		l                waitingRequest
 	)
 
 	// Validate the request
@@ -250,9 +277,9 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 		return nil, err
 	}
 
-	evidence := req.Msg.Evidence
+	ev = req.Msg.Evidence
 	// Validate request
-	err = api.Validate(evidence)
+	err = api.Validate(ev)
 	if err != nil {
 		slog.Error("AssessEvidence: invalid request", log.Err(err))
 		return nil, err
@@ -265,7 +292,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	// }
 
 	// Retrieve the ontology resource
-	resource = evidence.GetOntologyResource()
+	resource = ev.GetOntologyResource()
 	if resource == nil {
 		err = ontology.ErrNotOntologyResource
 		slog.Error("AssessEvidence: Not an ontology resource:", log.Err(err))
@@ -273,24 +300,21 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	}
 
 	// Check, if we can immediately handle this evidence; we assume so at first
-	var (
-		canHandle                                 = true
-		waitingFor map[string]bool                = make(map[string]bool)
-		related    map[string]ontology.IsResource = make(map[string]ontology.IsResource)
-	)
+	canHandle = true
+	waitingFor = make(map[string]bool)
+	related = make(map[string]ontology.IsResource)
 
 	svc.em.Lock()
 
 	// We need to check, if by any chance the related resource evidences have already arrived
 	//
 	// TODO(oxisto): We should also check if they are "recent" enough (which is probably determined by the metric)
-	for _, r := range evidence.ExperimentalRelatedResourceIds {
+	for _, r := range ev.ExperimentalRelatedResourceIds {
 		// If any of the related resource is not available, we cannot handle them immediately, but we need to add it to
 		// our waitingFor slice
-		if _, ok := svc.evidenceResourceMap[r]; ok {
-			ev := svc.evidenceResourceMap[r]
-
-			related[r] = ev.GetOntologyResource()
+		relatedEvidence, ok = svc.evidenceResourceMap[r]
+		if ok {
+			related[r] = relatedEvidence.GetOntologyResource()
 		} else {
 			canHandle = false
 			waitingFor[r] = true
@@ -298,7 +322,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	}
 
 	// Update our resourceID to evidence cache
-	svc.evidenceResourceMap[resource.GetId()] = evidence
+	svc.evidenceResourceMap[resource.GetId()] = ev
 	svc.em.Unlock()
 
 	// Inform any other left over evidences that might be waiting
@@ -306,7 +330,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	if canHandle {
 		// Assess evidence. This also validates the embedded resource and returns an error if validation fails.
-		_, err = svc.handleEvidence(ctx, evidence, resource, related)
+		_, err = svc.handleEvidence(ctx, ev, resource, related)
 		if err != nil {
 			return nil, err
 		}
@@ -315,14 +339,14 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 			Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
 		})
 	} else {
-		slog.Debug("Evidence needs to wait for more resource(s) to assess evidence", slog.Any("evidence", evidence), slog.Int("waitingFor", len(waitingFor)))
+		slog.Debug("Evidence needs to wait for more resource(s) to assess evidence", slog.Any("evidence", ev), slog.Int("waitingFor", len(waitingFor)))
 
 		// Create a left-over request with all the necessary information
-		l := waitingRequest{
+		l = waitingRequest{
 			started:      time.Now(),
 			waitingFor:   waitingFor,
 			resourceId:   resource.GetId(),
-			Evidence:     evidence,
+			Evidence:     ev,
 			s:            svc,
 			newResources: make(chan string, 1000),
 			ctx:          ctx,
@@ -336,7 +360,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 		// Lock requests for writing
 		svc.rm.Lock()
-		svc.requests[evidence.Id] = l
+		svc.requests[ev.Id] = l
 		// Unlock writing
 		svc.rm.Unlock()
 
@@ -358,7 +382,11 @@ func (svc *Service) handleEvidence(
 	related map[string]ontology.IsResource,
 ) (results []*assessment.AssessmentResult, err error) {
 	var (
-		types []string
+		types       []string
+		evaluations []*policies.CombinedResult
+		newError    error
+		metricID    string
+		result      *assessment.AssessmentResult
 	)
 
 	if resource == nil {
@@ -372,9 +400,9 @@ func (svc *Service) handleEvidence(
 		slog.Any("Timestamp", ev.Timestamp.AsTime()),
 	)
 
-	evaluations, err := svc.pe.Eval(ev, resource, related, svc)
+	evaluations, err = svc.pe.Eval(ev, resource, related, svc)
 	if err != nil {
-		newError := fmt.Errorf("could not evaluate evidence: %w", err)
+		newError = fmt.Errorf("could not evaluate evidence: %w", err)
 
 		go svc.informHooks(ctx, nil, newError)
 
@@ -400,13 +428,13 @@ func (svc *Service) handleEvidence(
 			slog.Error("One empty policy evaluation detected for evidence. That should not happen.", slog.String("Evidence", ev.GetId()))
 			continue
 		}
-		metricID := data.MetricID
+		metricID = data.MetricID
 
 		slog.Debug("Evaluated evidence with metric", slog.String("Evidence", ev.Id), slog.String("MetricID", metricID), slog.Bool("Compliant", data.Compliant))
 
 		types = ontology.ResourceTypes(resource)
 
-		result := &assessment.AssessmentResult{
+		result = &assessment.AssessmentResult{
 			Id:                   uuid.NewString(),
 			CreatedAt:            timestamppb.Now(),
 			TargetOfEvaluationId: ev.GetTargetOfEvaluationId(),
@@ -448,8 +476,12 @@ func (svc *Service) handleEvidence(
 
 // informHooks informs the registered hook functions
 func (svc *Service) informHooks(ctx context.Context, result *assessment.AssessmentResult, err error) {
+	var (
+		hooks []assessment.ResultHookFunc
+	)
+
 	svc.hookMutex.RLock()
-	hooks := svc.resultHooks
+	hooks = svc.resultHooks
 	defer svc.hookMutex.RUnlock()
 
 	// Inform our hook, if we have any
@@ -509,6 +541,8 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 		ok    bool
 		cache cachedConfiguration
 		key   string
+		req   *connect.Request[orchestrator.GetMetricConfigurationRequest]
+		resp  *connect.Response[assessment.MetricConfiguration]
 	)
 
 	// Calculate the cache key
@@ -521,12 +555,12 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 
 	// Check if entry is not there or is expired
 	if !ok || cache.cachedAt.After(time.Now().Add(EvictionTime)) {
-		req := connect.NewRequest(&orchestrator.GetMetricConfigurationRequest{
+		req = connect.NewRequest(&orchestrator.GetMetricConfigurationRequest{
 			TargetOfEvaluationId: TargetOfEvaluationID,
 			MetricId:             metric.Id,
 		})
 
-		resp, err := svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
+		resp, err = svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
 		config = resp.Msg
 
 		if err != nil {
@@ -550,10 +584,14 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 // RegisterSubscriber registers a new subscriber for metric change events.
 // It returns a channel to receive events and a subscriber ID for later unregistration.
 func (svc *Service) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Filter) (ch <-chan *orchestrator.ChangeEvent, id int64) {
+	var (
+		channelBuf chan *orchestrator.ChangeEvent
+	)
+
 	svc.subscribersMutex.Lock()
 	defer svc.subscribersMutex.Unlock()
 
-	channelBuf := make(chan *orchestrator.ChangeEvent, 100)
+	channelBuf = make(chan *orchestrator.ChangeEvent, 100)
 	id = svc.nextSubscriberId
 	svc.nextSubscriberId++
 
@@ -562,15 +600,22 @@ func (svc *Service) RegisterSubscriber(filter *orchestrator.SubscribeRequest_Fil
 		filter: filter,
 	}
 
-	return channelBuf, id
+	ch = channelBuf
+	return
 }
 
 // UnregisterSubscriber removes a subscriber from receiving metric change events.
 func (svc *Service) UnregisterSubscriber(id int64) (err error) {
+	var (
+		sub *subscriber
+		ok  bool
+	)
+
 	svc.subscribersMutex.Lock()
 	defer svc.subscribersMutex.Unlock()
 
-	if sub, ok := svc.subscribers[id]; ok {
+	sub, ok = svc.subscribers[id]
+	if ok {
 		delete(svc.subscribers, id)
 		close(sub.ch)
 	}
