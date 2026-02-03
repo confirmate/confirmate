@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
@@ -49,7 +50,13 @@ func TestNewService(t *testing.T) {
 		{
 			name: "EvidenceStoreServer created with in-memory DB",
 			args: args{opts: []service.Option[Service]{
-				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+				WithConfig(Config{
+					AssessmentAddress: DefaultAssessmentURL,
+					PersistenceConfig: persistence.Config{
+						InMemoryDB: true,
+					},
+					EvidenceQueueSize: DefaultConfig.EvidenceQueueSize,
+				}),
 			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// Storage should be in-memory storage
@@ -60,31 +67,14 @@ func TestNewService(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "Happy path: EvidenceStoreServer created with option 'WithDB'",
-			args: args{opts: []service.Option[Service]{
-				WithDB(persistencetest.NewInMemoryDB(t, types, nil, evidencetest.InitDBWithEvidence))}},
-			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				// Storage should be gorm (in-memory storage). Hard to check since its type is not exported
-				assert.NotNil(t, got.db)
-				assert.NotNil(t, got.assessmentStream)
-				// But we can check if we can get the evidence we inserted into the custom DB
-				gotEvidence, err := got.GetEvidence(context.Background(), &connect.Request[evidence.GetEvidenceRequest]{
-					Msg: &evidence.GetEvidenceRequest{EvidenceId: evidencetest.MockEvidence1.Id}})
-				assert.NoError(t, err)
-				assert.NotNil(t, gotEvidence)
-				assert.Equal(t, evidencetest.MockEvidence1.Id, gotEvidence.Msg.Id)
-				return true
-			},
-			wantErr: assert.NoError,
-		},
-		{
 			name: "EvidenceStoreServer created with option 'WithConfig' - no client provided",
 			args: args{opts: []service.Option[Service]{
-				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 				WithConfig(Config{
 					AssessmentAddress: "localhost:9091",
 					AssessmentClient:  nil,
-					PersistenceConfig: persistence.DefaultConfig,
+					PersistenceConfig: persistence.Config{
+						InMemoryDB: true,
+					},
 					EvidenceQueueSize: DefaultConfig.EvidenceQueueSize,
 				}),
 			}},
@@ -98,11 +88,12 @@ func TestNewService(t *testing.T) {
 		{
 			name: "EvidenceStoreServer created with option 'WithConfig' - with client",
 			args: args{opts: []service.Option[Service]{
-				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 				WithConfig(Config{
 					AssessmentAddress: "localhost:9091",
 					AssessmentClient:  &http.Client{Timeout: time.Duration(1)},
-					PersistenceConfig: persistence.DefaultConfig,
+					PersistenceConfig: persistence.Config{
+						InMemoryDB: true,
+					},
 					EvidenceQueueSize: DefaultConfig.EvidenceQueueSize,
 				}),
 			}},
@@ -117,7 +108,11 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Error - assessment stream init fails",
 			args: args{opts: []service.Option[Service]{
-				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
+				WithConfig(Config{
+					PersistenceConfig: persistence.Config{
+						InMemoryDB: true,
+					},
+				}),
 				WithAssessmentClient(nilAssessmentClient{}),
 			}},
 			want: assert.Nil[*Service],
@@ -164,10 +159,12 @@ func TestService_sendToAssessment(t *testing.T) {
 
 	// Step 2: Create service with assessment client.
 	svc, err := NewService(
-		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: testSrv.URL,
 			AssessmentClient:  testSrv.Client(),
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
 		}),
 	)
 	assert.NoError(t, err)
@@ -201,10 +198,12 @@ func TestService_initAssessmentStream(t *testing.T) {
 	defer testSrv.Close()
 
 	svc, err := NewService(
-		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: testSrv.URL,
 			AssessmentClient:  testSrv.Client(),
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
 		}),
 	)
 	assert.NoError(t, err)
@@ -265,7 +264,7 @@ func TestService_StoreEvidence(t *testing.T) {
 		req *connect.Request[evidence.StoreEvidenceRequest]
 	}
 	type fields struct {
-		svc *Service
+		db persistence.DB
 	}
 	tests := []struct {
 		name    string
@@ -280,7 +279,7 @@ func TestService_StoreEvidence(t *testing.T) {
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{Evidence: nil}},
 			},
 			fields: fields{
-				svc: nil, // service isn't needed; validating arg errors only
+				db: nil, // DB isn't needed; validating arg errors only
 			},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -295,15 +294,11 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence1,
 				}},
 			},
-			fields: fields{svc: func() *Service {
-				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
-					// Create evidence
-					err := db.Create(evidencetest.MockEvidence1)
-					assert.NoError(t, err)
-				})))
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				// Create evidence
+				err := db.Create(evidencetest.MockEvidence1)
 				assert.NoError(t, err)
-				return svc
-			}()},
+			})},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
@@ -317,12 +312,8 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: func() *Service {
-				svc, err := NewService(WithDB(persistencetest.CreateErrorDB(t, persistence.ErrDatabase, types, nil)))
-				assert.NoError(t, err)
-				return svc
-			}()},
-			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			fields: fields{db: persistencetest.CreateErrorDB(t, persistence.ErrDatabase, types, nil)},
+			want:   assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
@@ -335,12 +326,8 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: func() *Service {
-				svc, err := NewService(WithDB(persistencetest.SaveErrorDB(t, persistence.ErrDatabase, types, nil)))
-				assert.NoError(t, err)
-				return svc
-			}()},
-			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			fields: fields{db: persistencetest.SaveErrorDB(t, persistence.ErrDatabase, types, nil)},
+			want:   assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
@@ -353,11 +340,7 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: func() *Service {
-				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil)))
-				assert.NoError(t, err)
-				return svc
-			}()},
+			fields:  fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
 			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: assert.NoError,
 		},
@@ -369,12 +352,8 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidenceNoResource,
 				}},
 			},
-			fields: fields{svc: func() *Service {
-				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil)))
-				assert.NoError(t, err)
-				return svc
-			}()},
-			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
+			want:   assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
@@ -387,24 +366,31 @@ func TestService_StoreEvidence(t *testing.T) {
 					Evidence: evidencetest.MockEvidence2SameResourceAs1,
 				}},
 			},
-			fields: fields{svc: func() *Service {
-				svc, err := NewService(WithDB(persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
-					// Create a resource already such that `save` will update it instead of creating a new entry
-					r, err := evidence.ToEvidenceResource(evidencetest.MockEvidence1.GetOntologyResource(), evidencetest.MockEvidence1.GetTargetOfEvaluationId(), evidencetest.MockEvidence1.GetToolId())
-					assert.NoError(t, err)
-					err = db.Create(r)
-					assert.NoError(t, err)
-				})))
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+				// Create a resource already such that `save` will update it instead of creating a new entry
+				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidence1.GetOntologyResource(), evidencetest.MockEvidence1.GetTargetOfEvaluationId(), evidencetest.MockEvidence1.GetToolId())
 				assert.NoError(t, err)
-				return svc
-			}()},
+				err = db.Create(r)
+				assert.NoError(t, err)
+			})},
 			want:    assert.NotNil[*connect.Response[evidence.StoreEvidenceResponse]],
 			wantErr: assert.NoError,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := tt.fields.svc.StoreEvidence(tt.args.ctx, tt.args.req)
+			var (
+				svc *Service
+				res *connect.Response[evidence.StoreEvidenceResponse]
+				err error
+			)
+
+			svc = &Service{
+				db:              tt.fields.db,
+				channelEvidence: make(chan *evidence.Evidence, defaultEvidenceQueueSize),
+			}
+
+			res, err = svc.StoreEvidence(tt.args.ctx, tt.args.req)
 			tt.wantErr(t, err)
 			tt.want(t, res)
 		})
@@ -491,19 +477,32 @@ func TestService_StoreEvidences(t *testing.T) {
 			var (
 				err      error
 				statuses []evidence.EvidenceStatus
+				svc      *Service
+				svcErr   error
 			)
 
 			_, _, assessmentSrv := newAssessmentTestServer(t)
 			defer assessmentSrv.Close()
 
-			svc, svcErr := NewService(
-				WithDB(tt.fields.db),
-				WithConfig(Config{
-					AssessmentAddress: assessmentSrv.URL,
-					AssessmentClient:  assessmentSrv.Client(),
-				}),
-			)
+			// Initialize service directly with DB from test fields
+			svc = &Service{
+				db:  tt.fields.db,
+				cfg: DefaultConfig,
+			}
+			svc.cfg.AssessmentAddress = assessmentSrv.URL
+			svc.cfg.AssessmentClient = assessmentSrv.Client()
+
+			// Initialize assessment client
+			svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+				assessmentSrv.Client(), assessmentSrv.URL)
+
+			// Initialize evidence channel
+			svc.initEvidenceChannel()
+
+			// Initialize assessment stream
+			svcErr = svc.initAssessmentStream()
 			assert.NoError(t, svcErr)
+
 			streamHandle := svc.assessmentStream
 			defer func() {
 				if streamHandle != nil {
@@ -549,10 +548,12 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 	defer assessmentSrv.Close()
 
 	svc, err := NewService(
-		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: assessmentSrv.URL,
 			AssessmentClient:  assessmentSrv.Client(),
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
 		}),
 	)
 	assert.NoError(t, err)
@@ -1146,10 +1147,12 @@ func TestService_initEvidenceChannel(t *testing.T) {
 	defer testSrv.Close()
 
 	svc, err := NewService(
-		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: testSrv.URL,
 			AssessmentClient:  testSrv.Client(),
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
 		}),
 	)
 	assert.NoError(t, err)

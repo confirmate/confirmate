@@ -104,13 +104,6 @@ func WithConfig(cfg Config) service.Option[Service] {
 	}
 }
 
-// WithDB is an option to inject a custom database (useful for testing).
-func WithDB(db persistence.DB) service.Option[Service] {
-	return func(svc *Service) {
-		svc.db = db
-	}
-}
-
 // WithAssessmentClient overrides the assessment client (useful for testing).
 func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Option[Service] {
 	return func(s *Service) {
