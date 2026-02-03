@@ -167,7 +167,7 @@ func TestService_sendToAssessment(t *testing.T) {
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: testSrv.URL,
-			AssessmentClient:        testSrv.Client(),
+			AssessmentClient:  testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -204,7 +204,7 @@ func TestService_initAssessmentStream(t *testing.T) {
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: testSrv.URL,
-			AssessmentClient:        testSrv.Client(),
+			AssessmentClient:  testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -500,7 +500,7 @@ func TestService_StoreEvidences(t *testing.T) {
 				WithDB(tt.fields.db),
 				WithConfig(Config{
 					AssessmentAddress: assessmentSrv.URL,
-					AssessmentClient:        assessmentSrv.Client(),
+					AssessmentClient:  assessmentSrv.Client(),
 				}),
 			)
 			assert.NoError(t, svcErr)
@@ -552,7 +552,7 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: assessmentSrv.URL,
-			AssessmentClient:        assessmentSrv.Client(),
+			AssessmentClient:  assessmentSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -1149,7 +1149,7 @@ func TestService_initEvidenceChannel(t *testing.T) {
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
 		WithConfig(Config{
 			AssessmentAddress: testSrv.URL,
-			AssessmentClient:        testSrv.Client(),
+			AssessmentClient:  testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
