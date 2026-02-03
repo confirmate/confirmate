@@ -47,19 +47,37 @@ const (
 	defaultEvidenceQueueSize = 1024
 )
 
-type AssessmentConfig struct {
-	TargetAddress string
-	Client        *http.Client
+// DefaultConfig is the default configuration for the evidence store [Service].
+var DefaultConfig = Config{
+	AssessmentAddress:   DefaultAssessmentURL,
+	AssessmentClient:    nil, // Will use http.DefaultClient
+	PersistenceConfig:   persistence.DefaultConfig,
+	EvidenceQueueSize:   defaultEvidenceQueueSize,
+}
+
+// Config represents the configuration for the evidence store [Service].
+type Config struct {
+	// AssessmentAddress is the address of the assessment service.
+	AssessmentAddress string
+
+	// AssessmentClient is the HTTP client used for assessment service communication.
+	// If nil, http.DefaultClient will be used.
+	AssessmentClient *http.Client
+
+	// PersistenceConfig is the configuration for the persistence layer.
+	PersistenceConfig persistence.Config
+
+	// EvidenceQueueSize is the size of the evidence processing queue.
+	EvidenceQueueSize int
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
-	db       persistence.DB
-	dbConfig persistence.Config
+	db  persistence.DB
+	cfg Config
 
 	assessmentClient assessmentconnect.AssessmentClient
 	assessmentStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-	assessmentConfig AssessmentConfig
 
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
 	channelEvidence chan *evidence.Evidence
@@ -79,28 +97,17 @@ func init() {
 	slog.SetDefault(logger)
 }
 
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
+	return func(svc *Service) {
+		svc.cfg = cfg
+	}
+}
+
+// WithDB is an option to inject a custom database (useful for testing).
 func WithDB(db persistence.DB) service.Option[Service] {
 	return func(svc *Service) {
 		svc.db = db
-	}
-}
-
-// WithDBConfig overrides persistence settings used when no DB is injected.
-func WithDBConfig(cfg persistence.Config) service.Option[Service] {
-	return func(svc *Service) {
-		svc.dbConfig = cfg
-	}
-}
-
-// WithAssessmentConfig is an option to configure the assessment service gRPC address.
-func WithAssessmentConfig(conf AssessmentConfig) service.Option[Service] {
-	return func(s *Service) {
-		slog.Info("Assessment URL is set", slog.Any("target", conf.TargetAddress))
-		s.assessmentConfig.TargetAddress = conf.TargetAddress
-		// Avoid overriding the default client if no client is provided
-		if conf.Client != nil {
-			s.assessmentConfig.Client = conf.Client
-		}
 	}
 }
 
@@ -113,31 +120,36 @@ func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Opt
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	var (
-		o   service.Option[Service]
-		cfg persistence.Config
+		o      service.Option[Service]
+		pcfg   persistence.Config
+		client *http.Client
 	)
 
 	svc = &Service{
-		assessmentConfig: AssessmentConfig{
-			TargetAddress: DefaultAssessmentURL,
-			Client:        http.DefaultClient,
-		},
-		dbConfig: persistence.DefaultConfig,
+		cfg: DefaultConfig,
 	}
 
 	for _, o = range opts {
 		o(svc)
 	}
 
-	if svc.assessmentClient == nil {
-		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-			svc.assessmentConfig.Client, svc.assessmentConfig.TargetAddress)
+	// Determine HTTP client for assessment service
+	client = svc.cfg.AssessmentClient
+	if client == nil {
+		client = http.DefaultClient
 	}
 
+	// Initialize assessment client if not already set (e.g., by WithAssessmentClient for testing)
+	if svc.assessmentClient == nil {
+		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+			client, svc.cfg.AssessmentAddress)
+	}
+
+	// Initialize database if not already set (e.g., by WithDB for testing)
 	if svc.db == nil {
-		cfg = svc.dbConfig
-		cfg.Types = types
-		svc.db, err = persistence.NewDB(persistence.WithConfig(cfg))
+		pcfg = svc.cfg.PersistenceConfig
+		pcfg.Types = types
+		svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 		if err != nil {
 			err = fmt.Errorf("could not create db: %w", err)
 			return
@@ -171,15 +183,19 @@ func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
 
 // initAssessmentStream creates the restartable assessment stream once during service startup.
 func (svc *Service) initAssessmentStream() (err error) {
+	var (
+		factory           func(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+		restartableStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+	)
+
 	if svc.assessmentStream != nil {
 		return nil
 	}
 
-	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.assessmentConfig.TargetAddress))
-	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
+	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.cfg.AssessmentAddress))
+	factory = func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 		return svc.assessmentClient.AssessEvidences(ctx)
 	}
-	var restartableStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
 	restartableStream, err = stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "AssessEvidences")
 	if err != nil {
 		return err
@@ -193,7 +209,7 @@ func (svc *Service) initAssessmentStream() (err error) {
 func (svc *Service) initEvidenceChannel() {
 	// Allocate the channel before starting the worker.
 	if svc.channelEvidence == nil {
-		svc.channelEvidence = make(chan *evidence.Evidence, defaultEvidenceQueueSize)
+		svc.channelEvidence = make(chan *evidence.Evidence, svc.cfg.EvidenceQueueSize)
 	}
 
 	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the

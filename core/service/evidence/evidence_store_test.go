@@ -78,36 +78,39 @@ func TestNewService(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - no client provided",
+			name: "EvidenceStoreServer created with option 'WithConfig' - no client provided",
 			args: args{opts: []service.Option[Service]{
 				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-				WithAssessmentConfig(AssessmentConfig{
-					TargetAddress: "localhost:9091",
-					Client:        nil,
+				WithConfig(Config{
+					AssessmentAddress: "localhost:9091",
+					AssessmentClient:  nil,
+					PersistenceConfig: persistence.DefaultConfig,
+					EvidenceQueueSize: DefaultConfig.EvidenceQueueSize,
 				}),
 			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				// We didn't provide a client, so it should be the default (timeout is zero value)
-				assert.Equal(t, 0, got.assessmentConfig.Client.Timeout)
+				// We didn't provide a client, so it should use http.DefaultClient
 				assert.NotNil(t, got.assessmentStream)
-				return assert.Equal(t, "localhost:9091", got.assessmentConfig.TargetAddress)
+				return assert.Equal(t, "localhost:9091", got.cfg.AssessmentAddress)
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			name: "EvidenceStoreServer created with option 'WithAssessmentConfig' - with client",
+			name: "EvidenceStoreServer created with option 'WithConfig' - with client",
 			args: args{opts: []service.Option[Service]{
 				WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-				WithAssessmentConfig(AssessmentConfig{
-					TargetAddress: "localhost:9091",
-					Client:        &http.Client{Timeout: time.Duration(1)},
+				WithConfig(Config{
+					AssessmentAddress: "localhost:9091",
+					AssessmentClient:  &http.Client{Timeout: time.Duration(1)},
+					PersistenceConfig: persistence.DefaultConfig,
+					EvidenceQueueSize: DefaultConfig.EvidenceQueueSize,
 				}),
 			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				// We provided a client with timeout set to 1 second
-				assert.Equal(t, 1, got.assessmentConfig.Client.Timeout)
+				// We provided a client with timeout set to 1 nanosecond
+				assert.Equal(t, 1, got.cfg.AssessmentClient.Timeout)
 				assert.NotNil(t, got.assessmentStream)
-				return assert.Equal(t, "localhost:9091", got.assessmentConfig.TargetAddress)
+				return assert.Equal(t, "localhost:9091", got.cfg.AssessmentAddress)
 			},
 			wantErr: assert.NoError,
 		},
@@ -132,12 +135,18 @@ func TestNewService(t *testing.T) {
 	}
 }
 
-// TestNewService_WithDBConfig ensures DB config is honored during initialization.
-func TestNewService_WithDBConfig(t *testing.T) {
-	cfg := persistence.DefaultConfig
-	cfg.InMemoryDB = true
+// TestNewService_WithConfig ensures Config is honored during initialization.
+func TestNewService_WithConfig(t *testing.T) {
+	var (
+		cfg Config
+		svc *Service
+		err error
+	)
 
-	svc, err := NewService(WithDBConfig(cfg))
+	cfg = DefaultConfig
+	cfg.PersistenceConfig.InMemoryDB = true
+
+	svc, err = NewService(WithConfig(cfg))
 	assert.NoError(t, err)
 	assert.NotNil(t, svc)
 	assert.NotNil(t, svc.db)
@@ -156,9 +165,9 @@ func TestService_sendToAssessment(t *testing.T) {
 	// Step 2: Create service with assessment client.
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(AssessmentConfig{
-			TargetAddress: testSrv.URL,
-			Client:        testSrv.Client(),
+		WithConfig(Config{
+			AssessmentAddress: testSrv.URL,
+			AssessmentClient:        testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -193,9 +202,9 @@ func TestService_initAssessmentStream(t *testing.T) {
 
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(AssessmentConfig{
-			TargetAddress: testSrv.URL,
-			Client:        testSrv.Client(),
+		WithConfig(Config{
+			AssessmentAddress: testSrv.URL,
+			AssessmentClient:        testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -489,9 +498,9 @@ func TestService_StoreEvidences(t *testing.T) {
 
 			svc, svcErr := NewService(
 				WithDB(tt.fields.db),
-				WithAssessmentConfig(AssessmentConfig{
-					TargetAddress: assessmentSrv.URL,
-					Client:        assessmentSrv.Client(),
+				WithConfig(Config{
+					AssessmentAddress: assessmentSrv.URL,
+					AssessmentClient:        assessmentSrv.Client(),
 				}),
 			)
 			assert.NoError(t, svcErr)
@@ -541,9 +550,9 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(AssessmentConfig{
-			TargetAddress: assessmentSrv.URL,
-			Client:        assessmentSrv.Client(),
+		WithConfig(Config{
+			AssessmentAddress: assessmentSrv.URL,
+			AssessmentClient:        assessmentSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)
@@ -1138,9 +1147,9 @@ func TestService_initEvidenceChannel(t *testing.T) {
 
 	svc, err := NewService(
 		WithDB(persistencetest.NewInMemoryDB(t, types, nil)),
-		WithAssessmentConfig(AssessmentConfig{
-			TargetAddress: testSrv.URL,
-			Client:        testSrv.Client(),
+		WithConfig(Config{
+			AssessmentAddress: testSrv.URL,
+			AssessmentClient:        testSrv.Client(),
 		}),
 	)
 	assert.NoError(t, err)

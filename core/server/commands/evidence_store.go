@@ -34,9 +34,6 @@ var EvidenceCommand = &cli.Command{
 	Name:  "evidence store",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		assessmentClient := &http.Client{
-			Timeout: cmd.Duration("assessment-timeout"),
-		}
 		slog.Info("Starting Evidence Store",
 			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
 			slog.String("log_level", cmd.String("log-level")),
@@ -48,20 +45,24 @@ var EvidenceCommand = &cli.Command{
 			slog.Int("db_max_connections", cmd.Int("db-max-connections")),
 			slog.String("assessment_address", cmd.String("assessment-address")),
 			slog.Duration("assessment_timeout", cmd.Duration("assessment-timeout")))
+
 		svc, err := evidence.NewService(
-			evidence.WithDBConfig(persistence.Config{
-				Host:       cmd.String("db-host"),
-				Port:       cmd.Int("db-port"),
-				DBName:     cmd.String("db-name"),
-				User:       cmd.String("db-user"),
-				Password:   cmd.String("db-password"),
-				SSLMode:    cmd.String("db-sslmode"),
-				InMemoryDB: cmd.Bool("db-in-memory"),
-				MaxConn:    cmd.Int("db-max-connections"),
-			}),
-			evidence.WithAssessmentConfig(evidence.AssessmentConfig{
-				TargetAddress: cmd.String("assessment-address"),
-				Client:        assessmentClient,
+			evidence.WithConfig(evidence.Config{
+				AssessmentAddress: cmd.String("assessment-address"),
+				AssessmentClient: &http.Client{
+					Timeout: cmd.Duration("assessment-timeout"),
+				},
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-sslmode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
+				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
 			}),
 		)
 		if err != nil {
