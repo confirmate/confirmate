@@ -68,11 +68,6 @@ type Config struct {
 	RegoPackage string
 }
 
-type orchestratorConfig struct {
-	targetAddress string
-	client        *http.Client
-}
-
 const (
 	// EvictionTime is the time after which an entry in the metric configuration is invalid
 	EvictionTime = time.Hour * 1
@@ -95,11 +90,9 @@ type Service struct {
 	// Embedded for FWD compatibility
 	assessmentconnect.UnimplementedAssessmentHandler
 
-	// TODO: we can remove the client if we handle everything via the bidistream
 	orchestratorClient orchestratorconnect.OrchestratorClient
 	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	streamMutex        sync.Mutex
-	orchestratorConfig orchestratorConfig
 
 	// resultHooks is a list of hook functions that can be used if one wants to be
 	// informed about each assessment result
@@ -152,11 +145,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	)
 
 	svc = &Service{
-		cfg: DefaultConfig,
-		orchestratorConfig: orchestratorConfig{
-			targetAddress: DefaultOrchestratorURL,
-			client:        http.DefaultClient,
-		},
+		cfg:                  DefaultConfig,
 		evidenceResourceMap:  make(map[string]*evidence.Evidence),
 		requests:             make(map[string]waitingRequest),
 		cachedConfigurations: make(map[string]cachedConfiguration),
@@ -167,10 +156,6 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		o(svc)
 	}
 
-	// Apply configuration to internal fields
-	svc.orchestratorConfig.targetAddress = svc.cfg.OrchestratorAddress
-	svc.orchestratorConfig.client = svc.cfg.OrchestratorClient
-
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
 	// Initialize the policy evaluator with event subscription
@@ -179,7 +164,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		policies.WithEventSubscriber(svc),
 	)
 
-	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.orchestratorConfig.client, svc.orchestratorConfig.targetAddress)
+	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
 	err = svc.initOrchestratorStream()
 	if err != nil {
 		return nil, err
@@ -408,7 +393,7 @@ func (svc *Service) handleEvidence(
 	}
 
 	if err != nil {
-		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.orchestratorConfig.targetAddress, err)
+		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.cfg.OrchestratorAddress, err)
 
 		go svc.informHooks(ctx, nil, err)
 

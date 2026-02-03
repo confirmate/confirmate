@@ -95,7 +95,7 @@ func TestNewService(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				return assert.Equal(t, "localhost:9092", got.orchestratorConfig.targetAddress)
+				return assert.Equal(t, "localhost:9092", got.cfg.OrchestratorAddress)
 			},
 		},
 	}
@@ -1288,15 +1288,16 @@ func TestService_initOrchestratorStream(t *testing.T) {
 
 			// Create service
 			assSvc := &Service{
-				orchestratorConfig: orchestratorConfig{
-					targetAddress: url,
-					client:        testClient,
+				cfg: Config{
+					OrchestratorAddress: url,
+					OrchestratorClient:  testClient,
+					RegoPackage:         policies.DefaultRegoPackage,
 				},
 			}
 
 			assSvc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(
-				assSvc.orchestratorConfig.client,
-				assSvc.orchestratorConfig.targetAddress,
+				assSvc.cfg.OrchestratorClient,
+				assSvc.cfg.OrchestratorAddress,
 			)
 
 			// Execute test
