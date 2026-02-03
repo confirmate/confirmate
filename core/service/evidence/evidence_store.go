@@ -112,6 +112,11 @@ func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Opt
 }
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
+	var (
+		o   service.Option[Service]
+		cfg persistence.Config
+	)
+
 	svc = &Service{
 		assessmentConfig: AssessmentConfig{
 			TargetAddress: DefaultAssessmentURL,
@@ -120,7 +125,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		dbConfig: persistence.DefaultConfig,
 	}
 
-	for _, o := range opts {
+	for _, o = range opts {
 		o(svc)
 	}
 
@@ -130,7 +135,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	}
 
 	if svc.db == nil {
-		cfg := svc.dbConfig
+		cfg = svc.dbConfig
 		cfg.Types = types
 		svc.db, err = persistence.NewDB(persistence.WithConfig(cfg))
 		if err != nil {
@@ -152,12 +157,12 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 }
 
 // sendToAssessment forwards evidence to the assessment service using the restartable stream.
-func (svc *Service) sendToAssessment(evidence *evidence.Evidence) error {
+func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
 	if svc.assessmentStream == nil {
 		return fmt.Errorf("assessment stream is not initialized")
 	}
 	// Send evidence to the assessment service using the persistent stream
-	err := svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	err = svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
 	if err != nil {
 		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
 	}
@@ -165,7 +170,7 @@ func (svc *Service) sendToAssessment(evidence *evidence.Evidence) error {
 }
 
 // initAssessmentStream creates the restartable assessment stream once during service startup.
-func (svc *Service) initAssessmentStream() error {
+func (svc *Service) initAssessmentStream() (err error) {
 	if svc.assessmentStream != nil {
 		return nil
 	}
@@ -174,7 +179,8 @@ func (svc *Service) initAssessmentStream() error {
 	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 		return svc.assessmentClient.AssessEvidences(ctx)
 	}
-	restartableStream, err := stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "AssessEvidences")
+	var restartableStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
+	restartableStream, err = stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "AssessEvidences")
 	if err != nil {
 		return err
 	}
@@ -195,16 +201,22 @@ func (svc *Service) initEvidenceChannel() {
 	// NOTE: This simple approach has a few limitations: a full queue will block StoreEvidence, the worker
 	// has no shutdown signal, errors are only logged (no retry), and throughput is limited to a single goroutine.
 	go func() {
-		for e := range svc.channelEvidence { // exits when channel is closed
+		var (
+			e   *evidence.Evidence
+			err error
+		)
+
+		for e = range svc.channelEvidence { // exits when channel is closed
 			if e == nil {
 				continue
 			}
 			// Fire-and-forget dispatch; errors are only logged here.
-			if err := svc.sendToAssessment(e); err != nil {
+			err = svc.sendToAssessment(e)
+			if err != nil {
 				slog.Error("error while sending evidence",
 					slog.String("evidence_id", e.GetId()),
 					slog.String("tool_id", e.GetToolId()),
-					slog.Any("error", err),
+					tint.Err(err),
 				)
 			}
 		}
@@ -214,8 +226,13 @@ func (svc *Service) initEvidenceChannel() {
 // StoreEvidence receives an evidence and stores it into the database
 // This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
+	var (
+		r *evidence.Resource
+	)
+
 	// Validate request
-	if err := service.Validate(req); err != nil {
+	err = service.Validate(req)
+	if err != nil {
 		return nil, err
 	}
 
@@ -232,7 +249,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// Store Resource:
 	// Build a resource struct. This will hold the latest sync state of the
 	// resource for our storage layer. This is needed to store the resource in our DBs
-	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
+	r, err = evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
 		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
@@ -263,7 +280,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 // It processes each evidence individually and returns a response for each one indicating
 // success or failure. This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidences] RPC method.
 func (svc *Service) StoreEvidences(ctx context.Context,
-	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error {
+	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) (err error) {
 	// Delegate to a stream-agnostic helper for unit testing with fakes.
 	return svc.storeEvidencesStream(ctx, stream)
 }
@@ -277,11 +294,11 @@ type evidenceStream interface {
 
 // storeEvidencesStream receives evidence items, stores each one, and returns a status response per item.
 // On input errors it terminates the stream, and on send errors it stops after returning the appropriate error.
-func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStream) error {
+func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStream) (err error) {
 	var (
-		req *evidence.StoreEvidenceRequest
-		res *evidence.StoreEvidencesResponse
-		err error
+		req             *evidence.StoreEvidenceRequest
+		res             *evidence.StoreEvidencesResponse
+		evidenceRequest *connect.Request[evidence.StoreEvidenceRequest]
 	)
 
 	for {
@@ -293,17 +310,17 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 		if err != nil {
 			err = fmt.Errorf("cannot receive stream request: %w", err)
 			slog.Error("failed to receive stream request",
-				slog.Any("error", err))
+				tint.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 
 		// Call StoreEvidence() for storing a single evidence
-		evidenceRequest := connect.NewRequest(&evidence.StoreEvidenceRequest{
+		evidenceRequest = connect.NewRequest(&evidence.StoreEvidenceRequest{
 			Evidence: req.Evidence,
 		})
 		_, err = svc.StoreEvidence(ctx, evidenceRequest)
 		if err != nil {
-			slog.Error("Error storing evidence", slog.Any("error", err))
+			slog.Error("Error storing evidence", tint.Err(err))
 			// Create a response message. The StoreEvidence method does not need that message, so we have to create it here for the stream response.
 			res = &evidence.StoreEvidencesResponse{
 				Status:        evidence.EvidenceStatus_EVIDENCE_STATUS_ERROR,
@@ -324,7 +341,7 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 		}
 		if err != nil {
 			err = fmt.Errorf("cannot send response to the client: %w", err)
-			slog.Error("failed to send response to client", slog.Any("error", err))
+			slog.Error("failed to send response to client", tint.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 	}
@@ -347,13 +364,22 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	}
 
 	// Apply filter options
-	var conds []any
-	if filter := req.Msg.GetFilter(); filter != nil {
-		if TargetOfEvaluationId := filter.GetTargetOfEvaluationId(); TargetOfEvaluationId != "" {
+	var (
+		conds                  []any
+		filter                 *evidence.Filter
+		TargetOfEvaluationId   string
+		toolId                 string
+	)
+
+	filter = req.Msg.GetFilter()
+	if filter != nil {
+		TargetOfEvaluationId = filter.GetTargetOfEvaluationId()
+		if TargetOfEvaluationId != "" {
 			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, TargetOfEvaluationId)
 		}
-		if toolId := filter.GetToolId(); toolId != "" {
+		toolId = filter.GetToolId()
+		if toolId != "" {
 			query = append(query, "tool_id = ?")
 			args = append(args, toolId)
 		}
@@ -437,7 +463,12 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	// * target of evaluation ID
 	// * resource type
 	// * tool ID
-	if f := req.Msg.Filter; f != nil {
+	var (
+		f *evidence.ListResourcesRequest_Filter
+	)
+
+	f = req.Msg.Filter
+	if f != nil {
 		if f.TargetOfEvaluationId != nil {
 			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, f.GetTargetOfEvaluationId())
