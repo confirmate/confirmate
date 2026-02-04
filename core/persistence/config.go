@@ -79,6 +79,10 @@ type Config struct {
 	// CustomJoinTables contains a list of custom join tables to be registered with the persistence
 	// layer.
 	CustomJoinTables []CustomJoinTable
+
+	// InitFunc is an optional hook that runs after migrations to seed data.
+	// If it returns an error, database initialization fails.
+	InitFunc func(DB) error
 }
 
 // buildDSN builds the Data Source Name (DSN) for connecting to the database, used by GORM.
