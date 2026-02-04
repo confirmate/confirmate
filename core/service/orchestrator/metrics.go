@@ -421,6 +421,7 @@ func (svc *Service) loadMetrics() (err error) {
 
 	// Save all metrics to DB (only if we have any)
 	if len(metrics) > 0 {
+		slog.Info("Saving metrics to database", "count", len(metrics))
 		return svc.db.Save(metrics)
 	}
 
@@ -433,9 +434,12 @@ func (svc *Service) loadMetrics() (err error) {
 func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, err error) {
 	metrics = make([]*assessment.Metric, 0)
 
+	slog.Info("Loading metrics from repository", "path", svc.cfg.DefaultMetricsPath)
+
 	// Check if the directory exists (it might not in test environments)
 	if _, err := os.Stat(svc.cfg.DefaultMetricsPath); os.IsNotExist(err) {
 		// Return empty metrics list if directory doesn't exist (e.g., in tests)
+		slog.Warn("Metrics repository directory does not exist", "path", svc.cfg.DefaultMetricsPath)
 		return metrics, nil
 	}
 

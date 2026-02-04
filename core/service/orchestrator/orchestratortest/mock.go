@@ -53,6 +53,7 @@ const (
 	MockMetricIdDefault  = "metric-default"
 	MockCatalogId1       = "catalog-1"
 	MockCatalogId2       = "catalog-2"
+	MockCatalogId3       = "catalog-3"
 	MockCategoryName1    = "category-1"
 	MockCategoryName2    = "category-2"
 	MockControlId1       = "control-1"
@@ -64,6 +65,7 @@ const (
 	MockResourceIdNew    = "resource-new"
 	MockResourceId3      = "resource-3"
 	MockToolId1          = "tool-1"
+	MockToolId2          = "tool-2"
 	MockToolIdConcurrent = "tool-concurrent"
 	MockTestCategory     = "test-category"
 	MockDefaultVersion   = "v1"
@@ -158,6 +160,11 @@ var (
 		Name:        "Mock Catalog 2",
 		Description: "Mock catalog description 2",
 	}
+	MockCatalog3 = &orchestrator.Catalog{
+		Id:          MockCatalogId3,
+		Name:        "Mock Catalog 3",
+		Description: "Mock catalog description 3",
+	}
 
 	// Mock Categories
 	MockCategory1 = &orchestrator.Category{
@@ -193,6 +200,24 @@ var (
 		Name:                 "Mock Certificate 2",
 		Description:          "Mock certificate description 2",
 		TargetOfEvaluationId: MockToeId2,
+	}
+
+	// Mock Assessment Tools
+	MockAssessmentTool1 = &orchestrator.AssessmentTool{
+		Id:          MockToolId1,
+		Name:        "Mock Tool 1",
+		Description: "Mock assessment tool",
+		AvailableMetrics: []string{
+			MockMetricId1,
+		},
+	}
+	MockAssessmentTool2 = &orchestrator.AssessmentTool{
+		Id:          MockToolId2,
+		Name:        "Mock Tool 2",
+		Description: "Mock assessment tool",
+		AvailableMetrics: []string{
+			MockMetricId2,
+		},
 	}
 
 	// Mock Audit Scopes
