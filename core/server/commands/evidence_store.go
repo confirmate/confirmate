@@ -31,7 +31,7 @@ import (
 )
 
 var EvidenceCommand = &cli.Command{
-	Name:  "evidence store",
+	Name:  "evidence",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		assessmentClient := &http.Client{
