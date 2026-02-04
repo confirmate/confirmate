@@ -1,49 +1,67 @@
-// Copyright 2016-2026 Fraunhofer AISEC
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-//                                 /$$$$$$  /$$                                     /$$
-//                               /$$__  $$|__/                                    | $$
-//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
-//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
-// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
-// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
-// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
-// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
-//
-// This file is part of Confirmate Core.
-
-package testdata
+package evidencetest
 
 import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
+// Catalog
+var (
+	AssuranceLevelBasic       = "basic"
+	AssuranceLevelSubstantial = "substantial"
+	AssuranceLevelHigh        = "high"
+)
+
+// Metric Configuration
+var (
+	MockMetricConfigurationTargetValueString = &structpb.Value{
+		Kind: &structpb.Value_StringValue{
+			StringValue: "MockTargetValue",
+		},
+	}
+	MockMetricConfigurationTargetValueTrue = &structpb.Value{
+		Kind: &structpb.Value_BoolValue{
+			BoolValue: true,
+		},
+	}
+)
+
+// Resource Types
+var (
+	MockVirtualMachineTypes = []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"}
+	MockBlockStorageTypes   = []string{"BlockStorage", "Storage", "Infrastructure", "Resource"}
+)
+
+// Azure
 const (
-	// Azure
 	MockLocationWestEurope     = "West Europe"
 	MockLocationEastUs         = "eastus"
 	MockSubscriptionID         = "00000000-0000-0000-0000-000000000000"
 	MockSubscriptionResourceID = "/subscriptions/00000000-0000-0000-0000-000000000000"
 	MockResourceGroupID        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1"
 	MockResourceGroup          = "TestResourceGroup"
+)
 
-	// Audit Scope
+// Audit Scope
+const (
 	MockAuditScopeID1   = "11111111-1111-1111-1111-111111111123"
 	MockAuditScopeName1 = "Mock Audit Scope 1"
 	MockAuditScopeID2   = "11111111-1111-1111-1111-111111111124"
 	MockAuditScopeName2 = "Mock Audit Scope 2"
 	MockAuditScopeID3   = "11111111-1111-1111-1111-111111111125"
 	MockAuditScopeName3 = "Mock Audit Scope 3"
+)
 
-	// Auth
+// Auth
+const (
 	MockAuthUser     = "confirmate"
 	MockAuthPassword = "confirmate"
 
 	MockAuthClientID     = "client"
 	MockAuthClientSecret = "secret"
+)
 
-	// Target of Evaluation
+// Target of Evaluation
+const (
 	MockTargetOfEvaluationZerosID      = "00000000-0000-0000-0000-000000000000"
 	MockTargetOfEvaluationID1          = "11111111-1111-1111-1111-111111111111"
 	MockTargetOfEvaluationName1        = "Mock Target of Evaluation"
@@ -51,8 +69,10 @@ const (
 	MockTargetOfEvaluationID2          = "22222222-2222-2222-2222-222222222222"
 	MockTargetOfEvaluationName2        = "Another Mock Target of Evaluation"
 	MockTargetOfEvaluationDescription2 = "This is another mock target of evaluation"
+)
 
-	// Catalog
+// Catalog
+const (
 	MockCatalogID1            = "Catalog 1"
 	MockCatalogID2            = "Catalog 2"
 	MockCatalogName           = "Mock Catalog"
@@ -75,8 +95,10 @@ const (
 	MockSubControlID          = "Cont1234.1"
 	MockSubControlName        = "Mock Sub-Control Name"
 	MockSubControlDescription = "This is a mock sub-control"
+)
 
-	// Metric
+// Metric
+const (
 	MockMetricID1          = "12345678-1234-1234-1234-123456789101"
 	MockMetricName1        = "Mock Metric 1"
 	MockMetricDescription1 = "This is a mock metric"
@@ -87,35 +109,45 @@ const (
 	MockMetricName2        = "Mock Metric 2"
 	MockMetricDescription2 = "This is mock metric 2"
 	MockMetricCategory2    = "Mock Category 2"
+)
 
-	// Assessment result
+// Assessment result
+const (
 	MockAssessmentResultID                   = "11111111-1111-1111-1111-111111111111"
 	MockAssessmentResultNonComplianceComment = "non_compliance_comment"
 	MockAssessmentResultToolID               = "Another Assessment Result Tool ID"
+)
 
-	// Evidence
+// Evidence
+const (
 	MockEvidenceID1     = "11111111-1111-1111-1111-111111111111"
 	MockEvidenceToolID1 = "39d85e98-c3da-11ed-afa1-0242ac120002"
 	MockEvidenceID2     = "22222222-2222-2222-2222-222222222222"
 	MockEvidenceToolID2 = "49d85e98-c3da-11ed-afa1-0242ac120002"
+)
 
-	// Virtual Machine
+// Virtual Machine
+const (
 	MockVirtualMachineID1          = "my-vm-id"
 	MockVirtualMachineName1        = "my-vm-name"
 	MockVirtualMachineDescription1 = "This is a mock virtual machine"
 	MockVirtualMachineID2          = "my-other-vm-id"
 	MockVirtualMachineName2        = "my-other-vm-name"
 	MockVirtualMachineDescription2 = "This is another mock virtual machine"
+)
 
-	// Block Storage
+// Block Storage
+const (
 	MockBlockStorageID1          = "my-block-storage-id"
 	MockBlockStorageName1        = "my-block-storage-name"
 	MockBlockStorageDescription1 = "This is a mock block storage"
 	MockBlockStorageID2          = "my-other-block-storage-id"
 	MockBlockStorageName2        = "my-other-block-storage-name"
 	MockBlockStorageDescription2 = "This is another mock block storage"
+)
 
-	// Properties for a Certificate
+// Properties for a Certificate
+const (
 	MockCertificateID          = "1234"
 	MockCertificateName        = "EUCS"
 	MockCertificateDescription = "This is the default mock certificate"
@@ -125,8 +157,10 @@ const (
 	MockCertificateName2        = "MDR"
 	MockCertificateDescription2 = "This is another mock certificate"
 	MockCertificateCab2         = "Cab321"
+)
 
-	// Properties for a State
+// Properties for a State
+const (
 	MockStateId     = "12345"
 	MockStateState  = "new"
 	MockStateTreeID = "12345"
@@ -134,14 +168,18 @@ const (
 	MockStateId2     = "54321"
 	MockStateState2  = "suspended"
 	MockStateTreeID2 = "54321"
+)
 
-	// Assessment Results
+// Assessment Results
+const (
 	MockAssessmentResult1ID = "11111111-1111-1111-1111-111111111111"
 	MockAssessmentResult2ID = "22222222-2222-2222-2222-222222222222"
 	MockAssessmentResult3ID = "33333333-3333-3333-3333-333333333333"
 	MockAssessmentResult4ID = "44444444-4444-4444-4444-444444444444"
+)
 
-	// Evaluation Results
+// Evaluation Results
+const (
 	MockEvaluationResult1ID  = "11111111-1111-1111-1111-111111111111"
 	MockEvaluationResult2ID  = "22222222-2222-2222-2222-222222222222"
 	MockEvaluationResult3ID  = "33333333-3333-3333-3333-333333333333"
@@ -152,29 +190,4 @@ const (
 	MockEvaluationResult8ID  = "88888888-8888-8888-8888-888888888888"
 	MockEvaluationResult9ID  = "99999999-9999-9999-9999-999999999999"
 	MockEvaluationResult10ID = "11111111-1111-1111-1111-111111111110"
-)
-
-var (
-	// Catalog
-	AssuranceLevelBasic       = "basic"
-	AssuranceLevelSubstantial = "substantial"
-	AssuranceLevelHigh        = "high"
-
-	// Metric Configuration
-	MockMetricConfigurationTargetValueString = &structpb.Value{
-		Kind: &structpb.Value_StringValue{
-			StringValue: "MockTargetValue",
-		},
-	}
-
-	// Metric Configuration
-	MockMetricConfigurationTargetValueTrue = &structpb.Value{
-		Kind: &structpb.Value_BoolValue{
-			BoolValue: true,
-		},
-	}
-
-	// Resource Types
-	MockVirtualMachineTypes = []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"}
-	MockBlockStorageTypes   = []string{"BlockStorage", "Storage", "Infrastructure", "Resource"}
 )

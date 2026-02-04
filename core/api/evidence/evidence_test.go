@@ -19,10 +19,10 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
-	"confirmate.io/core/util/testdata"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -175,13 +175,13 @@ func TestToEvidenceResource(t *testing.T) {
 						},
 					},
 				},
-				ctID:        testdata.MockTargetOfEvaluationID1,
-				collectorID: testdata.MockEvidenceToolID1,
+				ctID:        evidencetest.MockTargetOfEvaluationID1,
+				collectorID: evidencetest.MockEvidenceToolID1,
 			},
 			want: &Resource{
 				Id:                   "my-block-storage",
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-				ToolId:               testdata.MockEvidenceToolID1,
+				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
+				ToolId:               evidencetest.MockEvidenceToolID1,
 				ResourceType:         "BlockStorage,Storage,Infrastructure,Resource",
 				Properties: prototest.NewAny(t, &ontology.BlockStorage{
 					Id:   "my-block-storage",

@@ -192,13 +192,6 @@ func (svc *Service) initOrchestratorStream() (err error) {
 	return
 }
 
-func (svc *Service) createOrchestratorStreamFactory() (factory stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) {
-	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
-		return svc.orchestratorClient.StoreAssessmentResults(ctx)
-	}
-	return
-}
-
 func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) (err error) {
 	var (
 		req           *assessment.AssessEvidenceRequest
@@ -278,8 +271,6 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
 	if resource == nil {
-		err = ontology.ErrNotOntologyResource
-		slog.Error("AssessEvidence: Not an ontology resource:", log.Err(err))
 		return nil, err
 	}
 

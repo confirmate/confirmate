@@ -32,10 +32,10 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
+	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
-	"confirmate.io/core/util/testdata"
 )
 
 // Test evidence IDs
@@ -71,7 +71,7 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 					Name:            "my resource",
 					BlockStorageIds: []string{testResourceID3},
 				}),
-				TargetOfEvaluationId:           testdata.MockTargetOfEvaluationID1,
+				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
 				Timestamp:                      timestamppb.Now(),
 				ExperimentalRelatedResourceIds: []string{testResourceID3},
@@ -88,7 +88,7 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 					Name:            "my other resource",
 					BlockStorageIds: []string{testResourceID3},
 				}),
-				TargetOfEvaluationId:           testdata.MockTargetOfEvaluationID1,
+				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
 				Timestamp:                      timestamppb.Now(),
 				ExperimentalRelatedResourceIds: []string{testResourceID3},
@@ -104,7 +104,7 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 					Id:   testResourceID3,
 					Name: "my third resource",
 				}),
-				TargetOfEvaluationId:           testdata.MockTargetOfEvaluationID1,
+				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
 				Timestamp:                      timestamppb.Now(),
 				ExperimentalRelatedResourceIds: []string{testResourceID1},
@@ -213,9 +213,9 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 		Name:        "BootLoggingEnabled",
 		Category:    "LoggingMonitoring",
-		Description: testdata.MockMetricDescription1,
-		Version:     testdata.MockMetricVersion1,
-		Comments:    testdata.MockMetricComments1,
+		Description: evidencetest.MockMetricDescription1,
+		Version:     evidencetest.MockMetricVersion1,
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -234,10 +234,10 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
 			Configuration: &assessment.MetricConfiguration{
 				Operator:             "==",
-				TargetValue:          testdata.MockMetricConfigurationTargetValueString,
+				TargetValue:          evidencetest.MockMetricConfigurationTargetValueString,
 				IsDefault:            false,
 				MetricId:             metric.Id,
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 			},
 		}),
 	)
@@ -251,7 +251,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 			Name:            "my resource",
 			BlockStorageIds: []string{testResourceID3},
 		}),
-		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationZerosID,
+		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
 		Timestamp:                      timestamppb.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID3},
@@ -269,7 +269,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 			Name:            "my other resource",
 			BlockStorageIds: []string{testResourceID3},
 		}),
-		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationZerosID,
+		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
 		Timestamp:                      timestamppb.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID3},
@@ -286,7 +286,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 			Id:   testResourceID3,
 			Name: "my third resource",
 		}),
-		TargetOfEvaluationId:           testdata.MockTargetOfEvaluationZerosID,
+		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",
 		Timestamp:                      timestamppb.Now(),
 		ExperimentalRelatedResourceIds: []string{testResourceID1},

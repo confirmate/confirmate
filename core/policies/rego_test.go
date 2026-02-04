@@ -25,9 +25,9 @@ import (
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
-	"confirmate.io/core/util/testdata"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -413,7 +413,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				pkg:  DefaultRegoPackage,
 			},
 			args: args{
-				targetID: testdata.MockTargetOfEvaluationID1,
+				targetID: evidencetest.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
 					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
 					Name:     "AutomaticUpdatesEnabled",
@@ -441,7 +441,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 						IsDefault:            true,
 						UpdatedAt:            nil,
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
 					Message: assessment.DefaultCompliantMessage,
 				}
@@ -458,7 +458,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				pkg:  DefaultRegoPackage,
 			},
 			args: args{
-				targetID: testdata.MockTargetOfEvaluationID1,
+				targetID: evidencetest.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
 					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
 					Name:     "AutomaticUpdatesEnabled",
@@ -484,7 +484,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 						IsDefault:            false,
 						UpdatedAt:            timestamppb.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
 					Message: assessment.DefaultNonCompliantMessage,
 				}

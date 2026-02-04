@@ -21,8 +21,6 @@ import (
 	"slices"
 	"strings"
 
-	// "confirmate.io/core/internal/util"
-
 	"confirmate.io/core/util"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"

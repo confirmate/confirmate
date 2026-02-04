@@ -42,11 +42,11 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
+	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/clitest"
 	"confirmate.io/core/util/prototest"
-	"confirmate.io/core/util/testdata"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -169,7 +169,7 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						ToolId:    testdata.MockEvidenceToolID1,
+						ToolId:    evidencetest.MockEvidenceToolID1,
 						Timestamp: timestamppb.Now(),
 						Resource:  prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
 					},
@@ -186,9 +186,9 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:                   testdata.MockEvidenceID1,
+						Id:                   evidencetest.MockEvidenceID1,
 						Timestamp:            timestamppb.Now(),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
 					},
 				},
@@ -204,12 +204,12 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:                   testdata.MockEvidenceID1,
-						ToolId:               testdata.MockEvidenceToolID1,
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						Id:                   evidencetest.MockEvidenceID1,
+						ToolId:               evidencetest.MockEvidenceToolID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   testdata.MockVirtualMachineID1,
-							Name: testdata.MockVirtualMachineName1,
+							Id:   evidencetest.MockVirtualMachineID1,
+							Name: evidencetest.MockVirtualMachineName1,
 						}),
 					},
 				},
@@ -229,14 +229,14 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:        testdata.MockEvidenceID1,
-						ToolId:    testdata.MockEvidenceToolID1,
+						Id:        evidencetest.MockEvidenceID1,
+						ToolId:    evidencetest.MockEvidenceToolID1,
 						Timestamp: timestamppb.Now(),
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   testdata.MockVirtualMachineID1,
-							Name: testdata.MockVirtualMachineName1,
+							Id:   evidencetest.MockVirtualMachineID1,
+							Name: evidencetest.MockVirtualMachineName1,
 						}),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
 				},
 			},
@@ -252,14 +252,14 @@ func TestService_AssessEvidence(t *testing.T) {
 		// 	args: args{
 		// 		req: &assessment.AssessEvidenceRequest{
 		// 			Evidence: &evidence.Evidence{
-		// 				Id:        testdata.MockEvidenceID1,
-		// 				ToolId:    testdata.MockEvidenceToolID1,
+		// 				Id:        evidencetest.MockEvidenceID1,
+		// 				ToolId:    evidencetest.MockEvidenceToolID1,
 		// 				Timestamp: timestamppb.Now(),
 		// 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 					Id:   testdata.MockVirtualMachineID1,
-		// 					Name: testdata.MockVirtualMachineName1,
+		// 					Id:   evidencetest.MockVirtualMachineID1,
+		// 					Name: evidencetest.MockVirtualMachineName1,
 		// 				}),
-		// 				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1},
+		// 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1},
 		// 		},
 		// 	},
 		// 	want: assert.Nil[*connect.Response[assessment.AssessEvidenceResponse]],
@@ -276,11 +276,11 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:                   testdata.MockEvidenceID1,
-						ToolId:               testdata.MockEvidenceToolID1,
+						Id:                   evidencetest.MockEvidenceID1,
+						ToolId:               evidencetest.MockEvidenceToolID1,
 						Timestamp:            timestamppb.Now(),
 						Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{}),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
 				},
 			},
@@ -296,9 +296,9 @@ func TestService_AssessEvidence(t *testing.T) {
 			fields: fields{
 				evidenceResourceMap: map[string]*evidence.Evidence{
 					"my-other-resource-id": {
-						Id: testdata.MockEvidenceID2,
+						Id: evidencetest.MockEvidenceID2,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id: testdata.MockVirtualMachineID2,
+							Id: evidencetest.MockVirtualMachineID2,
 						}),
 					},
 				},
@@ -306,13 +306,13 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:                   testdata.MockEvidenceID1,
-						ToolId:               testdata.MockEvidenceToolID1,
+						Id:                   evidencetest.MockEvidenceID1,
+						ToolId:               evidencetest.MockEvidenceToolID1,
 						Timestamp:            timestamppb.Now(),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   testdata.MockVirtualMachineID1,
-							Name: testdata.MockVirtualMachineName1,
+							Id:   evidencetest.MockVirtualMachineID1,
+							Name: evidencetest.MockVirtualMachineName1,
 						}),
 						ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 					},
@@ -333,13 +333,13 @@ func TestService_AssessEvidence(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:                   testdata.MockEvidenceID1,
-						ToolId:               testdata.MockEvidenceToolID1,
+						Id:                   evidencetest.MockEvidenceID1,
+						ToolId:               evidencetest.MockEvidenceToolID1,
 						Timestamp:            timestamppb.Now(),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   testdata.MockVirtualMachineID1,
-							Name: testdata.MockVirtualMachineName1,
+							Id:   evidencetest.MockVirtualMachineID1,
+							Name: evidencetest.MockVirtualMachineName1,
 						}),
 						ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 					},
@@ -404,10 +404,10 @@ func TestService_AssessEvidences(t *testing.T) {
 		{
 			name: "Missing toolId",
 			evidences: []*evidence.Evidence{{
-				Id:                   testdata.MockEvidenceID1,
+				Id:                   evidencetest.MockEvidenceID1,
 				Timestamp:            timestamppb.Now(),
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
-				Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: testdata.MockVirtualMachineID1}),
+				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
+				Resource:             prototest.NewProtobufResource(t, &ontology.VirtualMachine{Id: evidencetest.MockVirtualMachineID1}),
 			}},
 			wantStatuses: []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED},
 			wantErr:      assert.NoError,
@@ -416,11 +416,11 @@ func TestService_AssessEvidences(t *testing.T) {
 			name: "Missing evidenceID",
 			evidences: []*evidence.Evidence{{
 				Timestamp:            timestamppb.Now(),
-				ToolId:               testdata.MockEvidenceToolID1,
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationID1,
+				ToolId:               evidencetest.MockEvidenceToolID1,
+				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-					Id:   testdata.MockVirtualMachineID1,
-					Name: testdata.MockVirtualMachineName1,
+					Id:   evidencetest.MockVirtualMachineID1,
+					Name: evidencetest.MockVirtualMachineName1,
 				}),
 			}},
 			wantStatuses: []assessment.AssessmentStatus{assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED},
@@ -431,13 +431,13 @@ func TestService_AssessEvidences(t *testing.T) {
 			needsOrch: true,
 			evidences: []*evidence.Evidence{
 				{
-					Id:                   testdata.MockEvidenceID1,
+					Id:                   evidencetest.MockEvidenceID1,
 					Timestamp:            timestamppb.Now(),
-					ToolId:               testdata.MockEvidenceToolID1,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					ToolId:               evidencetest.MockEvidenceToolID1,
+					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
+						Id:   evidencetest.MockVirtualMachineID1,
+						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
 							Name:              "loglog",
 							LoggingServiceIds: nil,
@@ -446,13 +446,13 @@ func TestService_AssessEvidences(t *testing.T) {
 					}),
 				},
 				{
-					Id:                   testdata.MockEvidenceID2,
+					Id:                   evidencetest.MockEvidenceID2,
 					Timestamp:            timestamppb.Now(),
-					ToolId:               testdata.MockEvidenceToolID2,
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					ToolId:               evidencetest.MockEvidenceToolID2,
+					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID2,
-						Name: testdata.MockVirtualMachineName2,
+						Id:   evidencetest.MockVirtualMachineID2,
+						Name: evidencetest.MockVirtualMachineName2,
 						BootLogging: &ontology.BootLogging{
 							Name:              "loglog",
 							LoggingServiceIds: nil,
@@ -473,9 +473,9 @@ func TestService_AssessEvidences(t *testing.T) {
 		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 		Name:        "BootLoggingEnabled",
 		Category:    "LoggingMonitoring",
-		Description: testdata.MockMetricDescription1,
-		Version:     testdata.MockMetricVersion1,
-		Comments:    testdata.MockMetricComments1,
+		Description: evidencetest.MockMetricDescription1,
+		Version:     evidencetest.MockMetricVersion1,
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -517,7 +517,7 @@ func TestService_AssessEvidences(t *testing.T) {
 
 			// Create metric in orchestrator
 			createTestMetric(t, orchSvc, metric)
-			configureTestMetric(t, orchSvc, metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueTrue)
+			configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueTrue)
 
 			for _, ev := range tt.evidences {
 				sendErr := stream.Send(&assessment.AssessEvidenceRequest{
@@ -564,10 +564,10 @@ func TestService_handleEvidence(t *testing.T) {
 			name: "nil resource",
 			args: args{
 				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
+					Id:                   evidencetest.MockEvidenceID1,
+					ToolId:               evidencetest.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 				},
 				resource: nil,
 			},
@@ -580,13 +580,13 @@ func TestService_handleEvidence(t *testing.T) {
 			name: "correct evidence: using metrics which return comparison results",
 			args: args{
 				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
+					Id:                   evidencetest.MockEvidenceID1,
+					ToolId:               evidencetest.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
+						Id:   evidencetest.MockVirtualMachineID1,
+						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
 							Name:              "loglog",
 							LoggingServiceIds: nil,
@@ -595,8 +595,8 @@ func TestService_handleEvidence(t *testing.T) {
 					}),
 				},
 				resource: &ontology.VirtualMachine{
-					Id:   testdata.MockVirtualMachineID1,
-					Name: testdata.MockVirtualMachineName1,
+					Id:   evidencetest.MockVirtualMachineID1,
+					Name: evidencetest.MockVirtualMachineName1,
 					BootLogging: &ontology.BootLogging{
 						Name:              "loglog",
 						LoggingServiceIds: nil,
@@ -607,9 +607,9 @@ func TestService_handleEvidence(t *testing.T) {
 					Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 					Name:        "BootLoggingEnabled",
 					Category:    "LoggingMonitoring",
-					Description: testdata.MockMetricDescription1,
-					Version:     testdata.MockMetricVersion1,
-					Comments:    testdata.MockMetricComments1,
+					Description: evidencetest.MockMetricDescription1,
+					Version:     evidencetest.MockMetricVersion1,
+					Comments:    evidencetest.MockMetricComments1,
 					Implementation: &assessment.MetricImplementation{
 						MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -630,13 +630,13 @@ func TestService_handleEvidence(t *testing.T) {
 			name: "correct evidence: using metrics which do not return comparison results",
 			args: args{
 				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
+					Id:                   evidencetest.MockEvidenceID1,
+					ToolId:               evidencetest.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-						Id:   testdata.MockVirtualMachineID1,
-						Name: testdata.MockVirtualMachineName1,
+						Id:   evidencetest.MockVirtualMachineID1,
+						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
 							LoggingServiceIds: nil,
 							Enabled:           true,
@@ -644,8 +644,8 @@ func TestService_handleEvidence(t *testing.T) {
 					}),
 				},
 				resource: &ontology.VirtualMachine{
-					Id:   testdata.MockVirtualMachineID1,
-					Name: testdata.MockVirtualMachineName1,
+					Id:   evidencetest.MockVirtualMachineID1,
+					Name: evidencetest.MockVirtualMachineName1,
 					BootLogging: &ontology.BootLogging{
 						LoggingServiceIds: nil,
 						Enabled:           true,
@@ -655,9 +655,9 @@ func TestService_handleEvidence(t *testing.T) {
 					Id:          "4fbcbf09-35c3-4d7b-b9a9-97c7ba36f0de",
 					Name:        "ApprovedCommitAuthorEnforced",
 					Category:    "DevelopmentLifeCycle",
-					Description: testdata.MockMetricDescription1,
-					Version:     testdata.MockMetricVersion1,
-					Comments:    testdata.MockMetricComments1,
+					Description: evidencetest.MockMetricDescription1,
+					Version:     evidencetest.MockMetricVersion1,
+					Comments:    evidencetest.MockMetricComments1,
 					Implementation: &assessment.MetricImplementation{
 						MetricId: "4fbcbf09-35c3-4d7b-b9a9-97c7ba36f0de",
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -674,10 +674,10 @@ func TestService_handleEvidence(t *testing.T) {
 			name: "broken Any message",
 			args: args{
 				evidence: &evidence.Evidence{
-					Id:                   testdata.MockEvidenceID1,
-					ToolId:               testdata.MockEvidenceToolID1,
+					Id:                   evidencetest.MockEvidenceID1,
+					ToolId:               evidencetest.MockEvidenceToolID1,
 					Timestamp:            timestamppb.Now(),
-					TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 					Resource:             &ontology.Resource{},
 				},
 			},
@@ -696,7 +696,7 @@ func TestService_handleEvidence(t *testing.T) {
 			// Create metric and configuration if metric is provided
 			if tt.args.metric != nil {
 				createTestMetric(t, orchSvc, tt.args.metric)
-				configureTestMetric(t, orchSvc, tt.args.metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueTrue)
+				configureTestMetric(t, orchSvc, tt.args.metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueTrue)
 			}
 
 			aHandler, err := NewService(
@@ -758,9 +758,9 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 		Name:        "BootLoggingEnabled",
 		Category:    "LoggingMonitoring",
-		Description: testdata.MockMetricDescription1,
-		Version:     testdata.MockMetricVersion1,
-		Comments:    testdata.MockMetricComments1,
+		Description: evidencetest.MockMetricDescription1,
+		Version:     evidencetest.MockMetricVersion1,
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -769,24 +769,24 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 	}
 
 	createTestMetric(t, orchSvc, metric)
-	configureTestMetric(t, orchSvc, metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueString)
+	configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueString)
 
 	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
-	// tool id (="VirtualMachine-{testdata.MockEvidenceToolID}")
+	// tool id (="VirtualMachine-{evidencetest.MockEvidenceToolID}")
 	e := &evidence.Evidence{
-		Id:                   testdata.MockEvidenceID1,
-		ToolId:               testdata.MockEvidenceToolID1,
+		Id:                   evidencetest.MockEvidenceID1,
+		ToolId:               evidencetest.MockEvidenceToolID1,
 		Timestamp:            timestamppb.Now(),
-		TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+		TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-			Id:   testdata.MockVirtualMachineID1,
-			Name: testdata.MockVirtualMachineName1,
+			Id:   evidencetest.MockVirtualMachineID1,
+			Name: evidencetest.MockVirtualMachineName1,
 		}),
 		ExperimentalRelatedResourceIds: []string{"my-other-resource-id"},
 	}
 	e.Resource = prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		Id:   testdata.MockVirtualMachineID1,
-		Name: testdata.MockVirtualMachineName1,
+		Id:   evidencetest.MockVirtualMachineID1,
+		Name: evidencetest.MockVirtualMachineName1,
 	})
 	_, err = s.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: e}))
 	assert.NoError(t, err)
@@ -805,7 +805,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 			Evidence: &evidence.Evidence{
 				Id:                   uuid.NewString(),
 				Timestamp:            timestamppb.Now(),
-				TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 				// Make sure both evidences have the same tool id (for caching key)
 				ToolId:   e.ToolId,
 				Resource: a,
@@ -850,13 +850,13 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 			args: args{
 				req: &assessment.AssessEvidenceRequest{
 					Evidence: &evidence.Evidence{
-						Id:                   testdata.MockEvidenceID1,
-						ToolId:               testdata.MockEvidenceToolID1,
+						Id:                   evidencetest.MockEvidenceID1,
+						ToolId:               evidencetest.MockEvidenceToolID1,
 						Timestamp:            timestamppb.Now(),
-						TargetOfEvaluationId: testdata.MockTargetOfEvaluationZerosID,
+						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationZerosID,
 						Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-							Id:   testdata.MockVirtualMachineID1,
-							Name: testdata.MockVirtualMachineName1,
+							Id:   evidencetest.MockVirtualMachineID1,
+							Name: evidencetest.MockVirtualMachineName1,
 							BootLogging: &ontology.BootLogging{
 								Name:              "BootLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
@@ -920,9 +920,9 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 				Name:        "BootLoggingEnabled",
 				Category:    "LoggingMonitoring",
-				Description: testdata.MockMetricDescription1,
-				Version:     testdata.MockMetricVersion1,
-				Comments:    testdata.MockMetricComments1,
+				Description: evidencetest.MockMetricDescription1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
 				Implementation: &assessment.MetricImplementation{
 					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -931,7 +931,7 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 			}
 
 			createTestMetric(t, orchSvc, metric)
-			configureTestMetric(t, orchSvc, metric.Id, testdata.MockTargetOfEvaluationZerosID, testdata.MockMetricConfigurationTargetValueString)
+			configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueString)
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)
 
@@ -977,12 +977,12 @@ func TestService_Metrics(t *testing.T) {
 			)
 
 			metric = &assessment.Metric{
-				Id:          testdata.MockMetricID1,
-				Name:        testdata.MockMetricName1,
-				Category:    testdata.MockMetricCategory1,
-				Description: testdata.MockMetricDescription1,
-				Version:     testdata.MockMetricVersion1,
-				Comments:    testdata.MockMetricComments1,
+				Id:          evidencetest.MockMetricID1,
+				Name:        evidencetest.MockMetricName1,
+				Category:    evidencetest.MockMetricCategory1,
+				Description: evidencetest.MockMetricDescription1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
 			}
 
 			// Create an orchestrator service for testing
@@ -1067,18 +1067,18 @@ func TestService_MetricImplementation(t *testing.T) {
 			)
 
 			metricImpl := &assessment.MetricImplementation{
-				MetricId: testdata.MockMetricID1,
+				MetricId: evidencetest.MockMetricID1,
 				Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
 				Code:     "test implementation",
 			}
 
 			metric = &assessment.Metric{
-				Id:             testdata.MockMetricID1,
-				Name:           testdata.MockMetricName1,
-				Category:       testdata.MockMetricCategory1,
-				Description:    testdata.MockMetricDescription1,
-				Version:        testdata.MockMetricVersion1,
-				Comments:       testdata.MockMetricComments1,
+				Id:             evidencetest.MockMetricID1,
+				Name:           evidencetest.MockMetricName1,
+				Category:       evidencetest.MockMetricCategory1,
+				Description:    evidencetest.MockMetricDescription1,
+				Version:        evidencetest.MockMetricVersion1,
+				Comments:       evidencetest.MockMetricComments1,
 				Implementation: metricImpl,
 			}
 
@@ -1146,14 +1146,14 @@ func TestService_MetricConfiguration(t *testing.T) {
 	}{
 		{
 			name:  "Successfully retrieve and cache configuration (no pre-cache)",
-			toeID: testdata.MockTargetOfEvaluationID1,
+			toeID: evidencetest.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
-				Id:          testdata.MockMetricID1,
-				Name:        testdata.MockMetricName1,
-				Description: testdata.MockMetricDescription1,
-				Category:    testdata.MockMetricCategory1,
-				Version:     testdata.MockMetricVersion1,
-				Comments:    testdata.MockMetricComments1,
+				Id:          evidencetest.MockMetricID1,
+				Name:        evidencetest.MockMetricName1,
+				Description: evidencetest.MockMetricDescription1,
+				Category:    evidencetest.MockMetricCategory1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
 			},
 			want: func(t *testing.T, got *assessment.MetricConfiguration, msgAndArgs ...any) bool {
 				return assert.NotNil(t, got)
@@ -1164,12 +1164,12 @@ func TestService_MetricConfiguration(t *testing.T) {
 		{
 			name: "Successfully retrieve configuration (pre-cache hit)",
 			metric: &assessment.Metric{
-				Id:          testdata.MockMetricID1,
-				Name:        testdata.MockMetricName1,
-				Description: testdata.MockMetricDescription1,
-				Category:    testdata.MockMetricCategory1,
-				Version:     testdata.MockMetricVersion1,
-				Comments:    testdata.MockMetricComments1,
+				Id:          evidencetest.MockMetricID1,
+				Name:        evidencetest.MockMetricName1,
+				Description: evidencetest.MockMetricDescription1,
+				Category:    evidencetest.MockMetricCategory1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
 			},
 			preCacheConfig: &cachedConfiguration{
 				cachedAt: time.Now(),
@@ -1185,14 +1185,14 @@ func TestService_MetricConfiguration(t *testing.T) {
 		},
 		{
 			name:  "Successfully retrieve configuration (expired cache refreshed)",
-			toeID: testdata.MockTargetOfEvaluationID1,
+			toeID: evidencetest.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
-				Id:          testdata.MockMetricID1,
-				Name:        testdata.MockMetricName1,
-				Description: testdata.MockMetricDescription1,
-				Category:    testdata.MockMetricCategory1,
-				Version:     testdata.MockMetricVersion1,
-				Comments:    testdata.MockMetricComments1,
+				Id:          evidencetest.MockMetricID1,
+				Name:        evidencetest.MockMetricName1,
+				Description: evidencetest.MockMetricDescription1,
+				Category:    evidencetest.MockMetricCategory1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
 			},
 			preCacheConfig: &cachedConfiguration{
 				cachedAt: time.Now().Add(-2 * EvictionTime), // Expired
@@ -1232,7 +1232,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			assert.NoError(t, err)
 
 			// Configure metric
-			configureTestMetric(t, orchSvc, testdata.MockMetricID1, res.Msg.Id, testdata.MockMetricConfigurationTargetValueString)
+			configureTestMetric(t, orchSvc, evidencetest.MockMetricID1, res.Msg.Id, evidencetest.MockMetricConfigurationTargetValueString)
 
 			// Create assessment service
 			handler, err := NewService(
@@ -1403,35 +1403,6 @@ func TestService_RegisterAssessmentResultHook(t *testing.T) {
 
 	svc.RegisterAssessmentResultHook(hook2)
 	assert.Equal(t, 2, len(svc.resultHooks))
-}
-
-// TestService_createOrchestratorStreamFactory tests the stream factory creation
-func TestService_createOrchestratorStreamFactory(t *testing.T) {
-	t.Run("Create and use stream factory", func(t *testing.T) {
-		// Setup orchestrator
-		orchSvc := newTestOrchestratorService(t)
-		testClient, url := setupOrchestratorServer(t, orchSvc)
-
-		// Create service
-		handler, err := NewService(
-			WithConfig(Config{
-				OrchestratorAddress: url,
-				OrchestratorClient:  testClient,
-				RegoPackage:         policies.DefaultRegoPackage,
-			}),
-		)
-		assert.NoError(t, err)
-
-		svc := handler.(*Service)
-
-		// Create factory
-		factory := svc.createOrchestratorStreamFactory()
-		assert.NotNil(t, factory)
-
-		// Test that factory can create streams
-		stream := factory(context.Background())
-		assert.NotNil(t, stream)
-	})
 }
 
 // Helper Functions for Test Setup
