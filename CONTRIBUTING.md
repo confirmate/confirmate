@@ -69,6 +69,7 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 ### Short Variable Declaration
 
 Avoid using `:=` (short variable declaration) in production code. Instead, use `var` blocks and named return values as shown above.
+Excpetions: Within the initializer part of `if`, `for`, and `switch` statements.
 
 However, the use of `:=` is acceptable and encouraged in test functions, as tests often need to quickly declare and use variables.
 
