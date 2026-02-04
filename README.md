@@ -25,9 +25,9 @@ The orchestrator exposes the API at `http://localhost:8080/` by default. See ava
 
 ### cf (CLI)
 
-Install from the `core/` directory:
+Install from the repository root:
 
-`go install ./cmd/cf/cf.go`
+`go install ./core/cmd/cf`
 
 Use the CLI against a running orchestrator (default address is `http://localhost:8080`):
 
