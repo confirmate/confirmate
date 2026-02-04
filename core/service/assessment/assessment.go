@@ -25,7 +25,6 @@ import (
 	"sync"
 	"time"
 
-	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
 
 	"confirmate.io/core/api/assessment"
@@ -255,12 +254,6 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	}
 
 	ev = req.Msg.Evidence
-	// Validate request
-	err = protovalidate.Validate(ev)
-	if err != nil {
-		slog.Error("AssessEvidence: invalid request", log.Err(err))
-		return nil, err
-	}
 
 	// // TODO: Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
 	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
