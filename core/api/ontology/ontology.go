@@ -17,7 +17,6 @@ package ontology
 
 import (
 	"encoding/json"
-	"errors"
 	"strings"
 
 	// "confirmate.io/core/internal/util"
@@ -28,8 +27,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
-
-var ErrNotOntologyResource = errors.New("protobuf message is not a valid ontology resource")
 
 type IsResource interface {
 	proto.Message
