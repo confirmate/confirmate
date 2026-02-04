@@ -47,19 +47,36 @@ const (
 	defaultEvidenceQueueSize = 1024
 )
 
-type AssessmentConfig struct {
-	TargetAddress string
-	Client        *http.Client
+// DefaultConfig is the default configuration for the evidence store [Service].
+var DefaultConfig = Config{
+	AssessmentAddress: DefaultAssessmentURL,
+	PersistenceConfig: persistence.DefaultConfig,
+	EvidenceQueueSize: defaultEvidenceQueueSize,
+}
+
+// Config represents the configuration for the evidence store [Service].
+type Config struct {
+	// AssessmentAddress is the address of the assessment service.
+	AssessmentAddress string
+
+	// AssessmentClient is the HTTP client used for assessment service communication.
+	// If nil, http.DefaultClient will be used.
+	AssessmentClient *http.Client
+
+	// PersistenceConfig is the configuration for the persistence layer.
+	PersistenceConfig persistence.Config
+
+	// EvidenceQueueSize is the size of the evidence processing queue.
+	EvidenceQueueSize int
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
-	db       persistence.DB
-	dbConfig persistence.Config
+	db  persistence.DB
+	cfg Config
 
 	assessmentClient assessmentconnect.AssessmentClient
 	assessmentStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-	assessmentConfig AssessmentConfig
 
 	// channel that is used to send evidences from the StoreEvidence method to the worker threat to process the evidence
 	channelEvidence chan *evidence.Evidence
@@ -79,28 +96,10 @@ func init() {
 	slog.SetDefault(logger)
 }
 
-func WithDB(db persistence.DB) service.Option[Service] {
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
-		svc.db = db
-	}
-}
-
-// WithDBConfig overrides persistence settings used when no DB is injected.
-func WithDBConfig(cfg persistence.Config) service.Option[Service] {
-	return func(svc *Service) {
-		svc.dbConfig = cfg
-	}
-}
-
-// WithAssessmentConfig is an option to configure the assessment service gRPC address.
-func WithAssessmentConfig(conf AssessmentConfig) service.Option[Service] {
-	return func(s *Service) {
-		slog.Info("Assessment URL is set", slog.Any("target", conf.TargetAddress))
-		s.assessmentConfig.TargetAddress = conf.TargetAddress
-		// Avoid overriding the default client if no client is provided
-		if conf.Client != nil {
-			s.assessmentConfig.Client = conf.Client
-		}
+		svc.cfg = cfg
 	}
 }
 
@@ -112,27 +111,37 @@ func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Opt
 }
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
+	var (
+		o      service.Option[Service]
+		pcfg   persistence.Config
+		client *http.Client
+	)
+
 	svc = &Service{
-		assessmentConfig: AssessmentConfig{
-			TargetAddress: DefaultAssessmentURL,
-			Client:        http.DefaultClient,
-		},
-		dbConfig: persistence.DefaultConfig,
+		cfg: DefaultConfig,
 	}
 
-	for _, o := range opts {
+	for _, o = range opts {
 		o(svc)
 	}
 
-	if svc.assessmentClient == nil {
-		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-			svc.assessmentConfig.Client, svc.assessmentConfig.TargetAddress)
+	// Determine HTTP client for assessment service
+	client = svc.cfg.AssessmentClient
+	if client == nil {
+		client = http.DefaultClient
 	}
 
+	// Initialize assessment client if not already set (e.g., by WithAssessmentClient for testing)
+	if svc.assessmentClient == nil {
+		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+			client, svc.cfg.AssessmentAddress)
+	}
+
+	// Initialize database if not already set (e.g., by WithDB for testing)
 	if svc.db == nil {
-		cfg := svc.dbConfig
-		cfg.Types = types
-		svc.db, err = persistence.NewDB(persistence.WithConfig(cfg))
+		pcfg = svc.cfg.PersistenceConfig
+		pcfg.Types = types
+		svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 		if err != nil {
 			err = fmt.Errorf("could not create db: %w", err)
 			return
@@ -152,12 +161,12 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 }
 
 // sendToAssessment forwards evidence to the assessment service using the restartable stream.
-func (svc *Service) sendToAssessment(evidence *evidence.Evidence) error {
+func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
 	if svc.assessmentStream == nil {
 		return fmt.Errorf("assessment stream is not initialized")
 	}
 	// Send evidence to the assessment service using the persistent stream
-	err := svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	err = svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
 	if err != nil {
 		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
 	}
@@ -165,12 +174,12 @@ func (svc *Service) sendToAssessment(evidence *evidence.Evidence) error {
 }
 
 // initAssessmentStream creates the restartable assessment stream once during service startup.
-func (svc *Service) initAssessmentStream() error {
+func (svc *Service) initAssessmentStream() (err error) {
 	if svc.assessmentStream != nil {
 		return nil
 	}
 
-	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.assessmentConfig.TargetAddress))
+	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.cfg.AssessmentAddress))
 	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 		return svc.assessmentClient.AssessEvidences(ctx)
 	}
@@ -187,7 +196,7 @@ func (svc *Service) initAssessmentStream() error {
 func (svc *Service) initEvidenceChannel() {
 	// Allocate the channel before starting the worker.
 	if svc.channelEvidence == nil {
-		svc.channelEvidence = make(chan *evidence.Evidence, defaultEvidenceQueueSize)
+		svc.channelEvidence = make(chan *evidence.Evidence, svc.cfg.EvidenceQueueSize)
 	}
 
 	// Start a worker thread to process the evidence that is being passed to the StoreEvidence function to use the
@@ -204,7 +213,7 @@ func (svc *Service) initEvidenceChannel() {
 				slog.Error("error while sending evidence",
 					slog.String("evidence_id", e.GetId()),
 					slog.String("tool_id", e.GetToolId()),
-					slog.Any("error", err),
+					tint.Err(err),
 				)
 			}
 		}
@@ -214,8 +223,13 @@ func (svc *Service) initEvidenceChannel() {
 // StoreEvidence receives an evidence and stores it into the database
 // This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
+	var (
+		r *evidence.Resource
+	)
+
 	// Validate request
-	if err := service.Validate(req); err != nil {
+	err = service.Validate(req)
+	if err != nil {
 		return nil, err
 	}
 
@@ -232,7 +246,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	// Store Resource:
 	// Build a resource struct. This will hold the latest sync state of the
 	// resource for our storage layer. This is needed to store the resource in our DBs
-	r, err := evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
+	r, err = evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
 	if err != nil {
 		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
@@ -263,7 +277,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 // It processes each evidence individually and returns a response for each one indicating
 // success or failure. This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidences] RPC method.
 func (svc *Service) StoreEvidences(ctx context.Context,
-	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) error {
+	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) (err error) {
 	// Delegate to a stream-agnostic helper for unit testing with fakes.
 	return svc.storeEvidencesStream(ctx, stream)
 }
@@ -277,11 +291,11 @@ type evidenceStream interface {
 
 // storeEvidencesStream receives evidence items, stores each one, and returns a status response per item.
 // On input errors it terminates the stream, and on send errors it stops after returning the appropriate error.
-func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStream) error {
+func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStream) (err error) {
 	var (
-		req *evidence.StoreEvidenceRequest
-		res *evidence.StoreEvidencesResponse
-		err error
+		req             *evidence.StoreEvidenceRequest
+		res             *evidence.StoreEvidencesResponse
+		evidenceRequest *connect.Request[evidence.StoreEvidenceRequest]
 	)
 
 	for {
@@ -293,17 +307,17 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 		if err != nil {
 			err = fmt.Errorf("cannot receive stream request: %w", err)
 			slog.Error("failed to receive stream request",
-				slog.Any("error", err))
+				tint.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 
 		// Call StoreEvidence() for storing a single evidence
-		evidenceRequest := connect.NewRequest(&evidence.StoreEvidenceRequest{
+		evidenceRequest = connect.NewRequest(&evidence.StoreEvidenceRequest{
 			Evidence: req.Evidence,
 		})
 		_, err = svc.StoreEvidence(ctx, evidenceRequest)
 		if err != nil {
-			slog.Error("Error storing evidence", slog.Any("error", err))
+			slog.Error("Error storing evidence", tint.Err(err))
 			// Create a response message. The StoreEvidence method does not need that message, so we have to create it here for the stream response.
 			res = &evidence.StoreEvidencesResponse{
 				Status:        evidence.EvidenceStatus_EVIDENCE_STATUS_ERROR,
@@ -324,7 +338,7 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 		}
 		if err != nil {
 			err = fmt.Errorf("cannot send response to the client: %w", err)
-			slog.Error("failed to send response to client", slog.Any("error", err))
+			slog.Error("failed to send response to client", tint.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
 	}
@@ -349,9 +363,9 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	// Apply filter options
 	var conds []any
 	if filter := req.Msg.GetFilter(); filter != nil {
-		if TargetOfEvaluationId := filter.GetTargetOfEvaluationId(); TargetOfEvaluationId != "" {
+		if targetOfEvaluationId := filter.GetTargetOfEvaluationId(); targetOfEvaluationId != "" {
 			query = append(query, "target_of_evaluation_id = ?")
-			args = append(args, TargetOfEvaluationId)
+			args = append(args, targetOfEvaluationId)
 		}
 		if toolId := filter.GetToolId(); toolId != "" {
 			query = append(query, "tool_id = ?")

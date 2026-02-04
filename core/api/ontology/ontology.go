@@ -71,10 +71,10 @@ func Related(r IsResource) []Relationship {
 			v := r.ProtoReflect().Get(field)
 			if field.IsList() {
 				list := v.List()
-				for i := 0; i < list.Len(); i++ {
+				for j := 0; j < list.Len(); j++ {
 					ids = append(ids, Relationship{
 						Property: property,
-						Value:    list.Get(i).String(),
+						Value:    list.Get(j).String(),
 					})
 				}
 			} else {
@@ -105,9 +105,10 @@ func ResourceTypes(r IsResource) []string {
 
 // ListResourceTypes returns a list of resource types that are supported by the ontology.
 func ListResourceTypes() []string {
-	var types []string
-
-	var resource Resource
+	var (
+		types    []string
+		resource Resource
+	)
 
 	// Accessing the descriptor of the resource message.
 	md := resource.ProtoReflect().Descriptor()
