@@ -21,6 +21,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/open-policy-agent/opa/v1/rego"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
@@ -28,10 +33,6 @@ import (
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
-	"github.com/open-policy-agent/opa/v1/rego"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Test_regoEval_Eval(t *testing.T) {

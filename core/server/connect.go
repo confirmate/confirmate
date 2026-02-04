@@ -20,8 +20,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"confirmate.io/core/log"
 	"connectrpc.com/vanguard"
+
+	"confirmate.io/core/log"
 )
 
 // Server represents a Connect server, with RPC and HTTP support.

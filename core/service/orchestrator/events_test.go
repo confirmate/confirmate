@@ -20,6 +20,9 @@ import (
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
@@ -28,8 +31,6 @@ import (
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
-	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // types contains all Orchestrator types that we need to auto-migrate into database tables

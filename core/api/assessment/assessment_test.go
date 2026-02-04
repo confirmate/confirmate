@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"buf.build/go/protovalidate"
+
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"

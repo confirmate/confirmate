@@ -21,8 +21,9 @@ import (
 	"log/slog"
 	"time"
 
-	"confirmate.io/core/log"
 	"gorm.io/gorm/logger"
+
+	"confirmate.io/core/log"
 )
 
 // slogGormLogger integrates GORM's logger with slog.

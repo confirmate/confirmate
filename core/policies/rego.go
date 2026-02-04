@@ -23,16 +23,17 @@ import (
 	"strings"
 	"sync"
 
-	"confirmate.io/core/api/assessment"
-	"confirmate.io/core/api/evidence"
-	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/util"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/util"
 )
 
 // DefaultRegoPackage is the default package name for the Rego files

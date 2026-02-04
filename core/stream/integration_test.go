@@ -23,6 +23,8 @@ import (
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
+
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -31,7 +33,6 @@ import (
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
-	"connectrpc.com/connect"
 )
 
 // TestStreamRestartIntegration tests the complete stream restart functionality

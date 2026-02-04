@@ -110,11 +110,7 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-require (
-	github.com/mattn/go-isatty v0.0.19
-	github.com/open-policy-agent/opa v1.12.1
-	golang.org/x/sys v0.40.0 // indirect
-)
+require github.com/open-policy-agent/opa v1.12.1
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.

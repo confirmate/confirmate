@@ -18,14 +18,15 @@ package evidence
 import (
 	"testing"
 
+	anypb "google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
-	anypb "google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestEvidence_GetOntologyResource(t *testing.T) {

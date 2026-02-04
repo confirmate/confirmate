@@ -20,10 +20,11 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/util"
-	"confirmate.io/core/util/assert"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
 )
 
 func TestResourceTypes(t *testing.T) {
