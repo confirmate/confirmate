@@ -54,6 +54,21 @@ func NewRootCommand() *cli.Command {
 				},
 			},
 			{
+				Name:  "metric-implementations",
+				Usage: "Metric implementation operations",
+				Commands: []*cli.Command{
+					MetricImplementationsGetCommand(),
+				},
+			},
+			{
+				Name:  "metric-configurations",
+				Usage: "Metric configuration operations",
+				Commands: []*cli.Command{
+					MetricConfigurationsListCommand(),
+					MetricConfigurationsGetCommand(),
+				},
+			},
+			{
 				Name:    "targets",
 				Aliases: []string{"toe"},
 				Usage:   "Target of evaluation operations",
@@ -103,6 +118,7 @@ func NewRootCommand() *cli.Command {
 				Usage:   "Certificate operations",
 				Commands: []*cli.Command{
 					CertificatesListCommand(),
+					CertificatesListPublicCommand(),
 					CertificatesGetCommand(),
 					CertificatesRemoveCommand(),
 				},

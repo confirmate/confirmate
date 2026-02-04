@@ -23,30 +23,16 @@ import (
 	"confirmate.io/core/util/assert"
 )
 
-func TestCertificatesCommands(t *testing.T) {
+func TestMetricConfigurationsCommands(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "certificates", "list")
+		output, err := commandstest.RunCLI(t, "metric-configurations", "list", orchestratortest.MockToeId1)
 		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockCertificateId1)
-		assert.Contains(t, output, orchestratortest.MockCertificateId2)
-	})
-
-	t.Run("list-public", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "certificates", "list-public")
-		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockCertificateId1)
-		assert.Contains(t, output, orchestratortest.MockCertificateId2)
+		assert.Contains(t, output, orchestratortest.MockMetricId1)
 	})
 
 	t.Run("get", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "certificates", "get", orchestratortest.MockCertificateId1)
+		output, err := commandstest.RunCLI(t, "metric-configurations", "get", orchestratortest.MockToeId1, orchestratortest.MockMetricId1)
 		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockCertificateId1)
-	})
-
-	t.Run("remove", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "certificates", "remove", orchestratortest.MockCertificateId2)
-		assert.NoError(t, err)
-		assert.Contains(t, output, "Certificate "+orchestratortest.MockCertificateId2+" deleted successfully")
+		assert.Contains(t, output, orchestratortest.MockMetricId1)
 	})
 }

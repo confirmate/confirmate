@@ -44,6 +44,26 @@ func CertificatesListCommand() *cli.Command {
 	}
 }
 
+func CertificatesListPublicCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "list-public",
+		Aliases: []string{"public"},
+		Usage:   "List all public certificates",
+		Flags:   PaginationFlags(),
+		Action: func(ctx context.Context, c *cli.Command) error {
+			client := OrchestratorClient(ctx, c)
+			resp, err := client.ListPublicCertificates(ctx, connect.NewRequest(&orchestrator.ListPublicCertificatesRequest{
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
+			}))
+			if err != nil {
+				return err
+			}
+			return PrettyPrint(resp.Msg)
+		},
+	}
+}
+
 func CertificatesGetCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "get",
