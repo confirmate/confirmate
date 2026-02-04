@@ -48,26 +48,13 @@ type Relationship struct {
 }
 
 func Related(r IsResource) []Relationship {
-	var (
-		ids      []Relationship
-		desc     protoreflect.MessageDescriptor
-		fields   protoreflect.FieldDescriptors
-		i        int
-		j        int
-		field    protoreflect.FieldDescriptor
-		property string
-		found    bool
-		v        protoreflect.Value
-		list     protoreflect.List
-		s        string
-	)
+	var ids []Relationship
 
-	ids = []Relationship{}
-	desc = r.ProtoReflect().Descriptor()
-	fields = desc.Fields()
+	desc := r.ProtoReflect().Descriptor()
+	fields := desc.Fields()
 
-	for i = range fields.Len() {
-		field = fields.Get(i)
+	for i := range fields.Len() {
+		field := fields.Get(i)
 
 		// We are only interested in string fields
 		if field.Kind() != protoreflect.StringKind {
@@ -75,23 +62,23 @@ func Related(r IsResource) []Relationship {
 		}
 
 		// TODO(oxisto): Can we maybe have a proto option on these fields instead of matching by name?
-		property, found = strings.CutSuffix(string(field.Name()), "_id")
+		property, found := strings.CutSuffix(string(field.Name()), "_id")
 		if !found {
 			// Try with _ids
 			property, found = strings.CutSuffix(string(field.Name()), "_ids")
 		}
 		if found {
-			v = r.ProtoReflect().Get(field)
+			v := r.ProtoReflect().Get(field)
 			if field.IsList() {
-				list = v.List()
-				for j = 0; j < list.Len(); j++ {
+				list := v.List()
+				for j := 0; j < list.Len(); j++ {
 					ids = append(ids, Relationship{
 						Property: property,
 						Value:    list.Get(j).String(),
 					})
 				}
 			} else {
-				s = v.String()
+				s := v.String()
 				if s != "" {
 					ids = append(ids, Relationship{
 						Property: property,
@@ -106,17 +93,10 @@ func Related(r IsResource) []Relationship {
 }
 
 func ResourceTypes(r IsResource) []string {
-	var (
-		opts  protoreflect.ProtoMessage
-		x     any
-		types []string
-		ok    bool
-	)
+	opts := r.ProtoReflect().Descriptor().Options()
 
-	opts = r.ProtoReflect().Descriptor().Options()
-	x = proto.GetExtension(opts, E_ResourceTypeNames)
-	types, ok = x.([]string)
-	if ok {
+	x := proto.GetExtension(opts, E_ResourceTypeNames)
+	if types, ok := x.([]string); ok {
 		return types
 	}
 
@@ -128,19 +108,14 @@ func ListResourceTypes() []string {
 	var (
 		types    []string
 		resource Resource
-		md       protoreflect.MessageDescriptor
-		i        int
-		field    protoreflect.FieldDescriptor
 	)
 
-	types = []string{}
-
 	// Accessing the descriptor of the resource message.
-	md = resource.ProtoReflect().Descriptor()
+	md := resource.ProtoReflect().Descriptor()
 
 	// Collect the names of all fields that belong to the oneOf field.
-	for i = 0; i < md.Fields().Len(); i++ {
-		field = md.Fields().Get(i)
+	for i := 0; i < md.Fields().Len(); i++ {
+		field := md.Fields().Get(i)
 		if field.ContainingOneof() != nil {
 			types = append(types, string(field.Name()))
 		}
@@ -178,14 +153,9 @@ func ResourceMap(r IsResource) (props map[string]any, err error) {
 
 // ResourceIDs return a list of the given resource IDs
 func ResourceIDs(r []IsResource) []string {
-	var (
-		a []string
-		v IsResource
-	)
+	var a = []string{}
 
-	a = []string{}
-
-	for _, v = range r {
+	for _, v := range r {
 		a = append(a, v.GetId())
 	}
 
@@ -195,11 +165,9 @@ func ResourceIDs(r []IsResource) []string {
 // ProtoResource converts a [IsResource] to a [Resource]
 func ProtoResource(resource IsResource) *Resource {
 	var (
-		r     Resource
-		m     protoreflect.Message
-		od    protoreflect.OneofDescriptor
-		i     int
-		field protoreflect.FieldDescriptor
+		r  Resource
+		m  protoreflect.Message
+		od protoreflect.OneofDescriptor
 	)
 
 	if util.IsNil(resource) {
@@ -211,8 +179,8 @@ func ProtoResource(resource IsResource) *Resource {
 	od = m.Descriptor().Oneofs().ByName("type")
 
 	// Loop through the fields to find one that matches the resource's protobuf message type
-	for i = range od.Fields().Len() {
-		field = od.Fields().Get(i)
+	for i := range od.Fields().Len() {
+		field := od.Fields().Get(i)
 		if field.Message() == resource.ProtoReflect().Descriptor() {
 			m.Set(field, protoreflect.ValueOfMessage(resource.ProtoReflect()))
 			break

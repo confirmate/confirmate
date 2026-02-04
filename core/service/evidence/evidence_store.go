@@ -49,10 +49,9 @@ const (
 
 // DefaultConfig is the default configuration for the evidence store [Service].
 var DefaultConfig = Config{
-	AssessmentAddress:   DefaultAssessmentURL,
-	AssessmentClient:    nil, // Will use http.DefaultClient
-	PersistenceConfig:   persistence.DefaultConfig,
-	EvidenceQueueSize:   defaultEvidenceQueueSize,
+	AssessmentAddress: DefaultAssessmentURL,
+	PersistenceConfig: persistence.DefaultConfig,
+	EvidenceQueueSize: defaultEvidenceQueueSize,
 }
 
 // Config represents the configuration for the evidence store [Service].
@@ -176,20 +175,15 @@ func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
 
 // initAssessmentStream creates the restartable assessment stream once during service startup.
 func (svc *Service) initAssessmentStream() (err error) {
-	var (
-		factory           func(context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-		restartableStream *stream.RestartableBidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]
-	)
-
 	if svc.assessmentStream != nil {
 		return nil
 	}
 
 	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.cfg.AssessmentAddress))
-	factory = func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
+	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 		return svc.assessmentClient.AssessEvidences(ctx)
 	}
-	restartableStream, err = stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "AssessEvidences")
+	restartableStream, err := stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "AssessEvidences")
 	if err != nil {
 		return err
 	}
@@ -210,18 +204,12 @@ func (svc *Service) initEvidenceChannel() {
 	// NOTE: This simple approach has a few limitations: a full queue will block StoreEvidence, the worker
 	// has no shutdown signal, errors are only logged (no retry), and throughput is limited to a single goroutine.
 	go func() {
-		var (
-			e   *evidence.Evidence
-			err error
-		)
-
-		for e = range svc.channelEvidence { // exits when channel is closed
+		for e := range svc.channelEvidence { // exits when channel is closed
 			if e == nil {
 				continue
 			}
 			// Fire-and-forget dispatch; errors are only logged here.
-			err = svc.sendToAssessment(e)
-			if err != nil {
+			if err := svc.sendToAssessment(e); err != nil {
 				slog.Error("error while sending evidence",
 					slog.String("evidence_id", e.GetId()),
 					slog.String("tool_id", e.GetToolId()),
@@ -373,22 +361,13 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	}
 
 	// Apply filter options
-	var (
-		conds                  []any
-		filter                 *evidence.Filter
-		TargetOfEvaluationId   string
-		toolId                 string
-	)
-
-	filter = req.Msg.GetFilter()
-	if filter != nil {
-		TargetOfEvaluationId = filter.GetTargetOfEvaluationId()
-		if TargetOfEvaluationId != "" {
+	var conds []any
+	if filter := req.Msg.GetFilter(); filter != nil {
+		if TargetOfEvaluationId := filter.GetTargetOfEvaluationId(); TargetOfEvaluationId != "" {
 			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, TargetOfEvaluationId)
 		}
-		toolId = filter.GetToolId()
-		if toolId != "" {
+		if toolId := filter.GetToolId(); toolId != "" {
 			query = append(query, "tool_id = ?")
 			args = append(args, toolId)
 		}
@@ -472,12 +451,7 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	// * target of evaluation ID
 	// * resource type
 	// * tool ID
-	var (
-		f *evidence.ListResourcesRequest_Filter
-	)
-
-	f = req.Msg.Filter
-	if f != nil {
+	if f := req.Msg.Filter; f != nil {
 		if f.TargetOfEvaluationId != nil {
 			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, f.GetTargetOfEvaluationId())
