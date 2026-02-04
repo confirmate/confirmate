@@ -179,6 +179,31 @@ svc, err := orchestrator.NewService(
 - Reduces the number of exported option functions
 - Matches the pattern used in `core/server` for consistency
 
+### Error Definitions
+
+Each package should define its errors in a dedicated `errors.go` file.
+
+- Use **one `errors.go` per package**; all error values of that package should be defined there.
+- Do not create a repository-wide error registry or cross-package `errors.go`.
+- Export only errors that callers are expected to check or handle (`ErrSomething`).
+- Keep errors that are only used inside the package unexported (`errSomething`).
+
+**Example (`core/service/orchestrator/errors.go`):**
+
+```go
+package orchestrator
+
+import "errors"
+
+var (
+    // ErrCatalogNotFound is returned when a catalog with the given ID does not exist.
+    ErrCatalogNotFound = errors.New("catalog not found")
+
+    // errInvalidState is used for internal state validation errors.
+    errInvalidState = errors.New("invalid state")
+)
+```
+
 ## Error Handling
 
 ### Database Error Handling in Services
@@ -251,7 +276,7 @@ func (svc *Service) CreateCatalog(
 
 The validation rules are defined in the protobuf files using `buf/validate` annotations. See [protovalidate documentation](https://buf.build/docs/protovalidate/overview) for details.
 
-### Protocol Buffers Code Generation
+## Protocol Buffers Code Generation
 
 After making changes to `.proto` files, regenerate the Go code using:
 
