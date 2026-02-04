@@ -4,7 +4,7 @@ go 1.24.5
 
 // runtime dependencies - CLI
 require (
-	github.com/fatih/color v1.18.0
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -70,4 +70,4 @@ require (
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260113124646-95fa67ef4cd8
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260129104154-5b108a47b09b

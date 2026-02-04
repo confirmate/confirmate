@@ -19,10 +19,10 @@ import (
 	"context"
 	"fmt"
 
+	"confirmate.io/core/api/orchestrator"
+
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
-
-	"confirmate.io/core/api/orchestrator"
 )
 
 func MetricsListCommand() *cli.Command {
@@ -69,9 +69,9 @@ func MetricsGetCommand() *cli.Command {
 	}
 }
 
-func MetricsDeleteCommand() *cli.Command {
+func MetricsRemoveCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "delete",
+		Name:      "remove",
 		Aliases:   []string{"rm"},
 		Usage:     "Delete a metric by ID",
 		ArgsUsage: "<metric-id>",

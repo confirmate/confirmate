@@ -35,6 +35,7 @@ const (
 	MockMetricIdDefault  = "metric-default"
 	MockCatalogId1       = "catalog-1"
 	MockCatalogId2       = "catalog-2"
+	MockCatalogId3       = "catalog-3"
 	MockCategoryName1    = "category-1"
 	MockCategoryName2    = "category-2"
 	MockControlId1       = "control-1"
@@ -137,6 +138,11 @@ var (
 		Id:          MockCatalogId2,
 		Name:        "Mock Catalog 2",
 		Description: "Mock catalog description 2",
+	}
+	MockCatalog3 = &orchestrator.Catalog{
+		Id:          MockCatalogId3,
+		Name:        "Mock Catalog 3",
+		Description: "Mock catalog description 3",
 	}
 
 	// Mock Categories

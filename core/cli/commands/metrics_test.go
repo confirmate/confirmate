@@ -37,8 +37,8 @@ func TestMetricsCommands(t *testing.T) {
 		assert.Contains(t, output, orchestratortest.MockMetricId1)
 	})
 
-	t.Run("delete", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "metrics", "delete", orchestratortest.MockMetricId2)
+	t.Run("remove", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "metrics", "remove", orchestratortest.MockMetricId2)
 		assert.NoError(t, err)
 		assert.Contains(t, output, "Metric "+orchestratortest.MockMetricId2+" deleted successfully")
 	})

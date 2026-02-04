@@ -13,33 +13,39 @@
 //
 // This file is part of Confirmate Core.
 
-package commands_test
+package commands
 
 import (
-	"testing"
+	"context"
+	"fmt"
 
-	"confirmate.io/core/cli/commandstest"
-	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util/assert"
+	"confirmate.io/core/api/orchestrator"
+
+	"connectrpc.com/connect"
+	"github.com/urfave/cli/v3"
 )
 
-func TestToolsCommands(t *testing.T) {
-	t.Run("list", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "list")
-		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-		assert.Contains(t, output, orchestratortest.MockToolId2)
-	})
+func CategoriesGetCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "get",
+		Usage:     "Get a category by catalog ID and name",
+		ArgsUsage: "<catalog-id> <category-name>",
+		Action: func(ctx context.Context, c *cli.Command) error {
+			if c.Args().Len() < 2 {
+				return fmt.Errorf("catalog ID and category name required")
+			}
+			catalogID := c.Args().Get(0)
+			categoryName := c.Args().Get(1)
 
-	t.Run("get", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "get", orchestratortest.MockToolId1)
-		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-	})
-
-	t.Run("deregister", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "deregister", orchestratortest.MockToolId2)
-		assert.NoError(t, err)
-		assert.Contains(t, output, "Tool "+orchestratortest.MockToolId2+" deleted successfully")
-	})
+			client := OrchestratorClient(ctx, c)
+			resp, err := client.GetCategory(ctx, connect.NewRequest(&orchestrator.GetCategoryRequest{
+				CatalogId:    catalogID,
+				CategoryName: categoryName,
+			}))
+			if err != nil {
+				return err
+			}
+			return PrettyPrint(resp.Msg)
+		},
+	}
 }

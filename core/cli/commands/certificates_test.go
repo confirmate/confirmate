@@ -37,8 +37,8 @@ func TestCertificatesCommands(t *testing.T) {
 		assert.Contains(t, output, orchestratortest.MockCertificateId1)
 	})
 
-	t.Run("delete", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "certificates", "delete", orchestratortest.MockCertificateId2)
+	t.Run("remove", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "certificates", "remove", orchestratortest.MockCertificateId2)
 		assert.NoError(t, err)
 		assert.Contains(t, output, "Certificate "+orchestratortest.MockCertificateId2+" deleted successfully")
 	})

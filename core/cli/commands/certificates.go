@@ -19,10 +19,10 @@ import (
 	"context"
 	"fmt"
 
+	"confirmate.io/core/api/orchestrator"
+
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
-
-	"confirmate.io/core/api/orchestrator"
 )
 
 func CertificatesListCommand() *cli.Command {
@@ -67,9 +67,9 @@ func CertificatesGetCommand() *cli.Command {
 	}
 }
 
-func CertificatesDeleteCommand() *cli.Command {
+func CertificatesRemoveCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "delete",
+		Name:      "remove",
 		Aliases:   []string{"rm"},
 		Usage:     "Delete a certificate by ID",
 		ArgsUsage: "<certificate-id>",

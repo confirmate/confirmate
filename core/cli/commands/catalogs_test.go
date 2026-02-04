@@ -37,9 +37,9 @@ func TestCatalogsCommands(t *testing.T) {
 		assert.Contains(t, output, orchestratortest.MockCatalogId1)
 	})
 
-	t.Run("delete", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "catalogs", "delete", orchestratortest.MockCatalogId2)
+	t.Run("remove", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "catalogs", "remove", orchestratortest.MockCatalogId3)
 		assert.NoError(t, err)
-		assert.Contains(t, output, "Catalog "+orchestratortest.MockCatalogId2+" deleted successfully")
+		assert.Contains(t, output, "Catalog catalog-3 deleted successfully")
 	})
 }

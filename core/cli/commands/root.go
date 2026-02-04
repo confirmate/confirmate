@@ -38,10 +38,10 @@ func NewRootCommand() *cli.Command {
 				Name:  "tools",
 				Usage: "Assessment tool operations",
 				Commands: []*cli.Command{
-					ToolsCreateCommand(),
+					ToolsRegisterCommand(),
 					ToolsListCommand(),
 					ToolsGetCommand(),
-					ToolsDeleteCommand(),
+					ToolsDeregisterCommand(),
 				},
 			},
 			{
@@ -50,7 +50,7 @@ func NewRootCommand() *cli.Command {
 				Commands: []*cli.Command{
 					MetricsListCommand(),
 					MetricsGetCommand(),
-					MetricsDeleteCommand(),
+					MetricsRemoveCommand(),
 				},
 			},
 			{
@@ -61,7 +61,8 @@ func NewRootCommand() *cli.Command {
 					TargetsCreateCommand(),
 					TargetsListCommand(),
 					TargetsGetCommand(),
-					TargetsDeleteCommand(),
+					TargetsStatsCommand(),
+					TargetsRemoveCommand(),
 				},
 			},
 			{
@@ -78,7 +79,22 @@ func NewRootCommand() *cli.Command {
 				Commands: []*cli.Command{
 					CatalogsListCommand(),
 					CatalogsGetCommand(),
-					CatalogsDeleteCommand(),
+					CatalogsRemoveCommand(),
+				},
+			},
+			{
+				Name:  "categories",
+				Usage: "Category operations",
+				Commands: []*cli.Command{
+					CategoriesGetCommand(),
+				},
+			},
+			{
+				Name:  "controls",
+				Usage: "Control operations",
+				Commands: []*cli.Command{
+					ControlsListCommand(),
+					ControlsGetCommand(),
 				},
 			},
 			{
@@ -88,7 +104,7 @@ func NewRootCommand() *cli.Command {
 				Commands: []*cli.Command{
 					CertificatesListCommand(),
 					CertificatesGetCommand(),
-					CertificatesDeleteCommand(),
+					CertificatesRemoveCommand(),
 				},
 			},
 		},

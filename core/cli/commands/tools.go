@@ -19,16 +19,16 @@ import (
 	"context"
 	"fmt"
 
+	"confirmate.io/core/api/orchestrator"
+
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"github.com/urfave/cli/v3"
-
-	"confirmate.io/core/api/orchestrator"
 )
 
-func ToolsCreateCommand() *cli.Command {
+func ToolsRegisterCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "create",
+		Name:  "register",
 		Usage: "Register a new assessment tool",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -124,11 +124,11 @@ func ToolsGetCommand() *cli.Command {
 	}
 }
 
-func ToolsDeleteCommand() *cli.Command {
+func ToolsDeregisterCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "delete",
+		Name:      "deregister",
 		Aliases:   []string{"rm"},
-		Usage:     "Delete an assessment tool by ID",
+		Usage:     "Deregister an assessment tool by ID",
 		ArgsUsage: "<tool-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if c.Args().Len() < 1 {

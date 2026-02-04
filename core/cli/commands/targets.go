@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"strings"
 
-	"connectrpc.com/connect"
-	"github.com/urfave/cli/v3"
-
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+
+	"connectrpc.com/connect"
+	"github.com/urfave/cli/v3"
 )
 
 func TargetsCreateCommand() *cli.Command {
@@ -148,9 +148,33 @@ func TargetsGetCommand() *cli.Command {
 	}
 }
 
-func TargetsDeleteCommand() *cli.Command {
+func TargetsStatsCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "delete",
+		Name:      "stats",
+		Aliases:   []string{"statistics"},
+		Usage:     "Get statistics for a target of evaluation",
+		ArgsUsage: "<target-id>",
+		Action: func(ctx context.Context, c *cli.Command) error {
+			if c.Args().Len() < 1 {
+				return fmt.Errorf("target ID required")
+			}
+			targetID := c.Args().Get(0)
+
+			client := OrchestratorClient(ctx, c)
+			resp, err := client.GetTargetOfEvaluationStatistics(ctx, connect.NewRequest(&orchestrator.GetTargetOfEvaluationStatisticsRequest{
+				TargetOfEvaluationId: targetID,
+			}))
+			if err != nil {
+				return err
+			}
+			return PrettyPrint(resp.Msg)
+		},
+	}
+}
+
+func TargetsRemoveCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "remove",
 		Aliases:   []string{"rm"},
 		Usage:     "Delete a target of evaluation by ID",
 		ArgsUsage: "<target-id>",

@@ -37,8 +37,15 @@ func TestTargetsCommands(t *testing.T) {
 		assert.Contains(t, output, orchestratortest.MockToeId1)
 	})
 
-	t.Run("delete", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "targets", "delete", orchestratortest.MockToeId2)
+	t.Run("stats", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "targets", "stats", orchestratortest.MockToeId1)
+		assert.NoError(t, err)
+		assert.Contains(t, output, "numberOfAssessmentResults")
+		assert.Contains(t, output, "\"numberOfAssessmentResults\": \"1\"")
+	})
+
+	t.Run("remove", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "targets", "remove", orchestratortest.MockToeId2)
 		assert.NoError(t, err)
 		assert.Contains(t, output, "Target "+orchestratortest.MockToeId2+" deleted successfully")
 	})

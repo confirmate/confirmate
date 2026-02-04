@@ -23,23 +23,17 @@ import (
 	"confirmate.io/core/util/assert"
 )
 
-func TestToolsCommands(t *testing.T) {
+func TestControlsCommands(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "list")
+		output, err := commandstest.RunCLI(t, "controls", "list")
 		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-		assert.Contains(t, output, orchestratortest.MockToolId2)
+		assert.Contains(t, output, orchestratortest.MockControlId1)
+		assert.Contains(t, output, orchestratortest.MockControlId2)
 	})
 
 	t.Run("get", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "get", orchestratortest.MockToolId1)
+		output, err := commandstest.RunCLI(t, "controls", "get", orchestratortest.MockCatalogId1, orchestratortest.MockCategoryName1, orchestratortest.MockControlId1)
 		assert.NoError(t, err)
-		assert.Contains(t, output, orchestratortest.MockToolId1)
-	})
-
-	t.Run("deregister", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "tools", "deregister", orchestratortest.MockToolId2)
-		assert.NoError(t, err)
-		assert.Contains(t, output, "Tool "+orchestratortest.MockToolId2+" deleted successfully")
+		assert.Contains(t, output, orchestratortest.MockControlId1)
 	})
 }
