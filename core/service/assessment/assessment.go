@@ -26,6 +26,8 @@ import (
 	"time"
 
 	"buf.build/go/protovalidate"
+	"connectrpc.com/connect"
+
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -37,7 +39,6 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
 	"confirmate.io/core/util"
-	"connectrpc.com/connect"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
