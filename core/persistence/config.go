@@ -15,7 +15,11 @@
 
 package persistence
 
-import "fmt"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 // DefaultConfig contains the default [Config] for the persistence layer.
 var DefaultConfig = Config{
@@ -29,6 +33,11 @@ var DefaultConfig = Config{
 	InMemoryDB:       false,
 	Types:            []any{},
 	CustomJoinTables: []CustomJoinTable{},
+}
+
+// DefaultGormConfig contains the default [gorm.Config] for the persistence layer.
+var DefaultGormConfig = gorm.Config{
+	Logger: newSlogGormLogger(),
 }
 
 // Config contains configuration parameters for the persistence layer.
