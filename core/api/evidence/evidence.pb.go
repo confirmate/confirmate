@@ -154,7 +154,7 @@ type Resource struct {
 	// Reference to the tool which provided the resource
 	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty"`
 	// Properties contains a protobuf message that describe the resource in the
-	// terms of our Clouditor ontology.
+	// terms of our ontology.
 	Properties    *anypb.Any `protobuf:"bytes,10,opt,name=properties,proto3" json:"properties,omitempty" gorm:"serializer:anypb;type:json"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

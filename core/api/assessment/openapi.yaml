@@ -127,7 +127,7 @@ components:
                         - $ref: '#/components/schemas/GoogleProtobufAny'
                     description: |-
                         Properties contains a protobuf message that describe the resource in the
-                         terms of our Clouditor ontology.
+                         terms of our ontology.
             description: |-
                 Resource is a wrapper around google.protobuf.Value that is needed for
                  persistence reasons.
