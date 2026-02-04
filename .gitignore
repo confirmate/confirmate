@@ -1,1 +1,7 @@
 .idea
+cf
+orchestrator
+*.log
+cf_output.txt
+go.work.sum
+**/go.work.sum

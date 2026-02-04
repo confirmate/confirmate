@@ -4,8 +4,13 @@ go 1.24.5
 
 // runtime dependencies - CLI
 require (
+	github.com/fatih/color v1.18.0 // indirect
+	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
 	github.com/lmittmann/tint v1.1.2
-	github.com/urfave/cli/v3 v3.5.0
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20
+	github.com/urfave/cli/v3 v3.6.1
+	golang.org/x/sys v0.40.0 // indirect
 )
 
 // runtime dependencies - protobuf/Connect
@@ -62,10 +67,6 @@ require (
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/tools v0.41.0 // indirect
 )
-
-require github.com/mattn/go-isatty v0.0.17
-
-require golang.org/x/sys v0.40.0 // indirect
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.

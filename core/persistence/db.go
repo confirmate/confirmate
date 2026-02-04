@@ -103,7 +103,8 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 	)
 
 	db = &gormDB{
-		cfg: DefaultConfig,
+		cfg:  DefaultConfig,
+		gcfg: DefaultGormConfig,
 	}
 
 	// Add options and/or override default ones
@@ -158,6 +159,14 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 	if err = db.DB.AutoMigrate(db.cfg.Types...); err != nil {
 		err = fmt.Errorf("error during auto-migration: %w", err)
 		return
+	}
+
+	// Run optional init function after migrations
+	if db.cfg.InitFunc != nil {
+		if err = db.cfg.InitFunc(db); err != nil {
+			err = fmt.Errorf("error during init function: %w", err)
+			return
+		}
 	}
 
 	s = db

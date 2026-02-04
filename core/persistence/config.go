@@ -15,7 +15,11 @@
 
 package persistence
 
-import "fmt"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 // DefaultConfig contains the default [Config] for the persistence layer.
 var DefaultConfig = Config{
@@ -29,6 +33,11 @@ var DefaultConfig = Config{
 	InMemoryDB:       false,
 	Types:            []any{},
 	CustomJoinTables: []CustomJoinTable{},
+}
+
+// DefaultGormConfig contains the default [gorm.Config] for the persistence layer.
+var DefaultGormConfig = gorm.Config{
+	Logger: newSlogGormLogger(),
 }
 
 // Config contains configuration parameters for the persistence layer.
@@ -70,6 +79,10 @@ type Config struct {
 	// CustomJoinTables contains a list of custom join tables to be registered with the persistence
 	// layer.
 	CustomJoinTables []CustomJoinTable
+
+	// InitFunc is an optional hook that runs after migrations to seed data.
+	// If it returns an error, database initialization fails.
+	InitFunc func(DB) error
 }
 
 // buildDSN builds the Data Source Name (DSN) for connecting to the database, used by GORM.
