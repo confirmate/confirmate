@@ -363,9 +363,9 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	// Apply filter options
 	var conds []any
 	if filter := req.Msg.GetFilter(); filter != nil {
-		if TargetOfEvaluationId := filter.GetTargetOfEvaluationId(); TargetOfEvaluationId != "" {
+		if targetOfEvaluationId := filter.GetTargetOfEvaluationId(); targetOfEvaluationId != "" {
 			query = append(query, "target_of_evaluation_id = ?")
-			args = append(args, TargetOfEvaluationId)
+			args = append(args, targetOfEvaluationId)
 		}
 		if toolId := filter.GetToolId(); toolId != "" {
 			query = append(query, "tool_id = ?")
