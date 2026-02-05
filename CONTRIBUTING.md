@@ -44,7 +44,7 @@ Use `var` blocks at the beginning of functions to group all variables needed in 
 ```go
 func NewService() (svc orchestratorconnect.OrchestratorHandler, err error) {
     var (
-        db *persistence.DB
+        db persistence.DB
     )
     
     db, err = persistence.NewDB(...)
@@ -69,6 +69,7 @@ func NewService() (orchestratorconnect.OrchestratorHandler, error) {
 ### Short Variable Declaration
 
 Avoid using `:=` (short variable declaration) in production code. Instead, use `var` blocks and named return values as shown above.
+Exceptions: Within the initializer part of `if`, `for`, and `switch` statements.
 
 However, the use of `:=` is acceptable and encouraged in test functions, as tests often need to quickly declare and use variables.
 
@@ -96,46 +97,176 @@ import (
 )
 ```
 
-### Request Validation
+### Service Configuration Pattern
 
-All gRPC/Connect service methods should validate incoming requests at the beginning of the function using `service.Validate()`. This function uses protovalidate to validate the request based on the validation rules defined in the protobuf definitions.
+Services should use a `Config` struct with a `DefaultConfig` and a `WithConfig()` option function for configuration, rather than individual option functions for each field. This pattern provides better organization and makes it easier to manage service configuration.
 
 **Good:**
 ```go
-func (svc *orch) ListTargetsOfEvaluation(
-    ctx context.Context,
-    req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
-    var (
-        toes []*orchestrator.TargetOfEvaluation
-    )
-
-    // Validate request
-    err = service.Validate(req.Msg)
-    if err != nil {
-        return nil, err
-    }
-
-    // Continue with business logic...
+// DefaultConfig is the default configuration for the orchestrator [Service].
+var DefaultConfig = Config{
+    CreateDefaultTargetOfEvaluation: true,
 }
+
+// Config represents the configuration for the orchestrator [Service].
+type Config struct {
+    // CatalogsFolder is the folder where catalogs are stored.
+    CatalogsFolder string
+    // MetricsFolder is the folder where metrics are stored.
+    MetricsFolder string
+    // CreateDefaultTargetOfEvaluation controls whether to create a default target of evaluation.
+    CreateDefaultTargetOfEvaluation bool
+}
+
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
+    return func(svc *Service) {
+        svc.cfg = cfg
+    }
+}
+
+// In NewService:
+func NewService(opts ...service.Option[Service]) (handler Handler, err error) {
+    svc = &Service{
+        db:  db,
+        cfg: DefaultConfig,  // Initialize with defaults
+        // ...
+    }
+    
+    // Apply options
+    for _, opt := range opts {
+        opt(svc)
+    }
+    // ...
+}
+
+// Usage in commands:
+svc, err := orchestrator.NewService(
+    orchestrator.WithConfig(orchestrator.Config{
+        CatalogsFolder:                  cmd.String("catalogs-folder"),
+        MetricsFolder:                   cmd.String("metrics-folder"),
+        CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
+    }),
+)
 ```
 
 **Bad:**
 ```go
-func (svc *orch) ListTargetsOfEvaluation(
+// Multiple individual option functions
+func WithCatalogsFolder(folder string) service.Option[Service] {
+    return func(svc *Service) {
+        svc.catalogsFolder = folder
+    }
+}
+
+func WithMetricsFolder(folder string) service.Option[Service] {
+    return func(svc *Service) {
+        svc.metricsFolder = folder
+    }
+}
+
+// Usage requires multiple option calls:
+svc, err := orchestrator.NewService(
+    orchestrator.WithCatalogsFolder(cmd.String("catalogs-folder")),
+    orchestrator.WithMetricsFolder(cmd.String("metrics-folder")),
+    // ...
+)
+```
+
+**Benefits of the Config pattern:**
+- All configuration fields are clearly visible in one place
+- Easier to set defaults for multiple fields
+- Simpler to pass configuration between components
+- Reduces the number of exported option functions
+- Matches the pattern used in `core/server` for consistency
+
+## Error Handling
+
+### Database Error Handling in Services
+
+When handling database errors in service methods, use the `service.HandleDatabaseError` helper function from `core/service`. This function translates database errors into appropriate Connect RPC errors:
+
+- `persistence.ErrRecordNotFound` → `connect.CodeNotFound`
+- Other errors → `connect.CodeInternal`
+
+**Example:**
+```go
+import (
+    "confirmate.io/core/service"
+)
+
+func (svc *Service) GetCertificate(
     ctx context.Context,
-    req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
-    // Missing validation - requests should always be validated
-    
-    err = svc.db.List(&toes, "name", true, 0, -1, nil)
+    req *connect.Request[orchestrator.GetCertificateRequest],
+) (res *connect.Response[orchestrator.Certificate], err error) {
+    var (
+        cert orchestrator.Certificate
+    )
+
+    err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+    if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+        return nil, err
+    }
+
+    res = connect.NewResponse(&cert)
+    return
+}
+```
+
+This pattern ensures consistent error handling across all service methods and reduces code duplication.
+
+### Request Validation
+
+All service methods must validate incoming requests using the `service.Validate` helper function from `core/service`. This function uses `protovalidate` to validate the request message and returns a `connect.CodeInvalidArgument` error if validation fails.
+
+**Validation must be the first operation in every service method, before extracting data from the request:**
+
+```go
+import (
+    "confirmate.io/core/service"
+)
+
+func (svc *Service) CreateCatalog(
+    ctx context.Context,
+    req *connect.Request[orchestrator.CreateCatalogRequest],
+) (res *connect.Response[orchestrator.Catalog], err error) {
+    var (
+        catalog *orchestrator.Catalog
+    )
+
+    // Validate the request FIRST
+    if err = service.Validate(req); err != nil {
+        return nil, err
+    }
+
+    // Extract data from request AFTER validation passes
+    catalog = req.Msg.Catalog
+
+    // Continue with business logic...
+    err = svc.db.Create(catalog)
     // ...
 }
 ```
 
-The `service.Validate()` function:
-- Returns `connect.CodeInvalidArgument` error if the request is nil or fails protovalidate validation
-- Returns `nil` if validation passes
+**Pattern:** Declare variables in the `var` block, validate the request, then assign values from `req.Msg` only after validation succeeds. This ensures we don't process invalid data.
+
+The validation rules are defined in the protobuf files using `buf/validate` annotations. See [protovalidate documentation](https://buf.build/docs/protovalidate/overview) for details.
+
+### Protocol Buffers Code Generation
+
+After making changes to `.proto` files, regenerate the Go code using:
+
+```bash
+go generate ./...
+```
+
+This will run all `//go:generate` directives, including multiple `buf generate` commands for:
+- Main API definitions
+- OpenAPI specifications
+- Ontology definitions
+- Go struct tags
+
+**Important:** Always run `go generate` from the repository root to ensure all proto files are regenerated correctly.
 
 ## Documentation Guidelines
 
@@ -154,7 +285,7 @@ package orchestrator
 // [orchestratorconnect.OrchestratorHandler]).
 type service struct {
     orchestratorconnect.UnimplementedOrchestratorHandler
-    db *persistence.DB
+    db persistence.DB
 }
 
 // NewService creates a new orchestrator service and returns a
@@ -179,7 +310,7 @@ package orchestrator
 
 type service struct {
     orchestratorconnect.UnimplementedOrchestratorHandler
-    db *persistence.DB
+    db persistence.DB
 }
 
 func NewService() (orchestratorconnect.OrchestratorHandler, error) {
@@ -211,57 +342,240 @@ Avoid adding `README.md` files in internal code directories. Instead, use packag
 
 ### Table-Driven Tests
 
-Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend.
+Tests should use the table-driven test pattern as much as possible. This pattern makes tests more maintainable and easier to extend. It specifies the `args` of the call and optionally the `fields` of the struct, if the to-be-called function is a method.
 
 The actual test body should be kept as short and clear as possible. Instead of extensive logic or repetitive code, prefer using `assert.WantErr` or `assert.Want` from the `core/util/assert` package to make checks concise and precise.
 
-**Example:**
+Also try to avoid hard-coded strings, especially in table tests. Instead common mock objects (e.g. `orchestratortest.MockMetric1`) should be used.
+
+### Use Mock Constants from `orchestratortest`
+
+**Always use mock constants from the `orchestratortest` package instead of hard-coding IDs or entities in tests.** This ensures consistency across tests and makes them easier to maintain.
+
+The `orchestratortest` package provides a comprehensive set of mock UUIDs, string IDs, and pre-configured entities for all orchestrator types. See [`orchestratortest/mock.go`](core/service/orchestrator/orchestratortest/mock.go) for the complete list of available mocks.
+
+**Good:**
 ```go
-func TestEqual(t *testing.T) {
-    type args struct {
-        t    TestingT
-        want any
-        got  any
-        opts []cmp.Option
-    }
+func TestService_GetMetric(t *testing.T) {
     tests := []struct {
         name string
         args args
-        want bool
+        want assert.Want[*connect.Response[assessment.Metric]]
+        wantErr assert.WantErr
     }{
         {
-            name: "compare literals",
+            name: "happy path",
             args: args{
-                t:    t,
-                want: "5",
-                got:  "5",
+                req: &orchestrator.GetMetricRequest{
+                    MetricId: orchestratortest.MockMetric1.Id,
+                },
             },
-            want: true,
+            // ...
         },
         {
-            name: "compare structs with unexported fields",
+            name: "not found",
             args: args{
-                t:    t,
-                want: &MyStruct{A: "test", b: 1},
-                got:  &MyStruct{A: "test", b: 1},
-                opts: []cmp.Option{CompareAllUnexported()},
+                req: &orchestrator.GetMetricRequest{
+                    MetricId: orchestratortest.MockNonExistentID,
+                },
             },
-            want: true,
+            // ...
         },
     }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            if got := Equal(tt.args.t, tt.args.want, tt.args.got, tt.args.opts...); got != tt.want {
-                t.Errorf("Equal() = %v, want %v", got, tt.want)
-            }
-        })
+}
+```
+
+**Bad:**
+```go
+func TestService_GetMetric(t *testing.T) {
+    tests := []struct {
+        name string
+        args args
+        want assert.Want[*connect.Response[assessment.Metric]]
+        wantErr assert.WantErr
+    }{
+        {
+            name: "happy path",
+            args: args{
+                req: &orchestrator.GetMetricRequest{
+                    MetricId: "metric-1",  // Hard-coded ID
+                },
+            },
+            // ...
+        },
+        {
+            name: "not found",
+            args: args{
+                req: &orchestrator.GetMetricRequest{
+                    MetricId: "non-existent",  // Hard-coded ID
+                },
+            },
+            // ...
+        },
     }
+}
+```
+
+If you need a mock entity or ID that doesn't exist, **add it to `orchestratortest/mock.go`** rather than hard-coding it in your test. Follow the existing naming conventions:
+- UUID constants: `Mock<EntityType>ID<Number>` (e.g., `MockToeID1`, `MockResultID2`)
+- String ID constants: `Mock<EntityType>ID<Number>` (e.g., `MockMetricID1`, `MockCatalogID2`)
+- Entity variables: `Mock<EntityType><Number>` (e.g., `MockMetric1`, `MockCatalog2`)
+- Special constants: `MockNonExistentID`, `MockEmptyUUID`
+
+**Example:**
+```go
+func TestService_GetMetric(t *testing.T) {
+	type args struct {
+		req *orchestrator.GetMetricRequest
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[assessment.Metric]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "happy path",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockMetric1))
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "not found",
+			args: args{
+				req: &orchestrator.GetMetricRequest{
+					MetricId: "non-existent",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db: tt.fields.db,
+			}
+
+			res, err := svc.GetMetric(context.Background(), connect.NewRequest(tt.args.req))
+			tt.want(t, res)
+			tt.wantErr(t, err)
+		})
+	}
 }
 ```
 
 ### Integration Tests
 
 Integration tests are an exception to the table-driven test pattern. They can be written in a more straightforward, sequential style when it makes the test clearer.
+
+### Database Assertions in Tests
+
+For create/update operations that modify the database, include a `wantDB` field in your table tests to verify that the database state matches expectations after the operation. This ensures data integrity and catches issues with persistence logic.
+
+The `wantDB` function receives the database instance and the response from the operation, allowing you to verify both that the data was saved and that it matches the expected state.
+
+**Example:**
+```go
+func TestService_CreateTargetOfEvaluation(t *testing.T) {
+    type args struct {
+        req *orchestrator.CreateTargetOfEvaluationRequest
+    }
+    type fields struct {
+        db persistence.DB
+    }
+    tests := []struct {
+        name    string
+        args    args
+        fields  fields
+        want    assert.Want[*connect.Response[orchestrator.TargetOfEvaluation]]
+        wantErr assert.WantErr
+        wantDB  assert.Want[persistence.DB]
+    }{
+        {
+            name: "validation error - empty request",
+            args: args{
+                req: &orchestrator.CreateTargetOfEvaluationRequest{},
+            },
+            fields: fields{
+                db: persistencetest.NewInMemoryDB(t, types, joinTables),
+            },
+            want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+            wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+                return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+            },
+            wantDB: assert.NotNil[persistence.DB],
+        },
+        {
+            name: "happy path",
+            args: args{
+                req: &orchestrator.CreateTargetOfEvaluationRequest{
+                    TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+                        Name: "test-toe",
+                    },
+                },
+            },
+            fields: fields{
+                db: persistencetest.NewInMemoryDB(t, types, joinTables),
+            },
+            want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+                return assert.NotNil(t, got.Msg) &&
+                    assert.Equal(t, "test-toe", got.Msg.Name) &&
+                    assert.NotEmpty(t, got.Msg.Id)
+            },
+            wantErr: assert.NoError,
+            wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+                res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
+                assert.NotNil(t, res)
+
+                toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+                assert.Equal(t, "test-toe", toe.Name)
+                return true
+            },
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            svc := &Service{
+                db: tt.fields.db,
+            }
+            res, err := svc.CreateTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+            tt.want(t, res)
+            tt.wantErr(t, err)
+            tt.wantDB(t, tt.fields.db, res)
+        })
+    }
+}
+```
+
+**Key points:**
+- For error cases, use `assert.NotNil[persistence.DB]` to simply verify the DB still exists
+- For success cases, use `assert.Is` to type-assert the response, then `assert.InDB` to retrieve and verify the persisted entity
+- Always assert `NotNil` on the response before accessing nested fields like `res.Msg.Id`
+- Pass the complete response object to `wantDB`, not just the message field
 
 ### Use core/util/assert
 
@@ -278,7 +592,7 @@ import (
 func Test_DB_Create(t *testing.T) {
     var (
         err    error
-        s      *DB
+        s      persistence.DB
         metric *assessment.Metric
     )
 
@@ -288,11 +602,7 @@ func Test_DB_Create(t *testing.T) {
         Description: MockMetricDescription1,
     }
 
-    s, err = NewDB(
-        WithInMemory(),
-        WithAutoMigration(&assessment.Metric{}),
-    )
-    assert.NoError(t, err)
+    s = persistencetest.NewInMemoryDB(t, []any{&assessment.Metric{}}, nil)
 
     err = s.Create(metric)
     assert.NoError(t, err)
@@ -322,7 +632,7 @@ func Test_DB_Create(t *testing.T) {
 - Do not use `log` or `logrus`
 - Use structured logging with appropriate log levels
 - Prefer using `slog.Any()` and typed attribute functions (e.g., `slog.String()`, `slog.Int()`) for clarity and to make key-value pairs more explicit
-- Use `tint.Err(err)` instead of `slog.Any("error", err)` for error logging
+- Use `log.Err(err)` instead of `slog.Any("error", err)` for error logging
 
 **Example:**
 ```go

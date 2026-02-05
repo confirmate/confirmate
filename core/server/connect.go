@@ -19,21 +19,10 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
 
+	"confirmate.io/core/log"
 	"connectrpc.com/vanguard"
-	"github.com/lmittmann/tint"
 )
-
-var (
-	logger *slog.Logger
-)
-
-func init() {
-	logger = slog.New(tint.NewHandler(os.Stdout, nil))
-
-	slog.SetDefault(logger)
-}
 
 // Server represents a Connect server, with RPC and HTTP support.
 type Server struct {
@@ -99,13 +88,18 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 		opt(svr)
 	}
 
+	// Configure log level
+	if err = configureLogLevel(svr.cfg.LogLevel); err != nil {
+		return nil, fmt.Errorf("invalid log level %q: %w", svr.cfg.LogLevel, err)
+	}
+
 	// Create one vanguard service for each handler and add to transcoder
 	for path, handler := range svr.handlers {
 		vs = append(vs, vanguard.NewService(path, handler))
 	}
 	transcoder, err = vanguard.NewTranscoder(vs)
 	if err != nil {
-		slog.Error("Failed to create vanguard transcoder", tint.Err(err))
+		slog.Error("Failed to create vanguard transcoder", log.Err(err))
 		return nil, err
 	}
 
@@ -131,4 +125,9 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 	)
 
 	return svr, nil
+}
+
+// configureLogLevel configures the global slog logger with the specified level.
+func configureLogLevel(levelStr string) error {
+	return log.Configure(levelStr)
 }

@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
+
 	"connectrpc.com/connect"
 )
 
@@ -54,6 +55,28 @@ func TestHandleDatabaseError(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				cErr := assert.Is[*connect.Error](t, err)
 				return assert.Equal(t, connect.CodeNotFound, cErr.Code())
+			},
+		},
+		{
+			name: "unique constraint error",
+			args: args{
+				err:          persistence.ErrUniqueConstraintFailed,
+				notFoundErrs: []error{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeAlreadyExists, cErr.Code())
+			},
+		},
+		{
+			name: "constraint error",
+			args: args{
+				err:          persistence.ErrConstraintFailed,
+				notFoundErrs: []error{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
 			},
 		},
 		{
