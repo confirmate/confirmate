@@ -1,4 +1,4 @@
-Copyright 2016-2025 Fraunhofer AISEC
+Copyright 2016-2026 Fraunhofer AISEC
 
 SPDX-License-Identifier: Apache-2.0
 

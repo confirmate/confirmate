@@ -92,8 +92,9 @@ import (
 	"sync"
 	"time"
 
-	"confirmate.io/core/log"
 	"connectrpc.com/connect"
+
+	"confirmate.io/core/log"
 )
 
 // RestartConfig contains configuration for automatic stream restart behavior.

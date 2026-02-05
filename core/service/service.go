@@ -14,4 +14,5 @@
 // This file is part of Confirmate Core.
 
 // Package service implements common service functionality.
+
 package service

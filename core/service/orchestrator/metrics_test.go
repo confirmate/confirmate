@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"errors"
+	"os"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
@@ -26,11 +27,18 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
+	"confirmate.io/core/util/clitest"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/structpb"
 )
+
+func TestMain(m *testing.M) {
+	clitest.AutoChdir()
+	code := m.Run()
+	os.Exit(code)
+}
 
 func TestService_CreateMetric(t *testing.T) {
 	type args struct {
@@ -295,8 +303,9 @@ func TestService_UpdateMetric(t *testing.T) {
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
 						Id:          orchestratortest.MockMetric1.Id,
+						Name:        orchestratortest.MockMetricName1,
 						Description: "Updated description",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "test-category",
 					},
 				},
@@ -349,9 +358,10 @@ func TestService_UpdateMetric(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
-						Id:          "non-existent",
+						Id:          "99999999-9999-9999-9999-999999999999",
+						Name:        orchestratortest.MockMetricName1,
 						Description: "Updated description",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "test-category",
 					},
 				},
@@ -370,8 +380,9 @@ func TestService_UpdateMetric(t *testing.T) {
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
 						Id:          orchestratortest.MockMetric1.Id,
+						Name:        orchestratortest.MockMetricName1,
 						Description: "Updated description",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "test-category",
 					},
 				},
@@ -966,6 +977,17 @@ func TestService_loadMetrics(t *testing.T) {
 				return assert.Error(t, err) &&
 					assert.ErrorContains(t, err, "could not load additional metrics")
 			},
+		},
+		{
+			name: "load default",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					LoadDefaultMetrics: true,
+					DefaultMetricsPath: "./policies/security-metrics/metrics",
+				},
+			},
+			wantErr: assert.NoError,
 		},
 	}
 

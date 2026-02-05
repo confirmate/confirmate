@@ -1,0 +1,151 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Assessment API
+    description: |-
+        Representing the link between orchestrator and discovery: Assessing evidences
+         from discovery and sending results to orchestrator
+    version: 0.0.1
+paths:
+    /v1/assessment/evidences:
+        post:
+            tags:
+                - Assessment
+            description: |-
+                Assesses the evidence sent by the discovery. Part of the public API, also
+                 exposed as REST.
+            operationId: Assessment_AssessEvidence
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Evidence'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AssessEvidenceResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        AssessEvidenceResponse:
+            type: object
+            properties:
+                status:
+                    enum:
+                        - ASSESSMENT_STATUS_UNSPECIFIED
+                        - ASSESSMENT_STATUS_WAITING_FOR_RELATED
+                        - ASSESSMENT_STATUS_ASSESSED
+                        - ASSESSMENT_STATUS_FAILED
+                    type: string
+                    format: enum
+            description: |-
+                AssessEvidenceResponse belongs to AssessEvidence, which uses a custom unary
+                 RPC and therefore requires a response message according to the style
+                 convention. Since no return values are required, this is empty.
+        Evidence:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: the ID in a uuid format
+                timestamp:
+                    type: string
+                    description: time of evidence creation
+                    format: date-time
+                targetOfEvaluationId:
+                    type: string
+                    description: Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from
+                toolId:
+                    type: string
+                    description: Reference to the tool which provided the evidence
+                resource:
+                    allOf:
+                        - $ref: '#/components/schemas/Resource'
+                    description: |-
+                        Semantic representation of the Cloud resource according to our defined
+                         ontology
+                experimentalRelatedResourceIds:
+                    type: array
+                    items:
+                        type: string
+                    description: |-
+                        Very experimental property. Use at own risk. This property will be deleted again.
+
+                         Related resource IDs. The assessment will wait until all evidences for related resource have arrived in the
+                         assessment and are recent enough. In the future, this will be replaced with information in the "related" edges in
+                         the resource. For now, this needs to be set manually in the evidence.
+            description: An evidence resource
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Resource:
+            required:
+                - id
+                - targetOfEvaluationId
+                - resourceType
+                - toolId
+                - properties
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: |-
+                        Id contains a unique ID for each resource. This is specific for the cloud
+                         provider this resource was gathered for and can for example be a resource
+                         URL.
+                targetOfEvaluationId:
+                    type: string
+                    description: |-
+                        TargetOfEvaluationId is the UUID for the target of evaluation to which this resource
+                         belongs to.
+                resourceType:
+                    type: string
+                    description: |-
+                        ResourceType contains a comma separated string of resource types according
+                         to our ontology.
+                toolId:
+                    type: string
+                    description: Reference to the tool which provided the resource
+                properties:
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: |-
+                        Properties contains a protobuf message that describe the resource in the
+                         terms of our ontology.
+            description: |-
+                Resource is a wrapper around google.protobuf.Value that is needed for
+                 persistence reasons.
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+tags:
+    - name: Assessment
