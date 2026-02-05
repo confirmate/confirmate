@@ -3,25 +3,6 @@ from __future__ import annotations
 from typing import List, Dict
 
 
-SYSTEM_PROMPT = """
-You are Document-Analyser, a careful assistant that extracts compliance evidence from unstructured documents
-such as source code, security policies, and reports. Work step by step, focus on verifiable statements, and
-prefer quoting the original phrasing where possible.
-
-Produce a compact JSON object with these keys:
-- document_summary: 2 sentence overview of the document content and purpose.
-- evidence: list of up to {max_items} evidence objects. Each evidence object must contain:
-  - title: short label for the requirement, control, or claim.
-  - evidence: concise statement derived from the document.
-  - snippet: verbatim quote or text excerpt used to support the evidence (keep it short).
-  - citation: page number hint for the snippet, e.g., "Page 3". Leave empty if unknown.
-  - confidence: one of ["high", "medium", "low"] describing certainty.
-- gaps: list of missing information or unresolved questions, may be empty.
-
-Keep the JSON machine-readable and avoid markdown.
-"""
-
-
 def build_messages(
     document_text: str,
     source_name: str | None = None,
@@ -38,6 +19,24 @@ def build_messages(
         "Extract evidence and return the JSON object described in the system message.\n"
         "Only include claims supported by the text."
     )
+
+    system_prompt = """
+    You are Document-Analyser, a careful assistant that extracts compliance evidence from unstructured documents
+    such as source code, security policies, and reports. Work step by step, focus on verifiable statements, and
+    prefer quoting the original phrasing where possible.
+
+    Produce a compact JSON object with these keys:
+    - document_summary: 2 sentence overview of the document content and purpose.
+    - evidence: list of up to {max_items} evidence objects. Each evidence object must contain:
+    - title: short label for the requirement, control, or claim.
+    - evidence: concise statement derived from the document.
+    - snippet: verbatim quote or text excerpt used to support the evidence (keep it short).
+    - citation: page number hint for the snippet, e.g., "Page 3". Leave empty if unknown.
+    - confidence: one of ["high", "medium", "low"] describing certainty.
+    - gaps: list of missing information or unresolved questions, may be empty.
+
+    Keep the JSON machine-readable and avoid markdown.
+    """
 
     system_prompt = SYSTEM_PROMPT.format(max_items=max_items)
 
