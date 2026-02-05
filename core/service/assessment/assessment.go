@@ -40,8 +40,6 @@ import (
 	"confirmate.io/core/util"
 
 	"github.com/google/uuid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -340,9 +338,10 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	return res, nil
 }
 
-// handleEvidence is the helper method for the actual assessment used by AssessEvidence and AssessEvidences. This will
-// also validate the resource embedded into the evidence and return an error if validation fails. In order to
-// distinguish between internal errors and validation errors, this function already returns a gRPC error.
+// handleEvidence is the helper method for the actual assessment used by AssessEvidence and
+// AssessEvidences. This will also validate the resource embedded into the evidence and return an
+// error if validation fails. In order to distinguish between internal errors and validation errors,
+// this function already returns a [connect.Error].
 func (svc *Service) handleEvidence(
 	ctx context.Context,
 	ev *evidence.Evidence,
@@ -358,7 +357,7 @@ func (svc *Service) handleEvidence(
 	)
 
 	if resource == nil {
-		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("invalid embedded resource: %v", ontology.ErrNotOntologyResource))
 	}
 
 	slog.Debug("Evaluating evidence",
@@ -374,7 +373,7 @@ func (svc *Service) handleEvidence(
 
 		go svc.informHooks(ctx, nil, newError)
 
-		return nil, status.Errorf(codes.Internal, "%v", err)
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	if err != nil {
@@ -382,7 +381,7 @@ func (svc *Service) handleEvidence(
 
 		go svc.informHooks(ctx, nil, err)
 
-		return nil, status.Errorf(codes.Internal, "%v", err)
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	if len(evaluations) == 0 {
