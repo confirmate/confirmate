@@ -64,11 +64,11 @@ func TestRelated(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				r: &ObjectStorage{
-					Id:       "some-id",
-					Name:     "some-name",
-					ParentId: util.Ref("some-storage-account-id"),
-					Raw:      "{}",
+				r: &VirtualMachine{
+					Id:              "some-id",
+					Name:            "some-name",
+					ParentId:        util.Ref("some-parent-id"),
+					BlockStorageIds: []string{"some-storage-id"},
 				},
 			},
 			want: []Relationship{
@@ -78,7 +78,7 @@ func TestRelated(t *testing.T) {
 				},
 				{
 					Property: "parent",
-					Value:    "some-storage-account-id",
+					Value:    "some-parent-id",
 				},
 			},
 		},

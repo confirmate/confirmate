@@ -18,6 +18,7 @@ package evidence
 import (
 	"testing"
 
+	"confirmate.io/core/api"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -130,7 +131,7 @@ func TestResource_ToOntologyResource(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.ErrorContains(t, err, ontology.ErrNotOntologyResource.Error())
+				return assert.ErrorContains(t, err, api.ErrNotOntologyResource.Error())
 			},
 		},
 	}

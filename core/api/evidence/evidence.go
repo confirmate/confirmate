@@ -20,6 +20,7 @@ import (
 	"reflect"
 	"strings"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/ontology"
 
 	"google.golang.org/protobuf/proto"
@@ -88,7 +89,7 @@ func (r *Resource) ToOntologyResource() (or ontology.IsResource, err error) {
 
 	or, ok = m.(ontology.IsResource)
 	if !ok {
-		return nil, ontology.ErrNotOntologyResource
+		return nil, api.ErrNotOntologyResource
 	}
 
 	return or, nil

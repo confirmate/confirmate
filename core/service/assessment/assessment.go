@@ -25,6 +25,7 @@ import (
 	"sync"
 	"time"
 
+	"confirmate.io/core/api"
 	"connectrpc.com/connect"
 
 	"confirmate.io/core/api/assessment"
@@ -358,7 +359,7 @@ func (svc *Service) handleEvidence(
 	)
 
 	if resource == nil {
-		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
+		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", api.ErrNotOntologyResource)
 	}
 
 	slog.Debug("Evaluating evidence",

@@ -1,4 +1,4 @@
-package ontology
+package api
 
 import "errors"
 
