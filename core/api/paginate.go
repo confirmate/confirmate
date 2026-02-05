@@ -20,9 +20,10 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"confirmate.io/core/util"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	"confirmate.io/core/util"
 )
 
 // PageTokenField is the protobuf field that contains our page token.

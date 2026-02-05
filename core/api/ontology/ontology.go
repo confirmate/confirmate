@@ -17,16 +17,19 @@ package ontology
 
 import (
 	"encoding/json"
+	"errors"
+	"slices"
 	"strings"
 
-	// "confirmate.io/core/internal/util"
-
-	"confirmate.io/core/util"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"confirmate.io/core/util"
 )
+
+var ErrNotOntologyResource = errors.New("protobuf message is not a valid ontology resource")
 
 type IsResource interface {
 	proto.Message
@@ -71,10 +74,10 @@ func Related(r IsResource) []Relationship {
 			v := r.ProtoReflect().Get(field)
 			if field.IsList() {
 				list := v.List()
-				for j := 0; j < list.Len(); j++ {
+				for i := 0; i < list.Len(); i++ {
 					ids = append(ids, Relationship{
 						Property: property,
-						Value:    list.Get(j).String(),
+						Value:    list.Get(i).String(),
 					})
 				}
 			} else {
@@ -124,6 +127,10 @@ func ListResourceTypes() []string {
 	return types
 }
 
+func HasType(r IsResource, typ string) bool {
+	return slices.Contains(ResourceTypes(r), typ)
+}
+
 // ResourceMap contains the properties of the resource as a map[string]any, based on its JSON representation.
 // This also does some magic to include the resource types in the special key "type".
 func ResourceMap(r IsResource) (props map[string]any, err error) {
@@ -148,6 +155,21 @@ func ResourceMap(r IsResource) (props map[string]any, err error) {
 
 	props["type"] = ResourceTypes(r)
 
+	return
+}
+
+func ToPrettyJSON(r IsResource) (s string, err error) {
+	m, err := ResourceMap(r)
+	if err != nil {
+		return "", err
+	}
+
+	b, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return "", err
+	}
+
+	s = string(b)
 	return
 }
 

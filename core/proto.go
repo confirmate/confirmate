@@ -15,6 +15,7 @@
 
 package core
 
+// //go:generate buf generate
 //go:generate buf generate --exclude-path policies
 //go:generate buf generate --template buf.openapi.gen.yaml --path api/evidence -o api/evidence
 //go:generate buf generate --template buf.openapi.gen.yaml --path api/assessment -o api/assessment
