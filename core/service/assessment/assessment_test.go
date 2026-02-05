@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"buf.build/go/protovalidate"
-	"confirmate.io/core/api"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
@@ -686,7 +685,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: assert.Nil[[]*assessment.AssessmentResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.Contains(t, err.Error(), api.ErrNotOntologyResource.Error())
+				return assert.Contains(t, err.Error(), evidence.ErrNotOntologyResource.Error())
 			},
 		},
 	}

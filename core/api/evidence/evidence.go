@@ -16,16 +16,18 @@ package evidence
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 
-	"confirmate.io/core/api"
 	"confirmate.io/core/api/ontology"
 
 	"google.golang.org/protobuf/proto"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 )
+
+var ErrNotOntologyResource = errors.New("protobuf message is not a valid ontology resource")
 
 type EvidenceHookFunc func(ctx context.Context, evidence *Evidence, err error)
 
@@ -89,7 +91,7 @@ func (r *Resource) ToOntologyResource() (or ontology.IsResource, err error) {
 
 	or, ok = m.(ontology.IsResource)
 	if !ok {
-		return nil, api.ErrNotOntologyResource
+		return nil, ErrNotOntologyResource
 	}
 
 	return or, nil
