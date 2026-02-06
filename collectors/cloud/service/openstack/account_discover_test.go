@@ -1,0 +1,175 @@
+package openstack
+
+import (
+	"testing"
+
+	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
+	"confirmate.io/collectors/cloud/internal/testdata"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
+
+	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/testhelper"
+	"github.com/gophercloud/gophercloud/v2/testhelper/client"
+)
+
+func Test_openstackCollector_collectProjects(t *testing.T) {
+	testhelper.SetupHTTP()
+	defer testhelper.TeardownHTTP()
+	openstacktest.HandleListProjectsSuccessfully(t)
+
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+		region   string
+		domain   *domain
+		project  *project
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    assert.Want[[]ontology.IsResource]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "Happy path",
+			fields: fields{
+				authOpts: &gophercloud.AuthOptions{
+					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+					Username:         testdata.MockOpenstackUsername,
+					Password:         testdata.MockOpenstackPassword,
+					TenantName:       testdata.MockOpenstackTenantName,
+				},
+				clients: clients{
+					provider: &gophercloud.ProviderClient{
+						TokenID: client.TokenID,
+						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+							return testhelper.Endpoint(), nil
+						},
+					},
+					identityClient: client.ServiceClient(),
+				},
+				region:  "test region",
+				domain:  &domain{},
+				project: &project{},
+			},
+			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
+				assert.Equal(t, 2, len(got))
+
+				want := &ontology.ResourceGroup{
+					Id:          "1234",
+					Name:        "Red Team",
+					Description: "The team that is red",
+					GeoLocation: &ontology.GeoLocation{
+						Region: "test region",
+					},
+					Labels: map[string]string{
+						"Red":  "",
+						"Team": "",
+					},
+					ParentId: util.Ref(""),
+				}
+
+				got0 := got[0].(*ontology.ResourceGroup)
+
+				assert.NotEmpty(t, got0.GetRaw())
+				got0.Raw = ""
+				return assert.Equal(t, want, got0)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+				region:   tt.fields.region,
+				domain:   tt.fields.domain,
+				project:  tt.fields.project,
+			}
+
+			gotList, err := d.collectProjects()
+
+			tt.want(t, gotList)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+func Test_openstackCollector_collectDomain(t *testing.T) {
+	testhelper.SetupHTTP()
+	defer testhelper.TeardownHTTP()
+	openstacktest.HandleListDomainsSuccessfully(t)
+
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+		domain   *domain
+		project  *project
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		wantList assert.Want[[]ontology.IsResource]
+		wantErr  assert.WantErr
+	}{
+		{
+			name: "Happy path",
+			fields: fields{
+				authOpts: &gophercloud.AuthOptions{
+					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+					Username:         testdata.MockOpenstackUsername,
+					Password:         testdata.MockOpenstackPassword,
+					TenantName:       testdata.MockOpenstackTenantName,
+				},
+				clients: clients{
+					provider: &gophercloud.ProviderClient{
+						TokenID: client.TokenID,
+						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+							return testhelper.Endpoint(), nil
+						},
+					},
+					identityClient: client.ServiceClient(),
+				},
+				domain:  &domain{},
+				project: &project{},
+			},
+			wantList: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
+				assert.Equal(t, 2, len(got))
+
+				want := &ontology.Account{
+					Id:          "2844b2a08be147a08ef58317d6471f1f",
+					Name:        "domain one",
+					Description: "some description",
+				}
+
+				got0 := got[0].(*ontology.Account)
+
+				assert.NotEmpty(t, got0.GetRaw())
+				got0.Raw = ""
+				return assert.Equal(t, want, got0)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+				domain:   tt.fields.domain,
+				project:  tt.fields.project,
+			}
+			gotList, err := d.collectDomains()
+
+			tt.wantList(t, gotList)
+			tt.wantErr(t, err)
+		})
+	}
+}

@@ -1,0 +1,323 @@
+// package openstack contains a Confirmate collector for OpenStack-based cloud environments.
+package openstack
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"os"
+
+	cloud "confirmate.io/collectors/cloud/api"
+	"confirmate.io/collectors/cloud/internal/config"
+	"confirmate.io/collectors/cloud/internal/logconfig"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+
+	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/openstack"
+	"github.com/gophercloud/gophercloud/v2/pagination"
+	"github.com/lmittmann/tint"
+)
+
+const (
+	RegionName = "OS_REGION_NAME"
+	DomainID   = "OS_PROJECT_DOMAIN_ID"
+	DomainName = "OS_USER_DOMAIN_NAME"
+)
+
+var (
+	log *slog.Logger
+
+	ErrGettingAuthOptionsFromEnv = errors.New("error getting auth options from environment")
+)
+
+type openstackCollector struct {
+	ctID     string
+	clients  clients
+	authOpts *gophercloud.AuthOptions
+	region   string
+	domain   *domain
+	project  *project
+}
+
+type domain struct {
+	domainID   string
+	domainName string
+}
+
+type project struct {
+	// It is not possible to add the OS_TENANT_ID or OS_TENANT_NAME. It results in an error: "Error authenticating with application credential: Application credentials cannot request a scope."
+	projectID   string
+	projectName string
+}
+
+type clients struct {
+	provider       *gophercloud.ProviderClient
+	identityClient *gophercloud.ServiceClient
+	computeClient  *gophercloud.ServiceClient
+	networkClient  *gophercloud.ServiceClient
+	storageClient  *gophercloud.ServiceClient
+	clusterClient  *gophercloud.ServiceClient
+}
+
+func (*openstackCollector) Name() string {
+	return "OpenStack"
+}
+
+func (*openstackCollector) Description() string {
+	return "Collector OpenStack."
+}
+
+func (d *openstackCollector) TargetOfEvaluationID() string {
+	return d.ctID
+}
+
+type CollectorOption func(d *openstackCollector)
+
+func WithTargetOfEvaluationID(ctID string) CollectorOption {
+	return func(d *openstackCollector) {
+		d.ctID = ctID
+	}
+}
+
+// WithAuthorizer is an option to set the authentication options
+func WithAuthorizer(o gophercloud.AuthOptions) CollectorOption {
+	return func(d *openstackCollector) {
+		d.authOpts = util.Ref(o)
+	}
+}
+
+func init() {
+	log = logconfig.GetLogger().With("component", "openstack-collector")
+}
+
+func NewOpenstackCollector(opts ...CollectorOption) cloud.Collector {
+	region := os.Getenv(RegionName)
+	if region == "" {
+		region = "unknown"
+	}
+
+	d := &openstackCollector{
+		ctID:   config.DefaultTargetOfEvaluationID,
+		region: os.Getenv(RegionName),
+		domain: &domain{
+			domainID:   os.Getenv(DomainID),
+			domainName: os.Getenv(DomainName),
+		},
+		// Currently, the project ID cannot be specified as an environment variable in conjunction with application credentials.
+		project: &project{},
+	}
+
+	// Apply options
+	for _, opt := range opts {
+		opt(d)
+	}
+
+	// WithAuthorizer is mandatory, since it cannot be checked directly whether WithAuthorizer was passed, we check if authOpts is set before returning the collector
+	if d.authOpts == nil {
+		return nil
+	}
+
+	return d
+}
+
+// authorize authorizes to OpenStack and asserts the following clients
+// * compute client
+// * network client
+// * block storage client
+// * identity client
+func (d *openstackCollector) authorize() (err error) {
+	if d.clients.provider == nil {
+		d.clients.provider, err = openstack.AuthenticatedClient(context.Background(), util.Deref(d.authOpts))
+		if err != nil {
+			return fmt.Errorf("error while authenticating: %w", err)
+		}
+	}
+
+	// Compute client
+	if d.clients.computeClient == nil {
+		d.clients.computeClient, err = openstack.NewComputeV2(d.clients.provider, gophercloud.EndpointOpts{
+			Region: d.region,
+		})
+		if err != nil {
+			return fmt.Errorf("could not create compute client: %w", err)
+		}
+	}
+
+	// Network client
+	if d.clients.networkClient == nil {
+		d.clients.networkClient, err = openstack.NewNetworkV2(d.clients.provider, gophercloud.EndpointOpts{
+			Region: d.region,
+		})
+		if err != nil {
+			return fmt.Errorf("could not create network client: %w", err)
+		}
+	}
+
+	// Storage client
+	if d.clients.storageClient == nil {
+		d.clients.storageClient, err = openstack.NewBlockStorageV3(d.clients.provider, gophercloud.EndpointOpts{
+			Region: d.region,
+		})
+		if err != nil {
+			return fmt.Errorf("could not create block storage client: %w", err)
+		}
+	}
+
+	// Identity client
+	if d.clients.identityClient == nil {
+		d.clients.identityClient, err = openstack.NewIdentityV3(d.clients.provider, gophercloud.EndpointOpts{
+			Region: d.region,
+		})
+		if err != nil {
+			return fmt.Errorf("could not create identity client: %w", err)
+		}
+	}
+
+	// Cluster client
+	if d.clients.clusterClient == nil {
+		d.clients.clusterClient, err = openstack.NewContainerInfraV1(d.clients.provider, gophercloud.EndpointOpts{
+			Region: d.region,
+		})
+		if err != nil {
+			return fmt.Errorf("could not create cluster client: %w", err)
+		}
+	}
+
+	return
+}
+
+func NewAuthorizer() (gophercloud.AuthOptions, error) {
+	ao, err := openstack.AuthOptionsFromEnv()
+	if err != nil {
+		log.Error(ErrGettingAuthOptionsFromEnv.Error(), "err", err)
+	}
+
+	ao.AllowReauth = true // Allow re-authentication if the token expires
+	return ao, err
+
+}
+
+// List collects the following OpenStack resource types and translates them into the CSC Hub Ontology:
+// * Servers
+// * Network interfaces
+// * Block storages
+// * Domains
+// * Projects
+func (d *openstackCollector) List() (list []ontology.IsResource, err error) {
+	var (
+		servers  []ontology.IsResource
+		networks []ontology.IsResource
+		storages []ontology.IsResource
+		projects []ontology.IsResource
+		domains  []ontology.IsResource
+		clusters []ontology.IsResource
+	)
+
+	if err = d.authorize(); err != nil {
+		log.Error("could not authorize openstack", tint.Err(err))
+		return nil, fmt.Errorf("could not authorize openstack: %w", err)
+	}
+
+	// Collect servers
+	servers, err = d.collectServer()
+	if err != nil {
+		log.Error("could not collect servers", tint.Err(err))
+	}
+	list = append(list, servers...)
+
+	// Collect network interfaces
+	networks, err = d.collectNetworkInterfaces()
+	if err != nil {
+		log.Error("could not collect network interfaces", tint.Err(err))
+	}
+	list = append(list, networks...)
+
+	// Collect block storage
+	storages, err = d.collectBlockStorage()
+	if err != nil {
+		log.Error("could not collect block storage", tint.Err(err))
+	}
+	list = append(list, storages...)
+
+	// Collect clusters
+	clusters, err = d.collectCluster()
+	if err != nil {
+		log.Error("could not collect clusters", tint.Err(err))
+	}
+	list = append(list, clusters...)
+
+	// Collect project resources
+	projects, err = d.collectProjects()
+	if err != nil {
+		log.Error("could not collect projects/tenants", tint.Err(err))
+	}
+	list = append(list, projects...)
+
+	// Collect domains resource
+	domains, err = d.collectDomains()
+	if err != nil {
+		log.Error("could not collect domains", tint.Err(err))
+	}
+	list = append(list, domains...)
+
+	return list, nil
+}
+
+type ClientFunc func() (*gophercloud.ServiceClient, error)
+type ListFunc[O any] func(client *gophercloud.ServiceClient, opts O) pagination.Pager
+type HandlerFunc[T any, R ontology.IsResource] func(in *T) (r R, err error)
+type ExtractorFunc[T any] func(r pagination.Page) ([]T, error)
+
+// genericList is a function leveraging type parameters that takes care of listing OpenStack
+// resources using a
+// - ClientFunc, which returns the needed client,
+// - a ListFunc l, which returns paginated results,
+// - a handler which converts them into an appropriate CSC Hub Ontology object,
+// - an extractor that extracts the results into gophercloud specific objects and
+// - optional options
+func genericList[T any, O any, R ontology.IsResource](d *openstackCollector,
+	clientGetter ClientFunc,
+	l ListFunc[O],
+	handler HandlerFunc[T, R],
+	extractor ExtractorFunc[T],
+	opts O,
+) (list []ontology.IsResource, err error) {
+	client, err := clientGetter()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get client: %w", err)
+	}
+
+	err = l(client, opts).EachPage(context.Background(), func(_ context.Context, p pagination.Page) (bool, error) {
+		x, err := extractor(p)
+
+		if err != nil {
+			return false, fmt.Errorf("could not extract items from paginated result: %w", err)
+		}
+
+		// Check if project/tenant ID is already stored
+		if d.project.projectID == "" {
+			d.setProjectInfo(x)
+		}
+
+		for _, s := range x {
+			r, err := handler(&s)
+			if err != nil {
+				return false, fmt.Errorf("could not convert into CSC Hub ontology: %w", err)
+			}
+
+			log.Debug("Adding resource", slog.Any("resource", s))
+
+			list = append(list, r)
+		}
+
+		return true, nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("could not list resources: %w", err)
+	}
+
+	return
+}

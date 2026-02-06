@@ -1,0 +1,120 @@
+package openstack
+
+import (
+	"testing"
+	"time"
+
+	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
+	"confirmate.io/collectors/cloud/internal/testdata"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
+
+	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/openstack/containerinfra/v1/clusters"
+	"github.com/gophercloud/gophercloud/v2/testhelper"
+	"github.com/gophercloud/gophercloud/v2/testhelper/client"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func Test_openstackCollector_handleCluster(t *testing.T) {
+	testhelper.SetupHTTP()
+	defer testhelper.TeardownHTTP()
+	openstacktest.HandleListClusterSuccessfully(t)
+
+	t1, err := time.Parse(time.RFC3339, "2014-09-25T13:10:02Z")
+	assert.NoError(t, err)
+
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+		region   string
+		domain   *domain
+		project  *project
+	}
+	type args struct {
+		cluster *clusters.Cluster
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[ontology.IsResource]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "Happy path",
+			fields: fields{
+				authOpts: &gophercloud.AuthOptions{
+					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+					Username:         testdata.MockOpenstackUsername,
+					Password:         testdata.MockOpenstackPassword,
+					TenantName:       testdata.MockOpenstackTenantName,
+				},
+				clients: clients{
+					provider: &gophercloud.ProviderClient{
+						TokenID: client.TokenID,
+						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+							return testhelper.Endpoint(), nil
+						},
+					},
+					clusterClient: client.ServiceClient(),
+				},
+				region: "test region",
+			},
+			args: args{
+				cluster: &clusters.Cluster{
+					UUID:      "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
+					Name:      "test-cluster",
+					CreatedAt: t1,
+					ProjectID: "fcad67a6189847c4aecfa3c81a05783b",
+					Labels: map[string]string{
+						"label1": "value1",
+						"label2": "value2",
+					},
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				assert.NotEmpty(t, got)
+
+				want := &ontology.ContainerOrchestration{
+					Id:           "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
+					Name:         "test-cluster",
+					CreationTime: timestamppb.New(t1),
+					GeoLocation: &ontology.GeoLocation{
+						Region: "test region",
+					},
+					Labels: map[string]string{
+						"label1": "value1",
+						"label2": "value2",
+					},
+					ParentId: util.Ref("fcad67a6189847c4aecfa3c81a05783b"),
+				}
+
+				gotNew := got.(*ontology.ContainerOrchestration)
+
+				assert.NotEmpty(t, gotNew.GetRaw())
+				gotNew.Raw = ""
+				return assert.Equal(t, want, gotNew)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+				region:   tt.fields.region,
+				domain:   tt.fields.domain,
+				project:  tt.fields.project,
+			}
+			got, err := d.handleCluster(tt.args.cluster)
+
+			tt.want(t, got)
+			tt.wantErr(t, err)
+		})
+	}
+}

@@ -1,0 +1,243 @@
+package openstack
+
+import (
+	"testing"
+
+	"confirmate.io/core/util/assert"
+	"github.com/gophercloud/gophercloud/v2"
+)
+
+func Test_openstackCollector_identityClient(t *testing.T) {
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		wantClient assert.Want[*gophercloud.ServiceClient]
+		wantErr    assert.WantErr
+	}{
+		{
+			name:       "identityClient not initialized",
+			wantClient: assert.Nil[*gophercloud.ServiceClient],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "identity client not initialized")
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				clients: clients{
+					identityClient: &gophercloud.ServiceClient{},
+				},
+			},
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+			}
+			gotClient, err := d.identityClient()
+
+			tt.wantClient(t, gotClient)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+func Test_openstackCollector_computeClient(t *testing.T) {
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		wantClient assert.Want[*gophercloud.ServiceClient]
+		wantErr    assert.WantErr
+	}{
+		{
+			name:       "computeClient not initialized",
+			wantClient: assert.Nil[*gophercloud.ServiceClient],
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "compute client not initialized")
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				clients: clients{
+					computeClient: &gophercloud.ServiceClient{},
+				},
+			},
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+			}
+			gotClient, err := d.computeClient()
+
+			tt.wantClient(t, gotClient)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+func Test_openstackCollector_networkClient(t *testing.T) {
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		wantClient assert.Want[*gophercloud.ServiceClient]
+		wantErr    assert.WantErr
+	}{
+		{
+			name:       "networkClient not initialized",
+			wantClient: assert.Nil[*gophercloud.ServiceClient],
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "network client not initialized")
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				clients: clients{
+					networkClient: &gophercloud.ServiceClient{},
+				},
+			},
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+			}
+			gotClient, err := d.networkClient()
+
+			tt.wantClient(t, gotClient)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+func Test_openstackCollector_storageClient(t *testing.T) {
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		wantClient assert.Want[*gophercloud.ServiceClient]
+		wantErr    assert.WantErr
+	}{
+		{
+			name:       "storageClient not initialized",
+			wantClient: assert.Nil[*gophercloud.ServiceClient],
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "storage client not initialized")
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				clients: clients{
+					storageClient: &gophercloud.ServiceClient{},
+				},
+			},
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+			}
+			gotClient, err := d.storageClient()
+
+			tt.wantClient(t, gotClient)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
+func Test_openstackCollector_clusterClient(t *testing.T) {
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		wantClient assert.Want[*gophercloud.ServiceClient]
+		wantErr    assert.WantErr
+	}{
+		{
+			name:       "clusterClient not initialized",
+			wantClient: assert.Nil[*gophercloud.ServiceClient],
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "cluster client not initialized")
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				clients: clients{
+					clusterClient: &gophercloud.ServiceClient{},
+				},
+			},
+			wantClient: func(t *testing.T, got *gophercloud.ServiceClient, msgAndArgs ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+			}
+			gotClient, err := d.clusterClient()
+
+			tt.wantClient(t, gotClient)
+			tt.wantErr(t, err)
+		})
+	}
+}

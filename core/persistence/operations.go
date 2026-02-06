@@ -200,7 +200,7 @@ func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
 }
 
 // ================================================================================================
-// Query Options
+// Query options and other helpers
 // ================================================================================================
 
 // QueryOption is a condition that can be passed to the CRUD functions for customizing the query.
@@ -221,4 +221,10 @@ func WithPreload(query string, args ...any) QueryOption {
 // are used, otherwise Gorm will throw errors.
 func WithoutPreload() QueryOption {
 	return &preload{query: ""}
+}
+
+// BuildConds prepares the conds used in [Storage.List] out of arrays of query and args.
+func BuildConds(query []string, args []any) (conds []any) {
+	conds = append([]any{strings.Join(query, " AND ")}, args...)
+	return
 }
