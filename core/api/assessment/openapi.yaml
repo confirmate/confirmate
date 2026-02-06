@@ -72,9 +72,7 @@ components:
                 resource:
                     allOf:
                         - $ref: '#/components/schemas/Resource'
-                    description: |-
-                        Semantic representation of the Cloud resource according to our defined
-                         ontology
+                    description: Semantic representation of the Cloud resource according to our defined ontology
                 experimentalRelatedResourceIds:
                     type: array
                     items:

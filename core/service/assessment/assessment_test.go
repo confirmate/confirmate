@@ -685,7 +685,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: assert.Nil[[]*assessment.AssessmentResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.Contains(t, err.Error(), ontology.ErrNotOntologyResource.Error())
+				return assert.Contains(t, err.Error(), evidence.ErrNotOntologyResource.Error())
 			},
 		},
 	}
@@ -1134,9 +1134,6 @@ func TestService_MetricImplementation(t *testing.T) {
 
 // TestService_MetricConfiguration tests the MetricConfiguration() method including caching
 func TestService_MetricConfiguration(t *testing.T) {
-	type fields struct {
-		db persistence.DB
-	}
 	tests := []struct {
 		name           string
 		toeID          string

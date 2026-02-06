@@ -17,8 +17,6 @@ package ontology
 
 import (
 	"encoding/json"
-	"errors"
-	"slices"
 	"strings"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -28,8 +26,6 @@ import (
 
 	"confirmate.io/core/util"
 )
-
-var ErrNotOntologyResource = errors.New("protobuf message is not a valid ontology resource")
 
 type IsResource interface {
 	proto.Message
@@ -108,9 +104,10 @@ func ResourceTypes(r IsResource) []string {
 
 // ListResourceTypes returns a list of resource types that are supported by the ontology.
 func ListResourceTypes() []string {
-	var types []string
-
-	var resource Resource
+	var (
+		types    []string
+		resource Resource
+	)
 
 	// Accessing the descriptor of the resource message.
 	md := resource.ProtoReflect().Descriptor()
@@ -124,10 +121,6 @@ func ListResourceTypes() []string {
 	}
 
 	return types
-}
-
-func HasType(r IsResource, typ string) bool {
-	return slices.Contains(ResourceTypes(r), typ)
 }
 
 // ResourceMap contains the properties of the resource as a map[string]any, based on its JSON representation.
@@ -154,21 +147,6 @@ func ResourceMap(r IsResource) (props map[string]any, err error) {
 
 	props["type"] = ResourceTypes(r)
 
-	return
-}
-
-func ToPrettyJSON(r IsResource) (s string, err error) {
-	m, err := ResourceMap(r)
-	if err != nil {
-		return "", err
-	}
-
-	b, err := json.MarshalIndent(m, "", "  ")
-	if err != nil {
-		return "", err
-	}
-
-	s = string(b)
 	return
 }
 

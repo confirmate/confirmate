@@ -114,7 +114,6 @@ require github.com/open-policy-agent/opa v1.12.1
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-
 replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260129104154-5b108a47b09b
 
 replace cloud.google.com/go => cloud.google.com/go v0.115.0

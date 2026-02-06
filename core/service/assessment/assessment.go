@@ -358,7 +358,7 @@ func (svc *Service) handleEvidence(
 	)
 
 	if resource == nil {
-		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
+		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", evidence.ErrNotOntologyResource)
 	}
 
 	slog.Debug("Evaluating evidence",

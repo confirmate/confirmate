@@ -20,11 +20,11 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
+
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestResourceTypes(t *testing.T) {
@@ -64,17 +64,21 @@ func TestRelated(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				r: &ObjectStorage{
-					Id:       "some-id",
-					Name:     "some-name",
-					ParentId: util.Ref("some-storage-account-id"),
-					Raw:      "{}",
+				r: &VirtualMachine{
+					Id:              "some-id",
+					Name:            "some-name",
+					ParentId:        util.Ref("some-parent-id"),
+					BlockStorageIds: []string{"some-storage-id"},
 				},
 			},
 			want: []Relationship{
 				{
+					Property: "block_storage",
+					Value:    "some-storage-id",
+				},
+				{
 					Property: "parent",
-					Value:    "some-storage-account-id",
+					Value:    "some-parent-id",
 				},
 			},
 		},
@@ -99,7 +103,11 @@ func TestRelated(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := Related(tt.args.r)
-			assert.Equal(t, tt.want, got)
+
+			assert.Equal(t, len(tt.want), len(got))
+			for _, rel := range tt.want {
+				assert.Contains(t, got, rel)
+			}
 		})
 	}
 }
@@ -158,7 +166,7 @@ func TestResourceMap(t *testing.T) {
 
 				return assert.Equal(t, want, got)
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 	}
 	for _, tt := range tests {
@@ -265,4 +273,24 @@ func TestListResourceTypes(t *testing.T) {
 			tt.want(t, got)
 		})
 	}
+}
+
+func TestResourceJSONRoundTrip(t *testing.T) {
+	want := &Resource{
+		Type: &Resource_VirtualMachine{
+			VirtualMachine: &VirtualMachine{
+				Id:   "vm-1",
+				Name: "vm-name",
+			},
+		},
+	}
+
+	data, err := want.MarshalJSON()
+	assert.NoError(t, err)
+
+	got := new(Resource)
+	err = got.UnmarshalJSON(data)
+	assert.NoError(t, err)
+
+	assert.Equal(t, want, got)
 }
