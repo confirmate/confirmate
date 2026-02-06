@@ -17,8 +17,9 @@ package server
 
 // DefaultConfig is the default configuration for the [Server].
 var DefaultConfig = Config{
-	Port: 8080,
-	Path: "/",
+	Port:     8080,
+	Path:     "/",
+	LogLevel: "INFO",
 	CORS: CORS{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -28,9 +29,10 @@ var DefaultConfig = Config{
 
 // Config represents the configuration for the [Server].
 type Config struct {
-	Port uint16
-	Path string
-	CORS CORS
+	Port     uint16
+	Path     string
+	LogLevel string
+	CORS     CORS
 }
 
 // CORS represents the CORS configuration for the server.

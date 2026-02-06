@@ -24,8 +24,8 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util/assert"
+
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/proto"
 )
 
 func TestHandleDatabaseError(t *testing.T) {
@@ -58,6 +58,28 @@ func TestHandleDatabaseError(t *testing.T) {
 			},
 		},
 		{
+			name: "unique constraint error",
+			args: args{
+				err:          persistence.ErrUniqueConstraintFailed,
+				notFoundErrs: []error{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeAlreadyExists, cErr.Code())
+			},
+		},
+		{
+			name: "constraint error",
+			args: args{
+				err:          persistence.ErrConstraintFailed,
+				notFoundErrs: []error{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				cErr := assert.Is[*connect.Error](t, err)
+				return assert.Equal(t, connect.CodeInvalidArgument, cErr.Code())
+			},
+		},
+		{
 			name: "other error",
 			args: args{
 				err:          io.EOF,
@@ -79,7 +101,7 @@ func TestHandleDatabaseError(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	type args struct {
-		req proto.Message
+		req *connect.Request[orchestrator.CreateMetricRequest]
 	}
 	tests := []struct {
 		name    string
@@ -89,21 +111,22 @@ func TestValidate(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				req: &orchestrator.CreateMetricRequest{
+				req: connect.NewRequest(&orchestrator.CreateMetricRequest{
 					Metric: &assessment.Metric{
-						Id:          "metric-1",
+						Id:          "ff976ec9-e36d-43a1-b6d8-1dc8b4749619",
+						Name:        "Test Metric",
 						Description: "Test Metric",
-						Version:     "1.0.0",
+						Version:     "v1",
 						Category:    "awesome",
 					},
-				},
+				}),
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			name: "nil request",
+			name: "nil request message",
 			args: args{
-				req: nil,
+				req: connect.NewRequest[orchestrator.CreateMetricRequest](nil),
 			},
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				cErr := assert.Is[*connect.Error](t, err)
@@ -113,11 +136,11 @@ func TestValidate(t *testing.T) {
 		{
 			name: "invalid request",
 			args: args{
-				req: &orchestrator.CreateMetricRequest{
+				req: connect.NewRequest(&orchestrator.CreateMetricRequest{
 					Metric: &assessment.Metric{
 						Id: "", // Missing required field
 					},
-				},
+				}),
 			},
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				cErr := assert.Is[*connect.Error](t, err)

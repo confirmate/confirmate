@@ -55,7 +55,7 @@ func TestPaginateSlice(t *testing.T) {
 			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAIQAg==", got)
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "next page",
@@ -73,7 +73,7 @@ func TestPaginateSlice(t *testing.T) {
 			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAQQAg==", got)
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "last page",
@@ -91,7 +91,7 @@ func TestPaginateSlice(t *testing.T) {
 			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "", got)
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "empty slice",
@@ -107,7 +107,7 @@ func TestPaginateSlice(t *testing.T) {
 				return assert.Equal(t, []int{}, got)
 			},
 			wantNbt: assert.Empty[string],
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "invalid page token",
@@ -139,7 +139,7 @@ func TestPaginateSlice(t *testing.T) {
 				return assert.Equal(t, []int{}, got)
 			},
 			wantNbt: assert.Empty[string],
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "zero page size uses default",
@@ -158,7 +158,7 @@ func TestPaginateSlice(t *testing.T) {
 			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAMQAw==", got) // Start=3, Size=3
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 	}
 
@@ -176,7 +176,7 @@ func TestPaginateSlice(t *testing.T) {
 func TestPaginateStorage(t *testing.T) {
 	type args struct {
 		req   api.PaginatedRequest
-		db    *persistence.DB
+		db    persistence.DB
 		opts  PaginationOpts
 		conds []interface{}
 	}
@@ -194,7 +194,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "",
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -213,7 +213,7 @@ func TestPaginateStorage(t *testing.T) {
 			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAIQAg==", got)
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "next page",
@@ -222,7 +222,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "CAIQAg==",
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -241,7 +241,7 @@ func TestPaginateStorage(t *testing.T) {
 			wantNbt: func(t *testing.T, got string, _ ...any) bool {
 				return assert.Equal(t, "CAQQAg==", got)
 			},
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "last page",
@@ -250,7 +250,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "CAQQAg==",
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -265,7 +265,7 @@ func TestPaginateStorage(t *testing.T) {
 				return assert.Equal(t, want, got)
 			},
 			wantNbt: assert.Empty[string],
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "empty database",
@@ -281,7 +281,7 @@ func TestPaginateStorage(t *testing.T) {
 				return assert.Equal(t, []orchestrator.TargetOfEvaluation{}, got)
 			},
 			wantNbt: assert.Empty[string],
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 		{
 			name: "invalid page token",
@@ -306,7 +306,7 @@ func TestPaginateStorage(t *testing.T) {
 					PageSize:  2,
 					PageToken: "CBoQAg==", // Start=26, Size=2 (beyond 5 records)
 				},
-				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db *persistence.DB) {
+				db: persistencetest.NewInMemoryDB(t, []any{orchestrator.TargetOfEvaluation{}}, nil, func(db persistence.DB) {
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "1"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "2"}))
 					assert.NoError(t, db.Create(&orchestrator.TargetOfEvaluation{Id: "3"}))
@@ -319,7 +319,7 @@ func TestPaginateStorage(t *testing.T) {
 				return assert.Equal(t, []orchestrator.TargetOfEvaluation{}, got)
 			},
 			wantNbt: assert.Empty[string],
-			wantErr: assert.Nil[error],
+			wantErr: assert.NoError,
 		},
 	}
 

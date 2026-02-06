@@ -18,21 +18,83 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"runtime/debug"
+	"sync"
+	"time"
 
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// orch implements the Orchestrator orch handler (see
+// Service implements the Orchestrator Service handler (see
 // [orchestratorconnect.OrchestratorHandler]).
-type orch struct {
+type Service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	db *persistence.DB
+	db  persistence.DB
+	cfg Config
+
+	// subscribers is a map of subscribers for change events
+	subscribers      map[int64]*subscriber
+	subscribersMutex sync.RWMutex
+
+	nextSubscriberId int64
+}
+
+type subscriber struct {
+	ch     chan *orchestrator.ChangeEvent
+	filter *orchestrator.SubscribeRequest_Filter
+}
+
+// DefaultConfig is the default configuration for the orchestrator [Service].
+var DefaultConfig = Config{
+	DefaultCatalogsPath:             "./policies/security-metrics/catalogs",
+	DefaultMetricsPath:              "./policies/security-metrics/metrics",
+	CreateDefaultTargetOfEvaluation: true,
+	LoadDefaultCatalogs:             true,
+	LoadDefaultMetrics:              true,
+}
+
+// Config represents the configuration for the orchestrator [Service].
+type Config struct {
+	// DefaultCatalogsPath is the path where default catalogs are stored.
+	DefaultCatalogsPath string
+	// LoadDefaultCatalogs controls whether to load default catalogs from
+	// [Config.DefaultCatalogsPath].
+	LoadDefaultCatalogs bool
+	// LoadCatalogsFunc is an optional function to load additional catalogs at service start. This
+	// function is called in addition to loading from [Config.DefaultCatalogsPath] (if enabled).
+	LoadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
+
+	// DefaultMetricsPath is the path containing default metrics (e.g., security-metrics
+	// repository).
+	DefaultMetricsPath string
+	// LoadDefaultMetrics controls whether to load default metrics from [Config.DefaultMetricsPath].
+	LoadDefaultMetrics bool
+	// LoadMetricsFunc is an optional function to load additional metrics at service start. This
+	// function is called in addition to loading from [Config.DefaultMetricsPath] (if enabled).
+	LoadMetricsFunc func(*Service) ([]*assessment.Metric, error)
+
+	// CreateDefaultTargetOfEvaluation controls whether to create a default target of evaluation.
+	CreateDefaultTargetOfEvaluation bool
+
+	// PersistenceConfig is the configuration for the persistence layer. If not set, defaults will be used.
+	PersistenceConfig persistence.Config
+}
+
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
+	return func(svc *Service) {
+		svc.cfg = cfg
+	}
 }
 
 // NewService creates a new orchestrator service and returns a
@@ -40,97 +102,88 @@ type orch struct {
 //
 // It initializes the database with auto-migration for the required types and sets up the necessary
 // join tables.
-func NewService() (orchestratorconnect.OrchestratorHandler, error) {
+func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.OrchestratorHandler, err error) {
 	var (
-		svc = &orch{}
-		err error
+		svc = &Service{
+			cfg: DefaultConfig,
+		}
 	)
 
+	for _, o := range opts {
+		o(svc)
+	}
+
 	// Initialize the database with the defined auto-migration types and join tables
-	svc.db, err = persistence.NewDB(
-		persistence.WithAutoMigration(types...),
-		persistence.WithSetupJoinTable(joinTables...))
+	pcfg := svc.cfg.PersistenceConfig
+	pcfg.Types = types
+	pcfg.CustomJoinTables = joinTables
+	svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 	if err != nil {
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}
 
-	// Create a sample TargetOfEvaluation entry. This will be removed later.
-	err = svc.db.Create(&orchestrator.TargetOfEvaluation{
-		Id:   "1",
-		Name: "TOE1",
-	})
-	if err != nil {
-		return nil, fmt.Errorf("could not create TOE: %w", err)
+	// Initialize subscribers map
+	svc.subscribers = make(map[int64]*subscriber)
+
+	// Load catalogs and metrics (log errors but continue - they're not critical for service startup)
+	if err = svc.loadCatalogs(); err != nil {
+		slog.Warn("Could not load catalogs, continuing with empty catalog list", log.Err(err))
 	}
 
-	return svc, nil
+	if err = svc.loadMetrics(); err != nil {
+		slog.Warn("Could not load metrics, continuing with empty metric list", log.Err(err))
+	}
+
+	// Create default target of evaluation if enabled and none exists
+	if svc.cfg.CreateDefaultTargetOfEvaluation {
+		if _, err = svc.CreateDefaultTargetOfEvaluation(); err != nil {
+			return nil, fmt.Errorf("could not create default target of evaluation: %w", err)
+		}
+	}
+
+	handler = svc
+	return
 }
 
-// ListTargetsOfEvaluation lists all targets of evaluation.
-func (svc *orch) ListTargetsOfEvaluation(
+// GetRuntimeInfo returns runtime information about the orchestrator service.
+func (svc *Service) GetRuntimeInfo(
 	ctx context.Context,
-	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
-) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
+	req *connect.Request[common.GetRuntimeInfoRequest],
+) (res *connect.Response[common.Runtime], err error) {
 	var (
-		toes []*orchestrator.TargetOfEvaluation
+		runtime = &common.Runtime{}
+		info    *debug.BuildInfo
+		ok      bool
 	)
 
-	// Validate request
-	err = service.Validate(req.Msg)
-	if err != nil {
+	// Validate the request
+	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	err = svc.db.List(&toes, "name", true, 0, -1, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
+	if info, ok = debug.ReadBuildInfo(); ok {
+		runtime.GolangVersion = info.GoVersion
+		runtime.Vcs = "git"
+
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				runtime.CommitHash = setting.Value
+			case "vcs.time":
+				if t, err := time.Parse(time.RFC3339, setting.Value); err == nil {
+					runtime.CommitTime = timestamppb.New(t)
+				}
+			}
+		}
+
+		for _, dep := range info.Deps {
+			runtime.Dependencies = append(runtime.Dependencies, &common.Dependency{
+				Path:    dep.Path,
+				Version: dep.Version,
+			})
+		}
 	}
 
-	res = connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
-		TargetsOfEvaluation: toes,
-	})
+	res = connect.NewResponse(runtime)
 	return
-}
-
-func (svc *orch) ListAssessmentResults(
-	ctx context.Context,
-	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
-) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
-	var (
-		results []*assessment.AssessmentResult
-	)
-
-	err = svc.db.List(&results, "createdAt", true, 0, -1, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query targets of evaluation: %w", err)
-	}
-
-	res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
-		Results: results,
-	})
-	return
-}
-
-func (svc *orch) StoreAssessmentResults(
-	ctx context.Context,
-	req *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
-) error {
-	for {
-		msg, err := req.Receive()
-		if err != nil {
-			return err
-		}
-
-		// Store the assessment result in the database
-		err = svc.db.Create(msg.Result)
-		if err != nil {
-			return fmt.Errorf("failed to store assessment result: %w", err)
-		}
-
-		// Send an acknowledgment response
-		err = req.Send(&orchestrator.StoreAssessmentResultsResponse{Status: true})
-		if err != nil {
-			return err
-		}
-	}
 }

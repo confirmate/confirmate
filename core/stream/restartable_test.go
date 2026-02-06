@@ -27,6 +27,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
@@ -69,7 +70,16 @@ func (m *mockBidiStream[Req, Res]) CloseResponse() error {
 // TestRestartableBidiStream_RetryCount tests retry counting using integration test setup.
 func TestRestartableBidiStream_RetryCount(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	if err != nil {
 		t.Fatalf("Failed to create service: %v", err)
 	}
@@ -106,7 +116,16 @@ func TestRestartableBidiStream_RetryCount(t *testing.T) {
 // TestRestartableBidiStream_Close tests proper cleanup on close.
 func TestRestartableBidiStream_Close(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
@@ -149,7 +168,16 @@ func TestRestartableBidiStream_Close(t *testing.T) {
 // TestRestartableBidiStream_ContextCancellation tests behavior when context is cancelled.
 func TestRestartableBidiStream_ContextCancellation(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
@@ -205,7 +233,16 @@ func TestRestartConfig_Defaults(t *testing.T) {
 // TestRestartableBidiStream_MaxRetriesExceeded tests that retries stop after max attempts.
 func TestRestartableBidiStream_MaxRetriesExceeded(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
@@ -309,7 +346,16 @@ func TestRestartableBidiStream_ExponentialBackoff(t *testing.T) {
 // TestRestartableBidiStream_ConcurrentOperations tests thread safety.
 func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
@@ -359,7 +405,16 @@ func TestRestartableBidiStream_ConcurrentOperations(t *testing.T) {
 // TestRestartableBidiStream_SendAfterClose tests error handling when sending after close.
 func TestRestartableBidiStream_SendAfterClose(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,
@@ -395,7 +450,16 @@ func TestRestartableBidiStream_SendAfterClose(t *testing.T) {
 // TestRestartableBidiStream_ReceiveAfterClose tests error handling when receiving after close.
 func TestRestartableBidiStream_ReceiveAfterClose(t *testing.T) {
 	// Create a test server for proper stream creation
-	svc, err := orchestratorsvc.NewService()
+	svc, err := orchestratorsvc.NewService(
+		orchestratorsvc.WithConfig(orchestratorsvc.Config{
+			PersistenceConfig: persistence.Config{
+				InMemoryDB: true,
+			},
+			CreateDefaultTargetOfEvaluation: false,
+			LoadDefaultCatalogs:             false,
+			LoadDefaultMetrics:              false,
+		}),
+	)
 	assert.NoError(t, err)
 
 	_, testSrv := servertest.NewTestConnectServer(t,

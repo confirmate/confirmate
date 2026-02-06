@@ -1,0 +1,52 @@
+// Copyright 2016-2025 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
+package commands_test
+
+import (
+	"testing"
+
+	"confirmate.io/core/cli/commandstest"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
+	"confirmate.io/core/util/assert"
+)
+
+func TestTargetsCommands(t *testing.T) {
+	t.Run("list", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "targets", "list")
+		assert.NoError(t, err)
+		assert.Contains(t, output, orchestratortest.MockToeId1)
+		assert.Contains(t, output, orchestratortest.MockToeId2)
+	})
+
+	t.Run("get", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "targets", "get", orchestratortest.MockToeId1)
+		assert.NoError(t, err)
+		assert.Contains(t, output, orchestratortest.MockToeId1)
+	})
+
+	t.Run("stats", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "targets", "stats", orchestratortest.MockToeId1)
+		assert.NoError(t, err)
+		assert.Contains(t, output, "numberOfAssessmentResults")
+		assert.Contains(t, output, "\"numberOfAssessmentResults\": \"1\"")
+	})
+
+	t.Run("remove", func(t *testing.T) {
+		output, err := commandstest.RunCLI(t, "targets", "remove", orchestratortest.MockToeId2)
+		assert.NoError(t, err)
+		assert.Contains(t, output, "Target "+orchestratortest.MockToeId2+" deleted successfully")
+	})
+}

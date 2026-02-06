@@ -1,3 +1,17 @@
+// Copyright 2025 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 syntax = "proto3";
 
 package confirmate.assessment.v1;
@@ -11,6 +25,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
+import "api/assessment/result.proto";
 
 option go_package = "confirmate.io/core/api/assessment";
 
@@ -46,13 +61,6 @@ message AssessEvidenceRequest {
   confirmate.evidence.v1.Evidence evidence = 1 [(buf.validate.field).required = true];
 }
 
-enum AssessmentStatus {
-  ASSESSMENT_STATUS_UNSPECIFIED = 0;
-  ASSESSMENT_STATUS_WAITING_FOR_RELATED = 1;
-  ASSESSMENT_STATUS_ASSESSED = 2;
-  ASSESSMENT_STATUS_FAILED = 3;
-}
-
 // AssessEvidenceResponse belongs to AssessEvidence, which uses a custom unary
 // RPC and therefore requires a response message according to the style
 // convention. Since no return values are required, this is empty.
@@ -68,134 +76,4 @@ message AssessEvidencesResponse {
   AssessmentStatus status = 1;
 
   string status_message = 2;
-}
-
-// A result resource, representing the result after assessing the cloud resource
-// with id resource_id.
-message AssessmentResult {
-  // Assessment result id
-  string id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Time of assessment
-  google.protobuf.Timestamp created_at = 2 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Reference to the metric the assessment was based on
-  string metric_id = 3 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Data corresponding to the metric by the given metric id
-  confirmate.assessment.v1.MetricConfiguration metric_configuration = 4 [
-    (tagger.tags) = "gorm:\"serializer:json\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Compliant case: true or false
-  bool compliant = 5;
-
-  // Reference to the last assessed evidence
-  string evidence_id = 6 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Reference to the resource of the assessed evidence
-  string resource_id = 7 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Resource types
-  repeated string resource_types = 8 [
-    (tagger.tags) = "gorm:\"serializer:json\"",
-    (buf.validate.field).repeated.min_items = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // ComplianceComment contains a human readable description on the reason for (non)-compliance.
-  string compliance_comment = 9 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // ComplianceDetails contains machine-readable details about which comparisons lead to a (non)-compliance.
-  repeated ComparisonResult compliance_details = 10 [(tagger.tags) = "gorm:\"serializer:json\""];
-
-  // The target of evaluation which this assessment result belongs to
-  string target_of_evaluation_id = 20 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Reference to the tool which provided the assessment result
-  optional string tool_id = 21 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The time of the last update of the assessment result history field
-  google.protobuf.Timestamp history_updated_at = 22 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Stores the history of evidence IDs and timestamps for evidence that have the same content as the evidence used for this assessment result.
-  repeated Record history = 23 [
-    (tagger.tags) = "gorm:\"serializer:json;constraint:OnDelete:CASCADE\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
-// An optional structure containing more details how a comparison inside an assessment result was done and if it was successful.
-message ComparisonResult {
-  // Property is the property that was compared
-  string property = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Value is the value in the property
-  google.protobuf.Value value = 2 [
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Operator is the operator used in the comparison
-  string operator = 3 [
-    (buf.validate.field).string.pattern = "^(<|>|<=|>=|==|isIn|allIn)$",
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // TargetValue is the target value used in the comparison
-  google.protobuf.Value target_value = 4 [
-    (tagger.tags) = "gorm:\"serializer:json\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // Success is true, if the comparison was successful
-  bool success = 5 [(google.api.field_behavior) = REQUIRED];
-}
-
-message Record {
-  string evidence_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  google.protobuf.Timestamp evidence_recorded_at = 2 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
 }

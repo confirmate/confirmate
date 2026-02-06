@@ -33,7 +33,7 @@ import (
 //
 // If a constraint violation occurs, it returns [ErrUniqueConstraintFailed] or
 // [ErrConstraintFailed], depending on the error message.
-func (s *DB) Create(r any) (err error) {
+func (s *gormDB) Create(r any) (err error) {
 	err = s.DB.Create(r).Error
 
 	if err != nil && (strings.Contains(err.Error(), "constraint failed: UNIQUE constraint failed") ||
@@ -49,8 +49,8 @@ func (s *DB) Create(r any) (err error) {
 }
 
 // Save attempts to save the given record to the database, applying optional conditions for
-// filtering. If a constraint violation occurs, it returns ErrConstraintFailed.
-func (s *DB) Save(r any, conds ...any) (err error) {
+// filtering. If a constraint violation occurs, it returns [ErrConstraintFailed].
+func (s *gormDB) Save(r any, conds ...any) (err error) {
 	db := applyWhere(s.DB, conds...).Save(r)
 	err = db.Error
 
@@ -66,15 +66,14 @@ func (s *DB) Save(r any, conds ...any) (err error) {
 //
 // Returns [ErrConstraintFailed] on a constraint violation or [ErrRecordNotFound] if no matching
 // record is found.
-func (s *DB) Update(r any, conds ...any) (err error) {
+func (s *gormDB) Update(r any, conds ...any) (err error) {
 	db := s.DB.Session(&gorm.Session{FullSaveAssociations: true}).Model(r)
 	db = applyWhere(db, conds...).Updates(r)
 	if err = db.Error; err != nil { // db error
 		if strings.Contains(err.Error(), "constraint failed") {
 			return ErrConstraintFailed
-		} else {
-			return err
 		}
+		return err
 	}
 
 	// No record with given ID found
@@ -88,7 +87,7 @@ func (s *DB) Update(r any, conds ...any) (err error) {
 // Delete attempts to delete the record with the given ID from the database.
 //
 // Returns [ErrRecordNotFound] if no matching record is found.
-func (s *DB) Delete(r any, conds ...any) (err error) {
+func (s *gormDB) Delete(r any, conds ...any) (err error) {
 	// Remove record r with a given ID
 	db := s.DB.Delete(r, conds...)
 	if err = db.Error; err != nil { // db error
@@ -110,7 +109,7 @@ func (s *DB) Delete(r any, conds ...any) (err error) {
 // Get attempts to retrieve a record from the database.
 //
 // If no record is found, it returns [ErrRecordNotFound].
-func (s *DB) Get(r any, conds ...any) (err error) {
+func (s *gormDB) Get(r any, conds ...any) (err error) {
 	// Preload all associations of r if necessary
 	db, conds := applyPreload(s.DB, conds...)
 	err = db.First(r, conds...).Error
@@ -123,35 +122,30 @@ func (s *DB) Get(r any, conds ...any) (err error) {
 }
 
 // List retrieves a list of records from the database.
-func (s *DB) List(r any, orderBy string, asc bool, offset int, limit int, conds ...any) error {
-	var (
-		db = s.DB
-		// Set the default direction to "ascending"
-		orderDirection = "asc"
-	)
+func (s *gormDB) List(r any, orderBy string, asc bool, offset int, limit int, conds ...any) (err error) {
+	db := s.DB
 
 	if limit != -1 {
-		db = s.DB.Limit(limit)
+		db = db.Limit(limit)
 	}
 
-	// Set the direction to "descending"
-	if !asc {
-		orderDirection = "desc"
-	}
-	orderStmt := orderBy + " " + orderDirection
-	// No explicit ordering
-	if orderBy == "" {
-		orderStmt = ""
+	// Use GORM's clause.OrderByColumn to safely handle column names
+	// This prevents SQL injection by treating the column name as an identifier
+	if orderBy != "" {
+		db = db.Order(clause.OrderByColumn{
+			Column: clause.Column{Name: orderBy},
+			Desc:   !asc,
+		})
 	}
 
 	// Preload all associations of r if necessary
 	db, conds = applyPreload(db.Offset(offset), conds...)
 
-	return db.Order(orderStmt).Find(r, conds...).Error
+	return db.Find(r, conds...).Error
 }
 
 // Count retrieves the count of records in the database that match the provided conditions.
-func (s *DB) Count(r any, conds ...any) (count int64, err error) {
+func (s *gormDB) Count(r any, conds ...any) (count int64, err error) {
 	db := applyWhere(s.DB.Model(r), conds...)
 
 	err = db.Count(&count).Error
@@ -164,7 +158,7 @@ func (s *DB) Count(r any, conds ...any) (count int64, err error) {
 
 // Raw executes a raw SQL query and scans the result into the provided destination. Returns an error
 // if the query fails.
-func (s *DB) Raw(r any, query string, args ...any) error {
+func (s *gormDB) Raw(r any, query string, args ...any) (err error) {
 	return s.DB.Raw(query, args...).Scan(r).Error
 }
 

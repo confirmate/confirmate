@@ -21,12 +21,12 @@ import (
 	"slices"
 	"strings"
 
-	"confirmate.io/core/util"
-
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"confirmate.io/core/util"
 )
 
 var ErrNotOntologyResource = errors.New("protobuf message is not a valid ontology resource")

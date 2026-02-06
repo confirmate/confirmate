@@ -143,9 +143,9 @@ service Orchestrator {
   rpc UpdateMetricConfiguration(UpdateMetricConfigurationRequest) returns (confirmate.assessment.v1.MetricConfiguration) {
     option (google.api.http) = {
       put:
-        "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
+        "/v1/orchestrator/targets_of_evaluation/{configuration.target_of_evaluation_id}/"
         "metric_configurations/"
-        "{metric_id}"
+        "{configuration.metric_id}"
       body: "configuration"
     };
   }
@@ -184,7 +184,8 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/metrics/{metric_id}/implementation"};
   }
 
-  rpc SubscribeMetricChangeEvents(SubscribeMetricChangeEventRequest) returns (stream MetricChangeEvent) {}
+  // Subscribes to change events in the orchestrator
+  rpc Subscribe(SubscribeRequest) returns (stream ChangeEvent) {}
 
   // Creates a new certificate
   rpc CreateCertificate(CreateCertificateRequest) returns (Certificate) {
@@ -497,17 +498,7 @@ message GetTargetOfEvaluationStatisticsResponse {
 }
 
 message UpdateMetricConfigurationRequest {
-  string target_of_evaluation_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  string metric_id = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  confirmate.assessment.v1.MetricConfiguration configuration = 3 [
+  confirmate.assessment.v1.MetricConfiguration configuration = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -530,11 +521,17 @@ message ListMetricConfigurationRequest {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  int32 page_size = 1;
+  string page_token = 2;
+  string order_by = 3;
+  bool asc = 4;
 }
 
 message ListMetricConfigurationResponse {
   // A map of metric configurations associated by their metric ID
   map<string, confirmate.assessment.v1.MetricConfiguration> configurations = 1;
+  string next_page_token = 2;
 }
 
 message UpdateMetricImplementationRequest {
@@ -551,35 +548,88 @@ message GetMetricImplementationRequest {
   ];
 }
 
-message SubscribeMetricChangeEventRequest {}
+// Top-level event categories for subscription filtering
+enum EventCategory {
+  EVENT_CATEGORY_UNSPECIFIED = 0;
+  EVENT_CATEGORY_METRIC = 1;
+  EVENT_CATEGORY_METRIC_CONFIGURATION = 2;
+  EVENT_CATEGORY_METRIC_IMPLEMENTATION = 3;
+  EVENT_CATEGORY_TARGET_OF_EVALUATION = 4;
+  EVENT_CATEGORY_AUDIT_SCOPE = 5;
+  EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
+  EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
+}
 
-// MetricChangeEvent represents a change of either a metric configuration or
-// implementation.
-message MetricChangeEvent {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_CONFIG_CHANGED = 1;
-    TYPE_IMPLEMENTATION_CHANGED = 2;
-    TYPE_METADATA_CHANGED = 3;
+message SubscribeRequest {
+  message Filter {
+    // Filter by event categories (e.g., only metric-related events)
+    repeated EventCategory categories = 1;
+
+    // Optional: filter by specific operations within a category
+    // e.g., only "created", "updated", not "removed"
+    repeated string operations = 2;
+
+    // Optional: filter by resource IDs
+    repeated string metric_ids = 3;
+    repeated string target_of_evaluation_ids = 4;
   }
 
-  Type type = 1 [
+  Filter filter = 1;
+}
+
+// RequestType is a high-level classification of what happened to an entity. It represents the type
+// of operation performed on the entity.
+enum RequestType {
+  REQUEST_TYPE_UNSPECIFIED = 0;
+  // RequestTypeCreated indicates that a new entity was created/stored in the orchestrator.
+  REQUEST_TYPE_CREATED = 1;
+  // RequestTypeUpdated indicates that an existing entity was updated/modified in the orchestrator.
+  REQUEST_TYPE_UPDATED = 2;
+  // RequestTypeDeleted indicates that an existing entity was deleted/removed from the orchestrator.
+  REQUEST_TYPE_DELETED = 3;
+  // RequestTypeRegistered indicates that an entity was registered with the orchestrator.
+  REQUEST_TYPE_REGISTERED = 4;
+  // RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
+  REQUEST_TYPE_STORED = 5;
+}
+
+// ChangeEvent represents a change that occurred to an entity managed by the orchestrator.
+message ChangeEvent {
+  // Metadata common to all events
+  google.protobuf.Timestamp timestamp = 1 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // Event category (what type of entity changed)
+  EventCategory category = 2 [
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The metric that is changing.
-  string metric_id = 2 [
+  // Request type (what happened to the entity)
+  RequestType request_type = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Entity ID (always present for reference)
+  string entity_id = 4 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The target of evaluation id that is affected by this change. Primarily
-  // concerns metric configuration changes.
-  string target_of_evaluation_id = 3 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes). 
+  // When present, should be a valid UUID.
+  optional string target_of_evaluation_id = 5;
+
+  // The actual entity data (optional, may be omitted for DELETED events)
+  oneof entity {
+    confirmate.assessment.v1.Metric metric = 10;
+    TargetOfEvaluation target_of_evaluation = 11;
+    AuditScope audit_scope = 12;
+    confirmate.assessment.v1.AssessmentResult assessment_result = 13;
+    confirmate.assessment.v1.MetricConfiguration metric_configuration = 14;
+    confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
+    AssessmentTool assessment_tool = 16;
+  }
 }
 
 // Represents an external tool or service that offers assessments according to
@@ -596,6 +646,7 @@ message AssessmentTool {
 
   // a list of metrics that this tool can assess, referred by their ids
   repeated string available_metrics = 4 [
+    (tagger.tags) = "gorm:\"serializer:json\"",
     (buf.validate.field).repeated.items.string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1059,25 +1110,4 @@ message State {
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
-}
-
-// AuditScopeChangeEvent represents a change of either an Audit Scope
-// or Control Monitoring Status and the AuditScope hook
-// function can be informed about the reason of its call.
-message AuditScopeChangeEvent {
-  // Type represents the type of the change event. Type can be a change event
-  // regarding the Audit Scope or the Control Monitoring Status.
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-
-    TYPE_AUDIT_SCOPE_CREATED = 1;
-    TYPE_AUDIT_SCOPE_UPDATED = 2;
-    TYPE_AUDIT_SCOPE_REMOVED = 3;
-  }
-
-  Type type = 1 [(buf.validate.field).enum.defined_only = true];
-
-  // Optional. If the type is a AUDIT_SCOPE_* the audit_scope
-  // field must be set
-  optional AuditScope audit_scope = 2 [(buf.validate.field).required = true];
 }

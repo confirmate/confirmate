@@ -17,6 +17,7 @@
 // github.com/stretchr/testify/assert, but this might change in the future. In order to keep this transparent to the
 // tests, unit tests should exclusively use this package. This also helps us keep track how often the individual assert
 // functions are used and whether we can reduce the API surface of this package.
+
 package assert
 
 import (
@@ -132,7 +133,8 @@ func AnyValue[T any](*testing.T, T, ...any) bool {
 	return true
 }
 
-// Optional asserts the [want] function, if it is not nil. Otherwise, the assertion is ignored. This is helpful if an extra [Want] func is specified only for a select sub-set of table tests.
+// Optional asserts the [want] function, if it is not nil. Otherwise, the assertion is ignored. This
+// is helpful if an extra [Want] func is specified only for a select sub-set of table tests.
 func Optional[T any](t *testing.T, want Want[T], got T) bool {
 	if want != nil {
 		return want(t, got)
