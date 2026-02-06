@@ -8,7 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
 
-option go_package = "confirmate.evaluation.v1";
+option go_package = "confirmate.io/core/api/evaluation";
 
 // Manages the evaluation of Clouditor's assessment results
 service Evaluation {
