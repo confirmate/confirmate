@@ -27,5 +27,9 @@ func (r *AssessEvidenceRequest) GetPayload() proto.Message {
 // GetTargetOfEvaluationId is a shortcut to implement TargetOfEvaluationRequest. It returns the target of evaluation ID of the inner
 // object.
 func (req *AssessEvidenceRequest) GetTargetOfEvaluationId() string {
-	return req.GetEvidence().GetTargetOfEvaluationId()
+	ev := req.GetEvidence()
+	if ev == nil {
+		return ""
+	}
+	return ev.GetTargetOfEvaluationId()
 }
