@@ -45,10 +45,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var (
-	logger *slog.Logger
-)
-
 const DefaultOrchestratorURL = "http://localhost:9090"
 
 // DefaultConfig is the default configuration for the assessment [Service].
@@ -377,14 +373,6 @@ func (svc *Service) handleEvidence(
 		return nil, status.Errorf(codes.Internal, "%v", err)
 	}
 
-	if err != nil {
-		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.cfg.OrchestratorAddress, err)
-
-		go svc.informHooks(ctx, nil, err)
-
-		return nil, status.Errorf(codes.Internal, "%v", err)
-	}
-
 	if len(evaluations) == 0 {
 		slog.Debug("No policy evaluation for evidence", slog.String("Evidence", ev.Id), slog.String("Resource", resource.GetId()), slog.String("ToolId", ev.ToolId))
 		return results, nil
@@ -529,11 +517,11 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 		})
 
 		resp, err = svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
-		config = resp.Msg
-
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric configuration for %s: %w", metric.Id, err)
 		}
+
+		config = resp.Msg
 
 		cache = cachedConfiguration{
 			cachedAt:            time.Now(),
