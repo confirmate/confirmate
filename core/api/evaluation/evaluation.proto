@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package confirmate.evaluation.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "tagger/tagger.proto";
+
+option go_package = "confirmate.evaluation.v1";
+
+// Manages the evaluation of Clouditor's assessment results
+service Evaluation {
+  // Evaluates periodically all assessment results of a target of evaluation id based
+  // on the given catalog id. Part of the public API, also exposed as REST.
+  rpc StartEvaluation(StartEvaluationRequest) returns (StartEvaluationResponse) {
+    option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/start"};
+  }
+
+  // StopEvaluation stops the evaluation for the given audit scope.
+  // Part of the public API, also exposed as REST.
+  rpc StopEvaluation(StopEvaluationRequest) returns (StopEvaluationResponse) {
+    option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/stop"};
+  }
+
+  // List all evaluation results that the user can access. It can further be
+  // restricted by various filtering options. Part of the public API, also
+  // exposed as REST.
+  rpc ListEvaluationResults(ListEvaluationResultsRequest) returns (ListEvaluationResultsResponse) {
+    option (google.api.http) = {get: "/v1/evaluation/results"};
+  }
+
+  // Creates an evaluation result
+  rpc CreateEvaluationResult(CreateEvaluationResultRequest) returns (EvaluationResult) {
+    option (google.api.http) = {
+      post: "/v1/evaluation/results"
+      body: "result"
+    };
+  }
+}
+
+message StartEvaluationRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The interval time in minutes the evaluation executes periodically. The
+  // default interval is set to 5 minutes.
+  optional int32 interval = 3 [(buf.validate.field).int32.gt = 0];
+}
+
+message StartEvaluationResponse {
+  bool successful = 1;
+}
+
+message CreateEvaluationResultRequest {
+  EvaluationResult result = 1 [(buf.validate.field).required = true];
+}
+
+message StopEvaluationRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message StopEvaluationResponse {}
+
+message ListEvaluationResultsRequest {
+  message Filter {
+    // Optional. Lists only evaluation results for a specific target of evaluation.
+    optional string target_of_evaluation_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Lists only evaluation results for a specific catalog.
+    optional string catalog_id = 2 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists only evaluation results for a specific control id.
+    optional string control_id = 3 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists all evaluation results for the given initial control id
+    // substring, e.g., if the substring 'CMK-01.' is given it returns the
+    // controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+    optional string sub_controls = 4 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists only results for parent controls
+    optional bool parents_only = 5;
+
+    // Optional. Lists only manual results in their validity period
+    optional bool valid_manual_only = 6;
+  }
+
+  optional Filter filter = 1;
+
+  // Optional. Latest results grouped by control_id.
+  optional bool latest_by_control_id = 2;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListEvaluationResultsResponse {
+  repeated EvaluationResult results = 1;
+  string next_page_token = 2;
+}
+
+// A evaluation result resource, representing the result after evaluating the
+// target of evaluation with a specific control target_of_evaluation_id, category_name and
+// catalog_id are necessary to get the corresponding AuditScope
+message EvaluationResult {
+  // Evaluation result id
+  string id = 1 [
+    (buf.validate.field).string = {uuid: true},
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The Target of Evaluation ID the evaluation belongs to
+  string target_of_evaluation_id = 2 [(buf.validate.field).string = {uuid: true}];
+
+  // The Audit Scope ID the evaluation belongs to
+  string audit_scope_id = 3 [(buf.validate.field).string = {uuid: true}];
+
+  // The control id the evaluation was based on
+  string control_id = 4 [(buf.validate.field).string.min_len = 1];
+
+  // The category the evaluated control belongs to
+  string control_category_name = 5 [(buf.validate.field).string.min_len = 1];
+
+  // The catalog the evaluated control belongs to
+  string control_catalog_id = 6 [(buf.validate.field).string.min_len = 1];
+
+  // Optionally, specifies the parent control ID, if this is a sub-control
+  optional string parent_control_id = 7;
+
+  // Evaluation status
+  EvaluationStatus status = 8 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Time of evaluation
+  google.protobuf.Timestamp timestamp = 9 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // List of assessment results because of which the evaluation status is compliant or not compliant
+  repeated string assessment_result_ids = 10 [
+    (tagger.tags) = "gorm:\"serializer:json\"",
+    (buf.validate.field).repeated.items.string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string comment = 11;
+
+  // Optional, but required if the status is one of the "manually" ones. This
+  // denotes how long the (manual) created evaluation result is valid. During
+  // this time, no automatic results are generated for the specific control.
+  optional google.protobuf.Timestamp valid_until = 20 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+}
+
+enum EvaluationStatus {
+  EVALUATION_STATUS_UNSPECIFIED = 0;
+  EVALUATION_STATUS_COMPLIANT = 1;
+  EVALUATION_STATUS_COMPLIANT_MANUALLY = 2;
+  EVALUATION_STATUS_NOT_COMPLIANT = 3;
+  EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY = 4;
+  EVALUATION_STATUS_PENDING = 10;
+}
