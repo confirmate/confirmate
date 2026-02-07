@@ -22,6 +22,7 @@
 			"anypb",
 			"bmatcuk",
 			"bufbuild",
+			"clitest",
 			"conds",
 			"Confirmate",
 			"connectrpc",
