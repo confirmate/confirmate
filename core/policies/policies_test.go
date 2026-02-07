@@ -25,10 +25,10 @@ import (
 	"testing"
 	"time"
 
+	"go.yaml.in/yaml/v3"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"gopkg.in/yaml.v3"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
