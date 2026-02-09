@@ -110,7 +110,6 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
 	handler = svc
-
 	return
 }
 
@@ -207,6 +206,46 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	})
 
 	return res, nil
+}
+
+// StopEvaluation is a method implementation of the evaluation interface: It stops the evaluation for a
+// AuditScope.
+func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[evaluation.StopEvaluationRequest]) (res *connect.Response[evaluation.StopEvaluationResponse], err error) {
+	var auditScopeResponse *connect.Response[orchestrator.AuditScope]
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Get audit scope
+	// auditScope, err = svc.orchestratorClient.GetAuditScope(context.Background(), &orchestrator.GetAuditScopeRequest{
+	// 	AuditScopeId: req.GetAuditScopeId(),
+	// })
+	auditScopeResponse, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+		AuditScopeId: req.Msg.GetAuditScopeId(),
+	}))
+	if err != nil {
+		newErr := fmt.Errorf("could not stop evaluation: %w", service.ErrNotFound("audit scope"))
+		slog.Error("%w: %w", log.Err(newErr), log.Err(err))
+		return nil, status.Errorf(codes.Internal, "%s", newErr)
+	}
+
+	auditScope := auditScopeResponse.Msg
+
+	// Stop jobs(s) for given audit scope
+	err = svc.scheduler.RemoveByTags(auditScope.GetId())
+	if err != nil && errors.Is(err, gocron.ErrJobNotFoundWithTag) {
+		return nil, status.Errorf(codes.FailedPrecondition, "job for audit scope '%s' not running", auditScope.GetId())
+	} else if err != nil {
+		err = fmt.Errorf("error while removing jobs for audit scope '%s': %w", auditScope.GetId(), err)
+		slog.Error("%w", log.Err(err))
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	res = &connect.Response[evaluation.StopEvaluationResponse]{}
+
+	return
 }
 
 // ListEvaluationResults is a method implementation of the assessment interface
@@ -317,6 +356,43 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	}
 
 	return
+}
+
+// CreateEvaluationResult is a method implementation of the assessment interface to store only manually created Evaluation Results
+func (svc *Service) CreateEvaluationResult(ctx context.Context, req *connect.Request[evaluation.CreateEvaluationResultRequest]) (res *connect.Response[evaluation.EvaluationResult], err error) {
+	var (
+		eval *evaluation.EvaluationResult
+	)
+
+	// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
+	req.Msg.Result.Id = uuid.NewString()
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// We only allow manually created statuses
+	if req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY &&
+		req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY {
+		return nil, status.Errorf(codes.InvalidArgument, "only manually set statuses are allowed")
+	}
+
+	// The ValidUntil field must be checked separately as it is an optional field and not checked by the request
+	// validation. It is only mandatory when manually creating a result.
+	if req.Msg.Result.ValidUntil == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "validity must be set")
+	}
+
+	eval = req.Msg.Result
+	err = svc.db.Create(eval)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(eval)
+
+	return res, nil
 }
 
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given interval

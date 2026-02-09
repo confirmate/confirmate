@@ -65,6 +65,9 @@ var (
 
 	// ErrControlNotAvailable is returned when a given control is not available in the catalog.
 	ErrControlNotAvailable = errors.New("control is not available in the catalog")
+
+	// ErrAuditScopeNotFound is returned when an audit scope with the given ID is not found.
+	ErrAuditScopeNotFound = errors.New("audit scope not found")
 )
 
 var (
