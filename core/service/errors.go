@@ -53,6 +53,18 @@ var (
 
 	// ErrDatabaseError is returned for general database errors.
 	ErrDatabaseError = errors.New("database error")
+
+	// ErrCatalogIdIsMissing is returned when a required catalog ID is missing.
+	ErrCatalogIdIsMissing = errors.New("catalog ID is missing")
+
+	// ErrCategoryNameIsMissing is returned when a required category name is missing.
+	ErrCategoryNameIsMissing = errors.New("category name is missing")
+
+	// ErrControlIdIsMissing is returned when a required control ID is missing.
+	ErrControlIdIsMissing = errors.New("control ID is missing")
+
+	// ErrControlNotAvailable is returned when a given control is not available in the catalog.
+	ErrControlNotAvailable = errors.New("control is not available in the catalog")
 )
 
 var (
