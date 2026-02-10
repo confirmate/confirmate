@@ -30,6 +30,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// EvidenceCommand is the command to start the evidence store server.
 var EvidenceCommand = &cli.Command{
 	Name:  "evidence",
 	Usage: "Launches the evidence store service",
