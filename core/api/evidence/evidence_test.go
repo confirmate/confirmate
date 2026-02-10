@@ -129,7 +129,7 @@ func TestResource_ToOntologyResource(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.ErrorContains(t, err, ErrNotOntologyResource.Error())
+				return assert.ErrorContains(t, err, ontology.ErrNotOntologyResource.Error())
 			},
 		},
 	}

@@ -17,6 +17,7 @@ package ontology
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -26,6 +27,8 @@ import (
 
 	"confirmate.io/core/util"
 )
+
+var ErrNotOntologyResource = errors.New("protobuf message is not a valid ontology resource")
 
 type IsResource interface {
 	proto.Message
