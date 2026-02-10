@@ -291,12 +291,12 @@ func TestService_StoreEvidence(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: evidencetest.MockEvidence1,
+					Evidence: evidencetest.MockEvidenceWithVMResource,
 				}},
 			},
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
 				// Create evidence
-				err := db.Create(evidencetest.MockEvidence1)
+				err := db.Create(evidencetest.MockEvidenceWithVMResource)
 				assert.NoError(t, err)
 			})},
 			want: assert.Nil[*connect.Response[evidence.StoreEvidenceResponse]],
@@ -309,7 +309,7 @@ func TestService_StoreEvidence(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+					Evidence: evidencetest.MockEvidenceWithVMResource2,
 				}},
 			},
 			fields: fields{db: persistencetest.CreateErrorDB(t, persistence.ErrDatabase, types, nil)},
@@ -323,7 +323,7 @@ func TestService_StoreEvidence(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+					Evidence: evidencetest.MockEvidenceWithVMResource2,
 				}},
 			},
 			fields: fields{db: persistencetest.SaveErrorDB(t, persistence.ErrDatabase, types, nil)},
@@ -337,7 +337,7 @@ func TestService_StoreEvidence(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+					Evidence: evidencetest.MockEvidenceWithVMResource2,
 				}},
 			},
 			fields:  fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
@@ -349,7 +349,7 @@ func TestService_StoreEvidence(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: evidencetest.MockEvidenceNoResource,
+					Evidence: evidencetest.MockEvidenceWithoutResource,
 				}},
 			},
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil)},
@@ -363,12 +363,12 @@ func TestService_StoreEvidence(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.StoreEvidenceRequest]{Msg: &evidence.StoreEvidenceRequest{
-					Evidence: evidencetest.MockEvidence2SameResourceAs1,
+					Evidence: evidencetest.MockEvidenceWithVMResource2,
 				}},
 			},
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
 				// Create a resource already such that `save` will update it instead of creating a new entry
-				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidence1.GetOntologyResource(), evidencetest.MockEvidence1.GetTargetOfEvaluationId(), evidencetest.MockEvidence1.GetToolId())
+				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidenceWithVMResource.GetOntologyResource(), evidencetest.MockEvidenceWithVMResource.GetTargetOfEvaluationId(), evidencetest.MockEvidenceWithVMResource.GetToolId())
 				assert.NoError(t, err)
 				err = db.Create(r)
 				assert.NoError(t, err)
@@ -416,7 +416,7 @@ func TestService_StoreEvidences(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, nil),
 			},
 			evidences: []*evidence.Evidence{
-				evidencetest.MockEvidence1,
+				evidencetest.MockEvidenceWithVMResource,
 			},
 			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
 				return assert.Equal(t, []evidence.EvidenceStatus{evidence.EvidenceStatus_EVIDENCE_STATUS_OK}, got)
@@ -429,8 +429,8 @@ func TestService_StoreEvidences(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, nil),
 			},
 			evidences: []*evidence.Evidence{
-				evidencetest.MockEvidence1,
-				evidencetest.MockEvidence2SameResourceAs1,
+				evidencetest.MockEvidenceWithVMResource,
+				evidencetest.MockEvidenceWithVMResource2,
 			},
 			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
 				return assert.Equal(t, []evidence.EvidenceStatus{
@@ -444,12 +444,12 @@ func TestService_StoreEvidences(t *testing.T) {
 			name: "stream - resilience with partial failures",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
-					assert.NoError(t, db.Create(evidencetest.MockEvidence1))
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceWithVMResource))
 				}),
 			},
 			evidences: []*evidence.Evidence{
-				evidencetest.MockEvidence1,                // duplicate - should fail
-				evidencetest.MockEvidence2SameResourceAs1, // should succeed
+				evidencetest.MockEvidenceWithVMResource,  // duplicate - should fail
+				evidencetest.MockEvidenceWithVMResource2, // should succeed
 			},
 			wantStatuses: func(t *testing.T, got []evidence.EvidenceStatus, args ...any) bool {
 				return assert.Equal(t, []evidence.EvidenceStatus{
@@ -571,7 +571,7 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 
 	client := evidenceconnect.NewEvidenceStoreClient(storeSrv.Client(), storeSrv.URL)
 	stream := client.StoreEvidences(context.Background())
-	assert.NoError(t, stream.Send(&evidence.StoreEvidenceRequest{Evidence: evidencetest.MockEvidence1}))
+	assert.NoError(t, stream.Send(&evidence.StoreEvidenceRequest{Evidence: evidencetest.MockEvidenceWithVMResource}))
 	_, recvErr := stream.Receive()
 	assert.NoError(t, recvErr)
 
@@ -619,7 +619,7 @@ func TestService_StoreEvidences_SendErrors(t *testing.T) {
 			}
 
 			stream := &fakeEvidenceStream{
-				receives: []fakeReceive{{req: &evidence.StoreEvidenceRequest{Evidence: evidencetest.MockEvidence1}}},
+				receives: []fakeReceive{{req: &evidence.StoreEvidenceRequest{Evidence: evidencetest.MockEvidenceWithVMResource}}},
 				sendErr:  tt.sendErr,
 			}
 
@@ -846,7 +846,7 @@ func TestService_GetEvidence(t *testing.T) {
 			name:   "error - database failure",
 			fields: fields{db: persistencetest.GetErrorDB(t, errors.New("get failed"), types, nil)},
 			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
-				EvidenceId: evidencetest.MockEvidence1.Id,
+				EvidenceId: evidencetest.MockEvidenceWithVMResource.Id,
 			}},
 			want: assert.Nil[*connect.Response[evidence.Evidence]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -856,14 +856,14 @@ func TestService_GetEvidence(t *testing.T) {
 		{
 			name: "happy path - returns evidence",
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
-				assert.NoError(t, db.Create(evidencetest.MockEvidence1))
+				assert.NoError(t, db.Create(evidencetest.MockEvidenceWithVMResource))
 			})},
 			req: &connect.Request[evidence.GetEvidenceRequest]{Msg: &evidence.GetEvidenceRequest{
-				EvidenceId: evidencetest.MockEvidence1.Id,
+				EvidenceId: evidencetest.MockEvidenceWithVMResource.Id,
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.Evidence], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
-				return assert.Equal(t, evidencetest.MockEvidence1.Id, got.Msg.Id)
+				return assert.Equal(t, evidencetest.MockEvidenceWithVMResource.Id, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 		},
@@ -1138,7 +1138,7 @@ func TestService_informHooks(t *testing.T) {
 		count++
 	})
 
-	svc.informHooks(context.Background(), evidencetest.MockEvidence1, nil)
+	svc.informHooks(context.Background(), evidencetest.MockEvidenceWithVMResource, nil)
 	assert.Equal(t, 2, count)
 }
 
