@@ -9,8 +9,16 @@ require (
 	github.com/lmittmann/tint v1.1.3
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20
+	github.com/oxisto/oauth2go v0.15.0
 	github.com/urfave/cli/v3 v3.6.2
+	golang.org/x/oauth2 v0.30.0
 	golang.org/x/sys v0.40.0 // indirect
+)
+
+// runtime dependencies - auth
+	require (
+	github.com/MicahParks/keyfunc/v2 v2.1.0
+	github.com/golang-jwt/jwt/v5 v5.3.0
 )
 
 // runtime dependencies - protobuf/Connect

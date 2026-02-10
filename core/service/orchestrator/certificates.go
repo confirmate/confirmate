@@ -40,6 +40,9 @@ func (svc *Service) CreateCertificate(
 	}
 
 	cert = req.Msg.Certificate
+	if !svc.hasTargetAccess(ctx, cert.GetTargetOfEvaluationId()) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Persist the new certificate in the database
 	err = svc.db.Create(cert)
@@ -70,6 +73,10 @@ func (svc *Service) GetCertificate(
 		return nil, err
 	}
 
+	if !svc.hasTargetAccess(ctx, cert.TargetOfEvaluationId) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	res = connect.NewResponse(&cert)
 	return
 }
@@ -95,7 +102,12 @@ func (svc *Service) ListCertificates(
 		req.Msg.Asc = true
 	}
 
-	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all {
+		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "target_of_evaluation_id IN ?", allowed)
+	} else {
+		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+	}
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -128,7 +140,12 @@ func (svc *Service) ListPublicCertificates(
 		req.Msg.Asc = true
 	}
 
-	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all {
+		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "target_of_evaluation_id IN ?", allowed)
+	} else {
+		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+	}
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -158,6 +175,9 @@ func (svc *Service) UpdateCertificate(
 	}
 
 	cert = req.Msg.Certificate
+	if cert == nil || !svc.hasTargetAccess(ctx, cert.GetTargetOfEvaluationId()) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the certificate
 	err = svc.db.Update(cert, "id = ?", cert.Id)
@@ -179,8 +199,19 @@ func (svc *Service) RemoveCertificate(
 		return nil, err
 	}
 
+	var cert orchestrator.Certificate
+
+	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+		return nil, err
+	}
+
+	if !svc.hasTargetAccess(ctx, cert.TargetOfEvaluationId) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	// Delete the certificate
-	err = svc.db.Delete(&orchestrator.Certificate{}, "id = ?", req.Msg.CertificateId)
+	err = svc.db.Delete(&cert, "id = ?", req.Msg.CertificateId)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}

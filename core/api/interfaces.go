@@ -37,6 +37,11 @@ type HasTargetOfEvaluationId interface {
 	GetTargetOfEvaluationId() string
 }
 
+// TargetOfEvaluationRequest represents any request that carries a target_of_evaluation_id.
+type TargetOfEvaluationRequest interface {
+	GetTargetOfEvaluationId() string
+}
+
 // HasToolId interface for messages that have a tool_id field.
 type HasToolId interface {
 	GetToolId() string

@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"slices"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
@@ -46,6 +47,10 @@ func (svc *Service) CreateAuditScope(
 
 	// Generate a new UUID for the audit scope
 	scope.Id = uuid.NewString()
+
+	if !svc.hasTargetAccess(ctx, scope.GetTargetOfEvaluationId()) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Persist the new audit scope in the database
 	err = svc.db.Create(scope)
@@ -87,6 +92,10 @@ func (svc *Service) GetAuditScope(
 		return nil, err
 	}
 
+	if !svc.hasTargetAccess(ctx, scope.TargetOfEvaluationId) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	res = connect.NewResponse(&scope)
 	return
 }
@@ -107,6 +116,13 @@ func (svc *Service) ListAuditScopes(
 		return nil, err
 	}
 
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
+		if !slices.Contains(allowed, *req.Msg.Filter.TargetOfEvaluationId) {
+			return nil, service.ErrPermissionDenied
+		}
+	}
+
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "id"
@@ -116,6 +132,10 @@ func (svc *Service) ListAuditScopes(
 	// Filter by target_of_evaluation_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
 		conds = append(conds, "target_of_evaluation_id = ?", *req.Msg.Filter.TargetOfEvaluationId)
+	}
+
+	if !all {
+		conds = append(conds, "target_of_evaluation_id IN ?", allowed)
 	}
 
 	// Filter by catalog_id if provided
@@ -148,6 +168,9 @@ func (svc *Service) UpdateAuditScope(
 	}
 
 	scope = req.Msg.AuditScope
+	if scope == nil || !svc.hasTargetAccess(ctx, scope.GetTargetOfEvaluationId()) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the audit scope
 	err = svc.db.Update(scope, "id = ?", scope.Id)
@@ -182,6 +205,15 @@ func (svc *Service) RemoveAuditScope(
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+		return nil, err
+	}
+
+	if !svc.hasTargetAccess(ctx, scope.TargetOfEvaluationId) {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Delete the audit scope
