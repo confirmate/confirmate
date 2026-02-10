@@ -24,7 +24,7 @@ import (
 
 func main() {
 	if err := commands.ParseAndRun(commands.EvidenceCommand); err != nil {
-		slog.Error("Failed to start Evidence Store", log.Err(err))
+		slog.Error("Failed to start evidence store", log.Err(err))
 		os.Exit(1)
 	}
 }
