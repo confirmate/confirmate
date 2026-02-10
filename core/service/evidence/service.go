@@ -87,7 +87,7 @@ type Service struct {
 	// mu is used for (un)locking result hook calls
 	mu sync.Mutex
 
-	evidenceconnect.EvidenceStoreHandler
+	evidenceconnect.UnimplementedEvidenceStoreHandler
 }
 
 func init() {
