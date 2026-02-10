@@ -104,40 +104,32 @@ func WithConfig(cfg Config) service.Option[Service] {
 }
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
-	var (
-		o      service.Option[Service]
-		pcfg   persistence.Config
-		client *http.Client
-	)
-
 	svc = &Service{
 		cfg: DefaultConfig,
 	}
 
-	for _, o = range opts {
+	// Apply configuration options
+	for _, o := range opts {
 		o(svc)
 	}
 
-	// Determine HTTP client for assessment service
-	client = svc.cfg.AssessmentClient
-	if client == nil {
-		client = http.DefaultClient
-	}
-
-	// Initialize assessment client if not already set
+	// Initialize assessment client if not already set (e.g., by test option)
 	if svc.assessmentClient == nil {
+		client := svc.cfg.AssessmentClient
+		if client == nil {
+			client = http.DefaultClient
+		}
 		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
 			client, svc.cfg.AssessmentAddress)
 	}
 
-	// Initialize database if not already set (e.g., by WithDB for testing)
+	// Initialize database if not already set (e.g., by test option)
 	if svc.db == nil {
-		pcfg = svc.cfg.PersistenceConfig
+		pcfg := svc.cfg.PersistenceConfig
 		pcfg.Types = types
 		svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 		if err != nil {
-			err = fmt.Errorf("could not create db: %w", err)
-			return
+			return nil, fmt.Errorf("could not create db: %w", err)
 		}
 	}
 
@@ -150,7 +142,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		return nil, err
 	}
 
-	return
+	return svc, nil
 }
 
 // sendToAssessment forwards evidence to the assessment service using the restartable stream.
