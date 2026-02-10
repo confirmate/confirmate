@@ -84,8 +84,8 @@ type Service struct {
 	// evidenceHooks is a list of hook functions that can be used if one wants to be
 	// informed about each evidence
 	evidenceHooks []evidence.EvidenceHookFunc
-	// mu is used for (un)locking result hook calls
-	mu sync.Mutex
+	// hookMutex is used for (un)locking result hook calls
+	hookMutex sync.Mutex
 
 	evidenceconnect.UnimplementedEvidenceStoreHandler
 }
@@ -470,14 +470,14 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 }
 
 func (svc *Service) RegisterEvidenceHook(evidenceHook evidence.EvidenceHookFunc) {
-	svc.mu.Lock()
-	defer svc.mu.Unlock()
+	svc.hookMutex.Lock()
+	defer svc.hookMutex.Unlock()
 	svc.evidenceHooks = append(svc.evidenceHooks, evidenceHook)
 }
 
 func (svc *Service) informHooks(ctx context.Context, result *evidence.Evidence, err error) {
-	svc.mu.Lock()
-	defer svc.mu.Unlock()
+	svc.hookMutex.Lock()
+	defer svc.hookMutex.Unlock()
 
 	// Inform our hook if we have any
 	if svc.evidenceHooks != nil {
