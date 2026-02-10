@@ -54,20 +54,8 @@ var (
 	// ErrDatabaseError is returned for general database errors.
 	ErrDatabaseError = errors.New("database error")
 
-	// ErrCatalogIdIsMissing is returned when a required catalog ID is missing.
-	ErrCatalogIdIsMissing = errors.New("catalog ID is missing")
-
-	// ErrCategoryNameIsMissing is returned when a required category name is missing.
-	ErrCategoryNameIsMissing = errors.New("category name is missing")
-
-	// ErrControlIdIsMissing is returned when a required control ID is missing.
-	ErrControlIdIsMissing = errors.New("control ID is missing")
-
 	// ErrControlNotAvailable is returned when a given control is not available in the catalog.
 	ErrControlNotAvailable = errors.New("control is not available in the catalog")
-
-	// ErrAuditScopeNotFound is returned when an audit scope with the given ID is not found.
-	ErrAuditScopeNotFound = errors.New("audit scope not found")
 )
 
 var (
@@ -87,6 +75,11 @@ var (
 // This error is meant to be wrapped by [HandleDatabaseError] which converts it to a [connect.CodeNotFound] error.
 func ErrNotFound(entity string) error {
 	return fmt.Errorf("%s not found", entity)
+}
+
+// ErrIsMissing returns a plain error indicating that a required field is missing.
+func ErrIsMissing(fieldName string) error {
+	return fmt.Errorf("%s is missing", fieldName)
 }
 
 // Validate validates an incoming request using protovalidate.
