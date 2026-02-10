@@ -23,17 +23,16 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/open-policy-agent/opa/v1/rego"
-	"github.com/open-policy-agent/opa/v1/storage"
-	"github.com/open-policy-agent/opa/v1/storage/inmem"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
+
+	"connectrpc.com/connect"
+	"github.com/open-policy-agent/opa/v1/rego"
+	"github.com/open-policy-agent/opa/v1/storage"
+	"github.com/open-policy-agent/opa/v1/storage/inmem"
 )
 
 // DefaultRegoPackage is the default package name for the Rego files
@@ -209,30 +208,29 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		// Lock until we looped through all files
 		re.mrtc.Lock()
 
-		// Start with an empty list, otherwise we might copy metrics into the list
-		// that are added by a parallel execution - which might occur if both goroutines
-		// start at the exactly same time.
+		// Start with an empty list, otherwise we might copy metrics into the list that are added by
+		// a parallel execution - which might occur if both goroutines start at the exactly same
+		// time.
 		cached = []*assessment.Metric{}
 		for _, metric := range metrics {
-			// Try to evaluate it and check if the metric is applicable (in which case we are getting a result). We
-			// need to differentiate here between an execution error (which might be temporary) and an error if the
-			// metric configuration or implementation is not found. The latter case happens if the metric is not
-			// assessed within the toolset but we need to know that the metric exists, e.g., because it is
-			// evaluated by an external tool. In this case, we can just pretend that the metric is not applicable for us
-			// and continue.
+			// Try to evaluate it and check if the metric is applicable (in which case we are
+			// getting a result). We need to differentiate here between an execution error (which
+			// might be temporary) and an error if the metric configuration or implementation is not
+			// found. The latter case happens if the metric is not assessed within the toolset but
+			// we need to know that the metric exists, e.g., because it is evaluated by an external
+			// tool. In this case, we can just pretend that the metric is not applicable for us and
+			// continue.
 			runMap, err := re.evalMap(baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {
-				// Try to retrieve the gRPC status from the error, to check if the metric implementation just does not exist.
-				status, ok := status.FromError(err)
-				if ok && status.Code() == codes.NotFound &&
-					(strings.Contains(status.Message(), "implementation for metric not found") ||
-						strings.Contains(status.Message(), "metric configuration not found for metric")) {
-					slog.Warn("Resource type %v ignored metric %v because of its missing implementation or default configuration ", key, metric.Name)
-					// In this case, we can continue
+				// Try to check if the metric implementation just does not exist.
+				if connect.CodeOf(err) == connect.CodeNotFound &&
+					(strings.Contains(err.Error(), "implementation for metric not found") ||
+						strings.Contains(err.Error(), "metric configuration not found for metric")) {
 					continue
 				}
 
-				// Otherwise, we are not really in a state where our cache is valid, so we mark it as not cached at all.
+				// Otherwise, we are not really in a state where our cache is valid, so we mark it
+				// as not cached at all.
 				re.mrtc.m[key] = nil
 
 				// Unlock, to avoid deadlock and return from here with the error
