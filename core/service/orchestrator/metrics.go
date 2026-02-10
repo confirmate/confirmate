@@ -371,6 +371,9 @@ func (svc *Service) UpdateMetricConfiguration(
 	}
 
 	config = req.Msg.Configuration
+	if config == nil || !svc.hasTargetAccess(ctx, config.TargetOfEvaluationId) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Save the updated metric configuration
 	err = svc.db.Save(config)

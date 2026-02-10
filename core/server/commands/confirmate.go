@@ -20,23 +20,68 @@ import (
 	"fmt"
 	"net/http"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
+)
+
+const (
+	DefaultServiceTokenURL     = "http://localhost:8080/v1/auth/token"
+	DefaultServiceClientID     = "confirmate"
+	DefaultServiceClientSecret = "confirmate"
 )
 
 // ConfirmateCommand starts the full framework: orchestrator and assessment services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
 	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := orchestrator.NewService(
+	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
+		var interceptors []connect.Interceptor
+		var svcOptions []service.Option[orchestrator.Service]
+		var assessmentOptions []service.Option[assessment.Service]
+		var jwksURL string
+		var svcOpts []service.Option[orchestrator.Service]
+		var assessmentOpts []service.Option[assessment.Service]
+		var svc orchestratorconnect.OrchestratorHandler
+		var assessmentSvc assessmentconnect.AssessmentHandler
+		var orchestratorClient *http.Client
+		var apiPort uint16
+		var orchestratorURL string
+		var credentials *clientcredentials.Config
+		var authorizer api.Authorizer
+		var serverOpts []server.Option
+
+		if cmd.Bool("auth-enabled") {
+			jwksURL = cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
+				service.DefaultTargetOfEvaluationsClaim,
+				service.DefaultAllowAllClaim,
+			))
+			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyJWT(
+				service.DefaultTargetOfEvaluationsClaim,
+				service.DefaultAllowAllClaim,
+			))
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+
+		svcOpts = append([]service.Option[orchestrator.Service]{
 			orchestrator.WithConfig(orchestrator.Config{
 				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
@@ -54,26 +99,41 @@ var ConfirmateCommand = &cli.Command{
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
 			}),
-		)
+		}, svcOptions...)
+
+		svc, err = orchestrator.NewService(svcOpts...)
 		if err != nil {
 			return err
 		}
 
-		apiPort := cmd.Uint16("api-port")
-		orchestratorURL := fmt.Sprintf("http://localhost:%d", apiPort)
+		apiPort = cmd.Uint16("api-port")
+		orchestratorURL = fmt.Sprintf("http://localhost:%d", apiPort)
 
-		assessmentSvc, err := assessment.NewService(
+		orchestratorClient = http.DefaultClient
+		if cmd.Bool("auth-enabled") {
+			credentials = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth-client-id"),
+				ClientSecret: cmd.String("service-oauth-client-secret"),
+				TokenURL:     cmd.String("service-oauth-token-url"),
+			}
+			authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
+			orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
+		}
+
+		assessmentOpts = append([]service.Option[assessment.Service]{
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: orchestratorURL,
-				OrchestratorClient:  http.DefaultClient,
+				OrchestratorClient:  orchestratorClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
-		)
+		}, assessmentOptions...)
+
+		assessmentSvc, err = assessment.NewService(assessmentOpts...)
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(
+		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
 				Port:     apiPort,
 				Path:     "/",
@@ -86,12 +146,77 @@ var ConfirmateCommand = &cli.Command{
 			}),
 			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
-			server.WithHandler(assessmentconnect.NewAssessmentHandler(assessmentSvc)),
-		)
+			server.WithHandler(assessmentconnect.NewAssessmentHandler(
+				assessmentSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+		}
+
+		if cmd.Bool("oauth2-embedded") {
+			serverOpts = append(serverOpts, server.WithEmbeddedOAuth2Server(
+				cmd.String("oauth2-key-path"),
+				cmd.String("oauth2-key-password"),
+				cmd.Bool("oauth2-key-save-on-create"),
+				cmd.String("oauth2-public-url"),
+			))
+		}
+
+		err = server.RunConnectServer(serverOpts...)
+		return err
 	},
 	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "auth-enabled",
+			Usage: "Enable JWT authentication for RPC requests",
+			Value: false,
+		},
+		&cli.StringFlag{
+			Name:  "auth-jwks-url",
+			Usage: "JWKS URL for JWT validation",
+			Value: server.DefaultJWKSURL,
+		},
+		&cli.BoolFlag{
+			Name:  "oauth2-embedded",
+			Usage: "Enable embedded OAuth 2.0 server",
+			Value: true,
+		},
+		&cli.StringFlag{
+			Name:  "oauth2-public-url",
+			Usage: "Public base URL for the embedded OAuth 2.0 server",
+			Value: "",
+		},
+		&cli.StringFlag{
+			Name:  "oauth2-key-path",
+			Usage: "Path to the OAuth 2.0 signing key",
+			Value: server.DefaultOAuth2KeyPath,
+		},
+		&cli.StringFlag{
+			Name:  "oauth2-key-password",
+			Usage: "Password for the OAuth 2.0 signing key",
+			Value: server.DefaultOAuth2KeyPassword,
+		},
+		&cli.BoolFlag{
+			Name:  "oauth2-key-save-on-create",
+			Usage: "Persist generated OAuth 2.0 signing keys",
+			Value: server.DefaultOAuth2KeySaveOnCreate,
+		},
+		&cli.StringFlag{
+			Name:  "service-oauth-token-url",
+			Usage: "OAuth 2.0 token URL for service-to-service auth",
+			Value: DefaultServiceTokenURL,
+		},
+		&cli.StringFlag{
+			Name:  "service-oauth-client-id",
+			Usage: "OAuth 2.0 client ID for service-to-service auth",
+			Value: DefaultServiceClientID,
+		},
+		&cli.StringFlag{
+			Name:  "service-oauth-client-secret",
+			Usage: "OAuth 2.0 client secret for service-to-service auth",
+			Value: DefaultServiceClientSecret,
+		},
 		&cli.Uint16Flag{
 			Name:  "api-port",
 			Usage: "Port to run the API server (Connect, gRPC, REST) on",

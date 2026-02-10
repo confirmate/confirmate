@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 	"runtime/debug"
+	"slices"
 	"sync"
 	"time"
 
@@ -41,6 +42,9 @@ type Service struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
 	db  persistence.DB
 	cfg Config
+
+	// authz defines our authorization strategy for target-of-evaluation scoped access.
+	authz service.AuthorizationStrategy
 
 	// subscribers is a map of subscribers for change events
 	subscribers      map[int64]*subscriber
@@ -97,6 +101,23 @@ func WithConfig(cfg Config) service.Option[Service] {
 	}
 }
 
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
+func WithAuthorizationStrategyJWT(targetKey string, allowAllKey string) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyJWT{
+			TargetOfEvaluationsKey: targetKey,
+			AllowAllKey:            allowAllKey,
+		}
+	}
+}
+
 // NewService creates a new orchestrator service and returns a
 // [orchestratorconnect.OrchestratorHandler].
 //
@@ -111,6 +132,10 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 
 	for _, o := range opts {
 		o(svc)
+	}
+
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
 	}
 
 	// Initialize the database with the defined auto-migration types and join tables
@@ -143,6 +168,25 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 
 	handler = svc
 	return
+}
+
+func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, allowed []string) {
+	if svc == nil || svc.authz == nil {
+		return true, nil
+	}
+
+	return svc.authz.AllowedTargetOfEvaluations(ctx)
+}
+
+func (svc *Service) hasTargetAccess(ctx context.Context, targetID string) bool {
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if all {
+		return true
+	}
+	if targetID == "" {
+		return false
+	}
+	return slices.Contains(allowed, targetID)
 }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.
