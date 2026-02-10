@@ -21,20 +21,18 @@
 package orchestrator
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	assessment "confirmate.io/core/api/assessment"
+	common "confirmate.io/core/api/common"
 	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	assessment "confirmate.io/core/api/assessment"
-	common "confirmate.io/core/api/common"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -4621,7 +4619,7 @@ var File_api_orchestrator_orchestrator_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
-	"#api/orchestrator/orchestrator.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1fapi/assessment/assessment.proto\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"j\n" +
+	"#api/orchestrator/orchestrator.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bapi/assessment/result.proto\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"j\n" +
 	"\x1dRegisterAssessmentToolRequest\x12I\n" +
 	"\x04tool\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.AssessmentToolB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x04tool\"\xf6\x01\n" +
 	"\x1aListAssessmentToolsRequest\x12Z\n" +
