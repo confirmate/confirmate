@@ -43,7 +43,7 @@ var (
 )
 
 const (
-	DefaultAssessmentURL     = "localhost:9090"
+	DefaultAssessmentURL     = "http://localhost:9090"
 	defaultEvidenceQueueSize = 1024
 )
 
