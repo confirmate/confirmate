@@ -38,10 +38,6 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-var (
-	logger *slog.Logger
-)
-
 const (
 	DefaultAssessmentURL     = "http://localhost:9090"
 	defaultEvidenceQueueSize = 1024
@@ -91,8 +87,8 @@ type Service struct {
 }
 
 func init() {
-	logger = slog.New(tint.NewHandler(os.Stdout, nil))
-
+	// Set up logging with tint, which provides structured logging with colors and is compatible with slog.
+	logger := slog.New(tint.NewHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 }
 
@@ -113,7 +109,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		o(svc)
 	}
 
-	// Initialize assessment client if not already set (e.g., by test option)
+	// Initialize assessment client using config (options may have set assessmentClient directly for testing)
 	if svc.assessmentClient == nil {
 		client := svc.cfg.AssessmentClient
 		if client == nil {
@@ -123,7 +119,13 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 			client, svc.cfg.AssessmentAddress)
 	}
 
-	// Initialize database if not already set (e.g., by test option)
+	// Initialize the restartable stream for assessment service
+	err = svc.initAssessmentStream()
+	if err != nil {
+		return nil, err
+	}
+
+	// Initialize database if not already set
 	if svc.db == nil {
 		pcfg := svc.cfg.PersistenceConfig
 		pcfg.Types = types
@@ -135,12 +137,6 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 	// Create a channel to send evidence to the worker thread
 	svc.initEvidenceChannel()
-
-	// Initialize the restartable stream for assessment service
-	err = svc.initAssessmentStream()
-	if err != nil {
-		return nil, err
-	}
 
 	return svc, nil
 }
@@ -164,7 +160,7 @@ func (svc *Service) initAssessmentStream() (err error) {
 		return nil
 	}
 
-	slog.Info("Creating new stream to assessment service", slog.Any("target address", svc.cfg.AssessmentAddress))
+	slog.Info("Creating new stream to assessment service for AssessEvidences", slog.Any("target address", svc.cfg.AssessmentAddress))
 	factory := func(ctx context.Context) *connect.BidiStreamForClient[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse] {
 		return svc.assessmentClient.AssessEvidences(ctx)
 	}

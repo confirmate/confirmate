@@ -113,7 +113,7 @@ func TestNewService(t *testing.T) {
 						InMemoryDB: true,
 					},
 				}),
-				// Custom option to inject nil assessment client for testing
+				// Override the assessment client after initialization
 				func(s *Service) {
 					s.assessmentClient = nilAssessmentClient{}
 				},
