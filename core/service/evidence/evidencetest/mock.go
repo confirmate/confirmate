@@ -21,7 +21,8 @@ var (
 			},
 		}},
 	}
-
+	// MockEvidence2SameResourceAs1 is a second evidence (new ID) that references the same resource as MockEvidence1 to
+	// test resource upsert behavior (database)
 	MockEvidence2SameResourceAs1 = &evidence.Evidence{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
