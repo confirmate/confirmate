@@ -103,13 +103,6 @@ func WithConfig(cfg Config) service.Option[Service] {
 	}
 }
 
-// WithAssessmentClient overrides the assessment client (useful for testing).
-func WithAssessmentClient(client assessmentconnect.AssessmentClient) service.Option[Service] {
-	return func(s *Service) {
-		s.assessmentClient = client
-	}
-}
-
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	var (
 		o      service.Option[Service]
@@ -131,7 +124,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		client = http.DefaultClient
 	}
 
-	// Initialize assessment client if not already set (e.g., by WithAssessmentClient for testing)
+	// Initialize assessment client if not already set
 	if svc.assessmentClient == nil {
 		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
 			client, svc.cfg.AssessmentAddress)

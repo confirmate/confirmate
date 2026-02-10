@@ -113,7 +113,10 @@ func TestNewService(t *testing.T) {
 						InMemoryDB: true,
 					},
 				}),
-				WithAssessmentClient(nilAssessmentClient{}),
+				// Custom option to inject nil assessment client for testing
+				func(s *Service) {
+					s.assessmentClient = nilAssessmentClient{}
+				},
 			}},
 			want: assert.Nil[*Service],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
