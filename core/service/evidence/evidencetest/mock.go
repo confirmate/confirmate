@@ -6,7 +6,6 @@ import (
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/persistence"
 )
 
 var (
@@ -22,6 +21,7 @@ var (
 			},
 		}},
 	}
+
 	MockEvidence2SameResourceAs1 = &evidence.Evidence{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
@@ -99,9 +99,3 @@ var (
 		Properties:           nil,
 	}
 )
-var InitDBWithEvidence = func(db persistence.DB) {
-	err := db.Create(MockEvidence1)
-	if err != nil {
-		panic(err)
-	}
-}
