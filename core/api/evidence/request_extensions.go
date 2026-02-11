@@ -19,17 +19,11 @@ import "google.golang.org/protobuf/proto"
 // GetTargetOfEvaluationId is a shortcut to implement TargetOfEvaluationRequest. It returns
 // the target of evaluation ID of the inner object.
 func (req *StoreEvidenceRequest) GetTargetOfEvaluationId() string {
-	if req.GetEvidence() == nil {
-		return ""
-	}
 	return req.GetEvidence().GetTargetOfEvaluationId()
 }
 
 // GetEvidenceId returns the evidence ID
 func (req *StoreEvidenceRequest) GetEvidenceId() string {
-	if req.GetEvidence() == nil {
-		return ""
-	}
 	return req.GetEvidence().GetId()
 }
 
