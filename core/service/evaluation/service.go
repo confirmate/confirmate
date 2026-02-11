@@ -62,6 +62,7 @@ type Service struct {
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
 	OrchestratorClient:  http.DefaultClient,
+	PersistenceConfig:   persistence.DefaultConfig,
 }
 
 // Config represents the configuration for the evaluation [Service].
@@ -179,7 +180,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	jobs, err = svc.scheduler.FindJobsByTag(auditScope.GetId())
 	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
 		err = fmt.Errorf("error while retrieving existing scheduler job: %w", err)
-		slog.Error("%w", err)
+		slog.Error("%w", log.Err(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	} else if len(jobs) > 0 {
 		err = fmt.Errorf("evaluation for Audit Scope '%s' (target of evaluation '%s' and catalog ID '%s') already started", auditScope.GetId(), auditScope.GetTargetOfEvaluationId(), auditScope.GetCatalogId())
@@ -407,7 +408,7 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 	if err != nil {
 		statusErr := fmt.Errorf("evaluation cannot be scheduled")
 		slog.Error("%w: %w", log.Err(statusErr), log.Err(err))
-		return status.Errorf(codes.Internal, "%w", statusErr)
+		return status.Errorf(codes.Internal, "%s", statusErr)
 	}
 
 	_, err = svc.scheduler.
