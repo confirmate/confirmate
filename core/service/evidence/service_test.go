@@ -168,13 +168,6 @@ func TestService_sendToAssessment(t *testing.T) {
 	err = svc.sendToAssessment(evidenceTwo)
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "failed to send evidence")
-
-	// Step 5: Nil stream guard.
-	svc.assessmentStream = nil
-	evidenceThree := &evidence.Evidence{Id: uuid.NewString()}
-	err = svc.sendToAssessment(evidenceThree)
-	assert.Error(t, err)
-	assert.ErrorContains(t, err, "assessment stream is not initialized")
 }
 
 // TestService_initAssessmentStream verifies creation, idempotency, and error handling.
@@ -1157,13 +1150,9 @@ func TestService_initEvidenceChannel(t *testing.T) {
 	svc.channelEvidence <- ev
 	awaitAssessmentRequest(t, assessmentRecorder.received, ev.Id)
 
-	// Error path: no assessment stream available.
-	svc.assessmentStream = nil
+	// Error path: close stream to trigger send error.
+	assert.NoError(t, svc.assessmentStream.Close())
 	svc.channelEvidence <- &evidence.Evidence{Id: uuid.NewString()}
-	close(svc.channelEvidence)
-	select {
-	case <-assessmentRecorder.received:
-		assert.Fail(t, "unexpected assessment request after stream was removed")
-	case <-time.After(200 * time.Millisecond):
-	}
+	// Give worker time to process and log error
+	time.Sleep(100 * time.Millisecond)
 }

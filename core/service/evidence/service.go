@@ -131,9 +131,6 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 // sendToAssessment forwards evidence to the assessment service using the restartable stream.
 func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
-	if svc.assessmentStream == nil {
-		return fmt.Errorf("assessment stream is not initialized")
-	}
 	// Send evidence to the assessment service using the persistent stream
 	err = svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
 	if err != nil {
