@@ -109,3 +109,28 @@ func TestNewService(t *testing.T) {
 		})
 	}
 }
+
+func TestService_Shutdown(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "happy path",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := NewService()
+			assert.NoError(t, err)
+
+			svc, ok := got.(*Service)
+			if !ok {
+				t.Fatalf("expected *Service, got %T", got)
+			}
+
+			svc.Shutdown()
+			assert.False(t, svc.scheduler.IsRunning())
+
+		})
+	}
+}
