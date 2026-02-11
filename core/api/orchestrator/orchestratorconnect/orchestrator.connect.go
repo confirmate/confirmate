@@ -19,17 +19,15 @@
 package orchestratorconnect
 
 import (
-	context "context"
-	errors "errors"
-	http "net/http"
-	strings "strings"
-
-	connect "connectrpc.com/connect"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
 	assessment "confirmate.io/core/api/assessment"
 	common "confirmate.io/core/api/common"
 	orchestrator "confirmate.io/core/api/orchestrator"
+	connect "connectrpc.com/connect"
+	context "context"
+	errors "errors"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	http "net/http"
+	strings "strings"
 )
 
 // This is a compile-time assertion to ensure that this generated file and the connect package are

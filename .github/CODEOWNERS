@@ -2,9 +2,10 @@
 /core                        @confirmate/core
 
 # Individual service owners
-/core/service/orchestrator   @oxisto
-/core/service/evidence       @lebogg
 /core/service/assessment     @immqu
+/core/service/evaluation     @oxisto
+/core/service/evidence       @lebogg
+/core/service/orchestrator   @oxisto
 
 # Ontology
 /api/ontology                @anatheka
