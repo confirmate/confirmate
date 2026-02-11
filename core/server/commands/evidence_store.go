@@ -55,7 +55,7 @@ var EvidenceCommand = &cli.Command{
 		svc, err := evidence.NewService(
 			evidence.WithConfig(evidence.Config{
 				AssessmentAddress: cmd.String("assessment-address"),
-				AssessmentClient: &http.Client{
+				AssessmentHTTPClient: &http.Client{
 					Timeout: cmd.Duration("assessment-timeout"),
 				},
 				PersistenceConfig: persistence.Config{

@@ -55,9 +55,9 @@ type Config struct {
 	// AssessmentAddress is the address of the assessment service.
 	AssessmentAddress string
 
-	// AssessmentClient is the HTTP client used for assessment service communication.
+	// AssessmentHTTPClient is the HTTP client used for assessment service communication.
 	// If nil, http.DefaultClient will be used.
-	AssessmentClient *http.Client
+	AssessmentHTTPClient *http.Client
 
 	// PersistenceConfig is the configuration for the persistence layer.
 	PersistenceConfig persistence.Config
@@ -109,15 +109,14 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		o(svc)
 	}
 
-	// Initialize assessment client using config (options may have set assessmentClient directly for testing)
-	if svc.assessmentClient == nil {
-		client := svc.cfg.AssessmentClient
-		if client == nil {
-			client = http.DefaultClient
-		}
-		svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-			client, svc.cfg.AssessmentAddress)
+	// Initialize assessment httpClient using config (options may have set assessmentClient directly for testing)
+
+	httpClient := svc.cfg.AssessmentHTTPClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
 	}
+	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
+		httpClient, svc.cfg.AssessmentAddress)
 
 	// Initialize the restartable stream for assessment service
 	err = svc.initAssessmentStream()

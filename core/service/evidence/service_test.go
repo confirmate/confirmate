@@ -70,8 +70,8 @@ func TestNewService(t *testing.T) {
 			name: "EvidenceStoreServer created with option 'WithConfig' - no client provided",
 			args: args{opts: []service.Option[Service]{
 				WithConfig(Config{
-					AssessmentAddress: "localhost:9091",
-					AssessmentClient:  nil,
+					AssessmentAddress:    "localhost:9091",
+					AssessmentHTTPClient: nil,
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
@@ -89,8 +89,8 @@ func TestNewService(t *testing.T) {
 			name: "EvidenceStoreServer created with option 'WithConfig' - with client",
 			args: args{opts: []service.Option[Service]{
 				WithConfig(Config{
-					AssessmentAddress: "localhost:9091",
-					AssessmentClient:  &http.Client{Timeout: time.Duration(1)},
+					AssessmentAddress:    "localhost:9091",
+					AssessmentHTTPClient: &http.Client{Timeout: time.Duration(1)},
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
@@ -99,7 +99,7 @@ func TestNewService(t *testing.T) {
 			}},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// We provided a client with timeout set to 1 nanosecond
-				assert.Equal(t, 1, got.cfg.AssessmentClient.Timeout)
+				assert.Equal(t, 1, got.cfg.AssessmentHTTPClient.Timeout)
 				assert.NotNil(t, got.assessmentStream)
 				return assert.Equal(t, "localhost:9091", got.cfg.AssessmentAddress)
 			},
@@ -109,9 +109,12 @@ func TestNewService(t *testing.T) {
 			name: "Error - assessment stream init fails",
 			args: args{opts: []service.Option[Service]{
 				WithConfig(Config{
+					AssessmentAddress:    "",
+					AssessmentHTTPClient: nilAssessmentClient{},
 					PersistenceConfig: persistence.Config{
 						InMemoryDB: true,
 					},
+					EvidenceQueueSize: 0,
 				}),
 				// Override the assessment client after initialization
 				func(s *Service) {
@@ -163,8 +166,8 @@ func TestService_sendToAssessment(t *testing.T) {
 	// Step 2: Create service with assessment client.
 	svc, err := NewService(
 		WithConfig(Config{
-			AssessmentAddress: testSrv.URL,
-			AssessmentClient:  testSrv.Client(),
+			AssessmentAddress:    testSrv.URL,
+			AssessmentHTTPClient: testSrv.Client(),
 			PersistenceConfig: persistence.Config{
 				InMemoryDB: true,
 			},
@@ -202,8 +205,8 @@ func TestService_initAssessmentStream(t *testing.T) {
 
 	svc, err := NewService(
 		WithConfig(Config{
-			AssessmentAddress: testSrv.URL,
-			AssessmentClient:  testSrv.Client(),
+			AssessmentAddress:    testSrv.URL,
+			AssessmentHTTPClient: testSrv.Client(),
 			PersistenceConfig: persistence.Config{
 				InMemoryDB: true,
 			},
@@ -493,7 +496,7 @@ func TestService_StoreEvidences(t *testing.T) {
 				cfg: DefaultConfig,
 			}
 			svc.cfg.AssessmentAddress = assessmentSrv.URL
-			svc.cfg.AssessmentClient = assessmentSrv.Client()
+			svc.cfg.AssessmentHTTPClient = assessmentSrv.Client()
 
 			// Initialize assessment client
 			svc.assessmentClient = assessmentconnect.NewAssessmentClient(
@@ -552,8 +555,8 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 
 	svc, err := NewService(
 		WithConfig(Config{
-			AssessmentAddress: assessmentSrv.URL,
-			AssessmentClient:  assessmentSrv.Client(),
+			AssessmentAddress:    assessmentSrv.URL,
+			AssessmentHTTPClient: assessmentSrv.Client(),
 			PersistenceConfig: persistence.Config{
 				InMemoryDB: true,
 			},
@@ -1151,8 +1154,8 @@ func TestService_initEvidenceChannel(t *testing.T) {
 
 	svc, err := NewService(
 		WithConfig(Config{
-			AssessmentAddress: testSrv.URL,
-			AssessmentClient:  testSrv.Client(),
+			AssessmentAddress:    testSrv.URL,
+			AssessmentHTTPClient: testSrv.Client(),
 			PersistenceConfig: persistence.Config{
 				InMemoryDB: true,
 			},
