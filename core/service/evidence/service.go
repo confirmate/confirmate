@@ -21,7 +21,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 
@@ -84,12 +83,6 @@ type Service struct {
 	hookMutex sync.Mutex
 
 	evidenceconnect.UnimplementedEvidenceStoreHandler
-}
-
-func init() {
-	// Set up logging with tint, which provides structured logging with colors and is compatible with slog.
-	logger := slog.New(tint.NewHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
