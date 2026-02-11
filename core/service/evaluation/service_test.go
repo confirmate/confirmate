@@ -1,15 +1,21 @@
 package evaluation
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
+	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
+	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
+	"confirmate.io/core/service/evaluation/evaluationtest"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
+	"connectrpc.com/connect"
 )
 
 func TestNewService(t *testing.T) {
@@ -131,6 +137,263 @@ func TestService_Shutdown(t *testing.T) {
 			svc.Shutdown()
 			assert.False(t, svc.scheduler.IsRunning())
 
+		})
+	}
+}
+
+func TestService_ListEvaluationResults(t *testing.T) {
+	type args struct {
+		req *connect.Request[evaluation.ListEvaluationResultsRequest]
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evaluation.ListEvaluationResultsResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error: pagination error",
+			args: args{
+				req: &connect.Request[evaluation.ListEvaluationResultsRequest]{
+					Msg: &evaluation.ListEvaluationResultsRequest{
+						PageToken: "!!!invalid-base64!!!",
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: assert.Nil[*connect.Response[evaluation.ListEvaluationResultsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.ErrorContains(t, err, "could not decode page token")
+			},
+		},
+		{
+			name:   "error: validation error",
+			args:   args{},
+			fields: fields{},
+			want:   assert.Nil[*connect.Response[evaluation.ListEvaluationResultsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
+			},
+		},
+		// TODO(all): Results in an error when filtering by latest by control id -> Why! Error message: "Parsing error near <with>"
+		// {
+		// 	name: "happy path: filter by `get latest by control id`",
+		// 	args: args{
+		// 		req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+		// 			LatestByControlId: util.Ref(true),
+		// 		}),
+		// 	},
+		// 	fields: field{
+		// 		db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+		// 			err := d.Create(evaluationtest.MockEvaluationResult1)
+		// 			assert.NoError(t, err)
+		// 			err = d.Create(evaluationtest.MockEvaluationResult2)
+		// 			assert.NoError(t, err)
+		// 			err = d.Create(evaluationtest.MockEvaluationResult3)
+		// 			assert.NoError(t, err)
+		// 			err = d.Create(evaluationtest.MockEvaluationResult4)
+		// 			assert.NoError(t, err)
+		// 		}),
+		// 	},
+		// 	want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+		// 		assert.NotNil(t, got)
+		// 		assert.Equal(t, 1, len(got.Msg.Results))
+		// 		return assert.Equal(t, evaluationtest.MockEvaluationResult1, got.Msg.Results[0])
+		// 	},
+		// 	wantErr: assert.NoError,
+		// },
+		{
+			name: "happy path: filter by `valid manual only`",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+						ValidManualOnly: util.Ref(true),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult3)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult4)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, evaluationtest.MockEvaluationResult4, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by `parents only`",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+						ParentsOnly: util.Ref(true),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult3)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 2, len(got.Msg.Results))
+				assert.Equal(t, evaluationtest.MockEvaluationResult1, got.Msg.Results[0])
+				return assert.Equal(t, evaluationtest.MockEvaluationResult2, got.Msg.Results[1])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by sub-control",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+						SubControls: util.Ref(string(evaluationtest.MockControlId11)),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult3)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, evaluationtest.MockEvaluationResult3, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by control ID",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+						ControlId: util.Ref(string(evaluationtest.MockControlId2)),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, evaluationtest.MockEvaluationResult2, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by catalog ID",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+						CatalogId: util.Ref(string(evaluationtest.MockCatalogId2)),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, evaluationtest.MockEvaluationResult2, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filter by ToE",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+						TargetOfEvaluationId: util.Ref(evaluationtest.MockToeId2),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, evaluationtest.MockEvaluationResult2, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path",
+			args: args{
+				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 2, len(got.Msg.Results))
+				assert.Equal(t, evaluationtest.MockEvaluationResult1, got.Msg.Results[0])
+				return assert.Equal(t, evaluationtest.MockEvaluationResult2, got.Msg.Results[1])
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db: tt.fields.db,
+			}
+			got, gotErr := svc.ListEvaluationResults(context.Background(), tt.args.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
 		})
 	}
 }

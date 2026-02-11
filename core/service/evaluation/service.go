@@ -254,9 +254,6 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	req *connect.Request[evaluation.ListEvaluationResultsRequest],
 ) (res *connect.Response[evaluation.ListEvaluationResultsResponse], err error) {
 	var (
-		// filtered_values []*evaluation.EvaluationResult
-		allowed   []string
-		all       bool
 		query     []string
 		partition []string
 		args      []any
@@ -309,20 +306,15 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 		}
 	}
 
-	// In any case, we need to make sure that we only select evaluation results of target of evaluations that we have access to
-	// (if we do not have access to all)
-	if !all {
-		query = append(query, "target_of_evaluation_id IN ?")
-		args = append(args, allowed)
-	}
-
 	res = &connect.Response[evaluation.ListEvaluationResultsResponse]{Msg: &evaluation.ListEvaluationResultsResponse{Results: make([]*evaluation.EvaluationResult, 0)}}
 
 	// If we want to have it grouped by resource ID, we need to do a raw query
 	if req.Msg.GetLatestByControlId() {
 		// In the raw SQL, we need to build the whole WHERE statement
-		var where string
-		var p = ""
+		var (
+			where string
+			p     = ""
+		)
 
 		if len(query) > 0 {
 			where = "WHERE " + strings.Join(query, " AND ")
@@ -349,10 +341,8 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 
 		// Paginate the results according to the request
 		res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evaluation.EvaluationResult](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
-		if err != nil {
-			err = fmt.Errorf("could not paginate evaluation results: %w", err)
-			slog.Error("%w", log.Err(err))
-			return nil, status.Errorf(codes.Internal, "internal error")
+		if err = service.HandleDatabaseError(err); err != nil {
+			return nil, err
 		}
 	}
 
