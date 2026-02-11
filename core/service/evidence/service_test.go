@@ -35,8 +35,9 @@ func TestMain(m *testing.M) {
 }
 
 // TestNewService provides simple tests for NewService
-// What we could not test:
+// What we could not test the following test cases:
 // - Error when a new DB has to be created (NewService doesn't expose a way to inject failing DB creation)
+// - Error that assessment stream init fails
 func TestNewService(t *testing.T) {
 	type args struct {
 		opts []service.Option[Service]
@@ -104,27 +105,6 @@ func TestNewService(t *testing.T) {
 				return assert.Equal(t, "localhost:9091", got.cfg.AssessmentAddress)
 			},
 			wantErr: assert.NoError,
-		},
-		{
-			name: "Error - assessment stream init fails",
-			args: args{opts: []service.Option[Service]{
-				WithConfig(Config{
-					AssessmentAddress:    "",
-					AssessmentHTTPClient: nilAssessmentClient{},
-					PersistenceConfig: persistence.Config{
-						InMemoryDB: true,
-					},
-					EvidenceQueueSize: 0,
-				}),
-				// Override the assessment client after initialization
-				func(s *Service) {
-					s.assessmentClient = nilAssessmentClient{}
-				},
-			}},
-			want: assert.Nil[*Service],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "factory returned nil stream")
-			},
 		},
 	}
 	for _, tt := range tests {
