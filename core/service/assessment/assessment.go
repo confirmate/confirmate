@@ -176,6 +176,11 @@ func (svc *Service) initOrchestratorStream() (err error) {
 		restartableStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	)
 
+	// The client is created in the NewService constructor, but the service could also be created without the constructor, so we check if the orchestrator client is nil here
+	if svc.orchestratorClient == nil {
+		svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+	}
+
 	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)
 	}
