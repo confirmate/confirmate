@@ -1134,9 +1134,6 @@ func TestService_MetricImplementation(t *testing.T) {
 
 // TestService_MetricConfiguration tests the MetricConfiguration() method including caching
 func TestService_MetricConfiguration(t *testing.T) {
-	type fields struct {
-		db persistence.DB
-	}
 	tests := []struct {
 		name           string
 		toeID          string
