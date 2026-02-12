@@ -20,14 +20,9 @@ import (
 
 	"confirmate.io/core/log"
 	"confirmate.io/core/server/commands"
-	"github.com/lmittmann/tint"
 )
 
 func main() {
-	// Set up logging with tint
-	logger := slog.New(tint.NewHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-
 	if err := commands.ParseAndRun(commands.ConfirmateCommand); err != nil {
 		slog.Error("Failed to start confirmate", log.Err(err))
 		os.Exit(1)
