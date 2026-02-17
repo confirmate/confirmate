@@ -16,6 +16,8 @@
 package commands
 
 import (
+	confcli "confirmate.io/core/cli"
+
 	"github.com/urfave/cli/v3"
 )
 
@@ -32,8 +34,14 @@ func NewRootCommand() *cli.Command {
 				Value:   "http://localhost:8080",
 				Sources: cli.EnvVars("CONFIRMATE_ADDR"),
 			},
+			&cli.StringFlag{
+				Name:  confcli.SessionFolderFlag,
+				Usage: "Directory for CLI session data",
+				Value: confcli.DefaultSessionFolder,
+			},
 		},
 		Commands: []*cli.Command{
+			LoginCommand(),
 			{
 				Name:  "tools",
 				Usage: "Assessment tool operations",

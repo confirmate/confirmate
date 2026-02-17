@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"confirmate.io/core/api/assessment"
@@ -33,7 +34,7 @@ import (
 
 // StoreAssessmentResult stores a single assessment result.
 func (svc *Service) StoreAssessmentResult(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
 ) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
 	var (
@@ -46,6 +47,9 @@ func (svc *Service) StoreAssessmentResult(
 	}
 
 	result = req.Msg.Result
+	if !svc.hasTargetAccess(ctx, result.GetTargetOfEvaluationId()) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Set timestamp
 	result.CreatedAt = timestamppb.Now()
@@ -73,7 +77,7 @@ func (svc *Service) StoreAssessmentResult(
 
 // GetAssessmentResult retrieves an assessment result by ID.
 func (svc *Service) GetAssessmentResult(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
 	var (
@@ -90,13 +94,17 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
+	if !svc.hasTargetAccess(ctx, result.TargetOfEvaluationId) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	res = connect.NewResponse(&result)
 	return
 }
 
 // ListAssessmentResults lists all assessment results with optional filtering.
 func (svc *Service) ListAssessmentResults(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
 	var (
@@ -116,11 +124,18 @@ func (svc *Service) ListAssessmentResults(
 		req.Msg.Asc = false
 	}
 
+	var whereClauses []string
+	var args []any
+
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
+		if !slices.Contains(allowed, util.Deref(req.Msg.Filter.TargetOfEvaluationId)) {
+			return nil, service.ErrPermissionDenied
+		}
+	}
+
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
-		var whereClauses []string
-		var args []any
-
 		if req.Msg.Filter.TargetOfEvaluationId != nil {
 			whereClauses = append(whereClauses, "target_of_evaluation_id = ?")
 			args = append(args, util.Deref(req.Msg.Filter.TargetOfEvaluationId))
@@ -139,20 +154,27 @@ func (svc *Service) ListAssessmentResults(
 		}
 		if len(req.Msg.Filter.AssessmentResultIds) > 0 {
 			// Build IN clause dynamically to support ramsql (doesn't support array binding)
-			placeholders := strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
+			var placeholders string
+			placeholders = strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
 			placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
 			whereClauses = append(whereClauses, "id IN ("+placeholders+")")
 			for _, id := range req.Msg.Filter.AssessmentResultIds {
 				args = append(args, id)
 			}
 		}
+	}
 
-		// Combine all WHERE clauses with AND
-		if len(whereClauses) > 0 {
-			whereQuery := strings.Join(whereClauses, " AND ")
-			conds = append(conds, whereQuery)
-			conds = append(conds, args...)
-		}
+	if !all {
+		whereClauses = append(whereClauses, "target_of_evaluation_id IN ?")
+		args = append(args, allowed)
+	}
+
+	// Combine all WHERE clauses with AND
+	if len(whereClauses) > 0 {
+		var whereQuery string
+		whereQuery = strings.Join(whereClauses, " AND ")
+		conds = append(conds, whereQuery)
+		conds = append(conds, args...)
 	}
 
 	// Handle latest_by_resource_id filter
@@ -176,7 +198,8 @@ func (svc *Service) ListAssessmentResults(
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
-		query := fmt.Sprintf(`
+		var query string
+		query = fmt.Sprintf(`
 			SELECT DISTINCT ON (resource_id, metric_id) *
 			FROM assessment_results
 			%s

@@ -22,57 +22,70 @@ import (
 	"os"
 	"strings"
 
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	confcli "confirmate.io/core/cli"
 	"github.com/hokaccha/go-prettyjson"
 	"github.com/urfave/cli/v3"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-
-	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 )
 
 type httpClientKey struct{}
 
 // WithHTTPClient returns a new context carrying an HTTP client override.
 // If client is nil, ctx is returned unchanged.
-func WithHTTPClient(ctx context.Context, client *http.Client) context.Context {
+func WithHTTPClient(ctx context.Context, client *http.Client) (out context.Context) {
 	if client == nil {
 		return ctx
 	}
 
-	return context.WithValue(ctx, httpClientKey{}, client)
+	out = context.WithValue(ctx, httpClientKey{}, client)
+	return out
 }
 
 // httpClientFromContext extracts an HTTP client from the context.
 // If no client is found, [http.DefaultClient] is returned.
-func httpClientFromContext(ctx context.Context) *http.Client {
+func httpClientFromContext(ctx context.Context) (*http.Client, bool) {
 	if ctx != nil {
 		if client, ok := ctx.Value(httpClientKey{}).(*http.Client); ok && client != nil {
-			return client
+			return client, true
 		}
 	}
 
-	return http.DefaultClient
+	return http.DefaultClient, false
 }
 
 // OrchestratorClient returns an orchestrator client. It is configured by the
 // "addr" flag and its HTTP client can be overriden by setting an
 // [httpClientKey] in the ctx.
-func OrchestratorClient(ctx context.Context, c *cli.Command) orchestratorconnect.OrchestratorClient {
-	return orchestratorconnect.NewOrchestratorClient(
-		httpClientFromContext(ctx),
-		c.Root().String("addr"),
-	)
+func OrchestratorClient(ctx context.Context, c *cli.Command) (client orchestratorconnect.OrchestratorClient) {
+	var httpClient *http.Client
+	var overridden bool
+	var session *confcli.Session
+	var err error
+
+	httpClient, overridden = httpClientFromContext(ctx)
+	if !overridden {
+		session, err = confcli.LoadSession(c.Root().String(confcli.SessionFolderFlag))
+		if err == nil && session != nil {
+			httpClient = session.HTTPClient(httpClient)
+		}
+	}
+
+	client = orchestratorconnect.NewOrchestratorClient(httpClient, c.Root().String("addr"))
+	return client
 }
 
 // ExpandCommaSeparated flattens values that may contain comma-separated items.
-func ExpandCommaSeparated(values []string) []string {
+func ExpandCommaSeparated(values []string) (out []string) {
 	if len(values) == 0 {
 		return nil
 	}
-	var out []string
+
 	for _, value := range values {
 		for _, part := range strings.Split(value, ",") {
-			item := strings.TrimSpace(part)
+			var item string
+			item = strings.TrimSpace(part)
 			if item != "" {
 				out = append(out, item)
 			}
@@ -82,17 +95,19 @@ func ExpandCommaSeparated(values []string) []string {
 }
 
 // PrettyPrint prints a proto message as pretty-printed JSON to stdout.
-func PrettyPrint(msg proto.Message) error {
-	m := protojson.MarshalOptions{
-		EmitUnpopulated: false,
-	}
+func PrettyPrint(msg proto.Message) (err error) {
+	var m protojson.MarshalOptions
+	var b []byte
+	var out []byte
 
-	b, err := m.Marshal(msg)
+	m = protojson.MarshalOptions{EmitUnpopulated: false}
+
+	b, err = m.Marshal(msg)
 	if err != nil {
 		return err
 	}
 
-	out, err := prettyjson.Format(b)
+	out, err = prettyjson.Format(b)
 	if err != nil {
 		return err
 	}

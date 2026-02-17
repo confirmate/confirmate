@@ -118,6 +118,9 @@ type Service struct {
 	// pe contains the actual policy evaluation engine we use
 	pe policies.PolicyEval
 
+	// authz defines our authorization strategy for target-of-evaluation scoped access.
+	authz service.AuthorizationStrategy
+
 	// cfg contains the service configuration
 	cfg Config
 
@@ -131,6 +134,23 @@ type Service struct {
 func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
 		svc.cfg = cfg
+	}
+}
+
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
+func WithAuthorizationStrategyJWT(targetKey string, allowAllKey string) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyJWT{
+			TargetOfEvaluationsKey: targetKey,
+			AllowAllKey:            allowAllKey,
+		}
 	}
 }
 
@@ -151,6 +171,10 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 
 	for _, o = range opts {
 		o(svc)
+	}
+
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
 	}
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
@@ -252,11 +276,11 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	ev = req.Msg.Evidence
 
-	// // TODO: Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
-	// 	slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
+	if ev == nil || !svc.authz.CheckAccess(ctx, service.AccessUpdate, ev) {
+		slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
@@ -371,14 +395,6 @@ func (svc *Service) handleEvidence(
 		newError = fmt.Errorf("could not evaluate evidence: %w", err)
 
 		go svc.informHooks(ctx, nil, newError)
-
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	if err != nil {
-		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.cfg.OrchestratorAddress, err)
-
-		go svc.informHooks(ctx, nil, err)
 
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

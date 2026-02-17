@@ -28,8 +28,9 @@ import (
 // Server represents a Connect server, with RPC and HTTP support.
 type Server struct {
 	*http.Server
-	cfg      Config
-	handlers map[string]http.Handler
+	cfg          Config
+	handlers     map[string]http.Handler
+	httpHandlers map[string]http.Handler
 }
 
 // Option is a functional option for configuring the [Server].
@@ -47,6 +48,14 @@ func WithConfig(cfg Config) Option {
 func WithHandler(path string, handler http.Handler) Option {
 	return func(svr *Server) {
 		svr.handlers[path] = handler
+	}
+}
+
+// WithHTTPHandler adds a raw HTTP handler at the specified path.
+// This bypasses the Connect transcoder and is useful for non-RPC endpoints.
+func WithHTTPHandler(path string, handler http.Handler) Option {
+	return func(svr *Server) {
+		svr.httpHandlers[path] = handler
 	}
 }
 
@@ -80,8 +89,9 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Setup default server config
 	svr = &Server{
-		cfg:      DefaultConfig,
-		handlers: make(map[string]http.Handler),
+		cfg:          DefaultConfig,
+		handlers:     make(map[string]http.Handler),
+		httpHandlers: make(map[string]http.Handler),
 	}
 
 	// Apply options
@@ -106,6 +116,9 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Create new mux
 	mux = http.NewServeMux()
+	for path, handler := range svr.httpHandlers {
+		mux.Handle(path, handler)
+	}
 	mux.Handle("/", srv.handleCORS(transcoder))
 
 	// Configure h2c support using standard library
