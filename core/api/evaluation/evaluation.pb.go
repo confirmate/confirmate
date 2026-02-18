@@ -471,7 +471,10 @@ type EvaluationResult struct {
 	// Optional, but required if the status is one of the "manually" ones. This
 	// denotes how long the (manual) created evaluation result is valid. During
 	// this time, no automatic results are generated for the specific control.
-	ValidUntil    *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	ValidUntil *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+	// creation, such as a large file like a policy in PDF format.
+	Data          []byte `protobuf:"bytes,21,opt,name=data,proto3,oneof" json:"data,omitempty" gorm:"type:bytea"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -586,6 +589,13 @@ func (x *EvaluationResult) GetComment() string {
 func (x *EvaluationResult) GetValidUntil() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ValidUntil
+	}
+	return nil
+}
+
+func (x *EvaluationResult) GetData() []byte {
+	if x != nil {
+		return x.Data
 	}
 	return nil
 }
@@ -728,7 +738,7 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\x15_latest_by_control_id\"\x8d\x01\n" +
 	"\x1dListEvaluationResultsResponse\x12D\n" +
 	"\aresults\x18\x01 \x03(\v2*.confirmate.evaluation.v1.EvaluationResultR\aresults\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xd4\x06\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x8e\a\n" +
 	"\x10EvaluationResult\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12?\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12.\n" +
@@ -744,11 +754,13 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	" \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x13assessmentResultIds\x12\x1d\n" +
 	"\acomment\x18\v \x01(\tH\x01R\acomment\x88\x01\x01\x12s\n" +
 	"\vvalid_until\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x02R\n" +
-	"validUntil\x88\x01\x01B\x14\n" +
+	"validUntil\x88\x01\x01\x12/\n" +
+	"\x04data\x18\x15 \x01(\fB\x16\x9a\x84\x9e\x03\x11gorm:\"type:bytea\"H\x03R\x04data\x88\x01\x01B\x14\n" +
 	"\x12_parent_control_idB\n" +
 	"\n" +
 	"\b_commentB\x0e\n" +
-	"\f_valid_until*\xf2\x01\n" +
+	"\f_valid_untilB\a\n" +
+	"\x05_data*\xf2\x01\n" +
 	"\x10EvaluationStatus\x12!\n" +
 	"\x1dEVALUATION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bEVALUATION_STATUS_COMPLIANT\x10\x01\x12(\n" +

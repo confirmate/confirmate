@@ -160,6 +160,10 @@ message EvaluationResult {
   // denotes how long the (manual) created evaluation result is valid. During
   // this time, no automatic results are generated for the specific control.
   optional google.protobuf.Timestamp valid_until = 20 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+  // creation, such as a large file like a policy in PDF format.
+  optional bytes data = 21 [(tagger.tags) = "gorm:\"type:bytea\""];
 }
 
 enum EvaluationStatus {

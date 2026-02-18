@@ -231,6 +231,12 @@ components:
                          denotes how long the (manual) created evaluation result is valid. During
                          this time, no automatic results are generated for the specific control.
                     format: date-time
+                data:
+                    type: string
+                    description: |-
+                        Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+                         creation, such as a large file like a policy in PDF format.
+                    format: bytes
             description: |-
                 A evaluation result resource, representing the result after evaluating the
                  target of evaluation with a specific control target_of_evaluation_id, category_name and
