@@ -16,6 +16,7 @@ import (
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -252,6 +253,244 @@ func Test_validateCreateEvaluationResultRequest(t *testing.T) {
 			if gotErr == nil && tt.args.req.Msg.Result != nil {
 				assert.NotEmpty(t, tt.args.req.Msg.Result.Id)
 			}
+		})
+	}
+}
+
+func TestService_CreateEvaluationResult(t *testing.T) {
+	type args struct {
+		req *connect.Request[evaluation.CreateEvaluationResultRequest]
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evaluation.EvaluationResult]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error: nil request",
+			args: args{
+				req: nil,
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: assert.Nil[*connect.Response[evaluation.EvaluationResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.ErrorContains(t, err, "empty request")
+			},
+		},
+		{
+			name: "error: non-manual status (compliant)",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: assert.Nil[*connect.Response[evaluation.EvaluationResult]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.ErrorContains(t, err, "only manually set statuses are allowed")
+			},
+		},
+		{
+			name: "happy path: compliant manually",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+						Comment:              util.Ref("Manual evaluation - compliant"),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.NotEmpty(t, got.Msg.Id)
+				assert.NoError(t, uuid.Validate(got.Msg.Id))
+				assert.Equal(t, evaluationtest.MockToeId1, got.Msg.TargetOfEvaluationId)
+				assert.Equal(t, evaluationtest.MockAuditScopeId1, got.Msg.AuditScopeId)
+				assert.Equal(t, evaluationtest.MockControlId1, got.Msg.ControlId)
+				assert.Equal(t, evaluationtest.MockCategoryName1, got.Msg.ControlCategoryName)
+				assert.Equal(t, evaluationtest.MockCatalogId1, got.Msg.ControlCatalogId)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, got.Msg.Status)
+				assert.Equal(t, "Manual evaluation - compliant", util.Deref(got.Msg.Comment))
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: not compliant manually",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "",
+						TargetOfEvaluationId: evaluationtest.MockToeId2,
+						AuditScopeId:         evaluationtest.MockAuditScopeId2,
+						ControlId:            evaluationtest.MockControlId2,
+						ControlCategoryName:  evaluationtest.MockCategoryName2,
+						ControlCatalogId:     evaluationtest.MockCatalogId2,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+						Comment:              util.Ref("Manual evaluation - not compliant"),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.NotEmpty(t, got.Msg.Id)
+				assert.Equal(t, evaluationtest.MockToeId2, got.Msg.TargetOfEvaluationId)
+				assert.Equal(t, evaluationtest.MockAuditScopeId2, got.Msg.AuditScopeId)
+				assert.Equal(t, evaluationtest.MockControlId2, got.Msg.ControlId)
+				assert.Equal(t, evaluationtest.MockCategoryName2, got.Msg.ControlCategoryName)
+				assert.Equal(t, evaluationtest.MockCatalogId2, got.Msg.ControlCatalogId)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY, got.Msg.Status)
+				assert.Equal(t, "Manual evaluation - not compliant", util.Deref(got.Msg.Comment))
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with large file blob in data field",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+						Comment:              util.Ref("Manual evaluation with large data"),
+						Data:                 make([]byte, 1024*1024), // 1MB data blob
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.NotEmpty(t, got.Msg.Id)
+				assert.Equal(t, evaluationtest.MockToeId1, got.Msg.TargetOfEvaluationId)
+				assert.Equal(t, evaluationtest.MockAuditScopeId1, got.Msg.AuditScopeId)
+				assert.Equal(t, evaluationtest.MockControlId1, got.Msg.ControlId)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, got.Msg.Status)
+				assert.Equal(t, 1024*1024, len(got.Msg.Data))
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with assessment result IDs",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+						AssessmentResultIds:  []string{evaluationtest.MockAssessmentResultId1, evaluationtest.MockAssessmentResultId2},
+						Comment:              util.Ref("Manual evaluation with assessment results"),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.NotEmpty(t, got.Msg.Id)
+				assert.Equal(t, evaluationtest.MockToeId1, got.Msg.TargetOfEvaluationId)
+				assert.Equal(t, 2, len(got.Msg.AssessmentResultIds))
+				assert.Equal(t, evaluationtest.MockAssessmentResultId1, got.Msg.AssessmentResultIds[0])
+				assert.Equal(t, evaluationtest.MockAssessmentResultId2, got.Msg.AssessmentResultIds[1])
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with parent control ID",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId11,
+						ParentControlId:      util.Ref(evaluationtest.MockControlId1),
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+						Comment:              util.Ref("Manual evaluation for sub-control"),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.NotEmpty(t, got.Msg.Id)
+				assert.Equal(t, evaluationtest.MockControlId11, got.Msg.ControlId)
+				assert.Equal(t, evaluationtest.MockControlId1, util.Deref(got.Msg.ParentControlId))
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, got.Msg.Status)
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db: tt.fields.db,
+			}
+			got, gotErr := svc.CreateEvaluationResult(context.Background(), tt.args.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
 		})
 	}
 }
