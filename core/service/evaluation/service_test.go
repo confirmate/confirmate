@@ -2,16 +2,13 @@ package evaluation
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
-	"os"
 	"testing"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
-	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
@@ -502,17 +499,8 @@ func TestService_CreateEvaluationResult(t *testing.T) {
 // are correctly stored and retrieved from the database. This test ensures the persistence layer (GORM) properly handles
 // large binary data (1MB+) in the evaluation result's Data field, which is used for giving additional justification.
 func TestService_CreateEvaluationResult_LargeBlobIntegration(t *testing.T) {
-	// Create an in-memory database for testing with TRACE-level logging enabled
-	// The init function configures slog to TRACE level to enable GORM SQL query logging
-	db := persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
-		// Configure slog with TRACE level to see SQL queries from GORM
-		// GORM logs SQL queries at TRACE level (-8), which is below DEBUG (-4)
-		handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: log.LevelTrace.Level(),
-		})
-		logger := slog.New(handler)
-		slog.SetDefault(logger)
-	})
+	// Create an in-memory database for testing
+	db := persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{})
 
 	// Initialize the service with the test database
 	svc := &Service{
@@ -616,32 +604,32 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			},
 		},
 		// TODO(all): Results in an error when filtering by latest by control id -> Why! Error message: "Parsing error near <with>"
-		// {
-		// 	name: "happy path: filter by `get latest by control id`",
-		// 	args: args{
-		// 		req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
-		// 			LatestByControlId: util.Ref(true),
-		// 		}),
-		// 	},
-		// 	fields: field{
-		// 		db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
-		// 			err := d.Create(evaluationtest.MockEvaluationResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(evaluationtest.MockEvaluationResult2)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(evaluationtest.MockEvaluationResult3)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(evaluationtest.MockEvaluationResult4)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
-		// 		assert.NotNil(t, got)
-		// 		assert.Equal(t, 1, len(got.Msg.Results))
-		// 		return assert.Equal(t, evaluationtest.MockEvaluationResult1, got.Msg.Results[0])
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
+		//{
+		//	name: "happy path: filter by `get latest by control id`",
+		//	args: args{
+		//		req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
+		//			LatestByControlId: util.Ref(true),
+		//		}),
+		//	},
+		//	fields: fields{
+		//		db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+		//			err := d.Create(evaluationtest.MockEvaluationResult1)
+		//			assert.NoError(t, err)
+		//			err = d.Create(evaluationtest.MockEvaluationResult2)
+		//			assert.NoError(t, err)
+		//			err = d.Create(evaluationtest.MockEvaluationResult3)
+		//			assert.NoError(t, err)
+		//			err = d.Create(evaluationtest.MockEvaluationResult4)
+		//			assert.NoError(t, err)
+		//		}),
+		//	},
+		//	want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+		//		assert.NotNil(t, got)
+		//		assert.Equal(t, 1, len(got.Msg.Results))
+		//		return assert.Equal(t, evaluationtest.MockEvaluationResult1, got.Msg.Results[0])
+		//	},
+		//	wantErr: assert.NoError,
+		//},
 		{
 			name: "happy path: filter by `valid manual only`",
 			args: args{
