@@ -355,24 +355,9 @@ func (svc *Service) CreateEvaluationResult(ctx context.Context, req *connect.Req
 		eval *evaluation.EvaluationResult
 	)
 
-	// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
-	req.Msg.Result.Id = uuid.NewString()
-
 	// Validate the request
-	if err = service.Validate(req); err != nil {
+	if err = validateCreateEvaluationResultRequest(req); err != nil {
 		return nil, err
-	}
-
-	// We only allow manually created statuses
-	if req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY &&
-		req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY {
-		return nil, status.Errorf(codes.InvalidArgument, "only manually set statuses are allowed")
-	}
-
-	// The ValidUntil field must be checked separately as it is an optional field and not checked by the request
-	// validation. It is only mandatory when manually creating a result.
-	if req.Msg.Result.ValidUntil == nil {
-		return nil, status.Errorf(codes.InvalidArgument, "validity must be set")
 	}
 
 	eval = req.Msg.Result
@@ -384,6 +369,35 @@ func (svc *Service) CreateEvaluationResult(ctx context.Context, req *connect.Req
 	res = connect.NewResponse(eval)
 
 	return res, nil
+}
+
+// validateCreateEvaluationResultRequest validates the CreateEvaluationResultRequest and prepares it for processing.
+func validateCreateEvaluationResultRequest(req *connect.Request[evaluation.CreateEvaluationResultRequest]) error {
+	// Validate the request with a preparation function
+	if err := service.ValidateWithPrep(req, func() {
+		// Check if Result is nil before accessing it to avoid nil pointer dereference
+		if req.Msg.Result == nil {
+			return
+		}
+		// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
+		req.Msg.Result.Id = uuid.NewString()
+	}); err != nil {
+		return err
+	}
+
+	// We only allow manually created statuses
+	if req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY &&
+		req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY {
+		return status.Errorf(codes.InvalidArgument, "only manually set statuses are allowed")
+	}
+
+	// The ValidUntil field must be checked separately as it is an optional field and not checked by the request
+	// validation. It is only mandatory when manually creating a result.
+	if req.Msg.Result.ValidUntil == nil {
+		return status.Errorf(codes.InvalidArgument, "validity must be set")
+	}
+
+	return nil
 }
 
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given interval
