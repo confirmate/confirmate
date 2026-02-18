@@ -389,13 +389,13 @@ func validateCreateEvaluationResultRequest(req *connect.Request[evaluation.Creat
 	// We only allow manually created statuses
 	if req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY &&
 		req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY {
-		return status.Errorf(codes.InvalidArgument, "only manually set statuses are allowed")
+		return connect.NewError(connect.CodeInvalidArgument, errors.New("only manually set statuses are allowed"))
 	}
 
 	// The ValidUntil field must be checked separately as it is an optional field and not checked by the request
 	// validation. It is only mandatory when manually creating a result.
 	if req.Msg.Result.ValidUntil == nil {
-		return status.Errorf(codes.InvalidArgument, "validity must be set")
+		return connect.NewError(connect.CodeInvalidArgument, errors.New("validity must be set"))
 	}
 
 	return nil
