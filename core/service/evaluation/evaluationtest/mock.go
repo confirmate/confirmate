@@ -1,6 +1,8 @@
 package evaluationtest
 
 import (
+	"time"
+
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -53,6 +55,7 @@ var (
 		Timestamp:            timestamppb.Now(),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		Comment:              util.Ref("Mock evaluation result 1"),
+		Data:                 []byte{},
 	}
 
 	MockEvaluationResult2 = &evaluation.EvaluationResult{
@@ -66,6 +69,7 @@ var (
 		Timestamp:            timestamppb.Now(),
 		AssessmentResultIds:  []string{MockAssessmentResultId3},
 		Comment:              util.Ref("Mock evaluation result 2"),
+		Data:                 []byte{},
 	}
 
 	MockEvaluationResult3 = &evaluation.EvaluationResult{
@@ -80,6 +84,7 @@ var (
 		Timestamp:            timestamppb.Now(),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              util.Ref("Mock evaluation result 3"),
+		Data:                 []byte{},
 	}
 
 	MockEvaluationResult4 = &evaluation.EvaluationResult{
@@ -91,7 +96,9 @@ var (
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 		Timestamp:            timestamppb.Now(),
+		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              util.Ref("Mock evaluation result 4"),
+		Data:                 []byte{},
 	}
 )
