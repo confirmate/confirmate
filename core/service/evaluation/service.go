@@ -375,7 +375,8 @@ func (svc *Service) CreateEvaluationResult(ctx context.Context, req *connect.Req
 func validateCreateEvaluationResultRequest(req *connect.Request[evaluation.CreateEvaluationResultRequest]) error {
 	// Validate the request with a preparation function
 	if err := service.ValidateWithPrep(req, func() {
-		// Check if Result is nil before accessing it to avoid nil pointer dereference
+		// Check if Result is nil before accessing it to avoid nil pointer dereference. ValidateWithPrep will then
+		// return the `invalid request` error
 		if req.Msg.Result == nil {
 			return
 		}

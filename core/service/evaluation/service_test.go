@@ -16,6 +16,7 @@ import (
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestNewService(t *testing.T) {
@@ -137,6 +138,120 @@ func TestService_Shutdown(t *testing.T) {
 			svc.Shutdown()
 			assert.False(t, svc.scheduler.IsRunning())
 
+		})
+	}
+}
+
+func Test_validateCreateEvaluationResultRequest(t *testing.T) {
+	type args struct {
+		req *connect.Request[evaluation.CreateEvaluationResultRequest]
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error: nil result",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{}),
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
+			name: "error: non-manual status",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "", // Empty ID - will be set by prep function
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+					},
+				}),
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "only manually set statuses are allowed")
+			},
+		},
+		{
+			name: "error: missing ValidUntil",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "", // Empty ID - will be set by prep function
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+					},
+				}),
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "validity must be set")
+			},
+		},
+		{
+			name: "happy path: compliant manually",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "", // Empty ID - will be set by prep function
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+						AuditScopeId:         evaluationtest.MockAuditScopeId1,
+						ControlId:            evaluationtest.MockControlId1,
+						ControlCategoryName:  evaluationtest.MockCategoryName1,
+						ControlCatalogId:     evaluationtest.MockCatalogId1,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+						Comment:              util.Ref("Manual evaluation"),
+					},
+				}),
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: not compliant manually",
+			args: args{
+				req: connect.NewRequest(&evaluation.CreateEvaluationResultRequest{
+					Result: &evaluation.EvaluationResult{
+						Id:                   "", // Empty ID - will be set by prep function
+						TargetOfEvaluationId: evaluationtest.MockToeId2,
+						AuditScopeId:         evaluationtest.MockAuditScopeId2,
+						ControlId:            evaluationtest.MockControlId2,
+						ControlCategoryName:  evaluationtest.MockCategoryName2,
+						ControlCatalogId:     evaluationtest.MockCatalogId2,
+						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
+						Timestamp:            timestamppb.Now(),
+						ValidUntil:           timestamppb.Now(),
+					},
+				}),
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotErr := validateCreateEvaluationResultRequest(tt.args.req)
+
+			tt.wantErr(t, gotErr)
+
+			// Verify that ID was set by prep function when Result is not nil and validation passes
+			if gotErr == nil && tt.args.req.Msg.Result != nil {
+				assert.NotEmpty(t, tt.args.req.Msg.Result.Id)
+			}
 		})
 	}
 }
