@@ -10,21 +10,24 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 )
 
 // mockOrchestratorHandler is a mock implementation of the orchestrator service for testing
 type mockOrchestratorHandler struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	controls []*orchestrator.Control
+	controls  []*orchestrator.Control
+	listError error
 }
 
-// ListControls returns the mocked controls
+// ListControls returns the mocked controls or an error if configured
 func (m *mockOrchestratorHandler) ListControls(
 	_ context.Context,
-	req *connect.Request[orchestrator.ListControlsRequest],
+	_ *connect.Request[orchestrator.ListControlsRequest],
 ) (*connect.Response[orchestrator.ListControlsResponse], error) {
+	if m.listError != nil {
+		return nil, m.listError
+	}
 	return connect.NewResponse(&orchestrator.ListControlsResponse{
 		Controls: m.controls,
 	}), nil
@@ -39,6 +42,23 @@ func newOrchestratorTestServer(t *testing.T, controls []*orchestrator.Control) (
 	t.Helper()
 	handler := &mockOrchestratorHandler{
 		controls: controls,
+	}
+	srv, testSrv := servertest.NewTestConnectServer(
+		t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+	)
+	return handler, srv, testSrv
+}
+
+// newOrchestratorTestServerWithError creates a mock orchestrator server that returns an error
+func newOrchestratorTestServerWithError(t *testing.T, err error) (
+	*mockOrchestratorHandler,
+	*server.Server,
+	*httptest.Server,
+) {
+	t.Helper()
+	handler := &mockOrchestratorHandler{
+		listError: err,
 	}
 	srv, testSrv := servertest.NewTestConnectServer(
 		t,
@@ -80,11 +100,4 @@ func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 		Name:              "Mock Control 4",
 	}
 	return []*orchestrator.Control{control1, control2, control3, control4}
-}
-
-// assertNoTestServerError ensures test server creation succeeds and fails test otherwise
-func assertNoTestServerError(t *testing.T, srv *server.Server, testSrv *httptest.Server) {
-	t.Helper()
-	assert.NotNil(t, srv)
-	assert.NotNil(t, testSrv)
 }

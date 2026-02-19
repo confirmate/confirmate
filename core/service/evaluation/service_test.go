@@ -852,6 +852,24 @@ func TestService_cacheControls(t *testing.T) {
 			},
 		},
 		{
+			name: "orchestrator client returns error",
+			fields: func() fields {
+				// Create test server that returns an error
+				_, _, testSrv := newOrchestratorTestServerWithError(t, connect.NewError(connect.CodeInternal, fmt.Errorf("orchestrator service unavailable")))
+				t.Cleanup(testSrv.Close)
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					catalogControls:    make(map[string]map[string]*orchestrator.Control),
+				}
+			}(),
+			args: args{
+				catalogId: orchestratortest.MockCatalogId1,
+			},
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, "orchestrator service unavailable")
+			},
+		},
+		{
 			name: "no controls available",
 			fields: func() fields {
 				// Create test server with empty control list
