@@ -52,6 +52,7 @@ type Service struct {
 
 	scheduler *gocron.Scheduler
 
+	// TODO(lebogg): Try to use  map[catalogId]map[controlKey]*orchestrator.Control where catalogId is typed string and controlKey is struct and has has categoryName and controlId fields.
 	// controls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint
 	// map[catalog_id][category_name-control_id]*orchestrator.Control
 	catalogControls map[string]map[string]*orchestrator.Control
@@ -365,6 +366,7 @@ func (svc *Service) CreateEvaluationResult(ctx context.Context, req *connect.Req
 
 	eval = req.Msg.Result
 	err = svc.db.Create(eval)
+	// TODO(lebogg): Add Test
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -448,6 +450,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		cancel   context.CancelFunc
 	)
 
+	// TODO(lebogg) Where is assurance level matched?
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
 	controls = values(svc.catalogControls[auditScope.CatalogId])
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
@@ -917,6 +920,7 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 	return metricIds
 }
 
+// TODO(lebogg): Try it out
 // TODO(oxisto): We can remove it with maps.Values in Go 1.22+
 func values[M ~map[K]V, K comparable, V any](m M) []V {
 	rr := make([]V, 0, len(m))
