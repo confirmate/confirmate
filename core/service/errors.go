@@ -163,6 +163,9 @@ func HandleDatabaseError(err error, notFoundErr ...error) error {
 	if errors.Is(err, persistence.ErrUniqueConstraintFailed) {
 		return connect.NewError(connect.CodeAlreadyExists, ErrResourceAlreadyExists)
 	}
+	if errors.Is(err, persistence.ErrPrimaryKeyViolation) {
+		return connect.NewError(connect.CodeAlreadyExists, ErrResourceAlreadyExists)
+	}
 
 	if errors.Is(err, persistence.ErrConstraintFailed) {
 		return connect.NewError(connect.CodeInvalidArgument, ErrConstraintFailed)

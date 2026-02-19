@@ -1,4 +1,4 @@
-// Copyright 2025 Fraunhofer AISEC
+// Copyright 2025-2026 Fraunhofer AISEC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,8 +52,7 @@ type Evidence struct {
 	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	// Reference to the tool which provided the evidence
 	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty"`
-	// Semantic representation of the Cloud resource according to our defined
-	// ontology
+	// Semantic representation of the Cloud resource according to our defined ontology
 	Resource *ontology.Resource `protobuf:"bytes,6,opt,name=resource,proto3" json:"resource,omitempty" gorm:"serializer:json"`
 	// Very experimental property. Use at own risk. This property will be deleted again.
 	//
@@ -225,11 +224,243 @@ func (x *Resource) GetProperties() *anypb.Any {
 	return nil
 }
 
+type UpdateResourceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateResourceRequest) Reset() {
+	*x = UpdateResourceRequest{}
+	mi := &file_api_evidence_evidence_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateResourceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateResourceRequest) ProtoMessage() {}
+
+func (x *UpdateResourceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evidence_evidence_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateResourceRequest.ProtoReflect.Descriptor instead.
+func (*UpdateResourceRequest) Descriptor() ([]byte, []int) {
+	return file_api_evidence_evidence_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UpdateResourceRequest) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+type ListGraphEdgesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	OrderBy       string                 `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	Asc           bool                   `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGraphEdgesRequest) Reset() {
+	*x = ListGraphEdgesRequest{}
+	mi := &file_api_evidence_evidence_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGraphEdgesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGraphEdgesRequest) ProtoMessage() {}
+
+func (x *ListGraphEdgesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evidence_evidence_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGraphEdgesRequest.ProtoReflect.Descriptor instead.
+func (*ListGraphEdgesRequest) Descriptor() ([]byte, []int) {
+	return file_api_evidence_evidence_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListGraphEdgesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListGraphEdgesRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListGraphEdgesRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListGraphEdgesRequest) GetAsc() bool {
+	if x != nil {
+		return x.Asc
+	}
+	return false
+}
+
+type ListGraphEdgesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Edges         []*GraphEdge           `protobuf:"bytes,1,rep,name=edges,proto3" json:"edges,omitempty"`
+	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGraphEdgesResponse) Reset() {
+	*x = ListGraphEdgesResponse{}
+	mi := &file_api_evidence_evidence_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGraphEdgesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGraphEdgesResponse) ProtoMessage() {}
+
+func (x *ListGraphEdgesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evidence_evidence_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGraphEdgesResponse.ProtoReflect.Descriptor instead.
+func (*ListGraphEdgesResponse) Descriptor() ([]byte, []int) {
+	return file_api_evidence_evidence_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListGraphEdgesResponse) GetEdges() []*GraphEdge {
+	if x != nil {
+		return x.Edges
+	}
+	return nil
+}
+
+func (x *ListGraphEdgesResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type GraphEdge struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	Target        string                 `protobuf:"bytes,3,opt,name=target,proto3" json:"target,omitempty"`
+	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GraphEdge) Reset() {
+	*x = GraphEdge{}
+	mi := &file_api_evidence_evidence_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GraphEdge) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GraphEdge) ProtoMessage() {}
+
+func (x *GraphEdge) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evidence_evidence_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GraphEdge.ProtoReflect.Descriptor instead.
+func (*GraphEdge) Descriptor() ([]byte, []int) {
+	return file_api_evidence_evidence_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GraphEdge) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GraphEdge) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *GraphEdge) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *GraphEdge) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
 var File_api_evidence_evidence_proto protoreflect.FileDescriptor
 
 const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/evidence/evidence.proto\x12\x16confirmate.evidence.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\x1a4policies/security-metrics/ontology/v1/ontology.proto\"\xbe\x03\n" +
+	"\x1bapi/evidence/evidence.proto\x12\x16confirmate.evidence.v1\x1a4policies/security-metrics/ontology/v1/ontology.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xbe\x03\n" +
 	"\bEvidence\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12q\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12?\n" +
@@ -248,7 +479,30 @@ const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\n" +
 	"properties\x18\n" +
 	" \x01(\v2\x14.google.protobuf.AnyB/\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:json\"R\n" +
-	"propertiesB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
+	"properties\"Z\n" +
+	"\x15UpdateResourceRequest\x12A\n" +
+	"\bresource\x18\x01 \x01(\v2 .confirmate.evidence.v1.ResourceB\x03\xe0A\x02R\bresource\"\x80\x01\n" +
+	"\x15ListGraphEdgesRequest\x12\x1b\n" +
+	"\tpage_size\x18\n" +
+	" \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
+	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\"~\n" +
+	"\x16ListGraphEdgesResponse\x12<\n" +
+	"\x05edges\x18\x01 \x03(\v2!.confirmate.evidence.v1.GraphEdgeB\x03\xe0A\x02R\x05edges\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x88\x01\n" +
+	"\tGraphEdge\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\"\n" +
+	"\x06source\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06source\x12\"\n" +
+	"\x06target\x18\x03 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06target\x12\x17\n" +
+	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04type2\xba\x02\n" +
+	"\tResources\x12\x98\x01\n" +
+	"\x0eUpdateResource\x12-.confirmate.evidence.v1.UpdateResourceRequest\x1a .confirmate.evidence.v1.Resource\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/evidence_store/resources/{resource.id}\x12\x91\x01\n" +
+	"\x0eListGraphEdges\x12-.confirmate.evidence.v1.ListGraphEdgesRequest\x1a..confirmate.evidence.v1.ListGraphEdgesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/evidence/graph/edgesB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
 
 var (
 	file_api_evidence_evidence_proto_rawDescOnce sync.Once
@@ -262,23 +516,33 @@ func file_api_evidence_evidence_proto_rawDescGZIP() []byte {
 	return file_api_evidence_evidence_proto_rawDescData
 }
 
-var file_api_evidence_evidence_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_api_evidence_evidence_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_api_evidence_evidence_proto_goTypes = []any{
-	(*Evidence)(nil),              // 0: confirmate.evidence.v1.Evidence
-	(*Resource)(nil),              // 1: confirmate.evidence.v1.Resource
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
-	(*ontology.Resource)(nil),     // 3: confirmate.ontology.v1.Resource
-	(*anypb.Any)(nil),             // 4: google.protobuf.Any
+	(*Evidence)(nil),               // 0: confirmate.evidence.v1.Evidence
+	(*Resource)(nil),               // 1: confirmate.evidence.v1.Resource
+	(*UpdateResourceRequest)(nil),  // 2: confirmate.evidence.v1.UpdateResourceRequest
+	(*ListGraphEdgesRequest)(nil),  // 3: confirmate.evidence.v1.ListGraphEdgesRequest
+	(*ListGraphEdgesResponse)(nil), // 4: confirmate.evidence.v1.ListGraphEdgesResponse
+	(*GraphEdge)(nil),              // 5: confirmate.evidence.v1.GraphEdge
+	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
+	(*ontology.Resource)(nil),      // 7: confirmate.ontology.v1.Resource
+	(*anypb.Any)(nil),              // 8: google.protobuf.Any
 }
 var file_api_evidence_evidence_proto_depIdxs = []int32{
-	2, // 0: confirmate.evidence.v1.Evidence.timestamp:type_name -> google.protobuf.Timestamp
-	3, // 1: confirmate.evidence.v1.Evidence.resource:type_name -> confirmate.ontology.v1.Resource
-	4, // 2: confirmate.evidence.v1.Resource.properties:type_name -> google.protobuf.Any
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6, // 0: confirmate.evidence.v1.Evidence.timestamp:type_name -> google.protobuf.Timestamp
+	7, // 1: confirmate.evidence.v1.Evidence.resource:type_name -> confirmate.ontology.v1.Resource
+	8, // 2: confirmate.evidence.v1.Resource.properties:type_name -> google.protobuf.Any
+	1, // 3: confirmate.evidence.v1.UpdateResourceRequest.resource:type_name -> confirmate.evidence.v1.Resource
+	5, // 4: confirmate.evidence.v1.ListGraphEdgesResponse.edges:type_name -> confirmate.evidence.v1.GraphEdge
+	2, // 5: confirmate.evidence.v1.Resources.UpdateResource:input_type -> confirmate.evidence.v1.UpdateResourceRequest
+	3, // 6: confirmate.evidence.v1.Resources.ListGraphEdges:input_type -> confirmate.evidence.v1.ListGraphEdgesRequest
+	1, // 7: confirmate.evidence.v1.Resources.UpdateResource:output_type -> confirmate.evidence.v1.Resource
+	4, // 8: confirmate.evidence.v1.Resources.ListGraphEdges:output_type -> confirmate.evidence.v1.ListGraphEdgesResponse
+	7, // [7:9] is the sub-list for method output_type
+	5, // [5:7] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_api_evidence_evidence_proto_init() }
@@ -292,9 +556,9 @@ func file_api_evidence_evidence_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_evidence_evidence_proto_rawDesc), len(file_api_evidence_evidence_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   6,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_api_evidence_evidence_proto_goTypes,
 		DependencyIndexes: file_api_evidence_evidence_proto_depIdxs,
