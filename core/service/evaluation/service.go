@@ -794,8 +794,8 @@ func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (me
 		return nil, errors.New("control is missing")
 	}
 
-	for _, control := range control.Controls {
-		subcontrol, err = svc.getControl(control.CategoryCatalogId, control.CategoryName, control.Id)
+	for _, c := range control.Controls {
+		subcontrol, err = svc.getControl(c.CategoryCatalogId, c.CategoryName, c.Id)
 		if err != nil {
 			return
 		}
