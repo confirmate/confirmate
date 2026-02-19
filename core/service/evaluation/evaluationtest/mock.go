@@ -42,8 +42,8 @@ const (
 	MockAssessmentResultId3 = "00000000-0000-0000-0000-000000000003"
 )
 
+// Mock Evaluation Results
 var (
-	// Mock Evaluation Results
 	MockEvaluationResult1 = &evaluation.EvaluationResult{
 		Id:                   MockEvaluationResultId1,
 		TargetOfEvaluationId: MockToeId1,

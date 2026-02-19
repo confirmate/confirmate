@@ -850,7 +850,7 @@ func TestService_getControl(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, service.ErrIsMissing("catalog id"))
+				return assert.ErrorContains(t, err, "catalog id is missing")
 			},
 		},
 		{
@@ -862,7 +862,7 @@ func TestService_getControl(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, service.ErrIsMissing("category name"))
+				return assert.ErrorContains(t, err, "category name is missing")
 			},
 		},
 		{
@@ -874,7 +874,7 @@ func TestService_getControl(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, service.ErrIsMissing("control id"))
+				return assert.ErrorContains(t, err, "control id is missing")
 			},
 		},
 		{
@@ -901,9 +901,9 @@ func TestService_getControl(t *testing.T) {
 				},
 			},
 			args: args{
-				catalogId:    evidencetest.MockCatalogID1,
-				categoryName: evidencetest.MockCategoryName,
-				controlId:    evidencetest.MockControlID1,
+				catalogId:    orchestratortest.MockControl1.GetCategoryCatalogId(),
+				categoryName: orchestratortest.MockControl1.GetCategoryName(),
+				controlId:    orchestratortest.MockControl1.GetId(),
 			},
 			want: func(t *testing.T, got *orchestrator.Control, _ ...any) bool {
 				// We need to truncate the metric from the control because the control is only returned with its
