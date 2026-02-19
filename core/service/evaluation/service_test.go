@@ -567,6 +567,143 @@ func TestService_CreateEvaluationResult_LargeBlobIntegration(t *testing.T) {
 	assert.Equal(t, largeBlob, retrieved.Data)
 }
 
+func TestService_getAllMetricsFromControl(t *testing.T) {
+	type fields struct {
+		catalogControls map[string]map[string]*orchestrator.Control
+	}
+	type args struct {
+		catalogId    string
+		categoryName string
+		controlId    string
+	}
+	tests := []struct {
+		name        string
+		fields      fields
+		args        args
+		wantMetrics []*assessment.Metric
+		wantErr     assert.WantErr
+	}{
+		{
+			name:        "Input empty",
+			fields:      fields{},
+			wantMetrics: nil,
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, "could not get control for control id")
+			},
+		},
+		{
+			name: "no sub-controls available",
+			fields: fields{
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockCatalogId1: {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl2.GetCategoryName(), orchestratortest.MockControl2.GetId()): orchestratortest.MockControl2,
+					},
+				},
+			},
+			args: args{
+				catalogId:    orchestratortest.MockCatalogId1,
+				categoryName: orchestratortest.MockCategoryName2,
+				controlId:    orchestratortest.MockControlId2,
+			},
+			wantMetrics: nil,
+			wantErr:     assert.NoError,
+		},
+		{
+			name: "error getting metrics from sub-controls",
+			fields: fields{
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockCatalogId1: {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
+					},
+				},
+			},
+			args: args{
+				catalogId:    orchestratortest.MockCatalogId1,
+				categoryName: orchestratortest.MockCategoryName1,
+				controlId:    orchestratortest.MockControlId1,
+			},
+			wantMetrics: nil,
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, "error getting metrics from sub-controls")
+			},
+		},
+		{
+			name: "Happy path: control with metrics directly (no sub-controls)",
+			fields: fields{
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockCatalogId2: {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl2.GetCategoryName(), orchestratortest.MockControl2.GetId()): {
+							Id:                orchestratortest.MockControlId2,
+							CategoryName:      orchestratortest.MockCategoryName2,
+							CategoryCatalogId: orchestratortest.MockCatalogId2,
+							Name:              "Mock Control 2",
+							Metrics: []*assessment.Metric{
+								{
+									Id:       orchestratortest.MockMetricId2,
+									Version:  "2.0",
+									Comments: "Direct metric on control",
+								},
+							},
+						},
+					},
+				},
+			},
+			args: args{
+				catalogId:    orchestratortest.MockCatalogId2,
+				categoryName: orchestratortest.MockCategoryName2,
+				controlId:    orchestratortest.MockControlId2,
+			},
+			wantMetrics: []*assessment.Metric{
+				{
+					Id:       orchestratortest.MockMetricId2,
+					Version:  "2.0",
+					Comments: "Direct metric on control",
+				},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Happy path: control with sub-controls",
+			fields: fields{
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+					},
+				},
+			},
+			args: args{
+				catalogId:    orchestratortest.MockCatalogId1,
+				categoryName: orchestratortest.MockCategoryName1,
+				controlId:    orchestratortest.MockControlId1,
+			},
+			wantMetrics: []*assessment.Metric{
+				{
+					Id:       orchestratortest.MockMetricId1,
+					Version:  "1.0",
+					Comments: "This is a comment",
+				},
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Service{
+				catalogControls: tt.fields.catalogControls,
+			}
+			gotMetrics, err := s.getAllMetricsFromControl(tt.args.catalogId, tt.args.categoryName, tt.args.controlId)
+			tt.wantErr(t, err)
+
+			if assert.Equal(t, len(gotMetrics), len(tt.wantMetrics)) {
+				for i := range gotMetrics {
+					assert.Equal(t, tt.wantMetrics[i], gotMetrics[i])
+				}
+			}
+		})
+	}
+}
+
 func TestService_getMetricsFromSubControls(t *testing.T) {
 	type fields struct {
 		catalogControls map[string]map[string]*orchestrator.Control
