@@ -913,7 +913,7 @@ func handleCompliant(er *evaluation.EvaluationResult) evaluation.EvaluationStatu
 func getMetricIds(metrics []*assessment.Metric) []string {
 	var metricIds []string
 
-	for _, m := range metrics {
+	for m := range slices.Values(metrics) {
 		metricIds = append(metricIds, m.GetId())
 	}
 

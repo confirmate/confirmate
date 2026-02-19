@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
@@ -15,6 +16,7 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evaluation/evaluationtest"
+	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
@@ -817,6 +819,43 @@ func TestService_ListEvaluationResults(t *testing.T) {
 
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)
+		})
+	}
+}
+
+func Test_getMetricIds(t *testing.T) {
+	type args struct {
+		metrics []*assessment.Metric
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "Empty input",
+			args: args{},
+			want: nil,
+		},
+		{
+			name: "Happy path",
+			args: args{
+				metrics: []*assessment.Metric{
+					{
+						Id: evidencetest.MockSubControlID11,
+					},
+					{
+						Id: evidencetest.MockSubControlID,
+					},
+				},
+			},
+			want: []string{evidencetest.MockSubControlID11, evidencetest.MockSubControlID},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := getMetricIds(tt.args.metrics)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
