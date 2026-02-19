@@ -567,6 +567,163 @@ func TestService_CreateEvaluationResult_LargeBlobIntegration(t *testing.T) {
 	assert.Equal(t, largeBlob, retrieved.Data)
 }
 
+func TestService_evaluateSubcontrol(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		db                 persistence.DB
+		catalogControls    map[string]map[string]*orchestrator.Control
+	}
+	type args struct {
+		ctx        context.Context
+		auditScope *orchestrator.AuditScope
+		control    *orchestrator.Control
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[*evaluation.EvaluationResult]
+		wantSvc assert.Want[*Service]
+	}{
+		{
+			name: "Audit Scope input empty", // we do not check the other input parameters
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
+					},
+				},
+			},
+			args: args{
+				control: orchestratortest.MockControl1,
+			},
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 0, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "no assessment results available",
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			args: args{
+				auditScope: &orchestrator.AuditScope{
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+					AssuranceLevel:       util.Ref("high"),
+				},
+				control: &orchestrator.Control{
+					Id:           orchestratortest.MockControlId1,
+					CategoryName: orchestratortest.MockCategoryName1,
+				},
+			},
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 0, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "error getting metrics",
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			args: args{
+				auditScope: &orchestrator.AuditScope{
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+					AssuranceLevel:       util.Ref("high"),
+				},
+				control: &orchestrator.Control{
+					Id:           "Cont1.1",
+					CategoryName: orchestratortest.MockCategoryName1,
+				},
+			},
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 0, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "error getting assessment results",
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+			},
+			args: args{
+				auditScope: &orchestrator.AuditScope{
+					CatalogId:      orchestratortest.MockCatalogId1,
+					AssuranceLevel: util.Ref("high"),
+				},
+				control: &orchestrator.Control{
+					Id:           "Cont1.1",
+					CategoryName: orchestratortest.MockCategoryName1,
+				},
+			},
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 0, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				orchestratorClient: nil,
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(db persistence.DB) {
+					assert.NoError(t, db.Create(orchestratortest.MockAssessmentResult1))
+					assert.NoError(t, db.Create(orchestratortest.MockAssessmentResult2))
+				}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+					},
+				},
+			},
+			args: args{
+				auditScope: &orchestrator.AuditScope{
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+					AssuranceLevel:       util.Ref("high"),
+				},
+				control: &orchestrator.Control{
+					Id:           "Cont1.1",
+					CategoryName: orchestratortest.MockCategoryName1,
+				},
+			},
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 1, len(evalResults.Msg.Results))
+			},
+			want: func(t *testing.T, got *evaluation.EvaluationResult, _ ...any) bool {
+				return assert.Equal(t, "Cont1.1", got.ControlId)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				db:                 tt.fields.db,
+				catalogControls:    tt.fields.catalogControls,
+			}
+
+			got, _ := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control)
+			assert.Optional(t, tt.want, got)
+			assert.Optional(t, tt.wantSvc, svc)
+		})
+	}
+}
+
 func TestService_getAllMetricsFromControl(t *testing.T) {
 	type fields struct {
 		catalogControls map[string]map[string]*orchestrator.Control
