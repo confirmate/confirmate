@@ -2,11 +2,14 @@ package evaluation
 
 import (
 	"context"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
@@ -16,8 +19,10 @@ import (
 // mockOrchestratorHandler is a mock implementation of the orchestrator service for testing
 type mockOrchestratorHandler struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	controls  []*orchestrator.Control
-	listError error
+	controls                  []*orchestrator.Control
+	listError                 error
+	listAssessmentResultError error
+	assessmentResults         []*assessment.AssessmentResult
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -30,6 +35,24 @@ func (m *mockOrchestratorHandler) ListControls(
 	}
 	return connect.NewResponse(&orchestrator.ListControlsResponse{
 		Controls: m.controls,
+	}), nil
+}
+
+// ListAssessmentResults returns assessment results or an error if configured
+func (m *mockOrchestratorHandler) ListAssessmentResults(
+	_ context.Context,
+	_ *connect.Request[orchestrator.ListAssessmentResultsRequest],
+) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
+	if m.listAssessmentResultError != nil {
+		return nil, m.listAssessmentResultError
+	}
+	// Return configured assessment results, or empty list if none configured
+	results := m.assessmentResults
+	if results == nil {
+		results = []*assessment.AssessmentResult{}
+	}
+	return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+		Results: results,
 	}), nil
 }
 
@@ -100,4 +123,17 @@ func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 		Name:              "Mock Control 4",
 	}
 	return []*orchestrator.Control{control1, control2, control3, control4}
+}
+
+// mockDBWithError is a mock DB that returns an error on Create
+type mockDBWithError struct {
+	persistence.DB
+	createError error
+}
+
+func (m *mockDBWithError) Create(_ any) error {
+	if m.createError != nil {
+		return m.createError
+	}
+	return fmt.Errorf("mock database error")
 }

@@ -659,6 +659,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		resultIds   []string
 	)
 
+	// TODO(lebogg): Why we don't return an error here?
 	if auditScope == nil || control == nil {
 		slog.Error("input is missing")
 		return
@@ -693,6 +694,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		}, func(res *orchestrator.ListAssessmentResultsResponse) []*assessment.AssessmentResult {
 			return res.Results
 		})
+
 		if err != nil {
 			// We let the scheduler running if we do not get the assessment results from the orchestrator, maybe it is
 			// only a temporary network problem
