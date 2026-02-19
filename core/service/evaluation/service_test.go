@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"slices"
 	"strings"
@@ -22,6 +23,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	assert2 "github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -819,6 +821,260 @@ func TestService_ListEvaluationResults(t *testing.T) {
 
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)
+		})
+	}
+}
+
+func TestService_getControl(t *testing.T) {
+	type fields struct {
+		catalogControls map[string]map[string]*orchestrator.Control
+	}
+	type args struct {
+		catalogId    string
+		categoryName string
+		controlId    string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[*orchestrator.Control]
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name:   "catalog_id is missing",
+			fields: fields{},
+			args: args{
+				categoryName: evidencetest.MockCategoryName,
+				controlId:    evidencetest.MockControlID1,
+			},
+			want: nil,
+			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorIs(t, err, service.ErrIsMissing("catalog id"))
+			},
+		},
+		{
+			name:   "category_name is missing",
+			fields: fields{},
+			args: args{
+				catalogId: evidencetest.MockCatalogID1,
+				controlId: evidencetest.MockControlID1,
+			},
+			want: nil,
+			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorIs(t, err, service.ErrIsMissing("category name"))
+			},
+		},
+		{
+			name:   "control_id is missing",
+			fields: fields{},
+			args: args{
+				catalogId:    evidencetest.MockCatalogID1,
+				categoryName: evidencetest.MockCategoryName,
+			},
+			want: nil,
+			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorIs(t, err, service.ErrIsMissing("control id"))
+			},
+		},
+		{
+			name:   "control does not exist",
+			fields: fields{},
+			args: args{
+				catalogId:    "wrong_catalog_id",
+				categoryName: "wrong_category_id",
+				controlId:    "wrong_control_id",
+			},
+			want: nil,
+			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorIs(t, err, service.ErrControlNotAvailable)
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl2.GetId()): orchestratortest.MockControl2,
+					},
+				},
+			},
+			args: args{
+				catalogId:    evidencetest.MockCatalogID1,
+				categoryName: evidencetest.MockCategoryName,
+				controlId:    evidencetest.MockControlID1,
+			},
+			want: func(t *testing.T, got *orchestrator.Control, _ ...any) bool {
+				// We need to truncate the metric from the control because the control is only returned with its
+				// sub-control but without the sub-control's metric.
+				// TODO(oxisto): Use ignore fields instead
+				wantControl := orchestratortest.MockControl1
+				tmpMetrics := wantControl.Controls[0].Metrics
+				wantControl.Controls[0].Metrics = nil
+
+				if !assert.Equal(t, wantControl, got) {
+					t.Errorf("Service.GetControl() = %v, want %v", got, wantControl)
+					wantControl.Controls[0].Metrics = tmpMetrics
+					return false
+				}
+
+				wantControl.Controls[0].Metrics = tmpMetrics
+				return true
+			},
+			wantErr: func(t assert2.TestingT, err error, i ...interface{}) bool {
+				return assert.NoError(t.(*testing.T), err)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Service{
+				catalogControls: tt.fields.catalogControls,
+			}
+
+			gotControl, err := s.getControl(tt.args.catalogId, tt.args.categoryName, tt.args.controlId)
+			tt.wantErr(t, err)
+
+			if gotControl != nil {
+				tt.want(t, gotControl)
+			}
+		})
+	}
+}
+
+func Test_handlePending(t *testing.T) {
+	type args struct {
+		eval *evaluation.EvaluationResult
+	}
+	tests := []struct {
+		name string
+		args args
+		want assert.Want[evaluation.EvaluationStatus]
+	}{
+		{
+			name: "Status: Pending",
+			args: args{
+				eval: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, _ ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, got)
+			},
+		},
+		{
+			name: "Status: Compliant",
+			args: args{
+				eval: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, _ ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got)
+			},
+		},
+		{
+			name: "Status: Compliant manually",
+			args: args{
+				eval: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, _ ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got)
+			},
+		},
+		{
+			name: "Status: Not compliant manually without failing assessment results",
+			args: args{
+				eval: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, _ ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got)
+			},
+		},
+		{
+			name: "Status: Not compliant with failing assessment results",
+			args: args{
+				eval: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, _ ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := handlePending(tt.args.eval)
+			tt.want(t, got)
+		})
+	}
+}
+
+func Test_handleCompliant(t *testing.T) {
+	type args struct {
+		er *evaluation.EvaluationResult
+	}
+	tests := []struct {
+		name string
+		args args
+		want assert.Want[evaluation.EvaluationStatus]
+	}{
+		{
+			name: "Status: Pending",
+			args: args{
+				er: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, msgAndArgs ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got)
+			},
+		},
+		{
+			name: "Status: Compliant",
+			args: args{
+				er: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, msgAndArgs ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got)
+			},
+		},
+		{
+			name: "Status: Compliant manually",
+			args: args{
+				er: &evaluation.EvaluationResult{
+					Status: evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, msgAndArgs ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got)
+			},
+		},
+		{
+			name: "Status: Not compliant manually",
+			args: args{
+				er: &evaluation.EvaluationResult{
+					Status:              evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
+					AssessmentResultIds: []string{"fail1", "fail2"},
+				},
+			},
+			want: func(t *testing.T, got evaluation.EvaluationStatus, msgAndArgs ...any) bool {
+				return assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := handleCompliant(tt.args.er)
+			tt.want(t, got)
 		})
 	}
 }
