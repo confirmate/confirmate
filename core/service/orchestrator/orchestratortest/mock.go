@@ -181,6 +181,21 @@ var (
 		Id:                MockControlId1,
 		CategoryName:      MockCategoryName1,
 		CategoryCatalogId: MockCatalogId1,
+		Controls:          []*orchestrator.Control{MockSubControl1},
+	}
+	MockSubControl1 = &orchestrator.Control{
+		Id:                "Cont1.1",
+		CategoryName:      MockCategoryName1,
+		CategoryCatalogId: MockCatalogId1,
+		Name:              "Mock sub control 1.1",
+		Metrics: []*assessment.Metric{{
+			Id:       MockMetricId1,
+			Version:  "1.0",
+			Comments: "This is a comment",
+		}},
+		ParentControlId:                util.Ref(MockControlId1),
+		ParentControlCategoryName:      util.Ref(MockCategoryName1),
+		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
 	}
 	MockControl2 = &orchestrator.Control{
 		Id:                MockControlId2,
