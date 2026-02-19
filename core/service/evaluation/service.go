@@ -11,9 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"connectrpc.com/connect"
-	"golang.org/x/sync/errgroup"
-
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
@@ -25,8 +22,10 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
 
+	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -140,9 +139,10 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
-		newErr := fmt.Errorf("could not start evaluation: %w", service.ErrNotFound("audit scope"))
-		slog.Error("%w: %w", log.Err(newErr), log.Err(err))
-		return nil, connect.NewError(connect.CodeNotFound, newErr)
+		// TODO(lebogg): Technically it does need to be `CodeNotFound` because we retrieve it from Orchestrator (it could also be a connection error)
+		slog.Error("could not get audit scope", log.Err(err))
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("could not get audit scope from Orchestrator"))
 	}
 	auditScope = auditScopeRes.Msg
 
@@ -159,8 +159,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	// Get all Controls from Orchestrator for the evaluation
 	err = svc.cacheControls(auditScope.GetCatalogId())
 	if err != nil {
-		statusErr := fmt.Errorf("could not cache controls")
-		slog.Error("%w: %w", log.Err(statusErr), log.Err(err))
+		slog.Error("could not cache controls", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("internal error"))
 	}
 
@@ -178,12 +177,11 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	// Check, if a previous job exists and/or is running
 	jobs, err = svc.scheduler.FindJobsByTag(auditScope.GetId())
 	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
-		err = fmt.Errorf("error while retrieving existing scheduler job: %w", err)
-		slog.Error("%w", log.Err(err))
+		slog.Error("could not find existing scheduler job", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("internal error"))
 	} else if len(jobs) > 0 {
 		err = fmt.Errorf("evaluation for Audit Scope '%s' (target of evaluation '%s' and catalog ID '%s') already started", auditScope.GetId(), auditScope.GetTargetOfEvaluationId(), auditScope.GetCatalogId())
-		slog.Error("%w", log.Err(err))
+		slog.Error("could not find scheduler job", log.Err(err))
 		return nil, connect.NewError(connect.CodeAlreadyExists, err)
 	}
 
@@ -226,9 +224,9 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
-		newErr := fmt.Errorf("could not stop evaluation: %w", service.ErrNotFound("audit scope"))
-		slog.Error("%w: %w", log.Err(newErr), log.Err(err))
-		return nil, connect.NewError(connect.CodeInternal, newErr)
+		// TODO(lebogg): Technically it is not internal because we retrieve it from Orchestrator (it could also be a connection error)
+		slog.Error("could not get audit scope", log.Err(err))
+		return nil, connect.NewError(connect.CodeInternal, errors.New("could not get audit scope"))
 	}
 
 	auditScope := auditScopeResponse.Msg
