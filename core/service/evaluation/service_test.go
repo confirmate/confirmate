@@ -23,7 +23,6 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	assert2 "github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -825,6 +824,85 @@ func TestService_ListEvaluationResults(t *testing.T) {
 	}
 }
 
+func TestService_cacheControls(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		catalogControls    map[string]map[string]*orchestrator.Control
+	}
+	type args struct {
+		catalogId string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantSvc assert.Want[*Service]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "catalog_id missing",
+			fields: fields{
+				catalogControls: make(map[string]map[string]*orchestrator.Control),
+			},
+			args: args{
+				catalogId: "",
+			},
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, "catalog ID is missing")
+			},
+		},
+		{
+			name: "no controls available",
+			fields: func() fields {
+				// Create test server with empty control list
+				_, _, testSrv := newOrchestratorTestServer(t, []*orchestrator.Control{})
+				t.Cleanup(testSrv.Close)
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					catalogControls:    make(map[string]map[string]*orchestrator.Control),
+				}
+			}(),
+			args: args{
+				catalogId: orchestratortest.MockCatalogId1,
+			},
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, fmt.Sprintf("no controls for catalog '%s' available", orchestratortest.MockCatalogId1))
+			},
+		},
+		{
+			name: "Happy path",
+			fields: func() fields {
+				controls := mockControlsForCatalog(orchestratortest.MockCatalogId1)
+				_, _, testSrv := newOrchestratorTestServer(t, controls)
+				t.Cleanup(testSrv.Close)
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					catalogControls:    make(map[string]map[string]*orchestrator.Control),
+				}
+			}(),
+			args: args{
+				catalogId: orchestratortest.MockCatalogId1,
+			},
+			wantSvc: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				assert.Equal(t, 1, len(got.catalogControls))
+				return assert.Equal(t, 4, len(got.catalogControls[orchestratortest.MockCatalogId1]))
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				catalogControls:    tt.fields.catalogControls,
+			}
+			err := svc.cacheControls(tt.args.catalogId)
+			tt.wantErr(t, err)
+			assert.Optional(t, tt.wantSvc, svc)
+		})
+	}
+}
+
 func TestService_getControl(t *testing.T) {
 	type fields struct {
 		catalogControls map[string]map[string]*orchestrator.Control
@@ -839,7 +917,7 @@ func TestService_getControl(t *testing.T) {
 		fields  fields
 		args    args
 		want    assert.Want[*orchestrator.Control]
-		wantErr assert.ErrorAssertionFunc
+		wantErr assert.WantErr
 	}{
 		{
 			name:   "catalog_id is missing",
@@ -849,7 +927,7 @@ func TestService_getControl(t *testing.T) {
 				controlId:    evidencetest.MockControlID1,
 			},
 			want: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, _ ...any) bool {
 				return assert.ErrorContains(t, err, "catalog id is missing")
 			},
 		},
@@ -861,7 +939,7 @@ func TestService_getControl(t *testing.T) {
 				controlId: evidencetest.MockControlID1,
 			},
 			want: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
 				return assert.ErrorContains(t, err, "category name is missing")
 			},
 		},
@@ -873,7 +951,7 @@ func TestService_getControl(t *testing.T) {
 				categoryName: evidencetest.MockCategoryName,
 			},
 			want: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
 				return assert.ErrorContains(t, err, "control id is missing")
 			},
 		},
@@ -886,7 +964,7 @@ func TestService_getControl(t *testing.T) {
 				controlId:    "wrong_control_id",
 			},
 			want: nil,
-			wantErr: func(tt assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
 				return assert.ErrorIs(t, err, service.ErrControlNotAvailable)
 			},
 		},
@@ -922,9 +1000,7 @@ func TestService_getControl(t *testing.T) {
 				wantControl.Controls[0].Metrics = tmpMetrics
 				return true
 			},
-			wantErr: func(t assert2.TestingT, err error, i ...interface{}) bool {
-				return assert.NoError(t.(*testing.T), err)
-			},
+			wantErr: assert.NoError,
 		},
 	}
 	for _, tt := range tests {
