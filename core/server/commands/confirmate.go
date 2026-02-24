@@ -36,7 +36,18 @@ var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
 	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := orchestrator.NewService(
+		var (
+			svc             orchestratorconnect.OrchestratorHandler
+			err             error
+			apiPort         uint16
+			orchestratorURL string
+			assessmentSvc   assessmentconnect.AssessmentHandler
+			path            string
+			handler         http.Handler
+			handlers        map[string]http.Handler
+		)
+
+		svc, err = orchestrator.NewService(
 			orchestrator.WithConfig(orchestrator.Config{
 				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
@@ -59,10 +70,10 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
-		apiPort := cmd.Uint16("api-port")
-		orchestratorURL := fmt.Sprintf("http://localhost:%d", apiPort)
+		apiPort = cmd.Uint16("api-port")
+		orchestratorURL = fmt.Sprintf("http://localhost:%d", apiPort)
 
-		assessmentSvc, err := assessment.NewService(
+		assessmentSvc, err = assessment.NewService(
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: orchestratorURL,
 				OrchestratorClient:  http.DefaultClient,
@@ -72,6 +83,15 @@ var ConfirmateCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		handlers = make(map[string]http.Handler)
+		path, handler = orchestratorconnect.NewOrchestratorHandler(
+			svc,
+			connect.WithInterceptors(&server.LoggingInterceptor{}),
+		)
+		handlers[path] = handler
+		path, handler = assessmentconnect.NewAssessmentHandler(assessmentSvc)
+		handlers[path] = handler
 
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
@@ -83,12 +103,8 @@ var ConfirmateCommand = &cli.Command{
 					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
 					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
 				},
+				Handlers: handlers,
 			}),
-			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
-				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
-			)),
-			server.WithHandler(assessmentconnect.NewAssessmentHandler(assessmentSvc)),
 		)
 	},
 	Flags: []cli.Flag{

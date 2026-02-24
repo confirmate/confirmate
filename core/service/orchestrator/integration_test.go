@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"io"
+	"net/http"
 	"testing"
 	"time"
 
@@ -131,8 +132,15 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			}
 
 			// Create test server
+			var path string
+			var handler http.Handler
+			path, handler = orchestratorconnect.NewOrchestratorHandler(svc)
 			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+				server.WithConfig(server.Config{
+					Handlers: map[string]http.Handler{
+						path: handler,
+					},
+				}),
 			)
 			defer testSrv.Close()
 
@@ -188,8 +196,15 @@ func TestService_StoreAssessmentResults_ContextCancellation(t *testing.T) {
 	}
 
 	// Create test server
+	var path string
+	var handler http.Handler
+	path, handler = orchestratorconnect.NewOrchestratorHandler(svc)
 	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	defer testSrv.Close()
 
@@ -242,8 +257,15 @@ func TestService_StoreAssessmentResults_CloseAndReceive(t *testing.T) {
 	}
 
 	// Create test server
+	var path string
+	var handler http.Handler
+	path, handler = orchestratorconnect.NewOrchestratorHandler(svc)
 	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	defer testSrv.Close()
 
@@ -284,8 +306,15 @@ func TestService_StoreAssessmentResults_ConcurrentStreams(t *testing.T) {
 	}
 
 	// Create test server
+	var path string
+	var handler http.Handler
+	path, handler = orchestratorconnect.NewOrchestratorHandler(svc)
 	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	defer testSrv.Close()
 

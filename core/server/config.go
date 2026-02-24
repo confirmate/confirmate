@@ -15,6 +15,8 @@
 
 package server
 
+import "net/http"
+
 // DefaultConfig is the default configuration for the [Server].
 var DefaultConfig = Config{
 	Port:     8080,
@@ -25,6 +27,7 @@ var DefaultConfig = Config{
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
 	},
+	Handlers: make(map[string]http.Handler),
 }
 
 // Config represents the configuration for the [Server].
@@ -33,6 +36,8 @@ type Config struct {
 	Path     string
 	LogLevel string
 	CORS     CORS
+	// Handlers maps HTTP paths to handlers to expose through the server.
+	Handlers map[string]http.Handler
 }
 
 // CORS represents the CORS configuration for the server.

@@ -28,8 +28,7 @@ import (
 // Server represents a Connect server, with RPC and HTTP support.
 type Server struct {
 	*http.Server
-	cfg      Config
-	handlers map[string]http.Handler
+	cfg Config
 }
 
 // Option is a functional option for configuring the [Server].
@@ -38,15 +37,27 @@ type Option func(*Server)
 // WithConfig sets the server configuration, overriding the default configuration.
 func WithConfig(cfg Config) Option {
 	return func(svr *Server) {
-		svr.cfg = cfg
-	}
-}
-
-// WithHandler adds an [http.Handler] at the specified path to the server.
-// Multiple handlers can be registered by calling WithHandler multiple times.
-func WithHandler(path string, handler http.Handler) Option {
-	return func(svr *Server) {
-		svr.handlers[path] = handler
+		if cfg.Port != 0 {
+			svr.cfg.Port = cfg.Port
+		}
+		if cfg.Path != "" {
+			svr.cfg.Path = cfg.Path
+		}
+		if cfg.LogLevel != "" {
+			svr.cfg.LogLevel = cfg.LogLevel
+		}
+		if len(cfg.CORS.AllowedOrigins) > 0 {
+			svr.cfg.CORS.AllowedOrigins = cfg.CORS.AllowedOrigins
+		}
+		if len(cfg.CORS.AllowedMethods) > 0 {
+			svr.cfg.CORS.AllowedMethods = cfg.CORS.AllowedMethods
+		}
+		if len(cfg.CORS.AllowedHeaders) > 0 {
+			svr.cfg.CORS.AllowedHeaders = cfg.CORS.AllowedHeaders
+		}
+		if cfg.Handlers != nil {
+			svr.cfg.Handlers = cfg.Handlers
+		}
 	}
 }
 
@@ -80,8 +91,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Setup default server config
 	svr = &Server{
-		cfg:      DefaultConfig,
-		handlers: make(map[string]http.Handler),
+		cfg: DefaultConfig,
 	}
 
 	// Apply options
@@ -95,7 +105,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 	}
 
 	// Create one vanguard service for each handler and add to transcoder
-	for path, handler := range svr.handlers {
+	for path, handler := range svr.cfg.Handlers {
 		vs = append(vs, vanguard.NewService(path, handler))
 	}
 	transcoder, err = vanguard.NewTranscoder(vs)

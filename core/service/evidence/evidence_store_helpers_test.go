@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -52,9 +53,16 @@ func newAssessmentTestServer(t *testing.T) (*assessmentStreamRecorder, *server.S
 	recorder := &assessmentStreamRecorder{
 		received: make(chan *assessment.AssessEvidenceRequest, 10),
 	}
+	var path string
+	var handler http.Handler
+	path, handler = assessmentconnect.NewAssessmentHandler(recorder)
 	srv, testSrv := servertest.NewTestConnectServer(
 		t,
-		server.WithHandler(assessmentconnect.NewAssessmentHandler(recorder)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	return recorder, srv, testSrv
 }

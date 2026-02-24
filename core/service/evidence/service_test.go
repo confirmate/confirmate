@@ -489,8 +489,15 @@ func TestService_StoreEvidences(t *testing.T) {
 				}
 			}()
 
+			var path string
+			var handler http.Handler
+			path, handler = evidenceconnect.NewEvidenceStoreHandler(svc)
 			_, storeSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(svc)),
+				server.WithConfig(server.Config{
+					Handlers: map[string]http.Handler{
+						path: handler,
+					},
+				}),
 			)
 			defer storeSrv.Close()
 
@@ -543,8 +550,15 @@ func TestService_StoreEvidences_ReceiveError(t *testing.T) {
 		}
 	}()
 
+	var path string
+	var handler http.Handler
+	path, handler = evidenceconnect.NewEvidenceStoreHandler(svc)
 	_, storeSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(svc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	defer storeSrv.Close()
 

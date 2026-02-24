@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"sync"
@@ -78,6 +79,8 @@ func newTestServer(t *testing.T) (*httptest.Server, error) {
 		svc     orchestratorconnect.OrchestratorHandler
 		srv     *server.Server
 		testSrv *httptest.Server
+		path    string
+		handler http.Handler
 	)
 
 	svc, err = orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
@@ -97,8 +100,13 @@ func newTestServer(t *testing.T) (*httptest.Server, error) {
 		return nil, err
 	}
 
+	path, handler = orchestratorconnect.NewOrchestratorHandler(svc)
 	srv, testSrv = servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	_ = srv
 

@@ -17,6 +17,7 @@ package assessment
 
 import (
 	"context"
+	"net/http"
 	"testing"
 	"time"
 
@@ -125,8 +126,15 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	var path string
+	var httpHandler http.Handler
+	path, httpHandler = orchestratorconnect.NewOrchestratorHandler(orchSvc)
 	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: httpHandler,
+			},
+		}),
 	)
 	defer testSrv.Close()
 
@@ -195,8 +203,15 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	var path string
+	var httpHandler http.Handler
+	path, httpHandler = orchestratorconnect.NewOrchestratorHandler(orchSvc)
 	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: httpHandler,
+			},
+		}),
 	)
 	aHandler, err := NewService(
 		WithConfig(Config{

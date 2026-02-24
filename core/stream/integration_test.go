@@ -28,7 +28,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
-	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	orchestratorsvc "confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
@@ -54,11 +53,7 @@ func TestStreamRestartIntegration(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create an initial test server
-	_, testSrv1 := servertest.NewTestConnectServer(t,
-		server.WithHandler(
-			orchestratorconnect.NewOrchestratorHandler(svc),
-		),
-	)
+	_, testSrv1 := servertest.NewTestConnectServer(t, withOrchestratorHandler(svc))
 	serverURL := testSrv1.URL
 	// Retrieve port, so we can restart the server later on the same port
 	port := testSrv1.Listener.Addr().(*net.TCPAddr).Port
@@ -115,11 +110,7 @@ func TestStreamRestartIntegration(t *testing.T) {
 	// Restart the server on the same port
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	assert.NoError(t, err)
-	_, testSrv2 := servertest.NewTestConnectServerWithListener(t, listener,
-		server.WithHandler(
-			orchestratorconnect.NewOrchestratorHandler(svc),
-		),
-	)
+	_, testSrv2 := servertest.NewTestConnectServerWithListener(t, listener, withOrchestratorHandler(svc))
 	defer testSrv2.Close()
 	t.Log("Server restarted on same address")
 

@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"net/http"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -32,7 +33,15 @@ var OrchestratorCommand = &cli.Command{
 	Name:  "orchestrator",
 	Usage: "Launches the orchestrator service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := orchestrator.NewService(
+		var (
+			svc      orchestratorconnect.OrchestratorHandler
+			err      error
+			path     string
+			handler  http.Handler
+			handlers map[string]http.Handler
+		)
+
+		svc, err = orchestrator.NewService(
 			orchestrator.WithConfig(orchestrator.Config{
 				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
@@ -55,6 +64,13 @@ var OrchestratorCommand = &cli.Command{
 			return err
 		}
 
+		path, handler = orchestratorconnect.NewOrchestratorHandler(
+			svc,
+			connect.WithInterceptors(&server.LoggingInterceptor{}),
+		)
+		handlers = make(map[string]http.Handler)
+		handlers[path] = handler
+
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
 				Port:     cmd.Uint16("api-port"),
@@ -65,11 +81,8 @@ var OrchestratorCommand = &cli.Command{
 					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
 					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
 				},
+				Handlers: handlers,
 			}),
-			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
-				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
-			)),
 		)
 	},
 	Flags: []cli.Flag{

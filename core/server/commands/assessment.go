@@ -32,7 +32,15 @@ var AssessmentCommand = &cli.Command{
 	Name:  "assessment",
 	Usage: "Launches the assessment service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := assessment.NewService(
+		var (
+			svc      assessmentconnect.AssessmentHandler
+			err      error
+			path     string
+			handler  http.Handler
+			handlers map[string]http.Handler
+		)
+
+		svc, err = assessment.NewService(
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
 				OrchestratorClient:  http.DefaultClient,
@@ -42,6 +50,13 @@ var AssessmentCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		path, handler = assessmentconnect.NewAssessmentHandler(
+			svc,
+			connect.WithInterceptors(&server.LoggingInterceptor{}),
+		)
+		handlers = make(map[string]http.Handler)
+		handlers[path] = handler
 
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
@@ -53,11 +68,8 @@ var AssessmentCommand = &cli.Command{
 					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
 					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
 				},
+				Handlers: handlers,
 			}),
-			server.WithHandler(assessmentconnect.NewAssessmentHandler(
-				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
-			)),
 		)
 	},
 	Flags: []cli.Flag{

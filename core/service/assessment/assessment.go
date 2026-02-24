@@ -375,14 +375,6 @@ func (svc *Service) handleEvidence(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	if err != nil {
-		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.cfg.OrchestratorAddress, err)
-
-		go svc.informHooks(ctx, nil, err)
-
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
 	if len(evaluations) == 0 {
 		slog.Debug("No policy evaluation for evidence", slog.String("Evidence", ev.Id), slog.String("Resource", resource.GetId()), slog.String("ToolId", ev.ToolId))
 		return results, nil

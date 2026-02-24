@@ -18,6 +18,7 @@ package servertest_test
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"testing"
 
 	orchestratorapi "confirmate.io/core/api/orchestrator"
@@ -46,8 +47,15 @@ func TestNewTestServer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, svc)
 
+	var path string
+	var handler http.Handler
+	path, handler = orchestratorconnect.NewOrchestratorHandler(svc)
 	srv, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: handler,
+			},
+		}),
 	)
 	defer testSrv.Close()
 

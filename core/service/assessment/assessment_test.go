@@ -118,10 +118,15 @@ func TestNewService(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, svc)
 
+			var path string
+			var httpHandler http.Handler
+			path, httpHandler = orchestratorconnect.NewOrchestratorHandler(svc)
 			_, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(
-					orchestratorconnect.NewOrchestratorHandler(svc),
-				),
+				server.WithConfig(server.Config{
+					Handlers: map[string]http.Handler{
+						path: httpHandler,
+					},
+				}),
 			)
 			defer testSrv.Close()
 
@@ -509,8 +514,15 @@ func TestService_AssessEvidences(t *testing.T) {
 				}
 			})
 
+			var path string
+			var httpHandler http.Handler
+			path, httpHandler = assessmentconnect.NewAssessmentHandler(s)
 			_, assSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(assessmentconnect.NewAssessmentHandler(s)),
+				server.WithConfig(server.Config{
+					Handlers: map[string]http.Handler{
+						path: httpHandler,
+					},
+				}),
 			)
 			t.Cleanup(func() { assSrv.Close() })
 
@@ -669,7 +681,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: assert.Nil[[]*assessment.AssessmentResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.Contains(t, err.Error(), fmt.Sprintf("no results"))
+				return assert.Contains(t, err.Error(), "no results")
 			},
 		},
 		{
@@ -1001,8 +1013,15 @@ func TestService_Metrics(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, orchSvc)
 
+			var path string
+			var httpHandler http.Handler
+			path, httpHandler = orchestratorconnect.NewOrchestratorHandler(orchSvc)
 			srv, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(orchSvc)),
+				server.WithConfig(server.Config{
+					Handlers: map[string]http.Handler{
+						path: httpHandler,
+					},
+				}),
 			)
 			defer testSrv.Close()
 
@@ -1098,8 +1117,15 @@ func TestService_MetricImplementation(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, svc)
 
+			var path string
+			var httpHandler http.Handler
+			path, httpHandler = orchestratorconnect.NewOrchestratorHandler(svc)
 			srv, testSrv := servertest.NewTestConnectServer(t,
-				server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+				server.WithConfig(server.Config{
+					Handlers: map[string]http.Handler{
+						path: httpHandler,
+					},
+				}),
 			)
 			defer testSrv.Close()
 
@@ -1425,9 +1451,15 @@ func newTestOrchestratorService(t *testing.T) orchestratorconnect.OrchestratorHa
 // setupOrchestratorServer creates a test server for the orchestrator service
 func setupOrchestratorServer(t *testing.T, handler orchestratorconnect.OrchestratorHandler) (*http.Client, string) {
 	t.Helper()
-	path, httpHandler := orchestratorconnect.NewOrchestratorHandler(handler)
+	var path string
+	var httpHandler http.Handler
+	path, httpHandler = orchestratorconnect.NewOrchestratorHandler(handler)
 	_, testSrv := servertest.NewTestConnectServer(t,
-		server.WithHandler(path, httpHandler),
+		server.WithConfig(server.Config{
+			Handlers: map[string]http.Handler{
+				path: httpHandler,
+			},
+		}),
 	)
 	t.Cleanup(func() { testSrv.Close() })
 	return testSrv.Client(), testSrv.URL

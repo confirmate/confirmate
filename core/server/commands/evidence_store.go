@@ -35,6 +35,14 @@ var EvidenceCommand = &cli.Command{
 	Name:  "evidence",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
+		var (
+			svc      *evidence.Service
+			err      error
+			path     string
+			handler  http.Handler
+			handlers map[string]http.Handler
+		)
+
 		slog.Info("Starting Evidence Store",
 			slog.String("db_user", cmd.String("db-user")),
 			slog.String("db_password", cmd.String("db-password")),
@@ -52,7 +60,7 @@ var EvidenceCommand = &cli.Command{
 			slog.String("assessment_address", cmd.String("assessment-address")),
 			slog.Duration("assessment_timeout", cmd.Duration("assessment-timeout")))
 
-		svc, err := evidence.NewService(
+		svc, err = evidence.NewService(
 			evidence.WithConfig(evidence.Config{
 				AssessmentAddress: cmd.String("assessment-address"),
 				AssessmentHTTPClient: &http.Client{
@@ -75,6 +83,13 @@ var EvidenceCommand = &cli.Command{
 			return err
 		}
 
+		path, handler = evidenceconnect.NewEvidenceStoreHandler(
+			svc,
+			connect.WithInterceptors(&server.LoggingInterceptor{}),
+		)
+		handlers = make(map[string]http.Handler)
+		handlers[path] = handler
+
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
 				Port:     cmd.Uint16("api-port"),
@@ -85,11 +100,8 @@ var EvidenceCommand = &cli.Command{
 					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
 					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
 				},
+				Handlers: handlers,
 			}),
-			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
-				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
-			)),
 		)
 	},
 	Flags: []cli.Flag{
