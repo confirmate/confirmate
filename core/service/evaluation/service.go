@@ -355,6 +355,8 @@ func (svc *Service) CreateEvaluationResult(_ context.Context, req *connect.Reque
 	if err = validateCreateEvaluationResultRequest(req); err != nil {
 		return nil, err
 	}
+	// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
+	req.Msg.Result.Id = uuid.NewString()
 
 	eval = req.Msg.Result
 	err = svc.db.Create(eval)
@@ -378,8 +380,6 @@ func validateCreateEvaluationResultRequest(req *connect.Request[evaluation.Creat
 		if req.Msg.Result == nil {
 			return
 		}
-		// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
-		req.Msg.Result.Id = uuid.NewString()
 	}); err != nil {
 		return err
 	}
