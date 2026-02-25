@@ -67,6 +67,8 @@ const (
 	MockCategoryName2           = "category-2"
 	MockControlId1              = "control-1"
 	MockControlId2              = "control-2"
+	MockControlName1            = "Mock Control 1"
+	MockControlName2            = "Mock Control 2"
 	MockSubControlId1           = "control-1-1"
 	MockSubControlName1         = "Mock Sub-Control 1"
 	MockCertificateId1          = "certificate-1"
@@ -200,6 +202,7 @@ var (
 	// Mock Controls
 	MockControl1 = &orchestrator.Control{
 		Id:                MockControlId1,
+		Name:              MockControlName1,
 		CategoryName:      MockCategoryName1,
 		CategoryCatalogId: MockCatalogId1,
 		Controls:          []*orchestrator.Control{MockSubControl1},
@@ -220,6 +223,7 @@ var (
 	}
 	MockControl2 = &orchestrator.Control{
 		Id:                MockControlId2,
+		Name:              MockControlName2,
 		CategoryName:      MockCategoryName2,
 		CategoryCatalogId: MockCatalogId2,
 	}
