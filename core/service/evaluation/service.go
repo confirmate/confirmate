@@ -400,7 +400,7 @@ func validateCreateEvaluationResultRequest(req *connect.Request[evaluation.Creat
 }
 
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
-// interval. It returns e buf connect error that can be used directly by the caller
+// interval. It returns an buf connect error that can be used directly by the caller
 func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) (err error) {
 	// Check inputs and log error
 	if auditScope == nil {
