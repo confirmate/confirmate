@@ -307,30 +307,39 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	// If we want to have it grouped by resource ID, we need to do a raw query
 	if req.Msg.GetLatestByControlId() {
 		// In the raw SQL, we need to build the whole WHERE statement
-		var (
-			where string
-			p     = ""
-		)
-
+		var where string
 		if len(query) > 0 {
 			where = "WHERE " + strings.Join(query, " AND ")
 		}
 
-		if len(partition) > 0 {
-			p = ", " + strings.Join(partition, ",")
-		}
+		// TODO(all): Is there a better solution? Ramsql does not support our SQL statement, so we have to do it that way for now.
+		// Simple query, then reduce to "latest per control_id" in Go, because doing it in SQL is to complex for ramsql. We need to order by timestamp desc, so that the first entry per control_id is the latest one.
+		sql := fmt.Sprintf(`
+			SELECT *
+			FROM evaluation_results
+			%s
+			ORDER BY control_catalog_id, control_id, timestamp DESC;
+		`, where)
 
-		// Execute the raw SQL statement
-		err = svc.db.Raw(&res.Msg.Results,
-			fmt.Sprintf(`WITH sorted_results AS (
-				SELECT *, ROW_NUMBER() OVER (PARTITION BY control_id %s ORDER BY timestamp DESC) AS row_number
-				FROM evaluation_results
-				%s
-		  	)
-		  	SELECT * FROM sorted_results WHERE row_number = 1 ORDER BY control_catalog_id, control_id;`, p, where), args...)
+		err = svc.db.Raw(&res.Msg.Results, sql, args...)
 		if err = service.HandleDatabaseError(err); err != nil {
 			return nil, err
 		}
+
+		// Reduce results to the latest entry per control_id
+		deduped := make([]*evaluation.EvaluationResult, 0, len(res.Msg.Results))
+		seen := make(map[string]bool)
+
+		for _, r := range res.Msg.Results {
+			key := r.GetControlId()
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			deduped = append(deduped, r)
+		}
+
+		res.Msg.Results = deduped
 	} else {
 		// join query with AND and prepend the query
 		args = append([]any{strings.Join(query, " AND ")}, args...)
@@ -360,7 +369,6 @@ func (svc *Service) CreateEvaluationResult(_ context.Context, req *connect.Reque
 
 	eval = req.Msg.Result
 	err = svc.db.Create(eval)
-	// TODO(lebogg): Add Test
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
