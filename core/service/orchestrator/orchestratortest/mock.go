@@ -208,15 +208,11 @@ var (
 		Controls:          []*orchestrator.Control{MockSubControl1},
 	}
 	MockSubControl1 = &orchestrator.Control{
-		Id:                MockSubControlId1,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Name:              MockSubControlName1,
-		Metrics: []*assessment.Metric{{
-			Id:       MockMetricId1,
-			Version:  MockDefaultVersion,
-			Comments: "This is a comment",
-		}},
+		Id:                             MockSubControlId1,
+		Name:                           MockSubControlName1,
+		CategoryName:                   MockCategoryName1,
+		CategoryCatalogId:              MockCatalogId1,
+		Metrics:                        []*assessment.Metric{MockMetric1},
 		ParentControlId:                util.Ref(MockControlId1),
 		ParentControlCategoryName:      util.Ref(MockCategoryName1),
 		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
