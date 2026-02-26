@@ -1969,3 +1969,85 @@ func TestService_StopEvaluation(t *testing.T) {
 		})
 	}
 }
+func TestService_addJobToScheduler(t *testing.T) {
+	type fields struct {
+		scheduler *gocron.Scheduler
+	}
+	type args struct {
+		ctx        context.Context
+		auditScope *orchestrator.AuditScope
+		catalog    *orchestrator.Catalog
+		interval   int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[*Service]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error: invalid input - missing audit scope",
+			fields: fields{
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: nil,
+				catalog:    &orchestrator.Catalog{},
+				interval:   5,
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				return assert.False(t, got.scheduler.IsRunning())
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "evaluation cannot be scheduled due to invalid input")
+			},
+		},
+		{
+			name: "error: invalid input - invalid interval",
+			fields: fields{
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    &orchestrator.Catalog{},
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				return assert.False(t, got.scheduler.IsRunning())
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "evaluation cannot be scheduled due to invalid input")
+			},
+		},
+		{
+			name: "happy path: job added successfully",
+			fields: fields{
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    &orchestrator.Catalog{},
+				interval:   5,
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				assert.Equal(t, 1, len(got.scheduler.Jobs()))
+				return assert.Equal(t, evaluationtest.MockAuditScope1.Id, got.scheduler.Jobs()[0].Tags()[0])
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				scheduler: tt.fields.scheduler,
+			}
+			err := svc.addJobToScheduler(tt.args.ctx, tt.args.auditScope, tt.args.catalog, tt.args.interval)
+
+			tt.wantErr(t, err)
+			tt.want(t, svc)
+		})
+	}
+}
