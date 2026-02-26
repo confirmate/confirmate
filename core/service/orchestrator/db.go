@@ -17,7 +17,6 @@ package orchestrator
 
 import (
 	"confirmate.io/core/api/assessment"
-	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 )
@@ -36,7 +35,6 @@ var types = []any{
 	&assessment.AssessmentResult{},
 	&assessment.Metric{},
 	&assessment.MetricImplementation{},
-	&evaluation.EvaluationResult{},
 }
 
 // joinTables defines the [MetricConfiguration] as a custom join table between

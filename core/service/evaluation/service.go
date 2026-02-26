@@ -574,12 +574,11 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		}
 	}
 
-	slog.Info("Starting control evaluation for Target of Evaluation '%s', Catalog ID '%s' and Control '%s'. Waiting for the evaluation of %d sub-control(s)",
+	slog.Info("Starting control evaluation",
 		slog.String("target of evaluation id", auditScope.TargetOfEvaluationId),
 		slog.String("catalog id", auditScope.CatalogId),
 		slog.String("control id", control.Id),
-		slog.Int("number of relevant controls for the audit scope", len(relevant)),
-	)
+		slog.Int("number of relevant controls for the audit scope", len(relevant)))
 
 	// Prepare the results slice
 	results = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))

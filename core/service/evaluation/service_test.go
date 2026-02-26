@@ -352,7 +352,7 @@ func TestService_CreateEvaluationResult(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
 				assert.Equal(t, evaluationtest.MockToeId1, got.Msg.TargetOfEvaluationId)
 				assert.Equal(t, evaluationtest.MockAuditScopeId1, got.Msg.AuditScopeId)
-				assert.Equal(t, evaluationtest.MockControlId11, got.Msg.ControlId)
+				assert.Equal(t, evaluationtest.MockSubcontrolId11, got.Msg.ControlId)
 				assert.Equal(t, evaluationtest.MockCategoryName1, got.Msg.ControlCategoryName)
 				assert.Equal(t, evaluationtest.MockCatalogId1, got.Msg.ControlCatalogId)
 				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, got.Msg.Status)
@@ -1249,7 +1249,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						SubControls: util.Ref(string(evaluationtest.MockControlId11)),
+						SubControls: util.Ref(string(evaluationtest.MockSubcontrolId11)),
 					},
 				}),
 			},
@@ -2048,6 +2048,81 @@ func TestService_addJobToScheduler(t *testing.T) {
 
 			tt.wantErr(t, err)
 			tt.want(t, svc)
+		})
+	}
+}
+
+func TestService_evaluateControl(t *testing.T) {
+	type args struct {
+		ctx        context.Context
+		auditScope *orchestrator.AuditScope
+		catalog    *orchestrator.Catalog
+		control    *orchestrator.Control
+		manual     []*evaluation.EvaluationResult
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*Service]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "happy path",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				control:    orchestratortest.MockControl1,
+				manual:     []*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult1},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, []any{
+					&orchestrator.TargetOfEvaluation{},
+					&orchestrator.Certificate{},
+					&orchestrator.State{},
+					&orchestrator.Catalog{},
+					&orchestrator.Category{},
+					&orchestrator.Control{},
+					&orchestrator.AuditScope{},
+					&orchestrator.AssessmentTool{},
+					&assessment.MetricConfiguration{},
+					&assessment.AssessmentResult{},
+					&assessment.Metric{},
+					&assessment.MetricImplementation{},
+				}, []persistence.CustomJoinTable{
+					{
+						Model:     orchestrator.TargetOfEvaluation{},
+						Field:     "ConfiguredMetrics",
+						JoinTable: assessment.MetricConfiguration{},
+					}}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				// Assert that the evaluation result was stored in the database
+				result := &evaluation.EvaluationResult{}
+				err := got.db.Get(&result)
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, result)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				db: tt.fields.db,
+			}
+
+			gotErr := svc.evaluateControl(context.Background(), tt.args.auditScope, tt.args.catalog, tt.args.control, tt.args.manual)
+			tt.wantErr(t, gotErr)
+			tt.want(t, &svc)
 		})
 	}
 }
