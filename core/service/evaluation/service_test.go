@@ -15,6 +15,8 @@ import (
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/server"
+	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/service/evidence/evidencetest"
@@ -565,6 +567,436 @@ func TestService_CreateEvaluationResult_LargeBlobIntegration(t *testing.T) {
 	// Verify the blob content is identical (byte-for-byte comparison)
 	// This ensures no data corruption occurred during storage
 	assert.Equal(t, largeBlob, retrieved.Data)
+}
+
+func TestService_evaluateSubcontrol(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		db                 persistence.DB
+		catalogControls    map[string]map[string]*orchestrator.Control
+	}
+	type args struct {
+		ctx        context.Context
+		auditScope *orchestrator.AuditScope
+		control    *orchestrator.Control
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[*evaluation.EvaluationResult]
+		wantSvc assert.Want[*Service]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "Input audit scope is empty",
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
+					},
+				},
+			},
+			args: args{
+				control: orchestratortest.MockControl1,
+			},
+			want:    assert.Nil[*evaluation.EvaluationResult],
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 0, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "Input control is empty", // we do not check the other input parameters
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
+					},
+				},
+			},
+			args: args{
+				auditScope: &orchestrator.AuditScope{
+					Id: evaluationtest.MockAuditScopeId1,
+				},
+			},
+			want:    assert.Nil[*evaluation.EvaluationResult],
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 0, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "getAllMetricsFromControl returns error",
+			fields: fields{
+				orchestratorClient: nil,
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls:    map[string]map[string]*orchestrator.Control{},
+			},
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId1,
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+				},
+				control: orchestratortest.MockControl1,
+			},
+			want: assert.Nil[*evaluation.EvaluationResult],
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, "could not get control for control id")
+			},
+		},
+		{
+			name: "Happy path: no assessment results available (Get latest assessment_results returns error). We add pending Eval Result",
+			fields: func() fields {
+				// Create test server that returns an error for ListAssessmentResults
+				handler := &mockOrchestratorHandler{
+					listAssessmentResultError: connect.NewError(connect.CodeInternal, fmt.Errorf("failed to fetch assessment results")),
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+					catalogControls: map[string]map[string]*orchestrator.Control{
+						orchestratortest.MockControl1.GetCategoryCatalogId(): {
+							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+						},
+					},
+				}
+			}(),
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId1,
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+				},
+				control: orchestratortest.MockControl1,
+			},
+			want:    assert.NotNil[*evaluation.EvaluationResult],
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				return assert.Equal(t, 1, len(evalResults.Msg.Results))
+			},
+		},
+		{
+			name: "Happy path: no assessment results available (Get latest assessment_results returns empty list). We add pending Eval Result",
+			fields: func() fields {
+				// Create test server that returns empty assessment results (no error)
+				handler := &mockOrchestratorHandler{
+					// No error set, so ListAssessmentResults will return empty list
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+					catalogControls: map[string]map[string]*orchestrator.Control{
+						orchestratortest.MockControl1.GetCategoryCatalogId(): {
+							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+						},
+					},
+				}
+			}(),
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId1,
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+				},
+				control: orchestratortest.MockControl1,
+			},
+			want: func(t *testing.T, got *evaluation.EvaluationResult, _ ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, got.Status)
+				assert.Equal(t, evaluationtest.MockToeId1, got.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockControlId1, got.ControlId)
+				assert.Equal(t, 0, len(got.AssessmentResultIds))
+				return true
+			},
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				if !assert.Equal(t, 1, len(evalResults.Msg.Results)) {
+					return false
+				}
+				result := evalResults.Msg.Results[0]
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, result.Status)
+				return true
+			},
+		},
+		{
+			name: "Happy path: no metrics available for the given control. We add pending Eval Result",
+			fields: fields{
+				orchestratorClient: nil, // No orchestrator client needed since we won't call ListAssessmentResults
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl2.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl2.GetCategoryName(), orchestratortest.MockControl2.GetId()): orchestratortest.MockControl2,
+					},
+				},
+			},
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId2,
+					TargetOfEvaluationId: evaluationtest.MockToeId2,
+					CatalogId:            orchestratortest.MockCatalogId2,
+				},
+				control: orchestratortest.MockControl2,
+			},
+			want: func(t *testing.T, got *evaluation.EvaluationResult, _ ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, got.Status)
+				assert.Equal(t, evaluationtest.MockToeId2, got.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockControlId2, got.ControlId)
+				assert.Equal(t, 0, len(got.AssessmentResultIds))
+				return true
+			},
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				if !assert.Equal(t, 1, len(evalResults.Msg.Results)) {
+					return false
+				}
+				result := evalResults.Msg.Results[0]
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, result.Status)
+				assert.Equal(t, orchestratortest.MockControlId2, result.ControlId)
+				return true
+			},
+		},
+		{
+			name: "Happy path: assessment results available and all compliant. We add compliant Eval Result",
+			fields: func() fields {
+				// Create test server that returns compliant assessment results
+				handler := &mockOrchestratorHandler{
+					assessmentResults: []*assessment.AssessmentResult{
+						{
+							Id:         "assessment-result-1",
+							MetricId:   orchestratortest.MockMetricId1,
+							Compliant:  true,
+							ResourceId: "resource-1",
+						},
+						{
+							Id:         "assessment-result-2",
+							MetricId:   orchestratortest.MockMetricId1,
+							Compliant:  true,
+							ResourceId: "resource-2",
+						},
+					},
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+					catalogControls: map[string]map[string]*orchestrator.Control{
+						orchestratortest.MockControl1.GetCategoryCatalogId(): {
+							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+						},
+					},
+				}
+			}(),
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId1,
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+				},
+				control: orchestratortest.MockControl1,
+			},
+			want: func(t *testing.T, got *evaluation.EvaluationResult, _ ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, got.Status)
+				assert.Equal(t, evaluationtest.MockToeId1, got.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockControlId1, got.ControlId)
+				assert.Equal(t, 2, len(got.AssessmentResultIds))
+				assert.Equal(t, "assessment-result-1", got.AssessmentResultIds[0])
+				assert.Equal(t, "assessment-result-2", got.AssessmentResultIds[1])
+				return true
+			},
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				if !assert.Equal(t, 1, len(evalResults.Msg.Results)) {
+					return false
+				}
+				result := evalResults.Msg.Results[0]
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status)
+				assert.Equal(t, orchestratortest.MockControlId1, result.ControlId)
+				assert.Equal(t, 2, len(result.AssessmentResultIds))
+				return true
+			},
+		},
+		{
+			name: "Happy path: assessment results available with at least one non-compliant. We add non-compliant Eval Result",
+			fields: func() fields {
+				// Create test server that returns mixed assessment results (some compliant, some not)
+				handler := &mockOrchestratorHandler{
+					assessmentResults: []*assessment.AssessmentResult{
+						{
+							Id:         "assessment-result-1",
+							MetricId:   orchestratortest.MockMetricId1,
+							Compliant:  true,
+							ResourceId: "resource-1",
+						},
+						{
+							Id:         "assessment-result-2",
+							MetricId:   orchestratortest.MockMetricId1,
+							Compliant:  false,
+							ResourceId: "resource-2",
+						},
+						{
+							Id:         "assessment-result-3",
+							MetricId:   orchestratortest.MockMetricId1,
+							Compliant:  true,
+							ResourceId: "resource-3",
+						},
+					},
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+					catalogControls: map[string]map[string]*orchestrator.Control{
+						orchestratortest.MockControl1.GetCategoryCatalogId(): {
+							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+						},
+					},
+				}
+			}(),
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId1,
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+				},
+				control: orchestratortest.MockControl1,
+			},
+			want: func(t *testing.T, got *evaluation.EvaluationResult, _ ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, got.Status)
+				assert.Equal(t, evaluationtest.MockToeId1, got.TargetOfEvaluationId)
+				assert.Equal(t, orchestratortest.MockControlId1, got.ControlId)
+				assert.Equal(t, 3, len(got.AssessmentResultIds))
+				assert.Equal(t, "assessment-result-1", got.AssessmentResultIds[0])
+				assert.Equal(t, "assessment-result-2", got.AssessmentResultIds[1])
+				assert.Equal(t, "assessment-result-3", got.AssessmentResultIds[2])
+				return true
+			},
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+				if !assert.Equal(t, 1, len(evalResults.Msg.Results)) {
+					return false
+				}
+				result := evalResults.Msg.Results[0]
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, result.Status)
+				assert.Equal(t, orchestratortest.MockControlId1, result.ControlId)
+				assert.Equal(t, 3, len(result.AssessmentResultIds))
+				return true
+			},
+		},
+		{
+			name: "Database error when creating evaluation result",
+			fields: func() fields {
+				// Create test server that returns compliant assessment results
+				handler := &mockOrchestratorHandler{
+					assessmentResults: []*assessment.AssessmentResult{
+						{
+							Id:         "assessment-result-1",
+							MetricId:   orchestratortest.MockMetricId1,
+							Compliant:  true,
+							ResourceId: "resource-1",
+						},
+					},
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					db:                 &mockDBWithError{createError: fmt.Errorf("database constraint violation")},
+					catalogControls: map[string]map[string]*orchestrator.Control{
+						orchestratortest.MockControl1.GetCategoryCatalogId(): {
+							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+						},
+					},
+				}
+			}(),
+			args: args{
+				ctx: context.Background(),
+				auditScope: &orchestrator.AuditScope{
+					Id:                   evaluationtest.MockAuditScopeId1,
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					CatalogId:            orchestratortest.MockCatalogId1,
+				},
+				control: orchestratortest.MockControl1,
+			},
+			want: assert.Nil[*evaluation.EvaluationResult],
+			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
+				return assert.ErrorContains(t, err, "database constraint violation")
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				db:                 tt.fields.db,
+				catalogControls:    tt.fields.catalogControls,
+			}
+
+			got, err := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control)
+			tt.wantErr(t, err)
+			assert.Optional(t, tt.want, got)
+			assert.Optional(t, tt.wantSvc, svc)
+		})
+	}
 }
 
 func TestService_getAllMetricsFromControl(t *testing.T) {
