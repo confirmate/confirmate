@@ -335,36 +335,35 @@ service Orchestrator {
   }
 
   /* TODO(lebogg): Add endpoints for control state & assignment (per audit scope). These endpoints are for “user responsible for a control”, delegation and status.
-    - GetAuditScopeControlState
-    - ListAuditScopeControlStates
-    - AssignControl
+    - AssignControlWorkflow
     - UpdateControlWorkflowStatus
-    - UpdateControlComplianceStatus
-    - GetControlHistory
+    - GetControlWorkflowHistory
    */
 
 
-
-  /* TODO(lebogg): Add endpoints for User‑centric views. These are essentially convenience queries over the same control state.
-    - GetAuditScopeControlState
-    - ListAuditScopeControlStates
-    - AssignControl
-    - UpdateControlWorkflowStatus
-    - UpdateControlComplianceStatus
-    - GetControlHistory
-   */
 
   /* TODO(lebogg): TBD: Optional user metadata (if not only in IdP). The question is if
         a) everything is done via IdP or
         b) we use IdP but delegate responsibilities
+      We try Option b) for now
 
-    - List users
-    - Get user
+    - Get me (The idea is to get the current user which is asking.
+    - List users (with filters, e.g. role or department)
+    - Get user (with specific ID,
    */
+
 
 }
 
-// TODO(lebogg): Add enum for workflow, e.g. ControlWorkflowStatus
+// TODO(lebogg): Check with UI requirements
+enum ControlWorkflowStatus {
+  CONTROL_WORKFLOW_STATUS_UNSPECIFIED = 0;
+  CONTROL_WORKFLOW_STATUS_OPEN = 1;
+  CONTROL_WORKFLOW_STATUS_IN_PROGRESS = 2;
+  CONTROL_WORKFLOW_STATUS_IMPLEMENTED = 3;
+  CONTROL_WORKFLOW_STATUS_READY_FOR_REVIEW = 4;
+  CONTROL_WORKFLOW_STATUS_ACCEPTED = 5;
+}
 
 message RegisterAssessmentToolRequest {
   AssessmentTool tool = 1 [
