@@ -333,6 +333,53 @@ service Orchestrator {
   rpc GetRuntimeInfo(confirmate.common.v1.GetRuntimeInfoRequest) returns (confirmate.common.v1.Runtime) {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
+
+  // Assigns a control workflow to a user for a specific control in an audit scope
+  rpc AssignControlWorkflow(AssignControlWorkflowRequest) returns (ControlWorkflow) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/audit_scopes/{audit_scope_id}/controls/{control_id}/assign"
+      body: "*"
+    };
+  }
+
+  // Updates the status of a control workflow for a specific control in an audit scope
+  rpc UpdateControlWorkflowStatus(UpdateControlWorkflowStatusRequest) returns (ControlWorkflow) {
+    option (google.api.http) = {
+      put: "/v1/orchestrator/audit_scopes/{audit_scope_id}/controls/{control_id}/status"
+      body: "*"
+    };
+  }
+
+  // Retrieves the workflow history for a specific control in an audit scope
+  rpc GetControlWorkflowHistory(GetControlWorkflowHistoryRequest) returns (GetControlWorkflowHistoryResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/audit_scopes/{audit_scope_id}/controls/{control_id}/history"};
+  }
+
+  // Returns information about the currently authenticated user
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/me"};
+  }
+
+  // Lists users from the IdP (Keycloak) with optional filtering
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/users"};
+  }
+
+  // Retrieves a specific user by their ID
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}"};
+  }
+
+
+}
+
+enum ControlWorkflowStatus {
+  CONTROL_WORKFLOW_STATUS_UNSPECIFIED = 0;
+  CONTROL_WORKFLOW_STATUS_OPEN = 1;
+  CONTROL_WORKFLOW_STATUS_IN_PROGRESS = 2;
+  CONTROL_WORKFLOW_STATUS_IMPLEMENTED = 3;
+  CONTROL_WORKFLOW_STATUS_READY_FOR_REVIEW = 4;
+  CONTROL_WORKFLOW_STATUS_ACCEPTED = 5;
 }
 
 message RegisterAssessmentToolRequest {
@@ -1123,4 +1170,217 @@ message State {
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
+}
+
+// Represents a control workflow assignment and status tracking
+message ControlWorkflow {
+  // Unique identifier for this workflow entry
+  string id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The audit scope this workflow belongs to
+  string audit_scope_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The control ID this workflow is for
+  string control_id = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The category name of the control
+  string category_name = 4 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The catalog ID of the control
+  string catalog_id = 5 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // User ID of the person assigned to this control
+  string assigned_user_id = 6 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Current workflow status
+  ControlWorkflowStatus status = 7 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // When this workflow entry was created
+  google.protobuf.Timestamp created_at = 8 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // When this workflow entry was last updated
+  google.protobuf.Timestamp updated_at = 9 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // User ID of the person who made the last update
+  string updated_by_user_id = 10;
+
+  // Optional comment or note about the workflow state
+  string note = 11;
+}
+
+message AssignControlWorkflowRequest {
+  // The audit scope ID
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The control ID to assign
+  string control_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The category name of the control
+  string category_name = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The catalog ID of the control
+  string catalog_id = 4 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // User ID to assign the control to
+  string assigned_user_id = 5 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Optional initial status (defaults to OPEN if not specified)
+  optional ControlWorkflowStatus initial_status = 6;
+}
+
+message UpdateControlWorkflowStatusRequest {
+  // The audit scope ID
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The control ID
+  string control_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // New workflow status
+  ControlWorkflowStatus status = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Optional note about the status change
+  optional string note = 4;
+}
+
+message GetControlWorkflowHistoryRequest {
+  // The audit scope ID
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The control ID
+  string control_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message GetControlWorkflowHistoryResponse {
+  // List of workflow history entries, ordered by timestamp
+  repeated ControlWorkflow history = 1;
+  string next_page_token = 2;
+}
+
+// Represents a user from the IdP (Keycloak)
+message User {
+  // User ID from Keycloak
+  string id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Username
+  string username = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Email address
+  optional string email = 3;
+
+  // First name
+  optional string first_name = 4;
+
+  // Last name
+  optional string last_name = 5;
+
+  // Roles assigned to the user (e.g., "compliance_manager", "auditor", "developer")
+  repeated string roles = 6;
+
+  // Whether the user account is enabled
+  bool enabled = 7;
+
+  // Additional attributes from Keycloak (e.g., department, organization)
+  map<string, string> attributes = 8;
+}
+
+message GetCurrentUserRequest {
+  // Empty request - user is identified from authentication context
+}
+
+message GetUserRequest {
+  // The user ID to retrieve
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListUsersRequest {
+  message Filter {
+    // Optional. Filter by role (e.g., "compliance_manager")
+    optional string role = 1;
+
+    // Optional. Filter by enabled/disabled status
+    optional bool enabled = 2;
+
+    // Optional. Search query for username, email, first name, or last name
+    optional string search = 3;
+
+    // Optional. Filter by specific attribute key-value pairs (e.g., department)
+    map<string, string> attributes = 4;
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
 }
