@@ -213,14 +213,10 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	}
 
 	// Get audit scope
-	// auditScope, err = svc.orchestratorClient.GetAuditScope(context.Background(), &orchestrator.GetAuditScopeRequest{
-	// 	AuditScopeId: req.GetAuditScopeId(),
-	// })
 	auditScopeResponse, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
-		// Errors coming from Orchestrator are treated and returned to the user as internal
 		slog.Error("could not get audit scope from orchestrator", log.Err(err))
 		return nil, connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
 	}
@@ -926,6 +922,7 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 
 // TODO(lebogg): Try it out
 // TODO(oxisto): We can remove it with maps.Values in Go 1.22+
+// Remove after Test for evaluateCatalog is available
 func values[M ~map[K]V, K comparable, V any](m M) []V {
 	rr := make([]V, 0, len(m))
 

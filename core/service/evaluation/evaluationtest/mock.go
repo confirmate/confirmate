@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"confirmate.io/core/api/evaluation"
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -131,5 +132,19 @@ var (
 		ParentControlId:      util.Ref(MockControlId1),
 		Comment:              util.Ref("Mock manual evaluation result 1"),
 		Data:                 make([]byte, 1024*1024), // 1MB data blob
+	}
+)
+
+// Mock Assessment Results
+var (
+	MockAuditScope1 = &orchestrator.AuditScope{
+		Id:                   MockAuditScopeId1,
+		TargetOfEvaluationId: MockToeId1,
+		CatalogId:            MockCatalogId1,
+	}
+	MockAuditScope2 = &orchestrator.AuditScope{
+		Id:                   MockAuditScopeId2,
+		TargetOfEvaluationId: MockToeId2,
+		CatalogId:            MockCatalogId2,
 	}
 )

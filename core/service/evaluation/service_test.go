@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
@@ -24,6 +25,7 @@ import (
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
+	"github.com/go-co-op/gocron"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -1825,6 +1827,145 @@ func Test_values(t *testing.T) {
 			got := values(tt.args.m)
 
 			tt.want(t, got)
+		})
+	}
+}
+
+func TestService_StopEvaluation(t *testing.T) {
+	type args struct {
+		req *connect.Request[evaluation.StopEvaluationRequest]
+	}
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		scheduler          *gocron.Scheduler
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evaluation.StopEvaluationResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error: input empty",
+			args: args{
+				req: &connect.Request[evaluation.StopEvaluationRequest]{},
+			},
+			fields: fields{},
+			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid_argument: empty request")
+			},
+		},
+		{
+			name: "error: audit scope not found",
+			args: args{
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: func() fields {
+				// Create test server that returns no Audit Scope
+				handler := &mockOrchestratorHandler{
+					getAuditScopeNotFoundError: connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found")),
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler:          gocron.NewScheduler(time.UTC),
+				}
+			}(),
+			want: assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
+			},
+		},
+		{
+			name: "error: audit scope found but has no schedule",
+			args: args{
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: func() fields {
+				// Create test server that returns an Audit Scope
+				handler := &mockOrchestratorHandler{
+					auditScope: evaluationtest.MockAuditScope1,
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler: func() *gocron.Scheduler {
+						s := gocron.NewScheduler(time.UTC)
+
+						return s
+					}(),
+				}
+			}(),
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeFailedPrecondition) &&
+					assert.ErrorContains(t, err, fmt.Sprintf("job for audit scope '%s' is not running", evaluationtest.MockAuditScopeId1))
+			},
+			want: assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+		},
+		{
+			name: "Happy path",
+			args: args{
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: func() fields {
+				// Create test server that returns an Audit Scope
+				handler := &mockOrchestratorHandler{
+					auditScope: evaluationtest.MockAuditScope1,
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler: func() *gocron.Scheduler {
+						s := gocron.NewScheduler(time.UTC)
+						_, err := s.Every(1).Day().Tag(evaluationtest.MockAuditScopeId1).Do(func() {
+							fmt.Println("Scheduler job executed")
+						})
+						assert.NoError(t, err)
+						return s
+					}(),
+				}
+			}(),
+			wantErr: assert.NoError,
+			want: func(t *testing.T, got *connect.Response[evaluation.StopEvaluationResponse], msgAndArgs ...any) bool {
+				return assert.Empty(t, got.Msg)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				scheduler:          tt.fields.scheduler,
+			}
+			got, gotErr := svc.StopEvaluation(context.Background(), tt.args.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
 		})
 	}
 }

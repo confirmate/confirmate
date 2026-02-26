@@ -17,10 +17,12 @@ import (
 // mockOrchestratorHandler is a mock implementation of the orchestrator service for testing
 type mockOrchestratorHandler struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	controls                  []*orchestrator.Control
-	listError                 error
-	listAssessmentResultError error
-	assessmentResults         []*assessment.AssessmentResult
+	controls                   []*orchestrator.Control
+	listError                  error
+	listAssessmentResultError  error
+	getAuditScopeNotFoundError error
+	assessmentResults          []*assessment.AssessmentResult
+	auditScope                 *orchestrator.AuditScope
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -52,6 +54,17 @@ func (m *mockOrchestratorHandler) ListAssessmentResults(
 	return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
 		Results: results,
 	}), nil
+}
+
+// GetAuditScope returns audit scopes or an error if configured
+func (m *mockOrchestratorHandler) GetAuditScope(
+	_ context.Context,
+	_ *connect.Request[orchestrator.GetAuditScopeRequest],
+) (*connect.Response[orchestrator.AuditScope], error) {
+	if m.auditScope == nil {
+		return nil, m.getAuditScopeNotFoundError
+	}
+	return &connect.Response[orchestrator.AuditScope]{Msg: m.auditScope}, nil
 }
 
 // newOrchestratorTestServer creates a mock orchestrator server for testing
