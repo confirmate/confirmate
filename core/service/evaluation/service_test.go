@@ -1073,7 +1073,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 								{
 									Id:       orchestratortest.MockMetricId2,
 									Version:  "2.0",
-									Comments: "Direct metric on control",
+									Comments: util.Ref("Direct metric on control"),
 								},
 							},
 						},
@@ -1089,7 +1089,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 				{
 					Id:       orchestratortest.MockMetricId2,
 					Version:  "2.0",
-					Comments: "Direct metric on control",
+					Comments: util.Ref("Direct metric on control"),
 				},
 			},
 			wantErr: assert.NoError,
@@ -1110,11 +1110,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 				controlId:    orchestratortest.MockControlId1,
 			},
 			wantMetrics: []*assessment.Metric{
-				{
-					Id:       orchestratortest.MockMetricId1,
-					Version:  "1.0",
-					Comments: "This is a comment",
-				},
+				orchestratortest.MockMetric1,
 			},
 			wantErr: assert.NoError,
 		},
