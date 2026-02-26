@@ -2,14 +2,12 @@ package evaluation
 
 import (
 	"context"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
-	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
@@ -123,17 +121,4 @@ func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 		Name:              "Mock Control 4",
 	}
 	return []*orchestrator.Control{control1, control2, control3, control4}
-}
-
-// mockDBWithError is a mock DB that returns an error on Create
-type mockDBWithError struct {
-	persistence.DB
-	createError error
-}
-
-func (m *mockDBWithError) Create(_ any) error {
-	if m.createError != nil {
-		return m.createError
-	}
-	return fmt.Errorf("mock database error")
 }

@@ -830,7 +830,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 
 				return fields{
 					orchestratorClient: newOrchestratorClientForTest(testSrv),
-					db:                 &mockDBWithError{createError: fmt.Errorf("database constraint violation")},
+					db:                 persistencetest.CreateErrorDB(t, persistence.ErrConstraintFailed, types, []persistence.CustomJoinTable{}),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockControl1.GetCategoryCatalogId(): {
 							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
@@ -850,7 +850,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 			},
 			want: assert.Nil[*evaluation.EvaluationResult],
 			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "database constraint violation")
+				return assert.ErrorContains(t, err, persistence.ErrConstraintFailed.Error())
 			},
 		},
 	}
