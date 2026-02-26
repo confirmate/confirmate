@@ -333,7 +333,38 @@ service Orchestrator {
   rpc GetRuntimeInfo(confirmate.common.v1.GetRuntimeInfoRequest) returns (confirmate.common.v1.Runtime) {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
+
+  /* TODO(lebogg): Add endpoints for control state & assignment (per audit scope). These endpoints are for “user responsible for a control”, delegation and status.
+    - GetAuditScopeControlState
+    - ListAuditScopeControlStates
+    - AssignControl
+    - UpdateControlWorkflowStatus
+    - UpdateControlComplianceStatus
+    - GetControlHistory
+   */
+
+
+
+  /* TODO(lebogg): Add endpoints for User‑centric views. These are essentially convenience queries over the same control state.
+    - GetAuditScopeControlState
+    - ListAuditScopeControlStates
+    - AssignControl
+    - UpdateControlWorkflowStatus
+    - UpdateControlComplianceStatus
+    - GetControlHistory
+   */
+
+  /* TODO(lebogg): TBD: Optional user metadata (if not only in IdP). The question is if
+        a) everything is done via IdP or
+        b) we use IdP but delegate responsibilities
+
+    - List users
+    - Get user
+   */
+
 }
+
+// TODO(lebogg): Add enum for workflow, e.g. ControlWorkflowStatus
 
 message RegisterAssessmentToolRequest {
   AssessmentTool tool = 1 [
