@@ -26,7 +26,7 @@ const (
 	MockToeId1 = "00000000-0000-0000-0000-000000000001"
 	MockToeId2 = "00000000-0000-0000-0000-000000000002"
 
-	// Mock catalogs
+	// Mock Catalogs
 	MockCatalogId1 = "Catalog 1"
 	MockCatalogId2 = "Catalog 2"
 
