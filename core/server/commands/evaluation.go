@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"confirmate.io/core/api/evaluation/evaluationconnect"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service/evaluation"
 
@@ -21,6 +22,16 @@ var EvaluationCommand = &cli.Command{
 			evaluation.WithConfig(evaluation.Config{
 				OrchestratorAddress: cmd.String("evaluation-orchestrator-address"),
 				OrchestratorClient:  http.DefaultClient,
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-sslmode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
 			}),
 		)
 		if err != nil {
@@ -55,6 +66,46 @@ var EvaluationCommand = &cli.Command{
 			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
 			Value: server.DefaultConfig.LogLevel,
 		},
+		&cli.StringFlag{
+			Name:  "db-host",
+			Usage: "Specifies the server hostname",
+			Value: persistence.DefaultConfig.Host,
+		},
+		&cli.IntFlag{
+			Name:  "db-port",
+			Usage: "Specifies the server port",
+			Value: persistence.DefaultConfig.Port,
+		},
+		&cli.StringFlag{
+			Name:  "db-name",
+			Usage: "Specifies the database name",
+			Value: persistence.DefaultConfig.DBName,
+		},
+		&cli.StringFlag{
+			Name:  "db-user",
+			Usage: "Specifies the database user",
+			Value: persistence.DefaultConfig.User,
+		},
+		&cli.StringFlag{
+			Name:  "db-password",
+			Usage: "Specifies the database password",
+			Value: persistence.DefaultConfig.Password,
+		},
+		&cli.StringFlag{
+			Name:  "db-sslmode",
+			Usage: "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
+			Value: persistence.DefaultConfig.SSLMode,
+		},
+		&cli.BoolFlag{
+			Name:  "db-in-memory",
+			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
+			Value: persistence.DefaultConfig.InMemoryDB,
+		},
+		&cli.IntFlag{
+			Name:  "db-max-connections",
+			Usage: "Specifies the maximum number of database connections",
+			Value: persistence.DefaultConfig.MaxConn,
+		},
 		&cli.StringSliceFlag{
 			Name:  "api-cors-allowed-origins",
 			Usage: "Specifies the origins allowed in CORS",
@@ -73,6 +124,7 @@ var EvaluationCommand = &cli.Command{
 		&cli.StringFlag{
 			Name:  "evaluation-orchestrator-address",
 			Usage: "Address of the orchestrator service the evaluation service connects to",
+			Value: evaluation.DefaultOrchestratorURL,
 		},
 	},
 }

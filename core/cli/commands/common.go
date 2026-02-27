@@ -27,6 +27,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
+	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 )
 
@@ -59,6 +60,14 @@ func httpClientFromContext(ctx context.Context) *http.Client {
 // [httpClientKey] in the ctx.
 func OrchestratorClient(ctx context.Context, c *cli.Command) orchestratorconnect.OrchestratorClient {
 	return orchestratorconnect.NewOrchestratorClient(
+		httpClientFromContext(ctx),
+		c.Root().String("addr"),
+	)
+}
+
+// EvaluationClient returns an evaluation client. It is configured by the "addr" flag and its HTTP client can be overriden by setting an [httpClientKey] in the ctx.
+func EvaluationClient(ctx context.Context, c *cli.Command) evaluationconnect.EvaluationClient {
+	return evaluationconnect.NewEvaluationClient(
 		httpClientFromContext(ctx),
 		c.Root().String("addr"),
 	)
