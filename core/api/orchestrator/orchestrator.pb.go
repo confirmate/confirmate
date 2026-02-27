@@ -2321,7 +2321,7 @@ type Control struct {
 	// List of sub - controls -
 	//
 	//	this is in accordance with the OSCAL model.
-	Controls []*Control `protobuf:"bytes,6,rep,name=controls,proto3" json:"controls,omitempty" gorm:"foreignKey:parent_control_id,parent_control_category_name,parent_control_category_catalog_id;references=id,category_name;category_catalog_id"`
+	Controls []*Control `protobuf:"bytes,6,rep,name=controls,proto3" json:"controls,omitempty" gorm:"foreignKey:parent_control_id,parent_control_category_name,parent_control_category_catalog_id;references=id,category_name,category_catalog_id"`
 	// metrics contains either a list of reference to metrics - in this case only
 	// the id field of the metric is populated - or a list of populated metric
 	// meta-data, most likely returned by the database.
@@ -4822,7 +4822,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x04name\x18\x04 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\xe9\x01\n" +
-	"\bcontrols\x18\x06 \x03(\v2#.confirmate.orchestrator.v1.ControlB\xa7\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x93\x01gorm:\"foreignKey:parent_control_id,parent_control_category_name,parent_control_category_catalog_id;references=id,category_name;category_catalog_id\"R\bcontrols\x12\x8b\x01\n" +
+	"\bcontrols\x18\x06 \x03(\v2#.confirmate.orchestrator.v1.ControlB\xa7\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x93\x01gorm:\"foreignKey:parent_control_id,parent_control_category_name,parent_control_category_catalog_id;references=id,category_name,category_catalog_id\"R\bcontrols\x12\x8b\x01\n" +
 	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x128\n" +
 	"\x11parent_control_id\x18\b \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\x0fparentControlId\x88\x01\x01\x12M\n" +
 	"\x1cparent_control_category_name\x18\t \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x01R\x19parentControlCategoryName\x88\x01\x01\x12X\n" +

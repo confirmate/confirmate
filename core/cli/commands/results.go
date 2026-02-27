@@ -19,10 +19,10 @@ import (
 	"context"
 	"fmt"
 
+	"confirmate.io/core/api/orchestrator"
+
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
-
-	"confirmate.io/core/api/orchestrator"
 )
 
 func ResultsListCommand() *cli.Command {

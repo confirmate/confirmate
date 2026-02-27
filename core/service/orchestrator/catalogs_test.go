@@ -624,6 +624,7 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(&orchestrator.Control{
 						Id:                "control-3",
+						Name:              "Mock Control 3",
 						CategoryName:      "category-2",
 						CategoryCatalogId: orchestratortest.MockControl1.CategoryCatalogId,
 					})

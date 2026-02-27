@@ -18,6 +18,7 @@ package persistence
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"math/rand/v2"
 
 	_ "github.com/proullon/ramsql/driver"
@@ -121,6 +122,7 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 
 		// Also limit max connection to 1 for in-memory DB
 		db.cfg.MaxConn = 1
+		slog.Info("Using in-memory database. Note that all data will be lost when the application stops.")
 	} else {
 		db.pcfg.DSN = db.cfg.buildDSN()
 	}
