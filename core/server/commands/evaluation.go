@@ -99,7 +99,7 @@ var EvaluationCommand = &cli.Command{
 		&cli.BoolFlag{
 			Name:  "db-in-memory",
 			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
-			Value: persistence.DefaultConfig.InMemoryDB,
+			Value: true,
 		},
 		&cli.IntFlag{
 			Name:  "db-max-connections",
