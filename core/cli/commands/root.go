@@ -126,7 +126,7 @@ func NewRootCommand() *cli.Command {
 			{
 				Name:    "evaluation",
 				Aliases: []string{"eval"},
-				Usage:   "Evaluation operations",
+				Usage:   "Evaluation service operations",
 				Commands: []*cli.Command{
 					EvaluationResultsListCommand(),
 					EvaluationStartCommand(),
