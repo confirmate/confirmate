@@ -31,6 +31,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service/evidence/evidencetest"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
 )
@@ -420,7 +421,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 					Name:     "AutomaticUpdatesEnabled",
 					Category: "EndpointSecurity",
 					Version:  "v1",
-					Comments: "Test comments",
+					Comments: util.Ref("Test comments"),
 				},
 				baseDir: ".",
 				m: map[string]interface{}{
