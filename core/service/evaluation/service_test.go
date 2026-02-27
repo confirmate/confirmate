@@ -26,6 +26,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -2061,7 +2062,8 @@ func TestService_evaluateControl(t *testing.T) {
 		manual     []*evaluation.EvaluationResult
 	}
 	type fields struct {
-		db persistence.DB
+		db              persistence.DB
+		catalogControls map[string]map[string]*orchestrator.Control
 	}
 	tests := []struct {
 		name    string
@@ -2076,24 +2078,11 @@ func TestService_evaluateControl(t *testing.T) {
 				ctx:        context.Background(),
 				auditScope: evaluationtest.MockAuditScope1,
 				catalog:    evaluationtest.MockCatalog1,
-				control:    orchestratortest.MockControl1,
-				manual:     []*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult1},
+				control:    evaluationtest.MockControl1,
+				// manual:     []*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult1},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, []any{
-					&orchestrator.TargetOfEvaluation{},
-					&orchestrator.Certificate{},
-					&orchestrator.State{},
-					&orchestrator.Catalog{},
-					&orchestrator.Category{},
-					&orchestrator.Control{},
-					&orchestrator.AuditScope{},
-					&orchestrator.AssessmentTool{},
-					&assessment.MetricConfiguration{},
-					&assessment.AssessmentResult{},
-					&assessment.Metric{},
-					&assessment.MetricImplementation{},
-				}, []persistence.CustomJoinTable{
+				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
 					{
 						Model:     orchestrator.TargetOfEvaluation{},
 						Field:     "ConfiguredMetrics",
@@ -2101,7 +2090,23 @@ func TestService_evaluateControl(t *testing.T) {
 					}}, func(d persistence.DB) {
 					err := d.Create(evaluationtest.MockCatalog1)
 					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockControl1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockControl2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockSubcontrol21)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockSubcontrol11)
+					assert.NoError(t, err)
 				}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
 			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				// Assert that the evaluation result was stored in the database
@@ -2109,7 +2114,28 @@ func TestService_evaluateControl(t *testing.T) {
 				err := got.db.Get(&result)
 				assert.NoError(t, err)
 				assert.NotNil(t, result)
-				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, result)
+
+				// Delete fields wie are not able to compare
+				result.Id = ""
+				result.Timestamp = nil
+
+				// want := &evaluation.EvaluationResult{
+				// 	TargetOfEvaluationId: evaluationtest.MockToeId1,
+				// 	ControlCatalogId:     evaluationtest.MockCatalogId1,
+				// 	ControlCategoryName:  evaluationtest.MockCategoryName1,
+				// 	ControlId:            evaluationtest.MockControlId1,
+				// 	Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+				// 	AuditScopeId:         evaluationtest.MockAuditScopeId1,
+				// 	AssessmentResultIds:  []string{"00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"},
+				// 	Data:                 []byte{},
+				// }
+				// return assert.Equal(t, want, result)
+				// Compare without ID and timestamp since they are random
+				return assert.NotEmpty(t, result.Id) &&
+					assert.NotNil(t, result.Timestamp) &&
+					assert.Equal(t, result, evaluationtest.MockEvaluationResult1,
+						protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp"),
+					)
 			},
 			wantErr: assert.NoError,
 		},
@@ -2117,7 +2143,8 @@ func TestService_evaluateControl(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := Service{
-				db: tt.fields.db,
+				db:              tt.fields.db,
+				catalogControls: tt.fields.catalogControls,
 			}
 
 			gotErr := svc.evaluateControl(context.Background(), tt.args.auditScope, tt.args.catalog, tt.args.control, tt.args.manual)

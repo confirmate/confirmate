@@ -585,7 +585,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 
 	g, ctx = errgroup.WithContext(ctx)
 	for i, sub := range relevant {
-		i, sub := i, sub // https://golang.org/doc/faq#closures_and_goroutines needed until Go 1.22 (loopvar)
+		// i, sub := i, sub // https://golang.org/doc/faq#closures_and_goroutines needed until Go 1.22 (loopvar)
 		g.Go(func() error {
 			result, err := svc.evaluateSubcontrol(ctx, auditScope, sub)
 			if err != nil {
