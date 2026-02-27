@@ -118,7 +118,6 @@ func (svc *Service) Shutdown() {
 // StartEvaluation is a method implementation of the evaluation interface: It periodically starts the evaluation of a
 // target of evaluation and the given catalog in the audit_scope. If no interval time is given, the default value is
 // used.
-// TODO(lebogg): Think about returned errors coming from the Orchestrator -> if audit scope, control or catalog not found maybe it is not internal?
 func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[evaluation.StartEvaluationRequest]) (res *connect.Response[evaluation.StartEvaluationResponse], err error) {
 	var (
 		interval      int
