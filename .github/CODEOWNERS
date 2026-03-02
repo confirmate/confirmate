@@ -3,7 +3,7 @@
 
 # Individual service owners
 /core/service/assessment     @immqu
-/core/service/evaluation     @oxisto
+/core/service/evaluation     @anatheka
 /core/service/evidence       @lebogg
 /core/service/orchestrator   @oxisto
 
