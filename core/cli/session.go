@@ -91,7 +91,7 @@ func LoadSession(folder string) (session *Session, err error) {
 	session = new(Session)
 	session.Folder = folder
 
-	if err = json.NewDecoder(file).Decode(&session); err != nil {
+	if err = json.NewDecoder(file).Decode(session); err != nil {
 		return nil, fmt.Errorf("could not parse session file: %w", err)
 	}
 
@@ -120,7 +120,7 @@ func (s *Session) Save() (err error) {
 		_ = file.Close()
 	}()
 
-	if err = json.NewEncoder(file).Encode(&s); err != nil {
+	if err = json.NewEncoder(file).Encode(s); err != nil {
 		return fmt.Errorf("could not serialize JSON: %w", err)
 	}
 
