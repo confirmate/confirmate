@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/auth"
 	"confirmate.io/core/util/assert"
 
+	"connectrpc.com/connect"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -69,7 +70,61 @@ func TestCheckAccess(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := CheckAccess(tt.authz, context.Background(), orchestrator.RequestType_REQUEST_TYPE_UPDATED, &toeReq{targetID: "toe-1"})
+			got := CheckAccess(tt.authz, context.Background(), orchestrator.RequestType_REQUEST_TYPE_UPDATED, connect.NewRequest(&toeReq{targetID: "toe-1"}))
+			tt.want(t, got)
+		})
+	}
+}
+
+func TestCheckAccess_AutoTargetResolution(t *testing.T) {
+	strategy := &AuthorizationStrategyJWT{
+		TargetOfEvaluationsKey: DefaultTargetOfEvaluationsClaim,
+		AllowAllKey:            DefaultAllowAllClaim,
+	}
+
+	tests := []struct {
+		name string
+		call func(context.Context, *AuthorizationStrategyJWT) bool
+		want assert.Want[bool]
+	}{
+		{
+			name: "direct request target id",
+			call: func(ctx context.Context, strategy *AuthorizationStrategyJWT) bool {
+				return CheckAccess(strategy, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, connect.NewRequest(&toeReq{targetID: "toe-1"}))
+			},
+			want: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+		},
+		{
+			name: "payload target id",
+			call: func(ctx context.Context, strategy *AuthorizationStrategyJWT) bool {
+				return CheckAccess(strategy, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, connect.NewRequest(&orchestrator.CreateCertificateRequest{
+					Certificate: &orchestrator.Certificate{TargetOfEvaluationId: "toe-1"},
+				}))
+			},
+			want: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+		},
+		{
+			name: "payload without target id",
+			call: func(ctx context.Context, strategy *AuthorizationStrategyJWT) bool {
+				return CheckAccess(strategy, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, connect.NewRequest(&orchestrator.CreateCatalogRequest{
+					Catalog: &orchestrator.Catalog{Id: "catalog-1"},
+				}))
+			},
+			want: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+		},
+	}
+
+	ctx := auth.WithClaims(context.Background(), jwt.MapClaims{DefaultTargetOfEvaluationsClaim: []any{"toe-1"}})
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.call(ctx, strategy)
 			tt.want(t, got)
 		})
 	}

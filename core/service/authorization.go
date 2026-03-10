@@ -46,13 +46,48 @@ type AuthorizationStrategy interface {
 
 // CheckAccess checks access via the configured strategy.
 //
-// If no strategy is configured, access is allowed by default.
-func CheckAccess(authz AuthorizationStrategy, ctx context.Context, typ orchestrator.RequestType, req api.HasTargetOfEvaluationId) bool {
+// If no strategy is configured, access is allowed by default. It uses [resolveTargetOfEvaluationID]
+// to extract the target_of_evaluation_id from either the request itself or its payload.
+func CheckAccess[T any](authz AuthorizationStrategy, ctx context.Context, typ orchestrator.RequestType, req *connect.Request[T]) bool {
 	if authz == nil {
 		return true
 	}
 
-	return authz.CheckAccess(ctx, typ, req)
+	if req == nil {
+		return authz.CheckAccess(ctx, typ, nil)
+	}
+
+	return authz.CheckAccess(ctx, typ, resolveTargetOfEvaluationID(req.Any()))
+}
+
+// resolveTargetOfEvaluationID attempts to extract a target_of_evaluation_id from the request (if it
+// implements [api.HasTargetOfEvaluationId]) or its payload (if it is an [api.PayloadRequest]).
+func resolveTargetOfEvaluationID(req any) api.HasTargetOfEvaluationId {
+	if req == nil {
+		return nil
+	}
+
+	withTargetOfEvaluationID, ok := req.(api.HasTargetOfEvaluationId)
+	if ok {
+		return withTargetOfEvaluationID
+	}
+
+	payloadReq, ok := req.(api.PayloadRequest)
+	if !ok {
+		return nil
+	}
+
+	payload := payloadReq.GetPayload()
+	if payload == nil {
+		return nil
+	}
+
+	withTargetOfEvaluationID, ok = payload.(api.HasTargetOfEvaluationId)
+	if ok {
+		return withTargetOfEvaluationID
+	}
+
+	return nil
 }
 
 // AuthorizationStrategyJWT expects a list of TOE IDs in a JWT claim key.

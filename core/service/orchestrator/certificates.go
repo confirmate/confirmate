@@ -40,7 +40,7 @@ func (svc *Service) CreateCertificate(
 	}
 
 	cert = req.Msg.Certificate
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg) {
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -73,7 +73,7 @@ func (svc *Service) GetCertificate(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, &cert) {
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&cert)) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -175,7 +175,7 @@ func (svc *Service) UpdateCertificate(
 	}
 
 	cert = req.Msg.Certificate
-	if cert == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
+	if cert == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -206,7 +206,7 @@ func (svc *Service) RemoveCertificate(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, &cert) {
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&cert)) {
 		return nil, service.ErrPermissionDenied
 	}
 

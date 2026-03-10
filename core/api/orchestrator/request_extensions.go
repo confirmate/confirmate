@@ -104,26 +104,6 @@ func (r *UpdateTargetOfEvaluationRequest) GetTargetOfEvaluationId() string {
 	return r.GetTargetOfEvaluation().GetId()
 }
 
-// GetTargetOfEvaluationId returns the target of evaluation ID from [UpdateMetricConfigurationRequest].
-func (r *UpdateMetricConfigurationRequest) GetTargetOfEvaluationId() string {
-	return r.GetConfiguration().GetTargetOfEvaluationId()
-}
-
-// GetTargetOfEvaluationId returns the target of evaluation ID from [StoreAssessmentResultRequest].
-func (r *StoreAssessmentResultRequest) GetTargetOfEvaluationId() string {
-	return r.GetResult().GetTargetOfEvaluationId()
-}
-
-// GetTargetOfEvaluationId returns the target of evaluation ID from [CreateAuditScopeRequest].
-func (r *CreateAuditScopeRequest) GetTargetOfEvaluationId() string {
-	return r.GetAuditScope().GetTargetOfEvaluationId()
-}
-
-// GetTargetOfEvaluationId returns the target of evaluation ID from [UpdateAuditScopeRequest].
-func (r *UpdateAuditScopeRequest) GetTargetOfEvaluationId() string {
-	return r.GetAuditScope().GetTargetOfEvaluationId()
-}
-
 // GetTargetOfEvaluationId returns the target of evaluation ID from [ListAssessmentResultsRequest].
 func (r *ListAssessmentResultsRequest) GetTargetOfEvaluationId() string {
 	return r.GetFilter().GetTargetOfEvaluationId()
@@ -132,14 +112,4 @@ func (r *ListAssessmentResultsRequest) GetTargetOfEvaluationId() string {
 // GetTargetOfEvaluationId returns the target of evaluation ID from [ListAuditScopesRequest].
 func (r *ListAuditScopesRequest) GetTargetOfEvaluationId() string {
 	return r.GetFilter().GetTargetOfEvaluationId()
-}
-
-// GetTargetOfEvaluationId returns the target of evaluation ID from [CreateCertificateRequest].
-func (r *CreateCertificateRequest) GetTargetOfEvaluationId() string {
-	return r.GetCertificate().GetTargetOfEvaluationId()
-}
-
-// GetTargetOfEvaluationId returns the target of evaluation ID from [UpdateCertificateRequest].
-func (r *UpdateCertificateRequest) GetTargetOfEvaluationId() string {
-	return r.GetCertificate().GetTargetOfEvaluationId()
 }

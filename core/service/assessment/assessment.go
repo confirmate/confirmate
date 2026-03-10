@@ -277,7 +277,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	ev = req.Msg.Evidence
 
 	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, ev) {
+	if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
 		slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
 		return nil, service.ErrPermissionDenied
 	}

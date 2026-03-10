@@ -179,10 +179,10 @@ func TestGetPayload(t *testing.T) {
 			name: "register assessment tool",
 			args: args{
 				get: func() proto.Message {
-					tool := &assessment.AssessmentTool{Id: "tool-1"}
+					tool := &AssessmentTool{Id: "tool-1"}
 					return (&RegisterAssessmentToolRequest{Tool: tool}).GetPayload()
 				},
-				want: &assessment.AssessmentTool{Id: "tool-1"},
+				want: &AssessmentTool{Id: "tool-1"},
 			},
 			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
 				want := assert.Is[proto.Message](t, msgAndArgs[0])
@@ -193,10 +193,10 @@ func TestGetPayload(t *testing.T) {
 			name: "update assessment tool",
 			args: args{
 				get: func() proto.Message {
-					tool := &assessment.AssessmentTool{Id: "tool-2"}
+					tool := &AssessmentTool{Id: "tool-2"}
 					return (&UpdateAssessmentToolRequest{Tool: tool}).GetPayload()
 				},
-				want: &assessment.AssessmentTool{Id: "tool-2"},
+				want: &AssessmentTool{Id: "tool-2"},
 			},
 			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
 				want := assert.Is[proto.Message](t, msgAndArgs[0])
@@ -293,58 +293,6 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			},
 		},
 		{
-			name: "update metric configuration",
-			args: args{
-				get: func() string {
-					return (&UpdateMetricConfigurationRequest{Configuration: &assessment.MetricConfiguration{TargetOfEvaluationId: "toe-3"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-3",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
-			name: "store assessment result",
-			args: args{
-				get: func() string {
-					return (&StoreAssessmentResultRequest{Result: &assessment.AssessmentResult{TargetOfEvaluationId: "toe-4"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-4",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
-			name: "create audit scope",
-			args: args{
-				get: func() string {
-					return (&CreateAuditScopeRequest{AuditScope: &AuditScope{TargetOfEvaluationId: "toe-5"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-5",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
-			name: "update audit scope",
-			args: args{
-				get: func() string {
-					return (&UpdateAuditScopeRequest{AuditScope: &AuditScope{TargetOfEvaluationId: "toe-6"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-6",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
 			name: "list assessment results",
 			args: args{
 				get: func() string {
@@ -364,32 +312,6 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 					return (&ListAuditScopesRequest{Filter: &ListAuditScopesRequest_Filter{TargetOfEvaluationId: ref("toe-8")}}).GetTargetOfEvaluationId()
 				},
 				want: "toe-8",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
-			name: "create certificate",
-			args: args{
-				get: func() string {
-					return (&CreateCertificateRequest{Certificate: &Certificate{TargetOfEvaluationId: "toe-9"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-9",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
-			name: "update certificate",
-			args: args{
-				get: func() string {
-					return (&UpdateCertificateRequest{Certificate: &Certificate{TargetOfEvaluationId: "toe-10"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-10",
 			},
 			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
 				want := assert.Is[string](t, msgAndArgs[0])

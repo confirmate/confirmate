@@ -34,12 +34,14 @@ var OrchestratorCommand = &cli.Command{
 	Name:  "orchestrator",
 	Usage: "Launches the orchestrator service",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
-		var interceptors []connect.Interceptor
-		var svcOptions []service.Option[orchestrator.Service]
-		var jwksURL string
-		var opts []service.Option[orchestrator.Service]
-		var svc orchestratorconnect.OrchestratorHandler
-		var serverOpts []server.Option
+		var (
+			interceptors []connect.Interceptor
+			svcOptions   []service.Option[orchestrator.Service]
+			jwksURL      string
+			opts         []service.Option[orchestrator.Service]
+			svc          orchestratorconnect.OrchestratorHandler
+			serverOpts   []server.Option
+		)
 
 		if cmd.Bool("auth-enabled") {
 			jwksURL = cmd.String("auth-jwks-url")

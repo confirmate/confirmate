@@ -45,20 +45,22 @@ var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
 	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
-		var interceptors []connect.Interceptor
-		var svcOptions []service.Option[orchestrator.Service]
-		var assessmentOptions []service.Option[assessment.Service]
-		var jwksURL string
-		var svcOpts []service.Option[orchestrator.Service]
-		var assessmentOpts []service.Option[assessment.Service]
-		var svc orchestratorconnect.OrchestratorHandler
-		var assessmentSvc assessmentconnect.AssessmentHandler
-		var orchestratorClient *http.Client
-		var apiPort uint16
-		var orchestratorURL string
-		var credentials *clientcredentials.Config
-		var authorizer api.Authorizer
-		var serverOpts []server.Option
+		var (
+			interceptors       []connect.Interceptor
+			svcOptions         []service.Option[orchestrator.Service]
+			assessmentOptions  []service.Option[assessment.Service]
+			jwksURL            string
+			svcOpts            []service.Option[orchestrator.Service]
+			assessmentOpts     []service.Option[assessment.Service]
+			svc                orchestratorconnect.OrchestratorHandler
+			assessmentSvc      assessmentconnect.AssessmentHandler
+			orchestratorClient *http.Client
+			apiPort            uint16
+			orchestratorURL    string
+			credentials        *clientcredentials.Config
+			authorizer         api.Authorizer
+			serverOpts         []server.Option
+		)
 
 		if cmd.Bool("auth-enabled") {
 			jwksURL = cmd.String("auth-jwks-url")
