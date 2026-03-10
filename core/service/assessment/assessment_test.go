@@ -31,6 +31,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
+	coreapi "confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -53,6 +54,16 @@ import (
 	"confirmate.io/core/util/clitest"
 	"confirmate.io/core/util/prototest"
 )
+
+type denyAssessmentAuthorizationStrategy struct{}
+
+func (*denyAssessmentAuthorizationStrategy) CheckAccess(context.Context, apiOrch.RequestType, coreapi.HasTargetOfEvaluationId) bool {
+	return false
+}
+
+func (*denyAssessmentAuthorizationStrategy) AllowedTargetOfEvaluations(context.Context) (bool, []string) {
+	return false, nil
+}
 
 func TestMain(m *testing.M) {
 	clitest.AutoChdir()
@@ -549,6 +560,36 @@ func TestService_AssessEvidences(t *testing.T) {
 	}
 }
 
+func TestService_AssessEvidence_AuthorizationDenied(t *testing.T) {
+	aHandler, err := NewService(
+		WithAuthorizationStrategy(&denyAssessmentAuthorizationStrategy{}),
+	)
+	assert.NoError(t, err)
+
+	svc := aHandler.(*Service)
+	t.Cleanup(func() {
+		if svc.orchestratorStream != nil {
+			_ = svc.orchestratorStream.Close()
+		}
+	})
+
+	res, err := svc.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{
+		Evidence: &evidence.Evidence{
+			Id:                   evidencetest.MockEvidenceID1,
+			ToolId:               evidencetest.MockEvidenceToolID1,
+			Timestamp:            timestamppb.Now(),
+			TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
+			Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
+				Id:   evidencetest.MockVirtualMachineID1,
+				Name: evidencetest.MockVirtualMachineName1,
+			}),
+		},
+	}))
+
+	assert.Nil(t, res)
+	assert.IsConnectError(t, err, connect.CodePermissionDenied)
+}
+
 func TestService_handleEvidence(t *testing.T) {
 	type args struct {
 		evidence *evidence.Evidence
@@ -669,7 +710,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: assert.Nil[[]*assessment.AssessmentResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.Contains(t, err.Error(), fmt.Sprintf("no results"))
+				return assert.Contains(t, err.Error(), "no results")
 			},
 		},
 		{

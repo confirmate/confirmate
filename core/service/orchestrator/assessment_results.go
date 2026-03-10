@@ -33,7 +33,7 @@ import (
 
 // StoreAssessmentResult stores a single assessment result.
 func (svc *Service) StoreAssessmentResult(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
 ) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
 	var (
@@ -46,6 +46,9 @@ func (svc *Service) StoreAssessmentResult(
 	}
 
 	result = req.Msg.Result
+	if result == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Set timestamp
 	result.CreatedAt = timestamppb.Now()
@@ -73,7 +76,7 @@ func (svc *Service) StoreAssessmentResult(
 
 // GetAssessmentResult retrieves an assessment result by ID.
 func (svc *Service) GetAssessmentResult(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
 	var (
@@ -90,19 +93,25 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&result)) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	res = connect.NewResponse(&result)
 	return
 }
 
 // ListAssessmentResults lists all assessment results with optional filtering.
 func (svc *Service) ListAssessmentResults(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
 	var (
 		results []*assessment.AssessmentResult
 		conds   []any
 		npt     string
+		where   string
+		args    []any
 	)
 
 	// Validate the request
@@ -116,11 +125,22 @@ func (svc *Service) ListAssessmentResults(
 		req.Msg.Asc = false
 	}
 
+	var whereClauses []string
+
+	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
+		if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
+			return nil, service.ErrPermissionDenied
+		}
+	}
+
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all {
+		whereClauses = append(whereClauses, "target_of_evaluation_id IN ?")
+		args = append(args, allowed)
+	}
+
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
-		var whereClauses []string
-		var args []any
-
 		if req.Msg.Filter.TargetOfEvaluationId != nil {
 			whereClauses = append(whereClauses, "target_of_evaluation_id = ?")
 			args = append(args, util.Deref(req.Msg.Filter.TargetOfEvaluationId))
@@ -139,44 +159,35 @@ func (svc *Service) ListAssessmentResults(
 		}
 		if len(req.Msg.Filter.AssessmentResultIds) > 0 {
 			// Build IN clause dynamically to support ramsql (doesn't support array binding)
-			placeholders := strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
+			var placeholders string
+			placeholders = strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
 			placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
 			whereClauses = append(whereClauses, "id IN ("+placeholders+")")
 			for _, id := range req.Msg.Filter.AssessmentResultIds {
 				args = append(args, id)
 			}
 		}
+	}
 
-		// Combine all WHERE clauses with AND
-		if len(whereClauses) > 0 {
-			whereQuery := strings.Join(whereClauses, " AND ")
-			conds = append(conds, whereQuery)
-			conds = append(conds, args...)
-		}
+	// Combine all WHERE clauses with AND
+	if len(whereClauses) > 0 {
+		where = strings.Join(whereClauses, " AND ")
+		conds = append(conds, where)
+		conds = append(conds, args...)
 	}
 
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
 	if req.Msg.LatestByResourceId != nil && util.Deref(req.Msg.LatestByResourceId) {
-		// Build WHERE clause from existing conditions
-		var where string
-		var args []any
-
-		if len(conds) > 0 {
-			// conds is structured as [query1, args1, query2, args2, ...]
-			var whereParts []string
-			for i := 0; i < len(conds); i += 2 {
-				whereParts = append(whereParts, conds[i].(string))
-				if i+1 < len(conds) {
-					args = append(args, conds[i+1])
-				}
-			}
-			where = "WHERE " + strings.Join(whereParts, " AND ")
+		// Reuse the WHERE query and args directly.
+		if where != "" {
+			where = "WHERE " + where
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
-		query := fmt.Sprintf(`
+		var query string
+		query = fmt.Sprintf(`
 			SELECT DISTINCT ON (resource_id, metric_id) *
 			FROM assessment_results
 			%s

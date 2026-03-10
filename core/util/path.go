@@ -1,4 +1,4 @@
-// Copyright 2016-2025 Fraunhofer AISEC
+// Copyright 2016-2026 Fraunhofer AISEC
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,19 +13,34 @@
 //
 // This file is part of Confirmate Core.
 
-package assessment
+package util
 
 import (
-	"google.golang.org/protobuf/proto"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
-// GetPayload returns the embedded evidence from [AssessEvidenceRequest].
-func (r *AssessEvidenceRequest) GetPayload() proto.Message {
-	return r.GetEvidence()
-}
+// ExpandPath expands a file path, replacing ~ with the user's home directory if present.
+func ExpandPath(path string) (expanded string) {
+	var home string
+	var clean string
+	var err error
 
-// GetTargetOfEvaluationId is a shortcut to implement HasTargetOfEvaluationId. It returns the target
-// of evaluation ID of the inner object.
-func (req *AssessEvidenceRequest) GetTargetOfEvaluationId() string {
-	return req.GetEvidence().GetTargetOfEvaluationId()
+	if path == "" {
+		return path
+	}
+	if strings.HasPrefix(path, "~") {
+		home, err = os.UserHomeDir()
+		if err != nil {
+			return path
+		}
+
+		clean = strings.TrimPrefix(path, "~")
+		clean = strings.TrimPrefix(clean, string(os.PathSeparator))
+		expanded = filepath.Join(home, clean)
+		return expanded
+	}
+
+	return path
 }

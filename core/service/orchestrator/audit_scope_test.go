@@ -22,6 +22,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -34,7 +35,8 @@ func TestService_CreateAuditScope(t *testing.T) {
 		req *orchestrator.CreateAuditScopeRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -106,6 +108,26 @@ func TestService_CreateAuditScope(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
 			name: "db error - unique constraint",
 			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
@@ -129,7 +151,8 @@ func TestService_CreateAuditScope(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -144,7 +167,8 @@ func TestService_GetAuditScope(t *testing.T) {
 		req *orchestrator.GetAuditScopeRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -201,6 +225,25 @@ func TestService_GetAuditScope(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.GetAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.GetAuditScopeRequest{
@@ -220,7 +263,8 @@ func TestService_GetAuditScope(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.GetAuditScope(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -234,7 +278,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 		req *orchestrator.ListAuditScopesRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -286,6 +331,24 @@ func TestService_ListAuditScopes(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.ListAuditScopesRequest{
+					Filter: &orchestrator.ListAuditScopesRequest_Filter{
+						TargetOfEvaluationId: &orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListAuditScopesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "filter by catalog",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{
@@ -313,7 +376,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.ListAuditScopes(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -327,7 +391,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 		req *orchestrator.UpdateAuditScopeRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -410,6 +475,26 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - constraint",
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
@@ -433,7 +518,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.UpdateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -447,7 +533,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 		req *orchestrator.RemoveAuditScopeRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -488,6 +575,25 @@ func TestService_RemoveAuditScope(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.RemoveAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.RemoveAuditScopeRequest{
@@ -507,7 +613,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.RemoveAuditScope(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
