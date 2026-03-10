@@ -150,6 +150,10 @@ var ConfirmateCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithHandler(orchestratorconnect.NewOrchestratorCompatHandler(
+				svc,
+				connect.WithInterceptors(interceptors...),
+			)),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
 				assessmentSvc,
 				connect.WithInterceptors(interceptors...),
