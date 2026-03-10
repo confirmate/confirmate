@@ -9,6 +9,9 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${workspaceFolder}/core/cmd/orchestrator"
+            "program": "${workspaceFolder}/core/cmd/orchestrator",
+            "env": {
+                "db-in-memory": "true",
+            }
         }]
 }
