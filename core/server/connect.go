@@ -51,14 +51,6 @@ func WithHandler(path string, handler http.Handler) Option {
 	}
 }
 
-// WithHTTPHandler adds a raw HTTP handler at the specified path.
-// This bypasses the Connect transcoder and is useful for non-RPC endpoints.
-func WithHTTPHandler(path string, handler http.Handler) Option {
-	return func(svr *Server) {
-		svr.httpHandlers[path] = handler
-	}
-}
-
 // RunConnectServer runs a Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
 func RunConnectServer(opts ...Option) (err error) {

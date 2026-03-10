@@ -151,6 +151,9 @@ type callbackResult struct {
 	err  error
 }
 
+// newCallbackServer creates a new callback server on [DefaultCallbackServerAddress] for the OAuth
+// 2.0 authorization code flow. It generates a random state and code verifier, and serves an
+// endpoint to receive the authorization code from the OAuth 2.0 provider.
 func newCallbackServer(config *oauth2.Config) (srv *callbackServer) {
 	var mux *http.ServeMux
 	var url string

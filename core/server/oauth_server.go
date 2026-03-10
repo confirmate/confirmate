@@ -19,10 +19,9 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
+	"confirmate.io/core/util"
 	oauth2 "github.com/oxisto/oauth2go"
 	"github.com/oxisto/oauth2go/storage"
 )
@@ -45,7 +44,7 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 		opts = append(opts,
 			oauth2.WithSigningKeysFunc(func() map[int]*ecdsa.PrivateKey {
 				var path string
-				path = expandPath(keyPath)
+				path = util.ExpandPath(keyPath)
 				return storage.LoadSigningKeys(path, keyPassword, saveOnCreate)
 			}),
 			oauth2.WithPublicURL(oauthPublicURL),
@@ -66,6 +65,9 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 	}
 }
 
+// normalizeOAuthPublicURL ensures that the public URL for the OAuth 2.0 server is properly
+// formatted, defaulting to http://localhost:<port>/v1/auth if no URL is provided, and appending
+// /v1/auth if it's missing.
 func normalizeOAuthPublicURL(publicURL string, port uint16) (normalized string) {
 	if publicURL == "" {
 		normalized = fmt.Sprintf("http://localhost:%d/v1/auth", port)
@@ -79,27 +81,4 @@ func normalizeOAuthPublicURL(publicURL string, port uint16) (normalized string) 
 	}
 
 	return publicURL
-}
-
-func expandPath(path string) (expanded string) {
-	var home string
-	var clean string
-	var err error
-
-	if path == "" {
-		return path
-	}
-	if strings.HasPrefix(path, "~") {
-		home, err = os.UserHomeDir()
-		if err != nil {
-			return path
-		}
-
-		clean = strings.TrimPrefix(path, "~")
-		clean = strings.TrimPrefix(clean, string(os.PathSeparator))
-		expanded = filepath.Join(home, clean)
-		return expanded
-	}
-
-	return path
 }
