@@ -94,16 +94,6 @@ func (r *StoreAssessmentResultRequest) GetPayload() proto.Message {
 	return r.GetResult()
 }
 
-// GetTargetOfEvaluationId returns the target of evaluation ID from [CreateTargetOfEvaluationRequest].
-func (r *CreateTargetOfEvaluationRequest) GetTargetOfEvaluationId() string {
-	return r.GetTargetOfEvaluation().GetId()
-}
-
-// GetTargetOfEvaluationId returns the target of evaluation ID from [UpdateTargetOfEvaluationRequest].
-func (r *UpdateTargetOfEvaluationRequest) GetTargetOfEvaluationId() string {
-	return r.GetTargetOfEvaluation().GetId()
-}
-
 // GetTargetOfEvaluationId returns the target of evaluation ID from [ListAssessmentResultsRequest].
 func (r *ListAssessmentResultsRequest) GetTargetOfEvaluationId() string {
 	return r.GetFilter().GetTargetOfEvaluationId()
