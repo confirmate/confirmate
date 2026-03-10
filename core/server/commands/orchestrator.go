@@ -100,6 +100,10 @@ var OrchestratorCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithHandler(orchestratorconnect.NewOrchestratorCompatHandler(
+				svc,
+				connect.WithInterceptors(interceptors...),
+			)),
 		}
 
 		if cmd.Bool("oauth2-embedded") {
