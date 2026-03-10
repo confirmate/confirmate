@@ -34,9 +34,9 @@ import (
 	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
+	"go.yaml.in/yaml/v3"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -371,6 +371,9 @@ func (svc *Service) UpdateMetricConfiguration(
 	}
 
 	config = req.Msg.Configuration
+	if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Save the updated metric configuration
 	err = svc.db.Save(config)

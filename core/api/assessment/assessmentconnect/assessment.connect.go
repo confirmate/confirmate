@@ -19,15 +19,13 @@
 package assessmentconnect
 
 import (
+	assessment "confirmate.io/core/api/assessment"
+	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
-
-	connect "connectrpc.com/connect"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
-	assessment "confirmate.io/core/api/assessment"
 )
 
 // This is a compile-time assertion to ensure that this generated file and the connect package are

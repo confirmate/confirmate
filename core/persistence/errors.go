@@ -21,6 +21,7 @@ var (
 	ErrRecordNotFound         = errors.New("record not in the database")
 	ErrConstraintFailed       = errors.New("constraint failed")
 	ErrUniqueConstraintFailed = errors.New("unique constraint failed")
+	ErrPrimaryKeyViolation    = errors.New("primary key violation")
 	ErrUnsupportedType        = errors.New("unsupported type")
 	ErrDatabase               = errors.New("database error")
 	ErrEntryAlreadyExists     = errors.New("entry already exists")

@@ -54,6 +54,10 @@ func (svc *Service) CreateTargetOfEvaluation(
 	toe.CreatedAt = now
 	toe.UpdatedAt = now
 
+	if all, _ := svc.allowedTargetOfEvaluations(ctx); !all {
+		return nil, service.ErrPermissionDenied
+	}
+
 	// Persist the target of evaluation in the database
 	err = svc.db.Create(toe)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -89,6 +93,10 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
 		return nil, err
@@ -120,7 +128,12 @@ func (svc *Service) ListTargetsOfEvaluation(
 		req.Msg.Asc = true
 	}
 
-	toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts)
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all {
+		toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts, "id IN ?", allowed)
+	} else {
+		toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts)
+	}
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -145,6 +158,9 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	}
 
 	toe = req.Msg.TargetOfEvaluation
+	if toe == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update timestamp
 	toe.UpdatedAt = timestamppb.Now()
@@ -184,6 +200,10 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		return nil, err
 	}
 
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req) {
+		return nil, service.ErrPermissionDenied
+	}
+
 	// Delete the target of evaluation
 	err = svc.db.Delete(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -214,6 +234,10 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
+		return nil, service.ErrPermissionDenied
 	}
 
 	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{})
@@ -256,7 +280,8 @@ func (svc *Service) CreateDefaultTargetOfEvaluation() (target *orchestrator.Targ
 	}
 
 	if count == 0 {
-		now := timestamppb.Now()
+		var now *timestamppb.Timestamp
+		now = timestamppb.Now()
 
 		// Create a default target of evaluation
 		target = &orchestrator.TargetOfEvaluation{

@@ -2,6 +2,8 @@ ignore:
   - "**/*.pb.go" # ignore protoc generated files
   - "**/*.pb.*.go" # ignore protoc-gen-* generated files
   - "**/*.connect.go" # ignore connectrpc generated files
+  - "core/server/commands/**" # is tested at runtime or via integration tests
+  - "core/cmd/**" # entrypoints are tested at runtime or via integration tests
 coverage:
   range: "70...85"
   status:

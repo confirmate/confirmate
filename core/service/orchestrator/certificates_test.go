@@ -22,6 +22,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -34,7 +35,8 @@ func TestService_CreateCertificate(t *testing.T) {
 		req *orchestrator.CreateCertificateRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -101,6 +103,29 @@ func TestService_CreateCertificate(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.CreateCertificateRequest{
+					Certificate: &orchestrator.Certificate{
+						Id:                   orchestratortest.MockCertificate1.Id,
+						Name:                 orchestratortest.MockCertificate1.Name,
+						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				return true
+			},
+		},
+		{
 			name: "db error - unique constraint",
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
@@ -121,7 +146,8 @@ func TestService_CreateCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.CreateCertificate(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -131,12 +157,53 @@ func TestService_CreateCertificate(t *testing.T) {
 	}
 }
 
+func TestService_CreateCertificate_AuthorizationFailure(t *testing.T) {
+	type args struct {
+		req *orchestrator.CreateCertificateRequest
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr assert.WantErr
+	}{
+		{
+			name: "permission denied",
+			args: args{
+				req: &orchestrator.CreateCertificateRequest{
+					Certificate: &orchestrator.Certificate{
+						Id:                   orchestratortest.MockCertificate1.Id,
+						Name:                 orchestratortest.MockCertificate1.Name,
+						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
+					},
+				},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			}
+
+			res, err := svc.CreateCertificate(context.Background(), connect.NewRequest(tt.args.req))
+			assert.Nil(t, res)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
 func TestService_GetCertificate(t *testing.T) {
 	type args struct {
 		req *orchestrator.GetCertificateRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -193,6 +260,25 @@ func TestService_GetCertificate(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.GetCertificateRequest{
+					CertificateId: orchestratortest.MockCertificate1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.GetCertificateRequest{
@@ -212,7 +298,8 @@ func TestService_GetCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.GetCertificate(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -226,7 +313,8 @@ func TestService_ListCertificates(t *testing.T) {
 		req *orchestrator.ListCertificatesRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -287,7 +375,8 @@ func TestService_ListPublicCertificates(t *testing.T) {
 		req *orchestrator.ListPublicCertificatesRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -352,7 +441,8 @@ func TestService_UpdateCertificate(t *testing.T) {
 		req *orchestrator.UpdateCertificateRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -437,6 +527,27 @@ func TestService_UpdateCertificate(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.UpdateCertificateRequest{
+					Certificate: &orchestrator.Certificate{
+						Id:                   orchestratortest.MockCertificate1.Id,
+						Name:                 "Updated Certificate",
+						Description:          "Updated description",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - constraint",
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
@@ -461,7 +572,8 @@ func TestService_UpdateCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.UpdateCertificate(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -475,7 +587,8 @@ func TestService_RemoveCertificate(t *testing.T) {
 		req *orchestrator.RemoveCertificateRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -516,6 +629,25 @@ func TestService_RemoveCertificate(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.RemoveCertificateRequest{
+					CertificateId: orchestratortest.MockCertificate1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.RemoveCertificateRequest{
@@ -535,7 +667,8 @@ func TestService_RemoveCertificate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.RemoveCertificate(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)

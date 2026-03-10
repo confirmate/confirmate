@@ -25,8 +25,6 @@ import (
 	"sync"
 	"time"
 
-	"connectrpc.com/connect"
-
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -39,9 +37,8 @@ import (
 	"confirmate.io/core/stream"
 	"confirmate.io/core/util"
 
+	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -121,6 +118,9 @@ type Service struct {
 	// pe contains the actual policy evaluation engine we use
 	pe policies.PolicyEval
 
+	// authz defines our authorization strategy for target-of-evaluation scoped access.
+	authz service.AuthorizationStrategy
+
 	// cfg contains the service configuration
 	cfg Config
 
@@ -134,6 +134,23 @@ type Service struct {
 func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
 		svc.cfg = cfg
+	}
+}
+
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
+func WithAuthorizationStrategyJWT(targetKey string, allowAllKey string) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyJWT{
+			TargetOfEvaluationsKey: targetKey,
+			AllowAllKey:            allowAllKey,
+		}
 	}
 }
 
@@ -154,6 +171,10 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 
 	for _, o = range opts {
 		o(svc)
+	}
+
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
 	}
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
@@ -255,11 +276,11 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	ev = req.Msg.Evidence
 
-	// // TODO: Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
-	// 	slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
+	if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+		slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
@@ -340,9 +361,10 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	return res, nil
 }
 
-// handleEvidence is the helper method for the actual assessment used by AssessEvidence and AssessEvidences. This will
-// also validate the resource embedded into the evidence and return an error if validation fails. In order to
-// distinguish between internal errors and validation errors, this function already returns a gRPC error.
+// handleEvidence is the helper method for the actual assessment used by AssessEvidence and
+// AssessEvidences. This will also validate the resource embedded into the evidence and return an
+// error if validation fails. In order to distinguish between internal errors and validation errors,
+// this function already returns a [connect.Error].
 func (svc *Service) handleEvidence(
 	ctx context.Context,
 	ev *evidence.Evidence,
@@ -358,7 +380,7 @@ func (svc *Service) handleEvidence(
 	)
 
 	if resource == nil {
-		return nil, status.Errorf(codes.Internal, "invalid embedded resource: %v", ontology.ErrNotOntologyResource)
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("invalid embedded resource: %v", ontology.ErrNotOntologyResource))
 	}
 
 	slog.Debug("Evaluating evidence",
@@ -374,15 +396,7 @@ func (svc *Service) handleEvidence(
 
 		go svc.informHooks(ctx, nil, newError)
 
-		return nil, status.Errorf(codes.Internal, "%v", err)
-	}
-
-	if err != nil {
-		err = fmt.Errorf("could not get stream to orchestrator (%s): %w", svc.cfg.OrchestratorAddress, err)
-
-		go svc.informHooks(ctx, nil, err)
-
-		return nil, status.Errorf(codes.Internal, "%v", err)
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	if len(evaluations) == 0 {
