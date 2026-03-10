@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -44,6 +45,10 @@ const (
 var (
 	DefaultCallback   = fmt.Sprintf("http://%s/callback", DefaultCallbackServerAddress)
 	VerifierGenerator = oauth2go.GenerateSecret
+	StateGenerator    = oauth2go.GenerateSecret
+
+	ErrInvalidOAuthState = errors.New("invalid OAuth2 state")
+	ErrMissingOAuthCode  = errors.New("missing OAuth2 authorization code")
 )
 
 // LoginCommand returns the CLI login command.
@@ -73,6 +78,7 @@ func LoginCommand() (command *cli.Command) {
 			var srv *callbackServer
 			var sock net.Listener
 			var token *oauth2.Token
+			var callback callbackResult
 			var addr string
 			var folder string
 			var session *confcli.Session
@@ -99,7 +105,11 @@ func LoginCommand() (command *cli.Command) {
 				_ = srv.Serve(sock)
 			}()
 
-			code = <-srv.code
+			callback = <-srv.result
+			if callback.err != nil {
+				return callback.err
+			}
+			code = callback.code
 			token, err = srv.config.Exchange(context.Background(), code,
 				oauth2.SetAuthURLParam("code_verifier", srv.verifier),
 			)
@@ -131,13 +141,18 @@ type callbackServer struct {
 	http.Server
 
 	verifier string
+	state    string
 	config   *oauth2.Config
-	code     chan string
+	result   chan callbackResult
+}
+
+type callbackResult struct {
+	code string
+	err  error
 }
 
 func newCallbackServer(config *oauth2.Config) (srv *callbackServer) {
 	var mux *http.ServeMux
-	var challenge string
 	var url string
 
 	mux = http.NewServeMux()
@@ -149,26 +164,53 @@ func newCallbackServer(config *oauth2.Config) (srv *callbackServer) {
 			ReadHeaderTimeout: 2 * time.Second,
 		},
 		verifier: VerifierGenerator(),
+		state:    StateGenerator(),
 		config:   config,
-		code:     make(chan string),
+		result:   make(chan callbackResult),
 	}
 
 	mux.HandleFunc("/callback", srv.handleCallback)
 
-	challenge = oauth2go.GenerateCodeChallenge(srv.verifier)
-	url = srv.config.AuthCodeURL("",
-		oauth2.SetAuthURLParam("code_challenge", challenge),
-		oauth2.SetAuthURLParam("code_challenge_method", "S256"),
-	)
+	url = srv.authorizationURL()
 
 	fmt.Printf("Please open %s in your browser to continue\n", url)
 	return srv
 }
 
+func (srv *callbackServer) authorizationURL() (url string) {
+	var challenge string
+
+	challenge = oauth2go.GenerateCodeChallenge(srv.verifier)
+	url = srv.config.AuthCodeURL(srv.state,
+		oauth2.SetAuthURLParam("code_challenge", challenge),
+		oauth2.SetAuthURLParam("code_challenge_method", "S256"),
+	)
+
+	return url
+}
+
 func (srv *callbackServer) handleCallback(w http.ResponseWriter, r *http.Request) {
-	var code string
+	var (
+		code  string
+		state string
+	)
+
+	state = r.URL.Query().Get("state")
+	if state != srv.state {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("OAuth state mismatch. Please retry login."))
+		srv.result <- callbackResult{err: ErrInvalidOAuthState}
+		return
+	}
+
+	code = r.URL.Query().Get("code")
+	if code == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("Missing OAuth authorization code."))
+		srv.result <- callbackResult{err: ErrMissingOAuthCode}
+		return
+	}
 
 	_, _ = w.Write([]byte("Success. You can close this browser tab now"))
-	code = r.URL.Query().Get("code")
-	srv.code <- code
+	srv.result <- callbackResult{code: code}
 }
