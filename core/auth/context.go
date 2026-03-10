@@ -15,28 +15,34 @@
 
 package auth
 
-import "context"
+import (
+	"context"
+
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type contextKey string
 
-const tokenContextKey contextKey = "auth-token"
+const (
+	claimsContextKey contextKey = "auth-claims"
+)
 
-// WithToken stores a raw bearer token in the context.
-func WithToken(ctx context.Context, token string) (out context.Context) {
-	if ctx == nil {
+// WithClaims stores verified JWT claims in the context.
+func WithClaims(ctx context.Context, claims jwt.MapClaims) (out context.Context) {
+	if ctx == nil || claims == nil {
 		return ctx
 	}
 
-	out = context.WithValue(ctx, tokenContextKey, token)
+	out = context.WithValue(ctx, claimsContextKey, claims)
 	return out
 }
 
-// TokenFromContext returns the raw bearer token from the context, if present.
-func TokenFromContext(ctx context.Context) (token string, ok bool) {
+// ClaimsFromContext returns verified JWT claims from the context, if present.
+func ClaimsFromContext(ctx context.Context) (claims jwt.MapClaims, ok bool) {
 	if ctx == nil {
-		return "", false
+		return nil, false
 	}
 
-	token, ok = ctx.Value(tokenContextKey).(string)
-	return token, ok
+	claims, ok = ctx.Value(claimsContextKey).(jwt.MapClaims)
+	return claims, ok
 }

@@ -23,6 +23,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/util/assert"
+
 	"golang.org/x/oauth2"
 )
 
@@ -49,6 +50,7 @@ func TestNewSession(t *testing.T) {
 	assert.Equal(t, "/tmp/folder", sess.Folder)
 	// authorizer should be non-nil and return our token
 	assert.NotNil(t, sess.Authorizer())
+
 	gotTok, err := sess.Authorizer().Token()
 	assert.NoError(t, err)
 	assert.Equal(t, tok.AccessToken, gotTok.AccessToken)
@@ -97,6 +99,7 @@ func TestMarshalUnmarshalRoundtrip(t *testing.T) {
 	assert.Equal(t, cfg.ClientSecret, copy.Config.ClientSecret)
 	assert.Equal(t, cfg.Endpoint.TokenURL, copy.Config.Endpoint.TokenURL)
 	assert.NotNil(t, copy.Authorizer())
+
 	gotTok, err := copy.Authorizer().Token()
 	assert.NoError(t, err)
 	assert.Equal(t, tok.AccessToken, gotTok.AccessToken)
@@ -109,6 +112,7 @@ func TestUnmarshalSetsDirtyWhenMissingData(t *testing.T) {
 	assert.NoError(t, sess.UnmarshalJSON(data))
 	// authorizer should be nil
 	assert.Nil(t, sess.authorizer)
+
 	// dirty flag should be true (unexported, inspect via reflect)
 	v := reflect.ValueOf(&sess).Elem().FieldByName("dirty")
 	assert.True(t, v.Bool())
@@ -122,7 +126,6 @@ func TestAuthorizerSetterGetter(t *testing.T) {
 	// interfaces from different packages are distinct types to generics; compare directly
 	assert.True(t, src == sess.Authorizer())
 }
-
 
 func TestHTTPClient(t *testing.T) {
 	sess := &Session{}
@@ -142,7 +145,7 @@ func TestHTTPClient(t *testing.T) {
 	assert.True(t, src == otr.Source)
 }
 
-// ensure file gets auto-saved if dirty on load. we simulate by manually
+// TestLoadSessionAutoSave tests that file gets auto-saved if dirty on load. we simulate by manually
 // writing a file with an empty config so that unmarshal marks dirty=true.
 func TestLoadSessionAutoSave(t *testing.T) {
 	tmp := t.TempDir()
@@ -153,6 +156,7 @@ func TestLoadSessionAutoSave(t *testing.T) {
 	// load should not error and should write back (dirty->save)
 	_, err := LoadSession(tmp)
 	assert.NoError(t, err)
+
 	// after load the file should still be valid json but not equal to initial
 	after, err := os.ReadFile(path)
 	assert.NoError(t, err)

@@ -82,10 +82,8 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context, _ RequestTyp
 // AllowedTargetOfEvaluations retrieves a list of allowed TOE IDs according to the current access strategy.
 func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Context) (all bool, list []string) {
 	var (
-		token   string
 		claims  jwt.MapClaims
 		ok      bool
-		err     error
 		rawList any
 	)
 
@@ -93,15 +91,8 @@ func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Contex
 		return false, nil
 	}
 
-	token, ok = auth.TokenFromContext(ctx)
-	if !ok || token == "" {
-		return false, nil
-	}
-
-	var parser *jwt.Parser
-	parser = jwt.NewParser()
-	_, _, err = parser.ParseUnverified(token, &claims)
-	if err != nil {
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok {
 		return false, nil
 	}
 

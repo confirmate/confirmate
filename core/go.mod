@@ -16,7 +16,7 @@ require (
 )
 
 // runtime dependencies - auth
-	require (
+require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 )
@@ -105,4 +105,4 @@ require (
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260129104154-5b108a47b09b
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260302105703-17f4819f2682

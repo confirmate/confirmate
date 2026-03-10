@@ -104,11 +104,12 @@ func (ai *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
-		if err = ai.parseToken(token); err != nil {
+		claims, err := ai.parseToken(token)
+		if err != nil {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
-		ctx = auth.WithToken(ctx, token)
+		ctx = auth.WithClaims(ctx, claims)
 		res, err = next(ctx, req)
 		return res, err
 	}
@@ -133,11 +134,12 @@ func (ai *AuthInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFun
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
-		if err = ai.parseToken(token); err != nil {
+		claims, err := ai.parseToken(token)
+		if err != nil {
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
-		ctx = auth.WithToken(ctx, token)
+		ctx = auth.WithClaims(ctx, claims)
 		return next(ctx, conn)
 	}
 }
@@ -154,34 +156,48 @@ func (ai *AuthInterceptor) isPublic(procedure string) (ok bool) {
 	return ok
 }
 
-func (ai *AuthInterceptor) parseToken(token string) (err error) {
-	var jwks *keyfunc.JWKS
-	var parseErr error
+func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err error) {
+	var (
+		jwks     *keyfunc.JWKS
+		keyFunc  jwt.Keyfunc
+		parsed   *jwt.Token
+		claimsOK bool
+	)
 
 	if ai.cfg == nil {
-		return errors.New("auth config not set")
+		return nil, errors.New("auth config not set")
 	}
 
 	if ai.cfg.useJWKS {
 		if ai.cfg.jwks == nil {
 			jwks, err = keyfunc.Get(ai.cfg.jwksURL, keyfunc.Options{RefreshInterval: time.Hour})
 			if err != nil {
-				return err
+				return nil, err
 			}
 			ai.cfg.jwks = jwks
 		}
-		_, parseErr = jwt.ParseWithClaims(token, jwt.MapClaims{}, ai.cfg.jwks.Keyfunc)
-		return parseErr
+		keyFunc = ai.cfg.jwks.Keyfunc
+	} else {
+		if ai.cfg.publicKey == nil {
+			return nil, errors.New("no public key configured")
+		}
+
+		keyFunc = func(_ *jwt.Token) (any, error) {
+			return ai.cfg.publicKey, nil
+		}
 	}
 
-	if ai.cfg.publicKey == nil {
-		return errors.New("no public key configured")
+	parsed, err = jwt.ParseWithClaims(token, jwt.MapClaims{}, keyFunc)
+	if err != nil {
+		return nil, err
 	}
 
-	_, parseErr = jwt.ParseWithClaims(token, jwt.MapClaims{}, func(_ *jwt.Token) (any, error) {
-		return ai.cfg.publicKey, nil
-	})
-	return parseErr
+	claims, claimsOK = parsed.Claims.(jwt.MapClaims)
+	if !claimsOK {
+		return nil, errors.New("invalid token claims")
+	}
+
+	return claims, nil
 }
 
 func bearerToken(header string) (token string, err error) {
