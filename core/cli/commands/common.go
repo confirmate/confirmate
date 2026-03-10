@@ -43,8 +43,9 @@ func WithHTTPClient(ctx context.Context, client *http.Client) (out context.Conte
 	return out
 }
 
-// httpClientFromContext extracts an HTTP client from the context.
-// If no client is found, [http.DefaultClient] is returned.
+// httpClientFromContext extracts an HTTP client from the context. If no client is found,
+// [http.DefaultClient] is returned. The boolean return value indicates whether a client override
+// was found in the context.
 func httpClientFromContext(ctx context.Context) (*http.Client, bool) {
 	if ctx != nil {
 		if client, ok := ctx.Value(httpClientKey{}).(*http.Client); ok && client != nil {

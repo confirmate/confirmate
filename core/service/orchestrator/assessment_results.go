@@ -111,6 +111,8 @@ func (svc *Service) ListAssessmentResults(
 		results []*assessment.AssessmentResult
 		conds   []any
 		npt     string
+		where   string
+		args    []any
 	)
 
 	// Validate the request
@@ -125,7 +127,6 @@ func (svc *Service) ListAssessmentResults(
 	}
 
 	var whereClauses []string
-	var args []any
 
 	all, allowed := svc.allowedTargetOfEvaluations(ctx)
 	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
@@ -171,9 +172,8 @@ func (svc *Service) ListAssessmentResults(
 
 	// Combine all WHERE clauses with AND
 	if len(whereClauses) > 0 {
-		var whereQuery string
-		whereQuery = strings.Join(whereClauses, " AND ")
-		conds = append(conds, whereQuery)
+		where = strings.Join(whereClauses, " AND ")
+		conds = append(conds, where)
 		conds = append(conds, args...)
 	}
 
@@ -181,20 +181,9 @@ func (svc *Service) ListAssessmentResults(
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
 	if req.Msg.LatestByResourceId != nil && util.Deref(req.Msg.LatestByResourceId) {
-		// Build WHERE clause from existing conditions
-		var where string
-		var args []any
-
-		if len(conds) > 0 {
-			// conds is structured as [query1, args1, query2, args2, ...]
-			var whereParts []string
-			for i := 0; i < len(conds); i += 2 {
-				whereParts = append(whereParts, conds[i].(string))
-				if i+1 < len(conds) {
-					args = append(args, conds[i+1])
-				}
-			}
-			where = "WHERE " + strings.Join(whereParts, " AND ")
+		// Reuse the WHERE query and args directly.
+		if where != "" {
+			where = "WHERE " + where
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
