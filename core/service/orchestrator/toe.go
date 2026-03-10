@@ -54,6 +54,10 @@ func (svc *Service) CreateTargetOfEvaluation(
 	toe.CreatedAt = now
 	toe.UpdatedAt = now
 
+	if all, _ := svc.allowedTargetOfEvaluations(ctx); !all {
+		return nil, service.ErrPermissionDenied
+	}
+
 	// Persist the target of evaluation in the database
 	err = svc.db.Create(toe)
 	if err = service.HandleDatabaseError(err); err != nil {
