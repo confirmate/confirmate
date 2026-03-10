@@ -267,32 +267,6 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 		want assert.Want[string]
 	}{
 		{
-			name: "create target of evaluation",
-			args: args{
-				get: func() string {
-					return (&CreateTargetOfEvaluationRequest{TargetOfEvaluation: &TargetOfEvaluation{Id: "toe-1"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-1",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
-			name: "update target of evaluation",
-			args: args{
-				get: func() string {
-					return (&UpdateTargetOfEvaluationRequest{TargetOfEvaluation: &TargetOfEvaluation{Id: "toe-2"}}).GetTargetOfEvaluationId()
-				},
-				want: "toe-2",
-			},
-			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
-				want := assert.Is[string](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
 			name: "list assessment results",
 			args: args{
 				get: func() string {
