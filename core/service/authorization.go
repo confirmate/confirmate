@@ -21,20 +21,11 @@ import (
 	"slices"
 
 	"confirmate.io/core/api"
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 
 	"connectrpc.com/connect"
 	"github.com/golang-jwt/jwt/v5"
-)
-
-// RequestType specifies the type of request, usually CRUD.
-type RequestType int
-
-const (
-	AccessCreate RequestType = iota
-	AccessRead
-	AccessUpdate
-	AccessDelete
 )
 
 const (
@@ -49,7 +40,7 @@ var ErrPermissionDenied = connect.NewError(connect.CodePermissionDenied, errors.
 
 // AuthorizationStrategy implements access checks based on the request and context.
 type AuthorizationStrategy interface {
-	CheckAccess(ctx context.Context, typ RequestType, req api.HasTargetOfEvaluationId) bool
+	CheckAccess(ctx context.Context, typ orchestrator.RequestType, req api.HasTargetOfEvaluationId) bool
 	AllowedTargetOfEvaluations(ctx context.Context) (all bool, IDs []string)
 }
 
@@ -60,7 +51,7 @@ type AuthorizationStrategyJWT struct {
 }
 
 // CheckAccess checks whether the request can be fulfilled using the current access strategy.
-func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context, _ RequestType, req api.HasTargetOfEvaluationId) (ok bool) {
+func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context, _ orchestrator.RequestType, req api.HasTargetOfEvaluationId) (ok bool) {
 	var (
 		all  bool
 		list []string
@@ -123,7 +114,7 @@ func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Contex
 type AuthorizationStrategyAllowAll struct{}
 
 // CheckAccess returns true for all requests.
-func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context, _ RequestType, _ api.HasTargetOfEvaluationId) (ok bool) {
+func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context, _ orchestrator.RequestType, _ api.HasTargetOfEvaluationId) (ok bool) {
 	return true
 }
 

@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"log/slog"
 	"runtime/debug"
-	"slices"
 	"sync"
 	"time"
 
@@ -176,17 +175,6 @@ func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, a
 	}
 
 	return svc.authz.AllowedTargetOfEvaluations(ctx)
-}
-
-func (svc *Service) hasTargetAccess(ctx context.Context, targetID string) bool {
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if all {
-		return true
-	}
-	if targetID == "" {
-		return false
-	}
-	return slices.Contains(allowed, targetID)
 }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.

@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"slices"
 	"strings"
 
 	"confirmate.io/core/api/assessment"
@@ -47,7 +46,7 @@ func (svc *Service) StoreAssessmentResult(
 	}
 
 	result = req.Msg.Result
-	if !svc.hasTargetAccess(ctx, result.GetTargetOfEvaluationId()) {
+	if result == nil || !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -94,7 +93,7 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
-	if !svc.hasTargetAccess(ctx, result.TargetOfEvaluationId) {
+	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, &result) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -128,11 +127,16 @@ func (svc *Service) ListAssessmentResults(
 
 	var whereClauses []string
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		if !slices.Contains(allowed, util.Deref(req.Msg.Filter.TargetOfEvaluationId)) {
+	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
+		if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
 			return nil, service.ErrPermissionDenied
 		}
+	}
+
+	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	if !all {
+		whereClauses = append(whereClauses, "target_of_evaluation_id IN ?")
+		args = append(args, allowed)
 	}
 
 	// Apply filters if provided
@@ -163,11 +167,6 @@ func (svc *Service) ListAssessmentResults(
 				args = append(args, id)
 			}
 		}
-	}
-
-	if !all {
-		whereClauses = append(whereClauses, "target_of_evaluation_id IN ?")
-		args = append(args, allowed)
 	}
 
 	// Combine all WHERE clauses with AND

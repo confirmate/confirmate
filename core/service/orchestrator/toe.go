@@ -93,7 +93,7 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !svc.hasTargetAccess(ctx, req.Msg.TargetOfEvaluationId) {
+	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -158,7 +158,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	}
 
 	toe = req.Msg.TargetOfEvaluation
-	if toe == nil || !svc.hasTargetAccess(ctx, toe.GetId()) {
+	if toe == nil || !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -200,7 +200,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !svc.hasTargetAccess(ctx, req.Msg.TargetOfEvaluationId) {
+	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -234,6 +234,10 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
+		return nil, service.ErrPermissionDenied
 	}
 
 	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{})
