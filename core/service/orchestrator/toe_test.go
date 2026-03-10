@@ -23,6 +23,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -35,7 +36,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.CreateTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -143,7 +145,8 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.GetTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -200,6 +203,22 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.GetTargetOfEvaluationRequest{
@@ -219,46 +238,11 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.GetTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
-			tt.wantErr(t, err)
-		})
-	}
-}
-
-func TestService_GetTargetOfEvaluation_AuthorizationFailure(t *testing.T) {
-	type args struct {
-		req *orchestrator.GetTargetOfEvaluationRequest
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr assert.WantErr
-	}{
-		{
-			name: "permission denied",
-			args: args{
-				req: &orchestrator.GetTargetOfEvaluationRequest{
-					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
-				},
-			},
-			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-				authz: &denyAuthorizationStrategy{},
-			}
-
-			res, err := svc.GetTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
-			assert.Nil(t, res)
 			tt.wantErr(t, err)
 		})
 	}
@@ -269,7 +253,8 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 		req *orchestrator.ListTargetsOfEvaluationRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -315,7 +300,8 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.UpdateTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -408,6 +394,26 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.UpdateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Id:   orchestratortest.MockTargetOfEvaluation1.Id,
+						Name: "updated-name",
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
 			name: "db error - constraint",
 			args: args{
 				req: &orchestrator.UpdateTargetOfEvaluationRequest{
@@ -431,7 +437,8 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.UpdateTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -446,7 +453,8 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 		req *orchestrator.RemoveTargetOfEvaluationRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -501,6 +509,25 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.RemoveTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				return true
+			},
+		},
+		{
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.RemoveTargetOfEvaluationRequest{
@@ -523,7 +550,8 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.RemoveTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
@@ -538,7 +566,8 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 		req *orchestrator.GetTargetOfEvaluationStatisticsRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -582,6 +611,22 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationStatisticsRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "validation error - empty request",
 			args: args{
 				req: &orchestrator.GetTargetOfEvaluationStatisticsRequest{},
@@ -600,7 +645,8 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.GetTargetOfEvaluationStatistics(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)

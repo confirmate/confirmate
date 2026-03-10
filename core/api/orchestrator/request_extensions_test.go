@@ -50,6 +50,34 @@ func TestGetPayload(t *testing.T) {
 			},
 		},
 		{
+			name: "update catalog",
+			args: args{
+				get: func() proto.Message {
+					catalog := &Catalog{Id: "catalog-2"}
+					return (&UpdateCatalogRequest{Catalog: catalog}).GetPayload()
+				},
+				want: &Catalog{Id: "catalog-2"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "create certificate",
+			args: args{
+				get: func() proto.Message {
+					cert := &Certificate{Id: "cert-1"}
+					return (&CreateCertificateRequest{Certificate: cert}).GetPayload()
+				},
+				want: &Certificate{Id: "cert-1"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
 			name: "update certificate",
 			args: args{
 				get: func() proto.Message {
@@ -64,6 +92,48 @@ func TestGetPayload(t *testing.T) {
 			},
 		},
 		{
+			name: "create audit scope",
+			args: args{
+				get: func() proto.Message {
+					scope := &AuditScope{Id: "scope-1"}
+					return (&CreateAuditScopeRequest{AuditScope: scope}).GetPayload()
+				},
+				want: &AuditScope{Id: "scope-1"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "update audit scope",
+			args: args{
+				get: func() proto.Message {
+					scope := &AuditScope{Id: "scope-2"}
+					return (&UpdateAuditScopeRequest{AuditScope: scope}).GetPayload()
+				},
+				want: &AuditScope{Id: "scope-2"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "create metric",
+			args: args{
+				get: func() proto.Message {
+					metric := &assessment.Metric{Id: "metric-1"}
+					return (&CreateMetricRequest{Metric: metric}).GetPayload()
+				},
+				want: &assessment.Metric{Id: "metric-1"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
 			name: "update metric",
 			args: args{
 				get: func() proto.Message {
@@ -71,6 +141,76 @@ func TestGetPayload(t *testing.T) {
 					return (&UpdateMetricRequest{Metric: metric}).GetPayload()
 				},
 				want: &assessment.Metric{Id: "metric-2"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "create target of evaluation",
+			args: args{
+				get: func() proto.Message {
+					toe := &TargetOfEvaluation{Id: "toe-1"}
+					return (&CreateTargetOfEvaluationRequest{TargetOfEvaluation: toe}).GetPayload()
+				},
+				want: &TargetOfEvaluation{Id: "toe-1"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "update target of evaluation",
+			args: args{
+				get: func() proto.Message {
+					toe := &TargetOfEvaluation{Id: "toe-2"}
+					return (&UpdateTargetOfEvaluationRequest{TargetOfEvaluation: toe}).GetPayload()
+				},
+				want: &TargetOfEvaluation{Id: "toe-2"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "register assessment tool",
+			args: args{
+				get: func() proto.Message {
+					tool := &assessment.AssessmentTool{Id: "tool-1"}
+					return (&RegisterAssessmentToolRequest{Tool: tool}).GetPayload()
+				},
+				want: &assessment.AssessmentTool{Id: "tool-1"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "update assessment tool",
+			args: args{
+				get: func() proto.Message {
+					tool := &assessment.AssessmentTool{Id: "tool-2"}
+					return (&UpdateAssessmentToolRequest{Tool: tool}).GetPayload()
+				},
+				want: &assessment.AssessmentTool{Id: "tool-2"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "update metric configuration",
+			args: args{
+				get: func() proto.Message {
+					cfg := &assessment.MetricConfiguration{MetricId: "metric-3"}
+					return (&UpdateMetricConfigurationRequest{Configuration: cfg}).GetPayload()
+				},
+				want: &assessment.MetricConfiguration{MetricId: "metric-3"},
 			},
 			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
 				want := assert.Is[proto.Message](t, msgAndArgs[0])
@@ -140,6 +280,19 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			},
 		},
 		{
+			name: "update target of evaluation",
+			args: args{
+				get: func() string {
+					return (&UpdateTargetOfEvaluationRequest{TargetOfEvaluation: &TargetOfEvaluation{Id: "toe-2"}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-2",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
 			name: "update metric configuration",
 			args: args{
 				get: func() string {
@@ -153,12 +306,77 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			},
 		},
 		{
+			name: "store assessment result",
+			args: args{
+				get: func() string {
+					return (&StoreAssessmentResultRequest{Result: &assessment.AssessmentResult{TargetOfEvaluationId: "toe-4"}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-4",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "create audit scope",
+			args: args{
+				get: func() string {
+					return (&CreateAuditScopeRequest{AuditScope: &AuditScope{TargetOfEvaluationId: "toe-5"}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-5",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "update audit scope",
+			args: args{
+				get: func() string {
+					return (&UpdateAuditScopeRequest{AuditScope: &AuditScope{TargetOfEvaluationId: "toe-6"}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-6",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
 			name: "list assessment results",
 			args: args{
 				get: func() string {
 					return (&ListAssessmentResultsRequest{Filter: &ListAssessmentResultsRequest_Filter{TargetOfEvaluationId: ref("toe-7")}}).GetTargetOfEvaluationId()
 				},
 				want: "toe-7",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "list audit scopes",
+			args: args{
+				get: func() string {
+					return (&ListAuditScopesRequest{Filter: &ListAuditScopesRequest_Filter{TargetOfEvaluationId: ref("toe-8")}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-8",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
+			name: "create certificate",
+			args: args{
+				get: func() string {
+					return (&CreateCertificateRequest{Certificate: &Certificate{TargetOfEvaluationId: "toe-9"}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-9",
 			},
 			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
 				want := assert.Is[string](t, msgAndArgs[0])
