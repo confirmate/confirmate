@@ -139,6 +139,45 @@ func TestService_CreateAuditScope(t *testing.T) {
 	}
 }
 
+func TestService_CreateAuditScope_AuthorizationFailure(t *testing.T) {
+	type args struct {
+		req *orchestrator.CreateAuditScopeRequest
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr assert.WantErr
+	}{
+		{
+			name: "permission denied",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			}
+
+			res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			assert.Nil(t, res)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
 func TestService_GetAuditScope(t *testing.T) {
 	type args struct {
 		req *orchestrator.GetAuditScopeRequest

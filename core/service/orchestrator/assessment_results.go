@@ -46,7 +46,7 @@ func (svc *Service) StoreAssessmentResult(
 	}
 
 	result = req.Msg.Result
-	if result == nil || !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg) {
+	if result == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -93,7 +93,7 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
-	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, &result) {
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, &result) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -128,7 +128,7 @@ func (svc *Service) ListAssessmentResults(
 	var whereClauses []string
 
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
+		if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
 			return nil, service.ErrPermissionDenied
 		}
 	}

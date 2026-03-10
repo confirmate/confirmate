@@ -19,6 +19,8 @@ import (
 	"context"
 	"testing"
 
+	"confirmate.io/core/api"
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 	"confirmate.io/core/util/assert"
 
@@ -31,6 +33,46 @@ type toeReq struct {
 
 func (r *toeReq) GetTargetOfEvaluationId() string {
 	return r.targetID
+}
+
+type denyAuthorizationStrategy struct{}
+
+func (*denyAuthorizationStrategy) CheckAccess(context.Context, orchestrator.RequestType, api.HasTargetOfEvaluationId) bool {
+	return false
+}
+
+func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(context.Context) (bool, []string) {
+	return false, nil
+}
+
+func TestCheckAccess(t *testing.T) {
+	tests := []struct {
+		name  string
+		authz AuthorizationStrategy
+		want  assert.Want[bool]
+	}{
+		{
+			name:  "nil strategy allows",
+			authz: nil,
+			want: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+		},
+		{
+			name:  "delegates to strategy",
+			authz: &denyAuthorizationStrategy{},
+			want: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.False(t, got)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CheckAccess(tt.authz, context.Background(), orchestrator.RequestType_REQUEST_TYPE_UPDATED, &toeReq{targetID: "toe-1"})
+			tt.want(t, got)
+		})
+	}
 }
 
 func TestAuthorizationStrategyJWT_AllowedTargetOfEvaluations(t *testing.T) {

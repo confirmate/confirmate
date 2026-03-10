@@ -44,6 +44,17 @@ type AuthorizationStrategy interface {
 	AllowedTargetOfEvaluations(ctx context.Context) (all bool, IDs []string)
 }
 
+// CheckAccess checks access via the configured strategy.
+//
+// If no strategy is configured, access is allowed by default.
+func CheckAccess(authz AuthorizationStrategy, ctx context.Context, typ orchestrator.RequestType, req api.HasTargetOfEvaluationId) bool {
+	if authz == nil {
+		return true
+	}
+
+	return authz.CheckAccess(ctx, typ, req)
+}
+
 // AuthorizationStrategyJWT expects a list of TOE IDs in a JWT claim key.
 type AuthorizationStrategyJWT struct {
 	TargetOfEvaluationsKey string

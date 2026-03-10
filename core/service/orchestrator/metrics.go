@@ -371,7 +371,7 @@ func (svc *Service) UpdateMetricConfiguration(
 	}
 
 	config = req.Msg.Configuration
-	if config == nil || !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
+	if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 

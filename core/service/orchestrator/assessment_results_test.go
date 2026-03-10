@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
@@ -37,7 +38,8 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 		req *orchestrator.StoreAssessmentResultRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -99,6 +101,26 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.StoreAssessmentResultRequest{
+					Result: orchestratortest.MockNewAssessmentResult,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				count, err := db.Count(&assessment.AssessmentResult{}, "id = ?", orchestratortest.MockResultId3)
+				return assert.NoError(t, err) && assert.Equal(t, int64(0), count)
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
@@ -125,7 +147,8 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.StoreAssessmentResult(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)

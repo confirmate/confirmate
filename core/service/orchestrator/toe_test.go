@@ -228,6 +228,42 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 	}
 }
 
+func TestService_GetTargetOfEvaluation_AuthorizationFailure(t *testing.T) {
+	type args struct {
+		req *orchestrator.GetTargetOfEvaluationRequest
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr assert.WantErr
+	}{
+		{
+			name: "permission denied",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			}
+
+			res, err := svc.GetTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+			assert.Nil(t, res)
+			tt.wantErr(t, err)
+		})
+	}
+}
+
 func TestService_ListTargetsOfEvaluation(t *testing.T) {
 	type args struct {
 		req *orchestrator.ListTargetsOfEvaluationRequest
