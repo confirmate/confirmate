@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"confirmate.io/core/api"
@@ -27,6 +28,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/collection"
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
@@ -54,6 +56,8 @@ var ConfirmateCommand = &cli.Command{
 			assessmentOpts     []service.Option[assessment.Service]
 			svc                orchestratorconnect.OrchestratorHandler
 			assessmentSvc      assessmentconnect.AssessmentHandler
+			collectionSvc      *collection.Service
+			collectionResults  <-chan collection.CollectionResult
 			orchestratorClient *http.Client
 			apiPort            uint16
 			orchestratorURL    string
@@ -134,6 +138,21 @@ var ConfirmateCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		collectionSvc, err = collection.NewService(collection.Config{
+			Interval:   cmd.Duration("collection-interval"),
+			Collectors: []collection.Collector{},
+		})
+		if err != nil {
+			return err
+		}
+
+		collectionResults = collectionSvc.Start(ctx)
+		go func() {
+			for range collectionResults {
+				slog.Debug("Collection cycle finished")
+			}
+		}()
 
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
@@ -313,6 +332,11 @@ var ConfirmateCommand = &cli.Command{
 			Name:  "assessment-rego-package",
 			Usage: "Rego package to use for assessments",
 			Value: assessment.DefaultConfig.RegoPackage,
+		},
+		&cli.DurationFlag{
+			Name:  "collection-interval",
+			Usage: "Interval between collection runs",
+			Value: collection.DefaultConfig.Interval,
 		},
 	},
 }
