@@ -370,6 +370,11 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}"};
   }
 
+  // Retrieves all target of evaluation IDs that a specific user is allowed to view
+  rpc ListTargetOfEvaluationIds(ListTargetOfEvaluationIdsRequest) returns (ListTargetOfEvaluationIdsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}/target_of_evaluation_ids"};
+  }
+
 
 }
 
@@ -1384,3 +1389,16 @@ message ListUsersResponse {
   repeated User users = 1;
   string next_page_token = 2;
 }
+message ListTargetOfEvaluationIdsRequest {
+  // The user ID to list viewable target of evaluation IDs for
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListTargetOfEvaluationIdsResponse {
+  // List of target of evaluation IDs the user is allowed to view
+  repeated string target_of_evaluation_ids = 1;
+}
+

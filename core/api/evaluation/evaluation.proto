@@ -38,12 +38,6 @@ service Evaluation {
       body: "result"
     };
   }
-
-  // Lists target of evaluation IDs that are accessible for a specific user.
-  // Part of the public API, also exposed as REST.
-  rpc ListTargetOfEvaluationIds(ListTargetOfEvaluationIdsRequest) returns (ListTargetOfEvaluationIdsResponse) {
-    option (google.api.http) = {get: "/v1/evaluation/users/{user_id}/target_of_evaluation_ids"};
-  }
 }
 
 message StartEvaluationRequest {
@@ -179,15 +173,4 @@ enum EvaluationStatus {
   EVALUATION_STATUS_NOT_COMPLIANT = 3;
   EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY = 4;
   EVALUATION_STATUS_PENDING = 10;
-}
-
-message ListTargetOfEvaluationIdsRequest {
-  string user_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
-message ListTargetOfEvaluationIdsResponse {
-  repeated string target_of_evaluation_ids = 1;
 }
