@@ -669,7 +669,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: assert.Nil[[]*assessment.AssessmentResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.Contains(t, err.Error(), fmt.Sprintf("no results"))
+				return assert.Contains(t, err.Error(), "no results")
 			},
 		},
 		{

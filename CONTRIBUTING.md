@@ -274,6 +274,11 @@ This will run all `//go:generate` directives, including multiple `buf generate` 
 
 Prefer using godoc comments for documentation instead of creating separate `README.md` files within code directories. All exported functions, types, methods, and packages should have comprehensive godoc comments.
 
+### Keep authentication docs in sync
+
+If a PR changes authentication or authorization behavior in `core`, it must also update
+`core/docs/authentication-and-authorization.md` in the same PR.
+
 **Good:**
 ```go
 // Package orchestrator implements the orchestration service for Confirmate.

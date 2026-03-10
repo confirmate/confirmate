@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/common"
 	"confirmate.io/core/api/orchestrator"
@@ -175,6 +176,14 @@ func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, a
 	}
 
 	return svc.authz.AllowedTargetOfEvaluations(ctx)
+}
+
+func (svc *Service) checkAccess(ctx context.Context, typ orchestrator.RequestType, req api.HasTargetOfEvaluationId) bool {
+	if svc == nil || svc.authz == nil {
+		return true
+	}
+
+	return svc.authz.CheckAccess(ctx, typ, req)
 }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.

@@ -93,7 +93,7 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
+	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -158,7 +158,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	}
 
 	toe = req.Msg.TargetOfEvaluation
-	if toe == nil || !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
+	if toe == nil || !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -200,7 +200,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg) {
+	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -236,7 +236,7 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 		return nil, err
 	}
 
-	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
+	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 

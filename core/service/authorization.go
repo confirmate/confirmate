@@ -57,6 +57,10 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context, _ orchestrat
 		list []string
 	)
 
+	if a == nil {
+		return false
+	}
+
 	all, list = a.AllowedTargetOfEvaluations(ctx)
 	if all {
 		return true
@@ -77,6 +81,10 @@ func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Contex
 		ok      bool
 		rawList any
 	)
+
+	if a == nil {
+		return false, nil
+	}
 
 	if ctx == nil {
 		return false, nil
@@ -115,6 +123,7 @@ type AuthorizationStrategyAllowAll struct{}
 
 // CheckAccess returns true for all requests.
 func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context, _ orchestrator.RequestType, _ api.HasTargetOfEvaluationId) (ok bool) {
+	// Keep this strategy permissive by design.
 	return true
 }
 

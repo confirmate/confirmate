@@ -47,7 +47,7 @@ func (svc *Service) CreateAuditScope(
 	// Generate a new UUID for the audit scope
 	scope.Id = uuid.NewString()
 
-	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg) {
+	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -91,7 +91,7 @@ func (svc *Service) GetAuditScope(
 		return nil, err
 	}
 
-	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, &scope) {
+	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, &scope) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -117,7 +117,7 @@ func (svc *Service) ListAuditScopes(
 
 	all, allowed := svc.allowedTargetOfEvaluations(ctx)
 	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
+		if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
 			return nil, service.ErrPermissionDenied
 		}
 	}
@@ -167,7 +167,7 @@ func (svc *Service) UpdateAuditScope(
 	}
 
 	scope = req.Msg.AuditScope
-	if scope == nil || !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
+	if scope == nil || !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg) {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -211,7 +211,7 @@ func (svc *Service) RemoveAuditScope(
 		return nil, err
 	}
 
-	if !svc.authz.CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, &scope) {
+	if !svc.checkAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, &scope) {
 		return nil, service.ErrPermissionDenied
 	}
 
