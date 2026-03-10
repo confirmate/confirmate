@@ -1,3 +1,5 @@
 orchestrator
 !orchestrator/
+collection
+!collection/
 .DS_Store
