@@ -137,17 +137,20 @@ var (
 			Usage:   "Specifies the database password",
 			Value:   persistence.DefaultConfig.Password,
 			Sources: envVarSources("db-password"),
-		}, &cli.StringFlag{
+		},
+		&cli.StringFlag{
 			Name:    "db-ssl-mode",
 			Usage:   "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
 			Value:   persistence.DefaultConfig.SSLMode,
 			Sources: envVarSources("db-ssl-mode"),
-		}, &cli.BoolFlag{
+		},
+		&cli.BoolFlag{
 			Name:    "db-in-memory",
 			Usage:   "Use in-memory database instead of PostgreSQL (useful for testing)",
 			Value:   persistence.DefaultConfig.InMemoryDB,
 			Sources: envVarSources("db-in-memory"),
-		}, &cli.IntFlag{
+		},
+		&cli.IntFlag{
 			Name:    "db-max-connections",
 			Usage:   "Specifies the maximum number of database connections",
 			Value:   persistence.DefaultConfig.MaxConn,

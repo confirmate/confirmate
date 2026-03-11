@@ -33,16 +33,16 @@ import (
 // evidenceFlags contains the flags for configuring the evidence store service.
 var evidenceFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:    "assessment-address",
-		Usage:   "Assessment service address",
+		Name:    "evidence-assessment-address",
+		Usage:   "Address of the assessment service the evidence store connects to",
 		Value:   evidence.DefaultAssessmentURL,
-		Sources: envVarSources("assessment-address"),
+		Sources: envVarSources("evidence-assessment-address"),
 	},
 	&cli.DurationFlag{
-		Name:    "assessment-timeout",
+		Name:    "evidence-assessment-http-timeout",
 		Usage:   "Assessment HTTP client timeout",
 		Value:   30 * time.Second,
-		Sources: envVarSources("assessment-timeout"),
+		Sources: envVarSources("evidence-assessment-http-timeout"),
 	},
 }
 
