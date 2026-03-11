@@ -134,10 +134,6 @@ var OrchestratorCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
-			server.WithHandler(orchestratorconnect.NewOrchestratorCompatHandler(
-				svc,
-				connect.WithInterceptors(interceptors...),
-			)),
 		}
 
 		err = server.RunConnectServer(serverOpts...)
