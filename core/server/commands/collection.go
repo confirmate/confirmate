@@ -26,10 +26,33 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/service/collection"
 
+	"github.com/google/uuid"
 	"github.com/urfave/cli/v3"
 )
 
-type noOpCollector struct{}
+type noOpCollector struct {
+	id   string
+	name string
+}
+
+func newNoOpCollector(name string) noOpCollector {
+	if name == "" {
+		name = "no-op-collector"
+	}
+
+	return noOpCollector{
+		id:   uuid.NewString(),
+		name: name,
+	}
+}
+
+func (c noOpCollector) ID() string {
+	return c.id
+}
+
+func (c noOpCollector) Name() string {
+	return c.name
+}
 
 func (noOpCollector) Collect() (list []ontology.IsResource, err error) {
 	return nil, nil
@@ -55,9 +78,11 @@ var CollectionCommand = &cli.Command{
 		}
 
 		svc, err = collection.NewService(collection.Config{
-			Interval: cmd.Duration("collection-interval"),
+			Interval:             cmd.Duration("collection-interval"),
+			EvidenceStoreAddress: cmd.String("evidence-store-address"),
+			TargetOfEvaluationID: cmd.String("target-of-evaluation-id"),
 			Collectors: []collection.Collector{
-				noOpCollector{},
+				newNoOpCollector("cli-no-op-collector"),
 			},
 		})
 		if err != nil {
@@ -81,6 +106,16 @@ var CollectionCommand = &cli.Command{
 			Name:  "collection-interval",
 			Usage: "Interval between collection runs",
 			Value: collection.DefaultConfig.Interval,
+		},
+		&cli.StringFlag{
+			Name:  "evidence-store-address",
+			Usage: "Evidence store base URL for forwarding collected resources (empty disables forwarding)",
+			Value: collection.DefaultConfig.EvidenceStoreAddress,
+		},
+		&cli.StringFlag{
+			Name:  "target-of-evaluation-id",
+			Usage: "Target of evaluation UUID used when creating evidence records",
+			Value: "",
 		},
 	},
 }

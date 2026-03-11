@@ -17,19 +17,20 @@ package collection
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"sync"
 	"time"
 
 	"confirmate.io/core/api/ontology"
-	"golang.org/x/sync/errgroup"
 )
 
 // CollectorResult captures the outcome of a single collector execution.
 type CollectorResult struct {
-	CollectorIndex int
-	Resources      []ontology.IsResource
-	Err            error
+	CollectorID   string
+	CollectorName string
+	Resources     []ontology.IsResource
+	Err           error
 }
 
 // CollectionResult captures the outcome of one full collection cycle.
@@ -43,13 +44,19 @@ type CollectionResult struct {
 // interval. It sends results to the provided channel and exits when the context is canceled.
 func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResult) {
 	var (
-		ticker    *time.Ticker
-		runResult CollectionResult
+		ticker         *time.Ticker
+		runResult      CollectionResult
+		collectorNames []string
 	)
+
+	collectorNames = make([]string, len(svc.collectors))
+	for i := range svc.collectors {
+		collectorNames[i] = svc.collectors[i].Name()
+	}
 
 	slog.Info("Starting collection loop",
 		slog.Duration("interval", svc.interval),
-		slog.Int("num_collectors", len(svc.collectors)),
+		slog.Any("collector_names", collectorNames),
 	)
 
 	defer close(resultCh)
@@ -57,7 +64,7 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 	ticker = time.NewTicker(svc.interval)
 	defer ticker.Stop()
 
-	runResult = svc.RunOnce()
+	runResult = svc.runOnce(ctx)
 
 	select {
 	case <-ctx.Done():
@@ -70,7 +77,7 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			runResult = svc.RunOnce()
+			runResult = svc.runOnce(ctx)
 
 			select {
 			case <-ctx.Done():
@@ -83,41 +90,49 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 
 // RunOnce executes one full collection cycle concurrently for all configured collectors.
 func (svc *Service) RunOnce() (res CollectionResult) {
+	return svc.runOnce(context.Background())
+}
+
+func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 	var (
-		group   errgroup.Group
-		mu      sync.Mutex
+		wait    sync.WaitGroup
 		results []CollectorResult
 	)
 
 	res.StartedAt = time.Now()
-	results = make([]CollectorResult, 0, len(svc.collectors))
+	results = make([]CollectorResult, len(svc.collectors))
 
 	for i := range svc.collectors {
 		collectorIndex := i
 		collector := svc.collectors[collectorIndex]
 
-		group.Go(func() error {
+		// Run the collector in a separate goroutine to allow concurrent execution of all
+		// collectors. The results are collected in the results slice, which is protected by the
+		// wait group to ensure that all collectors have finished before the final result is
+		// returned.
+		wait.Add(1)
+		go func() {
+			defer wait.Done()
+
 			var (
 				resources []ontology.IsResource
-				err       error
+				collectErr error
+				storeErr   error
 			)
 
-			resources, err = collector.Collect()
+			resources, collectErr = collector.Collect()
+			storeErr = svc.sendResourcesToEvidenceStore(ctx, collector, resources)
 
-			mu.Lock()
-			results = append(results, CollectorResult{
-				CollectorIndex: collectorIndex,
-				Resources:      resources,
-				Err:            err,
-			})
-			mu.Unlock()
-
-			// We intentionally return nil to avoid one collector failure affecting the others.
-			return nil
-		})
+			results[collectorIndex] = CollectorResult{
+				CollectorID:   collector.ID(),
+				CollectorName: collector.Name(),
+				Resources:     resources,
+				Err:            errors.Join(collectErr, storeErr),
+			}
+		}()
 	}
 
-	_ = group.Wait()
+	wait.Wait()
 
 	res.FinishedAt = time.Now()
 	res.Collectors = results

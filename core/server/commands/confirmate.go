@@ -175,7 +175,7 @@ var ConfirmateCommand = &cli.Command{
 
 		collectionSvc, err = collection.NewService(collection.Config{
 			Interval:   cmd.Duration("collection-interval"),
-			Collectors: []collection.Collector{},
+			Collectors: []collection.Collector{newNoOpCollector("confirmate-no-op-collector")},
 		})
 		if err != nil {
 			return err
