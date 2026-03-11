@@ -356,37 +356,6 @@ service Orchestrator {
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}"};
   }
-
-  // Lists all target of evaluation IDs that a specific user has access to
-  rpc ListUserAccessToTargetOfEvaluations(ListUserAccessToTargetOfEvaluationsRequest) returns (ListUserAccessToTargetOfEvaluationsResponse) {
-    option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}/target_of_evaluation_access"};
-  }
-
-  // Grants a user access to a target of evaluation
-  rpc GrantUserAccessToTargetOfEvaluation(GrantUserAccessToTargetOfEvaluationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/users/{user_id}"
-      body: "*"
-    };
-  }
-
-  // Revokes a user's access from a target of evaluation
-  rpc RevokeUserAccessFromTargetOfEvaluation(RevokeUserAccessFromTargetOfEvaluationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/users/{user_id}"};
-  }
-
-  // Grants a user access to an audit scope
-  rpc GrantUserAccessToAuditScope(GrantUserAccessToAuditScopeRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v1/orchestrator/audit_scopes/{audit_scope_id}/users/{user_id}"
-      body: "*"
-    };
-  }
-
-  // Revokes a user's access from an audit scope
-  rpc RevokeUserAccessFromAuditScope(RevokeUserAccessFromAuditScopeRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/orchestrator/audit_scopes/{audit_scope_id}/users/{user_id}"};
-  }
 }
 
 message RegisterAssessmentToolRequest {
@@ -1272,67 +1241,6 @@ message ListUsersResponse {
 message ListUserAccessToTargetOfEvaluationsRequest {
   // The user ID to list accessible target of evaluation IDs for
   string user_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
-message ListUserAccessToTargetOfEvaluationsResponse {
-  // List of target of evaluation IDs the user has access to
-  repeated string target_of_evaluation_ids = 1;
-}
-
-message GrantUserAccessToTargetOfEvaluationRequest {
-  // The target of evaluation ID
-  string target_of_evaluation_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The user ID to grant access to
-  string user_id = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
-message RevokeUserAccessFromTargetOfEvaluationRequest {
-  // The target of evaluation ID
-  string target_of_evaluation_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The user ID to revoke access from
-  string user_id = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
-message GrantUserAccessToAuditScopeRequest {
-  // The audit scope ID
-  string audit_scope_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The user ID to grant access to
-  string user_id = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
-message RevokeUserAccessFromAuditScopeRequest {
-  // The audit scope ID
-  string audit_scope_id = 1 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-
-  // The user ID to revoke access from
-  string user_id = 2 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
