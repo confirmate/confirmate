@@ -355,6 +355,14 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/audit_scopes/{audit_scope_id}/controls/{control_id}/history"};
   }
 
+  // Invites a user to the system, i.e. imports it from the IdP (Keycloak)
+  rpc InviteUser(InviteUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/users/invite"
+      body: "*"
+    };
+  }
+
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/orchestrator/users/me"};
@@ -1384,6 +1392,13 @@ enum Role {
   ROLE_TECHNICAL_IMPLEMENTER = 4;
   ROLE_AUDITOR = 5;
   ROLE_CHIEF_INFORMATION_SECURITY_OFFICER = 6;
+}
+
+message InviteUserRequest {
+  User user = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message GetCurrentUserRequest {
