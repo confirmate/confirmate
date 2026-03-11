@@ -1365,14 +1365,25 @@ message User {
   // Last name
   optional string last_name = 5;
 
-  // Roles assigned to the user (e.g., "compliance_manager", "auditor", "developer")
-  repeated string roles = 6;
+  // Roles assigned to the user
+  repeated string Role = 6;
 
   // Whether the user account is enabled
   bool enabled = 7;
 
   // Additional attributes from Keycloak (e.g., department, organization)
   map<string, string> attributes = 8;
+}
+
+// Predefined roles in the system. These should align with the roles defined in Keycloak
+enum Role {
+  ROLE_ADMIN = 0;
+  ROLE_COMPLIANCE_MANAGER = 1;
+  ROLE_EXPERT_COMPLIANCE_MANAGER = 2;
+  ROLE_INTERNAL_CONTROL_OWNER = 3;
+  ROLE_TECHNICAL_IMPLEMENTER = 4;
+  ROLE_AUDITOR = 5;
+  ROLE_CHIEF_INFORMATION_SECURITY_OFFICER = 6;
 }
 
 message GetCurrentUserRequest {
