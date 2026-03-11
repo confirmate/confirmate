@@ -334,14 +334,6 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
-  // Invites a user to the system, i.e. imports it from the IdP (Keycloak)
-  rpc InviteUser(InviteUserRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v1/orchestrator/users/invite"
-      body: "*"
-    };
-  }
-
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/orchestrator/users/me"};
