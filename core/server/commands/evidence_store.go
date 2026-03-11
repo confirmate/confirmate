@@ -30,13 +30,29 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// evidenceFlags contains the flags for configuring the evidence store service.
+var evidenceFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "assessment-address",
+		Usage:   "Assessment service address",
+		Value:   evidence.DefaultAssessmentURL,
+		Sources: envVarSources("assessment-address"),
+	},
+	&cli.DurationFlag{
+		Name:    "assessment-timeout",
+		Usage:   "Assessment HTTP client timeout",
+		Value:   30 * time.Second,
+		Sources: envVarSources("assessment-timeout"),
+	},
+}
+
 // EvidenceCommand is the command to start the evidence store server.
 var EvidenceCommand = &cli.Command{
 	Name:  "evidence",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		slog.Info("Starting Evidence Store",
-			slog.String("db_user", cmd.String("db-user")),
+			slog.String("db_user", cmd.String("db-user-name")),
 			slog.String("db_password", cmd.String("db-password")),
 			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
 			slog.String("log_level", cmd.String("log-level")),
@@ -46,7 +62,7 @@ var EvidenceCommand = &cli.Command{
 			slog.String("db_host", cmd.String("db-host")),
 			slog.Int("db_port", cmd.Int("db-port")),
 			slog.String("db_name", cmd.String("db-name")),
-			slog.String("db_sslmode", cmd.String("db-sslmode")),
+			slog.String("db_sslmode", cmd.String("db-ssl-mode")),
 			slog.Bool("db_in_memory", cmd.Bool("db-in-memory")),
 			slog.Int("db_max_connections", cmd.Int("db-max-connections")),
 			slog.String("assessment_address", cmd.String("assessment-address")),
@@ -62,9 +78,9 @@ var EvidenceCommand = &cli.Command{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
 					DBName:     cmd.String("db-name"),
-					User:       cmd.String("db-user"),
+					User:       cmd.String("db-user-name"),
 					Password:   cmd.String("db-password"),
-					SSLMode:    cmd.String("db-sslmode"),
+					SSLMode:    cmd.String("db-ssl-mode"),
 					InMemoryDB: cmd.Bool("db-in-memory"),
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
@@ -92,81 +108,12 @@ var EvidenceCommand = &cli.Command{
 			)),
 		)
 	},
-	Flags: []cli.Flag{
-		&cli.Uint16Flag{
-			Name:  "api-port",
-			Usage: "Port to run the API server (Connect, gRPC, REST) on",
-			Value: server.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: server.DefaultConfig.LogLevel,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-origins",
-			Usage: "Specifies the origins allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedOrigins,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-methods",
-			Usage: "Specifies the methods allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedMethods,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-headers",
-			Usage: "Specifies the headers allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedHeaders,
-		},
-		&cli.StringFlag{
-			Name:  "db-host",
-			Usage: "Specifies the server hostname",
-			Value: persistence.DefaultConfig.Host,
-		},
-		&cli.IntFlag{
-			Name:  "db-port",
-			Usage: "Specifies the server port",
-			Value: persistence.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "db-name",
-			Usage: "Specifies the database name",
-			Value: persistence.DefaultConfig.DBName,
-		},
-		&cli.StringFlag{
-			Name:  "db-user",
-			Usage: "Specifies the database user",
-			Value: persistence.DefaultConfig.User,
-		},
-		&cli.StringFlag{
-			Name:  "db-password",
-			Usage: "Specifies the database password",
-			Value: persistence.DefaultConfig.Password,
-		},
-		&cli.StringFlag{
-			Name:  "db-sslmode",
-			Usage: "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
-			Value: persistence.DefaultConfig.SSLMode,
-		},
-		&cli.BoolFlag{
-			Name:  "db-in-memory",
-			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
-			Value: persistence.DefaultConfig.InMemoryDB,
-		},
-		&cli.IntFlag{
-			Name:  "db-max-connections",
-			Usage: "Specifies the maximum number of database connections",
-			Value: persistence.DefaultConfig.MaxConn,
-		},
-		&cli.StringFlag{
-			Name:  "assessment-address",
-			Usage: "Assessment service address",
-			Value: evidence.DefaultAssessmentURL,
-		},
-		&cli.DurationFlag{
-			Name:  "assessment-timeout",
-			Usage: "Assessment HTTP client timeout",
-			Value: 30 * time.Second,
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		apiFlags,
+		authFlags,
+		serviceAuthFlags,
+		dbFlags,
+		evidenceFlags,
+	),
 }
