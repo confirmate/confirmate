@@ -18,24 +18,21 @@ package collection
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/stream"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-
 const DefaultEvidenceStoreAddress = ""
-
-type EvidenceStoreClient interface {
-	StoreEvidence(context.Context, *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error)
-}
 
 // Collector is the interface that all collectors must implement. A collector is responsible for
 // collecting evidence and translating them to ontology resources.
@@ -57,7 +54,8 @@ type Collector interface {
 type Service struct {
 	interval             time.Duration
 	collectors           []Collector
-	evidenceStoreClient  EvidenceStoreClient
+	evidenceStoreClient  evidenceconnect.EvidenceStoreClient
+	evidenceStoreStream  *stream.RestartableBidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
 	targetOfEvaluationID string
 }
 
@@ -84,10 +82,6 @@ type Config struct {
 	// is used.
 	EvidenceStoreHTTPClient *http.Client
 
-	// EvidenceStoreClient allows injecting a custom evidence store client (for testing or custom
-	// transports). If set, it takes precedence over EvidenceStoreAddress.
-	EvidenceStoreClient EvidenceStoreClient
-
 	// TargetOfEvaluationID is used when creating evidence records from collected resources.
 	TargetOfEvaluationID string
 }
@@ -112,7 +106,7 @@ func NewService(cfg Config) (svc *Service, err error) {
 		}
 	}
 
-	if cfg.EvidenceStoreClient != nil || cfg.EvidenceStoreAddress != "" {
+	if cfg.EvidenceStoreAddress != "" {
 		if cfg.TargetOfEvaluationID == "" {
 			return nil, fmt.Errorf("target of evaluation id must be set when evidence store forwarding is enabled")
 		}
@@ -124,9 +118,7 @@ func NewService(cfg Config) (svc *Service, err error) {
 		targetOfEvaluationID: cfg.TargetOfEvaluationID,
 	}
 
-	if cfg.EvidenceStoreClient != nil {
-		svc.evidenceStoreClient = cfg.EvidenceStoreClient
-	} else if cfg.EvidenceStoreAddress != "" {
+	if cfg.EvidenceStoreAddress != "" {
 		httpClient = cfg.EvidenceStoreHTTPClient
 		if httpClient == nil {
 			httpClient = http.DefaultClient
@@ -135,21 +127,68 @@ func NewService(cfg Config) (svc *Service, err error) {
 		svc.evidenceStoreClient = evidenceconnect.NewEvidenceStoreClient(httpClient, cfg.EvidenceStoreAddress)
 	}
 
+	if svc.evidenceStoreClient != nil {
+		err = svc.initEvidenceStoreStream()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return svc, nil
 }
 
-func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector Collector, resources []ontology.IsResource) (err error) {
-	var (
-		storeErr error
-		req      *connect.Request[evidence.StoreEvidenceRequest]
-	)
-
+func (svc *Service) initEvidenceStoreStream() (err error) {
 	if svc.evidenceStoreClient == nil {
 		return nil
 	}
 
+	factory := func(ctx context.Context) *connect.BidiStreamForClient[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse] {
+		return svc.evidenceStoreClient.StoreEvidences(ctx)
+	}
+
+	svc.evidenceStoreStream, err = stream.NewRestartableBidiStream(context.Background(), factory, stream.DefaultRestartConfig(), "StoreEvidences")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Close releases resources owned by the collection service.
+func (svc *Service) Close() (err error) {
+	if svc.evidenceStoreStream == nil {
+		return nil
+	}
+
+	err = svc.evidenceStoreStream.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// sendResourcesToEvidenceStore sends the given resources to the evidence store, associating them
+// with the configured target of evaluation ID and the collector as the tool ID.
+func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector Collector, resources []ontology.IsResource) (err error) {
+	var (
+		storeErr error
+		res      *evidence.StoreEvidencesResponse
+		req      *evidence.StoreEvidenceRequest
+	)
+
+	if svc.evidenceStoreStream == nil {
+		return nil
+	}
+
 	for _, resource := range resources {
-		req = connect.NewRequest(&evidence.StoreEvidenceRequest{
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		req = &evidence.StoreEvidenceRequest{
 			Evidence: &evidence.Evidence{
 				Id:                   uuid.NewString(),
 				Timestamp:            timestamppb.Now(),
@@ -157,11 +196,27 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 				ToolId:               collector.ID(),
 				Resource:             ontology.ProtoResource(resource),
 			},
-		})
+		}
 
-		_, storeErr = svc.evidenceStoreClient.StoreEvidence(ctx, req)
+		storeErr = svc.evidenceStoreStream.Send(req)
 		if storeErr != nil {
-			err = fmt.Errorf("failed to store evidence for collector %q: %w", collector.Name(), storeErr)
+			err = fmt.Errorf("failed to send evidence for collector %q: %w", collector.Name(), storeErr)
+			return err
+		}
+
+		res, storeErr = svc.evidenceStoreStream.Receive()
+		if storeErr != nil {
+			if storeErr == io.EOF {
+				err = fmt.Errorf("evidence store stream closed while sending evidence for collector %q", collector.Name())
+				return err
+			}
+
+			err = fmt.Errorf("failed to receive evidence-store status for collector %q: %w", collector.Name(), storeErr)
+			return err
+		}
+
+		if res.GetStatus() != evidence.EvidenceStatus_EVIDENCE_STATUS_OK {
+			err = fmt.Errorf("evidence-store rejected evidence for collector %q: %s", collector.Name(), res.GetStatusMessage())
 			return err
 		}
 	}

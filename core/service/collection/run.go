@@ -115,7 +115,7 @@ func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 			defer wait.Done()
 
 			var (
-				resources []ontology.IsResource
+				resources  []ontology.IsResource
 				collectErr error
 				storeErr   error
 			)
@@ -127,7 +127,7 @@ func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 				CollectorID:   collector.ID(),
 				CollectorName: collector.Name(),
 				Resources:     resources,
-				Err:            errors.Join(collectErr, storeErr),
+				Err:           errors.Join(collectErr, storeErr),
 			}
 		}()
 	}

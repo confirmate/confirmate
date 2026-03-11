@@ -32,17 +32,7 @@ type functionCollector struct {
 }
 
 // NewFunctionCollector creates a new [functionCollector] with the provided collect function.
-func NewFunctionCollector(collect func() ([]ontology.IsResource, error)) collection.Collector {
-	return NewNamedFunctionCollector("function-collector", collect)
-}
-
-// NewNamedFunctionCollector creates a new [functionCollector] with the provided name and collect
-// function.
-func NewNamedFunctionCollector(name string, collect func() ([]ontology.IsResource, error)) collection.Collector {
-	if name == "" {
-		name = "function-collector"
-	}
-
+func NewFunctionCollector(name string, collect func() ([]ontology.IsResource, error)) collection.Collector {
 	return &functionCollector{
 		id:      uuid.NewString(),
 		name:    name,

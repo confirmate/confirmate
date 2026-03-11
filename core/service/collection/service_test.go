@@ -18,13 +18,18 @@ package collection_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http/httptest"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"confirmate.io/core/api/evidence"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/server"
+	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/collection"
 	"confirmate.io/core/service/collection/collectiontest"
 	"confirmate.io/core/util/assert"
@@ -33,16 +38,56 @@ import (
 	"github.com/google/uuid"
 )
 
-type mockEvidenceStoreClient struct {
-	storeEvidence func(context.Context, *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error)
+type mockEvidenceStoreHandler struct {
+	evidenceconnect.UnimplementedEvidenceStoreHandler
+
+	mu       sync.Mutex
+	requests []*evidence.StoreEvidenceRequest
+
+	responseFunc func(*evidence.StoreEvidenceRequest) (*evidence.StoreEvidencesResponse, error)
 }
 
-func (c mockEvidenceStoreClient) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error) {
-	if c.storeEvidence != nil {
-		return c.storeEvidence(ctx, req)
-	}
+func (h *mockEvidenceStoreHandler) StoreEvidences(_ context.Context, stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) (err error) {
+	var (
+		req *evidence.StoreEvidenceRequest
+		res *evidence.StoreEvidencesResponse
+	)
 
-	return connect.NewResponse(&evidence.StoreEvidenceResponse{}), nil
+	for {
+		req, err = stream.Receive()
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		h.mu.Lock()
+		h.requests = append(h.requests, req)
+		h.mu.Unlock()
+
+		if h.responseFunc != nil {
+			res, err = h.responseFunc(req)
+			if err != nil {
+				return err
+			}
+		} else {
+			res = &evidence.StoreEvidencesResponse{Status: evidence.EvidenceStatus_EVIDENCE_STATUS_OK}
+		}
+
+		err = stream.Send(res)
+		if err != nil {
+			return err
+		}
+	}
+}
+
+func (h *mockEvidenceStoreHandler) Requests() (requests []*evidence.StoreEvidenceRequest) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	requests = append([]*evidence.StoreEvidenceRequest(nil), h.requests...)
+	return requests
 }
 
 func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
@@ -57,13 +102,16 @@ func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 
 	svc, err = collection.NewService(collection.Config{
 		Collectors: []collection.Collector{
-			collectiontest.NewNamedFunctionCollector("collector-ok", nil),
-			collectiontest.NewNamedFunctionCollector("collector-fail", func() ([]ontology.IsResource, error) {
+			collectiontest.NewFunctionCollector("collector-ok", nil),
+			collectiontest.NewFunctionCollector("collector-fail", func() ([]ontology.IsResource, error) {
 				return nil, errBoom
 			}),
 		},
 	})
 	assert.NoError(t, err)
+	defer func() {
+		assert.NoError(t, svc.Close())
+	}()
 
 	res = svc.RunOnce()
 
@@ -110,11 +158,11 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 	svc, err = collection.NewService(collection.Config{
 		Interval: 20 * time.Millisecond,
 		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector(func() ([]ontology.IsResource, error) {
+			collectiontest.NewFunctionCollector("good-collector", func() ([]ontology.IsResource, error) {
 				successCalls.Add(1)
 				return nil, nil
 			}),
-			collectiontest.NewFunctionCollector(func() ([]ontology.IsResource, error) {
+			collectiontest.NewFunctionCollector("fail-collector", func() ([]ontology.IsResource, error) {
 				mu.Lock()
 				failingCalledOnce = true
 				mu.Unlock()
@@ -151,48 +199,98 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 func TestRunOnce_ForwardsCollectedResourcesToEvidenceStore(t *testing.T) {
 	var (
 		targetOfEvaluationID string
-		storedEvidence       []*evidence.Evidence
-		mu                   sync.Mutex
+		handler              *mockEvidenceStoreHandler
+		testHTTPServer       *httptest.Server
 		svc                  *collection.Service
 		err                  error
 		res                  collection.CollectionResult
+		storedRequests       []*evidence.StoreEvidenceRequest
 	)
+
+	handler = &mockEvidenceStoreHandler{}
+	_, testHTTPServer = servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(handler)),
+	)
+	defer testHTTPServer.Close()
 
 	targetOfEvaluationID = uuid.NewString()
 
 	svc, err = collection.NewService(collection.Config{
 		Collectors: []collection.Collector{
-			collectiontest.NewNamedFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+			collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
 				return []ontology.IsResource{
 					&ontology.VirtualMachine{Id: "vm-1"},
 				}, nil
 			}),
 		},
 		TargetOfEvaluationID: targetOfEvaluationID,
-		EvidenceStoreClient: mockEvidenceStoreClient{
-			storeEvidence: func(_ context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (*connect.Response[evidence.StoreEvidenceResponse], error) {
-				mu.Lock()
-				storedEvidence = append(storedEvidence, req.Msg.GetEvidence())
-				mu.Unlock()
-
-				return connect.NewResponse(&evidence.StoreEvidenceResponse{}), nil
-			},
-		},
+		EvidenceStoreAddress:    testHTTPServer.URL,
+		EvidenceStoreHTTPClient: testHTTPServer.Client(),
 	})
 	assert.NoError(t, err)
+	defer func() {
+		assert.NoError(t, svc.Close())
+	}()
 
 	res = svc.RunOnce()
 
 	assert.Equal(t, 1, len(res.Collectors))
 	assert.Nil(t, res.Collectors[0].Err)
 
-	mu.Lock()
-	assert.Equal(t, 1, len(storedEvidence))
-	assert.Equal(t, targetOfEvaluationID, storedEvidence[0].TargetOfEvaluationId)
-	assert.Equal(t, "vm-1", storedEvidence[0].Resource.GetVirtualMachine().GetId())
-	assert.NotEqual(t, "", storedEvidence[0].ToolId)
-	assert.NotEqual(t, "", storedEvidence[0].Id)
-	mu.Unlock()
+	storedRequests = handler.Requests()
+	assert.Equal(t, 1, len(storedRequests))
+	assert.Equal(t, targetOfEvaluationID, storedRequests[0].GetEvidence().GetTargetOfEvaluationId())
+	assert.Equal(t, "vm-1", storedRequests[0].GetEvidence().GetResource().GetVirtualMachine().GetId())
+	assert.NotEqual(t, "", storedRequests[0].GetEvidence().GetToolId())
+	assert.NotEqual(t, "", storedRequests[0].GetEvidence().GetId())
+}
+
+func TestRunOnce_ReturnsError_WhenEvidenceStoreReturnsErrorStatus(t *testing.T) {
+	var (
+		targetOfEvaluationID string
+		handler              *mockEvidenceStoreHandler
+		testHTTPServer       *httptest.Server
+		svc                  *collection.Service
+		err                  error
+		res                  collection.CollectionResult
+	)
+
+	handler = &mockEvidenceStoreHandler{
+		responseFunc: func(_ *evidence.StoreEvidenceRequest) (*evidence.StoreEvidencesResponse, error) {
+			return &evidence.StoreEvidencesResponse{
+				Status:        evidence.EvidenceStatus_EVIDENCE_STATUS_ERROR,
+				StatusMessage: "invalid evidence",
+			}, nil
+		},
+	}
+	_, testHTTPServer = servertest.NewTestConnectServer(t,
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(handler)),
+	)
+	defer testHTTPServer.Close()
+
+	targetOfEvaluationID = uuid.NewString()
+
+	svc, err = collection.NewService(collection.Config{
+		Collectors: []collection.Collector{
+			collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+				return []ontology.IsResource{
+					&ontology.VirtualMachine{Id: "vm-1"},
+				}, nil
+			}),
+		},
+		TargetOfEvaluationID: targetOfEvaluationID,
+		EvidenceStoreAddress:    testHTTPServer.URL,
+		EvidenceStoreHTTPClient: testHTTPServer.Client(),
+	})
+	assert.NoError(t, err)
+	defer func() {
+		assert.NoError(t, svc.Close())
+	}()
+
+	res = svc.RunOnce()
+
+	assert.Equal(t, 1, len(res.Collectors))
+	assert.ErrorContains(t, res.Collectors[0].Err, "evidence-store rejected evidence")
 }
 
 func TestNewService_ReturnsError_WhenEvidenceForwardingEnabledWithoutTargetOfEvaluationID(t *testing.T) {
@@ -203,9 +301,9 @@ func TestNewService_ReturnsError_WhenEvidenceForwardingEnabledWithoutTargetOfEva
 
 	svc, err = collection.NewService(collection.Config{
 		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector(nil),
+			collectiontest.NewFunctionCollector("collector", nil),
 		},
-		EvidenceStoreClient: mockEvidenceStoreClient{},
+		EvidenceStoreAddress: "http://localhost:8080",
 	})
 
 	assert.Nil(t, svc)
