@@ -29,7 +29,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// orchestratorFlags contains the flags  that are specific for configuring the orchestrator service.
+// orchestratorFlags contains the flags that are specific to configuring the orchestrator service.
 var orchestratorFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "catalogs-default-path",

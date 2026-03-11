@@ -27,7 +27,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// assessmentFlags contains the flags that are specific for configuring the assessment service.
+// assessmentFlags contains the flags that are specific to configuring the assessment service.
 var assessmentFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "assessment-orchestrator-address",

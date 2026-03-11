@@ -30,7 +30,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// evidenceFlags contains the flags for configuring the evidence store service.
+// evidenceFlags contains the flags that are specific to configuring the evidence store service.
 var evidenceFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "evidence-assessment-address",
@@ -52,8 +52,6 @@ var EvidenceCommand = &cli.Command{
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		slog.Info("Starting Evidence Store",
-			slog.String("db_user", cmd.String("db-user-name")),
-			slog.String("db_password", cmd.String("db-password")),
 			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
 			slog.String("log_level", cmd.String("log-level")),
 			slog.Any("api_cors_allowed_origins", cmd.StringSlice("api-cors-allowed-origins")),
@@ -62,17 +60,19 @@ var EvidenceCommand = &cli.Command{
 			slog.String("db_host", cmd.String("db-host")),
 			slog.Int("db_port", cmd.Int("db-port")),
 			slog.String("db_name", cmd.String("db-name")),
+			slog.String("db_user_name", cmd.String("db-user-name")),
+			slog.String("db_password", cmd.String("db-password")),
 			slog.String("db_sslmode", cmd.String("db-ssl-mode")),
 			slog.Bool("db_in_memory", cmd.Bool("db-in-memory")),
 			slog.Int("db_max_connections", cmd.Int("db-max-connections")),
-			slog.String("assessment_address", cmd.String("assessment-address")),
-			slog.Duration("assessment_timeout", cmd.Duration("assessment-timeout")))
+			slog.String("assessment_address", cmd.String("evidence-assessment-address")),
+			slog.Duration("assessment_timeout", cmd.Duration("evidence-assessment-http-timeout")))
 
 		svc, err := evidence.NewService(
 			evidence.WithConfig(evidence.Config{
-				AssessmentAddress: cmd.String("assessment-address"),
+				AssessmentAddress: cmd.String("evidence-assessment-address"),
 				AssessmentHTTPClient: &http.Client{
-					Timeout: cmd.Duration("assessment-timeout"),
+					Timeout: cmd.Duration("evidence-assessment-http-timeout"),
 				},
 				PersistenceConfig: persistence.Config{
 					Host:       cmd.String("db-host"),
