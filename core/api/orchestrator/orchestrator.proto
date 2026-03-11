@@ -1204,7 +1204,6 @@ message GetCurrentUserRequest {
 }
 
 message GetUserRequest {
-  // The user ID to retrieve
   string user_id = 1 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
@@ -1238,11 +1237,3 @@ message ListUsersResponse {
   repeated User users = 1;
   string next_page_token = 2;
 }
-message ListUserAccessToTargetOfEvaluationsRequest {
-  // The user ID to list accessible target of evaluation IDs for
-  string user_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-}
-
