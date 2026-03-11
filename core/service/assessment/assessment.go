@@ -42,10 +42,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var (
-	logger *slog.Logger
-)
-
 const DefaultOrchestratorURL = "http://localhost:9090"
 
 // DefaultConfig is the default configuration for the assessment [Service].
@@ -200,6 +196,11 @@ func (svc *Service) initOrchestratorStream() (err error) {
 		factory           stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 		restartableStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	)
+
+	// The client is created in the NewService constructor, but the service could also be created without the constructor, so we check if the orchestrator client is nil here
+	if svc.orchestratorClient == nil {
+		svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+	}
 
 	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)
@@ -543,11 +544,11 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 		})
 
 		resp, err = svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
-		config = resp.Msg
-
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric configuration for %s: %w", metric.Id, err)
 		}
+
+		config = resp.Msg
 
 		cache = cachedConfiguration{
 			cachedAt:            time.Now(),
