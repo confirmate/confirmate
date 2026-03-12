@@ -34,7 +34,6 @@ type Server struct {
 	cfg          Config
 	handlers     map[string]http.Handler
 	httpHandlers map[string]http.Handler
-	reflection   bool
 }
 
 // Option is a functional option for configuring the [Server].
@@ -59,7 +58,7 @@ func WithHandler(path string, handler http.Handler) Option {
 // server for its supported services and methods.
 func WithReflection() Option {
 	return func(svr *Server) {
-		svr.reflection = true
+		svr.cfg.UseGRPCReflection = true
 	}
 }
 
@@ -125,7 +124,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 		return nil, fmt.Errorf("invalid log level %q: %w", svr.cfg.LogLevel, err)
 	}
 
-	if svr.reflection {
+	if svr.cfg.UseGRPCReflection {
 		registerReflectionHandlers(svr)
 	}
 
