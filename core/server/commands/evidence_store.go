@@ -27,7 +27,6 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 )
 
@@ -52,14 +51,6 @@ var EvidenceCommand = &cli.Command{
 	Name:  "evidence",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		var (
-			reflector         *grpcreflect.Reflector
-			reflectionV1Path  string
-			reflectionV1      http.Handler
-			reflectionV1APath string
-			reflectionV1A     http.Handler
-		)
-
 		slog.Info("Starting Evidence Store",
 			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
 			slog.String("log_level", cmd.String("log-level")),
@@ -100,13 +91,6 @@ var EvidenceCommand = &cli.Command{
 			return err
 		}
 
-		// Add reflector for gRPC reflection, which allows clients to query the server for its supported services and methods.
-		reflector = grpcreflect.NewStaticReflector(
-			evidenceconnect.EvidenceStoreName,
-		)
-		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
-		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
-
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
 				Port:     cmd.Uint16("api-port"),
@@ -122,8 +106,7 @@ var EvidenceCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
-			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
-			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
+			server.WithReflection(),
 		)
 	},
 	Flags: joinFlagSlices(
