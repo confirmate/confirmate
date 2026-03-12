@@ -19,11 +19,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
+	"strings"
 
 	"connectrpc.com/grpcreflect"
 	"connectrpc.com/vanguard"
 
-	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/log"
 )
 
@@ -33,6 +34,7 @@ type Server struct {
 	cfg          Config
 	handlers     map[string]http.Handler
 	httpHandlers map[string]http.Handler
+	reflection   bool
 }
 
 // Option is a functional option for configuring the [Server].
@@ -57,23 +59,25 @@ func WithHandler(path string, handler http.Handler) Option {
 // server for its supported services and methods.
 func WithReflection() Option {
 	return func(svr *Server) {
-		var (
-			reflector         *grpcreflect.Reflector
-			reflectionV1Path  string
-			reflectionV1      http.Handler
-			reflectionV1APath string
-			reflectionV1A     http.Handler
-		)
-
-		reflector = grpcreflect.NewStaticReflector(
-			assessmentconnect.AssessmentName,
-		)
-		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
-		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
-
-		svr.httpHandlers[reflectionV1Path] = reflectionV1
-		svr.httpHandlers[reflectionV1APath] = reflectionV1A
+		svr.reflection = true
 	}
+}
+
+func registerReflectionHandlers(svr *Server) {
+	var (
+		reflector         *grpcreflect.Reflector
+		reflectionV1Path  string
+		reflectionV1      http.Handler
+		reflectionV1A     http.Handler
+		reflectionV1APath string
+	)
+
+	reflector = grpcreflect.NewReflector(svr)
+	reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
+	reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
+
+	svr.httpHandlers[reflectionV1Path] = reflectionV1
+	svr.httpHandlers[reflectionV1APath] = reflectionV1A
 }
 
 // RunConnectServer runs a Connect server with the given options.
@@ -121,6 +125,10 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 		return nil, fmt.Errorf("invalid log level %q: %w", svr.cfg.LogLevel, err)
 	}
 
+	if svr.reflection {
+		registerReflectionHandlers(svr)
+	}
+
 	// Create one vanguard service for each handler and add to transcoder
 	for path, handler := range svr.handlers {
 		vs = append(vs, vanguard.NewService(path, handler))
@@ -156,6 +164,38 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 	)
 
 	return svr, nil
+}
+
+// Names implements the [grpcreflect.Namer] interface, returning the names of the services supported
+// by the server.
+func (svr *Server) Names() []string {
+	return serviceNamesFromHandlerPaths(svr.handlers)
+}
+
+// serviceNamesFromHandlerPaths extracts service names from the given map of handler paths to
+// handlers.
+func serviceNamesFromHandlerPaths(handlers map[string]http.Handler) (services []string) {
+	var (
+		path    string
+		trimmed string
+	)
+
+	// Extract service names from handler paths by trimming leading and trailing slashes. For
+	// example, a handler registered at path "/my.service.Name/" would yield the service name
+	// "my.service.Name".
+	for path = range handlers {
+		trimmed = strings.Trim(path, "/")
+		if trimmed == "" {
+			continue
+		}
+
+		services = append(services, trimmed)
+	}
+
+	// Sort service names for consistent ordering
+	slices.Sort(services)
+
+	return services
 }
 
 // configureLogLevel configures the global slog logger with the specified level.
