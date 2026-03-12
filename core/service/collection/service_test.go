@@ -223,7 +223,7 @@ func TestRunOnce_ForwardsCollectedResourcesToEvidenceStore(t *testing.T) {
 				}, nil
 			}),
 		},
-		TargetOfEvaluationID: targetOfEvaluationID,
+		TargetOfEvaluationID:    targetOfEvaluationID,
 		EvidenceStoreAddress:    testHTTPServer.URL,
 		EvidenceStoreHTTPClient: testHTTPServer.Client(),
 	})
@@ -278,7 +278,7 @@ func TestRunOnce_ReturnsError_WhenEvidenceStoreReturnsErrorStatus(t *testing.T) 
 				}, nil
 			}),
 		},
-		TargetOfEvaluationID: targetOfEvaluationID,
+		TargetOfEvaluationID:    targetOfEvaluationID,
 		EvidenceStoreAddress:    testHTTPServer.URL,
 		EvidenceStoreHTTPClient: testHTTPServer.Client(),
 	})

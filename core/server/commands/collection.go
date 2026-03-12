@@ -58,6 +58,28 @@ func (noOpCollector) Collect() (list []ontology.IsResource, err error) {
 	return nil, nil
 }
 
+// collectionFlags contains the flags that are specific to configuring the collection service.
+var collectionFlags = []cli.Flag{
+	&cli.DurationFlag{
+		Name:    "collection-interval",
+		Usage:   "Interval between collection runs",
+		Value:   collection.DefaultConfig.Interval,
+		Sources: envVarSources("collection-interval"),
+	},
+	&cli.StringFlag{
+		Name:    "evidence-store-address",
+		Usage:   "Evidence store base URL for forwarding collected resources (empty disables forwarding)",
+		Value:   collection.DefaultConfig.EvidenceStoreAddress,
+		Sources: envVarSources("evidence-store-address"),
+	},
+	&cli.StringFlag{
+		Name:    "target-of-evaluation-id",
+		Usage:   "Target of evaluation UUID used when creating evidence records",
+		Value:   "",
+		Sources: envVarSources("target-of-evaluation-id"),
+	},
+}
+
 // CollectionCommand is the command to start the collection service.
 var CollectionCommand = &cli.Command{
 	Name:  "collection",
@@ -96,26 +118,8 @@ var CollectionCommand = &cli.Command{
 
 		return nil
 	},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: "INFO",
-		},
-		&cli.DurationFlag{
-			Name:  "collection-interval",
-			Usage: "Interval between collection runs",
-			Value: collection.DefaultConfig.Interval,
-		},
-		&cli.StringFlag{
-			Name:  "evidence-store-address",
-			Usage: "Evidence store base URL for forwarding collected resources (empty disables forwarding)",
-			Value: collection.DefaultConfig.EvidenceStoreAddress,
-		},
-		&cli.StringFlag{
-			Name:  "target-of-evaluation-id",
-			Usage: "Target of evaluation UUID used when creating evidence records",
-			Value: "",
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		collectionFlags,
+	),
 }
