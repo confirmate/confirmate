@@ -63,6 +63,11 @@ func RunConnectServer(opts ...Option) (err error) {
 		return
 	}
 
+	slog.Info("Starting Connect server",
+		slog.String("address", svr.Addr),
+		slog.String("path", svr.cfg.Path),
+	)
+
 	err = svr.ListenAndServe()
 
 	return err
@@ -124,11 +129,6 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 		Handler:   mux,
 		Protocols: p,
 	}
-
-	slog.Info("Starting Connect server",
-		slog.String("address", svr.Addr),
-		slog.String("path", svr.cfg.Path),
-	)
 
 	return svr, nil
 }
