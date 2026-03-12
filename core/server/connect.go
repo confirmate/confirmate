@@ -120,7 +120,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Set address, handler, and protocols
 	svr.Server = &http.Server{
-		Addr:      fmt.Sprintf("localhost:%d", svr.cfg.Port),
+		Addr:      fmt.Sprintf("0.0.0.0:%d", svr.cfg.Port),
 		Handler:   mux,
 		Protocols: p,
 	}
