@@ -1,4 +1,4 @@
-// Copyright 2016-2025 Fraunhofer AISEC
+// Copyright 2016-2026 Fraunhofer AISEC
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,13 +13,36 @@
 //
 // This file is part of Confirmate Core.
 
-package assessment
+package auth
 
 import (
-	"google.golang.org/protobuf/proto"
+	"context"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
-// GetPayload returns the embedded evidence from [AssessEvidenceRequest].
-func (r *AssessEvidenceRequest) GetPayload() proto.Message {
-	return r.GetEvidence()
+type contextKey string
+
+const (
+	claimsContextKey contextKey = "auth-claims"
+)
+
+// WithClaims stores verified JWT claims in the context.
+func WithClaims(ctx context.Context, claims jwt.MapClaims) (out context.Context) {
+	if ctx == nil || claims == nil {
+		return ctx
+	}
+
+	out = context.WithValue(ctx, claimsContextKey, claims)
+	return out
+}
+
+// ClaimsFromContext returns verified JWT claims from the context, if present.
+func ClaimsFromContext(ctx context.Context) (claims jwt.MapClaims, ok bool) {
+	if ctx == nil {
+		return nil, false
+	}
+
+	claims, ok = ctx.Value(claimsContextKey).(jwt.MapClaims)
+	return claims, ok
 }
