@@ -38,6 +38,11 @@ service UserManagement {
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}"};
   }
+
+  // Lists all predefined roles in the system.
+  rpc ListUserRoles(google.protobuf.Empty) returns (ListUserRolesResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/roles"};
+  }
 }
 
 // Represents a user from the IdP
@@ -121,4 +126,8 @@ message ListUsersRequest {
 message ListUsersResponse {
   repeated User users = 1;
   string next_page_token = 2;
+}
+
+message ListUserRolesResponse {
+  repeated Role roles = 1;
 }
