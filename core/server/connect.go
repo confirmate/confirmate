@@ -51,6 +51,15 @@ func WithHandler(path string, handler http.Handler) Option {
 	}
 }
 
+// WithHTTPHandler adds an [http.Handler] at the specified path directly to the
+// underlying HTTP mux, bypassing vanguard transcoding.
+// Multiple handlers can be registered by calling WithHTTPHandler multiple times.
+func WithHTTPHandler(path string, handler http.Handler) Option {
+	return func(svr *Server) {
+		svr.httpHandlers[path] = handler
+	}
+}
+
 // RunConnectServer runs a Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
 func RunConnectServer(opts ...Option) (err error) {
