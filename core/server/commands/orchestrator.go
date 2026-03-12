@@ -18,7 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
-	"log/slog"
+	"net/http"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -27,6 +27,7 @@ import (
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
+	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 )
 
@@ -70,12 +71,17 @@ var OrchestratorCommand = &cli.Command{
 	Usage: "Launches the orchestrator service",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors []connect.Interceptor
-			svcOptions   []service.Option[orchestrator.Service]
-			jwksURL      string
-			opts         []service.Option[orchestrator.Service]
-			svc          orchestratorconnect.OrchestratorHandler
-			serverOpts   []server.Option
+			interceptors      []connect.Interceptor
+			svcOptions        []service.Option[orchestrator.Service]
+			jwksURL           string
+			opts              []service.Option[orchestrator.Service]
+			svc               orchestratorconnect.OrchestratorHandler
+			serverOpts        []server.Option
+			reflector         *grpcreflect.Reflector
+			reflectionV1Path  string
+			reflectionV1      http.Handler
+			reflectionV1APath string
+			reflectionV1A     http.Handler
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -115,46 +121,17 @@ var OrchestratorCommand = &cli.Command{
 			}),
 		}, svcOptions...)
 
-		slog.Info("Starting Orchestrator Service",
-			"config", slog.GroupValue(
-				slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
-				slog.String("log_level", cmd.String("log-level")),
-				slog.Group("api_cors",
-					slog.Any("allowed_origins", cmd.StringSlice("api-cors-allowed-origins")),
-					slog.Any("allowed_methods", cmd.StringSlice("api-cors-allowed-methods")),
-					slog.Any("allowed_headers", cmd.StringSlice("api-cors-allowed-headers")),
-				),
-				slog.Group("database",
-					slog.String("host", cmd.String("db-host")),
-					slog.Int("port", cmd.Int("db-port")),
-					slog.String("name", cmd.String("db-name")),
-					slog.String("user_name", cmd.String("db-user-name")),
-					slog.String("password", cmd.String("db-password")),
-					slog.String("sslmode", cmd.String("db-ssl-mode")),
-					slog.Bool("in_memory", cmd.Bool("db-in-memory")),
-					slog.Int("max_connections", cmd.Int("db-max-connections")),
-				),
-				slog.Group("catalogs",
-					slog.String("default_path", cmd.String("catalogs-default-path")),
-					slog.Bool("load_default", cmd.Bool("catalogs-load-default")),
-				),
-				slog.Group("metrics",
-					slog.String("default_path", cmd.String("metrics-default-path")),
-					slog.Bool("load_default", cmd.Bool("metrics-load-default")),
-				),
-				slog.Bool("create_default_target_of_evaluation", cmd.Bool("create-default-target-of-evaluation")),
-				slog.Group("auth",
-					slog.Bool("enabled", cmd.Bool("auth-enabled")),
-					slog.String("jwks_url", cmd.String("auth-jwks-url")),
-				),
-			),
-			"format", "multiline",
-		)
-
 		svc, err = orchestrator.NewService(opts...)
 		if err != nil {
 			return err
 		}
+
+		// Add reflector for gRPC reflection, which allows clients to query the server for its supported services and methods.
+		reflector = grpcreflect.NewStaticReflector(
+			orchestratorconnect.OrchestratorName,
+		)
+		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
+		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
 
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
@@ -171,6 +148,8 @@ var OrchestratorCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
+			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
 		}
 
 		err = server.RunConnectServer(serverOpts...)
