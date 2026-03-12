@@ -47,6 +47,7 @@ const (
 	MockMetricId1        = "00000000-0000-0000-0000-000000000001"
 	MockMetricId2        = "00000000-0000-0000-0000-000000000002"
 	MockMetricId3        = "00000000-0000-0000-0000-000000000003"
+	MockMetricId4        = "00000000-0000-0000-0000-000000000004"
 	MockMetricName1      = "Mock Metric 1"
 	MockMetricName2      = "Mock Metric 2"
 	MockMetricName3      = "Mock Metric 3"
@@ -99,6 +100,13 @@ var (
 		Description: "Mock Metric with Default Config",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
+	}
+	MockMetricDeprecated = &assessment.Metric{
+		Id:              MockMetricId4,
+		Description:     "Mock Deprecated Metric",
+		Version:         MockDefaultVersion,
+		Category:        MockTestCategory,
+		DeprecatedSince: timestamppb.Now(),
 	}
 
 	// Mock Metric Implementations
