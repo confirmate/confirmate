@@ -30,6 +30,7 @@ import (
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
+	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -94,6 +95,11 @@ var ConfirmateCommand = &cli.Command{
 			credentials        *clientcredentials.Config
 			authorizer         api.Authorizer
 			serverOpts         []server.Option
+			reflector          *grpcreflect.Reflector
+			reflectionV1Path   string
+			reflectionV1       http.Handler
+			reflectionV1APath  string
+			reflectionV1A      http.Handler
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -169,6 +175,13 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
+		reflector = grpcreflect.NewStaticReflector(
+			orchestratorconnect.OrchestratorName,
+			assessmentconnect.AssessmentName,
+		)
+		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
+		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
+
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
 				Port:     apiPort,
@@ -188,6 +201,8 @@ var ConfirmateCommand = &cli.Command{
 				assessmentSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
+			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
 		}
 
 		if cmd.Bool("oauth2-embedded") {
