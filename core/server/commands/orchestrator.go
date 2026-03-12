@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -26,6 +27,7 @@ import (
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
+	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 )
 
@@ -69,12 +71,17 @@ var OrchestratorCommand = &cli.Command{
 	Usage: "Launches the orchestrator service",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors []connect.Interceptor
-			svcOptions   []service.Option[orchestrator.Service]
-			jwksURL      string
-			opts         []service.Option[orchestrator.Service]
-			svc          orchestratorconnect.OrchestratorHandler
-			serverOpts   []server.Option
+			interceptors      []connect.Interceptor
+			svcOptions        []service.Option[orchestrator.Service]
+			jwksURL           string
+			opts              []service.Option[orchestrator.Service]
+			svc               orchestratorconnect.OrchestratorHandler
+			serverOpts        []server.Option
+			reflector         *grpcreflect.Reflector
+			reflectionV1Path  string
+			reflectionV1      http.Handler
+			reflectionV1APath string
+			reflectionV1A     http.Handler
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -119,6 +126,13 @@ var OrchestratorCommand = &cli.Command{
 			return err
 		}
 
+		// Add reflector for gRPC reflection, which allows clients to query the server for its supported services and methods.
+		reflector = grpcreflect.NewStaticReflector(
+			orchestratorconnect.OrchestratorName,
+		)
+		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
+		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
+
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
 				Port:     cmd.Uint16("api-port"),
@@ -134,6 +148,8 @@ var OrchestratorCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
+			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
 		}
 
 		err = server.RunConnectServer(serverOpts...)
