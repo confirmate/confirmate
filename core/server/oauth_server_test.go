@@ -16,8 +16,56 @@
 package server
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
+
+func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
+	var (
+		srv    *Server
+		err    error
+		res    *http.Response
+		client *http.Client
+		url    string
+	)
+
+	srv, err = NewConnectServer([]Option{
+		WithEmbeddedOAuth2Server(DefaultOAuth2KeyPath, DefaultOAuth2KeyPassword, false, ""),
+	})
+	if err != nil {
+		t.Fatalf("NewConnectServer() failed: %v", err)
+	}
+
+	ts := httptest.NewServer(srv.Handler)
+	defer ts.Close()
+
+	client = &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	url = ts.URL + "/v1/auth/authorize?client_id=cli&code_challenge=abc&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A10000%2Fcallback&response_type=code&state=test"
+	res, err = client.Get(url)
+	if err != nil {
+		t.Fatalf("client.Get() failed: %v", err)
+	}
+	defer func() {
+		_ = res.Body.Close()
+	}()
+	_, _ = io.Copy(io.Discard, res.Body)
+
+	if res.StatusCode != http.StatusFound {
+		t.Fatalf("/v1/auth/authorize status = %d, want %d", res.StatusCode, http.StatusFound)
+	}
+
+	if !strings.HasPrefix(res.Header.Get("Location"), "/v1/auth/login") {
+		t.Fatalf("/v1/auth/authorize redirected to %q, want /v1/auth/login...", res.Header.Get("Location"))
+	}
+}
 
 func TestNormalizeOAuthPublicURL(t *testing.T) {
 	tests := []struct {
