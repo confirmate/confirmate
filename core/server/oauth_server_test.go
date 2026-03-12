@@ -21,22 +21,41 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"confirmate.io/core/util/assert"
 )
 
 func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
+	type args struct {
+		path string
+	}
+
 	var (
+		tests = []struct {
+			name               string
+			args               args
+			wantStatusCode     int
+			wantLocationPrefix string
+		}{
+			{
+				name: "authorize endpoint redirects to embedded login route",
+				args: args{
+					path: "/v1/auth/authorize?client_id=cli&code_challenge=abc&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A10000%2Fcallback&response_type=code&state=test",
+				},
+				wantStatusCode:     http.StatusFound,
+				wantLocationPrefix: "/v1/auth/login",
+			},
+		}
 		srv    *Server
 		err    error
-		res    *http.Response
 		client *http.Client
-		url    string
 	)
 
 	srv, err = NewConnectServer([]Option{
 		WithEmbeddedOAuth2Server(DefaultOAuth2KeyPath, DefaultOAuth2KeyPassword, false, ""),
 	})
-	if err != nil {
-		t.Fatalf("NewConnectServer() failed: %v", err)
+	if !assert.NoError(t, err) {
+		return
 	}
 
 	ts := httptest.NewServer(srv.Handler)
@@ -48,22 +67,26 @@ func TestWithEmbeddedOAuth2Server_AuthorizeRoute(t *testing.T) {
 		},
 	}
 
-	url = ts.URL + "/v1/auth/authorize?client_id=cli&code_challenge=abc&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A10000%2Fcallback&response_type=code&state=test"
-	res, err = client.Get(url)
-	if err != nil {
-		t.Fatalf("client.Get() failed: %v", err)
-	}
-	defer func() {
-		_ = res.Body.Close()
-	}()
-	_, _ = io.Copy(io.Discard, res.Body)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var (
+				res *http.Response
+				url string
+			)
 
-	if res.StatusCode != http.StatusFound {
-		t.Fatalf("/v1/auth/authorize status = %d, want %d", res.StatusCode, http.StatusFound)
-	}
+			url = ts.URL + tt.args.path
+			res, err = client.Get(url)
+			if !assert.NoError(t, err) {
+				return
+			}
+			defer func() {
+				_ = res.Body.Close()
+			}()
+			_, _ = io.Copy(io.Discard, res.Body)
 
-	if !strings.HasPrefix(res.Header.Get("Location"), "/v1/auth/login") {
-		t.Fatalf("/v1/auth/authorize redirected to %q, want /v1/auth/login...", res.Header.Get("Location"))
+			assert.Equal(t, tt.wantStatusCode, res.StatusCode)
+			assert.True(t, strings.HasPrefix(res.Header.Get("Location"), tt.wantLocationPrefix))
+		})
 	}
 }
 
@@ -96,10 +119,10 @@ func TestNormalizeOAuthPublicURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := normalizeOAuthPublicURL(tt.publicURL, tt.port)
-			if got != tt.want {
-				t.Fatalf("normalizeOAuthPublicURL() = %q, want %q", got, tt.want)
-			}
+			var got string
+
+			got = normalizeOAuthPublicURL(tt.publicURL, tt.port)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
