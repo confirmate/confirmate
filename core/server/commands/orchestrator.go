@@ -134,6 +134,7 @@ var OrchestratorCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithReflection(),
 		}
 
 		err = server.RunConnectServer(serverOpts...)

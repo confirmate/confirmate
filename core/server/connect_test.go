@@ -26,24 +26,20 @@ import (
 func TestNewConnectServer_WithHTTPHandler(t *testing.T) {
 	tests := []struct {
 		name         string
-		pattern      string
 		requestPath  string
 		wantHTTPCode int
 	}{
 		{
 			name:         "Reflection-like route is served directly",
-			pattern:      "/grpc.reflection.v1.ServerReflection/",
 			requestPath:  "/grpc.reflection.v1.ServerReflection/ServerReflectionInfo",
-			wantHTTPCode: http.StatusNoContent,
+			wantHTTPCode: http.StatusOK,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srv, err := NewConnectServer([]Option{
-				WithHTTPHandler(tt.pattern, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusNoContent)
-				})),
+				WithReflection(),
 			})
 			assert.NoError(t, err)
 			assert.NotNil(t, srv)
@@ -53,6 +49,11 @@ func TestNewConnectServer_WithHTTPHandler(t *testing.T) {
 
 			rec := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPost, tt.requestPath, nil)
+			req.Proto = "HTTP/2.0"
+			req.ProtoMajor = 2
+			req.ProtoMinor = 0
+			req.Header.Set("Content-Type", "application/connect+proto")
+			req.Header.Set("Connect-Protocol-Version", "1")
 			srv.Handler.ServeHTTP(rec, req)
 
 			assert.Equal(t, tt.wantHTTPCode, rec.Code)
