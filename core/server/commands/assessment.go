@@ -24,6 +24,7 @@ import (
 	"confirmate.io/core/service/assessment"
 
 	"connectrpc.com/connect"
+	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 )
 
@@ -47,6 +48,14 @@ var AssessmentCommand = &cli.Command{
 	Name:  "assessment",
 	Usage: "Launches the assessment service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
+		var (
+			reflector         *grpcreflect.Reflector
+			reflectionV1Path  string
+			reflectionV1      http.Handler
+			reflectionV1APath string
+			reflectionV1A     http.Handler
+		)
+
 		svc, err := assessment.NewService(
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
@@ -57,6 +66,13 @@ var AssessmentCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		// Add reflector for gRPC reflection, which allows clients to query the server for its supported services and methods.
+		reflector = grpcreflect.NewStaticReflector(
+			assessmentconnect.AssessmentName,
+		)
+		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
+		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
 
 		return server.RunConnectServer(
 			server.WithConfig(server.Config{
@@ -73,6 +89,8 @@ var AssessmentCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
+			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
+			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
 		)
 	},
 	Flags: joinFlagSlices(
