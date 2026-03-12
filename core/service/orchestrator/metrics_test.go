@@ -56,6 +56,16 @@ func TestService_CreateMetric(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "err: request validation error",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.CreateMetricRequest{
@@ -237,7 +247,31 @@ func TestService_ListMetrics(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "err: request validation error",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "err: db error",
+			args: args{
+				req: &orchestrator.ListMetricsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					errors.Is(err, persistence.ErrRecordNotFound)
+			},
+		},
+		{
+			name: "happy path: list all metrics without depricated metrics",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
@@ -246,6 +280,8 @@ func TestService_ListMetrics(t *testing.T) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetric2)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricDeprecated)
 					assert.NoError(t, err)
 				}),
 			},
@@ -256,7 +292,7 @@ func TestService_ListMetrics(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "empty list",
+			name: "happy path: empty list",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
