@@ -40,7 +40,7 @@ service UserManagement {
   }
 
   // Lists all predefined roles in the system.
-  rpc ListUserRoles(google.protobuf.Empty) returns (ListUserRolesResponse) {
+  rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
     option (google.api.http) = {get: "/v1/orchestrator/users/roles"};
   }
 }
@@ -128,6 +128,10 @@ message ListUsersResponse {
   string next_page_token = 2;
 }
 
+message ListUserRolesRequest {
+  int32 page_size = 10;
+  string page_token = 11;
+}
 message ListUserRolesResponse {
   repeated Role roles = 1;
 }
