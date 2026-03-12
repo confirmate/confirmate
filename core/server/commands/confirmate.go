@@ -222,7 +222,7 @@ var ConfirmateCommand = &cli.Command{
 		apiFlags,
 		authFlags,
 		serviceAuthFlags,
-		dbFlags,
+		newDBFlags(true),
 		assessmentFlags,
 		evidenceFlags,
 		oauthServerFlags,
