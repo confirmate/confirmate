@@ -18,6 +18,7 @@ package confirmate.orchestrator.v1;
 import "api/assessment/metric.proto";
 import "api/assessment/result.proto";
 import "api/common/runtime.proto";
+import "api/orchestrator/user.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -333,6 +334,8 @@ service Orchestrator {
   rpc GetRuntimeInfo(confirmate.common.v1.GetRuntimeInfoRequest) returns (confirmate.common.v1.Runtime) {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
+
+
 }
 
 message RegisterAssessmentToolRequest {
@@ -715,6 +718,17 @@ message TargetOfEvaluation {
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  // List of user IDs that are allowed to access this target of evaluation. If empty, only users with elevated roles have access.
+  repeated User access_user_ids = 12 [
+    (tagger.tags) = "gorm:\"many2many:toe_access_users;constraint:OnDelete:CASCADE\""
+  ];
+
+
+  // List of user IDs that are responsible for maintaining this target of evaluation.
+  repeated User responsible_user_ids = 13 [
+    (tagger.tags) = "gorm:\"many2many:toe_responsible_users;constraint:OnDelete:CASCADE\""
+  ];
 }
 
 message Catalog {
@@ -864,6 +878,17 @@ message AuditScope {
   // an assurance level is not offered by every catalog, therefore it is
   // optional
   optional string assurance_level = 3;
+
+  // List of user IDs that are allowed to access this audit scope. If empty, only users with elevated roles have access.
+  repeated User access_user_ids = 5 [
+    (tagger.tags) = "gorm:\"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE\""
+  ];
+
+
+  // List of user IDs that are responsible for maintaining this audit scope.
+  repeated User responsible_user_ids = 6 [
+    (tagger.tags) = "gorm:\"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE\""
+  ];
 }
 
 message GetAssessmentResultRequest {

@@ -1,0 +1,137 @@
+// Copyright 2026 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package confirmate.orchestrator.v1;
+
+import "api/common/runtime.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "tagger/tagger.proto";
+
+service UserManagement {
+  // Returns information about the currently authenticated user
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/me"};
+  }
+
+  // Lists users with optional filtering
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/users"};
+  }
+
+  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}"};
+  }
+
+  // Lists all predefined roles in the system.
+  rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/users/roles"};
+  }
+}
+
+// Represents a user from the IdP
+message User {
+  // ID is the unique identifier of the user
+  string id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Username is the name used to be displayed
+  string username = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Email is the email address of the user, if available.
+  optional string email = 3;
+
+  // FirstName is the first name of the user, if available.
+  optional string first_name = 4;
+
+  // LastName is the last name of the user, if available.
+  optional string last_name = 5;
+
+  // Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
+  repeated Role roles = 6 [(buf.validate.field).repeated.items.enum.defined_only = true];
+
+  // Enabled indicates whether the user is active/enabled in the system
+  bool enabled = 7;
+
+  // Attributes contains additional key-value pairs associated with the user, such as department or team.
+  map<string, string> attributes = 8;
+}
+
+// Predefined roles in the system. These should align with the roles defined in the IdP
+enum Role {
+  ROLE_ADMIN = 0;
+  ROLE_COMPLIANCE_MANAGER = 1;
+  ROLE_EXPERT_COMPLIANCE_MANAGER = 2;
+  ROLE_INTERNAL_CONTROL_OWNER = 3;
+  ROLE_TECHNICAL_IMPLEMENTER = 4;
+  ROLE_AUDITOR = 5;
+  ROLE_CHIEF_INFORMATION_SECURITY_OFFICER = 6;
+}
+
+message GetCurrentUserRequest {
+  // Empty request - user is identified from authentication context
+}
+
+message GetUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListUsersRequest {
+  message Filter {
+    // Optional. Filter by role (e.g., "compliance_manager")
+    optional Role role = 1 [(buf.validate.field).enum = {defined_only: true}];
+
+    // Optional. Filter by enabled/disabled status
+    optional bool enabled = 2;
+
+    // Optional. Search query for username, email, first name, or last name
+    optional string search = 3;
+
+    // Optional. Filter by specific attribute key-value pairs (e.g., department)
+    map<string, string> attributes = 4;
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message ListUserRolesRequest {
+  int32 page_size = 10;
+  string page_token = 11;
+}
+message ListUserRolesResponse {
+  repeated Role roles = 1;
+}
