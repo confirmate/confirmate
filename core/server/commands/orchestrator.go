@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
@@ -113,6 +114,29 @@ var OrchestratorCommand = &cli.Command{
 				},
 			}),
 		}, svcOptions...)
+
+		slog.Info("Starting Orchestrator Service",
+			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
+			slog.String("log_level", cmd.String("log-level")),
+			slog.Any("api_cors_allowed_origins", cmd.StringSlice("api-cors-allowed-origins")),
+			slog.Any("api_cors_allowed_methods", cmd.StringSlice("api-cors-allowed-methods")),
+			slog.Any("api_cors_allowed_headers", cmd.StringSlice("api-cors-allowed-headers")),
+			slog.String("db_host", cmd.String("db-host")),
+			slog.Int("db_port", cmd.Int("db-port")),
+			slog.String("db_name", cmd.String("db-name")),
+			slog.String("db_user_name", cmd.String("db-user-name")),
+			slog.String("db_password", cmd.String("db-password")),
+			slog.String("db_sslmode", cmd.String("db-ssl-mode")),
+			slog.Bool("db_in_memory", cmd.Bool("db-in-memory")),
+			slog.Int("db_max_connections", cmd.Int("db-max-connections")),
+			slog.String("catalogs_default_path", cmd.String("catalogs-default-path")),
+			slog.Bool("catalogs_load_default", cmd.Bool("catalogs-load-default")),
+			slog.String("metrics_default_path", cmd.String("metrics-default-path")),
+			slog.Bool("metrics_load_default", cmd.Bool("metrics-load-default")),
+			slog.Bool("create_default_target_of_evaluation", cmd.Bool("create-default-target-of-evaluation")),
+			slog.Bool("auth_enabled", cmd.Bool("auth-enabled")),
+			slog.String("auth_jwks_url", cmd.String("auth-jwks-url")),
+		)
 
 		svc, err = orchestrator.NewService(opts...)
 		if err != nil {
