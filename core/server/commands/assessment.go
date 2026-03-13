@@ -32,6 +32,7 @@ var assessmentFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "assessment-orchestrator-address",
 		Usage:   "Address of the orchestrator service the assessment service connects to",
+		Value:   assessment.DefaultOrchestratorURL,
 		Sources: envVarSources("assessment-orchestrator-address"),
 	},
 	&cli.StringFlag{
