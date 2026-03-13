@@ -32,7 +32,6 @@ import (
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
-	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
 )

@@ -20,8 +20,10 @@ import (
 	"log/slog"
 	"net/http"
 
+	"connectrpc.com/grpcreflect"
 	"connectrpc.com/vanguard"
 
+	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/log"
 )
 
@@ -51,12 +53,26 @@ func WithHandler(path string, handler http.Handler) Option {
 	}
 }
 
-// WithHTTPHandler adds an [http.Handler] at the specified path directly to the
-// underlying HTTP mux, bypassing vanguard transcoding.
-// Multiple handlers can be registered by calling WithHTTPHandler multiple times.
-func WithHTTPHandler(path string, handler http.Handler) Option {
+// WithReflection adds gRPC reflection support to the server, which allows clients to query the
+// server for its supported services and methods.
+func WithReflection() Option {
 	return func(svr *Server) {
-		svr.httpHandlers[path] = handler
+		var (
+			reflector         *grpcreflect.Reflector
+			reflectionV1Path  string
+			reflectionV1      http.Handler
+			reflectionV1APath string
+			reflectionV1A     http.Handler
+		)
+
+		reflector = grpcreflect.NewStaticReflector(
+			assessmentconnect.AssessmentName,
+		)
+		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
+		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
+
+		svr.httpHandlers[reflectionV1Path] = reflectionV1
+		svr.httpHandlers[reflectionV1APath] = reflectionV1A
 	}
 }
 
