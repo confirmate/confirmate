@@ -74,7 +74,7 @@ func TestServiceNamesFromHandlerPaths(t *testing.T) {
 	}
 }
 
-func TestNewConnectServer_WithHTTPHandler(t *testing.T) {
+func TestNewConnectServer_WithReflection(t *testing.T) {
 	tests := []struct {
 		name         string
 		requestPath  string
