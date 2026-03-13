@@ -20,16 +20,19 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/util/assert"
 )
 
 func TestServiceNamesFromHandlerPaths(t *testing.T) {
 	var (
-		assessmentPath   string
-		assessmentHandler http.Handler
-		orchestratorPath string
+		assessmentPath      string
+		assessmentHandler   http.Handler
+		orchestratorPath    string
 		orchestratorHandler http.Handler
+		evidencePath        string
+		evidenceHandler     http.Handler
 	)
 
 	assessmentPath, assessmentHandler = assessmentconnect.NewAssessmentHandler(
@@ -37,6 +40,9 @@ func TestServiceNamesFromHandlerPaths(t *testing.T) {
 	)
 	orchestratorPath, orchestratorHandler = orchestratorconnect.NewOrchestratorHandler(
 		orchestratorconnect.UnimplementedOrchestratorHandler{},
+	)
+	evidencePath, evidenceHandler = evidenceconnect.NewEvidenceStoreHandler(
+		evidenceconnect.UnimplementedEvidenceStoreHandler{},
 	)
 
 	tests := []struct {
@@ -49,10 +55,12 @@ func TestServiceNamesFromHandlerPaths(t *testing.T) {
 			handlers: map[string]http.Handler{
 				orchestratorPath: orchestratorHandler,
 				assessmentPath:   assessmentHandler,
-				"/":             http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}),
+				evidencePath:     evidenceHandler,
+				"/":              http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}),
 			},
 			want: []string{
 				assessmentconnect.AssessmentName,
+				evidenceconnect.EvidenceStoreName,
 				orchestratorconnect.OrchestratorName,
 			},
 		},
