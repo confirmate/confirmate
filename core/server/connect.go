@@ -41,28 +41,28 @@ type Option func(*Server)
 
 // WithConfig sets the server configuration, overriding the default configuration.
 func WithConfig(cfg Config) Option {
-	return func(svr *Server) {
-		svr.cfg = cfg
+	return func(srv *Server) {
+		srv.cfg = cfg
 	}
 }
 
 // WithHandler adds an [http.Handler] at the specified path to the server.
 // Multiple handlers can be registered by calling WithHandler multiple times.
 func WithHandler(path string, handler http.Handler) Option {
-	return func(svr *Server) {
-		svr.handlers[path] = handler
+	return func(srv *Server) {
+		srv.handlers[path] = handler
 	}
 }
 
 // WithReflection adds gRPC reflection support to the server, which allows clients to query the
 // server for its supported services and methods.
 func WithReflection() Option {
-	return func(svr *Server) {
-		svr.cfg.UseGRPCReflection = true
+	return func(srv *Server) {
+		srv.cfg.UseGRPCReflection = true
 	}
 }
 
-func registerReflectionHandlers(svr *Server) {
+func registerReflectionHandlers(srv *Server) {
 	var (
 		reflector         *grpcreflect.Reflector
 		reflectionV1Path  string
@@ -71,27 +71,27 @@ func registerReflectionHandlers(svr *Server) {
 		reflectionV1APath string
 	)
 
-	reflector = grpcreflect.NewReflector(svr)
+	reflector = grpcreflect.NewReflector(srv)
 	reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
 	reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
 
-	svr.httpHandlers[reflectionV1Path] = reflectionV1
-	svr.httpHandlers[reflectionV1APath] = reflectionV1A
+	srv.httpHandlers[reflectionV1Path] = reflectionV1
+	srv.httpHandlers[reflectionV1APath] = reflectionV1A
 }
 
 // RunConnectServer runs a Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
 func RunConnectServer(opts ...Option) (err error) {
 	var (
-		svr *Server
+		srv *Server
 	)
 
-	svr, err = NewConnectServer(opts)
+	srv, err = NewConnectServer(opts)
 	if err != nil {
 		return
 	}
 
-	err = svr.ListenAndServe()
+	err = srv.ListenAndServe()
 
 	return err
 }
@@ -100,7 +100,6 @@ func RunConnectServer(opts ...Option) (err error) {
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
 func NewConnectServer(opts []Option) (srv *Server, err error) {
 	var (
-		svr        *Server
 		vs         []*vanguard.Service
 		transcoder http.Handler
 		mux        *http.ServeMux
@@ -108,7 +107,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 	)
 
 	// Setup default server config
-	svr = &Server{
+	srv = &Server{
 		cfg:          DefaultConfig,
 		handlers:     make(map[string]http.Handler),
 		httpHandlers: make(map[string]http.Handler),
@@ -116,20 +115,20 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Apply options
 	for _, opt := range opts {
-		opt(svr)
+		opt(srv)
 	}
 
 	// Configure log level
-	if err = configureLogLevel(svr.cfg.LogLevel); err != nil {
-		return nil, fmt.Errorf("invalid log level %q: %w", svr.cfg.LogLevel, err)
+	if err = configureLogLevel(srv.cfg.LogLevel); err != nil {
+		return nil, fmt.Errorf("invalid log level %q: %w", srv.cfg.LogLevel, err)
 	}
 
-	if svr.cfg.UseGRPCReflection {
-		registerReflectionHandlers(svr)
+	if srv.cfg.UseGRPCReflection {
+		registerReflectionHandlers(srv)
 	}
 
 	// Create one vanguard service for each handler and add to transcoder
-	for path, handler := range svr.handlers {
+	for path, handler := range srv.handlers {
 		vs = append(vs, vanguard.NewService(path, handler))
 	}
 	transcoder, err = vanguard.NewTranscoder(vs)
@@ -140,7 +139,7 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 
 	// Create new mux
 	mux = http.NewServeMux()
-	for path, handler := range svr.httpHandlers {
+	for path, handler := range srv.httpHandlers {
 		mux.Handle(path, handler)
 	}
 	mux.Handle("/", srv.handleCORS(transcoder))
@@ -151,24 +150,24 @@ func NewConnectServer(opts []Option) (srv *Server, err error) {
 	p.SetUnencryptedHTTP2(true)
 
 	// Set address, handler, and protocols
-	svr.Server = &http.Server{
-		Addr:      fmt.Sprintf("0.0.0.0:%d", svr.cfg.Port),
+	srv.Server = &http.Server{
+		Addr:      fmt.Sprintf("0.0.0.0:%d", srv.cfg.Port),
 		Handler:   mux,
 		Protocols: p,
 	}
 
 	slog.Info("Starting Connect server",
-		slog.String("address", svr.Addr),
-		slog.String("path", svr.cfg.Path),
+		slog.String("address", srv.Addr),
+		slog.String("path", srv.cfg.Path),
 	)
 
-	return svr, nil
+	return srv, nil
 }
 
 // Names implements the [grpcreflect.Namer] interface, returning the names of the services supported
 // by the server.
-func (svr *Server) Names() []string {
-	return serviceNamesFromHandlerPaths(svr.handlers)
+func (srv *Server) Names() []string {
+	return serviceNamesFromHandlerPaths(srv.handlers)
 }
 
 // serviceNamesFromHandlerPaths extracts service names from the given map of handler paths to

@@ -43,7 +43,7 @@ const (
 // WithEmbeddedOAuth2Server configures the server to include an embedded OAuth 2.0 authorization server.
 // If publicURL is empty, it defaults to http://localhost:<port>/v1/auth.
 func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate bool, publicURL string, opts ...oauth2.AuthorizationServerOption) Option {
-	return func(svr *Server) {
+	return func(srv *Server) {
 		var (
 			oauthPublicURL  string
 			expandedKeyPath string
@@ -51,7 +51,7 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 			authHandler     func(w http.ResponseWriter, r *http.Request)
 		)
 
-		oauthPublicURL = normalizeOAuthPublicURL(publicURL, svr.cfg.Port)
+		oauthPublicURL = normalizeOAuthPublicURL(publicURL, srv.cfg.Port)
 		expandedKeyPath = util.ExpandPath(keyPath)
 
 		slog.Info("Configuring embedded OAuth 2.0 server",
@@ -83,11 +83,11 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 			http.StripPrefix("/v1/auth", authSrv.Handler).ServeHTTP(w, r)
 		}
 
-		svr.httpHandlers["/.well-known/openid-configuration"] = authSrv.Handler
-		svr.httpHandlers["/v1/auth/certs"] = http.HandlerFunc(authHandler)
-		svr.httpHandlers["/v1/auth/login"] = http.HandlerFunc(authHandler)
-		svr.httpHandlers["/v1/auth/authorize"] = http.HandlerFunc(authHandler)
-		svr.httpHandlers["/v1/auth/token"] = http.HandlerFunc(authHandler)
+		srv.httpHandlers["/.well-known/openid-configuration"] = authSrv.Handler
+		srv.httpHandlers["/v1/auth/certs"] = http.HandlerFunc(authHandler)
+		srv.httpHandlers["/v1/auth/login"] = http.HandlerFunc(authHandler)
+		srv.httpHandlers["/v1/auth/authorize"] = http.HandlerFunc(authHandler)
+		srv.httpHandlers["/v1/auth/token"] = http.HandlerFunc(authHandler)
 	}
 }
 
