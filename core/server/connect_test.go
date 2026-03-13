@@ -4,7 +4,6 @@
 //
 //                                 /$$$$$$  /$$                                     /$$
 //                               /$$__  $$|__/                                    | $$
-//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
 //  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
 // | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
 // | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
@@ -20,10 +19,62 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
+	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/util/assert"
 )
 
-func TestNewConnectServer_WithHTTPHandler(t *testing.T) {
+func TestServiceNamesFromHandlerPaths(t *testing.T) {
+	var (
+		assessmentPath      string
+		assessmentHandler   http.Handler
+		orchestratorPath    string
+		orchestratorHandler http.Handler
+		evidencePath        string
+		evidenceHandler     http.Handler
+	)
+
+	assessmentPath, assessmentHandler = assessmentconnect.NewAssessmentHandler(
+		assessmentconnect.UnimplementedAssessmentHandler{},
+	)
+	orchestratorPath, orchestratorHandler = orchestratorconnect.NewOrchestratorHandler(
+		orchestratorconnect.UnimplementedOrchestratorHandler{},
+	)
+	evidencePath, evidenceHandler = evidenceconnect.NewEvidenceStoreHandler(
+		evidenceconnect.UnimplementedEvidenceStoreHandler{},
+	)
+
+	tests := []struct {
+		name     string
+		handlers map[string]http.Handler
+		want     []string
+	}{
+		{
+			name: "Extracts service names from generated connect handler paths",
+			handlers: map[string]http.Handler{
+				orchestratorPath: orchestratorHandler,
+				assessmentPath:   assessmentHandler,
+				evidencePath:     evidenceHandler,
+				"/":              http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}),
+			},
+			want: []string{
+				assessmentconnect.AssessmentName,
+				evidenceconnect.EvidenceStoreName,
+				orchestratorconnect.OrchestratorName,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := serviceNamesFromHandlerPaths(tt.handlers)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestNewConnectServer_WithReflection(t *testing.T) {
 	tests := []struct {
 		name         string
 		requestPath  string
