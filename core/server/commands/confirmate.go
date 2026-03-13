@@ -98,11 +98,6 @@ var ConfirmateCommand = &cli.Command{
 			credentials         *clientcredentials.Config
 			authorizer          api.Authorizer
 			serverOpts          []server.Option
-			reflector           *grpcreflect.Reflector
-			reflectionV1Path    string
-			reflectionV1        http.Handler
-			reflectionV1APath   string
-			reflectionV1A       http.Handler
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -204,15 +199,6 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
-		// GRPC reflection setup
-		reflector = grpcreflect.NewStaticReflector(
-			orchestratorconnect.OrchestratorName,
-			assessmentconnect.AssessmentName,
-			evidenceconnect.EvidenceStoreName,
-		)
-		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
-		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
-
 		// Server options configuration including CORS, logging, handler and gRPC reflection
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
@@ -237,8 +223,7 @@ var ConfirmateCommand = &cli.Command{
 				evidenceSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
-			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
-			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
+			server.WithReflection(),
 		}
 
 		if cmd.Bool("oauth2-embedded") {
