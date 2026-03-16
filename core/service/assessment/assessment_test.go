@@ -452,7 +452,6 @@ func TestService_AssessEvidences(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID1,
 						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
-							Name:              "loglog",
 							LoggingServiceIds: nil,
 							Enabled:           true,
 						},
@@ -467,7 +466,6 @@ func TestService_AssessEvidences(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID2,
 						Name: evidencetest.MockVirtualMachineName2,
 						BootLogging: &ontology.BootLogging{
-							Name:              "loglog",
 							LoggingServiceIds: nil,
 							Enabled:           false,
 						},
@@ -631,7 +629,6 @@ func TestService_handleEvidence(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID1,
 						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
-							Name:              "loglog",
 							LoggingServiceIds: nil,
 							Enabled:           true,
 						},
@@ -641,7 +638,6 @@ func TestService_handleEvidence(t *testing.T) {
 					Id:   evidencetest.MockVirtualMachineID1,
 					Name: evidencetest.MockVirtualMachineName1,
 					BootLogging: &ontology.BootLogging{
-						Name:              "loglog",
 						LoggingServiceIds: nil,
 						Enabled:           true,
 					},
@@ -901,13 +897,11 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 							Id:   evidencetest.MockVirtualMachineID1,
 							Name: evidencetest.MockVirtualMachineName1,
 							BootLogging: &ontology.BootLogging{
-								Name:              "BootLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
 								Enabled:           true,
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
 							},
 							OsLogging: &ontology.OSLogging{
-								Name:              "OSLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
 								Enabled:           true,
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
@@ -917,7 +911,6 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 								NumberOfThreatsFound: 5,
 								DurationSinceActive:  durationpb.New(time.Hour * 24 * 20),
 								ApplicationLogging: &ontology.ApplicationLogging{
-									Name:              "AppLogging",
 									Enabled:           true,
 									LoggingServiceIds: []string{"SomeAnalyticsService?"},
 								},
