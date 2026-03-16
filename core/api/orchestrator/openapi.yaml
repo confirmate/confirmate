@@ -1578,6 +1578,7 @@ components:
         AuditScope:
             required:
                 - id
+                - name
                 - targetOfEvaluationId
                 - catalogId
             type: object
@@ -1585,6 +1586,8 @@ components:
                 id:
                     type: string
                     description: Audit Scope ID
+                name:
+                    type: string
                 targetOfEvaluationId:
                     type: string
                 catalogId:
