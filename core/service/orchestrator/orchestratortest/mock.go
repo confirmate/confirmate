@@ -38,16 +38,18 @@ const (
 	MockResultId3     = "00000000-0000-0000-0002-000000000003"
 	MockEvidenceId1   = "00000000-0000-0000-0003-000000000001"
 	MockEvidenceId2   = "00000000-0000-0000-0003-000000000002"
+	MockMetricId1     = "00000000-0000-0000-0000-000000000001"
+	MockMetricId2     = "00000000-0000-0000-0000-000000000002"
+	MockMetricId3     = "00000000-0000-0000-0000-000000000003"
+	MockMetricId4     = "00000000-0000-0000-0000-000000000004"
 	MockNonExistentId = "00000000-0000-0000-ffff-ffffffffffff"
 	MockEmptyUuid     = "00000000-0000-0000-0000-000000000000"
 )
 
 // Mock string IDs for consistent testing
 const (
-	MockMetricId1        = "00000000-0000-0000-0000-000000000001"
-	MockMetricId2        = "00000000-0000-0000-0000-000000000002"
-	MockMetricId3        = "00000000-0000-0000-0000-000000000003"
-	MockMetricId4        = "00000000-0000-0000-0000-000000000004"
+	MockScopeName1       = "Mock Audit Scope 1"
+	MockScopeName2       = "Mock Audit Scope 2"
 	MockMetricName1      = "Mock Metric 1"
 	MockMetricName2      = "Mock Metric 2"
 	MockMetricName3      = "Mock Metric 3"
@@ -231,11 +233,13 @@ var (
 	// Mock Audit Scopes
 	MockAuditScope1 = &orchestrator.AuditScope{
 		Id:                   MockScopeId1,
+		Name:                 MockScopeName1,
 		TargetOfEvaluationId: MockToeId1,
 		CatalogId:            MockCatalogId1,
 	}
 	MockAuditScope2 = &orchestrator.AuditScope{
 		Id:                   MockScopeId2,
+		Name:                 MockScopeName2,
 		TargetOfEvaluationId: MockToeId2,
 		CatalogId:            MockCatalogId2,
 	}

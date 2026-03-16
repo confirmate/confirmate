@@ -53,6 +53,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					AuditScope: &orchestrator.AuditScope{
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
 					},
 				},
 			},
@@ -68,10 +69,19 @@ func TestService_CreateAuditScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				scope := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
-				assert.Equal(t, orchestratortest.MockAuditScope1.TargetOfEvaluationId, scope.TargetOfEvaluationId)
-				assert.Equal(t, orchestratortest.MockAuditScope1.CatalogId, scope.CatalogId)
-				return true
+				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				want := &orchestrator.AuditScope{
+					// ID is generated, so we can't assert on it
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Name:                 orchestratortest.MockScopeName1,
+				}
+
+				// Check if ID is generated and not empty
+				assert.NotEmpty(t, got.Id)
+				// Remove ID from got for comparison since it's generated
+				got.Id = ""
+				return assert.Equal(t, want, got)
 			},
 		},
 		{
@@ -114,6 +124,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					AuditScope: &orchestrator.AuditScope{
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
 					},
 				},
 			},
@@ -134,6 +145,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					AuditScope: &orchestrator.AuditScope{
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
 					},
 				},
 			},
