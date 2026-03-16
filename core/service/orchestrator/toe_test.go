@@ -590,14 +590,15 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 
 					// Create some assessment results
 					err = d.Create(&assessment.AssessmentResult{
-						Id:                   "result-1",
-						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+						Id:                   orchestratortest.MockAssessmentResult1.Id,
+						TargetOfEvaluationId: orchestratortest.MockAssessmentResult1.Id,
 					})
 					assert.NoError(t, err)
 
 					// Create some audit scopes
 					err = d.Create(&orchestrator.AuditScope{
-						Id:                   "scope-1",
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
 						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
 					})
 					assert.NoError(t, err)
