@@ -65,6 +65,8 @@ const (
 	// EvidenceStoreListResourcesProcedure is the fully-qualified name of the EvidenceStore's
 	// ListResources RPC.
 	EvidenceStoreListResourcesProcedure = "/confirmate.evidence.v1.EvidenceStore/ListResources"
+	// EvidenceStoreListToolsProcedure is the fully-qualified name of the EvidenceStore's ListTools RPC.
+	EvidenceStoreListToolsProcedure = "/confirmate.evidence.v1.EvidenceStore/ListTools"
 )
 
 // EvidenceStoreClient is a client for the confirmate.evidence.v1.EvidenceStore service.
@@ -84,6 +86,9 @@ type EvidenceStoreClient interface {
 	ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error)
 	// Lists all resources collected in the last run, exposed as REST.
 	ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error)
+	// Returns the IDs of all evidence collecting tools that have provided
+	// evidence so far. Part of the public API, also exposed as REST.
+	ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error)
 }
 
 // NewEvidenceStoreClient constructs a client for the confirmate.evidence.v1.EvidenceStore service.
@@ -133,6 +138,12 @@ func NewEvidenceStoreClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(evidenceStoreMethods.ByName("ListResources")),
 			connect.WithClientOptions(opts...),
 		),
+		listTools: connect.NewClient[evidence.ListToolsRequest, evidence.ListToolsResponse](
+			httpClient,
+			baseURL+EvidenceStoreListToolsProcedure,
+			connect.WithSchema(evidenceStoreMethods.ByName("ListTools")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -144,6 +155,7 @@ type evidenceStoreClient struct {
 	getEvidence                *connect.Client[evidence.GetEvidenceRequest, evidence.Evidence]
 	listSupportedResourceTypes *connect.Client[evidence.ListSupportedResourceTypesRequest, evidence.ListSupportedResourceTypesResponse]
 	listResources              *connect.Client[evidence.ListResourcesRequest, evidence.ListResourcesResponse]
+	listTools                  *connect.Client[evidence.ListToolsRequest, evidence.ListToolsResponse]
 }
 
 // StoreEvidence calls confirmate.evidence.v1.EvidenceStore.StoreEvidence.
@@ -176,6 +188,11 @@ func (c *evidenceStoreClient) ListResources(ctx context.Context, req *connect.Re
 	return c.listResources.CallUnary(ctx, req)
 }
 
+// ListTools calls confirmate.evidence.v1.EvidenceStore.ListTools.
+func (c *evidenceStoreClient) ListTools(ctx context.Context, req *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error) {
+	return c.listTools.CallUnary(ctx, req)
+}
+
 // EvidenceStoreHandler is an implementation of the confirmate.evidence.v1.EvidenceStore service.
 type EvidenceStoreHandler interface {
 	// Stores an evidence to the evidence storage. Part of the public API, also
@@ -193,6 +210,9 @@ type EvidenceStoreHandler interface {
 	ListSupportedResourceTypes(context.Context, *connect.Request[evidence.ListSupportedResourceTypesRequest]) (*connect.Response[evidence.ListSupportedResourceTypesResponse], error)
 	// Lists all resources collected in the last run, exposed as REST.
 	ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error)
+	// Returns the IDs of all evidence collecting tools that have provided
+	// evidence so far. Part of the public API, also exposed as REST.
+	ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error)
 }
 
 // NewEvidenceStoreHandler builds an HTTP handler from the service implementation. It returns the
@@ -238,6 +258,12 @@ func NewEvidenceStoreHandler(svc EvidenceStoreHandler, opts ...connect.HandlerOp
 		connect.WithSchema(evidenceStoreMethods.ByName("ListResources")),
 		connect.WithHandlerOptions(opts...),
 	)
+	evidenceStoreListToolsHandler := connect.NewUnaryHandler(
+		EvidenceStoreListToolsProcedure,
+		svc.ListTools,
+		connect.WithSchema(evidenceStoreMethods.ByName("ListTools")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/confirmate.evidence.v1.EvidenceStore/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EvidenceStoreStoreEvidenceProcedure:
@@ -252,6 +278,8 @@ func NewEvidenceStoreHandler(svc EvidenceStoreHandler, opts ...connect.HandlerOp
 			evidenceStoreListSupportedResourceTypesHandler.ServeHTTP(w, r)
 		case EvidenceStoreListResourcesProcedure:
 			evidenceStoreListResourcesHandler.ServeHTTP(w, r)
+		case EvidenceStoreListToolsProcedure:
+			evidenceStoreListToolsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -283,4 +311,8 @@ func (UnimplementedEvidenceStoreHandler) ListSupportedResourceTypes(context.Cont
 
 func (UnimplementedEvidenceStoreHandler) ListResources(context.Context, *connect.Request[evidence.ListResourcesRequest]) (*connect.Response[evidence.ListResourcesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.ListResources is not implemented"))
+}
+
+func (UnimplementedEvidenceStoreHandler) ListTools(context.Context, *connect.Request[evidence.ListToolsRequest]) (*connect.Response[evidence.ListToolsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.EvidenceStore.ListTools is not implemented"))
 }
