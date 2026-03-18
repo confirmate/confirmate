@@ -22,6 +22,7 @@ import (
 	"os"
 	"strings"
 
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	confcli "confirmate.io/core/cli"
 	"github.com/hokaccha/go-prettyjson"
@@ -74,6 +75,27 @@ func OrchestratorClient(ctx context.Context, c *cli.Command) (client orchestrato
 	}
 
 	client = orchestratorconnect.NewOrchestratorClient(httpClient, c.Root().String("addr"))
+	return client
+}
+
+// EvidenceStoreClient returns an evidence store client. It is configured by the
+// "addr" flag and its HTTP client can be overridden by setting an
+// [httpClientKey] in the ctx.
+func EvidenceStoreClient(ctx context.Context, c *cli.Command) (client evidenceconnect.EvidenceStoreClient) {
+	var httpClient *http.Client
+	var overridden bool
+	var session *confcli.Session
+	var err error
+
+	httpClient, overridden = httpClientFromContext(ctx)
+	if !overridden {
+		session, err = confcli.LoadSession(c.Root().String(confcli.SessionFolderFlag))
+		if err == nil && session != nil {
+			httpClient = session.HTTPClient(httpClient)
+		}
+	}
+
+	client = evidenceconnect.NewEvidenceStoreClient(httpClient, c.Root().String("addr"))
 	return client
 }
 
