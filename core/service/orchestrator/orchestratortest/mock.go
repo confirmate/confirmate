@@ -28,21 +28,24 @@ import (
 
 // Mock UUIDs for consistent testing
 const (
-	MockToeId1        = "00000000-0000-0000-0000-000000000001"
-	MockToeId2        = "00000000-0000-0000-0000-000000000002"
-	MockToeId3        = "00000000-0000-0000-0000-000000000003"
-	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
-	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
-	MockResultId1     = "00000000-0000-0000-0002-000000000001"
-	MockResultId2     = "00000000-0000-0000-0002-000000000002"
-	MockResultId3     = "00000000-0000-0000-0002-000000000003"
+	MockEmptyUuid     = "00000000-0000-0000-0000-000000000000"
+	MockNonExistentId = "00000000-0000-0000-ffff-ffffffffffff"
 	MockEvidenceId1   = "00000000-0000-0000-0003-000000000001"
 	MockEvidenceId2   = "00000000-0000-0000-0003-000000000002"
-	MockNonExistentId = "00000000-0000-0000-ffff-ffffffffffff"
-	MockEmptyUuid     = "00000000-0000-0000-0000-000000000000"
 	MockMetricId1     = "00000000-0000-0000-0000-000000000001"
 	MockMetricId2     = "00000000-0000-0000-0000-000000000002"
 	MockMetricId3     = "00000000-0000-0000-0000-000000000003"
+	MockMetricId4     = "00000000-0000-0000-0000-000000000004"
+	MockToeId1        = "00000000-0000-0000-0000-000000000001"
+	MockResultId1     = "00000000-0000-0000-0002-000000000001"
+	MockResultId2     = "00000000-0000-0000-0002-000000000002"
+	MockResultId3     = "00000000-0000-0000-0002-000000000003"
+	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
+	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
+	MockToeId2        = "00000000-0000-0000-0000-000000000002"
+	MockToeId3        = "00000000-0000-0000-0000-000000000003"
+	MockScopeName1    = "Mock Audit Scope 1"
+	MockScopeName2    = "Mock Audit Scope 2"
 )
 
 // Mock strings for consistent testing
@@ -122,6 +125,13 @@ var (
 		Description: "Mock Metric with Default Config",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
+	}
+	MockMetricDeprecated = &assessment.Metric{
+		Id:              MockMetricId4,
+		Description:     "Mock Deprecated Metric",
+		Version:         MockDefaultVersion,
+		Category:        MockTestCategory,
+		DeprecatedSince: timestamppb.Now(),
 	}
 
 	// Mock Metric Implementations
@@ -259,11 +269,13 @@ var (
 	// Mock Audit Scopes
 	MockAuditScope1 = &orchestrator.AuditScope{
 		Id:                   MockScopeId1,
+		Name:                 MockScopeName1,
 		TargetOfEvaluationId: MockToeId1,
 		CatalogId:            MockCatalogId1,
 	}
 	MockAuditScope2 = &orchestrator.AuditScope{
 		Id:                   MockScopeId2,
+		Name:                 MockScopeName2,
 		TargetOfEvaluationId: MockToeId2,
 		CatalogId:            MockCatalogId2,
 	}

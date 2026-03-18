@@ -125,7 +125,13 @@ func (svc *Service) ListMetrics(
 		req.Msg.Asc = true
 	}
 
-	metrics, npt, err = service.PaginateStorage[*assessment.Metric](req.Msg, svc.db, service.DefaultPaginationOpts)
+	// Filter metrics with empty DeprecatedSince field
+	metrics, npt, err = service.PaginateStorage[*assessment.Metric](
+		req.Msg,
+		svc.db,
+		service.DefaultPaginationOpts,
+		"deprecated_since IS NULL",
+	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -371,6 +377,9 @@ func (svc *Service) UpdateMetricConfiguration(
 	}
 
 	config = req.Msg.Configuration
+	if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Save the updated metric configuration
 	err = svc.db.Save(config)

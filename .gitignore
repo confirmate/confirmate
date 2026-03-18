@@ -5,3 +5,6 @@ orchestrator
 cf_output.txt
 go.work.sum
 **/go.work.sum
+junit.xml
+output.json
+

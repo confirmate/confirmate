@@ -17,22 +17,84 @@ package commands
 
 import (
 	"context"
+	"fmt"
 
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
 )
 
+// orchestratorFlags contains the flags that are specific to configuring the orchestrator service.
+var orchestratorFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "catalogs-default-path",
+		Usage:   "The path to the folder containing default catalog definitions",
+		Value:   orchestrator.DefaultConfig.DefaultCatalogsPath,
+		Sources: envVarSources("catalogs-default-path"),
+	},
+	&cli.BoolFlag{
+		Name:    "catalogs-load-default",
+		Usage:   "Load default catalogs from the catalogs-default-path",
+		Value:   orchestrator.DefaultConfig.LoadDefaultCatalogs,
+		Sources: envVarSources("catalogs-load-default"),
+	},
+	&cli.StringFlag{
+		Name:    "metrics-default-path",
+		Usage:   "The path to the folder containing default metrics (e.g., security-metrics repository)",
+		Value:   orchestrator.DefaultConfig.DefaultMetricsPath,
+		Sources: envVarSources("metrics-default-path"),
+	},
+	&cli.BoolFlag{
+		Name:    "metrics-load-default",
+		Usage:   "Load default metrics from the metrics-default-path",
+		Value:   orchestrator.DefaultConfig.LoadDefaultMetrics,
+		Sources: envVarSources("metrics-load-default"),
+	},
+	&cli.BoolFlag{
+		Name:    "create-default-target-of-evaluation",
+		Usage:   "Creates a default target of evaluation if none exists",
+		Value:   orchestrator.DefaultConfig.CreateDefaultTargetOfEvaluation,
+		Sources: envVarSources("create-default-target-of-evaluation"),
+	},
+}
+
 // OrchestratorCommand is the command to start the orchestrator server.
 var OrchestratorCommand = &cli.Command{
 	Name:  "orchestrator",
 	Usage: "Launches the orchestrator service",
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := orchestrator.NewService(
+	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
+		var (
+			interceptors []connect.Interceptor
+			svcOptions   []service.Option[orchestrator.Service]
+			jwksURL      string
+			opts         []service.Option[orchestrator.Service]
+			svc          orchestratorconnect.OrchestratorHandler
+			serverOpts   []server.Option
+		)
+
+		if cmd.Bool("auth-enabled") {
+			jwksURL = cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
+				service.DefaultTargetOfEvaluationsClaim,
+				service.DefaultAllowAllClaim,
+			))
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+
+		opts = append([]service.Option[orchestrator.Service]{
 			orchestrator.WithConfig(orchestrator.Config{
 				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
@@ -43,19 +105,21 @@ var OrchestratorCommand = &cli.Command{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
 					DBName:     cmd.String("db-name"),
-					User:       cmd.String("db-user"),
+					User:       cmd.String("db-user-name"),
 					Password:   cmd.String("db-password"),
-					SSLMode:    cmd.String("db-sslmode"),
+					SSLMode:    cmd.String("db-ssl-mode"),
 					InMemoryDB: cmd.Bool("db-in-memory"),
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
 			}),
-		)
+		}, svcOptions...)
+
+		svc, err = orchestrator.NewService(opts...)
 		if err != nil {
 			return err
 		}
 
-		return server.RunConnectServer(
+		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
 				Port:     cmd.Uint16("api-port"),
 				Path:     "/",
@@ -68,100 +132,19 @@ var OrchestratorCommand = &cli.Command{
 			}),
 			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
-		)
+			server.WithReflection(),
+		}
+
+		err = server.RunConnectServer(serverOpts...)
+		return err
 	},
-	Flags: []cli.Flag{
-		&cli.Uint16Flag{
-			Name:  "api-port",
-			Usage: "Port to run the API server (Connect, gRPC, REST) on",
-			Value: server.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: server.DefaultConfig.LogLevel,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-origins",
-			Usage: "Specifies the origins allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedOrigins,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-methods",
-			Usage: "Specifies the methods allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedMethods,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-headers",
-			Usage: "Specifies the headers allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedHeaders,
-		},
-		&cli.StringFlag{
-			Name:  "catalogs-default-path",
-			Usage: "The path to the folder containing default catalog definitions",
-			Value: orchestrator.DefaultConfig.DefaultCatalogsPath,
-		},
-		&cli.BoolFlag{
-			Name:  "catalogs-load-default",
-			Usage: "Load default catalogs from the catalogs-default-path",
-			Value: orchestrator.DefaultConfig.LoadDefaultCatalogs,
-		},
-		&cli.StringFlag{
-			Name:  "metrics-default-path",
-			Usage: "The path to the folder containing default metrics (e.g., security-metrics repository)",
-			Value: orchestrator.DefaultConfig.DefaultMetricsPath,
-		},
-		&cli.BoolFlag{
-			Name:  "metrics-load-default",
-			Usage: "Load default metrics from the metrics-default-path",
-			Value: orchestrator.DefaultConfig.LoadDefaultMetrics,
-		},
-		&cli.BoolFlag{
-			Name:  "create-default-target-of-evaluation",
-			Usage: "Creates a default target of evaluation if none exists",
-			Value: orchestrator.DefaultConfig.CreateDefaultTargetOfEvaluation,
-		},
-		&cli.StringFlag{
-			Name:  "db-host",
-			Usage: "Specifies the server hostname",
-			Value: persistence.DefaultConfig.Host,
-		},
-		&cli.IntFlag{
-			Name:  "db-port",
-			Usage: "Specifies the server port",
-			Value: persistence.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "db-name",
-			Usage: "Specifies the database name",
-			Value: persistence.DefaultConfig.DBName,
-		},
-		&cli.StringFlag{
-			Name:  "db-user",
-			Usage: "Specifies the database user",
-			Value: persistence.DefaultConfig.User,
-		},
-		&cli.StringFlag{
-			Name:  "db-password",
-			Usage: "Specifies the database password",
-			Value: persistence.DefaultConfig.Password,
-		},
-		&cli.StringFlag{
-			Name:  "db-sslmode",
-			Usage: "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
-			Value: persistence.DefaultConfig.SSLMode,
-		},
-		&cli.BoolFlag{
-			Name:  "db-in-memory",
-			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
-			Value: persistence.DefaultConfig.InMemoryDB,
-		},
-		&cli.IntFlag{
-			Name:  "db-max-connections",
-			Usage: "Specifies the maximum number of database connections",
-			Value: persistence.DefaultConfig.MaxConn,
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		apiFlags,
+		authFlags,
+		dbFlags,
+		orchestratorFlags,
+	),
 }

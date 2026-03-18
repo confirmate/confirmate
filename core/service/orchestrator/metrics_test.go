@@ -25,6 +25,7 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/clitest"
@@ -54,6 +55,16 @@ func TestService_CreateMetric(t *testing.T) {
 		want    assert.Want[*connect.Response[assessment.Metric]]
 		wantErr assert.WantErr
 	}{
+		{
+			name: "err: request validation error",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
 		{
 			name: "happy path",
 			args: args{
@@ -134,7 +145,8 @@ func TestService_GetMetric(t *testing.T) {
 		req *orchestrator.GetMetricRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -235,7 +247,31 @@ func TestService_ListMetrics(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "err: request validation error",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "err: db error",
+			args: args{
+				req: &orchestrator.ListMetricsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					errors.Is(err, persistence.ErrRecordNotFound)
+			},
+		},
+		{
+			name: "happy path: list all metrics without depricated metrics",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
@@ -244,6 +280,8 @@ func TestService_ListMetrics(t *testing.T) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetric2)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricDeprecated)
 					assert.NoError(t, err)
 				}),
 			},
@@ -254,7 +292,7 @@ func TestService_ListMetrics(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "empty list",
+			name: "happy path: empty list",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
@@ -853,7 +891,8 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 		req *orchestrator.UpdateMetricConfigurationRequest
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -897,6 +936,28 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "authorization failure",
+			args: args{
+				req: &orchestrator.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						MetricId:             orchestratortest.MockMetricId1,
+						Operator:             "!=",
+						TargetValue:          structpb.NewBoolValue(false),
+						IsDefault:            false,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "validation error - empty request",
 			args: args{
 				req: &orchestrator.UpdateMetricConfigurationRequest{},
@@ -914,7 +975,8 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
 			res, err := svc.UpdateMetricConfiguration(context.Background(), connect.NewRequest(tt.args.req))
 			tt.want(t, res)
