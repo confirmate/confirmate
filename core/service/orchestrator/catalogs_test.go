@@ -569,7 +569,7 @@ func TestService_ListControls(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Controls))
+				return assert.Equal(t, 3, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
@@ -598,7 +598,7 @@ func TestService_ListControls(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 1, len(got.Msg.Controls))
+				return assert.Equal(t, 2, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
@@ -615,10 +615,7 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCategory1)
 					assert.NoError(t, err)
-					err = d.Create(&orchestrator.Category{
-						Name:      "category-2",
-						CatalogId: orchestratortest.MockCatalog1.Id,
-					})
+					err = d.Create(orchestratortest.MockCategory2)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockControl1)
 					assert.NoError(t, err)
@@ -633,7 +630,7 @@ func TestService_ListControls(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 1, len(got.Msg.Controls))
+				return assert.Equal(t, 2, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
