@@ -555,19 +555,11 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
 					assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory2)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl2)
-					// assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 3, len(got.Msg.Controls))
+				return assert.Equal(t, 7, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
@@ -575,7 +567,7 @@ func TestService_ListControls(t *testing.T) {
 			name: "filter by catalog",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CatalogId: orchestratortest.MockCatalog2.Id,
+					CatalogId: orchestratortest.MockCatalogId1,
 				},
 			},
 			fields: fields{
@@ -584,19 +576,11 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
 					assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory2)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl2)
-					// assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Controls))
+				return assert.Equal(t, 5, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
@@ -604,31 +588,18 @@ func TestService_ListControls(t *testing.T) {
 			name: "filter by category",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CategoryName: orchestratortest.MockCatalog1.Categories[0].Name,
+					CategoryName: orchestratortest.MockCategoryName1,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory2)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl1)
-					// assert.NoError(t, err)
-					// 	err = d.Create(&orchestrator.Control{
-					// 		Id:                "control-3",
-					// 		Name:              "Mock Control 3",
-					// 		CategoryName:      "category-2",
-					// 		CategoryCatalogId: orchestratortest.MockControl1.CategoryCatalogId,
-					// 	})
-					// 	assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Controls))
+				return assert.Equal(t, 3, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
@@ -666,7 +637,7 @@ func TestService_GetControl(t *testing.T) {
 				req: &orchestrator.GetControlRequest{
 					ControlId:    orchestratortest.MockControlId1,
 					CategoryName: orchestratortest.MockCategoryName1,
-					CatalogId:    orchestratortest.MockControlId1,
+					CatalogId:    orchestratortest.MockCatalogId1,
 				},
 			},
 			fields: fields{
@@ -676,8 +647,9 @@ func TestService_GetControl(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Control], args ...any) bool {
+				// TODO(all): Thre returned control does not conatin the metric -> Why?
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockControlId1, got.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCatalog1.Categories[0].Controls[0], got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
