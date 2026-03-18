@@ -271,6 +271,8 @@ var (
 							{
 								Id:                             MockSubControlId1,
 								Name:                           MockSubControlName1,
+								CategoryName:                   MockCategoryName2,
+								CategoryCatalogId:              MockCatalogId2,
 								Metrics:                        []*assessment.Metric{MockMetric2},
 								ParentControlId:                util.Ref(MockControlId2),
 								ParentControlCategoryName:      util.Ref(MockCategoryName2),
