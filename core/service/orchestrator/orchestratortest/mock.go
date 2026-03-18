@@ -183,56 +183,147 @@ var (
 	}
 
 	// Mock Catalogs
+	// MockCatalog1 contains 2 Categories
+	// * category1 with 1 control and 2 sub-controls with one metric each
+	// * category2 with 1 control and 1 sub-control with one metric
 	MockCatalog1 = &orchestrator.Catalog{
 		Id:          MockCatalogId1,
 		Name:        MockCatalogName1,
 		Description: MockCatalogDescription1,
+		Categories: []*orchestrator.Category{
+			{
+				Name:      MockCategoryName1,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                MockControlId1,
+						Name:              MockControlName1,
+						CategoryName:      MockCategoryName1,
+						CategoryCatalogId: MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:                             MockSubControlId1,
+								Name:                           MockSubControlName1,
+								CategoryName:                   MockCategoryName1,
+								CategoryCatalogId:              MockCatalogId1,
+								Metrics:                        []*assessment.Metric{MockMetric1},
+								ParentControlId:                util.Ref(MockControlId1),
+								ParentControlCategoryName:      util.Ref(MockCategoryName1),
+								ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+							},
+							{
+								Id:                             MockControlId2,
+								Name:                           MockControlName2,
+								CategoryName:                   MockCategoryName1,
+								CategoryCatalogId:              MockCatalogId1,
+								Metrics:                        []*assessment.Metric{MockMetric2},
+								ParentControlId:                util.Ref(MockControlId1),
+								ParentControlCategoryName:      util.Ref(MockCategoryName1),
+								ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+							},
+						},
+					},
+				},
+			},
+			{
+				Name:      MockCategoryName2,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                MockControlId2,
+						CategoryCatalogId: MockCatalogId1,
+						CategoryName:      MockCategoryName2,
+						Name:              MockControlName2,
+						Controls: []*orchestrator.Control{
+							{
+								Id:                             MockSubControlId1,
+								Name:                           MockSubControlName1,
+								CategoryName:                   MockCategoryName2,
+								CategoryCatalogId:              MockCatalogId1,
+								Metrics:                        []*assessment.Metric{MockMetric1},
+								ParentControlId:                util.Ref(MockControlId2),
+								ParentControlCategoryName:      util.Ref(MockCategoryName2),
+								ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
+
+	// MockCatalog2 contains 1 Category with 1 control and 1 sub-control with one metric
 	MockCatalog2 = &orchestrator.Catalog{
 		Id:          MockCatalogId2,
 		Name:        MockCatalogName2,
 		Description: MockCatalogDescription2,
-	}
-	MockCatalog3 = &orchestrator.Catalog{
-		Id:          MockCatalogId3,
-		Name:        MockCatalogName3,
-		Description: MockCatalogDescription3,
+		Categories: []*orchestrator.Category{
+			{
+				Name:      MockCategoryName2,
+				CatalogId: MockCatalogId2,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                MockControlId2,
+						Name:              MockControlName2,
+						CategoryName:      MockCategoryName2,
+						CategoryCatalogId: MockCatalogId2,
+						Controls: []*orchestrator.Control{
+							{
+								Id:                             MockSubControlId1,
+								Name:                           MockSubControlName1,
+								Metrics:                        []*assessment.Metric{MockMetric2},
+								ParentControlId:                util.Ref(MockControlId2),
+								ParentControlCategoryName:      util.Ref(MockCategoryName2),
+								ParentControlCategoryCatalogId: util.Ref(MockCatalogId2),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
-	// Mock Categories
-	MockCategory1 = &orchestrator.Category{
-		Name:      MockCategoryName1,
-		CatalogId: MockCatalogId1,
-	}
-	MockCategory2 = &orchestrator.Category{
-		Name:      MockCategoryName2,
-		CatalogId: MockCatalogId2,
-	}
+	// // Mock Categories
+	// MockCatalog1Category1 = &orchestrator.Category{
+	// 	Name:      MockCategoryName1,
+	// 	CatalogId: MockCatalogId1,
+	// 	Controls:  []*orchestrator.Control{MockControl1},
+	// }
+	// MockCatalog1Category2 = &orchestrator.Category{
+	// 	Name:      MockCategoryName2,
+	// 	CatalogId: MockCatalogId1,
+	// 	Controls: []*orchestrator.Control{MockControl2},
+	// }
+	// MockCatalog2Category2 = &orchestrator.Category{
+	// 	Name:      MockCategoryName2,
+	// 	CatalogId: MockCatalogId2,
+	// 	Controls:  []*orchestrator.Control{MockControl2},
+	// }
 
-	// Mock Controls
-	MockControl1 = &orchestrator.Control{
-		Id:                MockControlId1,
-		Name:              MockControlName1,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Controls:          []*orchestrator.Control{MockSubControl1},
-	}
-	MockSubControl1 = &orchestrator.Control{
-		Id:                             MockSubControlId1,
-		Name:                           MockSubControlName1,
-		CategoryName:                   MockCategoryName1,
-		CategoryCatalogId:              MockCatalogId1,
-		Metrics:                        []*assessment.Metric{MockMetric1},
-		ParentControlId:                util.Ref(MockControlId1),
-		ParentControlCategoryName:      util.Ref(MockCategoryName1),
-		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
-	}
-	MockControl2 = &orchestrator.Control{
-		Id:                MockControlId2,
-		Name:              MockControlName2,
-		CategoryName:      MockCategoryName2,
-		CategoryCatalogId: MockCatalogId2,
-	}
+	// // Mock Controls
+	// MockControl1 = &orchestrator.Control{
+	// 	Id:                MockControlId1,
+	// 	Name:              MockControlName1,
+	// 	CategoryName:      MockCategoryName1,
+	// 	CategoryCatalogId: MockCatalogId1,
+	// 	Controls:          []*orchestrator.Control{MockSubControl1},
+	// }
+	// MockSubControl1 = &orchestrator.Control{
+	// 	Id:                             MockSubControlId1,
+	// 	Name:                           MockSubControlName1,
+	// 	CategoryName:                   MockCategoryName1,
+	// 	CategoryCatalogId:              MockCatalogId1,
+	// 	Metrics:                        []*assessment.Metric{MockMetric1},
+	// 	ParentControlId:                util.Ref(MockControlId1),
+	// 	ParentControlCategoryName:      util.Ref(MockCategoryName1),
+	// 	ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+	// }
+	// MockControl2 = &orchestrator.Control{
+	// 	Id:                MockControlId2,
+	// 	Name:              MockControlName2,
+	// 	CategoryName:      MockCategoryName2,
+	// 	CategoryCatalogId: MockCatalogId2,
+	// }
 
 	// Mock Certificates
 	MockCertificate1 = &orchestrator.Certificate{
