@@ -793,30 +793,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-        post:
-            tags:
-                - Orchestrator
-            description: Creates a new compliance attestation
-            operationId: Orchestrator_CreateComplianceAttestation
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ComplianceAttestation'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ComplianceAttestation'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/compliance_attestations/{complianceAttestationId}:
         get:
             tags:

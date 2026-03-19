@@ -126,9 +126,9 @@ const (
 	OrchestratorGetMetricImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetMetricImplementation"
 	// OrchestratorSubscribeProcedure is the fully-qualified name of the Orchestrator's Subscribe RPC.
 	OrchestratorSubscribeProcedure = "/confirmate.orchestrator.v1.Orchestrator/Subscribe"
-	// OrchestratorCreateComplianceAttestationProcedure is the fully-qualified name of the
-	// Orchestrator's CreateComplianceAttestation RPC.
-	OrchestratorCreateComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateComplianceAttestation"
+	// OrchestratorInitiateComplianceAttestationProcedure is the fully-qualified name of the
+	// Orchestrator's InitiateComplianceAttestation RPC.
+	OrchestratorInitiateComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/InitiateComplianceAttestation"
 	// OrchestratorGetComplianceAttestationProcedure is the fully-qualified name of the Orchestrator's
 	// GetComplianceAttestation RPC.
 	OrchestratorGetComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetComplianceAttestation"
@@ -246,8 +246,8 @@ type OrchestratorClient interface {
 	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
 	// Subscribes to change events in the orchestrator
 	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest]) (*connect.ServerStreamForClient[orchestrator.ChangeEvent], error)
-	// Creates a new compliance attestation
-	CreateComplianceAttestation(context.Context, *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Initiates a compliance attestation for a specific audit scope if not already started, otherwise returns the existing one
+	InitiateComplianceAttestation(context.Context, *connect.Request[orchestrator.InitiateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
 	// Retrieves a compliance attestation
 	GetComplianceAttestation(context.Context, *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
 	// Lists all compliance attestations
@@ -464,10 +464,10 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
 			connect.WithClientOptions(opts...),
 		),
-		createComplianceAttestation: connect.NewClient[orchestrator.CreateComplianceAttestationRequest, orchestrator.ComplianceAttestation](
+		initiateComplianceAttestation: connect.NewClient[orchestrator.InitiateComplianceAttestationRequest, orchestrator.ComplianceAttestation](
 			httpClient,
-			baseURL+OrchestratorCreateComplianceAttestationProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateComplianceAttestation")),
+			baseURL+OrchestratorInitiateComplianceAttestationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("InitiateComplianceAttestation")),
 			connect.WithClientOptions(opts...),
 		),
 		getComplianceAttestation: connect.NewClient[orchestrator.GetComplianceAttestationRequest, orchestrator.ComplianceAttestation](
@@ -615,7 +615,7 @@ type orchestratorClient struct {
 	updateMetricImplementation       *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
 	getMetricImplementation          *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
 	subscribe                        *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
-	createComplianceAttestation      *connect.Client[orchestrator.CreateComplianceAttestationRequest, orchestrator.ComplianceAttestation]
+	initiateComplianceAttestation    *connect.Client[orchestrator.InitiateComplianceAttestationRequest, orchestrator.ComplianceAttestation]
 	getComplianceAttestation         *connect.Client[orchestrator.GetComplianceAttestationRequest, orchestrator.ComplianceAttestation]
 	listComplianceAttestations       *connect.Client[orchestrator.ListComplianceAttestationsRequest, orchestrator.ListComplianceAttestationsResponse]
 	listPublicComplianceAttestations *connect.Client[orchestrator.ListPublicComplianceAttestationsRequest, orchestrator.ListPublicComplianceAttestationsResponse]
@@ -770,10 +770,10 @@ func (c *orchestratorClient) Subscribe(ctx context.Context, req *connect.Request
 	return c.subscribe.CallServerStream(ctx, req)
 }
 
-// CreateComplianceAttestation calls
-// confirmate.orchestrator.v1.Orchestrator.CreateComplianceAttestation.
-func (c *orchestratorClient) CreateComplianceAttestation(ctx context.Context, req *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
-	return c.createComplianceAttestation.CallUnary(ctx, req)
+// InitiateComplianceAttestation calls
+// confirmate.orchestrator.v1.Orchestrator.InitiateComplianceAttestation.
+func (c *orchestratorClient) InitiateComplianceAttestation(ctx context.Context, req *connect.Request[orchestrator.InitiateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return c.initiateComplianceAttestation.CallUnary(ctx, req)
 }
 
 // GetComplianceAttestation calls confirmate.orchestrator.v1.Orchestrator.GetComplianceAttestation.
@@ -935,8 +935,8 @@ type OrchestratorHandler interface {
 	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
 	// Subscribes to change events in the orchestrator
 	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest], *connect.ServerStream[orchestrator.ChangeEvent]) error
-	// Creates a new compliance attestation
-	CreateComplianceAttestation(context.Context, *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Initiates a compliance attestation for a specific audit scope if not already started, otherwise returns the existing one
+	InitiateComplianceAttestation(context.Context, *connect.Request[orchestrator.InitiateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
 	// Retrieves a compliance attestation
 	GetComplianceAttestation(context.Context, *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
 	// Lists all compliance attestations
@@ -1149,10 +1149,10 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorCreateComplianceAttestationHandler := connect.NewUnaryHandler(
-		OrchestratorCreateComplianceAttestationProcedure,
-		svc.CreateComplianceAttestation,
-		connect.WithSchema(orchestratorMethods.ByName("CreateComplianceAttestation")),
+	orchestratorInitiateComplianceAttestationHandler := connect.NewUnaryHandler(
+		OrchestratorInitiateComplianceAttestationProcedure,
+		svc.InitiateComplianceAttestation,
+		connect.WithSchema(orchestratorMethods.ByName("InitiateComplianceAttestation")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorGetComplianceAttestationHandler := connect.NewUnaryHandler(
@@ -1323,8 +1323,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorGetMetricImplementationHandler.ServeHTTP(w, r)
 		case OrchestratorSubscribeProcedure:
 			orchestratorSubscribeHandler.ServeHTTP(w, r)
-		case OrchestratorCreateComplianceAttestationProcedure:
-			orchestratorCreateComplianceAttestationHandler.ServeHTTP(w, r)
+		case OrchestratorInitiateComplianceAttestationProcedure:
+			orchestratorInitiateComplianceAttestationHandler.ServeHTTP(w, r)
 		case OrchestratorGetComplianceAttestationProcedure:
 			orchestratorGetComplianceAttestationHandler.ServeHTTP(w, r)
 		case OrchestratorListComplianceAttestationsProcedure:
@@ -1476,8 +1476,8 @@ func (UnimplementedOrchestratorHandler) Subscribe(context.Context, *connect.Requ
 	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.Subscribe is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) CreateComplianceAttestation(context.Context, *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateComplianceAttestation is not implemented"))
+func (UnimplementedOrchestratorHandler) InitiateComplianceAttestation(context.Context, *connect.Request[orchestrator.InitiateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.InitiateComplianceAttestation is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) GetComplianceAttestation(context.Context, *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {

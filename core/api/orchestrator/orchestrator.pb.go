@@ -46,14 +46,15 @@ const (
 type EventCategory int32
 
 const (
-	EventCategory_EVENT_CATEGORY_UNSPECIFIED           EventCategory = 0
-	EventCategory_EVENT_CATEGORY_METRIC                EventCategory = 1
-	EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION  EventCategory = 2
-	EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION EventCategory = 3
-	EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION  EventCategory = 4
-	EventCategory_EVENT_CATEGORY_AUDIT_SCOPE           EventCategory = 5
-	EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT     EventCategory = 6
-	EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL       EventCategory = 7
+	EventCategory_EVENT_CATEGORY_UNSPECIFIED            EventCategory = 0
+	EventCategory_EVENT_CATEGORY_METRIC                 EventCategory = 1
+	EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION   EventCategory = 2
+	EventCategory_EVENT_CATEGORY_METRIC_IMPLEMENTATION  EventCategory = 3
+	EventCategory_EVENT_CATEGORY_TARGET_OF_EVALUATION   EventCategory = 4
+	EventCategory_EVENT_CATEGORY_AUDIT_SCOPE            EventCategory = 5
+	EventCategory_EVENT_CATEGORY_ASSESSMENT_RESULT      EventCategory = 6
+	EventCategory_EVENT_CATEGORY_ASSESSMENT_TOOL        EventCategory = 7
+	EventCategory_EVENT_CATEGORY_COMPLIANCE_ATTESTATION EventCategory = 8
 )
 
 // Enum value maps for EventCategory.
@@ -67,16 +68,18 @@ var (
 		5: "EVENT_CATEGORY_AUDIT_SCOPE",
 		6: "EVENT_CATEGORY_ASSESSMENT_RESULT",
 		7: "EVENT_CATEGORY_ASSESSMENT_TOOL",
+		8: "EVENT_CATEGORY_COMPLIANCE_ATTESTATION",
 	}
 	EventCategory_value = map[string]int32{
-		"EVENT_CATEGORY_UNSPECIFIED":           0,
-		"EVENT_CATEGORY_METRIC":                1,
-		"EVENT_CATEGORY_METRIC_CONFIGURATION":  2,
-		"EVENT_CATEGORY_METRIC_IMPLEMENTATION": 3,
-		"EVENT_CATEGORY_TARGET_OF_EVALUATION":  4,
-		"EVENT_CATEGORY_AUDIT_SCOPE":           5,
-		"EVENT_CATEGORY_ASSESSMENT_RESULT":     6,
-		"EVENT_CATEGORY_ASSESSMENT_TOOL":       7,
+		"EVENT_CATEGORY_UNSPECIFIED":            0,
+		"EVENT_CATEGORY_METRIC":                 1,
+		"EVENT_CATEGORY_METRIC_CONFIGURATION":   2,
+		"EVENT_CATEGORY_METRIC_IMPLEMENTATION":  3,
+		"EVENT_CATEGORY_TARGET_OF_EVALUATION":   4,
+		"EVENT_CATEGORY_AUDIT_SCOPE":            5,
+		"EVENT_CATEGORY_ASSESSMENT_RESULT":      6,
+		"EVENT_CATEGORY_ASSESSMENT_TOOL":        7,
+		"EVENT_CATEGORY_COMPLIANCE_ATTESTATION": 8,
 	}
 )
 
@@ -1903,6 +1906,7 @@ type ChangeEvent struct {
 	//	*ChangeEvent_MetricConfiguration
 	//	*ChangeEvent_MetricImplementation
 	//	*ChangeEvent_AssessmentTool
+	//	*ChangeEvent_ComplianceAttestation
 	Entity        isChangeEvent_Entity `protobuf_oneof:"entity"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2043,6 +2047,15 @@ func (x *ChangeEvent) GetAssessmentTool() *AssessmentTool {
 	return nil
 }
 
+func (x *ChangeEvent) GetComplianceAttestation() *ComplianceAttestation {
+	if x != nil {
+		if x, ok := x.Entity.(*ChangeEvent_ComplianceAttestation); ok {
+			return x.ComplianceAttestation
+		}
+	}
+	return nil
+}
+
 type isChangeEvent_Entity interface {
 	isChangeEvent_Entity()
 }
@@ -2075,6 +2088,10 @@ type ChangeEvent_AssessmentTool struct {
 	AssessmentTool *AssessmentTool `protobuf:"bytes,16,opt,name=assessment_tool,json=assessmentTool,proto3,oneof"`
 }
 
+type ChangeEvent_ComplianceAttestation struct {
+	ComplianceAttestation *ComplianceAttestation `protobuf:"bytes,17,opt,name=compliance_attestation,json=complianceAttestation,proto3,oneof"`
+}
+
 func (*ChangeEvent_Metric) isChangeEvent_Entity() {}
 
 func (*ChangeEvent_TargetOfEvaluation) isChangeEvent_Entity() {}
@@ -2088,6 +2105,8 @@ func (*ChangeEvent_MetricConfiguration) isChangeEvent_Entity() {}
 func (*ChangeEvent_MetricImplementation) isChangeEvent_Entity() {}
 
 func (*ChangeEvent_AssessmentTool) isChangeEvent_Entity() {}
+
+func (*ChangeEvent_ComplianceAttestation) isChangeEvent_Entity() {}
 
 // Represents an external tool or service that offers assessments according to
 // certain metrics.
@@ -3502,27 +3521,27 @@ func (x *UpdateComplianceAttestationRequest) GetComplianceAttestation() *Complia
 	return nil
 }
 
-type CreateComplianceAttestationRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	ComplianceAttestation *ComplianceAttestation `protobuf:"bytes,1,opt,name=compliance_attestation,json=complianceAttestation,proto3" json:"compliance_attestation,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+type InitiateComplianceAttestationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId  string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateComplianceAttestationRequest) Reset() {
-	*x = CreateComplianceAttestationRequest{}
+func (x *InitiateComplianceAttestationRequest) Reset() {
+	*x = InitiateComplianceAttestationRequest{}
 	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateComplianceAttestationRequest) String() string {
+func (x *InitiateComplianceAttestationRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateComplianceAttestationRequest) ProtoMessage() {}
+func (*InitiateComplianceAttestationRequest) ProtoMessage() {}
 
-func (x *CreateComplianceAttestationRequest) ProtoReflect() protoreflect.Message {
+func (x *InitiateComplianceAttestationRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3534,16 +3553,16 @@ func (x *CreateComplianceAttestationRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateComplianceAttestationRequest.ProtoReflect.Descriptor instead.
-func (*CreateComplianceAttestationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use InitiateComplianceAttestationRequest.ProtoReflect.Descriptor instead.
+func (*InitiateComplianceAttestationRequest) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{52}
 }
 
-func (x *CreateComplianceAttestationRequest) GetComplianceAttestation() *ComplianceAttestation {
+func (x *InitiateComplianceAttestationRequest) GetAuditScopeId() string {
 	if x != nil {
-		return x.ComplianceAttestation
+		return x.AuditScopeId
 	}
-	return nil
+	return ""
 }
 
 type RemoveComplianceAttestationRequest struct {
@@ -5114,7 +5133,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"operations\x12\x1d\n" +
 	"\n" +
 	"metric_ids\x18\x03 \x03(\tR\tmetricIds\x127\n" +
-	"\x18target_of_evaluation_ids\x18\x04 \x03(\tR\x15targetOfEvaluationIds\"\x9a\b\n" +
+	"\x18target_of_evaluation_ids\x18\x04 \x03(\tR\x15targetOfEvaluationIds\"\x86\t\n" +
 	"\vChangeEvent\x12k\n" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12R\n" +
 	"\bcategory\x18\x02 \x01(\x0e2).confirmate.orchestrator.v1.EventCategoryB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\bcategory\x12W\n" +
@@ -5130,7 +5149,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x11assessment_result\x18\r \x01(\v2*.confirmate.assessment.v1.AssessmentResultH\x00R\x10assessmentResult\x12b\n" +
 	"\x14metric_configuration\x18\x0e \x01(\v2-.confirmate.assessment.v1.MetricConfigurationH\x00R\x13metricConfiguration\x12e\n" +
 	"\x15metric_implementation\x18\x0f \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x00R\x14metricImplementation\x12U\n" +
-	"\x0fassessment_tool\x18\x10 \x01(\v2*.confirmate.orchestrator.v1.AssessmentToolH\x00R\x0eassessmentToolB\b\n" +
+	"\x0fassessment_tool\x18\x10 \x01(\v2*.confirmate.orchestrator.v1.AssessmentToolH\x00R\x0eassessmentTool\x12j\n" +
+	"\x16compliance_attestation\x18\x11 \x01(\v21.confirmate.orchestrator.v1.ComplianceAttestationH\x00R\x15complianceAttestationB\b\n" +
 	"\x06entityB\x1a\n" +
 	"\x18_target_of_evaluation_id\"\xc5\x01\n" +
 	"\x0eAssessmentTool\x12\x18\n" +
@@ -5325,9 +5345,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x17compliance_attestations\x18\x01 \x03(\v21.confirmate.orchestrator.v1.ComplianceAttestationR\x16complianceAttestations\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x99\x01\n" +
 	"\"UpdateComplianceAttestationRequest\x12s\n" +
-	"\x16compliance_attestation\x18\x01 \x01(\v21.confirmate.orchestrator.v1.ComplianceAttestationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x15complianceAttestation\"\x99\x01\n" +
-	"\"CreateComplianceAttestationRequest\x12s\n" +
-	"\x16compliance_attestation\x18\x01 \x01(\v21.confirmate.orchestrator.v1.ComplianceAttestationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x15complianceAttestation\"l\n" +
+	"\x16compliance_attestation\x18\x01 \x01(\v21.confirmate.orchestrator.v1.ComplianceAttestationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x15complianceAttestation\"Y\n" +
+	"$InitiateComplianceAttestationRequest\x121\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"l\n" +
 	"\"RemoveComplianceAttestationRequest\x12F\n" +
 	"\x19compliance_attestation_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x17complianceAttestationId\"\xe8\b\n" +
@@ -5419,7 +5439,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\a_filter\"\x7f\n" +
 	"\x14ListControlsResponse\x12?\n" +
 	"\bcontrols\x18\x01 \x03(\v2#.confirmate.orchestrator.v1.ControlR\bcontrols\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\xb0\x02\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\xdb\x02\n" +
 	"\rEventCategory\x12\x1e\n" +
 	"\x1aEVENT_CATEGORY_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15EVENT_CATEGORY_METRIC\x10\x01\x12'\n" +
@@ -5428,7 +5448,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"#EVENT_CATEGORY_TARGET_OF_EVALUATION\x10\x04\x12\x1e\n" +
 	"\x1aEVENT_CATEGORY_AUDIT_SCOPE\x10\x05\x12$\n" +
 	" EVENT_CATEGORY_ASSESSMENT_RESULT\x10\x06\x12\"\n" +
-	"\x1eEVENT_CATEGORY_ASSESSMENT_TOOL\x10\a*\xaf\x01\n" +
+	"\x1eEVENT_CATEGORY_ASSESSMENT_TOOL\x10\a\x12)\n" +
+	"%EVENT_CATEGORY_COMPLIANCE_ATTESTATION\x10\b*\xaf\x01\n" +
 	"\vRequestType\x12\x1c\n" +
 	"\x18REQUEST_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14REQUEST_TYPE_CREATED\x10\x01\x12\x18\n" +
@@ -5451,7 +5472,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x19ATTESTATION_STATE_EXPIRED\x10\x06\x12\x1d\n" +
 	"\x19ATTESTATION_STATE_APPLIED\x10\a\x12\"\n" +
 	"\x1eATTESTATION_STATE_UNDER_REVIEW\x10\b\x12\x1e\n" +
-	"\x1aATTESTATION_STATE_REJECTED\x10\t2\xdcC\n" +
+	"\x1aATTESTATION_STATE_REJECTED\x10\t2\x96C\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -5478,8 +5499,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x18ListMetricConfigurations\x12:.confirmate.orchestrator.v1.ListMetricConfigurationRequest\x1a;.confirmate.orchestrator.v1.ListMetricConfigurationResponse\"^\x82\xd3\xe4\x93\x02X\x12V/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/metric_configurations\x12\xe7\x01\n" +
 	"\x1aUpdateMetricImplementation\x12=.confirmate.orchestrator.v1.UpdateMetricImplementationRequest\x1a..confirmate.assessment.v1.MetricImplementation\"Z\x82\xd3\xe4\x93\x02T:\x0eimplementation\x1aB/v1/orchestrator/metrics/{implementation.metric_id}/implementation\x12\xc2\x01\n" +
 	"\x17GetMetricImplementation\x12:.confirmate.orchestrator.v1.GetMetricImplementationRequest\x1a..confirmate.assessment.v1.MetricImplementation\";\x82\xd3\xe4\x93\x025\x123/v1/orchestrator/metrics/{metric_id}/implementation\x12f\n" +
-	"\tSubscribe\x12,.confirmate.orchestrator.v1.SubscribeRequest\x1a'.confirmate.orchestrator.v1.ChangeEvent\"\x000\x01\x12\xda\x01\n" +
-	"\x1bCreateComplianceAttestation\x12>.confirmate.orchestrator.v1.CreateComplianceAttestationRequest\x1a1.confirmate.orchestrator.v1.ComplianceAttestation\"H\x82\xd3\xe4\x93\x02B:\x16compliance_attestation\"(/v1/orchestrator/compliance_attestations\x12\xd8\x01\n" +
+	"\tSubscribe\x12,.confirmate.orchestrator.v1.SubscribeRequest\x1a'.confirmate.orchestrator.v1.ChangeEvent\"\x000\x01\x12\x94\x01\n" +
+	"\x1dInitiateComplianceAttestation\x12@.confirmate.orchestrator.v1.InitiateComplianceAttestationRequest\x1a1.confirmate.orchestrator.v1.ComplianceAttestation\x12\xd8\x01\n" +
 	"\x18GetComplianceAttestation\x12;.confirmate.orchestrator.v1.GetComplianceAttestationRequest\x1a1.confirmate.orchestrator.v1.ComplianceAttestation\"L\x82\xd3\xe4\x93\x02F\x12D/v1/orchestrator/compliance_attestations/{compliance_attestation_id}\x12\xcd\x01\n" +
 	"\x1aListComplianceAttestations\x12=.confirmate.orchestrator.v1.ListComplianceAttestationsRequest\x1a>.confirmate.orchestrator.v1.ListComplianceAttestationsResponse\"0\x82\xd3\xe4\x93\x02*\x12(/v1/orchestrator/compliance_attestations\x12\xe6\x01\n" +
 	" ListPublicComplianceAttestations\x12C.confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest\x1aD.confirmate.orchestrator.v1.ListPublicComplianceAttestationsResponse\"7\x82\xd3\xe4\x93\x021\x12//v1/orchestrator/public/compliance_attestations\x12\xf6\x01\n" +
@@ -5574,7 +5595,7 @@ var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(*ListPublicComplianceAttestationsRequest)(nil),        // 54: confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest
 	(*ListPublicComplianceAttestationsResponse)(nil),       // 55: confirmate.orchestrator.v1.ListPublicComplianceAttestationsResponse
 	(*UpdateComplianceAttestationRequest)(nil),             // 56: confirmate.orchestrator.v1.UpdateComplianceAttestationRequest
-	(*CreateComplianceAttestationRequest)(nil),             // 57: confirmate.orchestrator.v1.CreateComplianceAttestationRequest
+	(*InitiateComplianceAttestationRequest)(nil),           // 57: confirmate.orchestrator.v1.InitiateComplianceAttestationRequest
 	(*RemoveComplianceAttestationRequest)(nil),             // 58: confirmate.orchestrator.v1.RemoveComplianceAttestationRequest
 	(*ComplianceAttestation)(nil),                          // 59: confirmate.orchestrator.v1.ComplianceAttestation
 	(*ComplianceAttestationState)(nil),                     // 60: confirmate.orchestrator.v1.ComplianceAttestationState
@@ -5636,28 +5657,28 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	85,  // 23: confirmate.orchestrator.v1.ChangeEvent.metric_configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
 	86,  // 24: confirmate.orchestrator.v1.ChangeEvent.metric_implementation:type_name -> confirmate.assessment.v1.MetricImplementation
 	36,  // 25: confirmate.orchestrator.v1.ChangeEvent.assessment_tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	84,  // 26: confirmate.orchestrator.v1.TargetOfEvaluation.configured_metrics:type_name -> confirmate.assessment.v1.Metric
-	87,  // 27: confirmate.orchestrator.v1.TargetOfEvaluation.created_at:type_name -> google.protobuf.Timestamp
-	87,  // 28: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
-	75,  // 29: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
-	4,   // 30: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
-	39,  // 31: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
-	77,  // 32: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
-	40,  // 33: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
-	40,  // 34: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
-	84,  // 35: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
-	78,  // 36: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
-	83,  // 37: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
-	41,  // 38: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	79,  // 39: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
-	41,  // 40: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
-	41,  // 41: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	80,  // 42: confirmate.orchestrator.v1.ListComplianceAttestationsRequest.filter:type_name -> confirmate.orchestrator.v1.ListComplianceAttestationsRequest.Filter
-	59,  // 43: confirmate.orchestrator.v1.ListComplianceAttestationsResponse.compliance_attestations:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
-	81,  // 44: confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest.filter:type_name -> confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest.Filter
-	59,  // 45: confirmate.orchestrator.v1.ListPublicComplianceAttestationsResponse.compliance_attestations:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
-	59,  // 46: confirmate.orchestrator.v1.UpdateComplianceAttestationRequest.compliance_attestation:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
-	59,  // 47: confirmate.orchestrator.v1.CreateComplianceAttestationRequest.compliance_attestation:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
+	59,  // 26: confirmate.orchestrator.v1.ChangeEvent.compliance_attestation:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
+	84,  // 27: confirmate.orchestrator.v1.TargetOfEvaluation.configured_metrics:type_name -> confirmate.assessment.v1.Metric
+	87,  // 28: confirmate.orchestrator.v1.TargetOfEvaluation.created_at:type_name -> google.protobuf.Timestamp
+	87,  // 29: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
+	75,  // 30: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
+	4,   // 31: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
+	39,  // 32: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
+	77,  // 33: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
+	40,  // 34: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
+	40,  // 35: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
+	84,  // 36: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
+	78,  // 37: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
+	83,  // 38: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
+	41,  // 39: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	79,  // 40: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
+	41,  // 41: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
+	41,  // 42: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	80,  // 43: confirmate.orchestrator.v1.ListComplianceAttestationsRequest.filter:type_name -> confirmate.orchestrator.v1.ListComplianceAttestationsRequest.Filter
+	59,  // 44: confirmate.orchestrator.v1.ListComplianceAttestationsResponse.compliance_attestations:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
+	81,  // 45: confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest.filter:type_name -> confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest.Filter
+	59,  // 46: confirmate.orchestrator.v1.ListPublicComplianceAttestationsResponse.compliance_attestations:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
+	59,  // 47: confirmate.orchestrator.v1.UpdateComplianceAttestationRequest.compliance_attestation:type_name -> confirmate.orchestrator.v1.ComplianceAttestation
 	60,  // 48: confirmate.orchestrator.v1.ComplianceAttestation.states:type_name -> confirmate.orchestrator.v1.ComplianceAttestationState
 	2,   // 49: confirmate.orchestrator.v1.ComplianceAttestation.attestation_type:type_name -> confirmate.orchestrator.v1.ComplianceAttestationType
 	87,  // 50: confirmate.orchestrator.v1.ComplianceAttestation.issued_at:type_name -> google.protobuf.Timestamp
@@ -5704,7 +5725,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	32,  // 91: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
 	33,  // 92: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
 	34,  // 93: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
-	57,  // 94: confirmate.orchestrator.v1.Orchestrator.CreateComplianceAttestation:input_type -> confirmate.orchestrator.v1.CreateComplianceAttestationRequest
+	57,  // 94: confirmate.orchestrator.v1.Orchestrator.InitiateComplianceAttestation:input_type -> confirmate.orchestrator.v1.InitiateComplianceAttestationRequest
 	51,  // 95: confirmate.orchestrator.v1.Orchestrator.GetComplianceAttestation:input_type -> confirmate.orchestrator.v1.GetComplianceAttestationRequest
 	52,  // 96: confirmate.orchestrator.v1.Orchestrator.ListComplianceAttestations:input_type -> confirmate.orchestrator.v1.ListComplianceAttestationsRequest
 	54,  // 97: confirmate.orchestrator.v1.Orchestrator.ListPublicComplianceAttestations:input_type -> confirmate.orchestrator.v1.ListPublicComplianceAttestationsRequest
@@ -5750,7 +5771,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	86,  // 137: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
 	86,  // 138: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
 	35,  // 139: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
-	59,  // 140: confirmate.orchestrator.v1.Orchestrator.CreateComplianceAttestation:output_type -> confirmate.orchestrator.v1.ComplianceAttestation
+	59,  // 140: confirmate.orchestrator.v1.Orchestrator.InitiateComplianceAttestation:output_type -> confirmate.orchestrator.v1.ComplianceAttestation
 	59,  // 141: confirmate.orchestrator.v1.Orchestrator.GetComplianceAttestation:output_type -> confirmate.orchestrator.v1.ComplianceAttestation
 	53,  // 142: confirmate.orchestrator.v1.Orchestrator.ListComplianceAttestations:output_type -> confirmate.orchestrator.v1.ListComplianceAttestationsResponse
 	55,  // 143: confirmate.orchestrator.v1.Orchestrator.ListPublicComplianceAttestations:output_type -> confirmate.orchestrator.v1.ListPublicComplianceAttestationsResponse
@@ -5792,6 +5813,7 @@ func file_api_orchestrator_orchestrator_proto_init() {
 		(*ChangeEvent_MetricConfiguration)(nil),
 		(*ChangeEvent_MetricImplementation)(nil),
 		(*ChangeEvent_AssessmentTool)(nil),
+		(*ChangeEvent_ComplianceAttestation)(nil),
 	}
 	file_api_orchestrator_orchestrator_proto_msgTypes[32].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[33].OneofWrappers = []any{}
