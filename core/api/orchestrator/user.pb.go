@@ -117,11 +117,11 @@ type User struct {
 	// LastName is the last name of the user, if available.
 	LastName *string `protobuf:"bytes,5,opt,name=last_name,json=lastName,proto3,oneof" json:"last_name,omitempty"`
 	// Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
-	Roles []Role `protobuf:"varint,6,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty"`
+	Roles []Role `protobuf:"varint,6,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty" gorm:"serializer:json"`
 	// Enabled indicates whether the user is active/enabled in the system
 	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Attributes contains additional key-value pairs associated with the user, such as department or team.
-	Attributes    map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Attributes    map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -592,7 +592,7 @@ var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xc4\x03\n" +
+	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xfc\x03\n" +
 	"\x04User\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12&\n" +
@@ -601,12 +601,12 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x05email\x18\x03 \x01(\tH\x00R\x05email\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"first_name\x18\x04 \x01(\tH\x01R\tfirstName\x88\x01\x01\x12 \n" +
-	"\tlast_name\x18\x05 \x01(\tH\x02R\blastName\x88\x01\x01\x12E\n" +
-	"\x05roles\x18\x06 \x03(\x0e2 .confirmate.orchestrator.v1.RoleB\r\xbaH\n" +
-	"\x92\x01\a\"\x05\x82\x01\x02\x10\x01R\x05roles\x12\x18\n" +
-	"\aenabled\x18\a \x01(\bR\aenabled\x12P\n" +
+	"\tlast_name\x18\x05 \x01(\tH\x02R\blastName\x88\x01\x01\x12`\n" +
+	"\x05roles\x18\x06 \x03(\x0e2 .confirmate.orchestrator.v1.RoleB(\xbaH\n" +
+	"\x92\x01\a\"\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x05roles\x12\x18\n" +
+	"\aenabled\x18\a \x01(\bR\aenabled\x12m\n" +
 	"\n" +
-	"attributes\x18\b \x03(\v20.confirmate.orchestrator.v1.User.AttributesEntryR\n" +
+	"attributes\x18\b \x03(\v20.confirmate.orchestrator.v1.User.AttributesEntryB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\n" +
 	"attributes\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +

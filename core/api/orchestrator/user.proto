@@ -71,13 +71,15 @@ message User {
   optional string last_name = 5;
 
   // Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
-  repeated Role roles = 6 [(buf.validate.field).repeated.items.enum.defined_only = true];
+  repeated Role roles = 6 [
+    (buf.validate.field).repeated.items.enum.defined_only = true,
+    (tagger.tags) = "gorm:\"serializer:json\""];
 
   // Enabled indicates whether the user is active/enabled in the system
   bool enabled = 7;
 
   // Attributes contains additional key-value pairs associated with the user, such as department or team.
-  map<string, string> attributes = 8;
+  map<string, string> attributes = 8 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
 // Predefined roles in the system. These should align with the roles defined in the IdP
