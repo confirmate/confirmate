@@ -571,6 +571,7 @@ enum EventCategory {
   EVENT_CATEGORY_AUDIT_SCOPE = 5;
   EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
   EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
+  EVENT_CATEGORY_COMPLIANCE_ATTESTATION = 8;
 }
 
 message SubscribeRequest {
@@ -642,6 +643,7 @@ message ChangeEvent {
     confirmate.assessment.v1.MetricConfiguration metric_configuration = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
     AssessmentTool assessment_tool = 16;
+      ComplianceAttestation compliance_attestation = 17;
   }
 }
 
