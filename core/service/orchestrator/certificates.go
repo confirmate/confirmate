@@ -25,13 +25,13 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// CreateCertificate creates a new certificate.
-func (svc *Service) CreateCertificate(
+// CreateComplianceAttestation creates a new compliance attestation.
+func (svc *Service) CreateComplianceAttestation(
 	ctx context.Context,
-	req *connect.Request[orchestrator.CreateCertificateRequest],
-) (res *connect.Response[orchestrator.Certificate], err error) {
+	req *connect.Request[orchestrator.CreateComplianceAttestationRequest],
+) (res *connect.Response[orchestrator.ComplianceAttestation], err error) {
 	var (
-		cert *orchestrator.Certificate
+		attestation *orchestrator.ComplianceAttestation
 	)
 
 	// Validate the request
@@ -39,28 +39,28 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	cert = req.Msg.Certificate
+	attestation = req.Msg.ComplianceAttestation
 	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the new certificate in the database
-	err = svc.db.Create(cert)
+	// Persist the new compliance attestation in the database
+	err = svc.db.Create(attestation)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
-	res = connect.NewResponse(cert)
+	res = connect.NewResponse(attestation)
 	return
 }
 
-// GetCertificate retrieves a certificate by ID.
-func (svc *Service) GetCertificate(
+// GetComplianceAttestation retrieves a compliance attestation by ID.
+func (svc *Service) GetComplianceAttestation(
 	ctx context.Context,
-	req *connect.Request[orchestrator.GetCertificateRequest],
-) (res *connect.Response[orchestrator.Certificate], err error) {
+	req *connect.Request[orchestrator.GetComplianceAttestationRequest],
+) (res *connect.Response[orchestrator.ComplianceAttestation], err error) {
 	var (
-		cert orchestrator.Certificate
+		attestation orchestrator.ComplianceAttestation
 	)
 
 	// Validate the request
@@ -68,26 +68,26 @@ func (svc *Service) GetCertificate(
 		return nil, err
 	}
 
-	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+	err = svc.db.Get(&attestation, "id = ?", req.Msg.ComplianceAttestationId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("compliance attestation")); err != nil {
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&cert)) {
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&attestation)) {
 		return nil, service.ErrPermissionDenied
 	}
 
-	res = connect.NewResponse(&cert)
+	res = connect.NewResponse(&attestation)
 	return
 }
 
-// ListCertificates lists all certificates.
-func (svc *Service) ListCertificates(
+// ListComplianceAttestations lists all compliance attestations.
+func (svc *Service) ListComplianceAttestations(
 	ctx context.Context,
-	req *connect.Request[orchestrator.ListCertificatesRequest],
-) (res *connect.Response[orchestrator.ListCertificatesResponse], err error) {
+	req *connect.Request[orchestrator.ListComplianceAttestationsRequest],
+) (res *connect.Response[orchestrator.ListComplianceAttestationsResponse], err error) {
 	var (
-		certificates  []*orchestrator.Certificate
+		attestations  []*orchestrator.ComplianceAttestation
 		npt           string
 		all           bool
 		allowed       []string
@@ -118,32 +118,32 @@ func (svc *Service) ListCertificates(
 		}
 
 		if len(auditScopeIDs) == 0 {
-			res = connect.NewResponse(&orchestrator.ListCertificatesResponse{Certificates: []*orchestrator.Certificate{}})
+			res = connect.NewResponse(&orchestrator.ListComplianceAttestationsResponse{ComplianceAttestations: []*orchestrator.ComplianceAttestation{}})
 			return
 		}
 
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "audit_scope_id IN ?", auditScopeIDs)
+		attestations, npt, err = service.PaginateStorage[*orchestrator.ComplianceAttestation](req.Msg, svc.db, service.DefaultPaginationOpts, "audit_scope_id IN ?", auditScopeIDs)
 	} else {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+		attestations, npt, err = service.PaginateStorage[*orchestrator.ComplianceAttestation](req.Msg, svc.db, service.DefaultPaginationOpts)
 	}
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
-	res = connect.NewResponse(&orchestrator.ListCertificatesResponse{
-		Certificates:  certificates,
-		NextPageToken: npt,
+	res = connect.NewResponse(&orchestrator.ListComplianceAttestationsResponse{
+		ComplianceAttestations: attestations,
+		NextPageToken:          npt,
 	})
 	return
 }
 
-// ListPublicCertificates lists all certificates without state history.
-func (svc *Service) ListPublicCertificates(
+// ListPublicComplianceAttestations lists all compliance attestations without state history.
+func (svc *Service) ListPublicComplianceAttestations(
 	ctx context.Context,
-	req *connect.Request[orchestrator.ListPublicCertificatesRequest],
-) (res *connect.Response[orchestrator.ListPublicCertificatesResponse], err error) {
+	req *connect.Request[orchestrator.ListPublicComplianceAttestationsRequest],
+) (res *connect.Response[orchestrator.ListPublicComplianceAttestationsResponse], err error) {
 	var (
-		certificates  []*orchestrator.Certificate
+		attestations  []*orchestrator.ComplianceAttestation
 		npt           string
 		all           bool
 		allowed       []string
@@ -174,80 +174,80 @@ func (svc *Service) ListPublicCertificates(
 		}
 
 		if len(auditScopeIDs) == 0 {
-			res = connect.NewResponse(&orchestrator.ListPublicCertificatesResponse{Certificates: []*orchestrator.Certificate{}})
+			res = connect.NewResponse(&orchestrator.ListPublicComplianceAttestationsResponse{ComplianceAttestations: []*orchestrator.ComplianceAttestation{}})
 			return
 		}
 
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "audit_scope_id IN ?", auditScopeIDs)
+		attestations, npt, err = service.PaginateStorage[*orchestrator.ComplianceAttestation](req.Msg, svc.db, service.DefaultPaginationOpts, "audit_scope_id IN ?", auditScopeIDs)
 	} else {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+		attestations, npt, err = service.PaginateStorage[*orchestrator.ComplianceAttestation](req.Msg, svc.db, service.DefaultPaginationOpts)
 	}
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
-	// Remove state history from certificates
-	for i := range certificates {
-		certificates[i].States = nil
+	// Remove state history from compliance attestations
+	for i := range attestations {
+		attestations[i].States = nil
 	}
 
-	res = connect.NewResponse(&orchestrator.ListPublicCertificatesResponse{
-		Certificates:  certificates,
-		NextPageToken: npt,
+	res = connect.NewResponse(&orchestrator.ListPublicComplianceAttestationsResponse{
+		ComplianceAttestations: attestations,
+		NextPageToken:          npt,
 	})
 	return
 }
 
-// UpdateCertificate updates an existing certificate.
-func (svc *Service) UpdateCertificate(
+// UpdateComplianceAttestation updates an existing compliance attestation.
+func (svc *Service) UpdateComplianceAttestation(
 	ctx context.Context,
-	req *connect.Request[orchestrator.UpdateCertificateRequest],
-) (res *connect.Response[orchestrator.Certificate], err error) {
-	var cert *orchestrator.Certificate
+	req *connect.Request[orchestrator.UpdateComplianceAttestationRequest],
+) (res *connect.Response[orchestrator.ComplianceAttestation], err error) {
+	var attestation *orchestrator.ComplianceAttestation
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	cert = req.Msg.Certificate
-	if cert == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	attestation = req.Msg.ComplianceAttestation
+	if attestation == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Update the certificate
-	err = svc.db.Update(cert, "id = ?", cert.Id)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+	// Update the compliance attestation
+	err = svc.db.Update(attestation, "id = ?", attestation.Id)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("compliance attestation")); err != nil {
 		return nil, err
 	}
 
-	res = connect.NewResponse(cert)
+	res = connect.NewResponse(attestation)
 	return
 }
 
-// RemoveCertificate removes a certificate by ID.
-func (svc *Service) RemoveCertificate(
+// RemoveComplianceAttestation removes a compliance attestation by ID.
+func (svc *Service) RemoveComplianceAttestation(
 	ctx context.Context,
-	req *connect.Request[orchestrator.RemoveCertificateRequest],
+	req *connect.Request[orchestrator.RemoveComplianceAttestationRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	var cert orchestrator.Certificate
+	var attestation orchestrator.ComplianceAttestation
 
-	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+	err = svc.db.Get(&attestation, "id = ?", req.Msg.ComplianceAttestationId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("compliance attestation")); err != nil {
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&cert)) {
+	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&attestation)) {
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Delete the certificate
-	err = svc.db.Delete(&cert, "id = ?", req.Msg.CertificateId)
+	// Delete the compliance attestation
+	err = svc.db.Delete(&attestation, "id = ?", req.Msg.ComplianceAttestationId)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}

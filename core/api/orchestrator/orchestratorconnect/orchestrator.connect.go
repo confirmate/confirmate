@@ -126,24 +126,24 @@ const (
 	OrchestratorGetMetricImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetMetricImplementation"
 	// OrchestratorSubscribeProcedure is the fully-qualified name of the Orchestrator's Subscribe RPC.
 	OrchestratorSubscribeProcedure = "/confirmate.orchestrator.v1.Orchestrator/Subscribe"
-	// OrchestratorCreateCertificateProcedure is the fully-qualified name of the Orchestrator's
-	// CreateCertificate RPC.
-	OrchestratorCreateCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateCertificate"
-	// OrchestratorGetCertificateProcedure is the fully-qualified name of the Orchestrator's
-	// GetCertificate RPC.
-	OrchestratorGetCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCertificate"
-	// OrchestratorListCertificatesProcedure is the fully-qualified name of the Orchestrator's
-	// ListCertificates RPC.
-	OrchestratorListCertificatesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListCertificates"
-	// OrchestratorListPublicCertificatesProcedure is the fully-qualified name of the Orchestrator's
-	// ListPublicCertificates RPC.
-	OrchestratorListPublicCertificatesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListPublicCertificates"
-	// OrchestratorUpdateCertificateProcedure is the fully-qualified name of the Orchestrator's
-	// UpdateCertificate RPC.
-	OrchestratorUpdateCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateCertificate"
-	// OrchestratorRemoveCertificateProcedure is the fully-qualified name of the Orchestrator's
-	// RemoveCertificate RPC.
-	OrchestratorRemoveCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveCertificate"
+	// OrchestratorCreateComplianceAttestationProcedure is the fully-qualified name of the
+	// Orchestrator's CreateComplianceAttestation RPC.
+	OrchestratorCreateComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateComplianceAttestation"
+	// OrchestratorGetComplianceAttestationProcedure is the fully-qualified name of the Orchestrator's
+	// GetComplianceAttestation RPC.
+	OrchestratorGetComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetComplianceAttestation"
+	// OrchestratorListComplianceAttestationsProcedure is the fully-qualified name of the Orchestrator's
+	// ListComplianceAttestations RPC.
+	OrchestratorListComplianceAttestationsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListComplianceAttestations"
+	// OrchestratorListPublicComplianceAttestationsProcedure is the fully-qualified name of the
+	// Orchestrator's ListPublicComplianceAttestations RPC.
+	OrchestratorListPublicComplianceAttestationsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListPublicComplianceAttestations"
+	// OrchestratorUpdateComplianceAttestationProcedure is the fully-qualified name of the
+	// Orchestrator's UpdateComplianceAttestation RPC.
+	OrchestratorUpdateComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateComplianceAttestation"
+	// OrchestratorRemoveComplianceAttestationProcedure is the fully-qualified name of the
+	// Orchestrator's RemoveComplianceAttestation RPC.
+	OrchestratorRemoveComplianceAttestationProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveComplianceAttestation"
 	// OrchestratorCreateCatalogProcedure is the fully-qualified name of the Orchestrator's
 	// CreateCatalog RPC.
 	OrchestratorCreateCatalogProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateCatalog"
@@ -246,18 +246,18 @@ type OrchestratorClient interface {
 	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
 	// Subscribes to change events in the orchestrator
 	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest]) (*connect.ServerStreamForClient[orchestrator.ChangeEvent], error)
-	// Creates a new certificate
-	CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
-	// Retrieves a certificate
-	GetCertificate(context.Context, *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
-	// Lists all target certificates
-	ListCertificates(context.Context, *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error)
-	// Lists all target certificates without state history
-	ListPublicCertificates(context.Context, *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error)
-	// Updates an existing certificate
-	UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
-	// Removes a certificate
-	RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error)
+	// Creates a new compliance attestation
+	CreateComplianceAttestation(context.Context, *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Retrieves a compliance attestation
+	GetComplianceAttestation(context.Context, *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Lists all compliance attestations
+	ListComplianceAttestations(context.Context, *connect.Request[orchestrator.ListComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListComplianceAttestationsResponse], error)
+	// Lists all public compliance attestations without state history
+	ListPublicComplianceAttestations(context.Context, *connect.Request[orchestrator.ListPublicComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListPublicComplianceAttestationsResponse], error)
+	// Updates an existing compliance attestation
+	UpdateComplianceAttestation(context.Context, *connect.Request[orchestrator.UpdateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Removes a compliance attestation
+	RemoveComplianceAttestation(context.Context, *connect.Request[orchestrator.RemoveComplianceAttestationRequest]) (*connect.Response[emptypb.Empty], error)
 	// Creates a new security controls catalog
 	CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Lists all security controls catalogs. Each catalog includes a list of its
@@ -464,40 +464,40 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
 			connect.WithClientOptions(opts...),
 		),
-		createCertificate: connect.NewClient[orchestrator.CreateCertificateRequest, orchestrator.Certificate](
+		createComplianceAttestation: connect.NewClient[orchestrator.CreateComplianceAttestationRequest, orchestrator.ComplianceAttestation](
 			httpClient,
-			baseURL+OrchestratorCreateCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("CreateCertificate")),
+			baseURL+OrchestratorCreateComplianceAttestationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("CreateComplianceAttestation")),
 			connect.WithClientOptions(opts...),
 		),
-		getCertificate: connect.NewClient[orchestrator.GetCertificateRequest, orchestrator.Certificate](
+		getComplianceAttestation: connect.NewClient[orchestrator.GetComplianceAttestationRequest, orchestrator.ComplianceAttestation](
 			httpClient,
-			baseURL+OrchestratorGetCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("GetCertificate")),
+			baseURL+OrchestratorGetComplianceAttestationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("GetComplianceAttestation")),
 			connect.WithClientOptions(opts...),
 		),
-		listCertificates: connect.NewClient[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse](
+		listComplianceAttestations: connect.NewClient[orchestrator.ListComplianceAttestationsRequest, orchestrator.ListComplianceAttestationsResponse](
 			httpClient,
-			baseURL+OrchestratorListCertificatesProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListCertificates")),
+			baseURL+OrchestratorListComplianceAttestationsProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListComplianceAttestations")),
 			connect.WithClientOptions(opts...),
 		),
-		listPublicCertificates: connect.NewClient[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse](
+		listPublicComplianceAttestations: connect.NewClient[orchestrator.ListPublicComplianceAttestationsRequest, orchestrator.ListPublicComplianceAttestationsResponse](
 			httpClient,
-			baseURL+OrchestratorListPublicCertificatesProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ListPublicCertificates")),
+			baseURL+OrchestratorListPublicComplianceAttestationsProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListPublicComplianceAttestations")),
 			connect.WithClientOptions(opts...),
 		),
-		updateCertificate: connect.NewClient[orchestrator.UpdateCertificateRequest, orchestrator.Certificate](
+		updateComplianceAttestation: connect.NewClient[orchestrator.UpdateComplianceAttestationRequest, orchestrator.ComplianceAttestation](
 			httpClient,
-			baseURL+OrchestratorUpdateCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UpdateCertificate")),
+			baseURL+OrchestratorUpdateComplianceAttestationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("UpdateComplianceAttestation")),
 			connect.WithClientOptions(opts...),
 		),
-		removeCertificate: connect.NewClient[orchestrator.RemoveCertificateRequest, emptypb.Empty](
+		removeComplianceAttestation: connect.NewClient[orchestrator.RemoveComplianceAttestationRequest, emptypb.Empty](
 			httpClient,
-			baseURL+OrchestratorRemoveCertificateProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("RemoveCertificate")),
+			baseURL+OrchestratorRemoveComplianceAttestationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("RemoveComplianceAttestation")),
 			connect.WithClientOptions(opts...),
 		),
 		createCatalog: connect.NewClient[orchestrator.CreateCatalogRequest, orchestrator.Catalog](
@@ -589,52 +589,52 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // orchestratorClient implements OrchestratorClient.
 type orchestratorClient struct {
-	registerAssessmentTool          *connect.Client[orchestrator.RegisterAssessmentToolRequest, orchestrator.AssessmentTool]
-	listAssessmentTools             *connect.Client[orchestrator.ListAssessmentToolsRequest, orchestrator.ListAssessmentToolsResponse]
-	getAssessmentTool               *connect.Client[orchestrator.GetAssessmentToolRequest, orchestrator.AssessmentTool]
-	updateAssessmentTool            *connect.Client[orchestrator.UpdateAssessmentToolRequest, orchestrator.AssessmentTool]
-	deregisterAssessmentTool        *connect.Client[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty]
-	storeAssessmentResult           *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
-	storeAssessmentResults          *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
-	getAssessmentResult             *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
-	listAssessmentResults           *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
-	createMetric                    *connect.Client[orchestrator.CreateMetricRequest, assessment.Metric]
-	updateMetric                    *connect.Client[orchestrator.UpdateMetricRequest, assessment.Metric]
-	getMetric                       *connect.Client[orchestrator.GetMetricRequest, assessment.Metric]
-	listMetrics                     *connect.Client[orchestrator.ListMetricsRequest, orchestrator.ListMetricsResponse]
-	removeMetric                    *connect.Client[orchestrator.RemoveMetricRequest, emptypb.Empty]
-	createTargetOfEvaluation        *connect.Client[orchestrator.CreateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	updateTargetOfEvaluation        *connect.Client[orchestrator.UpdateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	getTargetOfEvaluation           *connect.Client[orchestrator.GetTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	listTargetsOfEvaluation         *connect.Client[orchestrator.ListTargetsOfEvaluationRequest, orchestrator.ListTargetsOfEvaluationResponse]
-	removeTargetOfEvaluation        *connect.Client[orchestrator.RemoveTargetOfEvaluationRequest, emptypb.Empty]
-	getTargetOfEvaluationStatistics *connect.Client[orchestrator.GetTargetOfEvaluationStatisticsRequest, orchestrator.GetTargetOfEvaluationStatisticsResponse]
-	updateMetricConfiguration       *connect.Client[orchestrator.UpdateMetricConfigurationRequest, assessment.MetricConfiguration]
-	getMetricConfiguration          *connect.Client[orchestrator.GetMetricConfigurationRequest, assessment.MetricConfiguration]
-	listMetricConfigurations        *connect.Client[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse]
-	updateMetricImplementation      *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
-	getMetricImplementation         *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
-	subscribe                       *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
-	createCertificate               *connect.Client[orchestrator.CreateCertificateRequest, orchestrator.Certificate]
-	getCertificate                  *connect.Client[orchestrator.GetCertificateRequest, orchestrator.Certificate]
-	listCertificates                *connect.Client[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse]
-	listPublicCertificates          *connect.Client[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse]
-	updateCertificate               *connect.Client[orchestrator.UpdateCertificateRequest, orchestrator.Certificate]
-	removeCertificate               *connect.Client[orchestrator.RemoveCertificateRequest, emptypb.Empty]
-	createCatalog                   *connect.Client[orchestrator.CreateCatalogRequest, orchestrator.Catalog]
-	listCatalogs                    *connect.Client[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse]
-	getCatalog                      *connect.Client[orchestrator.GetCatalogRequest, orchestrator.Catalog]
-	removeCatalog                   *connect.Client[orchestrator.RemoveCatalogRequest, emptypb.Empty]
-	updateCatalog                   *connect.Client[orchestrator.UpdateCatalogRequest, orchestrator.Catalog]
-	getCategory                     *connect.Client[orchestrator.GetCategoryRequest, orchestrator.Category]
-	listControls                    *connect.Client[orchestrator.ListControlsRequest, orchestrator.ListControlsResponse]
-	getControl                      *connect.Client[orchestrator.GetControlRequest, orchestrator.Control]
-	createAuditScope                *connect.Client[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope]
-	getAuditScope                   *connect.Client[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope]
-	listAuditScopes                 *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
-	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
-	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
-	getRuntimeInfo                  *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
+	registerAssessmentTool           *connect.Client[orchestrator.RegisterAssessmentToolRequest, orchestrator.AssessmentTool]
+	listAssessmentTools              *connect.Client[orchestrator.ListAssessmentToolsRequest, orchestrator.ListAssessmentToolsResponse]
+	getAssessmentTool                *connect.Client[orchestrator.GetAssessmentToolRequest, orchestrator.AssessmentTool]
+	updateAssessmentTool             *connect.Client[orchestrator.UpdateAssessmentToolRequest, orchestrator.AssessmentTool]
+	deregisterAssessmentTool         *connect.Client[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty]
+	storeAssessmentResult            *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
+	storeAssessmentResults           *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+	getAssessmentResult              *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
+	listAssessmentResults            *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
+	createMetric                     *connect.Client[orchestrator.CreateMetricRequest, assessment.Metric]
+	updateMetric                     *connect.Client[orchestrator.UpdateMetricRequest, assessment.Metric]
+	getMetric                        *connect.Client[orchestrator.GetMetricRequest, assessment.Metric]
+	listMetrics                      *connect.Client[orchestrator.ListMetricsRequest, orchestrator.ListMetricsResponse]
+	removeMetric                     *connect.Client[orchestrator.RemoveMetricRequest, emptypb.Empty]
+	createTargetOfEvaluation         *connect.Client[orchestrator.CreateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
+	updateTargetOfEvaluation         *connect.Client[orchestrator.UpdateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
+	getTargetOfEvaluation            *connect.Client[orchestrator.GetTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
+	listTargetsOfEvaluation          *connect.Client[orchestrator.ListTargetsOfEvaluationRequest, orchestrator.ListTargetsOfEvaluationResponse]
+	removeTargetOfEvaluation         *connect.Client[orchestrator.RemoveTargetOfEvaluationRequest, emptypb.Empty]
+	getTargetOfEvaluationStatistics  *connect.Client[orchestrator.GetTargetOfEvaluationStatisticsRequest, orchestrator.GetTargetOfEvaluationStatisticsResponse]
+	updateMetricConfiguration        *connect.Client[orchestrator.UpdateMetricConfigurationRequest, assessment.MetricConfiguration]
+	getMetricConfiguration           *connect.Client[orchestrator.GetMetricConfigurationRequest, assessment.MetricConfiguration]
+	listMetricConfigurations         *connect.Client[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse]
+	updateMetricImplementation       *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
+	getMetricImplementation          *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
+	subscribe                        *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
+	createComplianceAttestation      *connect.Client[orchestrator.CreateComplianceAttestationRequest, orchestrator.ComplianceAttestation]
+	getComplianceAttestation         *connect.Client[orchestrator.GetComplianceAttestationRequest, orchestrator.ComplianceAttestation]
+	listComplianceAttestations       *connect.Client[orchestrator.ListComplianceAttestationsRequest, orchestrator.ListComplianceAttestationsResponse]
+	listPublicComplianceAttestations *connect.Client[orchestrator.ListPublicComplianceAttestationsRequest, orchestrator.ListPublicComplianceAttestationsResponse]
+	updateComplianceAttestation      *connect.Client[orchestrator.UpdateComplianceAttestationRequest, orchestrator.ComplianceAttestation]
+	removeComplianceAttestation      *connect.Client[orchestrator.RemoveComplianceAttestationRequest, emptypb.Empty]
+	createCatalog                    *connect.Client[orchestrator.CreateCatalogRequest, orchestrator.Catalog]
+	listCatalogs                     *connect.Client[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse]
+	getCatalog                       *connect.Client[orchestrator.GetCatalogRequest, orchestrator.Catalog]
+	removeCatalog                    *connect.Client[orchestrator.RemoveCatalogRequest, emptypb.Empty]
+	updateCatalog                    *connect.Client[orchestrator.UpdateCatalogRequest, orchestrator.Catalog]
+	getCategory                      *connect.Client[orchestrator.GetCategoryRequest, orchestrator.Category]
+	listControls                     *connect.Client[orchestrator.ListControlsRequest, orchestrator.ListControlsResponse]
+	getControl                       *connect.Client[orchestrator.GetControlRequest, orchestrator.Control]
+	createAuditScope                 *connect.Client[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope]
+	getAuditScope                    *connect.Client[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope]
+	listAuditScopes                  *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
+	updateAuditScope                 *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
+	removeAuditScope                 *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
+	getRuntimeInfo                   *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
 }
 
 // RegisterAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool.
@@ -770,34 +770,39 @@ func (c *orchestratorClient) Subscribe(ctx context.Context, req *connect.Request
 	return c.subscribe.CallServerStream(ctx, req)
 }
 
-// CreateCertificate calls confirmate.orchestrator.v1.Orchestrator.CreateCertificate.
-func (c *orchestratorClient) CreateCertificate(ctx context.Context, req *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return c.createCertificate.CallUnary(ctx, req)
+// CreateComplianceAttestation calls
+// confirmate.orchestrator.v1.Orchestrator.CreateComplianceAttestation.
+func (c *orchestratorClient) CreateComplianceAttestation(ctx context.Context, req *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return c.createComplianceAttestation.CallUnary(ctx, req)
 }
 
-// GetCertificate calls confirmate.orchestrator.v1.Orchestrator.GetCertificate.
-func (c *orchestratorClient) GetCertificate(ctx context.Context, req *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return c.getCertificate.CallUnary(ctx, req)
+// GetComplianceAttestation calls confirmate.orchestrator.v1.Orchestrator.GetComplianceAttestation.
+func (c *orchestratorClient) GetComplianceAttestation(ctx context.Context, req *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return c.getComplianceAttestation.CallUnary(ctx, req)
 }
 
-// ListCertificates calls confirmate.orchestrator.v1.Orchestrator.ListCertificates.
-func (c *orchestratorClient) ListCertificates(ctx context.Context, req *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error) {
-	return c.listCertificates.CallUnary(ctx, req)
+// ListComplianceAttestations calls
+// confirmate.orchestrator.v1.Orchestrator.ListComplianceAttestations.
+func (c *orchestratorClient) ListComplianceAttestations(ctx context.Context, req *connect.Request[orchestrator.ListComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListComplianceAttestationsResponse], error) {
+	return c.listComplianceAttestations.CallUnary(ctx, req)
 }
 
-// ListPublicCertificates calls confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates.
-func (c *orchestratorClient) ListPublicCertificates(ctx context.Context, req *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error) {
-	return c.listPublicCertificates.CallUnary(ctx, req)
+// ListPublicComplianceAttestations calls
+// confirmate.orchestrator.v1.Orchestrator.ListPublicComplianceAttestations.
+func (c *orchestratorClient) ListPublicComplianceAttestations(ctx context.Context, req *connect.Request[orchestrator.ListPublicComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListPublicComplianceAttestationsResponse], error) {
+	return c.listPublicComplianceAttestations.CallUnary(ctx, req)
 }
 
-// UpdateCertificate calls confirmate.orchestrator.v1.Orchestrator.UpdateCertificate.
-func (c *orchestratorClient) UpdateCertificate(ctx context.Context, req *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return c.updateCertificate.CallUnary(ctx, req)
+// UpdateComplianceAttestation calls
+// confirmate.orchestrator.v1.Orchestrator.UpdateComplianceAttestation.
+func (c *orchestratorClient) UpdateComplianceAttestation(ctx context.Context, req *connect.Request[orchestrator.UpdateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return c.updateComplianceAttestation.CallUnary(ctx, req)
 }
 
-// RemoveCertificate calls confirmate.orchestrator.v1.Orchestrator.RemoveCertificate.
-func (c *orchestratorClient) RemoveCertificate(ctx context.Context, req *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.removeCertificate.CallUnary(ctx, req)
+// RemoveComplianceAttestation calls
+// confirmate.orchestrator.v1.Orchestrator.RemoveComplianceAttestation.
+func (c *orchestratorClient) RemoveComplianceAttestation(ctx context.Context, req *connect.Request[orchestrator.RemoveComplianceAttestationRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.removeComplianceAttestation.CallUnary(ctx, req)
 }
 
 // CreateCatalog calls confirmate.orchestrator.v1.Orchestrator.CreateCatalog.
@@ -930,18 +935,18 @@ type OrchestratorHandler interface {
 	GetMetricImplementation(context.Context, *connect.Request[orchestrator.GetMetricImplementationRequest]) (*connect.Response[assessment.MetricImplementation], error)
 	// Subscribes to change events in the orchestrator
 	Subscribe(context.Context, *connect.Request[orchestrator.SubscribeRequest], *connect.ServerStream[orchestrator.ChangeEvent]) error
-	// Creates a new certificate
-	CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
-	// Retrieves a certificate
-	GetCertificate(context.Context, *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
-	// Lists all target certificates
-	ListCertificates(context.Context, *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error)
-	// Lists all target certificates without state history
-	ListPublicCertificates(context.Context, *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error)
-	// Updates an existing certificate
-	UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
-	// Removes a certificate
-	RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error)
+	// Creates a new compliance attestation
+	CreateComplianceAttestation(context.Context, *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Retrieves a compliance attestation
+	GetComplianceAttestation(context.Context, *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Lists all compliance attestations
+	ListComplianceAttestations(context.Context, *connect.Request[orchestrator.ListComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListComplianceAttestationsResponse], error)
+	// Lists all public compliance attestations without state history
+	ListPublicComplianceAttestations(context.Context, *connect.Request[orchestrator.ListPublicComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListPublicComplianceAttestationsResponse], error)
+	// Updates an existing compliance attestation
+	UpdateComplianceAttestation(context.Context, *connect.Request[orchestrator.UpdateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error)
+	// Removes a compliance attestation
+	RemoveComplianceAttestation(context.Context, *connect.Request[orchestrator.RemoveComplianceAttestationRequest]) (*connect.Response[emptypb.Empty], error)
 	// Creates a new security controls catalog
 	CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Lists all security controls catalogs. Each catalog includes a list of its
@@ -1144,40 +1149,40 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("Subscribe")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorCreateCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorCreateCertificateProcedure,
-		svc.CreateCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("CreateCertificate")),
+	orchestratorCreateComplianceAttestationHandler := connect.NewUnaryHandler(
+		OrchestratorCreateComplianceAttestationProcedure,
+		svc.CreateComplianceAttestation,
+		connect.WithSchema(orchestratorMethods.ByName("CreateComplianceAttestation")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorGetCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorGetCertificateProcedure,
-		svc.GetCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("GetCertificate")),
+	orchestratorGetComplianceAttestationHandler := connect.NewUnaryHandler(
+		OrchestratorGetComplianceAttestationProcedure,
+		svc.GetComplianceAttestation,
+		connect.WithSchema(orchestratorMethods.ByName("GetComplianceAttestation")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorListCertificatesHandler := connect.NewUnaryHandler(
-		OrchestratorListCertificatesProcedure,
-		svc.ListCertificates,
-		connect.WithSchema(orchestratorMethods.ByName("ListCertificates")),
+	orchestratorListComplianceAttestationsHandler := connect.NewUnaryHandler(
+		OrchestratorListComplianceAttestationsProcedure,
+		svc.ListComplianceAttestations,
+		connect.WithSchema(orchestratorMethods.ByName("ListComplianceAttestations")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorListPublicCertificatesHandler := connect.NewUnaryHandler(
-		OrchestratorListPublicCertificatesProcedure,
-		svc.ListPublicCertificates,
-		connect.WithSchema(orchestratorMethods.ByName("ListPublicCertificates")),
+	orchestratorListPublicComplianceAttestationsHandler := connect.NewUnaryHandler(
+		OrchestratorListPublicComplianceAttestationsProcedure,
+		svc.ListPublicComplianceAttestations,
+		connect.WithSchema(orchestratorMethods.ByName("ListPublicComplianceAttestations")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorUpdateCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorUpdateCertificateProcedure,
-		svc.UpdateCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("UpdateCertificate")),
+	orchestratorUpdateComplianceAttestationHandler := connect.NewUnaryHandler(
+		OrchestratorUpdateComplianceAttestationProcedure,
+		svc.UpdateComplianceAttestation,
+		connect.WithSchema(orchestratorMethods.ByName("UpdateComplianceAttestation")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorRemoveCertificateHandler := connect.NewUnaryHandler(
-		OrchestratorRemoveCertificateProcedure,
-		svc.RemoveCertificate,
-		connect.WithSchema(orchestratorMethods.ByName("RemoveCertificate")),
+	orchestratorRemoveComplianceAttestationHandler := connect.NewUnaryHandler(
+		OrchestratorRemoveComplianceAttestationProcedure,
+		svc.RemoveComplianceAttestation,
+		connect.WithSchema(orchestratorMethods.ByName("RemoveComplianceAttestation")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorCreateCatalogHandler := connect.NewUnaryHandler(
@@ -1318,18 +1323,18 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorGetMetricImplementationHandler.ServeHTTP(w, r)
 		case OrchestratorSubscribeProcedure:
 			orchestratorSubscribeHandler.ServeHTTP(w, r)
-		case OrchestratorCreateCertificateProcedure:
-			orchestratorCreateCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorGetCertificateProcedure:
-			orchestratorGetCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorListCertificatesProcedure:
-			orchestratorListCertificatesHandler.ServeHTTP(w, r)
-		case OrchestratorListPublicCertificatesProcedure:
-			orchestratorListPublicCertificatesHandler.ServeHTTP(w, r)
-		case OrchestratorUpdateCertificateProcedure:
-			orchestratorUpdateCertificateHandler.ServeHTTP(w, r)
-		case OrchestratorRemoveCertificateProcedure:
-			orchestratorRemoveCertificateHandler.ServeHTTP(w, r)
+		case OrchestratorCreateComplianceAttestationProcedure:
+			orchestratorCreateComplianceAttestationHandler.ServeHTTP(w, r)
+		case OrchestratorGetComplianceAttestationProcedure:
+			orchestratorGetComplianceAttestationHandler.ServeHTTP(w, r)
+		case OrchestratorListComplianceAttestationsProcedure:
+			orchestratorListComplianceAttestationsHandler.ServeHTTP(w, r)
+		case OrchestratorListPublicComplianceAttestationsProcedure:
+			orchestratorListPublicComplianceAttestationsHandler.ServeHTTP(w, r)
+		case OrchestratorUpdateComplianceAttestationProcedure:
+			orchestratorUpdateComplianceAttestationHandler.ServeHTTP(w, r)
+		case OrchestratorRemoveComplianceAttestationProcedure:
+			orchestratorRemoveComplianceAttestationHandler.ServeHTTP(w, r)
 		case OrchestratorCreateCatalogProcedure:
 			orchestratorCreateCatalogHandler.ServeHTTP(w, r)
 		case OrchestratorListCatalogsProcedure:
@@ -1471,28 +1476,28 @@ func (UnimplementedOrchestratorHandler) Subscribe(context.Context, *connect.Requ
 	return connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.Subscribe is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) CreateCertificate(context.Context, *connect.Request[orchestrator.CreateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateComplianceAttestation(context.Context, *connect.Request[orchestrator.CreateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateComplianceAttestation is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) GetCertificate(context.Context, *connect.Request[orchestrator.GetCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) GetComplianceAttestation(context.Context, *connect.Request[orchestrator.GetComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetComplianceAttestation is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) ListCertificates(context.Context, *connect.Request[orchestrator.ListCertificatesRequest]) (*connect.Response[orchestrator.ListCertificatesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListCertificates is not implemented"))
+func (UnimplementedOrchestratorHandler) ListComplianceAttestations(context.Context, *connect.Request[orchestrator.ListComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListComplianceAttestationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListComplianceAttestations is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) ListPublicCertificates(context.Context, *connect.Request[orchestrator.ListPublicCertificatesRequest]) (*connect.Response[orchestrator.ListPublicCertificatesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates is not implemented"))
+func (UnimplementedOrchestratorHandler) ListPublicComplianceAttestations(context.Context, *connect.Request[orchestrator.ListPublicComplianceAttestationsRequest]) (*connect.Response[orchestrator.ListPublicComplianceAttestationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListPublicComplianceAttestations is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) UpdateComplianceAttestation(context.Context, *connect.Request[orchestrator.UpdateComplianceAttestationRequest]) (*connect.Response[orchestrator.ComplianceAttestation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateComplianceAttestation is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveCertificate is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveComplianceAttestation(context.Context, *connect.Request[orchestrator.RemoveComplianceAttestationRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveComplianceAttestation is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {

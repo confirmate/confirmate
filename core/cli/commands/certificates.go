@@ -32,7 +32,7 @@ func CertificatesListCommand() *cli.Command {
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := OrchestratorClient(ctx, c)
-			resp, err := client.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{
+			resp, err := client.ListComplianceAttestations(ctx, connect.NewRequest(&orchestrator.ListComplianceAttestationsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
 			}))
@@ -52,7 +52,7 @@ func CertificatesListPublicCommand() *cli.Command {
 		Flags:   PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := OrchestratorClient(ctx, c)
-			resp, err := client.ListPublicCertificates(ctx, connect.NewRequest(&orchestrator.ListPublicCertificatesRequest{
+			resp, err := client.ListPublicComplianceAttestations(ctx, connect.NewRequest(&orchestrator.ListPublicComplianceAttestationsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
 			}))
@@ -76,8 +76,8 @@ func CertificatesGetCommand() *cli.Command {
 			certID := c.Args().Get(0)
 
 			client := OrchestratorClient(ctx, c)
-			resp, err := client.GetCertificate(ctx, connect.NewRequest(&orchestrator.GetCertificateRequest{
-				CertificateId: certID,
+			resp, err := client.GetComplianceAttestation(ctx, connect.NewRequest(&orchestrator.GetComplianceAttestationRequest{
+				ComplianceAttestationId: certID,
 			}))
 			if err != nil {
 				return err
@@ -100,8 +100,8 @@ func CertificatesRemoveCommand() *cli.Command {
 			certID := c.Args().Get(0)
 
 			client := OrchestratorClient(ctx, c)
-			_, err := client.RemoveCertificate(ctx, connect.NewRequest(&orchestrator.RemoveCertificateRequest{
-				CertificateId: certID,
+			_, err := client.RemoveComplianceAttestation(ctx, connect.NewRequest(&orchestrator.RemoveComplianceAttestationRequest{
+				ComplianceAttestationId: certID,
 			}))
 			if err != nil {
 				return err

@@ -199,13 +199,13 @@ var (
 	}
 
 	// Mock Certificates
-	MockCertificate1 = &orchestrator.Certificate{
+	MockCertificate1 = &orchestrator.ComplianceAttestation{
 		Id:           MockCertificateId1,
 		Name:         "Mock Certificate 1",
 		Description:  "Mock certificate description 1",
 		AuditScopeId: MockScopeId1,
 	}
-	MockCertificate2 = &orchestrator.Certificate{
+	MockCertificate2 = &orchestrator.ComplianceAttestation{
 		Id:           MockCertificateId2,
 		Name:         "Mock Certificate 2",
 		Description:  "Mock certificate description 2",

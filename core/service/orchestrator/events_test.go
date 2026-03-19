@@ -36,8 +36,8 @@ import (
 // types contains all Orchestrator types that we need to auto-migrate into database tables
 var testTypes = []any{
 	&orchestrator.TargetOfEvaluation{},
-	&orchestrator.Certificate{},
-	&orchestrator.State{},
+	&orchestrator.ComplianceAttestation{},
+	&orchestrator.ComplianceAttestationState{},
 	&orchestrator.Catalog{},
 	&orchestrator.Category{},
 	&orchestrator.Control{},
