@@ -461,7 +461,7 @@ paths:
         put:
             tags:
                 - Orchestrator
-            description: Updates an existing certificate
+            description: Updates an existing catalog
             operationId: Orchestrator_UpdateCatalog
             parameters:
                 - name: catalog.id
@@ -1803,7 +1803,9 @@ components:
                         - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
                         - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
                     type: string
-                    description: Type of compliance attestation, e.g. certificate or attestation.
+                    description: |-
+                        Type of compliance attestation, e.g. formal certificate or third-party
+                         attestation.
                     format: enum
                 issuedAt:
                     type: string
@@ -1840,8 +1842,8 @@ components:
                          in states. When states are present, this should mirror the latest entry.
                     format: enum
             description: |-
-                ComplianceAttestation is the unified API resource for certificates, third-party
-                 attestations, and internal compliance declarations.
+                ComplianceAttestation is the unified API resource for formal compliance
+                 certificates, third-party attestations, and internal compliance declarations.
         ComplianceAttestationState:
             type: object
             properties:

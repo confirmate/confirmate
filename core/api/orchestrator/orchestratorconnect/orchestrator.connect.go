@@ -268,7 +268,7 @@ type OrchestratorClient interface {
 	GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Removes a catalog
 	RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error)
-	// Updates an existing certificate
+	// Updates an existing catalog
 	UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Retrieves a category of a catalog specified by the catalog ID and the
 	// category name. It includes the first level of controls within each
@@ -957,7 +957,7 @@ type OrchestratorHandler interface {
 	GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Removes a catalog
 	RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error)
-	// Updates an existing certificate
+	// Updates an existing catalog
 	UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Retrieves a category of a catalog specified by the catalog ID and the
 	// category name. It includes the first level of controls within each

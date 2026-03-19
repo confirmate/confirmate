@@ -172,8 +172,8 @@ func (RequestType) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{1}
 }
 
-// ComplianceAttestationType distinguishes formal certificates, third-party attestations,
-// and internal compliance declarations.
+// ComplianceAttestationType distinguishes formal compliance certificates,
+// third-party attestations, and internal compliance declarations.
 type ComplianceAttestationType int32
 
 const (
@@ -3590,8 +3590,8 @@ func (x *RemoveComplianceAttestationRequest) GetComplianceAttestationId() string
 	return ""
 }
 
-// ComplianceAttestation is the unified API resource for certificates, third-party
-// attestations, and internal compliance declarations.
+// ComplianceAttestation is the unified API resource for formal compliance
+// certificates, third-party attestations, and internal compliance declarations.
 type ComplianceAttestation struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -3616,7 +3616,8 @@ type ComplianceAttestation struct {
 	// Audit scope this attestation belongs to. This binds the attestation to a
 	// specific target of evaluation and catalog combination.
 	AuditScopeId string `protobuf:"bytes,11,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
-	// Type of compliance attestation, e.g. certificate or attestation.
+	// Type of compliance attestation, e.g. formal certificate or third-party
+	// attestation.
 	AttestationType ComplianceAttestationType `protobuf:"varint,12,opt,name=attestation_type,json=attestationType,proto3,enum=confirmate.orchestrator.v1.ComplianceAttestationType" json:"attestation_type,omitempty"`
 	// Preferred canonical issuance timestamp for this compliance attestation.
 	IssuedAt *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=issued_at,json=issuedAt,proto3,oneof" json:"issued_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`

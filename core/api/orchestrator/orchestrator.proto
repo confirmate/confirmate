@@ -261,7 +261,7 @@ service Orchestrator {
     option (google.api.http) = {delete: "/v1/orchestrator/catalogs/{catalog_id}"};
   }
 
-  // Updates an existing certificate
+  // Updates an existing catalog
   rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
       put: "/v1/orchestrator/catalogs/{catalog.id}"
@@ -1031,8 +1031,8 @@ message RemoveComplianceAttestationRequest {
   ];
 }
 
-// ComplianceAttestationType distinguishes formal certificates, third-party attestations,
-// and internal compliance declarations.
+// ComplianceAttestationType distinguishes formal compliance certificates,
+// third-party attestations, and internal compliance declarations.
 enum ComplianceAttestationType {
   COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED = 0;
   COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE = 1;
@@ -1066,8 +1066,8 @@ enum AttestationState {
   ATTESTATION_STATE_REJECTED = 9;
 }
 
-// ComplianceAttestation is the unified API resource for certificates, third-party
-// attestations, and internal compliance declarations.
+// ComplianceAttestation is the unified API resource for formal compliance
+// certificates, third-party attestations, and internal compliance declarations.
 message ComplianceAttestation {
   string id = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -1098,7 +1098,8 @@ message ComplianceAttestation {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Type of compliance attestation, e.g. certificate or attestation.
+  // Type of compliance attestation, e.g. formal certificate or third-party
+  // attestation.
   ComplianceAttestationType attestation_type = 12 [(buf.validate.field).enum.defined_only = true];
 
   // Preferred canonical issuance timestamp for this compliance attestation.
