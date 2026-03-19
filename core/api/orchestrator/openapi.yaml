@@ -1716,7 +1716,9 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/ComplianceAttestationState'
-                    description: A list of states at specific times
+                    description: |-
+                        Ordered lifecycle history. The newest entry should represent the current
+                         lifecycle state and should match compliance_status when both are present.
                 auditScopeId:
                     type: string
                     description: |-
@@ -1759,7 +1761,9 @@ components:
                         - ATTESTATION_STATE_UNDER_REVIEW
                         - ATTESTATION_STATE_REJECTED
                     type: string
-                    description: Current summarized compliance state. Detailed transitions live in states.
+                    description: |-
+                        Current summarized lifecycle / compliance state. Detailed transitions live
+                         in states. When states are present, this should mirror the latest entry.
                     format: enum
             description: |-
                 ComplianceAttestation is the unified API resource for certificates, third-party
@@ -1782,13 +1786,14 @@ components:
                         - ATTESTATION_STATE_UNDER_REVIEW
                         - ATTESTATION_STATE_REJECTED
                     type: string
-                    description: An EUCS-defined or platform-defined attestation lifecycle state.
+                    description: Lifecycle state after the transition.
                     format: enum
                 treeId:
                     type: string
                     description: Optional transparency log or external evidence tree reference.
                 timestamp:
                     type: string
+                    description: Time at which the transition became effective.
                     format: date-time
                 complianceAttestationId:
                     type: string

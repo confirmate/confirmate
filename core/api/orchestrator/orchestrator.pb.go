@@ -227,6 +227,18 @@ func (ComplianceAttestationType) EnumDescriptor() ([]byte, []int) {
 }
 
 // AttestationState models the lifecycle of a compliance attestation.
+//
+// Recommended lifecycle progression:
+// APPLIED -> UNDER_REVIEW -> IN_PROGRESS -> ISSUED -> ACTIVE -> EXPIRED
+//
+// Temporary or terminal detours:
+// - SUSPENDED may occur from ACTIVE or ISSUED
+// - WITHDRAWN may occur from ACTIVE, ISSUED, or SUSPENDED
+// - REJECTED may occur from APPLIED, UNDER_REVIEW, or IN_PROGRESS
+//
+// The API currently documents these transitions but does not enforce them at
+// the protobuf layer. Service-side validation can be added later without
+// changing this contract.
 type AttestationState int32
 
 const (
@@ -3428,7 +3440,10 @@ func (x *ListPublicComplianceAttestationsResponse) GetNextPageToken() string {
 }
 
 type UpdateComplianceAttestationRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UpdateComplianceAttestation is also used for lifecycle transitions. When a
+	// transition is requested, clients should append a new state entry and keep
+	// compliance_status aligned with the latest state.
 	ComplianceAttestation *ComplianceAttestation `protobuf:"bytes,1,opt,name=compliance_attestation,json=complianceAttestation,proto3" json:"compliance_attestation,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
@@ -3571,7 +3586,8 @@ type ComplianceAttestation struct {
 	AssuranceLevel string                 `protobuf:"bytes,7,opt,name=assurance_level,json=assuranceLevel,proto3" json:"assurance_level,omitempty"`
 	Cab            string                 `protobuf:"bytes,8,opt,name=cab,proto3" json:"cab,omitempty"`
 	Description    string                 `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
-	// A list of states at specific times
+	// Ordered lifecycle history. The newest entry should represent the current
+	// lifecycle state and should match compliance_status when both are present.
 	States []*ComplianceAttestationState `protobuf:"bytes,10,rep,name=states,proto3" json:"states,omitempty" gorm:"constraint:OnDelete:CASCADE"`
 	// Audit scope this attestation belongs to. This binds the attestation to a
 	// specific target of evaluation and catalog combination.
@@ -3585,7 +3601,8 @@ type ComplianceAttestation struct {
 	// Optional auditor / certification body information.
 	CertificationBody string `protobuf:"bytes,16,opt,name=certification_body,json=certificationBody,proto3" json:"certification_body,omitempty"`
 	Auditor           string `protobuf:"bytes,17,opt,name=auditor,proto3" json:"auditor,omitempty"`
-	// Current summarized compliance state. Detailed transitions live in states.
+	// Current summarized lifecycle / compliance state. Detailed transitions live
+	// in states. When states are present, this should mirror the latest entry.
 	ComplianceStatus AttestationState `protobuf:"varint,18,opt,name=compliance_status,json=complianceStatus,proto3,enum=confirmate.orchestrator.v1.AttestationState" json:"compliance_status,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -3744,10 +3761,11 @@ func (x *ComplianceAttestation) GetComplianceStatus() AttestationState {
 type ComplianceAttestationState struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// An EUCS-defined or platform-defined attestation lifecycle state.
+	// Lifecycle state after the transition.
 	State AttestationState `protobuf:"varint,2,opt,name=state,proto3,enum=confirmate.orchestrator.v1.AttestationState" json:"state,omitempty"`
 	// Optional transparency log or external evidence tree reference.
-	TreeId    string                 `protobuf:"bytes,3,opt,name=tree_id,json=treeId,proto3" json:"tree_id,omitempty"`
+	TreeId string `protobuf:"bytes,3,opt,name=tree_id,json=treeId,proto3" json:"tree_id,omitempty"`
+	// Time at which the transition became effective.
 	Timestamp *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// Reference to the compliance attestation.
 	ComplianceAttestationId string `protobuf:"bytes,5,opt,name=compliance_attestation_id,json=complianceAttestationId,proto3" json:"compliance_attestation_id,omitempty"`

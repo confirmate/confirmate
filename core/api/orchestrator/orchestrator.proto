@@ -986,6 +986,9 @@ message ListPublicComplianceAttestationsResponse {
 }
 
 message UpdateComplianceAttestationRequest {
+  // UpdateComplianceAttestation is also used for lifecycle transitions. When a
+  // transition is requested, clients should append a new state entry and keep
+  // compliance_status aligned with the latest state.
   ComplianceAttestation compliance_attestation = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
@@ -1016,6 +1019,18 @@ enum ComplianceAttestationType {
 }
 
 // AttestationState models the lifecycle of a compliance attestation.
+//
+// Recommended lifecycle progression:
+// APPLIED -> UNDER_REVIEW -> IN_PROGRESS -> ISSUED -> ACTIVE -> EXPIRED
+//
+// Temporary or terminal detours:
+// - SUSPENDED may occur from ACTIVE or ISSUED
+// - WITHDRAWN may occur from ACTIVE, ISSUED, or SUSPENDED
+// - REJECTED may occur from APPLIED, UNDER_REVIEW, or IN_PROGRESS
+//
+// The API currently documents these transitions but does not enforce them at
+// the protobuf layer. Service-side validation can be added later without
+// changing this contract.
 enum AttestationState {
   ATTESTATION_STATE_UNSPECIFIED = 0;
   ATTESTATION_STATE_IN_PROGRESS = 1;
@@ -1046,7 +1061,8 @@ message ComplianceAttestation {
   string assurance_level = 7;
   string cab = 8;
   string description = 9;
-  // A list of states at specific times
+  // Ordered lifecycle history. The newest entry should represent the current
+  // lifecycle state and should match compliance_status when both are present.
   repeated ComplianceAttestationState states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
 
   // Audit scope this attestation belongs to. This binds the attestation to a
@@ -1068,17 +1084,19 @@ message ComplianceAttestation {
   string certification_body = 16;
   string auditor = 17;
 
-  // Current summarized compliance state. Detailed transitions live in states.
+  // Current summarized lifecycle / compliance state. Detailed transitions live
+  // in states. When states are present, this should mirror the latest entry.
   AttestationState compliance_status = 18 [(buf.validate.field).enum.defined_only = true];
 }
 
 // ComplianceAttestationState records a lifecycle transition of a compliance attestation.
 message ComplianceAttestationState {
   string id = 1;
-  // An EUCS-defined or platform-defined attestation lifecycle state.
+  // Lifecycle state after the transition.
   AttestationState state = 2 [(buf.validate.field).enum.defined_only = true];
   // Optional transparency log or external evidence tree reference.
   string tree_id = 3;
+  // Time at which the transition became effective.
   google.protobuf.Timestamp timestamp = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   // Reference to the compliance attestation.
   string compliance_attestation_id = 5;
