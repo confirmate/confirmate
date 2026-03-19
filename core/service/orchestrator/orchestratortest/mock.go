@@ -28,29 +28,26 @@ import (
 
 // Mock UUIDs for consistent testing
 const (
+	MockEmptyUuid     = "00000000-0000-0000-0000-000000000000"
+	MockNonExistentId = "00000000-0000-0000-ffff-ffffffffffff"
+	MockEvidenceId1   = "00000000-0000-0000-0003-000000000001"
+	MockEvidenceId2   = "00000000-0000-0000-0003-000000000002"
+	MockMetricId1     = "00000000-0000-0000-0000-000000000001"
+	MockMetricId2     = "00000000-0000-0000-0000-000000000002"
+	MockMetricId3     = "00000000-0000-0000-0000-000000000003"
+	MockMetricId4     = "00000000-0000-0000-0000-000000000004"
 	MockToeId1        = "00000000-0000-0000-0000-000000000001"
-	MockToeId2        = "00000000-0000-0000-0000-000000000002"
-	MockToeId3        = "00000000-0000-0000-0000-000000000003"
-	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
-	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
 	MockResultId1     = "00000000-0000-0000-0002-000000000001"
 	MockResultId2     = "00000000-0000-0000-0002-000000000002"
 	MockResultId3     = "00000000-0000-0000-0002-000000000003"
-	MockEvidenceId1   = "00000000-0000-0000-0003-000000000001"
-	MockEvidenceId2   = "00000000-0000-0000-0003-000000000002"
-	MockNonExistentId = "00000000-0000-0000-ffff-ffffffffffff"
-	MockEmptyUuid     = "00000000-0000-0000-0000-000000000000"
+	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
+	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
+	MockToeId2        = "00000000-0000-0000-0000-000000000002"
+	MockToeId3        = "00000000-0000-0000-0000-000000000003"
 )
 
 // Mock string IDs for consistent testing
 const (
-	MockMetricId1        = "00000000-0000-0000-0000-000000000001"
-	MockMetricId2        = "00000000-0000-0000-0000-000000000002"
-	MockMetricId3        = "00000000-0000-0000-0000-000000000003"
-	MockMetricName1      = "Mock Metric 1"
-	MockMetricName2      = "Mock Metric 2"
-	MockMetricName3      = "Mock Metric 3"
-	MockMetricIdDefault  = "metric-default"
 	MockCatalogId1       = "catalog-1"
 	MockCatalogId2       = "catalog-2"
 	MockCatalogId3       = "catalog-3"
@@ -60,15 +57,21 @@ const (
 	MockControlId2       = "control-2"
 	MockCertificateId1   = "certificate-1"
 	MockCertificateId2   = "certificate-2"
+	MockDefaultVersion   = "v1"
+	MockMetricName1      = "Mock Metric 1"
+	MockMetricName2      = "Mock Metric 2"
+	MockMetricName3      = "Mock Metric 3"
+	MockMetricIdDefault  = "metric-default"
 	MockResourceId1      = "resource-1"
 	MockResourceId2      = "resource-2"
 	MockResourceIdNew    = "resource-new"
 	MockResourceId3      = "resource-3"
+	MockScopeName1       = "Mock Audit Scope 1"
+	MockScopeName2       = "Mock Audit Scope 2"
+	MockTestCategory     = "test-category"
 	MockToolId1          = "tool-1"
 	MockToolId2          = "tool-2"
 	MockToolIdConcurrent = "tool-concurrent"
-	MockTestCategory     = "test-category"
-	MockDefaultVersion   = "v1"
 )
 
 var (
@@ -99,6 +102,13 @@ var (
 		Description: "Mock Metric with Default Config",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
+	}
+	MockMetricDeprecated = &assessment.Metric{
+		Id:              MockMetricId4,
+		Description:     "Mock Deprecated Metric",
+		Version:         MockDefaultVersion,
+		Category:        MockTestCategory,
+		DeprecatedSince: timestamppb.Now(),
 	}
 
 	// Mock Metric Implementations
@@ -223,11 +233,13 @@ var (
 	// Mock Audit Scopes
 	MockAuditScope1 = &orchestrator.AuditScope{
 		Id:                   MockScopeId1,
+		Name:                 MockScopeName1,
 		TargetOfEvaluationId: MockToeId1,
 		CatalogId:            MockCatalogId1,
 	}
 	MockAuditScope2 = &orchestrator.AuditScope{
 		Id:                   MockScopeId2,
+		Name:                 MockScopeName2,
 		TargetOfEvaluationId: MockToeId2,
 		CatalogId:            MockCatalogId2,
 	}

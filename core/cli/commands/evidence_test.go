@@ -13,34 +13,21 @@
 //
 // This file is part of Confirmate Core.
 
-package server
+package commands_test
 
-// DefaultConfig is the default configuration for the [Server].
-var DefaultConfig = Config{
-	Port:     8080,
-	Path:     "/",
-	LogLevel: "INFO",
-	CORS: CORS{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
-	},
-}
+import (
+	"testing"
 
-// Config represents the configuration for the [Server].
-type Config struct {
-	Port     uint16
-	Path     string
-	LogLevel string
-	CORS     CORS
-	// UseGRPCReflection enables gRPC reflection, which allows clients to query the server for its
-	// supported services and methods.
-	UseGRPCReflection bool
-}
+	"confirmate.io/core/cli/commandstest"
+	"confirmate.io/core/util/assert"
+)
 
-// CORS represents the CORS configuration for the server.
-type CORS struct {
-	AllowedOrigins []string
-	AllowedMethods []string
-	AllowedHeaders []string
+func TestEvidenceCommands(t *testing.T) {
+	t.Run("list-tools", func(t *testing.T) {
+		// The cache starts empty on a fresh server, so the response is an
+		// empty JSON object. We verify the command succeeds and produces output.
+		output, err := commandstest.RunCLI(t, "evidence", "list-tools")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, output)
+	})
 }

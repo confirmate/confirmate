@@ -53,6 +53,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					AuditScope: &orchestrator.AuditScope{
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
 					},
 				},
 			},
@@ -68,10 +69,19 @@ func TestService_CreateAuditScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				scope := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
-				assert.Equal(t, orchestratortest.MockAuditScope1.TargetOfEvaluationId, scope.TargetOfEvaluationId)
-				assert.Equal(t, orchestratortest.MockAuditScope1.CatalogId, scope.CatalogId)
-				return true
+				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				want := &orchestrator.AuditScope{
+					// ID is generated, so we can't assert on it
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Name:                 orchestratortest.MockScopeName1,
+				}
+
+				// Check if ID is generated and not empty
+				assert.NotEmpty(t, got.Id)
+				// Remove ID from got for comparison since it's generated
+				got.Id = ""
+				return assert.Equal(t, want, got)
 			},
 		},
 		{
@@ -114,6 +124,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					AuditScope: &orchestrator.AuditScope{
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
 					},
 				},
 			},
@@ -134,6 +145,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					AuditScope: &orchestrator.AuditScope{
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
 					},
 				},
 			},
@@ -407,6 +419,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
 					},
@@ -419,8 +432,14 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					Id:                   orchestratortest.MockAuditScope1.Id,
+					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
+					TargetOfEvaluationId: orchestratortest.MockToeId2,
+					CatalogId:            "catalog-1-updated",
+				}
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, orchestratortest.MockAuditScope1.Id, got.Msg.Id)
+					assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -461,6 +480,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   orchestratortest.MockNonExistentId,
+						Name:                 "Non-existent Scope",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},
@@ -480,6 +500,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},
@@ -500,6 +521,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
 						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					},

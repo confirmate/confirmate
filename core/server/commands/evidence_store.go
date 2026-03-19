@@ -106,6 +106,7 @@ var EvidenceCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
+			server.WithReflection(),
 		)
 	},
 	Flags: joinFlagSlices(

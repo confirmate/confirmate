@@ -22,15 +22,16 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
-	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -75,31 +76,28 @@ var oauthServerFlags = []cli.Flag{
 	},
 }
 
-// ConfirmateCommand starts the full framework: orchestrator and assessment services on one server.
+// ConfirmateCommand starts the full framework: orchestrator,  assessment and evidence store services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors       []connect.Interceptor
-			svcOptions         []service.Option[orchestrator.Service]
-			assessmentOptions  []service.Option[assessment.Service]
-			jwksURL            string
-			svcOpts            []service.Option[orchestrator.Service]
-			assessmentOpts     []service.Option[assessment.Service]
-			svc                orchestratorconnect.OrchestratorHandler
-			assessmentSvc      assessmentconnect.AssessmentHandler
-			orchestratorClient *http.Client
-			apiPort            uint16
-			orchestratorURL    string
-			credentials        *clientcredentials.Config
-			authorizer         api.Authorizer
-			serverOpts         []server.Option
-			reflector          *grpcreflect.Reflector
-			reflectionV1Path   string
-			reflectionV1       http.Handler
-			reflectionV1APath  string
-			reflectionV1A      http.Handler
+			interceptors        []connect.Interceptor
+			orchestratorOptions []service.Option[orchestrator.Service]
+			assessmentOptions   []service.Option[assessment.Service]
+			evidenceOptions     []service.Option[evidence.Service]
+			jwksURL             string
+			orchestratorOpts    []service.Option[orchestrator.Service]
+			assessmentOpts      []service.Option[assessment.Service]
+			evidenceOpts        []service.Option[evidence.Service]
+			orchestratorSvc     orchestratorconnect.OrchestratorHandler
+			assessmentSvc       assessmentconnect.AssessmentHandler
+			evidenceSvc         evidenceconnect.EvidenceStoreHandler
+			orchestratorClient  *http.Client
+			apiPort             uint16
+			credentials         *clientcredentials.Config
+			authorizer          api.Authorizer
+			serverOpts          []server.Option
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -111,7 +109,7 @@ var ConfirmateCommand = &cli.Command{
 			interceptors = append(interceptors, server.NewAuthInterceptor(
 				server.WithJWKS(jwksURL),
 			))
-			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
+			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyJWT(
 				service.DefaultTargetOfEvaluationsClaim,
 				service.DefaultAllowAllClaim,
 			))
@@ -123,7 +121,8 @@ var ConfirmateCommand = &cli.Command{
 
 		interceptors = append(interceptors, &server.LoggingInterceptor{})
 
-		svcOpts = append([]service.Option[orchestrator.Service]{
+		// Orchestrator service configuration
+		orchestratorOpts = append([]service.Option[orchestrator.Service]{
 			orchestrator.WithConfig(orchestrator.Config{
 				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
@@ -141,15 +140,14 @@ var ConfirmateCommand = &cli.Command{
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
 			}),
-		}, svcOptions...)
+		}, orchestratorOptions...)
 
-		svc, err = orchestrator.NewService(svcOpts...)
+		orchestratorSvc, err = orchestrator.NewService(orchestratorOpts...)
 		if err != nil {
 			return err
 		}
 
 		apiPort = cmd.Uint16("api-port")
-		orchestratorURL = fmt.Sprintf("http://localhost:%d", apiPort)
 
 		orchestratorClient = http.DefaultClient
 		if cmd.Bool("auth-enabled") {
@@ -162,9 +160,10 @@ var ConfirmateCommand = &cli.Command{
 			orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
 		}
 
+		// Assessment service configuration
 		assessmentOpts = append([]service.Option[assessment.Service]{
 			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: orchestratorURL,
+				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
 				OrchestratorClient:  orchestratorClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
@@ -175,13 +174,32 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
-		reflector = grpcreflect.NewStaticReflector(
-			orchestratorconnect.OrchestratorName,
-			assessmentconnect.AssessmentName,
-		)
-		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
-		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
+		// EvidenceStore service configuration
+		evidenceOpts = append([]service.Option[evidence.Service]{
+			evidence.WithConfig(evidence.Config{
+				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user-name"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-ssl-mode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
+				AssessmentHTTPClient: &http.Client{
+					Timeout: cmd.Duration("evidence-assessment-http-timeout"),
+				},
+			}),
+		}, evidenceOptions...)
 
+		evidenceSvc, err = evidence.NewService(evidenceOpts...)
+		if err != nil {
+			return err
+		}
+
+		// Server options configuration including CORS, logging, handler and gRPC reflection
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
 				Port:     apiPort,
@@ -194,15 +212,18 @@ var ConfirmateCommand = &cli.Command{
 				},
 			}),
 			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
-				svc,
+				orchestratorSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
 				assessmentSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
-			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
-			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
+			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
+				evidenceSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithReflection(),
 		}
 
 		if cmd.Bool("oauth2-embedded") {

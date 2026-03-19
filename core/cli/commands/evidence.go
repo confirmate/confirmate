@@ -13,34 +13,30 @@
 //
 // This file is part of Confirmate Core.
 
-package server
+package commands
 
-// DefaultConfig is the default configuration for the [Server].
-var DefaultConfig = Config{
-	Port:     8080,
-	Path:     "/",
-	LogLevel: "INFO",
-	CORS: CORS{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization", "Connect-Protocol-Version", "Connect-Timeout-Ms"},
-	},
-}
+import (
+	"context"
 
-// Config represents the configuration for the [Server].
-type Config struct {
-	Port     uint16
-	Path     string
-	LogLevel string
-	CORS     CORS
-	// UseGRPCReflection enables gRPC reflection, which allows clients to query the server for its
-	// supported services and methods.
-	UseGRPCReflection bool
-}
+	"confirmate.io/core/api/evidence"
 
-// CORS represents the CORS configuration for the server.
-type CORS struct {
-	AllowedOrigins []string
-	AllowedMethods []string
-	AllowedHeaders []string
+	"connectrpc.com/connect"
+	"github.com/urfave/cli/v3"
+)
+
+// EvidenceListToolsCommand returns a CLI command that lists all evidence
+// collecting tool IDs that have provided evidence to the evidence store.
+func EvidenceListToolsCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "list-tools",
+		Usage: "List all evidence collecting tool IDs seen by the evidence store",
+		Action: func(ctx context.Context, c *cli.Command) error {
+			client := EvidenceStoreClient(ctx, c)
+			resp, err := client.ListTools(ctx, connect.NewRequest(&evidence.ListToolsRequest{}))
+			if err != nil {
+				return err
+			}
+			return PrettyPrint(resp.Msg)
+		},
+	}
 }
