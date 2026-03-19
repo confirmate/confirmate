@@ -730,6 +730,39 @@ paths:
             description: Lists all compliance attestations
             operationId: Orchestrator_ListComplianceAttestations
             parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only compliance attestations for a specific audit scope.
+                  schema:
+                    type: string
+                - name: filter.attestationType
+                  in: query
+                  description: Optional. List only compliance attestations of the specified type.
+                  schema:
+                    enum:
+                        - COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED
+                        - COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE
+                        - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
+                        - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
+                    type: string
+                    format: enum
+                - name: filter.complianceStatus
+                  in: query
+                  description: Optional. List only compliance attestations in the specified lifecycle state.
+                  schema:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    format: enum
                 - name: pageSize
                   in: query
                   schema:
@@ -1122,6 +1155,39 @@ paths:
             description: Lists all public compliance attestations without state history
             operationId: Orchestrator_ListPublicComplianceAttestations
             parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only compliance attestations for a specific audit scope.
+                  schema:
+                    type: string
+                - name: filter.attestationType
+                  in: query
+                  description: Optional. List only compliance attestations of the specified type.
+                  schema:
+                    enum:
+                        - COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED
+                        - COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE
+                        - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
+                        - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
+                    type: string
+                    format: enum
+                - name: filter.complianceStatus
+                  in: query
+                  description: Optional. List only compliance attestations in the specified lifecycle state.
+                  schema:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    format: enum
                 - name: pageSize
                   in: query
                   schema:

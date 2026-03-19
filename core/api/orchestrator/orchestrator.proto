@@ -962,6 +962,17 @@ message GetComplianceAttestationRequest {
 }
 
 message ListComplianceAttestationsRequest {
+  message Filter {
+    // Optional. List only compliance attestations for a specific audit scope.
+    optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+    // Optional. List only compliance attestations of the specified type.
+    optional ComplianceAttestationType attestation_type = 2 [(buf.validate.field).enum.defined_only = true];
+    // Optional. List only compliance attestations in the specified lifecycle state.
+    optional AttestationState compliance_status = 3 [(buf.validate.field).enum.defined_only = true];
+  }
+
+  optional Filter filter = 1;
+
   int32 page_size = 10;
   string page_token = 11;
   string order_by = 12;
@@ -974,6 +985,17 @@ message ListComplianceAttestationsResponse {
 }
 
 message ListPublicComplianceAttestationsRequest {
+  message Filter {
+    // Optional. List only compliance attestations for a specific audit scope.
+    optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+    // Optional. List only compliance attestations of the specified type.
+    optional ComplianceAttestationType attestation_type = 2 [(buf.validate.field).enum.defined_only = true];
+    // Optional. List only compliance attestations in the specified lifecycle state.
+    optional AttestationState compliance_status = 3 [(buf.validate.field).enum.defined_only = true];
+  }
+
+  optional Filter filter = 1;
+
   int32 page_size = 10;
   string page_token = 11;
   string order_by = 12;
