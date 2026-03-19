@@ -461,7 +461,7 @@ paths:
         put:
             tags:
                 - Orchestrator
-            description: Updates an existing certificate
+            description: Updates an existing catalog
             operationId: Orchestrator_UpdateCatalog
             parameters:
                 - name: catalog.id
@@ -723,13 +723,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/certificates:
+    /v1/orchestrator/compliance_attestations:
         get:
             tags:
                 - Orchestrator
-            description: Lists all target certificates
-            operationId: Orchestrator_ListCertificates
+            description: Lists all compliance attestations
+            operationId: Orchestrator_ListComplianceAttestations
             parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only compliance attestations for a specific audit scope.
+                  schema:
+                    type: string
+                - name: filter.attestationType
+                  in: query
+                  description: Optional. List only compliance attestations of the specified type.
+                  schema:
+                    enum:
+                        - COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED
+                        - COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE
+                        - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
+                        - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
+                    type: string
+                    format: enum
+                - name: filter.complianceStatus
+                  in: query
+                  description: Optional. List only compliance attestations in the specified lifecycle state.
+                  schema:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    format: enum
                 - name: pageSize
                   in: query
                   schema:
@@ -753,76 +786,21 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListCertificatesResponse'
+                                $ref: '#/components/schemas/ListComplianceAttestationsResponse'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-        post:
-            tags:
-                - Orchestrator
-            description: Creates a new certificate
-            operationId: Orchestrator_CreateCertificate
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Certificate'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Certificate'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/orchestrator/certificates/{certificate.id}:
-        put:
-            tags:
-                - Orchestrator
-            description: Updates an existing certificate
-            operationId: Orchestrator_UpdateCertificate
-            parameters:
-                - name: certificate.id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Certificate'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Certificate'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/orchestrator/certificates/{certificateId}:
+    /v1/orchestrator/compliance_attestations/{complianceAttestationId}:
         get:
             tags:
                 - Orchestrator
-            description: Retrieves a certificate
-            operationId: Orchestrator_GetCertificate
+            description: Retrieves a compliance attestation
+            operationId: Orchestrator_GetComplianceAttestation
             parameters:
-                - name: certificateId
+                - name: complianceAttestationId
                   in: path
                   required: true
                   schema:
@@ -833,7 +811,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Certificate'
+                                $ref: '#/components/schemas/ComplianceAttestation'
                 default:
                     description: Default error response
                     content:
@@ -843,10 +821,10 @@ paths:
         delete:
             tags:
                 - Orchestrator
-            description: Removes a certificate
-            operationId: Orchestrator_RemoveCertificate
+            description: Removes a compliance attestation
+            operationId: Orchestrator_RemoveComplianceAttestation
             parameters:
-                - name: certificateId
+                - name: complianceAttestationId
                   in: path
                   required: true
                   schema:
@@ -855,6 +833,37 @@ paths:
                 "200":
                     description: OK
                     content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/compliance_attestations/{compliance_attestation.id}:
+        put:
+            tags:
+                - Orchestrator
+            description: Updates an existing compliance attestation
+            operationId: Orchestrator_UpdateComplianceAttestation
+            parameters:
+                - name: compliance_attestation.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ComplianceAttestation'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ComplianceAttestation'
                 default:
                     description: Default error response
                     content:
@@ -1115,13 +1124,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/public/certificates:
+    /v1/orchestrator/public/compliance_attestations:
         get:
             tags:
                 - Orchestrator
-            description: Lists all target certificates without state history
-            operationId: Orchestrator_ListPublicCertificates
+            description: Lists all public compliance attestations without state history
+            operationId: Orchestrator_ListPublicComplianceAttestations
             parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only compliance attestations for a specific audit scope.
+                  schema:
+                    type: string
+                - name: filter.attestationType
+                  in: query
+                  description: Optional. List only compliance attestations of the specified type.
+                  schema:
+                    enum:
+                        - COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED
+                        - COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE
+                        - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
+                        - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
+                    type: string
+                    format: enum
+                - name: filter.complianceStatus
+                  in: query
+                  description: Optional. List only compliance attestations in the specified lifecycle state.
+                  schema:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    format: enum
                 - name: pageSize
                   in: query
                   schema:
@@ -1145,7 +1187,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListPublicCertificatesResponse'
+                                $ref: '#/components/schemas/ListPublicComplianceAttestationsResponse'
                 default:
                     description: Default error response
                     content:
@@ -1662,37 +1704,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Control'
-        Certificate:
-            required:
-                - id
-                - name
-                - targetOfEvaluationId
-            type: object
-            properties:
-                id:
-                    type: string
-                name:
-                    type: string
-                targetOfEvaluationId:
-                    type: string
-                issueDate:
-                    type: string
-                expirationDate:
-                    type: string
-                standard:
-                    type: string
-                assuranceLevel:
-                    type: string
-                cab:
-                    type: string
-                description:
-                    type: string
-                states:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/State'
-                    description: A list of states at specific times
-            description: An ISO17021-based certificate
         ComparisonResult:
             required:
                 - property
@@ -1720,6 +1731,129 @@ components:
                     type: boolean
                     description: Success is true, if the comparison was successful
             description: An optional structure containing more details how a comparison inside an assessment result was done and if it was successful.
+        ComplianceAttestation:
+            required:
+                - id
+                - name
+                - auditScopeId
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                issueDate:
+                    type: string
+                    description: |-
+                        Deprecated: legacy string issue date kept for backward compatibility.
+                         Prefer issued_at for new integrations.
+                expirationDate:
+                    type: string
+                    description: |-
+                        Deprecated: legacy string expiration date kept for backward compatibility.
+                         Prefer valid_until for new integrations.
+                standard:
+                    type: string
+                assuranceLevel:
+                    type: string
+                cab:
+                    type: string
+                description:
+                    type: string
+                states:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ComplianceAttestationState'
+                    description: |-
+                        Ordered lifecycle history. The newest entry should represent the current
+                         lifecycle state and should match compliance_status when both are present.
+                auditScopeId:
+                    type: string
+                    description: |-
+                        Audit scope this attestation belongs to. This binds the attestation to a
+                         specific target of evaluation and catalog combination.
+                attestationType:
+                    enum:
+                        - COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED
+                        - COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE
+                        - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
+                        - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
+                    type: string
+                    description: |-
+                        Type of compliance attestation, e.g. formal certificate or third-party
+                         attestation.
+                    format: enum
+                issuedAt:
+                    type: string
+                    description: Preferred canonical issuance timestamp for this compliance attestation.
+                    format: date-time
+                validFrom:
+                    type: string
+                    description: Preferred canonical start of the attestation validity period.
+                    format: date-time
+                validUntil:
+                    type: string
+                    description: Preferred canonical end of the attestation validity period.
+                    format: date-time
+                certificationBody:
+                    type: string
+                    description: Optional auditor / certification body information.
+                auditor:
+                    type: string
+                complianceStatus:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    description: |-
+                        Current summarized lifecycle / compliance state. Detailed transitions live
+                         in states. When states are present, this should mirror the latest entry.
+                    format: enum
+            description: |-
+                ComplianceAttestation is the unified API resource for formal compliance
+                 certificates, third-party attestations, and internal compliance declarations.
+        ComplianceAttestationState:
+            type: object
+            properties:
+                id:
+                    type: string
+                state:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    description: Lifecycle state after the transition.
+                    format: enum
+                treeId:
+                    type: string
+                    description: Optional transparency log or external evidence tree reference.
+                timestamp:
+                    type: string
+                    description: Time at which the transition became effective.
+                    format: date-time
+                complianceAttestationId:
+                    type: string
+                    description: Reference to the compliance attestation.
+                reason:
+                    type: string
+                    description: Optional human-readable reason for the state transition.
+            description: ComplianceAttestationState records a lifecycle transition of a compliance attestation.
         Control:
             required:
                 - id
@@ -1845,13 +1979,13 @@ components:
                         $ref: '#/components/schemas/Catalog'
                 nextPageToken:
                     type: string
-        ListCertificatesResponse:
+        ListComplianceAttestationsResponse:
             type: object
             properties:
-                certificates:
+                complianceAttestations:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Certificate'
+                        $ref: '#/components/schemas/ComplianceAttestation'
                 nextPageToken:
                     type: string
         ListControlsResponse:
@@ -1884,13 +2018,13 @@ components:
                         $ref: '#/components/schemas/Metric'
                 nextPageToken:
                     type: string
-        ListPublicCertificatesResponse:
+        ListPublicComplianceAttestationsResponse:
             type: object
             properties:
-                certificates:
+                complianceAttestations:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Certificate'
+                        $ref: '#/components/schemas/ComplianceAttestation'
                 nextPageToken:
                     type: string
         ListTargetsOfEvaluationResponse:
@@ -2034,22 +2168,6 @@ components:
                     items:
                         $ref: '#/components/schemas/Dependency'
                     description: dependency is a list of used runtime dependencies
-        State:
-            type: object
-            properties:
-                id:
-                    type: string
-                state:
-                    type: string
-                    description: An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
-                treeId:
-                    type: string
-                timestamp:
-                    type: string
-                certificateId:
-                    type: string
-                    description: Reference to the certificate
-            description: A state of a certificate at a given time
         Status:
             type: object
             properties:

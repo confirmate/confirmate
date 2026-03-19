@@ -64,13 +64,13 @@ func TestGetPayload(t *testing.T) {
 			},
 		},
 		{
-			name: "create certificate",
+			name: "create compliance attestation",
 			args: args{
 				get: func() proto.Message {
-					cert := &Certificate{Id: "cert-1"}
-					return (&CreateCertificateRequest{Certificate: cert}).GetPayload()
+					attestation := &ComplianceAttestation{Id: "cert-1"}
+					return (&CreateComplianceAttestationRequest{ComplianceAttestation: attestation}).GetPayload()
 				},
-				want: &Certificate{Id: "cert-1"},
+				want: &ComplianceAttestation{Id: "cert-1"},
 			},
 			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
 				want := assert.Is[proto.Message](t, msgAndArgs[0])
@@ -78,13 +78,13 @@ func TestGetPayload(t *testing.T) {
 			},
 		},
 		{
-			name: "update certificate",
+			name: "update compliance attestation",
 			args: args{
 				get: func() proto.Message {
-					cert := &Certificate{Id: "cert-2"}
-					return (&UpdateCertificateRequest{Certificate: cert}).GetPayload()
+					attestation := &ComplianceAttestation{Id: "cert-2"}
+					return (&UpdateComplianceAttestationRequest{ComplianceAttestation: attestation}).GetPayload()
 				},
-				want: &Certificate{Id: "cert-2"},
+				want: &ComplianceAttestation{Id: "cert-2"},
 			},
 			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
 				want := assert.Is[proto.Message](t, msgAndArgs[0])

@@ -29,14 +29,14 @@ func (r *UpdateCatalogRequest) GetPayload() proto.Message {
 	return r.GetCatalog()
 }
 
-// GetPayload returns the embedded certificate from [CreateCertificateRequest].
-func (r *CreateCertificateRequest) GetPayload() proto.Message {
-	return r.GetCertificate()
+// GetPayload returns the embedded compliance attestation from [CreateComplianceAttestationRequest].
+func (r *CreateComplianceAttestationRequest) GetPayload() proto.Message {
+	return r.GetComplianceAttestation()
 }
 
-// GetPayload returns the embedded certificate from [UpdateCertificateRequest].
-func (r *UpdateCertificateRequest) GetPayload() proto.Message {
-	return r.GetCertificate()
+// GetPayload returns the embedded compliance attestation from [UpdateComplianceAttestationRequest].
+func (r *UpdateComplianceAttestationRequest) GetPayload() proto.Message {
+	return r.GetComplianceAttestation()
 }
 
 // GetPayload returns the embedded audit_scope from [CreateAuditScopeRequest].

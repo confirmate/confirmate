@@ -99,8 +99,8 @@ func TestCheckAccess_AutoTargetResolution(t *testing.T) {
 		{
 			name: "payload target id",
 			call: func(ctx context.Context, strategy *AuthorizationStrategyJWT) bool {
-				return CheckAccess(strategy, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, connect.NewRequest(&orchestrator.CreateCertificateRequest{
-					Certificate: &orchestrator.Certificate{TargetOfEvaluationId: "toe-1"},
+				return CheckAccess(strategy, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, connect.NewRequest(&orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{TargetOfEvaluationId: "toe-1"},
 				}))
 			},
 			want: func(t *testing.T, got bool, _ ...any) bool {

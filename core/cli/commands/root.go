@@ -130,7 +130,7 @@ func NewRootCommand() *cli.Command {
 			{
 				Name:    "certificates",
 				Aliases: []string{"certs"},
-				Usage:   "Certificate operations",
+				Usage:   "Compliance attestation operations",
 				Commands: []*cli.Command{
 					CertificatesListCommand(),
 					CertificatesListPublicCommand(),

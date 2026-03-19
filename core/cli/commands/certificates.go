@@ -28,11 +28,11 @@ import (
 func CertificatesListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
-		Usage: "List all certificates",
+		Usage: "List all compliance attestations",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := OrchestratorClient(ctx, c)
-			resp, err := client.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{
+			resp, err := client.ListComplianceAttestations(ctx, connect.NewRequest(&orchestrator.ListComplianceAttestationsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
 			}))
@@ -48,11 +48,11 @@ func CertificatesListPublicCommand() *cli.Command {
 	return &cli.Command{
 		Name:    "list-public",
 		Aliases: []string{"public"},
-		Usage:   "List all public certificates",
+		Usage:   "List all public compliance attestations",
 		Flags:   PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := OrchestratorClient(ctx, c)
-			resp, err := client.ListPublicCertificates(ctx, connect.NewRequest(&orchestrator.ListPublicCertificatesRequest{
+			resp, err := client.ListPublicComplianceAttestations(ctx, connect.NewRequest(&orchestrator.ListPublicComplianceAttestationsRequest{
 				PageSize:  int32(c.Int("page-size")),
 				PageToken: c.String("page-token"),
 			}))
@@ -67,17 +67,17 @@ func CertificatesListPublicCommand() *cli.Command {
 func CertificatesGetCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "get",
-		Usage:     "Get a specific certificate by ID",
-		ArgsUsage: "<certificate-id>",
+		Usage:     "Get a specific compliance attestation by ID",
+		ArgsUsage: "<compliance-attestation-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if c.Args().Len() < 1 {
-				return fmt.Errorf("certificate ID required")
+				return fmt.Errorf("compliance attestation ID required")
 			}
 			certID := c.Args().Get(0)
 
 			client := OrchestratorClient(ctx, c)
-			resp, err := client.GetCertificate(ctx, connect.NewRequest(&orchestrator.GetCertificateRequest{
-				CertificateId: certID,
+			resp, err := client.GetComplianceAttestation(ctx, connect.NewRequest(&orchestrator.GetComplianceAttestationRequest{
+				ComplianceAttestationId: certID,
 			}))
 			if err != nil {
 				return err
@@ -91,22 +91,22 @@ func CertificatesRemoveCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "remove",
 		Aliases:   []string{"rm"},
-		Usage:     "Delete a certificate by ID",
-		ArgsUsage: "<certificate-id>",
+		Usage:     "Delete a compliance attestation by ID",
+		ArgsUsage: "<compliance-attestation-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if c.Args().Len() < 1 {
-				return fmt.Errorf("certificate ID required")
+				return fmt.Errorf("compliance attestation ID required")
 			}
 			certID := c.Args().Get(0)
 
 			client := OrchestratorClient(ctx, c)
-			_, err := client.RemoveCertificate(ctx, connect.NewRequest(&orchestrator.RemoveCertificateRequest{
-				CertificateId: certID,
+			_, err := client.RemoveComplianceAttestation(ctx, connect.NewRequest(&orchestrator.RemoveComplianceAttestationRequest{
+				ComplianceAttestationId: certID,
 			}))
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Certificate %s deleted successfully\n", certID)
+			fmt.Printf("Compliance attestation %s deleted successfully\n", certID)
 			return nil
 		},
 	}
