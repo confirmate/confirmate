@@ -28,7 +28,7 @@ import (
 func CertificatesListCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "list",
-		Usage: "List all certificates",
+		Usage: "List all compliance attestations",
 		Flags: PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := OrchestratorClient(ctx, c)
@@ -48,7 +48,7 @@ func CertificatesListPublicCommand() *cli.Command {
 	return &cli.Command{
 		Name:    "list-public",
 		Aliases: []string{"public"},
-		Usage:   "List all public certificates",
+		Usage:   "List all public compliance attestations",
 		Flags:   PaginationFlags(),
 		Action: func(ctx context.Context, c *cli.Command) error {
 			client := OrchestratorClient(ctx, c)
@@ -67,11 +67,11 @@ func CertificatesListPublicCommand() *cli.Command {
 func CertificatesGetCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "get",
-		Usage:     "Get a specific certificate by ID",
-		ArgsUsage: "<certificate-id>",
+		Usage:     "Get a specific compliance attestation by ID",
+		ArgsUsage: "<compliance-attestation-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if c.Args().Len() < 1 {
-				return fmt.Errorf("certificate ID required")
+				return fmt.Errorf("compliance attestation ID required")
 			}
 			certID := c.Args().Get(0)
 
@@ -91,11 +91,11 @@ func CertificatesRemoveCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "remove",
 		Aliases:   []string{"rm"},
-		Usage:     "Delete a certificate by ID",
-		ArgsUsage: "<certificate-id>",
+		Usage:     "Delete a compliance attestation by ID",
+		ArgsUsage: "<compliance-attestation-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
 			if c.Args().Len() < 1 {
-				return fmt.Errorf("certificate ID required")
+				return fmt.Errorf("compliance attestation ID required")
 			}
 			certID := c.Args().Get(0)
 
@@ -106,7 +106,7 @@ func CertificatesRemoveCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Certificate %s deleted successfully\n", certID)
+			fmt.Printf("Compliance attestation %s deleted successfully\n", certID)
 			return nil
 		},
 	}
