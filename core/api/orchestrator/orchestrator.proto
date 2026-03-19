@@ -200,13 +200,9 @@ service Orchestrator {
   // Subscribes to change events in the orchestrator
   rpc Subscribe(SubscribeRequest) returns (stream ChangeEvent) {}
 
-  // Creates a new compliance attestation
-  rpc CreateComplianceAttestation(CreateComplianceAttestationRequest) returns (ComplianceAttestation) {
-    option (google.api.http) = {
-      post: "/v1/orchestrator/compliance_attestations"
-      body: "compliance_attestation"
-    };
-  }
+  // Initiates a compliance attestation for a specific audit scope if not already started, otherwise returns the existing one
+  rpc InitiateComplianceAttestation(InitiateComplianceAttestationRequest)
+      returns (ComplianceAttestation);
 
   // Retrieves a compliance attestation
   rpc GetComplianceAttestation(GetComplianceAttestationRequest) returns (ComplianceAttestation) {
@@ -1019,9 +1015,9 @@ message UpdateComplianceAttestationRequest {
   ];
 }
 
-message CreateComplianceAttestationRequest {
-  ComplianceAttestation compliance_attestation = 1 [
-    (buf.validate.field).required = true,
+message InitiateComplianceAttestationRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
 }
