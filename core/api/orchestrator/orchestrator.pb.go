@@ -2475,9 +2475,9 @@ type AuditScope struct {
 	// optional
 	AssuranceLevel *string `protobuf:"bytes,3,opt,name=assurance_level,json=assuranceLevel,proto3,oneof" json:"assurance_level,omitempty"`
 	// List of user IDs that are allowed to access this audit scope. If empty, only users with elevated roles have access.
-	AccessUserIds []*User `protobuf:"bytes,5,rep,name=access_user_ids,json=accessUserIds,proto3" json:"access_user_ids,omitempty" gorm:"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE"`
+	AccessUserIds []*User `protobuf:"bytes,6,rep,name=access_user_ids,json=accessUserIds,proto3" json:"access_user_ids,omitempty" gorm:"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE"`
 	// List of user IDs that are responsible for maintaining this audit scope.
-	ResponsibleUserIds []*User `protobuf:"bytes,6,rep,name=responsible_user_ids,json=responsibleUserIds,proto3" json:"responsible_user_ids,omitempty" gorm:"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE"`
+	ResponsibleUserIds []*User `protobuf:"bytes,7,rep,name=responsible_user_ids,json=responsibleUserIds,proto3" json:"responsible_user_ids,omitempty" gorm:"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -4879,7 +4879,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x12_parent_control_idB\x1f\n" +
 	"\x1d_parent_control_category_nameB%\n" +
 	"#_parent_control_category_catalog_idB\x12\n" +
-	"\x10_assurance_level\"\xad\x04\n" +
+	"\x10_assurance_level\"\xcd\x04\n" +
 	"\n" +
 	"AuditScope\x121\n" +
 	"\x02id\x18\x04 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x1e\n" +
@@ -4890,8 +4890,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"catalog_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcatalogId\x12,\n" +
 	"\x0fassurance_level\x18\x03 \x01(\tH\x00R\x0eassuranceLevel\x88\x01\x01\x12\x94\x01\n" +
-	"\x0faccess_user_ids\x18\x05 \x03(\v2 .confirmate.orchestrator.v1.UserBJ\x9a\x84\x9e\x03Egorm:\"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE\"R\raccessUserIds\x12\xa3\x01\n" +
-	"\x14responsible_user_ids\x18\x06 \x03(\v2 .confirmate.orchestrator.v1.UserBO\x9a\x84\x9e\x03Jgorm:\"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE\"R\x12responsibleUserIdsB\x12\n" +
+	"\x0faccess_user_ids\x18\x06 \x03(\v2 .confirmate.orchestrator.v1.UserBJ\x9a\x84\x9e\x03Egorm:\"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE\"R\raccessUserIds\x12\xa3\x01\n" +
+	"\x14responsible_user_ids\x18\a \x03(\v2 .confirmate.orchestrator.v1.UserBO\x9a\x84\x9e\x03Jgorm:\"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE\"R\x12responsibleUserIdsB\x12\n" +
 	"\x10_assurance_level\"6\n" +
 	"\x1aGetAssessmentResultRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xbb\x05\n" +

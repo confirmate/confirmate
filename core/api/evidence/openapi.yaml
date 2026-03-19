@@ -329,8 +329,6 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
-                name:
-                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -479,8 +477,6 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
-                name:
-                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -694,8 +690,6 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
-                name:
-                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -3973,8 +3967,6 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
-                name:
-                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -4886,8 +4878,6 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
-                name:
-                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -5664,8 +5654,6 @@ components:
                     items:
                         type: string
                 description:
-                    type: string
-                name:
                     type: string
                 url:
                     type: string
