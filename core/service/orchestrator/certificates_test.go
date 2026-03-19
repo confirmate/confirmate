@@ -96,7 +96,7 @@ func TestService_CreateCertificate(t *testing.T) {
 			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.IsValidationError(t, err, "certificate.target_of_evaluation_id")
+					assert.IsValidationError(t, err, "certificate.audit_scope_id")
 			},
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
@@ -107,9 +107,9 @@ func TestService_CreateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 orchestratortest.MockCertificate1.Name,
-						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
+						Id:           orchestratortest.MockCertificate1.Id,
+						Name:         orchestratortest.MockCertificate1.Name,
+						AuditScopeId: orchestratortest.MockCertificate1.AuditScopeId,
 					},
 				},
 			},
@@ -171,9 +171,9 @@ func TestService_CreateCertificate_AuthorizationFailure(t *testing.T) {
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 orchestratortest.MockCertificate1.Name,
-						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
+						Id:           orchestratortest.MockCertificate1.Id,
+						Name:         orchestratortest.MockCertificate1.Name,
+						AuditScopeId: orchestratortest.MockCertificate1.AuditScopeId,
 					},
 				},
 			},
@@ -330,7 +330,11 @@ func TestService_ListCertificates(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCertificate1)
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCertificate2)
 					assert.NoError(t, err)
@@ -392,18 +396,24 @@ func TestService_ListPublicCertificates(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(&orchestrator.Certificate{
-						Id:          orchestratortest.MockCertificate1.Id,
-						Name:        orchestratortest.MockCertificate1.Name,
-						Description: orchestratortest.MockCertificate1.Description,
-						States:      []*orchestrator.State{{State: "active"}},
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+					err = d.Create(&orchestrator.Certificate{
+						Id:           orchestratortest.MockCertificate1.Id,
+						Name:         orchestratortest.MockCertificate1.Name,
+						Description:  orchestratortest.MockCertificate1.Description,
+						AuditScopeId: orchestratortest.MockCertificate1.AuditScopeId,
+						States:       []*orchestrator.State{{State: orchestrator.AttestationState_ATTESTATION_STATE_ACTIVE}},
 					})
 					assert.NoError(t, err)
 					err = d.Create(&orchestrator.Certificate{
-						Id:          orchestratortest.MockCertificate2.Id,
-						Name:        orchestratortest.MockCertificate2.Name,
-						Description: orchestratortest.MockCertificate2.Description,
-						States:      []*orchestrator.State{{State: "pending"}},
+						Id:           orchestratortest.MockCertificate2.Id,
+						Name:         orchestratortest.MockCertificate2.Name,
+						Description:  orchestratortest.MockCertificate2.Description,
+						AuditScopeId: orchestratortest.MockCertificate2.AuditScopeId,
+						States:       []*orchestrator.State{{State: orchestrator.AttestationState_ATTESTATION_STATE_IN_PROGRESS}},
 					})
 					assert.NoError(t, err)
 				}),
@@ -456,10 +466,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 "Updated Certificate",
-						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						Id:           orchestratortest.MockCertificate1.Id,
+						Name:         "Updated Certificate",
+						Description:  "Updated description",
+						AuditScopeId: orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -511,10 +521,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockNonExistentId,
-						Name:                 "Updated Certificate",
-						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						Id:           orchestratortest.MockNonExistentId,
+						Name:         "Updated Certificate",
+						Description:  "Updated description",
+						AuditScopeId: orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -531,10 +541,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 "Updated Certificate",
-						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						Id:           orchestratortest.MockCertificate1.Id,
+						Name:         "Updated Certificate",
+						Description:  "Updated description",
+						AuditScopeId: orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -552,10 +562,10 @@ func TestService_UpdateCertificate(t *testing.T) {
 			args: args{
 				req: &orchestrator.UpdateCertificateRequest{
 					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 "Updated Certificate",
-						Description:          "Updated description",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						Id:           orchestratortest.MockCertificate1.Id,
+						Name:         "Updated Certificate",
+						Description:  "Updated description",
+						AuditScopeId: orchestratortest.MockScopeId1,
 					},
 				},
 			},

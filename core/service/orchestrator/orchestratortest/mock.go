@@ -200,16 +200,16 @@ var (
 
 	// Mock Certificates
 	MockCertificate1 = &orchestrator.Certificate{
-		Id:                   MockCertificateId1,
-		Name:                 "Mock Certificate 1",
-		Description:          "Mock certificate description 1",
-		TargetOfEvaluationId: MockToeId1,
+		Id:           MockCertificateId1,
+		Name:         "Mock Certificate 1",
+		Description:  "Mock certificate description 1",
+		AuditScopeId: MockScopeId1,
 	}
 	MockCertificate2 = &orchestrator.Certificate{
-		Id:                   MockCertificateId2,
-		Name:                 "Mock Certificate 2",
-		Description:          "Mock certificate description 2",
-		TargetOfEvaluationId: MockToeId2,
+		Id:           MockCertificateId2,
+		Name:         "Mock Certificate 2",
+		Description:  "Mock certificate description 2",
+		AuditScopeId: MockScopeId2,
 	}
 
 	// Mock Assessment Tools

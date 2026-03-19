@@ -1094,7 +1094,32 @@ message RemoveCertificateRequest {
   ];
 }
 
-// An ISO17021-based certificate
+// ComplianceAttestationType distinguishes formal certificates, third-party attestations,
+// and internal compliance declarations.
+enum ComplianceAttestationType {
+  COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED = 0;
+  COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE = 1;
+  COMPLIANCE_ATTESTATION_TYPE_ATTESTATION = 2;
+  COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION = 3;
+}
+
+// AttestationState models the lifecycle of a compliance attestation.
+enum AttestationState {
+  ATTESTATION_STATE_UNSPECIFIED = 0;
+  ATTESTATION_STATE_IN_PROGRESS = 1;
+  ATTESTATION_STATE_ACTIVE = 2;
+  ATTESTATION_STATE_ISSUED = 3;
+  ATTESTATION_STATE_SUSPENDED = 4;
+  ATTESTATION_STATE_WITHDRAWN = 5;
+  ATTESTATION_STATE_EXPIRED = 6;
+  ATTESTATION_STATE_APPLIED = 7;
+  ATTESTATION_STATE_UNDER_REVIEW = 8;
+  ATTESTATION_STATE_REJECTED = 9;
+}
+
+// Certificate is the legacy API name for a compliance attestation.
+// It represents an assertion that a target of evaluation complies with a catalog
+// in the scope of a specific audit scope.
 message Certificate {
   string id = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -1102,10 +1127,6 @@ message Certificate {
   ];
   string name = 2 [
     (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string target_of_evaluation_id = 3 [
-    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
   string issue_date = 4;
@@ -1116,15 +1137,40 @@ message Certificate {
   string description = 9;
   // A list of states at specific times
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
+
+  // Audit scope this attestation belongs to. This binds the attestation to a
+  // specific target of evaluation and catalog combination.
+  string audit_scope_id = 11 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Type of compliance attestation, e.g. certificate or attestation.
+  ComplianceAttestationType attestation_type = 12 [(buf.validate.field).enum.defined_only = true];
+
+  // Structured validity timestamps for lifecycle-aware consumers.
+  optional google.protobuf.Timestamp issued_at = 13 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  optional google.protobuf.Timestamp valid_from = 14 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  optional google.protobuf.Timestamp valid_until = 15 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // Optional auditor / certification body information.
+  string certification_body = 16;
+  string auditor = 17;
+
+  // Current summarized compliance state. Detailed transitions live in states.
+  AttestationState compliance_status = 18 [(buf.validate.field).enum.defined_only = true];
 }
 
-// A state of a certificate at a given time
+// State is the legacy API name for a compliance attestation state transition.
 message State {
   string id = 1;
-  // An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
-  string state = 2;
+  // An EUCS-defined or platform-defined attestation lifecycle state.
+  AttestationState state = 2 [(buf.validate.field).enum.defined_only = true];
+  // Optional transparency log or external evidence tree reference.
   string tree_id = 3;
-  string timestamp = 4;
-  // Reference to the certificate
+  google.protobuf.Timestamp timestamp = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  // Reference to the certificate / compliance attestation.
   string certificate_id = 5;
+  // Optional human-readable reason for the state transition.
+  string reason = 6;
 }

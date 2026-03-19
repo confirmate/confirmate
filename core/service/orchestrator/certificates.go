@@ -87,8 +87,12 @@ func (svc *Service) ListCertificates(
 	req *connect.Request[orchestrator.ListCertificatesRequest],
 ) (res *connect.Response[orchestrator.ListCertificatesResponse], err error) {
 	var (
-		certificates []*orchestrator.Certificate
-		npt          string
+		certificates  []*orchestrator.Certificate
+		npt           string
+		all           bool
+		allowed       []string
+		auditScopes   []*orchestrator.AuditScope
+		auditScopeIDs []string
 	)
 
 	// Validate the request
@@ -102,9 +106,23 @@ func (svc *Service) ListCertificates(
 		req.Msg.Asc = true
 	}
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	all, allowed = svc.allowedTargetOfEvaluations(ctx)
 	if !all {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "target_of_evaluation_id IN ?", allowed)
+		err = svc.db.List(&auditScopes, "id", true, 0, -1, "target_of_evaluation_id IN ?", allowed)
+		if err = service.HandleDatabaseError(err); err != nil {
+			return nil, err
+		}
+
+		for _, auditScope := range auditScopes {
+			auditScopeIDs = append(auditScopeIDs, auditScope.Id)
+		}
+
+		if len(auditScopeIDs) == 0 {
+			res = connect.NewResponse(&orchestrator.ListCertificatesResponse{Certificates: []*orchestrator.Certificate{}})
+			return
+		}
+
+		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "audit_scope_id IN ?", auditScopeIDs)
 	} else {
 		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
 	}
@@ -125,8 +143,12 @@ func (svc *Service) ListPublicCertificates(
 	req *connect.Request[orchestrator.ListPublicCertificatesRequest],
 ) (res *connect.Response[orchestrator.ListPublicCertificatesResponse], err error) {
 	var (
-		certificates []*orchestrator.Certificate
-		npt          string
+		certificates  []*orchestrator.Certificate
+		npt           string
+		all           bool
+		allowed       []string
+		auditScopes   []*orchestrator.AuditScope
+		auditScopeIDs []string
 	)
 
 	// Validate the request
@@ -140,9 +162,23 @@ func (svc *Service) ListPublicCertificates(
 		req.Msg.Asc = true
 	}
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	all, allowed = svc.allowedTargetOfEvaluations(ctx)
 	if !all {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "target_of_evaluation_id IN ?", allowed)
+		err = svc.db.List(&auditScopes, "id", true, 0, -1, "target_of_evaluation_id IN ?", allowed)
+		if err = service.HandleDatabaseError(err); err != nil {
+			return nil, err
+		}
+
+		for _, auditScope := range auditScopes {
+			auditScopeIDs = append(auditScopeIDs, auditScope.Id)
+		}
+
+		if len(auditScopeIDs) == 0 {
+			res = connect.NewResponse(&orchestrator.ListPublicCertificatesResponse{Certificates: []*orchestrator.Certificate{}})
+			return
+		}
+
+		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "audit_scope_id IN ?", auditScopeIDs)
 	} else {
 		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
 	}

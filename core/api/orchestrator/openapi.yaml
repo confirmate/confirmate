@@ -1666,14 +1666,12 @@ components:
             required:
                 - id
                 - name
-                - targetOfEvaluationId
+                - auditScopeId
             type: object
             properties:
                 id:
                     type: string
                 name:
-                    type: string
-                targetOfEvaluationId:
                     type: string
                 issueDate:
                     type: string
@@ -1692,7 +1690,54 @@ components:
                     items:
                         $ref: '#/components/schemas/State'
                     description: A list of states at specific times
-            description: An ISO17021-based certificate
+                auditScopeId:
+                    type: string
+                    description: |-
+                        Audit scope this attestation belongs to. This binds the attestation to a
+                         specific target of evaluation and catalog combination.
+                attestationType:
+                    enum:
+                        - COMPLIANCE_ATTESTATION_TYPE_UNSPECIFIED
+                        - COMPLIANCE_ATTESTATION_TYPE_CERTIFICATE
+                        - COMPLIANCE_ATTESTATION_TYPE_ATTESTATION
+                        - COMPLIANCE_ATTESTATION_TYPE_INTERNAL_ATTESTATION
+                    type: string
+                    description: Type of compliance attestation, e.g. certificate or attestation.
+                    format: enum
+                issuedAt:
+                    type: string
+                    description: Structured validity timestamps for lifecycle-aware consumers.
+                    format: date-time
+                validFrom:
+                    type: string
+                    format: date-time
+                validUntil:
+                    type: string
+                    format: date-time
+                certificationBody:
+                    type: string
+                    description: Optional auditor / certification body information.
+                auditor:
+                    type: string
+                complianceStatus:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
+                    type: string
+                    description: Current summarized compliance state. Detailed transitions live in states.
+                    format: enum
+            description: |-
+                Certificate is the legacy API name for a compliance attestation.
+                 It represents an assertion that a target of evaluation complies with a catalog
+                 in the scope of a specific audit scope.
         ComparisonResult:
             required:
                 - property
@@ -2040,16 +2085,33 @@ components:
                 id:
                     type: string
                 state:
+                    enum:
+                        - ATTESTATION_STATE_UNSPECIFIED
+                        - ATTESTATION_STATE_IN_PROGRESS
+                        - ATTESTATION_STATE_ACTIVE
+                        - ATTESTATION_STATE_ISSUED
+                        - ATTESTATION_STATE_SUSPENDED
+                        - ATTESTATION_STATE_WITHDRAWN
+                        - ATTESTATION_STATE_EXPIRED
+                        - ATTESTATION_STATE_APPLIED
+                        - ATTESTATION_STATE_UNDER_REVIEW
+                        - ATTESTATION_STATE_REJECTED
                     type: string
-                    description: An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
+                    description: An EUCS-defined or platform-defined attestation lifecycle state.
+                    format: enum
                 treeId:
                     type: string
+                    description: Optional transparency log or external evidence tree reference.
                 timestamp:
                     type: string
+                    format: date-time
                 certificateId:
                     type: string
-                    description: Reference to the certificate
-            description: A state of a certificate at a given time
+                    description: Reference to the certificate / compliance attestation.
+                reason:
+                    type: string
+                    description: Optional human-readable reason for the state transition.
+            description: State is the legacy API name for a compliance attestation state transition.
         Status:
             type: object
             properties:
