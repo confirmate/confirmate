@@ -3,8 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: Orchestrator API
-    description: Manages the orchestration of components within the confirmate architecture
+    title: ""
     version: 0.0.1
 paths:
     /v1/orchestrator/assessment_results:
@@ -1483,6 +1482,140 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/users:
+        get:
+            tags:
+                - UserManagement
+            description: Lists users with optional filtering
+            operationId: UserManagement_ListUsers
+            parameters:
+                - name: filter.role
+                  in: query
+                  description: Optional. Filter by role (e.g., "compliance_manager")
+                  schema:
+                    enum:
+                        - ROLE_ADMIN
+                        - ROLE_COMPLIANCE_MANAGER
+                        - ROLE_EXPERT_COMPLIANCE_MANAGER
+                        - ROLE_INTERNAL_CONTROL_OWNER
+                        - ROLE_TECHNICAL_IMPLEMENTER
+                        - ROLE_AUDITOR
+                        - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                    type: string
+                    format: enum
+                - name: filter.enabled
+                  in: query
+                  description: Optional. Filter by enabled/disabled status
+                  schema:
+                    type: boolean
+                - name: filter.search
+                  in: query
+                  description: Optional. Search query for username, email, first name, or last name
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUsersResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/users/me:
+        get:
+            tags:
+                - UserManagement
+            description: Returns information about the currently authenticated user
+            operationId: UserManagement_GetCurrentUser
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/users/roles:
+        get:
+            tags:
+                - UserManagement
+            description: Lists all predefined roles in the system.
+            operationId: UserManagement_ListUserRoles
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserRolesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/users/{userId}:
+        get:
+            tags:
+                - UserManagement
+            description: Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+            operationId: UserManagement_GetUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         AssessmentResult:
@@ -1594,6 +1727,16 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
+                accessUserIds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: List of user IDs that are allowed to access this audit scope. If empty, only users with elevated roles have access.
+                responsibleUserIds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: List of user IDs that are responsible for maintaining this audit scope.
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
@@ -1902,6 +2045,31 @@ components:
                         $ref: '#/components/schemas/TargetOfEvaluation'
                 nextPageToken:
                     type: string
+        ListUserRolesResponse:
+            type: object
+            properties:
+                roles:
+                    type: array
+                    items:
+                        enum:
+                            - ROLE_ADMIN
+                            - ROLE_COMPLIANCE_MANAGER
+                            - ROLE_EXPERT_COMPLIANCE_MANAGER
+                            - ROLE_INTERNAL_CONTROL_OWNER
+                            - ROLE_TECHNICAL_IMPLEMENTER
+                            - ROLE_AUDITOR
+                            - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        type: string
+                        format: enum
+        ListUsersResponse:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                nextPageToken:
+                    type: string
         Metric:
             required:
                 - id
@@ -2109,6 +2277,16 @@ components:
                     type: string
                     description: 'type of the target to be evaluated: cloud, product or organization'
                     format: enum
+                accessUserIds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: List of user IDs that are allowed to access this target of evaluation. If empty, only users with elevated roles have access.
+                responsibleUserIds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: List of user IDs that are responsible for maintaining this target of evaluation.
         TargetOfEvaluation_Metadata:
             type: object
             properties:
@@ -2120,5 +2298,51 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
+        User:
+            required:
+                - id
+                - username
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ID is the unique identifier of the user
+                username:
+                    type: string
+                    description: Username is the name used to be displayed
+                email:
+                    type: string
+                    description: Email is the email address of the user, if available.
+                firstName:
+                    type: string
+                    description: FirstName is the first name of the user, if available.
+                lastName:
+                    type: string
+                    description: LastName is the last name of the user, if available.
+                roles:
+                    type: array
+                    items:
+                        enum:
+                            - ROLE_ADMIN
+                            - ROLE_COMPLIANCE_MANAGER
+                            - ROLE_EXPERT_COMPLIANCE_MANAGER
+                            - ROLE_INTERNAL_CONTROL_OWNER
+                            - ROLE_TECHNICAL_IMPLEMENTER
+                            - ROLE_AUDITOR
+                            - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        type: string
+                        format: enum
+                    description: Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
+                enabled:
+                    type: boolean
+                    description: Enabled indicates whether the user is active/enabled in the system
+                attributes:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Attributes contains additional key-value pairs associated with the user, such as department or team.
+            description: Represents a user from the IdP
 tags:
     - name: Orchestrator
+      description: Manages the orchestration of components within the confirmate architecture
+    - name: UserManagement

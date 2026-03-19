@@ -23,6 +23,8 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
 
+option go_package = "confirmate.io/core/api/orchestrator";
+
 service UserManagement {
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
