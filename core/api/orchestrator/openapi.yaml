@@ -1768,8 +1768,14 @@ components:
                     type: string
                 issueDate:
                     type: string
+                    description: |-
+                        Deprecated: legacy string issue date kept for backward compatibility.
+                         Prefer issued_at for new integrations.
                 expirationDate:
                     type: string
+                    description: |-
+                        Deprecated: legacy string expiration date kept for backward compatibility.
+                         Prefer valid_until for new integrations.
                 standard:
                     type: string
                 assuranceLevel:
@@ -1801,13 +1807,15 @@ components:
                     format: enum
                 issuedAt:
                     type: string
-                    description: Structured validity timestamps for lifecycle-aware consumers.
+                    description: Preferred canonical issuance timestamp for this compliance attestation.
                     format: date-time
                 validFrom:
                     type: string
+                    description: Preferred canonical start of the attestation validity period.
                     format: date-time
                 validUntil:
                     type: string
+                    description: Preferred canonical end of the attestation validity period.
                     format: date-time
                 certificationBody:
                     type: string

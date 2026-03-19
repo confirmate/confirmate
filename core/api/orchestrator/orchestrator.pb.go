@@ -3593,15 +3593,23 @@ func (x *RemoveComplianceAttestationRequest) GetComplianceAttestationId() string
 // ComplianceAttestation is the unified API resource for certificates, third-party
 // attestations, and internal compliance declarations.
 type ComplianceAttestation struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	IssueDate      string                 `protobuf:"bytes,4,opt,name=issue_date,json=issueDate,proto3" json:"issue_date,omitempty"`
-	ExpirationDate string                 `protobuf:"bytes,5,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty"`
-	Standard       string                 `protobuf:"bytes,6,opt,name=standard,proto3" json:"standard,omitempty"`
-	AssuranceLevel string                 `protobuf:"bytes,7,opt,name=assurance_level,json=assuranceLevel,proto3" json:"assurance_level,omitempty"`
-	Cab            string                 `protobuf:"bytes,8,opt,name=cab,proto3" json:"cab,omitempty"`
-	Description    string                 `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Deprecated: legacy string issue date kept for backward compatibility.
+	// Prefer issued_at for new integrations.
+	//
+	// Deprecated: Marked as deprecated in api/orchestrator/orchestrator.proto.
+	IssueDate string `protobuf:"bytes,4,opt,name=issue_date,json=issueDate,proto3" json:"issue_date,omitempty"`
+	// Deprecated: legacy string expiration date kept for backward compatibility.
+	// Prefer valid_until for new integrations.
+	//
+	// Deprecated: Marked as deprecated in api/orchestrator/orchestrator.proto.
+	ExpirationDate string `protobuf:"bytes,5,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty"`
+	Standard       string `protobuf:"bytes,6,opt,name=standard,proto3" json:"standard,omitempty"`
+	AssuranceLevel string `protobuf:"bytes,7,opt,name=assurance_level,json=assuranceLevel,proto3" json:"assurance_level,omitempty"`
+	Cab            string `protobuf:"bytes,8,opt,name=cab,proto3" json:"cab,omitempty"`
+	Description    string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
 	// Ordered lifecycle history. The newest entry should represent the current
 	// lifecycle state and should match compliance_status when both are present.
 	States []*ComplianceAttestationState `protobuf:"bytes,10,rep,name=states,proto3" json:"states,omitempty" gorm:"constraint:OnDelete:CASCADE"`
@@ -3610,9 +3618,11 @@ type ComplianceAttestation struct {
 	AuditScopeId string `protobuf:"bytes,11,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	// Type of compliance attestation, e.g. certificate or attestation.
 	AttestationType ComplianceAttestationType `protobuf:"varint,12,opt,name=attestation_type,json=attestationType,proto3,enum=confirmate.orchestrator.v1.ComplianceAttestationType" json:"attestation_type,omitempty"`
-	// Structured validity timestamps for lifecycle-aware consumers.
-	IssuedAt   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=issued_at,json=issuedAt,proto3,oneof" json:"issued_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	ValidFrom  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=valid_from,json=validFrom,proto3,oneof" json:"valid_from,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// Preferred canonical issuance timestamp for this compliance attestation.
+	IssuedAt *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=issued_at,json=issuedAt,proto3,oneof" json:"issued_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// Preferred canonical start of the attestation validity period.
+	ValidFrom *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=valid_from,json=validFrom,proto3,oneof" json:"valid_from,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// Preferred canonical end of the attestation validity period.
 	ValidUntil *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=valid_until,json=validUntil,proto3,oneof" json:"valid_until,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// Optional auditor / certification body information.
 	CertificationBody string `protobuf:"bytes,16,opt,name=certification_body,json=certificationBody,proto3" json:"certification_body,omitempty"`
@@ -3668,6 +3678,7 @@ func (x *ComplianceAttestation) GetName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in api/orchestrator/orchestrator.proto.
 func (x *ComplianceAttestation) GetIssueDate() string {
 	if x != nil {
 		return x.IssueDate
@@ -3675,6 +3686,7 @@ func (x *ComplianceAttestation) GetIssueDate() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in api/orchestrator/orchestrator.proto.
 func (x *ComplianceAttestation) GetExpirationDate() string {
 	if x != nil {
 		return x.ExpirationDate
@@ -5317,15 +5329,15 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x16compliance_attestation\x18\x01 \x01(\v21.confirmate.orchestrator.v1.ComplianceAttestationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x15complianceAttestation\"l\n" +
 	"\"RemoveComplianceAttestationRequest\x12F\n" +
 	"\x19compliance_attestation_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x17complianceAttestationId\"\xe0\b\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x17complianceAttestationId\"\xe8\b\n" +
 	"\x15ComplianceAttestation\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12\x1d\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12!\n" +
 	"\n" +
-	"issue_date\x18\x04 \x01(\tR\tissueDate\x12'\n" +
-	"\x0fexpiration_date\x18\x05 \x01(\tR\x0eexpirationDate\x12\x1a\n" +
+	"issue_date\x18\x04 \x01(\tB\x02\x18\x01R\tissueDate\x12+\n" +
+	"\x0fexpiration_date\x18\x05 \x01(\tB\x02\x18\x01R\x0eexpirationDate\x12\x1a\n" +
 	"\bstandard\x18\x06 \x01(\tR\bstandard\x12'\n" +
 	"\x0fassurance_level\x18\a \x01(\tR\x0eassuranceLevel\x12\x10\n" +
 	"\x03cab\x18\b \x01(\tR\x03cab\x12 \n" +

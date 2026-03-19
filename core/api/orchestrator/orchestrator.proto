@@ -1077,8 +1077,12 @@ message ComplianceAttestation {
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
-  string issue_date = 4;
-  string expiration_date = 5;
+  // Deprecated: legacy string issue date kept for backward compatibility.
+  // Prefer issued_at for new integrations.
+  string issue_date = 4 [deprecated = true];
+  // Deprecated: legacy string expiration date kept for backward compatibility.
+  // Prefer valid_until for new integrations.
+  string expiration_date = 5 [deprecated = true];
   string standard = 6;
   string assurance_level = 7;
   string cab = 8;
@@ -1097,9 +1101,11 @@ message ComplianceAttestation {
   // Type of compliance attestation, e.g. certificate or attestation.
   ComplianceAttestationType attestation_type = 12 [(buf.validate.field).enum.defined_only = true];
 
-  // Structured validity timestamps for lifecycle-aware consumers.
+  // Preferred canonical issuance timestamp for this compliance attestation.
   optional google.protobuf.Timestamp issued_at = 13 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  // Preferred canonical start of the attestation validity period.
   optional google.protobuf.Timestamp valid_from = 14 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  // Preferred canonical end of the attestation validity period.
   optional google.protobuf.Timestamp valid_until = 15 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 
   // Optional auditor / certification body information.
