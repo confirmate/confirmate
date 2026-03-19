@@ -22,6 +22,7 @@ import (
 	"os"
 	"strings"
 
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	confcli "confirmate.io/core/cli"
 	"github.com/hokaccha/go-prettyjson"
@@ -60,10 +61,12 @@ func httpClientFromContext(ctx context.Context) (*http.Client, bool) {
 // "addr" flag and its HTTP client can be overriden by setting an
 // [httpClientKey] in the ctx.
 func OrchestratorClient(ctx context.Context, c *cli.Command) (client orchestratorconnect.OrchestratorClient) {
-	var httpClient *http.Client
-	var overridden bool
-	var session *confcli.Session
-	var err error
+	var (
+		httpClient *http.Client
+		overridden bool
+		session *confcli.Session
+		err error
+	) 
 
 	httpClient, overridden = httpClientFromContext(ctx)
 	if !overridden {
@@ -74,6 +77,29 @@ func OrchestratorClient(ctx context.Context, c *cli.Command) (client orchestrato
 	}
 
 	client = orchestratorconnect.NewOrchestratorClient(httpClient, c.Root().String("addr"))
+	return client
+}
+
+// EvidenceStoreClient returns an evidence store client. It is configured by the
+// "addr" flag and its HTTP client can be overridden by setting an
+// [httpClientKey] in the ctx.
+func EvidenceStoreClient(ctx context.Context, c *cli.Command) (client evidenceconnect.EvidenceStoreClient) {
+	var ( 
+		httpClient *http.Client
+		overridden bool
+		session *confcli.Session
+		err error
+	)
+
+	httpClient, overridden = httpClientFromContext(ctx)
+	if !overridden {
+		session, err = confcli.LoadSession(c.Root().String(confcli.SessionFolderFlag))
+		if err == nil && session != nil {
+			httpClient = session.HTTPClient(httpClient)
+		}
+	}
+
+	client = evidenceconnect.NewEvidenceStoreClient(httpClient, c.Root().String("addr"))
 	return client
 }
 
