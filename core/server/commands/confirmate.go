@@ -82,22 +82,25 @@ var ConfirmateCommand = &cli.Command{
 	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors        []connect.Interceptor
-			orchestratorOptions []service.Option[orchestrator.Service]
-			assessmentOptions   []service.Option[assessment.Service]
-			evidenceOptions     []service.Option[evidence.Service]
-			jwksURL             string
-			orchestratorOpts    []service.Option[orchestrator.Service]
-			assessmentOpts      []service.Option[assessment.Service]
-			evidenceOpts        []service.Option[evidence.Service]
-			orchestratorSvc     orchestratorconnect.OrchestratorHandler
-			assessmentSvc       assessmentconnect.AssessmentHandler
-			evidenceSvc         evidenceconnect.EvidenceStoreHandler
-			orchestratorClient  *http.Client
-			apiPort             uint16
-			credentials         *clientcredentials.Config
-			authorizer          api.Authorizer
-			serverOpts          []server.Option
+			interceptors          []connect.Interceptor
+			orchestratorOptions   []service.Option[orchestrator.Service]
+			userManagementOptions []service.Option[orchestrator.UserManagementService]
+			assessmentOptions     []service.Option[assessment.Service]
+			evidenceOptions       []service.Option[evidence.Service]
+			jwksURL               string
+			orchestratorOpts      []service.Option[orchestrator.Service]
+			userManagementOpts    []service.Option[orchestrator.UserManagementService]
+			assessmentOpts        []service.Option[assessment.Service]
+			evidenceOpts          []service.Option[evidence.Service]
+			orchestratorSvc       orchestratorconnect.OrchestratorHandler
+			userManagementSvc     orchestratorconnect.UserManagementHandler
+			assessmentSvc         assessmentconnect.AssessmentHandler
+			evidenceSvc           evidenceconnect.EvidenceStoreHandler
+			orchestratorClient    *http.Client
+			apiPort               uint16
+			credentials           *clientcredentials.Config
+			authorizer            api.Authorizer
+			serverOpts            []server.Option
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -146,7 +149,6 @@ var ConfirmateCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-
 		apiPort = cmd.Uint16("api-port")
 
 		orchestratorClient = http.DefaultClient
@@ -158,6 +160,16 @@ var ConfirmateCommand = &cli.Command{
 			}
 			authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
 			orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
+		}
+
+		// User management service configuration
+		userManagementOpts = append([]service.Option[orchestrator.UserManagementService]{
+			orchestrator.WithUserManagementConfig(orchestrator.UserManagementConfig{}),
+		}, userManagementOptions...)
+
+		userManagementSvc, err = orchestrator.NewUserManagementService(userManagementOpts...)
+		if err != nil {
+			return err
 		}
 
 		// Assessment service configuration
@@ -213,6 +225,10 @@ var ConfirmateCommand = &cli.Command{
 			}),
 			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
 				orchestratorSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(orchestratorconnect.NewUserManagementHandler(
+				userManagementSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
