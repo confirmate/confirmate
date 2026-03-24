@@ -2486,12 +2486,17 @@ type AuditScope struct {
 	// an assurance level is not offered by every catalog, therefore it is
 	// optional
 	AssuranceLevel *string `protobuf:"bytes,3,opt,name=assurance_level,json=assuranceLevel,proto3,oneof" json:"assurance_level,omitempty"`
-	// List of user IDs that are allowed to access this audit scope. If empty, only users with elevated roles have access.
-	AccessUserIds []*User `protobuf:"bytes,6,rep,name=access_user_ids,json=accessUserIds,proto3" json:"access_user_ids,omitempty" gorm:"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE"`
-	// List of user IDs that are responsible for maintaining this audit scope.
-	ResponsibleUserIds []*User `protobuf:"bytes,7,rep,name=responsible_user_ids,json=responsibleUserIds,proto3" json:"responsible_user_ids,omitempty" gorm:"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// List of user IDs with explicit permission to view this target (Read-only).
+	// If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+	ReaderUsers []*User `protobuf:"bytes,6,rep,name=reader_users,json=readerUsers,proto3" json:"reader_users,omitempty" gorm:"many2many:audit_scope_readers;constraint:OnDelete:CASCADE"`
+	// List of user IDs responsible for the content and maintenance of this target.
+	// These users can modify settings and data but cannot manage other users' access.
+	ContributorUsers []*User `protobuf:"bytes,7,rep,name=contributor_users,json=contributorUsers,proto3" json:"contributor_users,omitempty" gorm:"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE"`
+	// List of user IDs with administrative control over this target.
+	// These users can manage permissions for others and perform destructive actions like deletion.
+	AdminUsers    []*User `protobuf:"bytes,8,rep,name=admin_users,json=adminUsers,proto3" json:"admin_users,omitempty" gorm:"many2many:audit_scope_admins;constraint:OnDelete:CASCADE"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AuditScope) Reset() {
@@ -2559,16 +2564,23 @@ func (x *AuditScope) GetAssuranceLevel() string {
 	return ""
 }
 
-func (x *AuditScope) GetAccessUserIds() []*User {
+func (x *AuditScope) GetReaderUsers() []*User {
 	if x != nil {
-		return x.AccessUserIds
+		return x.ReaderUsers
 	}
 	return nil
 }
 
-func (x *AuditScope) GetResponsibleUserIds() []*User {
+func (x *AuditScope) GetContributorUsers() []*User {
 	if x != nil {
-		return x.ResponsibleUserIds
+		return x.ContributorUsers
+	}
+	return nil
+}
+
+func (x *AuditScope) GetAdminUsers() []*User {
+	if x != nil {
+		return x.AdminUsers
 	}
 	return nil
 }
@@ -4892,7 +4904,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x12_parent_control_idB\x1f\n" +
 	"\x1d_parent_control_category_nameB%\n" +
 	"#_parent_control_category_catalog_idB\x12\n" +
-	"\x10_assurance_level\"\xcd\x04\n" +
+	"\x10_assurance_level\"\xc3\x05\n" +
 	"\n" +
 	"AuditScope\x121\n" +
 	"\x02id\x18\x04 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x1e\n" +
@@ -4902,9 +4914,11 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcatalogId\x12,\n" +
-	"\x0fassurance_level\x18\x03 \x01(\tH\x00R\x0eassuranceLevel\x88\x01\x01\x12\x94\x01\n" +
-	"\x0faccess_user_ids\x18\x06 \x03(\v2 .confirmate.orchestrator.v1.UserBJ\x9a\x84\x9e\x03Egorm:\"many2many:audit_scope_access_users;constraint:OnDelete:CASCADE\"R\raccessUserIds\x12\xa3\x01\n" +
-	"\x14responsible_user_ids\x18\a \x03(\v2 .confirmate.orchestrator.v1.UserBO\x9a\x84\x9e\x03Jgorm:\"many2many:audit_scope_responsible_users;constraint:OnDelete:CASCADE\"R\x12responsibleUserIdsB\x12\n" +
+	"\x0fassurance_level\x18\x03 \x01(\tH\x00R\x0eassuranceLevel\x88\x01\x01\x12\x8a\x01\n" +
+	"\freader_users\x18\x06 \x03(\v2 .confirmate.orchestrator.v1.UserBE\x9a\x84\x9e\x03@gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\"R\vreaderUsers\x12\x99\x01\n" +
+	"\x11contributor_users\x18\a \x03(\v2 .confirmate.orchestrator.v1.UserBJ\x9a\x84\x9e\x03Egorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\"R\x10contributorUsers\x12\x87\x01\n" +
+	"\vadmin_users\x18\b \x03(\v2 .confirmate.orchestrator.v1.UserBD\x9a\x84\x9e\x03?gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\"R\n" +
+	"adminUsersB\x12\n" +
 	"\x10_assurance_level\"6\n" +
 	"\x1aGetAssessmentResultRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xbb\x05\n" +
@@ -5281,124 +5295,125 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	38,  // 36: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
 	38,  // 37: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
 	80,  // 38: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
-	84,  // 39: confirmate.orchestrator.v1.AuditScope.access_user_ids:type_name -> confirmate.orchestrator.v1.User
-	84,  // 40: confirmate.orchestrator.v1.AuditScope.responsible_user_ids:type_name -> confirmate.orchestrator.v1.User
-	76,  // 41: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
-	79,  // 42: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
-	39,  // 43: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	77,  // 44: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
-	39,  // 45: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
-	39,  // 46: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	67,  // 47: confirmate.orchestrator.v1.ListCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
-	67,  // 48: confirmate.orchestrator.v1.ListPublicCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
-	67,  // 49: confirmate.orchestrator.v1.UpdateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
-	36,  // 50: confirmate.orchestrator.v1.CreateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
-	36,  // 51: confirmate.orchestrator.v1.ListCatalogsResponse.catalogs:type_name -> confirmate.orchestrator.v1.Catalog
-	36,  // 52: confirmate.orchestrator.v1.UpdateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
-	78,  // 53: confirmate.orchestrator.v1.ListControlsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsRequest.Filter
-	38,  // 54: confirmate.orchestrator.v1.ListControlsResponse.controls:type_name -> confirmate.orchestrator.v1.Control
-	67,  // 55: confirmate.orchestrator.v1.CreateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
-	68,  // 56: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
-	81,  // 57: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
-	0,   // 58: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
-	74,  // 59: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	3,   // 60: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:input_type -> confirmate.orchestrator.v1.RegisterAssessmentToolRequest
-	4,   // 61: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:input_type -> confirmate.orchestrator.v1.ListAssessmentToolsRequest
-	6,   // 62: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:input_type -> confirmate.orchestrator.v1.GetAssessmentToolRequest
-	7,   // 63: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:input_type -> confirmate.orchestrator.v1.UpdateAssessmentToolRequest
-	8,   // 64: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:input_type -> confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
-	9,   // 65: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	9,   // 66: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	40,  // 67: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:input_type -> confirmate.orchestrator.v1.GetAssessmentResultRequest
-	41,  // 68: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:input_type -> confirmate.orchestrator.v1.ListAssessmentResultsRequest
-	12,  // 69: confirmate.orchestrator.v1.Orchestrator.CreateMetric:input_type -> confirmate.orchestrator.v1.CreateMetricRequest
-	13,  // 70: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:input_type -> confirmate.orchestrator.v1.UpdateMetricRequest
-	14,  // 71: confirmate.orchestrator.v1.Orchestrator.GetMetric:input_type -> confirmate.orchestrator.v1.GetMetricRequest
-	15,  // 72: confirmate.orchestrator.v1.Orchestrator.ListMetrics:input_type -> confirmate.orchestrator.v1.ListMetricsRequest
-	16,  // 73: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:input_type -> confirmate.orchestrator.v1.RemoveMetricRequest
-	19,  // 74: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
-	20,  // 75: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
-	18,  // 76: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
-	22,  // 77: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:input_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
-	21,  // 78: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
-	24,  // 79: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
-	26,  // 80: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:input_type -> confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
-	27,  // 81: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:input_type -> confirmate.orchestrator.v1.GetMetricConfigurationRequest
-	28,  // 82: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:input_type -> confirmate.orchestrator.v1.ListMetricConfigurationRequest
-	30,  // 83: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
-	31,  // 84: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
-	32,  // 85: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
-	65,  // 86: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:input_type -> confirmate.orchestrator.v1.CreateCertificateRequest
-	49,  // 87: confirmate.orchestrator.v1.Orchestrator.GetCertificate:input_type -> confirmate.orchestrator.v1.GetCertificateRequest
-	50,  // 88: confirmate.orchestrator.v1.Orchestrator.ListCertificates:input_type -> confirmate.orchestrator.v1.ListCertificatesRequest
-	52,  // 89: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:input_type -> confirmate.orchestrator.v1.ListPublicCertificatesRequest
-	54,  // 90: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:input_type -> confirmate.orchestrator.v1.UpdateCertificateRequest
-	66,  // 91: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:input_type -> confirmate.orchestrator.v1.RemoveCertificateRequest
-	55,  // 92: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:input_type -> confirmate.orchestrator.v1.CreateCatalogRequest
-	58,  // 93: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:input_type -> confirmate.orchestrator.v1.ListCatalogsRequest
-	57,  // 94: confirmate.orchestrator.v1.Orchestrator.GetCatalog:input_type -> confirmate.orchestrator.v1.GetCatalogRequest
-	56,  // 95: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:input_type -> confirmate.orchestrator.v1.RemoveCatalogRequest
-	60,  // 96: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:input_type -> confirmate.orchestrator.v1.UpdateCatalogRequest
-	61,  // 97: confirmate.orchestrator.v1.Orchestrator.GetCategory:input_type -> confirmate.orchestrator.v1.GetCategoryRequest
-	63,  // 98: confirmate.orchestrator.v1.Orchestrator.ListControls:input_type -> confirmate.orchestrator.v1.ListControlsRequest
-	62,  // 99: confirmate.orchestrator.v1.Orchestrator.GetControl:input_type -> confirmate.orchestrator.v1.GetControlRequest
-	43,  // 100: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:input_type -> confirmate.orchestrator.v1.CreateAuditScopeRequest
-	45,  // 101: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:input_type -> confirmate.orchestrator.v1.GetAuditScopeRequest
-	46,  // 102: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:input_type -> confirmate.orchestrator.v1.ListAuditScopesRequest
-	48,  // 103: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:input_type -> confirmate.orchestrator.v1.UpdateAuditScopeRequest
-	44,  // 104: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:input_type -> confirmate.orchestrator.v1.RemoveAuditScopeRequest
-	85,  // 105: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:input_type -> confirmate.common.v1.GetRuntimeInfoRequest
-	34,  // 106: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	5,   // 107: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
-	34,  // 108: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	34,  // 109: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	86,  // 110: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:output_type -> google.protobuf.Empty
-	10,  // 111: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultResponse
-	11,  // 112: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultsResponse
-	79,  // 113: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:output_type -> confirmate.assessment.v1.AssessmentResult
-	42,  // 114: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:output_type -> confirmate.orchestrator.v1.ListAssessmentResultsResponse
-	80,  // 115: confirmate.orchestrator.v1.Orchestrator.CreateMetric:output_type -> confirmate.assessment.v1.Metric
-	80,  // 116: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:output_type -> confirmate.assessment.v1.Metric
-	80,  // 117: confirmate.orchestrator.v1.Orchestrator.GetMetric:output_type -> confirmate.assessment.v1.Metric
-	17,  // 118: confirmate.orchestrator.v1.Orchestrator.ListMetrics:output_type -> confirmate.orchestrator.v1.ListMetricsResponse
-	86,  // 119: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:output_type -> google.protobuf.Empty
-	35,  // 120: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	35,  // 121: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	35,  // 122: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	23,  // 123: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:output_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
-	86,  // 124: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:output_type -> google.protobuf.Empty
-	25,  // 125: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:output_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
-	81,  // 126: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
-	81,  // 127: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
-	29,  // 128: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:output_type -> confirmate.orchestrator.v1.ListMetricConfigurationResponse
-	82,  // 129: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
-	82,  // 130: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
-	33,  // 131: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
-	67,  // 132: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	67,  // 133: confirmate.orchestrator.v1.Orchestrator.GetCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	51,  // 134: confirmate.orchestrator.v1.Orchestrator.ListCertificates:output_type -> confirmate.orchestrator.v1.ListCertificatesResponse
-	53,  // 135: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:output_type -> confirmate.orchestrator.v1.ListPublicCertificatesResponse
-	67,  // 136: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	86,  // 137: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:output_type -> google.protobuf.Empty
-	36,  // 138: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	59,  // 139: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:output_type -> confirmate.orchestrator.v1.ListCatalogsResponse
-	36,  // 140: confirmate.orchestrator.v1.Orchestrator.GetCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	86,  // 141: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:output_type -> google.protobuf.Empty
-	36,  // 142: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	37,  // 143: confirmate.orchestrator.v1.Orchestrator.GetCategory:output_type -> confirmate.orchestrator.v1.Category
-	64,  // 144: confirmate.orchestrator.v1.Orchestrator.ListControls:output_type -> confirmate.orchestrator.v1.ListControlsResponse
-	38,  // 145: confirmate.orchestrator.v1.Orchestrator.GetControl:output_type -> confirmate.orchestrator.v1.Control
-	39,  // 146: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	39,  // 147: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	47,  // 148: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:output_type -> confirmate.orchestrator.v1.ListAuditScopesResponse
-	39,  // 149: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	86,  // 150: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:output_type -> google.protobuf.Empty
-	87,  // 151: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:output_type -> confirmate.common.v1.Runtime
-	106, // [106:152] is the sub-list for method output_type
-	60,  // [60:106] is the sub-list for method input_type
-	60,  // [60:60] is the sub-list for extension type_name
-	60,  // [60:60] is the sub-list for extension extendee
-	0,   // [0:60] is the sub-list for field type_name
+	84,  // 39: confirmate.orchestrator.v1.AuditScope.reader_users:type_name -> confirmate.orchestrator.v1.User
+	84,  // 40: confirmate.orchestrator.v1.AuditScope.contributor_users:type_name -> confirmate.orchestrator.v1.User
+	84,  // 41: confirmate.orchestrator.v1.AuditScope.admin_users:type_name -> confirmate.orchestrator.v1.User
+	76,  // 42: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
+	79,  // 43: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
+	39,  // 44: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	77,  // 45: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
+	39,  // 46: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
+	39,  // 47: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
+	67,  // 48: confirmate.orchestrator.v1.ListCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
+	67,  // 49: confirmate.orchestrator.v1.ListPublicCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
+	67,  // 50: confirmate.orchestrator.v1.UpdateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
+	36,  // 51: confirmate.orchestrator.v1.CreateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
+	36,  // 52: confirmate.orchestrator.v1.ListCatalogsResponse.catalogs:type_name -> confirmate.orchestrator.v1.Catalog
+	36,  // 53: confirmate.orchestrator.v1.UpdateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
+	78,  // 54: confirmate.orchestrator.v1.ListControlsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsRequest.Filter
+	38,  // 55: confirmate.orchestrator.v1.ListControlsResponse.controls:type_name -> confirmate.orchestrator.v1.Control
+	67,  // 56: confirmate.orchestrator.v1.CreateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
+	68,  // 57: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
+	81,  // 58: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
+	0,   // 59: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
+	74,  // 60: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
+	3,   // 61: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:input_type -> confirmate.orchestrator.v1.RegisterAssessmentToolRequest
+	4,   // 62: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:input_type -> confirmate.orchestrator.v1.ListAssessmentToolsRequest
+	6,   // 63: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:input_type -> confirmate.orchestrator.v1.GetAssessmentToolRequest
+	7,   // 64: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:input_type -> confirmate.orchestrator.v1.UpdateAssessmentToolRequest
+	8,   // 65: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:input_type -> confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
+	9,   // 66: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	9,   // 67: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	40,  // 68: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:input_type -> confirmate.orchestrator.v1.GetAssessmentResultRequest
+	41,  // 69: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:input_type -> confirmate.orchestrator.v1.ListAssessmentResultsRequest
+	12,  // 70: confirmate.orchestrator.v1.Orchestrator.CreateMetric:input_type -> confirmate.orchestrator.v1.CreateMetricRequest
+	13,  // 71: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:input_type -> confirmate.orchestrator.v1.UpdateMetricRequest
+	14,  // 72: confirmate.orchestrator.v1.Orchestrator.GetMetric:input_type -> confirmate.orchestrator.v1.GetMetricRequest
+	15,  // 73: confirmate.orchestrator.v1.Orchestrator.ListMetrics:input_type -> confirmate.orchestrator.v1.ListMetricsRequest
+	16,  // 74: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:input_type -> confirmate.orchestrator.v1.RemoveMetricRequest
+	19,  // 75: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
+	20,  // 76: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
+	18,  // 77: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
+	22,  // 78: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:input_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
+	21,  // 79: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
+	24,  // 80: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
+	26,  // 81: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:input_type -> confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
+	27,  // 82: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:input_type -> confirmate.orchestrator.v1.GetMetricConfigurationRequest
+	28,  // 83: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:input_type -> confirmate.orchestrator.v1.ListMetricConfigurationRequest
+	30,  // 84: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
+	31,  // 85: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
+	32,  // 86: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
+	65,  // 87: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:input_type -> confirmate.orchestrator.v1.CreateCertificateRequest
+	49,  // 88: confirmate.orchestrator.v1.Orchestrator.GetCertificate:input_type -> confirmate.orchestrator.v1.GetCertificateRequest
+	50,  // 89: confirmate.orchestrator.v1.Orchestrator.ListCertificates:input_type -> confirmate.orchestrator.v1.ListCertificatesRequest
+	52,  // 90: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:input_type -> confirmate.orchestrator.v1.ListPublicCertificatesRequest
+	54,  // 91: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:input_type -> confirmate.orchestrator.v1.UpdateCertificateRequest
+	66,  // 92: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:input_type -> confirmate.orchestrator.v1.RemoveCertificateRequest
+	55,  // 93: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:input_type -> confirmate.orchestrator.v1.CreateCatalogRequest
+	58,  // 94: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:input_type -> confirmate.orchestrator.v1.ListCatalogsRequest
+	57,  // 95: confirmate.orchestrator.v1.Orchestrator.GetCatalog:input_type -> confirmate.orchestrator.v1.GetCatalogRequest
+	56,  // 96: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:input_type -> confirmate.orchestrator.v1.RemoveCatalogRequest
+	60,  // 97: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:input_type -> confirmate.orchestrator.v1.UpdateCatalogRequest
+	61,  // 98: confirmate.orchestrator.v1.Orchestrator.GetCategory:input_type -> confirmate.orchestrator.v1.GetCategoryRequest
+	63,  // 99: confirmate.orchestrator.v1.Orchestrator.ListControls:input_type -> confirmate.orchestrator.v1.ListControlsRequest
+	62,  // 100: confirmate.orchestrator.v1.Orchestrator.GetControl:input_type -> confirmate.orchestrator.v1.GetControlRequest
+	43,  // 101: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:input_type -> confirmate.orchestrator.v1.CreateAuditScopeRequest
+	45,  // 102: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:input_type -> confirmate.orchestrator.v1.GetAuditScopeRequest
+	46,  // 103: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:input_type -> confirmate.orchestrator.v1.ListAuditScopesRequest
+	48,  // 104: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:input_type -> confirmate.orchestrator.v1.UpdateAuditScopeRequest
+	44,  // 105: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:input_type -> confirmate.orchestrator.v1.RemoveAuditScopeRequest
+	85,  // 106: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:input_type -> confirmate.common.v1.GetRuntimeInfoRequest
+	34,  // 107: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	5,   // 108: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
+	34,  // 109: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	34,  // 110: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	86,  // 111: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:output_type -> google.protobuf.Empty
+	10,  // 112: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultResponse
+	11,  // 113: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultsResponse
+	79,  // 114: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:output_type -> confirmate.assessment.v1.AssessmentResult
+	42,  // 115: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:output_type -> confirmate.orchestrator.v1.ListAssessmentResultsResponse
+	80,  // 116: confirmate.orchestrator.v1.Orchestrator.CreateMetric:output_type -> confirmate.assessment.v1.Metric
+	80,  // 117: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:output_type -> confirmate.assessment.v1.Metric
+	80,  // 118: confirmate.orchestrator.v1.Orchestrator.GetMetric:output_type -> confirmate.assessment.v1.Metric
+	17,  // 119: confirmate.orchestrator.v1.Orchestrator.ListMetrics:output_type -> confirmate.orchestrator.v1.ListMetricsResponse
+	86,  // 120: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:output_type -> google.protobuf.Empty
+	35,  // 121: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35,  // 122: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	35,  // 123: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	23,  // 124: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:output_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
+	86,  // 125: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:output_type -> google.protobuf.Empty
+	25,  // 126: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:output_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
+	81,  // 127: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
+	81,  // 128: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
+	29,  // 129: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:output_type -> confirmate.orchestrator.v1.ListMetricConfigurationResponse
+	82,  // 130: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
+	82,  // 131: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
+	33,  // 132: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
+	67,  // 133: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	67,  // 134: confirmate.orchestrator.v1.Orchestrator.GetCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	51,  // 135: confirmate.orchestrator.v1.Orchestrator.ListCertificates:output_type -> confirmate.orchestrator.v1.ListCertificatesResponse
+	53,  // 136: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:output_type -> confirmate.orchestrator.v1.ListPublicCertificatesResponse
+	67,  // 137: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	86,  // 138: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:output_type -> google.protobuf.Empty
+	36,  // 139: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	59,  // 140: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:output_type -> confirmate.orchestrator.v1.ListCatalogsResponse
+	36,  // 141: confirmate.orchestrator.v1.Orchestrator.GetCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	86,  // 142: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:output_type -> google.protobuf.Empty
+	36,  // 143: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	37,  // 144: confirmate.orchestrator.v1.Orchestrator.GetCategory:output_type -> confirmate.orchestrator.v1.Category
+	64,  // 145: confirmate.orchestrator.v1.Orchestrator.ListControls:output_type -> confirmate.orchestrator.v1.ListControlsResponse
+	38,  // 146: confirmate.orchestrator.v1.Orchestrator.GetControl:output_type -> confirmate.orchestrator.v1.Control
+	39,  // 147: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	39,  // 148: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	47,  // 149: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:output_type -> confirmate.orchestrator.v1.ListAuditScopesResponse
+	39,  // 150: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	86,  // 151: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:output_type -> google.protobuf.Empty
+	87,  // 152: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:output_type -> confirmate.common.v1.Runtime
+	107, // [107:153] is the sub-list for method output_type
+	61,  // [61:107] is the sub-list for method input_type
+	61,  // [61:61] is the sub-list for extension type_name
+	61,  // [61:61] is the sub-list for extension extendee
+	0,   // [0:61] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_orchestrator_proto_init() }

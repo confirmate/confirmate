@@ -1735,16 +1735,27 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
-                accessUserIds:
+                readerUsers:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
-                    description: List of user IDs that are allowed to access this audit scope. If empty, only users with elevated roles have access.
-                responsibleUserIds:
+                    description: |-
+                        List of user IDs with explicit permission to view this target (Read-only).
+                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+                contributorUsers:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
-                    description: List of user IDs that are responsible for maintaining this audit scope.
+                    description: |-
+                        List of user IDs responsible for the content and maintenance of this target.
+                         These users can modify settings and data but cannot manage other users' access.
+                adminUsers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs with administrative control over this target.
+                         These users can manage permissions for others and perform destructive actions like deletion.
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
