@@ -427,6 +427,7 @@ type ListUserRolesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	Asc           bool                   `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -473,6 +474,13 @@ func (x *ListUserRolesRequest) GetPageToken() string {
 		return x.PageToken
 	}
 	return ""
+}
+
+func (x *ListUserRolesRequest) GetAsc() bool {
+	if x != nil {
+		return x.Asc
+	}
+	return false
 }
 
 type ListUserRolesResponse struct {
@@ -647,12 +655,13 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\a_filter\"s\n" +
 	"\x11ListUsersResponse\x126\n" +
 	"\x05users\x18\x01 \x03(\v2 .confirmate.orchestrator.v1.UserR\x05users\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"R\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"d\n" +
 	"\x14ListUserRolesRequest\x12\x1b\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\v \x01(\tR\tpageToken\"O\n" +
+	"page_token\x18\v \x01(\tR\tpageToken\x12\x10\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\"O\n" +
 	"\x15ListUserRolesResponse\x126\n" +
 	"\x05roles\x18\x01 \x03(\x0e2 .confirmate.orchestrator.v1.RoleR\x05roles*\xed\x01\n" +
 	"\x04Role\x12\x14\n" +

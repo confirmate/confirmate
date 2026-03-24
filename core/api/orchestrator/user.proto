@@ -136,6 +136,7 @@ message ListUsersResponse {
 message ListUserRolesRequest {
   int32 page_size = 10;
   string page_token = 11;
+  bool asc = 13;
 }
 message ListUserRolesResponse {
   repeated Role roles = 1;
