@@ -1735,21 +1735,21 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
-                readerUsers:
+                readers:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
                     description: |-
                         List of user IDs with explicit permission to view this target (Read-only).
                          If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-                contributorUsers:
+                contributors:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
                     description: |-
                         List of user IDs responsible for the content and maintenance of this target.
                          These users can modify settings and data but cannot manage other users' access.
-                adminUsers:
+                admins:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
@@ -2297,21 +2297,21 @@ components:
                     type: string
                     description: 'type of the target to be evaluated: cloud, product or organization'
                     format: enum
-                readerUsers:
+                readers:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
                     description: |-
                         List of user IDs with explicit permission to view this target (Read-only).
                          If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-                contributorUsers:
+                contributors:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
                     description: |-
                         List of user IDs responsible for the content and maintenance of this target.
                          These users can modify settings and data but cannot manage other users' access.
-                adminUsers:
+                admins:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'

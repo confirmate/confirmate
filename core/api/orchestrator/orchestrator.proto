@@ -721,19 +721,19 @@ message TargetOfEvaluation {
 
   // List of user IDs with explicit permission to view this target (Read-only).
   // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-  repeated User reader_users = 12 [
+  repeated User readers = 12 [
     (tagger.tags) = "gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\""
   ];
 
   // List of user IDs responsible for the content and maintenance of this target.
   // These users can modify settings and data but cannot manage other users' access.
-  repeated User contributor_users = 13 [
+  repeated User contributors = 13 [
     (tagger.tags) = "gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\""
   ];
 
   // List of user IDs with administrative control over this target.
   // These users can manage permissions for others and perform destructive actions like deletion.
-  repeated User admin_users = 14 [
+  repeated User admins = 14 [
     (tagger.tags) = "gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\""
   ];
 }
@@ -892,19 +892,19 @@ message AuditScope {
 
   // List of user IDs with explicit permission to view this target (Read-only).
   // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-  repeated User reader_users = 6 [
+  repeated User readers = 6 [
     (tagger.tags) = "gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\""
   ];
 
   // List of user IDs responsible for the content and maintenance of this target.
   // These users can modify settings and data but cannot manage other users' access.
-  repeated User contributor_users = 7 [
+  repeated User contributors = 7 [
     (tagger.tags) = "gorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\""
   ];
 
   // List of user IDs with administrative control over this target.
   // These users can manage permissions for others and perform destructive actions like deletion.
-  repeated User admin_users = 8 [
+  repeated User admins = 8 [
     (tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""
   ];
 }

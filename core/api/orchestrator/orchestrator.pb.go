@@ -2039,13 +2039,13 @@ type TargetOfEvaluation struct {
 	TargetType TargetOfEvaluation_TargetType `protobuf:"varint,11,opt,name=target_type,json=targetType,proto3,enum=confirmate.orchestrator.v1.TargetOfEvaluation_TargetType" json:"target_type,omitempty"`
 	// List of user IDs with explicit permission to view this target (Read-only).
 	// If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-	ReaderUsers []*User `protobuf:"bytes,12,rep,name=reader_users,json=readerUsers,proto3" json:"reader_users,omitempty" gorm:"many2many:toe_readers;constraint:OnDelete:CASCADE"`
+	Readers []*User `protobuf:"bytes,12,rep,name=readers,proto3" json:"readers,omitempty" gorm:"many2many:toe_readers;constraint:OnDelete:CASCADE"`
 	// List of user IDs responsible for the content and maintenance of this target.
 	// These users can modify settings and data but cannot manage other users' access.
-	ContributorUsers []*User `protobuf:"bytes,13,rep,name=contributor_users,json=contributorUsers,proto3" json:"contributor_users,omitempty" gorm:"many2many:toe_contributors;constraint:OnDelete:CASCADE"`
+	Contributors []*User `protobuf:"bytes,13,rep,name=contributors,proto3" json:"contributors,omitempty" gorm:"many2many:toe_contributors;constraint:OnDelete:CASCADE"`
 	// List of user IDs with administrative control over this target.
 	// These users can manage permissions for others and perform destructive actions like deletion.
-	AdminUsers    []*User `protobuf:"bytes,14,rep,name=admin_users,json=adminUsers,proto3" json:"admin_users,omitempty" gorm:"many2many:toe_admins;constraint:OnDelete:CASCADE"`
+	Admins        []*User `protobuf:"bytes,14,rep,name=admins,proto3" json:"admins,omitempty" gorm:"many2many:toe_admins;constraint:OnDelete:CASCADE"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2136,23 +2136,23 @@ func (x *TargetOfEvaluation) GetTargetType() TargetOfEvaluation_TargetType {
 	return TargetOfEvaluation_TARGET_TYPE_UNSPECIFIED
 }
 
-func (x *TargetOfEvaluation) GetReaderUsers() []*User {
+func (x *TargetOfEvaluation) GetReaders() []*User {
 	if x != nil {
-		return x.ReaderUsers
+		return x.Readers
 	}
 	return nil
 }
 
-func (x *TargetOfEvaluation) GetContributorUsers() []*User {
+func (x *TargetOfEvaluation) GetContributors() []*User {
 	if x != nil {
-		return x.ContributorUsers
+		return x.Contributors
 	}
 	return nil
 }
 
-func (x *TargetOfEvaluation) GetAdminUsers() []*User {
+func (x *TargetOfEvaluation) GetAdmins() []*User {
 	if x != nil {
-		return x.AdminUsers
+		return x.Admins
 	}
 	return nil
 }
@@ -2488,13 +2488,13 @@ type AuditScope struct {
 	AssuranceLevel *string `protobuf:"bytes,3,opt,name=assurance_level,json=assuranceLevel,proto3,oneof" json:"assurance_level,omitempty"`
 	// List of user IDs with explicit permission to view this target (Read-only).
 	// If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-	ReaderUsers []*User `protobuf:"bytes,6,rep,name=reader_users,json=readerUsers,proto3" json:"reader_users,omitempty" gorm:"many2many:audit_scope_readers;constraint:OnDelete:CASCADE"`
+	Readers []*User `protobuf:"bytes,6,rep,name=readers,proto3" json:"readers,omitempty" gorm:"many2many:audit_scope_readers;constraint:OnDelete:CASCADE"`
 	// List of user IDs responsible for the content and maintenance of this target.
 	// These users can modify settings and data but cannot manage other users' access.
-	ContributorUsers []*User `protobuf:"bytes,7,rep,name=contributor_users,json=contributorUsers,proto3" json:"contributor_users,omitempty" gorm:"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE"`
+	Contributors []*User `protobuf:"bytes,7,rep,name=contributors,proto3" json:"contributors,omitempty" gorm:"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE"`
 	// List of user IDs with administrative control over this target.
 	// These users can manage permissions for others and perform destructive actions like deletion.
-	AdminUsers    []*User `protobuf:"bytes,8,rep,name=admin_users,json=adminUsers,proto3" json:"admin_users,omitempty" gorm:"many2many:audit_scope_admins;constraint:OnDelete:CASCADE"`
+	Admins        []*User `protobuf:"bytes,8,rep,name=admins,proto3" json:"admins,omitempty" gorm:"many2many:audit_scope_admins;constraint:OnDelete:CASCADE"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2564,23 +2564,23 @@ func (x *AuditScope) GetAssuranceLevel() string {
 	return ""
 }
 
-func (x *AuditScope) GetReaderUsers() []*User {
+func (x *AuditScope) GetReaders() []*User {
 	if x != nil {
-		return x.ReaderUsers
+		return x.Readers
 	}
 	return nil
 }
 
-func (x *AuditScope) GetContributorUsers() []*User {
+func (x *AuditScope) GetContributors() []*User {
 	if x != nil {
-		return x.ContributorUsers
+		return x.Contributors
 	}
 	return nil
 }
 
-func (x *AuditScope) GetAdminUsers() []*User {
+func (x *AuditScope) GetAdmins() []*User {
 	if x != nil {
-		return x.AdminUsers
+		return x.Admins
 	}
 	return nil
 }
@@ -4827,7 +4827,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12W\n" +
-	"\x11available_metrics\x18\x04 \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x10availableMetrics\"\xcb\v\n" +
+	"\x11available_metrics\x18\x04 \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x10availableMetrics\"\xaf\v\n" +
 	"\x12TargetOfEvaluation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
@@ -4841,11 +4841,10 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\bmetadata\x18\n" +
 	" \x01(\v27.confirmate.orchestrator.v1.TargetOfEvaluation.MetadataB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"H\x02R\bmetadata\x88\x01\x01\x12g\n" +
 	"\vtarget_type\x18\v \x01(\x0e29.confirmate.orchestrator.v1.TargetOfEvaluation.TargetTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\n" +
-	"targetType\x12\x82\x01\n" +
-	"\freader_users\x18\f \x03(\v2 .confirmate.orchestrator.v1.UserB=\x9a\x84\x9e\x038gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\"R\vreaderUsers\x12\x91\x01\n" +
-	"\x11contributor_users\x18\r \x03(\v2 .confirmate.orchestrator.v1.UserBB\x9a\x84\x9e\x03=gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\"R\x10contributorUsers\x12\x7f\n" +
-	"\vadmin_users\x18\x0e \x03(\v2 .confirmate.orchestrator.v1.UserB<\x9a\x84\x9e\x037gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\"R\n" +
-	"adminUsers\x1a\xc4\x01\n" +
+	"targetType\x12y\n" +
+	"\areaders\x18\f \x03(\v2 .confirmate.orchestrator.v1.UserB=\x9a\x84\x9e\x038gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\"R\areaders\x12\x88\x01\n" +
+	"\fcontributors\x18\r \x03(\v2 .confirmate.orchestrator.v1.UserBB\x9a\x84\x9e\x03=gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\"R\fcontributors\x12v\n" +
+	"\x06admins\x18\x0e \x03(\v2 .confirmate.orchestrator.v1.UserB<\x9a\x84\x9e\x037gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\"R\x06admins\x1a\xc4\x01\n" +
 	"\bMetadata\x12[\n" +
 	"\x06labels\x18\x01 \x03(\v2C.confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntryR\x06labels\x12\x17\n" +
 	"\x04icon\x18\x02 \x01(\tH\x00R\x04icon\x88\x01\x01\x1a9\n" +
@@ -4904,7 +4903,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x12_parent_control_idB\x1f\n" +
 	"\x1d_parent_control_category_nameB%\n" +
 	"#_parent_control_category_catalog_idB\x12\n" +
-	"\x10_assurance_level\"\xc3\x05\n" +
+	"\x10_assurance_level\"\xa7\x05\n" +
 	"\n" +
 	"AuditScope\x121\n" +
 	"\x02id\x18\x04 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x1e\n" +
@@ -4914,11 +4913,10 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcatalogId\x12,\n" +
-	"\x0fassurance_level\x18\x03 \x01(\tH\x00R\x0eassuranceLevel\x88\x01\x01\x12\x8a\x01\n" +
-	"\freader_users\x18\x06 \x03(\v2 .confirmate.orchestrator.v1.UserBE\x9a\x84\x9e\x03@gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\"R\vreaderUsers\x12\x99\x01\n" +
-	"\x11contributor_users\x18\a \x03(\v2 .confirmate.orchestrator.v1.UserBJ\x9a\x84\x9e\x03Egorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\"R\x10contributorUsers\x12\x87\x01\n" +
-	"\vadmin_users\x18\b \x03(\v2 .confirmate.orchestrator.v1.UserBD\x9a\x84\x9e\x03?gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\"R\n" +
-	"adminUsersB\x12\n" +
+	"\x0fassurance_level\x18\x03 \x01(\tH\x00R\x0eassuranceLevel\x88\x01\x01\x12\x81\x01\n" +
+	"\areaders\x18\x06 \x03(\v2 .confirmate.orchestrator.v1.UserBE\x9a\x84\x9e\x03@gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\"R\areaders\x12\x90\x01\n" +
+	"\fcontributors\x18\a \x03(\v2 .confirmate.orchestrator.v1.UserBJ\x9a\x84\x9e\x03Egorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\"R\fcontributors\x12~\n" +
+	"\x06admins\x18\b \x03(\v2 .confirmate.orchestrator.v1.UserBD\x9a\x84\x9e\x03?gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\"R\x06adminsB\x12\n" +
 	"\x10_assurance_level\"6\n" +
 	"\x1aGetAssessmentResultRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xbb\x05\n" +
@@ -5287,17 +5285,17 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	83,  // 28: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
 	73,  // 29: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
 	2,   // 30: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
-	84,  // 31: confirmate.orchestrator.v1.TargetOfEvaluation.reader_users:type_name -> confirmate.orchestrator.v1.User
-	84,  // 32: confirmate.orchestrator.v1.TargetOfEvaluation.contributor_users:type_name -> confirmate.orchestrator.v1.User
-	84,  // 33: confirmate.orchestrator.v1.TargetOfEvaluation.admin_users:type_name -> confirmate.orchestrator.v1.User
+	84,  // 31: confirmate.orchestrator.v1.TargetOfEvaluation.readers:type_name -> confirmate.orchestrator.v1.User
+	84,  // 32: confirmate.orchestrator.v1.TargetOfEvaluation.contributors:type_name -> confirmate.orchestrator.v1.User
+	84,  // 33: confirmate.orchestrator.v1.TargetOfEvaluation.admins:type_name -> confirmate.orchestrator.v1.User
 	37,  // 34: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
 	75,  // 35: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
 	38,  // 36: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
 	38,  // 37: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
 	80,  // 38: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
-	84,  // 39: confirmate.orchestrator.v1.AuditScope.reader_users:type_name -> confirmate.orchestrator.v1.User
-	84,  // 40: confirmate.orchestrator.v1.AuditScope.contributor_users:type_name -> confirmate.orchestrator.v1.User
-	84,  // 41: confirmate.orchestrator.v1.AuditScope.admin_users:type_name -> confirmate.orchestrator.v1.User
+	84,  // 39: confirmate.orchestrator.v1.AuditScope.readers:type_name -> confirmate.orchestrator.v1.User
+	84,  // 40: confirmate.orchestrator.v1.AuditScope.contributors:type_name -> confirmate.orchestrator.v1.User
+	84,  // 41: confirmate.orchestrator.v1.AuditScope.admins:type_name -> confirmate.orchestrator.v1.User
 	76,  // 42: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
 	79,  // 43: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
 	39,  // 44: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
