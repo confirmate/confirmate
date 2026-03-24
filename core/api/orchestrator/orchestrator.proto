@@ -719,15 +719,22 @@ message TargetOfEvaluation {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // List of user IDs that are allowed to access this target of evaluation. If empty, only users with elevated roles have access.
-  repeated User access_user_ids = 12 [
-    (tagger.tags) = "gorm:\"many2many:toe_access_users;constraint:OnDelete:CASCADE\""
+  // List of user IDs with explicit permission to view this target (Read-only).
+  // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+  repeated User reader_users = 12 [
+    (tagger.tags) = "gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\""
   ];
 
+  // List of user IDs responsible for the content and maintenance of this target.
+  // These users can modify settings and data but cannot manage other users' access.
+  repeated User contributor_users = 13 [
+    (tagger.tags) = "gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\""
+  ];
 
-  // List of user IDs that are responsible for maintaining this target of evaluation.
-  repeated User responsible_user_ids = 13 [
-    (tagger.tags) = "gorm:\"many2many:toe_responsible_users;constraint:OnDelete:CASCADE\""
+  // List of user IDs with administrative control over this target.
+  // These users can manage permissions for others and perform destructive actions like deletion.
+  repeated User admin_users = 14 [
+    (tagger.tags) = "gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\""
   ];
 }
 
