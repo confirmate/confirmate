@@ -1482,7 +1482,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/users:
+    /v1/users:
         get:
             tags:
                 - UserManagement
@@ -1544,7 +1544,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/users/me:
+    /v1/users/me:
         get:
             tags:
                 - UserManagement
@@ -1563,7 +1563,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/users/roles:
+    /v1/users/roles:
         get:
             tags:
                 - UserManagement
@@ -1592,7 +1592,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/users/{userId}:
+    /v1/users/{userId}:
         get:
             tags:
                 - UserManagement

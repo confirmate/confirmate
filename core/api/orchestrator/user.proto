@@ -28,22 +28,22 @@ option go_package = "confirmate.io/core/api/orchestrator";
 service UserManagement {
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
-    option (google.api.http) = {get: "/v1/orchestrator/users/me"};
+    option (google.api.http) = {get: "/v1/users/me"};
   }
 
   // Lists users with optional filtering
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
-    option (google.api.http) = {get: "/v1/orchestrator/users"};
+    option (google.api.http) = {get: "/v1/users"};
   }
 
   // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
   rpc GetUser(GetUserRequest) returns (User) {
-    option (google.api.http) = {get: "/v1/orchestrator/users/{user_id}"};
+    option (google.api.http) = {get: "/v1/users/{user_id}"};
   }
 
   // Lists all predefined roles in the system.
   rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
-    option (google.api.http) = {get: "/v1/orchestrator/users/roles"};
+    option (google.api.http) = {get: "/v1/users/roles"};
   }
 }
 

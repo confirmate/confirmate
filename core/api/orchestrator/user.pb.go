@@ -664,12 +664,12 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
 	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
 	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a2\xc7\x04\n" +
-	"\x0eUserManagement\x12\x88\x01\n" +
-	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/orchestrator/users/me\x12\x88\x01\n" +
-	"\tListUsers\x12,.confirmate.orchestrator.v1.ListUsersRequest\x1a-.confirmate.orchestrator.v1.ListUsersResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/orchestrator/users\x12\x81\x01\n" +
-	"\aGetUser\x12*.confirmate.orchestrator.v1.GetUserRequest\x1a .confirmate.orchestrator.v1.User\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/orchestrator/users/{user_id}\x12\x9a\x01\n" +
-	"\rListUserRoles\x120.confirmate.orchestrator.v1.ListUserRolesRequest\x1a1.confirmate.orchestrator.v1.ListUserRolesResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/orchestrator/users/rolesB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a2\x90\x04\n" +
+	"\x0eUserManagement\x12{\n" +
+	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12{\n" +
+	"\tListUsers\x12,.confirmate.orchestrator.v1.ListUsersRequest\x1a-.confirmate.orchestrator.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12t\n" +
+	"\aGetUser\x12*.confirmate.orchestrator.v1.GetUserRequest\x1a .confirmate.orchestrator.v1.User\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/users/{user_id}\x12\x8d\x01\n" +
+	"\rListUserRoles\x120.confirmate.orchestrator.v1.ListUserRolesRequest\x1a1.confirmate.orchestrator.v1.ListUserRolesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/users/rolesB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_user_proto_rawDescOnce sync.Once
