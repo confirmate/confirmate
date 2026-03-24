@@ -45,34 +45,37 @@ const (
 type Role int32
 
 const (
-	Role_ROLE_ADMIN                              Role = 0
-	Role_ROLE_COMPLIANCE_MANAGER                 Role = 1
-	Role_ROLE_EXPERT_COMPLIANCE_MANAGER          Role = 2
-	Role_ROLE_INTERNAL_CONTROL_OWNER             Role = 3
-	Role_ROLE_TECHNICAL_IMPLEMENTER              Role = 4
-	Role_ROLE_AUDITOR                            Role = 5
-	Role_ROLE_CHIEF_INFORMATION_SECURITY_OFFICER Role = 6
+	Role_ROLE_UNSPECIFIED                        Role = 0
+	Role_ROLE_ADMIN                              Role = 1
+	Role_ROLE_COMPLIANCE_MANAGER                 Role = 2
+	Role_ROLE_EXPERT_COMPLIANCE_MANAGER          Role = 3
+	Role_ROLE_INTERNAL_CONTROL_OWNER             Role = 4
+	Role_ROLE_TECHNICAL_IMPLEMENTER              Role = 5
+	Role_ROLE_AUDITOR                            Role = 6
+	Role_ROLE_CHIEF_INFORMATION_SECURITY_OFFICER Role = 7
 )
 
 // Enum value maps for Role.
 var (
 	Role_name = map[int32]string{
-		0: "ROLE_ADMIN",
-		1: "ROLE_COMPLIANCE_MANAGER",
-		2: "ROLE_EXPERT_COMPLIANCE_MANAGER",
-		3: "ROLE_INTERNAL_CONTROL_OWNER",
-		4: "ROLE_TECHNICAL_IMPLEMENTER",
-		5: "ROLE_AUDITOR",
-		6: "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER",
+		0: "ROLE_UNSPECIFIED",
+		1: "ROLE_ADMIN",
+		2: "ROLE_COMPLIANCE_MANAGER",
+		3: "ROLE_EXPERT_COMPLIANCE_MANAGER",
+		4: "ROLE_INTERNAL_CONTROL_OWNER",
+		5: "ROLE_TECHNICAL_IMPLEMENTER",
+		6: "ROLE_AUDITOR",
+		7: "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER",
 	}
 	Role_value = map[string]int32{
-		"ROLE_ADMIN":                              0,
-		"ROLE_COMPLIANCE_MANAGER":                 1,
-		"ROLE_EXPERT_COMPLIANCE_MANAGER":          2,
-		"ROLE_INTERNAL_CONTROL_OWNER":             3,
-		"ROLE_TECHNICAL_IMPLEMENTER":              4,
-		"ROLE_AUDITOR":                            5,
-		"ROLE_CHIEF_INFORMATION_SECURITY_OFFICER": 6,
+		"ROLE_UNSPECIFIED":                        0,
+		"ROLE_ADMIN":                              1,
+		"ROLE_COMPLIANCE_MANAGER":                 2,
+		"ROLE_EXPERT_COMPLIANCE_MANAGER":          3,
+		"ROLE_INTERNAL_CONTROL_OWNER":             4,
+		"ROLE_TECHNICAL_IMPLEMENTER":              5,
+		"ROLE_AUDITOR":                            6,
+		"ROLE_CHIEF_INFORMATION_SECURITY_OFFICER": 7,
 	}
 )
 
@@ -564,7 +567,7 @@ func (x *ListUsersRequest_Filter) GetRole() Role {
 	if x != nil && x.Role != nil {
 		return *x.Role
 	}
-	return Role_ROLE_ADMIN
+	return Role_ROLE_UNSPECIFIED
 }
 
 func (x *ListUsersRequest_Filter) GetEnabled() bool {
@@ -651,16 +654,17 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\"O\n" +
 	"\x15ListUserRolesResponse\x126\n" +
-	"\x05roles\x18\x01 \x03(\x0e2 .confirmate.orchestrator.v1.RoleR\x05roles*\xd7\x01\n" +
-	"\x04Role\x12\x0e\n" +
+	"\x05roles\x18\x01 \x03(\x0e2 .confirmate.orchestrator.v1.RoleR\x05roles*\xed\x01\n" +
+	"\x04Role\x12\x14\n" +
+	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
-	"ROLE_ADMIN\x10\x00\x12\x1b\n" +
-	"\x17ROLE_COMPLIANCE_MANAGER\x10\x01\x12\"\n" +
-	"\x1eROLE_EXPERT_COMPLIANCE_MANAGER\x10\x02\x12\x1f\n" +
-	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x03\x12\x1e\n" +
-	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x04\x12\x10\n" +
-	"\fROLE_AUDITOR\x10\x05\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\x062\xc7\x04\n" +
+	"ROLE_ADMIN\x10\x01\x12\x1b\n" +
+	"\x17ROLE_COMPLIANCE_MANAGER\x10\x02\x12\"\n" +
+	"\x1eROLE_EXPERT_COMPLIANCE_MANAGER\x10\x03\x12\x1f\n" +
+	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
+	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
+	"\fROLE_AUDITOR\x10\x06\x12+\n" +
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a2\xc7\x04\n" +
 	"\x0eUserManagement\x12\x88\x01\n" +
 	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/orchestrator/users/me\x12\x88\x01\n" +
 	"\tListUsers\x12,.confirmate.orchestrator.v1.ListUsersRequest\x1a-.confirmate.orchestrator.v1.ListUsersResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/orchestrator/users\x12\x81\x01\n" +

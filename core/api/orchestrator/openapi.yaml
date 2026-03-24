@@ -1494,6 +1494,7 @@ paths:
                   description: Optional. Filter by role (e.g., "compliance_manager")
                   schema:
                     enum:
+                        - ROLE_UNSPECIFIED
                         - ROLE_ADMIN
                         - ROLE_COMPLIANCE_MANAGER
                         - ROLE_EXPERT_COMPLIANCE_MANAGER
@@ -2055,6 +2056,7 @@ components:
                     type: array
                     items:
                         enum:
+                            - ROLE_UNSPECIFIED
                             - ROLE_ADMIN
                             - ROLE_COMPLIANCE_MANAGER
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
@@ -2326,6 +2328,7 @@ components:
                     type: array
                     items:
                         enum:
+                            - ROLE_UNSPECIFIED
                             - ROLE_ADMIN
                             - ROLE_COMPLIANCE_MANAGER
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
