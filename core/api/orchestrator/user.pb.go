@@ -215,390 +215,6 @@ func (x *User) GetAttributes() map[string]string {
 	return nil
 }
 
-type GetCurrentUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetCurrentUserRequest) Reset() {
-	*x = GetCurrentUserRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetCurrentUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetCurrentUserRequest) ProtoMessage() {}
-
-func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetCurrentUserRequest.ProtoReflect.Descriptor instead.
-func (*GetCurrentUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1}
-}
-
-type GetUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRequest) Reset() {
-	*x = GetUserRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRequest) ProtoMessage() {}
-
-func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetUserRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type ListUsersRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Filter        *ListUsersRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
-	PageSize      int32                    `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                   `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	OrderBy       string                   `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	Asc           bool                     `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUsersRequest) Reset() {
-	*x = ListUsersRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUsersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUsersRequest) ProtoMessage() {}
-
-func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
-func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ListUsersRequest) GetFilter() *ListUsersRequest_Filter {
-	if x != nil {
-		return x.Filter
-	}
-	return nil
-}
-
-func (x *ListUsersRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListUsersRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
-func (x *ListUsersRequest) GetOrderBy() string {
-	if x != nil {
-		return x.OrderBy
-	}
-	return ""
-}
-
-func (x *ListUsersRequest) GetAsc() bool {
-	if x != nil {
-		return x.Asc
-	}
-	return false
-}
-
-type ListUsersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*User                `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUsersResponse) Reset() {
-	*x = ListUsersResponse{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUsersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUsersResponse) ProtoMessage() {}
-
-func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
-func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ListUsersResponse) GetUsers() []*User {
-	if x != nil {
-		return x.Users
-	}
-	return nil
-}
-
-func (x *ListUsersResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
-type ListUserRolesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	Asc           bool                   `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUserRolesRequest) Reset() {
-	*x = ListUserRolesRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUserRolesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUserRolesRequest) ProtoMessage() {}
-
-func (x *ListUserRolesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUserRolesRequest.ProtoReflect.Descriptor instead.
-func (*ListUserRolesRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ListUserRolesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListUserRolesRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
-func (x *ListUserRolesRequest) GetAsc() bool {
-	if x != nil {
-		return x.Asc
-	}
-	return false
-}
-
-type ListUserRolesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Roles         []Role                 `protobuf:"varint,1,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUserRolesResponse) Reset() {
-	*x = ListUserRolesResponse{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUserRolesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUserRolesResponse) ProtoMessage() {}
-
-func (x *ListUserRolesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUserRolesResponse.ProtoReflect.Descriptor instead.
-func (*ListUserRolesResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ListUserRolesResponse) GetRoles() []Role {
-	if x != nil {
-		return x.Roles
-	}
-	return nil
-}
-
-type ListUsersRequest_Filter struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Filter by role (e.g., "compliance_manager")
-	Role *Role `protobuf:"varint,1,opt,name=role,proto3,enum=confirmate.orchestrator.v1.Role,oneof" json:"role,omitempty"`
-	// Optional. Filter by enabled/disabled status
-	Enabled *bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
-	// Optional. Search query for username, email, first name, or last name
-	Search *string `protobuf:"bytes,3,opt,name=search,proto3,oneof" json:"search,omitempty"`
-	// Optional. Filter by specific attribute key-value pairs (e.g., department)
-	Attributes    map[string]string `protobuf:"bytes,4,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUsersRequest_Filter) Reset() {
-	*x = ListUsersRequest_Filter{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUsersRequest_Filter) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUsersRequest_Filter) ProtoMessage() {}
-
-func (x *ListUsersRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUsersRequest_Filter.ProtoReflect.Descriptor instead.
-func (*ListUsersRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{3, 0}
-}
-
-func (x *ListUsersRequest_Filter) GetRole() Role {
-	if x != nil && x.Role != nil {
-		return *x.Role
-	}
-	return Role_ROLE_UNSPECIFIED
-}
-
-func (x *ListUsersRequest_Filter) GetEnabled() bool {
-	if x != nil && x.Enabled != nil {
-		return *x.Enabled
-	}
-	return false
-}
-
-func (x *ListUsersRequest_Filter) GetSearch() string {
-	if x != nil && x.Search != nil {
-		return *x.Search
-	}
-	return ""
-}
-
-func (x *ListUsersRequest_Filter) GetAttributes() map[string]string {
-	if x != nil {
-		return x.Attributes
-	}
-	return nil
-}
-
 var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
@@ -625,45 +241,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x06_emailB\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
-	"_last_name\"\x17\n" +
-	"\x15GetCurrentUserRequest\"5\n" +
-	"\x0eGetUserRequest\x12#\n" +
-	"\auser_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\"\xa8\x04\n" +
-	"\x10ListUsersRequest\x12P\n" +
-	"\x06filter\x18\x01 \x01(\v23.confirmate.orchestrator.v1.ListUsersRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
-	"\tpage_size\x18\n" +
-	" \x01(\x05R\bpageSize\x12\x1d\n" +
-	"\n" +
-	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
-	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xcd\x02\n" +
-	"\x06Filter\x12C\n" +
-	"\x04role\x18\x01 \x01(\x0e2 .confirmate.orchestrator.v1.RoleB\b\xbaH\x05\x82\x01\x02\x10\x01H\x00R\x04role\x88\x01\x01\x12\x1d\n" +
-	"\aenabled\x18\x02 \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1b\n" +
-	"\x06search\x18\x03 \x01(\tH\x02R\x06search\x88\x01\x01\x12c\n" +
-	"\n" +
-	"attributes\x18\x04 \x03(\v2C.confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntryR\n" +
-	"attributes\x1a=\n" +
-	"\x0fAttributesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
-	"\x05_roleB\n" +
-	"\n" +
-	"\b_enabledB\t\n" +
-	"\a_searchB\t\n" +
-	"\a_filter\"s\n" +
-	"\x11ListUsersResponse\x126\n" +
-	"\x05users\x18\x01 \x03(\v2 .confirmate.orchestrator.v1.UserR\x05users\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"d\n" +
-	"\x14ListUserRolesRequest\x12\x1b\n" +
-	"\tpage_size\x18\n" +
-	" \x01(\x05R\bpageSize\x12\x1d\n" +
-	"\n" +
-	"page_token\x18\v \x01(\tR\tpageToken\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\"O\n" +
-	"\x15ListUserRolesResponse\x126\n" +
-	"\x05roles\x18\x01 \x03(\x0e2 .confirmate.orchestrator.v1.RoleR\x05roles*\xed\x01\n" +
+	"_last_name*\xed\x01\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -673,12 +251,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
 	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
 	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a2\x90\x04\n" +
-	"\x0eUserManagement\x12{\n" +
-	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12{\n" +
-	"\tListUsers\x12,.confirmate.orchestrator.v1.ListUsersRequest\x1a-.confirmate.orchestrator.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12t\n" +
-	"\aGetUser\x12*.confirmate.orchestrator.v1.GetUserRequest\x1a .confirmate.orchestrator.v1.User\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/users/{user_id}\x12\x8d\x01\n" +
-	"\rListUserRoles\x120.confirmate.orchestrator.v1.ListUserRolesRequest\x1a1.confirmate.orchestrator.v1.ListUserRolesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/users/rolesB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\aB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_user_proto_rawDescOnce sync.Once
@@ -693,41 +266,20 @@ func file_api_orchestrator_user_proto_rawDescGZIP() []byte {
 }
 
 var file_api_orchestrator_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_api_orchestrator_user_proto_goTypes = []any{
-	(Role)(0),                       // 0: confirmate.orchestrator.v1.Role
-	(*User)(nil),                    // 1: confirmate.orchestrator.v1.User
-	(*GetCurrentUserRequest)(nil),   // 2: confirmate.orchestrator.v1.GetCurrentUserRequest
-	(*GetUserRequest)(nil),          // 3: confirmate.orchestrator.v1.GetUserRequest
-	(*ListUsersRequest)(nil),        // 4: confirmate.orchestrator.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),       // 5: confirmate.orchestrator.v1.ListUsersResponse
-	(*ListUserRolesRequest)(nil),    // 6: confirmate.orchestrator.v1.ListUserRolesRequest
-	(*ListUserRolesResponse)(nil),   // 7: confirmate.orchestrator.v1.ListUserRolesResponse
-	nil,                             // 8: confirmate.orchestrator.v1.User.AttributesEntry
-	(*ListUsersRequest_Filter)(nil), // 9: confirmate.orchestrator.v1.ListUsersRequest.Filter
-	nil,                             // 10: confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
+	(Role)(0),    // 0: confirmate.orchestrator.v1.Role
+	(*User)(nil), // 1: confirmate.orchestrator.v1.User
+	nil,          // 2: confirmate.orchestrator.v1.User.AttributesEntry
 }
 var file_api_orchestrator_user_proto_depIdxs = []int32{
-	0,  // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
-	8,  // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
-	9,  // 2: confirmate.orchestrator.v1.ListUsersRequest.filter:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter
-	1,  // 3: confirmate.orchestrator.v1.ListUsersResponse.users:type_name -> confirmate.orchestrator.v1.User
-	0,  // 4: confirmate.orchestrator.v1.ListUserRolesResponse.roles:type_name -> confirmate.orchestrator.v1.Role
-	0,  // 5: confirmate.orchestrator.v1.ListUsersRequest.Filter.role:type_name -> confirmate.orchestrator.v1.Role
-	10, // 6: confirmate.orchestrator.v1.ListUsersRequest.Filter.attributes:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
-	2,  // 7: confirmate.orchestrator.v1.UserManagement.GetCurrentUser:input_type -> confirmate.orchestrator.v1.GetCurrentUserRequest
-	4,  // 8: confirmate.orchestrator.v1.UserManagement.ListUsers:input_type -> confirmate.orchestrator.v1.ListUsersRequest
-	3,  // 9: confirmate.orchestrator.v1.UserManagement.GetUser:input_type -> confirmate.orchestrator.v1.GetUserRequest
-	6,  // 10: confirmate.orchestrator.v1.UserManagement.ListUserRoles:input_type -> confirmate.orchestrator.v1.ListUserRolesRequest
-	1,  // 11: confirmate.orchestrator.v1.UserManagement.GetCurrentUser:output_type -> confirmate.orchestrator.v1.User
-	5,  // 12: confirmate.orchestrator.v1.UserManagement.ListUsers:output_type -> confirmate.orchestrator.v1.ListUsersResponse
-	1,  // 13: confirmate.orchestrator.v1.UserManagement.GetUser:output_type -> confirmate.orchestrator.v1.User
-	7,  // 14: confirmate.orchestrator.v1.UserManagement.ListUserRoles:output_type -> confirmate.orchestrator.v1.ListUserRolesResponse
-	11, // [11:15] is the sub-list for method output_type
-	7,  // [7:11] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
+	2, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_user_proto_init() }
@@ -736,17 +288,15 @@ func file_api_orchestrator_user_proto_init() {
 		return
 	}
 	file_api_orchestrator_user_proto_msgTypes[0].OneofWrappers = []any{}
-	file_api_orchestrator_user_proto_msgTypes[3].OneofWrappers = []any{}
-	file_api_orchestrator_user_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_user_proto_rawDesc), len(file_api_orchestrator_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   2,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_api_orchestrator_user_proto_goTypes,
 		DependencyIndexes: file_api_orchestrator_user_proto_depIdxs,

@@ -335,7 +335,25 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
+  // Returns information about the currently authenticated user
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/me"};
+  }
 
+  // Lists users with optional filtering
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/users"};
+  }
+
+  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/{user_id}"};
+  }
+
+  // Lists all predefined roles in the system.
+  rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
+    option (google.api.http) = {get: "/v1/users/roles"};
+  }
 }
 
 message RegisterAssessmentToolRequest {
@@ -1166,4 +1184,53 @@ message State {
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
+}
+
+
+message GetCurrentUserRequest {
+  // Empty request - user is identified from authentication context
+}
+
+message GetUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListUsersRequest {
+  message Filter {
+    // Optional. Filter by role (e.g., "compliance_manager")
+    optional Role role = 1 [(buf.validate.field).enum = {defined_only: true}];
+
+    // Optional. Filter by enabled/disabled status
+    optional bool enabled = 2;
+
+    // Optional. Search query for username, email, first name, or last name
+    optional string search = 3;
+
+    // Optional. Filter by specific attribute key-value pairs (e.g., department)
+    map<string, string> attributes = 4;
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message ListUserRolesRequest {
+  int32 page_size = 10;
+  string page_token = 11;
+  bool asc = 13;
+}
+message ListUserRolesResponse {
+  repeated Role roles = 1;
 }

@@ -3,7 +3,8 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: Orchestrator API
+    description: Manages the orchestration of components within the confirmate architecture
     version: 0.0.1
 paths:
     /v1/orchestrator/assessment_results:
@@ -1485,9 +1486,9 @@ paths:
     /v1/users:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Lists users with optional filtering
-            operationId: UserManagement_ListUsers
+            operationId: Orchestrator_ListUsers
             parameters:
                 - name: filter.role
                   in: query
@@ -1547,9 +1548,9 @@ paths:
     /v1/users/me:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Returns information about the currently authenticated user
-            operationId: UserManagement_GetCurrentUser
+            operationId: Orchestrator_GetCurrentUser
             responses:
                 "200":
                     description: OK
@@ -1566,9 +1567,9 @@ paths:
     /v1/users/roles:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Lists all predefined roles in the system.
-            operationId: UserManagement_ListUserRoles
+            operationId: Orchestrator_ListUserRoles
             parameters:
                 - name: pageSize
                   in: query
@@ -1599,9 +1600,9 @@ paths:
     /v1/users/{userId}:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-            operationId: UserManagement_GetUser
+            operationId: Orchestrator_GetUser
             parameters:
                 - name: userId
                   in: path
@@ -2376,5 +2377,3 @@ components:
             description: Represents a user from the IdP
 tags:
     - name: Orchestrator
-      description: Manages the orchestration of components within the confirmate architecture
-    - name: UserManagement

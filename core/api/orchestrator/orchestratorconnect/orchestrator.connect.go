@@ -184,6 +184,16 @@ const (
 	// OrchestratorGetRuntimeInfoProcedure is the fully-qualified name of the Orchestrator's
 	// GetRuntimeInfo RPC.
 	OrchestratorGetRuntimeInfoProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetRuntimeInfo"
+	// OrchestratorGetCurrentUserProcedure is the fully-qualified name of the Orchestrator's
+	// GetCurrentUser RPC.
+	OrchestratorGetCurrentUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCurrentUser"
+	// OrchestratorListUsersProcedure is the fully-qualified name of the Orchestrator's ListUsers RPC.
+	OrchestratorListUsersProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUsers"
+	// OrchestratorGetUserProcedure is the fully-qualified name of the Orchestrator's GetUser RPC.
+	OrchestratorGetUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetUser"
+	// OrchestratorListUserRolesProcedure is the fully-qualified name of the Orchestrator's
+	// ListUserRoles RPC.
+	OrchestratorListUserRolesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUserRoles"
 )
 
 // OrchestratorClient is a client for the confirmate.orchestrator.v1.Orchestrator service.
@@ -295,6 +305,14 @@ type OrchestratorClient interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
+	// Returns information about the currently authenticated user
+	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
+	// Lists users with optional filtering
+	ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error)
+	// Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+	GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error)
+	// Lists all predefined roles in the system.
+	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
 }
 
 // NewOrchestratorClient constructs a client for the confirmate.orchestrator.v1.Orchestrator
@@ -584,6 +602,30 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("GetRuntimeInfo")),
 			connect.WithClientOptions(opts...),
 		),
+		getCurrentUser: connect.NewClient[orchestrator.GetCurrentUserRequest, orchestrator.User](
+			httpClient,
+			baseURL+OrchestratorGetCurrentUserProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("GetCurrentUser")),
+			connect.WithClientOptions(opts...),
+		),
+		listUsers: connect.NewClient[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse](
+			httpClient,
+			baseURL+OrchestratorListUsersProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListUsers")),
+			connect.WithClientOptions(opts...),
+		),
+		getUser: connect.NewClient[orchestrator.GetUserRequest, orchestrator.User](
+			httpClient,
+			baseURL+OrchestratorGetUserProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("GetUser")),
+			connect.WithClientOptions(opts...),
+		),
+		listUserRoles: connect.NewClient[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse](
+			httpClient,
+			baseURL+OrchestratorListUserRolesProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListUserRoles")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -635,6 +677,10 @@ type orchestratorClient struct {
 	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
 	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
 	getRuntimeInfo                  *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
+	getCurrentUser                  *connect.Client[orchestrator.GetCurrentUserRequest, orchestrator.User]
+	listUsers                       *connect.Client[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse]
+	getUser                         *connect.Client[orchestrator.GetUserRequest, orchestrator.User]
+	listUserRoles                   *connect.Client[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse]
 }
 
 // RegisterAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool.
@@ -870,6 +916,26 @@ func (c *orchestratorClient) GetRuntimeInfo(ctx context.Context, req *connect.Re
 	return c.getRuntimeInfo.CallUnary(ctx, req)
 }
 
+// GetCurrentUser calls confirmate.orchestrator.v1.Orchestrator.GetCurrentUser.
+func (c *orchestratorClient) GetCurrentUser(ctx context.Context, req *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {
+	return c.getCurrentUser.CallUnary(ctx, req)
+}
+
+// ListUsers calls confirmate.orchestrator.v1.Orchestrator.ListUsers.
+func (c *orchestratorClient) ListUsers(ctx context.Context, req *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error) {
+	return c.listUsers.CallUnary(ctx, req)
+}
+
+// GetUser calls confirmate.orchestrator.v1.Orchestrator.GetUser.
+func (c *orchestratorClient) GetUser(ctx context.Context, req *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error) {
+	return c.getUser.CallUnary(ctx, req)
+}
+
+// ListUserRoles calls confirmate.orchestrator.v1.Orchestrator.ListUserRoles.
+func (c *orchestratorClient) ListUserRoles(ctx context.Context, req *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error) {
+	return c.listUserRoles.CallUnary(ctx, req)
+}
+
 // OrchestratorHandler is an implementation of the confirmate.orchestrator.v1.Orchestrator service.
 type OrchestratorHandler interface {
 	// Registers the passed assessment tool
@@ -979,6 +1045,14 @@ type OrchestratorHandler interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
+	// Returns information about the currently authenticated user
+	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
+	// Lists users with optional filtering
+	ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error)
+	// Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+	GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error)
+	// Lists all predefined roles in the system.
+	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
 }
 
 // NewOrchestratorHandler builds an HTTP handler from the service implementation. It returns the
@@ -1264,6 +1338,30 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("GetRuntimeInfo")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorGetCurrentUserHandler := connect.NewUnaryHandler(
+		OrchestratorGetCurrentUserProcedure,
+		svc.GetCurrentUser,
+		connect.WithSchema(orchestratorMethods.ByName("GetCurrentUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorListUsersHandler := connect.NewUnaryHandler(
+		OrchestratorListUsersProcedure,
+		svc.ListUsers,
+		connect.WithSchema(orchestratorMethods.ByName("ListUsers")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorGetUserHandler := connect.NewUnaryHandler(
+		OrchestratorGetUserProcedure,
+		svc.GetUser,
+		connect.WithSchema(orchestratorMethods.ByName("GetUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorListUserRolesHandler := connect.NewUnaryHandler(
+		OrchestratorListUserRolesProcedure,
+		svc.ListUserRoles,
+		connect.WithSchema(orchestratorMethods.ByName("ListUserRoles")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/confirmate.orchestrator.v1.Orchestrator/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OrchestratorRegisterAssessmentToolProcedure:
@@ -1358,6 +1456,14 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorRemoveAuditScopeHandler.ServeHTTP(w, r)
 		case OrchestratorGetRuntimeInfoProcedure:
 			orchestratorGetRuntimeInfoHandler.ServeHTTP(w, r)
+		case OrchestratorGetCurrentUserProcedure:
+			orchestratorGetCurrentUserHandler.ServeHTTP(w, r)
+		case OrchestratorListUsersProcedure:
+			orchestratorListUsersHandler.ServeHTTP(w, r)
+		case OrchestratorGetUserProcedure:
+			orchestratorGetUserHandler.ServeHTTP(w, r)
+		case OrchestratorListUserRolesProcedure:
+			orchestratorListUserRolesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1549,4 +1655,20 @@ func (UnimplementedOrchestratorHandler) RemoveAuditScope(context.Context, *conne
 
 func (UnimplementedOrchestratorHandler) GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetCurrentUser is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListUsers is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetUser is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListUserRoles is not implemented"))
 }
