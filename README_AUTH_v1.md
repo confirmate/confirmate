@@ -26,7 +26,8 @@ The system separates **Identity** from **Resource Ownership** to balance global 
 We use dedicated **Join Tables** (Many-to-Many) for each resource type.
 
 ### Entity Tables (Core Data)
-- `users`: Local cache of user identities (ID from `sub` claim, email, etc.).
+- New DB: 
+  - `users`: Local DB of user identities (ID from `sub` claim, email, etc.).
 - Already existing:
   - `targets_of_evaluation`: Main table for ToE data.
   - `catalogs`: Main table for Catalog data.
@@ -68,11 +69,17 @@ When an API request is made for a specific resource (e.g., `UpdateTargetOfEvalua
 
 ### 5.2 Creation Check (Global Check)
 Before a resource is created, the system checks the **JWT**:
-- **Requirement:** Does the token contain a specific `user` role? -> - **Yes:** Perform **JIT Provisioning** and create resource + ownership link. (Upsert)
+- **Requirement:** Does the token contain a specific `user` role? 
+  - **Yes:** Perform **JIT Provisioning** and create resource + ownership link. (Upsert)
+  - **No**: Deny
+
+
+  **Question**: Who will add the permission (owner, contributor, reader) if a user tries to read a resource the first time? 
 
 ### 5.3 Resource-Specific Check
 For actions on existing resources (Read, Update, Delete) check 
-**Local Permission (DB):** Check the specific join table for `user_id` + `resource_id`.
-    - If a valid `role` (OWNER/EDITOR/VIEWER) is found → **ALLOW**.
-    - Otherwise **DENY**
+**Local Permission (DB)**.
+Check the specific join table for `user_id` + `resource_id`.
+  - If a valid `role` (OWNER/EDITOR/VIEWER) is found → **ALLOW**.
+  - Otherwise **DENY**
 
