@@ -154,15 +154,9 @@ func (ai *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 		ctx = auth.WithClaims(ctx, claims)
 
 		// Extract subject from claims and persist user if database is configured
-		sub, ok := claims["sub"].(string)
-		if ok && ai != nil && ai.db != nil {
-			sub = strings.TrimSpace(sub)
-			// Persist the calling user (identified by JWT sub) in the database
-			err := upsertUserFromClaims(ctx, ai.db, sub, claims)
-			if err != nil {
-				return nil, connect.NewError(connect.CodeInternal, errors.New("failed to persist user"))
-			}
-			ctx = WithSubject(ctx, sub)
+		ctx, err = ai.persistUserFromClaims(ctx, claims)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, errors.New("failed to persist user"))
 		}
 		return next(ctx, req)
 	}
@@ -192,17 +186,13 @@ func (ai *AuthInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFun
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
+		// Store claims in ctx
 		ctx = auth.WithClaims(ctx, claims)
 
-		sub, ok := claims["sub"].(string)
-		if ok && ai != nil && ai.db != nil {
-			sub = strings.TrimSpace(sub)
-			// Persist the calling user (identified by JWT sub) in the database
-			err := upsertUserFromClaims(ctx, ai.db, sub, claims)
-			if err != nil {
-				return connect.NewError(connect.CodeInternal, errors.New("failed to persist user"))
-			}
-			ctx = WithSubject(ctx, sub)
+		// Extract subject from claims and persist user if database is configured
+		ctx, err = ai.persistUserFromClaims(ctx, claims)
+		if err != nil {
+			return connect.NewError(connect.CodeInternal, errors.New("failed to persist user"))
 		}
 
 		return next(ctx, conn)
@@ -324,7 +314,7 @@ func upsertUserFromClaims(ctx context.Context, db persistence.DB, sub string, cl
 	}
 
 	// TODO(antheka): Should we better use create and update???
-	if err := db.Create(user); err != nil {
+	if err := db.Save(user); err != nil {
 		return fmt.Errorf("could not upsert user %q: %w", sub, err)
 	}
 	return nil
@@ -343,4 +333,19 @@ func SubjectFromContext(ctx context.Context) (string, error) {
 	}
 
 	return sub, nil
+}
+
+func (ai *AuthInterceptor) persistUserFromClaims(ctx context.Context, claims jwt.MapClaims) (context context.Context, err error) {
+	sub, ok := claims["sub"].(string)
+	if ok && ai != nil && ai.db != nil {
+		sub = strings.TrimSpace(sub)
+		// Persist the calling user (identified by JWT sub) in the database
+		err := upsertUserFromClaims(ctx, ai.db, sub, claims)
+		if err != nil {
+			return ctx, connect.NewError(connect.CodeInternal, errors.New("failed to persist user"))
+		}
+		ctx = WithSubject(ctx, sub)
+	}
+
+	return ctx, nil
 }
