@@ -82,6 +82,13 @@ type Service struct {
 	// hookMutex is used for (un)locking result hook calls
 	hookMutex sync.Mutex
 
+	// toolIds is an in-memory cache of tool IDs that have provided evidence.
+	// It is a map[string]struct{} (a set) rather than a slice to guarantee
+	// uniqueness with O(1) insertion — no duplicate scan needed on each
+	// StoreEvidence call.
+	toolIds   map[string]struct{}
+	toolIdsMu sync.RWMutex
+
 	evidenceconnect.UnimplementedEvidenceStoreHandler
 }
 
@@ -94,7 +101,8 @@ func WithConfig(cfg Config) service.Option[Service] {
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	svc = &Service{
-		cfg: DefaultConfig,
+		cfg:     DefaultConfig,
+		toolIds: make(map[string]struct{}),
 	}
 
 	// Apply configuration options
@@ -208,6 +216,11 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		slog.String("evidence_id", req.Msg.Evidence.Id),
 		slog.String("tool_id", req.Msg.Evidence.ToolId),
 		slog.String("target_of_evaluation_id", req.Msg.Evidence.TargetOfEvaluationId))
+
+	// Cache the tool ID for ListTools.
+	svc.toolIdsMu.Lock()
+	svc.toolIds[req.Msg.Evidence.GetToolId()] = struct{}{}
+	svc.toolIdsMu.Unlock()
 
 	// Store Resource:
 	// Build a resource struct. This will hold the latest sync state of the
@@ -394,6 +407,28 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 	res.Msg = &evidence.ListSupportedResourceTypesResponse{
 		ResourceType: ontology.ListResourceTypes(),
 	}
+
+	return
+}
+
+// ListTools returns the IDs of all evidence collecting tools that have provided evidence so far.
+// The result is served from an in-memory cache that is populated on each [StoreEvidence] call.
+// This implements the [evidenceconnect.EvidenceStoreHandler.ListTools] RPC method.
+func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.ListToolsRequest]) (
+	res *connect.Response[evidence.ListToolsResponse], err error) {
+
+	res = connect.NewResponse(&evidence.ListToolsResponse{})
+
+	// Validate request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	svc.toolIdsMu.RLock()
+	for id := range svc.toolIds {
+		res.Msg.ToolIds = append(res.Msg.ToolIds, id)
+	}
+	svc.toolIdsMu.RUnlock()
 
 	return
 }
