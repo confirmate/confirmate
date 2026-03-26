@@ -117,8 +117,6 @@ func (ai *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 		// Store claims in ctx
 		ctx = auth.WithClaims(ctx, claims)
 
-		res, err = next(ctx, req)
-
 		return next(ctx, req)
 	}
 }
