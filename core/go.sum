@@ -35,8 +35,8 @@ github.com/bytecodealliance/wasmtime-go/v39 v39.0.1 h1:RibaT47yiyCRxMOj/l2cvL8cW
 github.com/bytecodealliance/wasmtime-go/v39 v39.0.1/go.mod h1:miR4NYIEBXeDNamZIzpskhJ0z/p8al+lwMWylQ/ZJb4=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
-github.com/confirmate/ramsql v0.0.0-20260302105703-17f4819f2682 h1:cWt9V5B3RpYIRe+EC3B1pUxQ/cT5Ezs5h6qBqHTOzTI=
-github.com/confirmate/ramsql v0.0.0-20260302105703-17f4819f2682/go.mod h1:ejv4BtOMoqJRDGpd+hvfKEq2y8qTgxIH2K2rbtz/SQQ=
+github.com/confirmate/ramsql v0.0.0-20260326130106-3aa2e803f3be h1:iZs6xtNLve3um2u9KZZi2TT3m4XY3T5+yLqeK4dVh/8=
+github.com/confirmate/ramsql v0.0.0-20260326130106-3aa2e803f3be/go.mod h1:ejv4BtOMoqJRDGpd+hvfKEq2y8qTgxIH2K2rbtz/SQQ=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

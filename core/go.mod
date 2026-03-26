@@ -115,4 +115,4 @@ require (
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260302105703-17f4819f2682
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260326130106-3aa2e803f3be
