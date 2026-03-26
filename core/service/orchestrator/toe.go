@@ -89,10 +89,6 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
-	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
-
 	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
 	err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
