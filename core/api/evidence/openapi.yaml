@@ -247,6 +247,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/evidence_store/tools:
+        get:
+            tags:
+                - EvidenceStore
+            description: |-
+                Returns the IDs of all evidence collecting tools that have provided
+                 evidence so far. Part of the public API, also exposed as REST.
+            operationId: EvidenceStore_ListTools
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListToolsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         ABAC:
@@ -3222,6 +3243,13 @@ components:
             type: object
             properties:
                 resourceType:
+                    type: array
+                    items:
+                        type: string
+        ListToolsResponse:
+            type: object
+            properties:
+                toolIds:
                     type: array
                     items:
                         type: string

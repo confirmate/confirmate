@@ -43,6 +43,13 @@ func NewRootCommand() *cli.Command {
 		Commands: []*cli.Command{
 			LoginCommand(),
 			{
+				Name:  "evidence",
+				Usage: "Evidence store operations",
+				Commands: []*cli.Command{
+					EvidenceListToolsCommand(),
+				},
+			},
+			{
 				Name:  "tools",
 				Usage: "Assessment tool operations",
 				Commands: []*cli.Command{

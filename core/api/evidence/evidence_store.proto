@@ -58,6 +58,12 @@ service EvidenceStore {
   rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
     option (google.api.http) = {get: "/v1/evidence_store/resources"};
   }
+
+  // Returns the IDs of all evidence collecting tools that have provided
+  // evidence so far. Part of the public API, also exposed as REST.
+  rpc ListTools(ListToolsRequest) returns (ListToolsResponse) {
+    option (google.api.http) = {get: "/v1/evidence_store/tools"};
+  }
 }
 
 message StoreEvidenceRequest {
@@ -128,4 +134,10 @@ message ListResourcesRequest {
 message ListResourcesResponse {
   repeated Resource results = 1 [(google.api.field_behavior) = REQUIRED];
   string next_page_token = 2;
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+  repeated string tool_ids = 1;
 }
