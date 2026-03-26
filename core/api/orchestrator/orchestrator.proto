@@ -336,7 +336,7 @@ service Orchestrator {
   }
 
   // Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
-  rpc EnsureCurrentUser(EnsureCurrentUserRequest) returns (EnsureCurrentUserResponse) {
+  rpc UpsertCurrentUser(UpsertCurrentUserRequest) returns (UpsertCurrentUserResponse) {
     option (google.api.http) = {
       post: "/v1/users"
       body: "user"
@@ -361,6 +361,11 @@ service Orchestrator {
   // Lists all predefined roles in the system.
   rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
     option (google.api.http) = {get: "/v1/users/roles"};
+  }
+
+  // Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+  rpc RemoveUser(RemoveUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/{user_id}"};
   }
 }
 
@@ -1194,14 +1199,14 @@ message State {
   string certificate_id = 5;
 }
 
-message EnsureCurrentUserRequest {
+message UpsertCurrentUserRequest {
   User user = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 }
 
-message EnsureCurrentUserResponse {
+message UpsertCurrentUserResponse {
 }
 
 message GetCurrentUserRequest {
@@ -1250,4 +1255,11 @@ message ListUserRolesRequest {
 }
 message ListUserRolesResponse {
   repeated Role roles = 1;
+}
+
+message RemoveUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }

@@ -10,6 +10,7 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -113,6 +114,22 @@ func (svc *Service) ListUserRoles(
 	// TODO (anatheka): Implement
 
 	res = connect.NewResponse(&roles)
+	return
+}
+
+// RemoveUser deletes a user from the system based on their unique identifier.
+func (svc *Service) RemoveUser(
+	ctx context.Context,
+	req *connect.Request[orchestrator.RemoveUserRequest],
+) (res *connect.Response[emptypb.Empty], err error) {
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// TODO (anatheka): Implement
+
+	res = connect.NewResponse(&emptypb.Empty{})
 	return
 }
 

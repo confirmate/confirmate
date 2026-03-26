@@ -112,7 +112,7 @@ type User struct {
 	// ID is the unique identifier of the user
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Username is the name used to be displayed
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username *string `protobuf:"bytes,2,opt,name=username,proto3,oneof" json:"username,omitempty"`
 	// Email is the email address of the user, if available.
 	Email *string `protobuf:"bytes,3,opt,name=email,proto3,oneof" json:"email,omitempty"`
 	// FirstName is the first name of the user, if available.
@@ -127,8 +127,10 @@ type User struct {
 	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
 	// Expiration date indicates when the user's access expires.
 	ExpirationDate *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// LastAccess indicates the last time the user accessed the system.
+	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -169,8 +171,8 @@ func (x *User) GetId() string {
 }
 
 func (x *User) GetUsername() string {
-	if x != nil {
-		return x.Username
+	if x != nil && x.Username != nil {
+		return *x.Username
 	}
 	return ""
 }
@@ -224,30 +226,40 @@ func (x *User) GetExpirationDate() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *User) GetLastAccess() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastAccess
+	}
+	return nil
+}
+
 var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xf4\x04\n" +
+	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xea\x05\n" +
 	"\x04User\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12&\n" +
-	"\busername\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\busername\x12\x19\n" +
-	"\x05email\x18\x03 \x01(\tH\x00R\x05email\x88\x01\x01\x12\"\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1f\n" +
+	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x19\n" +
+	"\x05email\x18\x03 \x01(\tH\x01R\x05email\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"first_name\x18\x04 \x01(\tH\x01R\tfirstName\x88\x01\x01\x12 \n" +
-	"\tlast_name\x18\x05 \x01(\tH\x02R\blastName\x88\x01\x01\x12`\n" +
+	"first_name\x18\x04 \x01(\tH\x02R\tfirstName\x88\x01\x01\x12 \n" +
+	"\tlast_name\x18\x05 \x01(\tH\x03R\blastName\x88\x01\x01\x12`\n" +
 	"\x05roles\x18\x06 \x03(\x0e2 .confirmate.orchestrator.v1.RoleB(\xbaH\n" +
 	"\x92\x01\a\"\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x05roles\x12\x18\n" +
 	"\aenabled\x18\a \x01(\bR\aenabled\x12m\n" +
 	"\n" +
 	"attributes\x18\b \x03(\v20.confirmate.orchestrator.v1.User.AttributesEntryB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\n" +
 	"attributes\x12v\n" +
-	"\x0fexpiration_date\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x1a=\n" +
+	"\x0fexpiration_date\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x12n\n" +
+	"\vlast_access\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\n" +
+	"lastAccess\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
+	"\t_usernameB\b\n" +
 	"\x06_emailB\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
@@ -287,11 +299,12 @@ var file_api_orchestrator_user_proto_depIdxs = []int32{
 	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
 	2, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
 	3, // 2: confirmate.orchestrator.v1.User.expiration_date:type_name -> google.protobuf.Timestamp
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	3, // 3: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_user_proto_init() }

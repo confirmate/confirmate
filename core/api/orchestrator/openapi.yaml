@@ -1549,7 +1549,7 @@ paths:
             tags:
                 - Orchestrator
             description: Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
-            operationId: Orchestrator_EnsureCurrentUser
+            operationId: Orchestrator_UpsertCurrentUser
             requestBody:
                 content:
                     application/json:
@@ -1562,7 +1562,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/EnsureCurrentUserResponse'
+                                $ref: '#/components/schemas/UpsertCurrentUserResponse'
                 default:
                     description: Default error response
                     content:
@@ -1640,6 +1640,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+            operationId: Orchestrator_RemoveUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
                 default:
                     description: Default error response
                     content:
@@ -1968,9 +1989,6 @@ components:
                     type: string
                 version:
                     type: string
-        EnsureCurrentUserResponse:
-            type: object
-            properties: {}
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
@@ -2357,10 +2375,12 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
+        UpsertCurrentUserResponse:
+            type: object
+            properties: {}
         User:
             required:
                 - id
-                - username
             type: object
             properties:
                 id:
@@ -2404,6 +2424,10 @@ components:
                 expirationDate:
                     type: string
                     description: Expiration date indicates when the user's access expires.
+                    format: date-time
+                lastAccess:
+                    type: string
+                    description: LastAccess indicates the last time the user accessed the system.
                     format: date-time
             description: Represents a user from the IdP
 tags:
