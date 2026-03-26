@@ -20,13 +20,11 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
-	"log/slog"
 	"strings"
 	"time"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
-	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/util"
 
@@ -42,9 +40,6 @@ type AuthConfig struct {
 	jwksURL string
 	useJWKS bool
 	jwks    *keyfunc.JWKS
-
-	// PersistenceConfig is the configuration for the persistence layer.
-	persistenceConfig persistence.Config
 
 	publicKey *ecdsa.PublicKey
 
@@ -81,13 +76,6 @@ func WithPublicProcedures(procedures ...string) AuthOption {
 	}
 }
 
-// WithUserPersistence enables persisting the calling user (by JWT sub) on each request.
-func WithUserPersistence(config persistence.Config) AuthOption {
-	return func(c *AuthConfig) {
-		c.persistenceConfig = config
-	}
-}
-
 // AuthInterceptor authenticates incoming requests using bearer tokens.
 type AuthInterceptor struct {
 	cfg *AuthConfig
@@ -98,29 +86,13 @@ type AuthInterceptor struct {
 func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
 	var (
 		cfg *AuthConfig
-		err error
-		db  persistence.DB
+		// err error
+		db persistence.DB
 	)
 
 	cfg = &AuthConfig{}
 	for _, opt := range opts {
 		opt(cfg)
-	}
-
-	// Initialize the database with the defined auto-migration types and join tables
-	if cfg.persistenceConfig.Host == "" {
-		slog.Debug("no persistence config provided for auth interceptor, use in-memory-db for user persistence")
-		cfg.persistenceConfig = persistence.Config{
-			InMemoryDB: true,
-		}
-	}
-	pcfg := cfg.persistenceConfig
-	pcfg.Types = []any{&orchestrator.User{}}
-	pcfg.CustomJoinTables = []persistence.CustomJoinTable{}
-	db, err = persistence.NewDB(persistence.WithConfig(pcfg))
-	if err != nil {
-		slog.Warn("could not create db", log.Err(err))
-		db = nil
 	}
 
 	interceptor = &AuthInterceptor{

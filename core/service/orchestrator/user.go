@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/service"
 	"connectrpc.com/connect"
 )
 
@@ -43,12 +44,34 @@ func (svc *Service) ListUsers(
 	req *connect.Request[orchestrator.ListUsersRequest],
 ) (res *connect.Response[orchestrator.ListUsersResponse], err error) {
 	var (
-		users orchestrator.ListUsersResponse
+		users []*orchestrator.User
+		conds []any
+		npt   string
 	)
 
-	// TODO (anatheka): Implement
+	// Validate request
+	err = service.Validate(req)
+	if err != nil {
+		return nil, err
+	}
 
-	res = connect.NewResponse(&users)
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "id"
+		req.Msg.Asc = true
+	}
+
+	// TODO (anatheka): Implement
+	// First implementation for testing purposes
+	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&orchestrator.ListUsersResponse{
+		Users:         users,
+		NextPageToken: npt,
+	})
 	return
 }
 

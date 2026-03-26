@@ -95,6 +95,7 @@ require (
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/addlicense v1.2.0
 	github.com/lyft/protoc-gen-star/v2 v2.0.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
