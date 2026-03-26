@@ -1,15 +1,19 @@
 {
 	"folders": [
 		{
+			"name": "Workspace Root",
 			"path": "."
 		},
 		{
+			"name": "UI",
 			"path": "ui"
 		},
 		{
+			"name": "Core",
 			"path": "core"
 		},
 		{
+			"name": "Cloud Collectors",
 			"path": "collectors/cloud"
 		}
 	],
