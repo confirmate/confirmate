@@ -34,6 +34,7 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/service/orchestrator"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
 )
@@ -215,7 +216,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		Category:    "LoggingMonitoring",
 		Description: evidencetest.MockMetricDescription1,
 		Version:     evidencetest.MockMetricVersion1,
-		Comments:    evidencetest.MockMetricComments1,
+		Comments:    util.Ref(evidencetest.MockMetricComments1),
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,

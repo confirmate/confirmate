@@ -99,7 +99,7 @@ type Metric struct {
 	// The version of this metric
 	Version string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
 	// Optional comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
-	Comments string `protobuf:"bytes,5,opt,name=comments,proto3" json:"comments,omitempty"`
+	Comments *string `protobuf:"bytes,5,opt,name=comments,proto3,oneof" json:"comments,omitempty"`
 	// Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
 	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
 	// The implementation of this metric. This ensures that we are modelling an
@@ -171,8 +171,8 @@ func (x *Metric) GetVersion() string {
 }
 
 func (x *Metric) GetComments() string {
-	if x != nil {
-		return x.Comments
+	if x != nil && x.Comments != nil {
+		return *x.Comments
 	}
 	return ""
 }
@@ -366,7 +366,7 @@ var File_api_assessment_metric_proto protoreflect.FileDescriptor
 
 const file_api_assessment_metric_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/assessment/metric.proto\x12\x18confirmate.assessment.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xe1\x03\n" +
+	"\x1bapi/assessment/metric.proto\x12\x18confirmate.assessment.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xf3\x03\n" +
 	"\x06Metric\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
@@ -374,12 +374,13 @@ const file_api_assessment_metric_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\vdescription\x12$\n" +
 	"\aversion\x18\x04 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\aversion\x12\x1a\n" +
-	"\bcomments\x18\x05 \x01(\tR\bcomments\x12&\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\aversion\x12\x1f\n" +
+	"\bcomments\x18\x05 \x01(\tH\x00R\bcomments\x88\x01\x01\x12&\n" +
 	"\bcategory\x18\x06 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bcategory\x12[\n" +
-	"\x0eimplementation\x18\a \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x00R\x0eimplementation\x88\x01\x01\x12}\n" +
-	"\x10deprecated_since\x18\b \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x01R\x0fdeprecatedSince\x88\x01\x01B\x11\n" +
+	"\x0eimplementation\x18\a \x01(\v2..confirmate.assessment.v1.MetricImplementationH\x01R\x0eimplementation\x88\x01\x01\x12}\n" +
+	"\x10deprecated_since\x18\b \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"H\x02R\x0fdeprecatedSince\x88\x01\x01B\v\n" +
+	"\t_commentsB\x11\n" +
 	"\x0f_implementationB\x13\n" +
 	"\x11_deprecated_since\"\xe7\x03\n" +
 	"\x13MetricConfiguration\x12D\n" +

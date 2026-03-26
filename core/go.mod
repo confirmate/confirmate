@@ -4,14 +4,11 @@ go 1.24.6
 
 // runtime dependencies - CLI
 require (
-	github.com/fatih/color v1.18.0 // indirect
-	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
 	github.com/lmittmann/tint v1.1.3
-	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20
 	github.com/oxisto/oauth2go v0.15.0
 	github.com/urfave/cli/v3 v3.6.2
-	golang.org/x/oauth2 v0.30.0
+	golang.org/x/oauth2 v0.32.0
 	golang.org/x/sys v0.40.0 // indirect
 )
 
@@ -100,10 +97,22 @@ require (
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
 	golang.org/x/mod v0.32.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sync v0.19.0
 	golang.org/x/tools v0.41.0 // indirect
+)
+
+require (
+	github.com/fatih/color v1.15.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+)
+
+require (
+	github.com/go-co-op/gocron v1.37.0
+	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
 )
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260302105703-17f4819f2682
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260326130106-3aa2e803f3be

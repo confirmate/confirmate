@@ -53,6 +53,9 @@ var (
 
 	// ErrDatabaseError is returned for general database errors.
 	ErrDatabaseError = errors.New("database error")
+
+	// ErrControlNotAvailable is returned when a given control is not available in the catalog.
+	ErrControlNotAvailable = errors.New("control is not available in the catalog")
 )
 
 var (
@@ -72,6 +75,11 @@ var (
 // This error is meant to be wrapped by [HandleDatabaseError] which converts it to a [connect.CodeNotFound] error.
 func ErrNotFound(entity string) error {
 	return fmt.Errorf("%s not found", entity)
+}
+
+// ErrIsMissing returns a plain error indicating that a required field is missing.
+func ErrIsMissing(fieldName string) error {
+	return fmt.Errorf("%s is missing", fieldName)
 }
 
 // Validate validates an incoming request using protovalidate.
