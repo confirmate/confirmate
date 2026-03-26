@@ -34,10 +34,7 @@ message User {
   ];
 
   // Username is the name used to be displayed
-  string username = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  optional string username = 2;
 
   // Email is the email address of the user, if available.
   optional string email = 3;
@@ -61,6 +58,9 @@ message User {
 
   // Expiration date indicates when the user's access expires.
   google.protobuf.Timestamp expiration_date = 9 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // LastAccess indicates the last time the user accessed the system.
+  google.protobuf.Timestamp last_access = 10 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 }
 
 // Predefined roles in the system. These should align with the roles defined in the IdP

@@ -16,8 +16,8 @@ import (
 // UpsertCurrentUser ensures that the calling user exists in the DB (create or update) and returns the corresponding user record.
 func (svc *Service) UpsertCurrentUser(
 	ctx context.Context,
-	req *connect.Request[orchestrator.EnsureCurrentUserRequest],
-) (res *connect.Response[orchestrator.EnsureCurrentUserResponse], err error) {
+	req *connect.Request[orchestrator.UpsertCurrentUserRequest],
+) (res *connect.Response[orchestrator.UpsertCurrentUserResponse], err error) {
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (svc *Service) UpsertCurrentUser(
 
 	// TODO(all): Do we need a subscriber here?
 
-	res = connect.NewResponse(&orchestrator.EnsureCurrentUserResponse{})
+	res = connect.NewResponse(&orchestrator.UpsertCurrentUserResponse{})
 	return
 }
 
@@ -127,18 +127,19 @@ func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy
 	// Extract user information from claims
 	user = &orchestrator.User{
 		Id:             getClaim(claims, "sub"),
-		Username:       getClaim(claims, "preferred_username"),
+		Username:       util.Ref(getClaim(claims, "preferred_username")),
 		FirstName:      util.Ref(getClaim(claims, "given_name")),
 		LastName:       util.Ref(getClaim(claims, "family_name")),
 		Enabled:        true,
 		Email:          util.Ref(getClaim(claims, "email")),
 		ExpirationDate: timestamppb.New(time.Unix(int64(claims["exp"].(float64)), 0)),
+		LastAccess:     timestamppb.Now(),
 	}
 
 	// Ensure the user exists in the DB and is up to date with the information from the claims.
 	// We do not need the response, we only want to know if an error occurred.
-	_, err = svc.EnsureCurrentUser(ctx, &connect.Request[orchestrator.EnsureCurrentUserRequest]{
-		Msg: &orchestrator.EnsureCurrentUserRequest{
+	_, err = svc.UpsertCurrentUser(ctx, &connect.Request[orchestrator.UpsertCurrentUserRequest]{
+		Msg: &orchestrator.UpsertCurrentUserRequest{
 			User: user,
 		},
 	})
