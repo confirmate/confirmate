@@ -58,6 +58,9 @@ message User {
 
   // Attributes contains additional key-value pairs associated with the user, such as department or team.
   map<string, string> attributes = 8 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  // Expiration date indicates when the user's access expires.
+  google.protobuf.Timestamp expiration_date = 9 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 }
 
 // Predefined roles in the system. These should align with the roles defined in the IdP

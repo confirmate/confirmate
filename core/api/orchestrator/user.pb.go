@@ -28,7 +28,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/emptypb"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -124,9 +124,11 @@ type User struct {
 	// Enabled indicates whether the user is active/enabled in the system
 	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Attributes contains additional key-value pairs associated with the user, such as department or team.
-	Attributes    map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
+	// Expiration date indicates when the user's access expires.
+	ExpirationDate *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -215,11 +217,18 @@ func (x *User) GetAttributes() map[string]string {
 	return nil
 }
 
+func (x *User) GetExpirationDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpirationDate
+	}
+	return nil
+}
+
 var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xfc\x03\n" +
+	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xf4\x04\n" +
 	"\x04User\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12&\n" +
@@ -234,7 +243,8 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\aenabled\x18\a \x01(\bR\aenabled\x12m\n" +
 	"\n" +
 	"attributes\x18\b \x03(\v20.confirmate.orchestrator.v1.User.AttributesEntryB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\n" +
-	"attributes\x1a=\n" +
+	"attributes\x12v\n" +
+	"\x0fexpiration_date\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
@@ -268,18 +278,20 @@ func file_api_orchestrator_user_proto_rawDescGZIP() []byte {
 var file_api_orchestrator_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_api_orchestrator_user_proto_goTypes = []any{
-	(Role)(0),    // 0: confirmate.orchestrator.v1.Role
-	(*User)(nil), // 1: confirmate.orchestrator.v1.User
-	nil,          // 2: confirmate.orchestrator.v1.User.AttributesEntry
+	(Role)(0),                     // 0: confirmate.orchestrator.v1.Role
+	(*User)(nil),                  // 1: confirmate.orchestrator.v1.User
+	nil,                           // 2: confirmate.orchestrator.v1.User.AttributesEntry
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_api_orchestrator_user_proto_depIdxs = []int32{
 	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
 	2, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 2: confirmate.orchestrator.v1.User.expiration_date:type_name -> google.protobuf.Timestamp
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_user_proto_init() }

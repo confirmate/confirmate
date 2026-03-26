@@ -184,6 +184,9 @@ const (
 	// OrchestratorGetRuntimeInfoProcedure is the fully-qualified name of the Orchestrator's
 	// GetRuntimeInfo RPC.
 	OrchestratorGetRuntimeInfoProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetRuntimeInfo"
+	// OrchestratorEnsureCurrentUserProcedure is the fully-qualified name of the Orchestrator's
+	// EnsureCurrentUser RPC.
+	OrchestratorEnsureCurrentUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/EnsureCurrentUser"
 	// OrchestratorGetCurrentUserProcedure is the fully-qualified name of the Orchestrator's
 	// GetCurrentUser RPC.
 	OrchestratorGetCurrentUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCurrentUser"
@@ -305,6 +308,8 @@ type OrchestratorClient interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
+	// Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
+	EnsureCurrentUser(context.Context, *connect.Request[orchestrator.EnsureCurrentUserRequest]) (*connect.Response[orchestrator.EnsureCurrentUserResponse], error)
 	// Returns information about the currently authenticated user
 	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
 	// Lists users with optional filtering
@@ -602,6 +607,12 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("GetRuntimeInfo")),
 			connect.WithClientOptions(opts...),
 		),
+		ensureCurrentUser: connect.NewClient[orchestrator.EnsureCurrentUserRequest, orchestrator.EnsureCurrentUserResponse](
+			httpClient,
+			baseURL+OrchestratorEnsureCurrentUserProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("EnsureCurrentUser")),
+			connect.WithClientOptions(opts...),
+		),
 		getCurrentUser: connect.NewClient[orchestrator.GetCurrentUserRequest, orchestrator.User](
 			httpClient,
 			baseURL+OrchestratorGetCurrentUserProcedure,
@@ -677,6 +688,7 @@ type orchestratorClient struct {
 	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
 	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
 	getRuntimeInfo                  *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
+	ensureCurrentUser               *connect.Client[orchestrator.EnsureCurrentUserRequest, orchestrator.EnsureCurrentUserResponse]
 	getCurrentUser                  *connect.Client[orchestrator.GetCurrentUserRequest, orchestrator.User]
 	listUsers                       *connect.Client[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse]
 	getUser                         *connect.Client[orchestrator.GetUserRequest, orchestrator.User]
@@ -916,6 +928,11 @@ func (c *orchestratorClient) GetRuntimeInfo(ctx context.Context, req *connect.Re
 	return c.getRuntimeInfo.CallUnary(ctx, req)
 }
 
+// EnsureCurrentUser calls confirmate.orchestrator.v1.Orchestrator.EnsureCurrentUser.
+func (c *orchestratorClient) EnsureCurrentUser(ctx context.Context, req *connect.Request[orchestrator.EnsureCurrentUserRequest]) (*connect.Response[orchestrator.EnsureCurrentUserResponse], error) {
+	return c.ensureCurrentUser.CallUnary(ctx, req)
+}
+
 // GetCurrentUser calls confirmate.orchestrator.v1.Orchestrator.GetCurrentUser.
 func (c *orchestratorClient) GetCurrentUser(ctx context.Context, req *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {
 	return c.getCurrentUser.CallUnary(ctx, req)
@@ -1045,6 +1062,8 @@ type OrchestratorHandler interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
+	// Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
+	EnsureCurrentUser(context.Context, *connect.Request[orchestrator.EnsureCurrentUserRequest]) (*connect.Response[orchestrator.EnsureCurrentUserResponse], error)
 	// Returns information about the currently authenticated user
 	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
 	// Lists users with optional filtering
@@ -1338,6 +1357,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("GetRuntimeInfo")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorEnsureCurrentUserHandler := connect.NewUnaryHandler(
+		OrchestratorEnsureCurrentUserProcedure,
+		svc.EnsureCurrentUser,
+		connect.WithSchema(orchestratorMethods.ByName("EnsureCurrentUser")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorGetCurrentUserHandler := connect.NewUnaryHandler(
 		OrchestratorGetCurrentUserProcedure,
 		svc.GetCurrentUser,
@@ -1456,6 +1481,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorRemoveAuditScopeHandler.ServeHTTP(w, r)
 		case OrchestratorGetRuntimeInfoProcedure:
 			orchestratorGetRuntimeInfoHandler.ServeHTTP(w, r)
+		case OrchestratorEnsureCurrentUserProcedure:
+			orchestratorEnsureCurrentUserHandler.ServeHTTP(w, r)
 		case OrchestratorGetCurrentUserProcedure:
 			orchestratorGetCurrentUserHandler.ServeHTTP(w, r)
 		case OrchestratorListUsersProcedure:
@@ -1655,6 +1682,10 @@ func (UnimplementedOrchestratorHandler) RemoveAuditScope(context.Context, *conne
 
 func (UnimplementedOrchestratorHandler) GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) EnsureCurrentUser(context.Context, *connect.Request[orchestrator.EnsureCurrentUserRequest]) (*connect.Response[orchestrator.EnsureCurrentUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.EnsureCurrentUser is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {

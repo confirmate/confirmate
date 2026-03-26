@@ -1545,6 +1545,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
+            operationId: Orchestrator_EnsureCurrentUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/User'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EnsureCurrentUserResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/me:
         get:
             tags:
@@ -1944,6 +1968,9 @@ components:
                     type: string
                 version:
                     type: string
+        EnsureCurrentUserResponse:
+            type: object
+            properties: {}
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
@@ -2374,6 +2401,10 @@ components:
                     additionalProperties:
                         type: string
                     description: Attributes contains additional key-value pairs associated with the user, such as department or team.
+                expirationDate:
+                    type: string
+                    description: Expiration date indicates when the user's access expires.
+                    format: date-time
             description: Represents a user from the IdP
 tags:
     - name: Orchestrator

@@ -335,6 +335,14 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
+  // Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
+  rpc EnsureCurrentUser(EnsureCurrentUserRequest) returns (EnsureCurrentUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "user"
+    };
+  }
+
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/users/me"};
@@ -1186,6 +1194,15 @@ message State {
   string certificate_id = 5;
 }
 
+message EnsureCurrentUserRequest {
+  User user = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message EnsureCurrentUserResponse {
+}
 
 message GetCurrentUserRequest {
   // Empty request - user is identified from authentication context
