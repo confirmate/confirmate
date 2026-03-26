@@ -21,7 +21,6 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -93,9 +92,11 @@ func (svc *Service) GetTargetOfEvaluation(
 	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
 	// 	return nil, service.ErrPermissionDenied
 	// }
+
 	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
-	if !CheckAccess(ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg) {
-		return nil, service.ErrPermissionDenied
+	err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
+		return nil, err
 	}
 
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
@@ -105,36 +106,6 @@ func (svc *Service) GetTargetOfEvaluation(
 
 	res = connect.NewResponse(&toe)
 	return
-}
-
-// CheckAccess checks whether the use has access and stores user in context (JIT provisioning) if authz strategy is JWT-based
-func CheckAccess(dbctx context.Context, typ orchestrator.RequestType, req interface{}) bool {
-	reqTyped, ok := req.(*connect.Request[orchestrator.RequestType])
-	if !ok {
-		return false
-	}
-
-	// HIER WEITERMACHEN!!!!
-	userID, err := server.SubjectFromContext(ctx)
-	if err != nil {
-		return false
-	}
-
-	// Use Save to insert or update the user in the database based on the JWT subject (sub claim). This allows for JIT provisioning of users upon their first authenticated request.
-	user := &orchestrator.User{
-		Id: userID,
-	}
-	err = svc.db.Save(user)
-	if err != nil {
-		return false
-	}
-
-	auth := service.CheckAccess(svc.authz, ctx, typ, reqTyped)
-	if !auth {
-		return false
-	}
-
-	return true
 }
 
 // ListTargetsOfEvaluation lists all targets of evaluation.

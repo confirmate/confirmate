@@ -2,11 +2,37 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/auth"
 	"confirmate.io/core/service"
+	"confirmate.io/core/util"
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+// UpsertCurrentUser ensures that the calling user exists in the DB (create or update) and returns the corresponding user record.
+func (svc *Service) UpsertCurrentUser(
+	ctx context.Context,
+	req *connect.Request[orchestrator.EnsureCurrentUserRequest],
+) (res *connect.Response[orchestrator.EnsureCurrentUserResponse], err error) {
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	err = svc.db.Save(req.Msg.User)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	// TODO(all): Do we need a subscriber here?
+
+	res = connect.NewResponse(&orchestrator.EnsureCurrentUserResponse{})
+	return
+}
 
 // GetCurrentUser retrieves the current authenticated user based on the context of the request.
 func (svc *Service) GetCurrentUser(
@@ -88,4 +114,50 @@ func (svc *Service) ListUserRoles(
 
 	res = connect.NewResponse(&roles)
 	return
+}
+
+// CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
+func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy, svc *Service, typ orchestrator.RequestType, req *connect.Request[T]) error {
+	var (
+		user *orchestrator.User
+		err  error
+	)
+	claims, _ := auth.ClaimsFromContext(ctx)
+
+	// Extract user information from claims
+	user = &orchestrator.User{
+		Id:             getClaim(claims, "sub"),
+		Username:       getClaim(claims, "preferred_username"),
+		FirstName:      util.Ref(getClaim(claims, "given_name")),
+		LastName:       util.Ref(getClaim(claims, "family_name")),
+		Enabled:        true,
+		Email:          util.Ref(getClaim(claims, "email")),
+		ExpirationDate: timestamppb.New(time.Unix(int64(claims["exp"].(float64)), 0)),
+	}
+
+	// Ensure the user exists in the DB and is up to date with the information from the claims.
+	// We do not need the response, we only want to know if an error occurred.
+	_, err = svc.EnsureCurrentUser(ctx, &connect.Request[orchestrator.EnsureCurrentUserRequest]{
+		Msg: &orchestrator.EnsureCurrentUserRequest{
+			User: user,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to ensure current user: %w", err)
+	}
+
+	auth := service.CheckAccess(authz, ctx, typ, req)
+	if !auth {
+		return fmt.Errorf("access denied for user %s", "userID")
+	}
+
+	return nil
+}
+
+// getClaim is a helper function to extract a specific claim from the claims map, returning an empty string if the claim is not present or not a string.
+func getClaim(claims map[string]any, key string) string {
+	if val, ok := claims[key]; ok && val != nil {
+		return val.(string)
+	}
+	return ""
 }
