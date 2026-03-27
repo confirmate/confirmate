@@ -149,7 +149,7 @@ func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy
 		LastName:       util.Ref(getClaim(claims, "family_name")),
 		Enabled:        true,
 		Email:          util.Ref(getClaim(claims, "email")),
-		ExpirationDate: timestamppb.New(time.Unix(int64(claims["exp"].(float64)), 0)),
+		ExpirationDate: timestamppb.New(time.Unix(getClaimInt64(claims, "exp"), 0)),
 		LastAccess:     timestamppb.Now(),
 	}
 
@@ -178,4 +178,33 @@ func getClaim(claims map[string]any, key string) string {
 		return val.(string)
 	}
 	return ""
+}
+
+// getClaimInt64 extracts a numeric claim as int64, returning 0 if missing or not numeric.
+func getClaimInt64(claims map[string]any, key string) int64 {
+	val, ok := claims[key]
+	if !ok || val == nil {
+		return 0
+	}
+
+	switch v := val.(type) {
+	case int64:
+		return v
+	case int:
+		return int64(v)
+	case int32:
+		return int64(v)
+	case float64:
+		return int64(v)
+	case float32:
+		return int64(v)
+	case uint64:
+		return int64(v)
+	case uint:
+		return int64(v)
+	case uint32:
+		return int64(v)
+	default:
+		return 0
+	}
 }
