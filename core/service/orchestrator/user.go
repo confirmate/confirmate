@@ -29,9 +29,48 @@ func (svc *Service) UpsertCurrentUser(
 		return nil, err
 	}
 
-	// TODO(all): Do we need a subscriber here?
+	// Notify subscribers
+	go svc.publishEvent(&orchestrator.ChangeEvent{
+		Timestamp:   timestamppb.Now(),
+		Category:    orchestrator.EventCategory_EVENT_CATEGORY_USER,
+		RequestType: orchestrator.RequestType_REQUEST_TYPE_STORED,
+		EntityId:    req.Msg.User.Id,
+		Entity: &orchestrator.ChangeEvent_User{
+			User: req.Msg.User,
+		},
+	})
 
-	res = connect.NewResponse(&orchestrator.UpsertCurrentUserResponse{})
+	// Add/update time fields
+	if req.Msg.User.ExpirationDate == nil {
+		claims, _ := auth.ClaimsFromContext(ctx)
+		req.Msg.User.ExpirationDate = timestamppb.New(time.Unix(getClaimInt64(claims, "exp"), 0)) // Set expiration date from JWT claim if not provided
+	}
+	req.Msg.User.LastAccess = timestamppb.Now() // Set last access to now
+
+	res = connect.NewResponse(&orchestrator.UpsertCurrentUserResponse{
+		User: req.Msg.User,
+	})
+	return
+}
+
+// UpsertCurrentUserPermission ensures that the calling user has the specified permission for the given resource (create or update).
+func (svc *Service) UpsertUserPermission(
+	ctx context.Context,
+	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
+) (res *connect.Response[orchestrator.UpsertUserPermissionResponse], err error) {
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// TODO (anatheka): Add authorization check to ensure the user has the right to upsert this permission
+
+	err = svc.db.Save(req.Msg.UserPermission)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{})
 	return
 }
 
@@ -98,6 +137,45 @@ func (svc *Service) ListUsers(
 	res = connect.NewResponse(&orchestrator.ListUsersResponse{
 		Users:         users,
 		NextPageToken: npt,
+	})
+	return
+}
+
+// ListUserPermissions lists all user permissions for a given userID.
+func (svc *Service) ListUserPermissions(
+	ctx context.Context,
+	req *connect.Request[orchestrator.ListUserPermissionsRequest],
+) (res *connect.Response[orchestrator.ListUserPermissionsResponse], err error) {
+	var (
+		permissions []*orchestrator.UserPermission
+		conds       []any
+		npt         string
+	)
+
+	// Validate request
+	err = service.Validate(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO(anatheka): Add auth check
+
+	// Set default ordering
+	if req.Msg.OrderBy == "" {
+		req.Msg.OrderBy = "user_id"
+		req.Msg.Asc = true
+	}
+
+	// TODO (anatheka): Implement
+	// First implementation for testing purposes
+	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&orchestrator.ListUserPermissionsResponse{
+		UserPermissions: permissions,
+		NextPageToken:   npt,
 	})
 	return
 }
