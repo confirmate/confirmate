@@ -106,6 +106,119 @@ func (Role) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{0}
 }
 
+type UserPermission_Permission int32
+
+const (
+	UserPermission_PERMISSION_UNSPECIFIED UserPermission_Permission = 0
+	UserPermission_PERMISSION_READER      UserPermission_Permission = 1
+	UserPermission_PERMISSION_CONTRIBUTOR UserPermission_Permission = 2
+	UserPermission_PERMISSION_ADMIN       UserPermission_Permission = 3
+)
+
+// Enum value maps for UserPermission_Permission.
+var (
+	UserPermission_Permission_name = map[int32]string{
+		0: "PERMISSION_UNSPECIFIED",
+		1: "PERMISSION_READER",
+		2: "PERMISSION_CONTRIBUTOR",
+		3: "PERMISSION_ADMIN",
+	}
+	UserPermission_Permission_value = map[string]int32{
+		"PERMISSION_UNSPECIFIED": 0,
+		"PERMISSION_READER":      1,
+		"PERMISSION_CONTRIBUTOR": 2,
+		"PERMISSION_ADMIN":       3,
+	}
+)
+
+func (x UserPermission_Permission) Enum() *UserPermission_Permission {
+	p := new(UserPermission_Permission)
+	*p = x
+	return p
+}
+
+func (x UserPermission_Permission) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UserPermission_Permission) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_orchestrator_user_proto_enumTypes[1].Descriptor()
+}
+
+func (UserPermission_Permission) Type() protoreflect.EnumType {
+	return &file_api_orchestrator_user_proto_enumTypes[1]
+}
+
+func (x UserPermission_Permission) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UserPermission_Permission.Descriptor instead.
+func (UserPermission_Permission) EnumDescriptor() ([]byte, []int) {
+	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1, 0}
+}
+
+type UserPermission_ResourceType int32
+
+const (
+	UserPermission_RESOURCE_TYPE_UNSPECIFIED       UserPermission_ResourceType = 0
+	UserPermission_RESOURCE_TYPE_TOE               UserPermission_ResourceType = 1
+	UserPermission_RESOURCE_TYPE_ASSESSMENT_RESULT UserPermission_ResourceType = 2
+	UserPermission_RESOURCE_TYPE_CATALOG           UserPermission_ResourceType = 3
+	UserPermission_RESOURCE_TYPE_AUDIT_SCOPE       UserPermission_ResourceType = 4
+	UserPermission_RESOURCE_TYPE_CERTIFICATE       UserPermission_ResourceType = 5
+	UserPermission_RESOURCE_TYPE_EVIDENCE          UserPermission_ResourceType = 6
+)
+
+// Enum value maps for UserPermission_ResourceType.
+var (
+	UserPermission_ResourceType_name = map[int32]string{
+		0: "RESOURCE_TYPE_UNSPECIFIED",
+		1: "RESOURCE_TYPE_TOE",
+		2: "RESOURCE_TYPE_ASSESSMENT_RESULT",
+		3: "RESOURCE_TYPE_CATALOG",
+		4: "RESOURCE_TYPE_AUDIT_SCOPE",
+		5: "RESOURCE_TYPE_CERTIFICATE",
+		6: "RESOURCE_TYPE_EVIDENCE",
+	}
+	UserPermission_ResourceType_value = map[string]int32{
+		"RESOURCE_TYPE_UNSPECIFIED":       0,
+		"RESOURCE_TYPE_TOE":               1,
+		"RESOURCE_TYPE_ASSESSMENT_RESULT": 2,
+		"RESOURCE_TYPE_CATALOG":           3,
+		"RESOURCE_TYPE_AUDIT_SCOPE":       4,
+		"RESOURCE_TYPE_CERTIFICATE":       5,
+		"RESOURCE_TYPE_EVIDENCE":          6,
+	}
+)
+
+func (x UserPermission_ResourceType) Enum() *UserPermission_ResourceType {
+	p := new(UserPermission_ResourceType)
+	*p = x
+	return p
+}
+
+func (x UserPermission_ResourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UserPermission_ResourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_orchestrator_user_proto_enumTypes[2].Descriptor()
+}
+
+func (UserPermission_ResourceType) Type() protoreflect.EnumType {
+	return &file_api_orchestrator_user_proto_enumTypes[2]
+}
+
+func (x UserPermission_ResourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UserPermission_ResourceType.Descriptor instead.
+func (UserPermission_ResourceType) EnumDescriptor() ([]byte, []int) {
+	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1, 1}
+}
+
 // Represents a user from the IdP
 type User struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -233,6 +346,78 @@ func (x *User) GetLastAccess() *timestamppb.Timestamp {
 	return nil
 }
 
+type UserPermission struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// User ID is required to identify the user for whom the perission is being upserted.
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" gorm:"column:user_id;primaryKey"`
+	// Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" gorm:"column:resource_id;primaryKey;index"`
+	// Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., toe, assessment_result, catalog).
+	ResourceType UserPermission_ResourceType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.UserPermission_ResourceType" json:"resource_type,omitempty" gorm:"column:resource_type;primaryKey"`
+	// Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty" gorm:"column:permission;type:integer;not null"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserPermission) Reset() {
+	*x = UserPermission{}
+	mi := &file_api_orchestrator_user_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserPermission) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserPermission) ProtoMessage() {}
+
+func (x *UserPermission) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_user_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserPermission.ProtoReflect.Descriptor instead.
+func (*UserPermission) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UserPermission) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UserPermission) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *UserPermission) GetResourceType() UserPermission_ResourceType {
+	if x != nil {
+		return x.ResourceType
+	}
+	return UserPermission_RESOURCE_TYPE_UNSPECIFIED
+}
+
+func (x *UserPermission) GetPermission() UserPermission_Permission {
+	if x != nil {
+		return x.Permission
+	}
+	return UserPermission_PERMISSION_UNSPECIFIED
+}
+
 var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
@@ -263,7 +448,29 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x06_emailB\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
-	"_last_name*\xed\x01\n" +
+	"_last_name\"\xb9\x06\n" +
+	"\x0eUserPermission\x12G\n" +
+	"\auser_id\x18\x01 \x01(\tB.\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03 gorm:\"column:user_id;primaryKey\"R\x06userId\x12[\n" +
+	"\vresource_id\x18\x02 \x01(\tB:\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03*gorm:\"column:resource_id;primaryKey;index\"R\n" +
+	"resourceId\x12\x94\x01\n" +
+	"\rresource_type\x18\x03 \x01(\x0e27.confirmate.orchestrator.v1.UserPermission.ResourceTypeB6\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03&gorm:\"column:resource_type;primaryKey\"R\fresourceType\x12\x95\x01\n" +
+	"\n" +
+	"permission\x18\x04 \x01(\x0e25.confirmate.orchestrator.v1.UserPermission.PermissionB>\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03.gorm:\"column:permission;type:integer;not null\"R\n" +
+	"permission\"q\n" +
+	"\n" +
+	"Permission\x12\x1a\n" +
+	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11PERMISSION_READER\x10\x01\x12\x1a\n" +
+	"\x16PERMISSION_CONTRIBUTOR\x10\x02\x12\x14\n" +
+	"\x10PERMISSION_ADMIN\x10\x03\"\xde\x01\n" +
+	"\fResourceType\x12\x1d\n" +
+	"\x19RESOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11RESOURCE_TYPE_TOE\x10\x01\x12#\n" +
+	"\x1fRESOURCE_TYPE_ASSESSMENT_RESULT\x10\x02\x12\x19\n" +
+	"\x15RESOURCE_TYPE_CATALOG\x10\x03\x12\x1d\n" +
+	"\x19RESOURCE_TYPE_AUDIT_SCOPE\x10\x04\x12\x1d\n" +
+	"\x19RESOURCE_TYPE_CERTIFICATE\x10\x05\x12\x1a\n" +
+	"\x16RESOURCE_TYPE_EVIDENCE\x10\x06*\xed\x01\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -287,24 +494,29 @@ func file_api_orchestrator_user_proto_rawDescGZIP() []byte {
 	return file_api_orchestrator_user_proto_rawDescData
 }
 
-var file_api_orchestrator_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_api_orchestrator_user_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_api_orchestrator_user_proto_goTypes = []any{
-	(Role)(0),                     // 0: confirmate.orchestrator.v1.Role
-	(*User)(nil),                  // 1: confirmate.orchestrator.v1.User
-	nil,                           // 2: confirmate.orchestrator.v1.User.AttributesEntry
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+	(Role)(0),                        // 0: confirmate.orchestrator.v1.Role
+	(UserPermission_Permission)(0),   // 1: confirmate.orchestrator.v1.UserPermission.Permission
+	(UserPermission_ResourceType)(0), // 2: confirmate.orchestrator.v1.UserPermission.ResourceType
+	(*User)(nil),                     // 3: confirmate.orchestrator.v1.User
+	(*UserPermission)(nil),           // 4: confirmate.orchestrator.v1.UserPermission
+	nil,                              // 5: confirmate.orchestrator.v1.User.AttributesEntry
+	(*timestamppb.Timestamp)(nil),    // 6: google.protobuf.Timestamp
 }
 var file_api_orchestrator_user_proto_depIdxs = []int32{
 	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
-	2, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
-	3, // 2: confirmate.orchestrator.v1.User.expiration_date:type_name -> google.protobuf.Timestamp
-	3, // 3: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
+	6, // 2: confirmate.orchestrator.v1.User.expiration_date:type_name -> google.protobuf.Timestamp
+	6, // 3: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
+	2, // 4: confirmate.orchestrator.v1.UserPermission.resource_type:type_name -> confirmate.orchestrator.v1.UserPermission.ResourceType
+	1, // 5: confirmate.orchestrator.v1.UserPermission.permission:type_name -> confirmate.orchestrator.v1.UserPermission.Permission
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_user_proto_init() }
@@ -318,8 +530,8 @@ func file_api_orchestrator_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_user_proto_rawDesc), len(file_api_orchestrator_user_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   2,
+			NumEnums:      3,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

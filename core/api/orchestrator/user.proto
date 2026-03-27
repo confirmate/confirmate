@@ -74,3 +74,50 @@ enum Role {
   ROLE_AUDITOR = 6;
   ROLE_CHIEF_INFORMATION_SECURITY_OFFICER = 7;
 }
+
+message UserPermission {
+  // User ID is required to identify the user for whom the perission is being upserted. 
+  string user_id = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:user_id;primaryKey\""
+  ];
+
+  // Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+  string resource_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:resource_id;primaryKey;index\""
+  ];
+
+  // Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., toe, assessment_result, catalog).
+  ResourceType resource_type = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:resource_type;primaryKey\""
+  ];
+
+  // Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+  Permission permission = 4 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:permission;type:integer;not null\""
+  ];
+
+  enum Permission {
+    PERMISSION_UNSPECIFIED = 0;
+    PERMISSION_READER = 1;
+    PERMISSION_CONTRIBUTOR = 2;
+    PERMISSION_ADMIN = 3;
+  }
+
+  enum ResourceType {
+    RESOURCE_TYPE_UNSPECIFIED = 0;
+    RESOURCE_TYPE_TOE = 1;
+    RESOURCE_TYPE_ASSESSMENT_RESULT = 2;
+    RESOURCE_TYPE_CATALOG = 3;
+    RESOURCE_TYPE_AUDIT_SCOPE = 4;
+    RESOURCE_TYPE_CERTIFICATE = 5;
+    RESOURCE_TYPE_EVIDENCE = 6;
+  }
+}

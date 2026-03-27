@@ -1588,6 +1588,47 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/permissions:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permission.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/roles:
         get:
             tags:
@@ -1615,6 +1656,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListUserRolesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/user_permission:
+        post:
+            tags:
+                - Orchestrator
+            description: Upsert resource permmissions for the currently authenticated user, creating a new user entry if necessary.
+            operationId: Orchestrator_UpsertUserPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPermission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
                 default:
                     description: Default error response
                     content:
@@ -2110,6 +2176,15 @@ components:
                         $ref: '#/components/schemas/TargetOfEvaluation'
                 nextPageToken:
                     type: string
+        ListUserPermissionsResponse:
+            type: object
+            properties:
+                userPermissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserPermission'
+                nextPageToken:
+                    type: string
         ListUserRolesResponse:
             type: object
             properties:
@@ -2377,7 +2452,14 @@ components:
                     description: an icon for the target of evaluation used by the UI
         UpsertCurrentUserResponse:
             type: object
-            properties: {}
+            properties:
+                user:
+                    $ref: '#/components/schemas/User'
+        UpsertUserPermissionResponse:
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
         User:
             required:
                 - id
@@ -2430,5 +2512,40 @@ components:
                     description: LastAccess indicates the last time the user accessed the system.
                     format: date-time
             description: Represents a user from the IdP
+        UserPermission:
+            required:
+                - userId
+                - resourceId
+                - resourceType
+                - permission
+            type: object
+            properties:
+                userId:
+                    type: string
+                    description: User ID is required to identify the user for whom the perission is being upserted.
+                resourceId:
+                    type: string
+                    description: Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+                resourceType:
+                    enum:
+                        - RESOURCE_TYPE_UNSPECIFIED
+                        - RESOURCE_TYPE_TOE
+                        - RESOURCE_TYPE_ASSESSMENT_RESULT
+                        - RESOURCE_TYPE_CATALOG
+                        - RESOURCE_TYPE_AUDIT_SCOPE
+                        - RESOURCE_TYPE_CERTIFICATE
+                        - RESOURCE_TYPE_EVIDENCE
+                    type: string
+                    description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., toe, assessment_result, catalog).
+                    format: enum
+                permission:
+                    enum:
+                        - PERMISSION_UNSPECIFIED
+                        - PERMISSION_READER
+                        - PERMISSION_CONTRIBUTOR
+                        - PERMISSION_ADMIN
+                    type: string
+                    description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+                    format: enum
 tags:
     - name: Orchestrator

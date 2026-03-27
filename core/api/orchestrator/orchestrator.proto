@@ -343,9 +343,22 @@ service Orchestrator {
     };
   }
 
+  // Upsert resource permmissions for the currently authenticated user, creating a new user entry if necessary.
+  rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/user_permission"
+      body: "user_permission"
+    };
+  }
+
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/users/me"};
+  }
+
+  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/{user_id}"};
   }
 
   // Lists users with optional filtering
@@ -353,9 +366,9 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/users"};
   }
 
-  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-  rpc GetUser(GetUserRequest) returns (User) {
-    option (google.api.http) = {get: "/v1/users/{user_id}"};
+  // Lists user permission.
+  rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
+    option (google.api.http) = {get: "/v1/users/permissions"};
   }
 
   // Lists all predefined roles in the system.
@@ -605,6 +618,7 @@ enum EventCategory {
   EVENT_CATEGORY_AUDIT_SCOPE = 5;
   EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
   EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
+  EVENT_CATEGORY_USER = 8;
 }
 
 message SubscribeRequest {
@@ -676,6 +690,7 @@ message ChangeEvent {
     confirmate.assessment.v1.MetricConfiguration metric_configuration = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
     AssessmentTool assessment_tool = 16;
+    User user = 17;
   }
 }
 
@@ -1207,6 +1222,18 @@ message UpsertCurrentUserRequest {
 }
 
 message UpsertCurrentUserResponse {
+  User user = 1;
+}
+
+message UpsertUserPermissionRequest {
+  UserPermission user_permission = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message UpsertUserPermissionResponse {
+  UserPermission user_permission = 1;
 }
 
 message GetCurrentUserRequest {
@@ -1248,6 +1275,24 @@ message ListUsersResponse {
   string next_page_token = 2;
 }
 
+message ListUserPermissionsRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUserPermissionsResponse {
+  repeated UserPermission user_permissions = 1;
+
+  string next_page_token = 2;
+}
+
 message ListUserRolesRequest {
   int32 page_size = 10;
   string page_token = 11;
@@ -1263,3 +1308,5 @@ message RemoveUserRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 }
+
+
