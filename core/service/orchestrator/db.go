@@ -19,7 +19,6 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
-	"confirmate.io/core/persistence/models"
 )
 
 // types contains all Orchestrator types that we need to auto-migrate into database tables
@@ -33,11 +32,7 @@ var types = []any{
 	&orchestrator.AuditScope{},
 	&orchestrator.AssessmentTool{},
 	&orchestrator.User{},
-	&models.ToEPermission{},
-	&models.CertificatePermission{},
-	&models.CatalogPermission{},
-	&models.AuditScopePermission{},
-	&models.AssessmentResultPermission{},
+	&orchestrator.UserPermission{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},
 	&assessment.Metric{},

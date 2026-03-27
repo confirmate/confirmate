@@ -161,7 +161,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			want: func(t *testing.T, got gotData, args ...any) bool {
 				wantUser := &orchestrator.User{
 					Id:         "user-1",
-					Username:   "",
+					Username:   util.Ref(""),
 					Email:      util.Ref(""),
 					FirstName:  util.Ref(""),
 					LastName:   util.Ref(""),
@@ -210,7 +210,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			got := gotData{code: connect.CodeOf(err), nextCalled: nextCalled, claims: claims}
 
 			assert.True(t, tt.wantErr(t, err))
-			assert.True(t, tt.want(t, got, tt.fields.interceptor.db))
+			assert.True(t, tt.want(t, got, tt.fields.db))
 		})
 	}
 }
