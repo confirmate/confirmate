@@ -2536,6 +2536,7 @@ components:
                         - RESOURCE_TYPE_CERTIFICATE
                         - RESOURCE_TYPE_EVIDENCE
                         - RESOURCE_TYPE_USER
+                        - RESOURCE_TYPE_METRIC_CONFIGURATION
                     type: string
                     description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
                     format: enum

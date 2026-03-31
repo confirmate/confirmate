@@ -161,14 +161,15 @@ func (UserPermission_Permission) EnumDescriptor() ([]byte, []int) {
 type UserPermission_ResourceType int32
 
 const (
-	UserPermission_RESOURCE_TYPE_UNSPECIFIED       UserPermission_ResourceType = 0
-	UserPermission_RESOURCE_TYPE_TOE               UserPermission_ResourceType = 1
-	UserPermission_RESOURCE_TYPE_ASSESSMENT_RESULT UserPermission_ResourceType = 2
-	UserPermission_RESOURCE_TYPE_CATALOG           UserPermission_ResourceType = 3
-	UserPermission_RESOURCE_TYPE_AUDIT_SCOPE       UserPermission_ResourceType = 4
-	UserPermission_RESOURCE_TYPE_CERTIFICATE       UserPermission_ResourceType = 5
-	UserPermission_RESOURCE_TYPE_EVIDENCE          UserPermission_ResourceType = 6
-	UserPermission_RESOURCE_TYPE_USER              UserPermission_ResourceType = 7
+	UserPermission_RESOURCE_TYPE_UNSPECIFIED          UserPermission_ResourceType = 0
+	UserPermission_RESOURCE_TYPE_TOE                  UserPermission_ResourceType = 1
+	UserPermission_RESOURCE_TYPE_ASSESSMENT_RESULT    UserPermission_ResourceType = 2
+	UserPermission_RESOURCE_TYPE_CATALOG              UserPermission_ResourceType = 3
+	UserPermission_RESOURCE_TYPE_AUDIT_SCOPE          UserPermission_ResourceType = 4
+	UserPermission_RESOURCE_TYPE_CERTIFICATE          UserPermission_ResourceType = 5
+	UserPermission_RESOURCE_TYPE_EVIDENCE             UserPermission_ResourceType = 6
+	UserPermission_RESOURCE_TYPE_USER                 UserPermission_ResourceType = 7
+	UserPermission_RESOURCE_TYPE_METRIC_CONFIGURATION UserPermission_ResourceType = 8
 )
 
 // Enum value maps for UserPermission_ResourceType.
@@ -182,16 +183,18 @@ var (
 		5: "RESOURCE_TYPE_CERTIFICATE",
 		6: "RESOURCE_TYPE_EVIDENCE",
 		7: "RESOURCE_TYPE_USER",
+		8: "RESOURCE_TYPE_METRIC_CONFIGURATION",
 	}
 	UserPermission_ResourceType_value = map[string]int32{
-		"RESOURCE_TYPE_UNSPECIFIED":       0,
-		"RESOURCE_TYPE_TOE":               1,
-		"RESOURCE_TYPE_ASSESSMENT_RESULT": 2,
-		"RESOURCE_TYPE_CATALOG":           3,
-		"RESOURCE_TYPE_AUDIT_SCOPE":       4,
-		"RESOURCE_TYPE_CERTIFICATE":       5,
-		"RESOURCE_TYPE_EVIDENCE":          6,
-		"RESOURCE_TYPE_USER":              7,
+		"RESOURCE_TYPE_UNSPECIFIED":          0,
+		"RESOURCE_TYPE_TOE":                  1,
+		"RESOURCE_TYPE_ASSESSMENT_RESULT":    2,
+		"RESOURCE_TYPE_CATALOG":              3,
+		"RESOURCE_TYPE_AUDIT_SCOPE":          4,
+		"RESOURCE_TYPE_CERTIFICATE":          5,
+		"RESOURCE_TYPE_EVIDENCE":             6,
+		"RESOURCE_TYPE_USER":                 7,
+		"RESOURCE_TYPE_METRIC_CONFIGURATION": 8,
 	}
 )
 
@@ -451,7 +454,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x06_emailB\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
-	"_last_name\"\xd1\x06\n" +
+	"_last_name\"\xf9\x06\n" +
 	"\x0eUserPermission\x12G\n" +
 	"\auser_id\x18\x01 \x01(\tB.\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03 gorm:\"column:user_id;primaryKey\"R\x06userId\x12[\n" +
 	"\vresource_id\x18\x02 \x01(\tB:\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03*gorm:\"column:resource_id;primaryKey;index\"R\n" +
@@ -465,7 +468,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11PERMISSION_READER\x10\x01\x12\x1a\n" +
 	"\x16PERMISSION_CONTRIBUTOR\x10\x02\x12\x14\n" +
-	"\x10PERMISSION_ADMIN\x10\x03\"\xf6\x01\n" +
+	"\x10PERMISSION_ADMIN\x10\x03\"\x9e\x02\n" +
 	"\fResourceType\x12\x1d\n" +
 	"\x19RESOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11RESOURCE_TYPE_TOE\x10\x01\x12#\n" +
@@ -474,7 +477,8 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x19RESOURCE_TYPE_AUDIT_SCOPE\x10\x04\x12\x1d\n" +
 	"\x19RESOURCE_TYPE_CERTIFICATE\x10\x05\x12\x1a\n" +
 	"\x16RESOURCE_TYPE_EVIDENCE\x10\x06\x12\x16\n" +
-	"\x12RESOURCE_TYPE_USER\x10\a*\xed\x01\n" +
+	"\x12RESOURCE_TYPE_USER\x10\a\x12&\n" +
+	"\"RESOURCE_TYPE_METRIC_CONFIGURATION\x10\b*\xed\x01\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
