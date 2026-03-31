@@ -18,6 +18,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
@@ -94,8 +95,8 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 		}
 	}
 
-	// Check permissions stored in the Orchestrator DB
 	if a.Permissions == nil {
+		slog.Error("Permission store is not configured for JWT authorization strategy")
 		return false, nil
 	}
 

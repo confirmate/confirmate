@@ -2537,7 +2537,7 @@ components:
                         - RESOURCE_TYPE_EVIDENCE
                         - RESOURCE_TYPE_USER
                     type: string
-                    description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., toe, assessment_result, catalog).
+                    description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
                     format: enum
                 permission:
                     enum:

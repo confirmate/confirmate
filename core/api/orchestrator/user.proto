@@ -90,7 +90,7 @@ message UserPermission {
     (tagger.tags) = "gorm:\"column:resource_id;primaryKey;index\""
   ];
 
-  // Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., toe, assessment_result, catalog).
+  // Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
   ResourceType resource_type = 3 [
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED,

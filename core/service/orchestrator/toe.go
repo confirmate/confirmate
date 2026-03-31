@@ -45,6 +45,8 @@ func (svc *Service) CreateTargetOfEvaluation(
 		return nil, err
 	}
 
+	// TODO(all): Add permission check?
+
 	toe = req.Msg.TargetOfEvaluation
 
 	// Generate a new UUID for the target of evaluation
@@ -81,7 +83,8 @@ func (svc *Service) GetTargetOfEvaluation(
 	req *connect.Request[orchestrator.GetTargetOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
 	var (
-		toe orchestrator.TargetOfEvaluation
+		toe     orchestrator.TargetOfEvaluation
+		allowed bool
 	)
 
 	// Validate the request
@@ -89,15 +92,18 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
-	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
-	err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
-	}
-
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_TOE, req.Msg.GetTargetOfEvaluationId())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return connect.NewResponse(&orchestrator.TargetOfEvaluation{}), nil
 	}
 
 	res = connect.NewResponse(&toe)
@@ -126,15 +132,15 @@ func (svc *Service) ListTargetsOfEvaluation(
 		req.Msg.Asc = true
 	}
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all {
-		toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts, "id IN ?", allowed)
-	} else {
-		toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts)
-	}
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
+	// all, allowed := svc.allowedTargetOfEvaluations(ctx)
+	// if !all {
+	// 	toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts, "id IN ?", allowed)
+	// } else {
+	// 	toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts)
+	// }
+	// if err = service.HandleDatabaseError(err); err != nil {
+	// 	return nil, err
+	// }
 
 	res = connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
 		TargetsOfEvaluation: toes,
@@ -155,10 +161,10 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		return nil, err
 	}
 
-	toe = req.Msg.TargetOfEvaluation
-	if toe == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-		return nil, service.ErrPermissionDenied
-	}
+	// toe = req.Msg.TargetOfEvaluation
+	// if toe == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Update timestamp
 	toe.UpdatedAt = timestamppb.Now()
@@ -198,9 +204,9 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req) {
-		return nil, service.ErrPermissionDenied
-	}
+	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Delete the target of evaluation
 	err = svc.db.Delete(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
@@ -234,9 +240,9 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-		return nil, service.ErrPermissionDenied
-	}
+	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{})
 

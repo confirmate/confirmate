@@ -100,7 +100,7 @@ func (svc *Service) GetAuditScope(
 	}
 
 	if !allowed {
-		return connect.NewResponse(&orchestrator.AuditScope{}), err
+		return connect.NewResponse(&orchestrator.AuditScope{}), nil
 	}
 
 	res = connect.NewResponse(&scope)
