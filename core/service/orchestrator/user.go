@@ -3,10 +3,12 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
 	"connectrpc.com/connect"
@@ -43,7 +45,7 @@ func (svc *Service) UpsertCurrentUser(
 	// Add/update time fields
 	if req.Msg.User.ExpirationDate == nil {
 		claims, _ := auth.ClaimsFromContext(ctx)
-		req.Msg.User.ExpirationDate = timestamppb.New(time.Unix(getClaimInt64(claims, "exp"), 0)) // Set expiration date from JWT claim if not provided
+		req.Msg.User.ExpirationDate = timestamppb.New(time.Unix(service.GetClaimInt64(claims, "exp"), 0)) // Set expiration date from JWT claim if not provided
 	}
 	req.Msg.User.LastAccess = timestamppb.Now() // Set last access to now
 
@@ -98,7 +100,21 @@ func (svc *Service) GetUser(
 		user orchestrator.User
 	)
 
-	// TODO (anatheka): Implement
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
+	err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_USER, req.Msg.UserId, req)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
+	}
+
+	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment result")); err != nil {
+		return nil, err
+	}
 
 	res = connect.NewResponse(&user)
 	return
@@ -212,77 +228,92 @@ func (svc *Service) RemoveUser(
 }
 
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
-func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy, svc *Service, typ orchestrator.RequestType, req *connect.Request[T]) error {
+func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceType orchestrator.UserPermission_ResourceType, resourceId string, req *connect.Request[T]) error {
 	var (
 		user *orchestrator.User
 		err  error
 	)
+
+	if svc == nil {
+		return fmt.Errorf("service is nil")
+	}
+	if svc.db == nil {
+		return fmt.Errorf("database is not initialized")
+	}
+
+	// Get claims from context
 	claims, _ := auth.ClaimsFromContext(ctx)
 
+	// TODO(anatheka): Should we check if the user is already in the DB?
 	// Extract user information from claims
 	user = &orchestrator.User{
-		Id:             getClaim(claims, "sub"),
-		Username:       util.Ref(getClaim(claims, "preferred_username")),
-		FirstName:      util.Ref(getClaim(claims, "given_name")),
-		LastName:       util.Ref(getClaim(claims, "family_name")),
+		Id:             service.GetClaim(claims, "sub"),
+		Username:       util.Ref(service.GetClaim(claims, "preferred_username")),
+		FirstName:      util.Ref(service.GetClaim(claims, "given_name")),
+		LastName:       util.Ref(service.GetClaim(claims, "family_name")),
 		Enabled:        true,
-		Email:          util.Ref(getClaim(claims, "email")),
-		ExpirationDate: timestamppb.New(time.Unix(getClaimInt64(claims, "exp"), 0)),
+		Email:          util.Ref(service.GetClaim(claims, "email")),
+		ExpirationDate: timestamppb.New(time.Unix(service.GetClaimInt64(claims, "exp"), 0)),
 		LastAccess:     timestamppb.Now(),
 	}
 
-	// Ensure the user exists in the DB and is up to date with the information from the claims.
+	// Ensure the user exists in the DB.
 	// We do not need the response, we only want to know if an error occurred.
-	_, err = svc.UpsertCurrentUser(ctx, &connect.Request[orchestrator.UpsertCurrentUserRequest]{
-		Msg: &orchestrator.UpsertCurrentUserRequest{
-			User: user,
-		},
-	})
+	err = svc.db.Save(user)
 	if err != nil {
 		return fmt.Errorf("failed to ensure current user: %w", err)
 	}
 
-	auth := service.CheckAccess(authz, ctx, typ, req)
-	if !auth {
-		return fmt.Errorf("access denied for user %s", "userID")
+	if !service.CheckAccess(authz, ctx, user.Id, reqType, resourceType, orchestrator.UserPermission_PERMISSION_READER, req, resourceId) {
+		slog.Debug("access denied", slog.String("userID", user.Id), slog.String("requestType", resourceType.String()))
+
+		return service.ErrPermissionDenied
 	}
 
 	return nil
 }
 
-// getClaim is a helper function to extract a specific claim from the claims map, returning an empty string if the claim is not present or not a string.
-func getClaim(claims map[string]any, key string) string {
-	if val, ok := claims[key]; ok && val != nil {
-		return val.(string)
-	}
-	return ""
+type permissionStore struct {
+	db persistence.DB
 }
 
-// getClaimInt64 extracts a numeric claim as int64, returning 0 if missing or not numeric.
-func getClaimInt64(claims map[string]any, key string) int64 {
-	val, ok := claims[key]
-	if !ok || val == nil {
-		return 0
+// HasPermission checks if the given user has the specified permission for the resource.
+func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceType orchestrator.UserPermission_ResourceType, resourceId string, permission orchestrator.UserPermission_Permission) (bool, error) {
+	var (
+		count          int64
+		err            error
+		userPermission orchestrator.UserPermission
+	)
+
+	// Check if the user has the required permission for the resource by querying the database for matching user permissions.
+	// If a lower permission is requested, also accept higher permissions (ADMIN > CONTRIBUTOR > READER).
+	allowed := []orchestrator.UserPermission_Permission{permission}
+	switch permission {
+	case orchestrator.UserPermission_PERMISSION_READER:
+		allowed = []orchestrator.UserPermission_Permission{
+			orchestrator.UserPermission_PERMISSION_READER,
+			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+			orchestrator.UserPermission_PERMISSION_ADMIN,
+		}
+	case orchestrator.UserPermission_PERMISSION_CONTRIBUTOR:
+		allowed = []orchestrator.UserPermission_Permission{
+			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+			orchestrator.UserPermission_PERMISSION_ADMIN,
+		}
+	case orchestrator.UserPermission_PERMISSION_ADMIN:
+		allowed = []orchestrator.UserPermission_Permission{
+			orchestrator.UserPermission_PERMISSION_ADMIN,
+		}
 	}
 
-	switch v := val.(type) {
-	case int64:
-		return v
-	case int:
-		return int64(v)
-	case int32:
-		return int64(v)
-	case float64:
-		return int64(v)
-	case float32:
-		return int64(v)
-	case uint64:
-		return int64(v)
-	case uint:
-		return int64(v)
-	case uint32:
-		return int64(v)
-	default:
-		return 0
+	count, err = ps.db.Count(
+		&userPermission,
+		"user_id = ? AND resource_type = ? AND resource_id = ? AND permission IN (?)",
+		userId, resourceType, resourceId, allowed,
+	)
+	if err != nil {
+		return false, fmt.Errorf("failed to check permissions: %w", err)
 	}
+
+	return count > 0, nil
 }
