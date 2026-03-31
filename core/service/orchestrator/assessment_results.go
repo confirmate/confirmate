@@ -46,9 +46,11 @@ func (svc *Service) StoreAssessmentResult(
 	}
 
 	result = req.Msg.Result
-	if result == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
-		return nil, service.ErrPermissionDenied
-	}
+
+	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
+	// if result == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Set timestamp
 	result.CreatedAt = timestamppb.Now()
@@ -80,7 +82,8 @@ func (svc *Service) GetAssessmentResult(
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
 	var (
-		result assessment.AssessmentResult
+		result  assessment.AssessmentResult
+		allowed bool
 	)
 
 	// Validate the request
@@ -93,10 +96,14 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&result)) {
-		return nil, service.ErrPermissionDenied
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_RESOURCE_TYPE_ASSESSMENT_RESULT, req.Msg.GetId())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-
+	if !allowed {
+		return connect.NewResponse(&assessment.AssessmentResult{}), nil
+	}
 	res = connect.NewResponse(&result)
 	return
 }
@@ -107,11 +114,13 @@ func (svc *Service) ListAssessmentResults(
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
 	var (
-		results []*assessment.AssessmentResult
-		conds   []any
-		npt     string
-		where   string
-		args    []any
+		results      []*assessment.AssessmentResult
+		conds        []any
+		npt          string
+		where        string
+		args         []any
+		allowed      bool
+		resourceList []string
 	)
 
 	// Validate the request
@@ -126,18 +135,6 @@ func (svc *Service) ListAssessmentResults(
 	}
 
 	var whereClauses []string
-
-	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-			return nil, service.ErrPermissionDenied
-		}
-	}
-
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all {
-		whereClauses = append(whereClauses, "target_of_evaluation_id IN ?")
-		args = append(args, allowed)
-	}
 
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
@@ -206,6 +203,25 @@ func (svc *Service) ListAssessmentResults(
 			NextPageToken: "",
 		})
 		return
+	}
+
+	// Check access via the configured auth strategy
+	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, orchestrator.UserPermission_RESOURCE_TYPE_ASSESSMENT_RESULT, "")
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// If access is not allowed to all resources and the resource list is empty, return an empty response
+	if len(resourceList) == 0 && !allowed {
+		return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+			Results:       []*assessment.AssessmentResult{},
+			NextPageToken: "",
+		}), nil
+	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !allowed {
+		conds = append(conds, "id IN ?", resourceList)
 	}
 
 	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
