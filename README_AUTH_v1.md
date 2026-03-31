@@ -1,3 +1,5 @@
+# DEPRECATED. DO WE WANT TO UPDATE THIS FILE OR DELETE?????
+
 # Design Document: Hybrid Resource Authorization
 
 ## 1. Goal
