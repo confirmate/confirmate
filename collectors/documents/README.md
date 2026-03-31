@@ -31,6 +31,10 @@ Set `OPENAI_API_KEY` (or `DOC_ANALYSER_API_KEY`) for remote models. For local Op
   `python -m document_analyser.cli file.pdf --push-evidence --evidence-url http://localhost:8080 --evidence-auth client:secret --evidence-target-id <uuid> --evidence-tool-id document-analyser`
 - Evidence-store connectivity test only:  
   `python -m document_analyser.cli --test-evidence --evidence-url http://localhost:8080 --evidence-auth client:secret`
+- Push prebuilt evidences from JSON file:  
+  `python -m document_analyser.cli --push-evidence-file ../../test_evidence.json --evidence-url http://localhost:8080 --evidence-auth client:secret`
+- Push prebuilt evidences using an existing bearer token:  
+  `TOKEN=$TOKEN python -m document_analyser.cli --push-evidence-file ../../test_evidence.json --evidence-url http://localhost:8080`
 
 Copy-paste examples:
 ```bash
@@ -47,11 +51,11 @@ python -m document_analyser.cli file.pdf --all-requirements --push-evidence \
 
 ## CLI flags (trimmed)
 - LLM: `--model`, `--base-url`, `--api-key`, `--focus`, `--max-items`
-- Evidence store: `--push-evidence`, `--evidence-url`, `--evidence-auth client:secret`, `--evidence-target-id`, `--evidence-tool-id`
-- Modes: `--test-requirement <ID>`, `--all-requirements`, `--test-evidence`
+- Evidence store: `--push-evidence`, `--evidence-url`, `--evidence-auth client:secret`, `--evidence-token`, `--evidence-target-id`, `--evidence-tool-id`
+- Modes: `--test-requirement <ID>`, `--all-requirements`, `--test-evidence`, `--push-evidence-file <path>`
 
 Env defaults for the evidence store:  
-`EVIDENCE_STORE_BASE` (or `CONFIRMATE_API_BASE`, default `http://localhost:8080`), `AUTH_TOKEN_ENDPOINT` (defaults to `<base>/v1/auth/token`), `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `TARGET_OF_EVALUATION_ID`, `EVIDENCE_TOOL_ID`, `EVIDENCE_PATH` (default `/v1/evidence_store/evidence`). `EVIDENCE_AUTO_PUSH=true` auto-pushes after analysis.
+`EVIDENCE_STORE_BASE` (or `CONFIRMATE_API_BASE`, default `http://localhost:8080`), `EVIDENCE_BEARER_TOKEN` (or `TOKEN`) to skip OAuth, `AUTH_TOKEN_ENDPOINT` (defaults to `<base>/v1/auth/token`), `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `TARGET_OF_EVALUATION_ID`, `EVIDENCE_TOOL_ID`, `EVIDENCE_PATH` (default `/v1/evidence_store/evidence`). `EVIDENCE_AUTO_PUSH=true` auto-pushes after analysis.
 
 ## How it works
 1) Loader: `loaders.py` reads PDF (via pypdf) or text, joins multiple files with headers.  
@@ -94,3 +98,34 @@ Env defaults for the evidence store:
   "raw_response": "{...raw model output...}"
 }
 ```
+
+## Test Fixtures: CRA-Compliant Evidence
+
+The [test_evidence.json](../../test_evidence.json) file in the repository root contains a complete set of 13 CRA-compliant evidence objects for testing the Evidence Store integration without requiring document analysis:
+
+### Evidence Objects (in order):
+0. **Product** (product-edge-gateway-1) – Edge Gateway Starter Kit with hardware, application, and contact references. Contains `dataIds` linking to all documentation below.
+1. **Application** (app-edge-control-1) – Control-plane service for edge sensor management.
+2. **Contact Person** (contact-person-1) – Primary product security lead.
+3. **Monitoring Procedure** (monitoring-procedure-1) – Quarterly security review.
+4. **Hardware** (memory-module-1) – 8GB memory module.
+5. **Virtual Machine** (vm-edge-management-1) – Management backend VM.
+6. **User Information & Instruction Document** (user-info-doc-1) – User manual in application/json.
+7. **SBOM Document** (sbom-doc-1) – Software bill of materials in application/json (CycloneDX-compatible).
+8. **EU Declaration of Conformity** (eu-decl-doc-1) – Regulatory compliance statement in application/json.
+9. **Distribution of Updates Document** (distrib-updates-doc-1) – Security update policy in application/json.
+10. **Production and Monitoring Process Document** (prod-monitor-doc-1) – QA and monitoring procedures in application/json.
+11. **Cyber Security Risk Assessment Document** (risk-assess-doc-1) – Risk assessment using CVSS in application/json.
+12. **Coordinated Vulnerability Disclosure Policy** (cvdp-policy-1) – CVD procedures for responsible disclosure.
+
+### Usage
+Push all test evidences to a local Evidence Store running on port 8080:
+```bash
+cd collectors/documents
+PYTHONPATH=src TOKEN=your_bearer_token python -m document_analyser.cli \
+  --push-evidence-file ../../test_evidence.json \
+  --evidence-url http://localhost:8080
+```
+
+The fixture is CRA-ready and covers all required documentation types (documents, contact, governance, and security assessment policy).
+

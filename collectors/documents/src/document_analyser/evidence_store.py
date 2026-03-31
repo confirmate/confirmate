@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Sequence
 from uuid import uuid4
 
@@ -22,6 +24,7 @@ class EvidenceStoreConfig:
     token_endpoint: str
     client_id: str
     client_secret: str
+    bearer_token: str
     tool_id: str
     target_of_evaluation_id: str
     evidence_path: str = "/v1/evidence_store/evidence"
@@ -36,6 +39,7 @@ class EvidenceStoreConfig:
         )
         client_id = os.getenv("AUTH_CLIENT_ID", "clouditor")
         client_secret = os.getenv("AUTH_CLIENT_SECRET", "clouditor")
+        bearer_token = os.getenv("EVIDENCE_BEARER_TOKEN") or os.getenv("TOKEN", "")
         tool_id = os.getenv("EVIDENCE_TOOL_ID", "document-analyser")
         target_of_evaluation_id = os.getenv(
             "TARGET_OF_EVALUATION_ID", "00000000-0000-0000-0000-000000000000"
@@ -47,6 +51,7 @@ class EvidenceStoreConfig:
             token_endpoint=token_endpoint,
             client_id=client_id,
             client_secret=client_secret,
+            bearer_token=bearer_token,
             tool_id=tool_id,
             target_of_evaluation_id=target_of_evaluation_id,
             evidence_path=evidence_path,
@@ -152,6 +157,11 @@ class EvidenceStoreClient:
         if self._token:
             return self._token
 
+        # If a bearer token is provided explicitly, use it directly and skip OAuth.
+        if self.config.bearer_token:
+            self._token = self.config.bearer_token
+            return self._token
+
         try:
             response = self._client.post(
                 self.config.token_endpoint,
@@ -210,3 +220,57 @@ class EvidenceStoreClient:
 
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
+
+
+def load_prebuilt_evidence_payloads(path: str | Path) -> List[Dict[str, Any]]:
+    """Load prebuilt evidence payloads from a JSON file.
+
+    Supported formats:
+    - {"evidence": {...}}
+    - {"evidences": [{"evidence": {...}}, ...]}
+    - {"evidences": [{...}, ...]}  # where each item is already an evidence body
+    """
+    payload_path = Path(path)
+    try:
+        data = json.loads(payload_path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise EvidenceStoreError(f"Prebuilt evidence file not found: {payload_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise EvidenceStoreError(f"Invalid JSON in prebuilt evidence file: {payload_path}") from exc
+
+    if not isinstance(data, dict):
+        raise EvidenceStoreError("Prebuilt evidence file must contain a JSON object at top level.")
+
+    if "evidence" in data:
+        evidence = data.get("evidence")
+        if not isinstance(evidence, dict):
+            raise EvidenceStoreError("Top-level 'evidence' must be a JSON object.")
+        return [evidence]
+
+    if "evidences" in data:
+        evidences_raw = data.get("evidences")
+        if not isinstance(evidences_raw, list):
+            raise EvidenceStoreError("Top-level 'evidences' must be a JSON array.")
+
+        payloads: List[Dict[str, Any]] = []
+        for idx, item in enumerate(evidences_raw):
+            if not isinstance(item, dict):
+                raise EvidenceStoreError(f"evidences[{idx}] must be a JSON object.")
+
+            if "evidence" in item:
+                evidence = item.get("evidence")
+                if not isinstance(evidence, dict):
+                    raise EvidenceStoreError(
+                        f"evidences[{idx}].evidence must be a JSON object."
+                    )
+                payloads.append(evidence)
+                continue
+
+            # Also accept arrays where items are directly evidence objects.
+            payloads.append(item)
+
+        return payloads
+
+    raise EvidenceStoreError(
+        "Prebuilt evidence file must contain either top-level 'evidence' or 'evidences'."
+    )

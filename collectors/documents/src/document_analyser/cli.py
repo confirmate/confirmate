@@ -11,6 +11,7 @@ from .evidence_store import (
     EvidenceStoreConfig,
     EvidenceStoreError,
     build_test_evidence_payload,
+    load_prebuilt_evidence_payloads,
 )
 from .llm import LLMClient
 from .pipeline import (
@@ -75,9 +76,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Tool identifier override.",
     )
     parser.add_argument(
+        "--evidence-token",
+        dest="evidence_token",
+        help="Bearer token for evidence store auth (skips OAuth client credentials).",
+    )
+    parser.add_argument(
         "--test-evidence",
         action="store_true",
         help="Send a minimal test evidence to verify evidence store connectivity, then exit.",
+    )
+    parser.add_argument(
+        "--push-evidence-file",
+        dest="push_evidence_file",
+        help=(
+            "Send prebuilt evidence payload(s) from a JSON file (e.g. test_evidence.json), "
+            "then exit."
+        ),
     )
     parser.add_argument(
         "--test-requirement",
@@ -106,6 +120,8 @@ def build_evidence_config(args: argparse.Namespace) -> EvidenceStoreConfig:
     config = EvidenceStoreConfig.from_env()
     if args.evidence_url:
         config.base_url = args.evidence_url
+    if args.evidence_token:
+        config.bearer_token = args.evidence_token
     if args.evidence_auth:
         if ":" not in args.evidence_auth:
             raise ConfigError("Evidence auth must be in client_id:client_secret format.")
@@ -121,14 +137,11 @@ def build_evidence_config(args: argparse.Namespace) -> EvidenceStoreConfig:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
-    if not args.test_evidence and not args.files:
-        sys.stderr.write("No files provided. Specify one or more files, or use --test-evidence.\n")
+    if not args.test_evidence and not args.push_evidence_file and not args.files:
+        sys.stderr.write(
+            "No files provided. Specify one or more files, or use --test-evidence or --push-evidence-file.\n"
+        )
         return 2
-    try:
-        config = build_config(args)
-    except ConfigError as exc:
-        sys.stderr.write(f"Configuration error: {exc}\n")
-        return 1
 
     # Optional connectivity test for evidence store
     if args.test_evidence:
@@ -146,6 +159,30 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:  # pragma: no cover - defensive
             sys.stderr.write(f"Unexpected error during test evidence send: {exc}\n")
             return 1
+
+    # Optional mode to push prebuilt evidence payloads from JSON, then exit.
+    if args.push_evidence_file:
+        try:
+            evidence_config = build_evidence_config(args)
+            payloads = load_prebuilt_evidence_payloads(args.push_evidence_file)
+            with EvidenceStoreClient(evidence_config) as client:
+                client.send_batch(payloads)
+            sys.stderr.write(
+                f"Pushed {len(payloads)} prebuilt evidence item(s) from {args.push_evidence_file}.\n"
+            )
+            return 0
+        except EvidenceStoreError as exc:
+            sys.stderr.write(f"Evidence store error during prebuilt evidence push: {exc}\n")
+            return 1
+        except Exception as exc:  # pragma: no cover - defensive
+            sys.stderr.write(f"Unexpected error during prebuilt evidence push: {exc}\n")
+            return 1
+
+    try:
+        config = build_config(args)
+    except ConfigError as exc:
+        sys.stderr.write(f"Configuration error: {exc}\n")
+        return 1
 
     doc_paths: list[Path] = []
     for path in args.files:
