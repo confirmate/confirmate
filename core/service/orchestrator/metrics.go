@@ -157,7 +157,7 @@ func (svc *Service) UpdateMetric(
 
 	metric = req.Msg.Metric
 
-	// TODO(all): Do we want an access check here or is it enought, that the user has a valid token?
+	// TODO(all): Do we want an access check here or is it enough, that the user has a valid token?
 
 	// Update the metric
 	err = svc.db.Update(metric, "id = ?", metric.Id)

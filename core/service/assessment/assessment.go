@@ -145,11 +145,10 @@ func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Opti
 }
 
 // WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
-func WithAuthorizationStrategyJWT(targetKey string, allowAllKey string) service.Option[Service] {
+func WithAuthorizationStrategyJWT(allowAllKey string) service.Option[Service] {
 	return func(svc *Service) {
 		svc.authz = &service.AuthorizationStrategyJWT{
-			TargetOfEvaluationsKey: targetKey,
-			AllowAllKey:            allowAllKey,
+			AllowAllKey: allowAllKey,
 		}
 	}
 }
@@ -276,11 +275,12 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	ev = req.Msg.Evidence
 
-	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-		slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
-		return nil, service.ErrPermissionDenied
-	}
+	// TODO(all): Do we want an access check here or is it enough, that the user has a valid token?
+	// // Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
+	// if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	// 	slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
