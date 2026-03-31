@@ -2535,6 +2535,7 @@ components:
                         - RESOURCE_TYPE_AUDIT_SCOPE
                         - RESOURCE_TYPE_CERTIFICATE
                         - RESOURCE_TYPE_EVIDENCE
+                        - RESOURCE_TYPE_USER
                     type: string
                     description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., toe, assessment_result, catalog).
                     format: enum

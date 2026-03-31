@@ -126,6 +126,10 @@ const (
 	RequestType_REQUEST_TYPE_REGISTERED RequestType = 4
 	// RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
 	RequestType_REQUEST_TYPE_STORED RequestType = 5
+	// RequestTypeGet indicates that an entity was retrieved from the orchestrator.
+	RequestType_REQUEST_TYPE_GET RequestType = 6
+	// RequestTypeList indicates that a list of entities was retrieved from the orchestrator.
+	RequestType_REQUEST_TYPE_LIST RequestType = 7
 )
 
 // Enum value maps for RequestType.
@@ -137,6 +141,8 @@ var (
 		3: "REQUEST_TYPE_DELETED",
 		4: "REQUEST_TYPE_REGISTERED",
 		5: "REQUEST_TYPE_STORED",
+		6: "REQUEST_TYPE_GET",
+		7: "REQUEST_TYPE_LIST",
 	}
 	RequestType_value = map[string]int32{
 		"REQUEST_TYPE_UNSPECIFIED": 0,
@@ -145,6 +151,8 @@ var (
 		"REQUEST_TYPE_DELETED":     3,
 		"REQUEST_TYPE_REGISTERED":  4,
 		"REQUEST_TYPE_STORED":      5,
+		"REQUEST_TYPE_GET":         6,
+		"REQUEST_TYPE_LIST":        7,
 	}
 )
 
@@ -5905,14 +5913,16 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x1aEVENT_CATEGORY_AUDIT_SCOPE\x10\x05\x12$\n" +
 	" EVENT_CATEGORY_ASSESSMENT_RESULT\x10\x06\x12\"\n" +
 	"\x1eEVENT_CATEGORY_ASSESSMENT_TOOL\x10\a\x12\x17\n" +
-	"\x13EVENT_CATEGORY_USER\x10\b*\xaf\x01\n" +
+	"\x13EVENT_CATEGORY_USER\x10\b*\xdc\x01\n" +
 	"\vRequestType\x12\x1c\n" +
 	"\x18REQUEST_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14REQUEST_TYPE_CREATED\x10\x01\x12\x18\n" +
 	"\x14REQUEST_TYPE_UPDATED\x10\x02\x12\x18\n" +
 	"\x14REQUEST_TYPE_DELETED\x10\x03\x12\x1b\n" +
 	"\x17REQUEST_TYPE_REGISTERED\x10\x04\x12\x17\n" +
-	"\x13REQUEST_TYPE_STORED\x10\x052\xafJ\n" +
+	"\x13REQUEST_TYPE_STORED\x10\x05\x12\x14\n" +
+	"\x10REQUEST_TYPE_GET\x10\x06\x12\x15\n" +
+	"\x11REQUEST_TYPE_LIST\x10\a2\xafJ\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +

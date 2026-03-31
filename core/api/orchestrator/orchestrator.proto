@@ -652,6 +652,10 @@ enum RequestType {
   REQUEST_TYPE_REGISTERED = 4;
   // RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
   REQUEST_TYPE_STORED = 5;
+  // RequestTypeGet indicates that an entity was retrieved from the orchestrator.
+  REQUEST_TYPE_GET = 6;
+  // RequestTypeList indicates that a list of entities was retrieved from the orchestrator.
+  REQUEST_TYPE_LIST = 7;
 }
 
 // ChangeEvent represents a change that occurred to an entity managed by the orchestrator.
