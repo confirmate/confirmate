@@ -94,7 +94,7 @@ func (svc *Service) GetAuditScope(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.GetAuditScopeId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.GetAuditScopeId())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
