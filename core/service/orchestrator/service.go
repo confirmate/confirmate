@@ -108,11 +108,10 @@ func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Opti
 }
 
 // WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
-func WithAuthorizationStrategyJWT(targetKey string, allowAllKey string) service.Option[Service] {
+func WithAuthorizationStrategyJWT(allowAllKey string) service.Option[Service] {
 	return func(svc *Service) {
 		svc.authz = &service.AuthorizationStrategyJWT{
-			TargetOfEvaluationsKey: targetKey,
-			AllowAllKey:            allowAllKey,
+			AllowAllKey: allowAllKey,
 		}
 	}
 }
@@ -146,6 +145,13 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}
 
+	// If using JWT-based authorization, set up the permission store for fine-grained permission checks
+	if jwStrat, ok := svc.authz.(*service.AuthorizationStrategyJWT); ok {
+		jwStrat.Permissions = permissionStore{
+			db: svc.db,
+		}
+	}
+
 	// Initialize subscribers map
 	svc.subscribers = make(map[int64]*subscriber)
 
@@ -169,13 +175,13 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	return
 }
 
-func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, allowed []string) {
-	if svc == nil || svc.authz == nil {
-		return true, nil
-	}
+// func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, allowed []string) {
+// 	if svc == nil || svc.authz == nil {
+// 		return true, nil
+// 	}
 
-	return svc.authz.AllowedTargetOfEvaluations(ctx)
-}
+// 	return svc.authz.AllowedTargetOfEvaluations(ctx)
+// }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.
 func (svc *Service) GetRuntimeInfo(

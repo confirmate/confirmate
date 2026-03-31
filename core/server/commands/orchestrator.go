@@ -87,7 +87,6 @@ var OrchestratorCommand = &cli.Command{
 				server.WithJWKS(jwksURL),
 			))
 			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
 				service.DefaultAllowAllClaim,
 			))
 		}

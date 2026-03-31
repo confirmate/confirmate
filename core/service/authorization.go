@@ -100,7 +100,7 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 		return false, nil
 	}
 
-	// For list requests, we retrieve the list of resource IDs the user has reader permissions for and return it.
+	// For list requests, we check if the user has reader permissions for any resources of the given type and return the list of resource IDs they have access to.
 	if reqType == orchestrator.RequestType_REQUEST_TYPE_LIST {
 		resourceIDs, err = a.Permissions.PermissionForResources(ctx,
 			userId,
@@ -114,16 +114,22 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 		return false, resourceIDs
 	}
 
-	// For non-list requests, we check if the user has reader permissions for the specific resource ID.
+	// For update and delete requests, we check if the user has the required permissions for the specific resource ID.
 	if resourceId == "" {
 		return false, nil
+	}
+	switch reqType {
+	case orchestrator.RequestType_REQUEST_TYPE_UPDATED:
+		userPermission = orchestrator.UserPermission_PERMISSION_CONTRIBUTOR
+	case orchestrator.RequestType_REQUEST_TYPE_DELETED:
+		userPermission = orchestrator.UserPermission_PERMISSION_ADMIN
 	}
 
 	allowed, err = a.Permissions.HasPermission(ctx,
 		userId,
 		resourceType,
 		resourceId,
-		orchestrator.UserPermission_PERMISSION_READER,
+		userPermission,
 	)
 	if err != nil {
 		return false, nil

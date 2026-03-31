@@ -98,7 +98,6 @@ func (svc *Service) GetAuditScope(
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-
 	if !allowed {
 		return connect.NewResponse(&orchestrator.AuditScope{}), nil
 	}
@@ -178,7 +177,10 @@ func (svc *Service) UpdateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
-	var scope *orchestrator.AuditScope
+	var (
+		scope   *orchestrator.AuditScope
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
@@ -186,9 +188,15 @@ func (svc *Service) UpdateAuditScope(
 	}
 
 	scope = req.Msg.AuditScope
-	// if scope == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.AuditScope.GetId())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Update the audit scope
 	err = svc.db.Update(scope, "id = ?", scope.Id)
@@ -217,7 +225,8 @@ func (svc *Service) RemoveAuditScope(
 	req *connect.Request[orchestrator.RemoveAuditScopeRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		scope orchestrator.AuditScope
+		scope   orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request
@@ -230,9 +239,14 @@ func (svc *Service) RemoveAuditScope(
 		return nil, err
 	}
 
-	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&scope)) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.AuditScopeId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Delete the audit scope
 	err = svc.db.Delete(&scope, "id = ?", req.Msg.AuditScopeId)

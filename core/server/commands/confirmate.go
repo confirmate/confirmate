@@ -111,11 +111,9 @@ var ConfirmateCommand = &cli.Command{
 				server.WithJWKS(jwksURL),
 			))
 			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
 				service.DefaultAllowAllClaim,
 			))
 			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
 				service.DefaultAllowAllClaim,
 			))
 		}
