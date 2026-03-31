@@ -97,7 +97,8 @@ func (svc *Service) GetUser(
 	req *connect.Request[orchestrator.GetUserRequest],
 ) (res *connect.Response[orchestrator.User], err error) {
 	var (
-		user orchestrator.User
+		user    orchestrator.User
+		allowed bool
 	)
 
 	// Validate the request
@@ -106,9 +107,14 @@ func (svc *Service) GetUser(
 	}
 
 	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
-	err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_USER, req.Msg.UserId, req)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_USER, req.Msg.UserId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
+	}
+
+	if !allowed {
+		slog.Debug("access denied", slog.String("userID", req.Msg.UserId), slog.String("requestType", orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED.String()))
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
@@ -228,17 +234,20 @@ func (svc *Service) RemoveUser(
 }
 
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
-func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceType orchestrator.UserPermission_ResourceType, resourceId string, req *connect.Request[T]) error {
+func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceType orchestrator.UserPermission_ResourceType, resourceId string) (bool, []string, error) {
 	var (
 		user *orchestrator.User
 		err  error
 	)
 
 	if svc == nil {
-		return fmt.Errorf("service is nil")
+		return false, nil, fmt.Errorf("service is nil")
 	}
 	if svc.db == nil {
-		return fmt.Errorf("database is not initialized")
+		return false, nil, fmt.Errorf("database is not initialized")
+	}
+	if authz == nil {
+		return false, nil, fmt.Errorf("authorization strategy is not configured")
 	}
 
 	// Get claims from context
@@ -261,16 +270,12 @@ func CheckAccess[T any](ctx context.Context, authz service.AuthorizationStrategy
 	// We do not need the response, we only want to know if an error occurred.
 	err = svc.db.Save(user)
 	if err != nil {
-		return fmt.Errorf("failed to ensure current user: %w", err)
+		return false, nil, fmt.Errorf("failed to ensure current user: %w", err)
 	}
 
-	if !service.CheckAccess(authz, ctx, user.Id, reqType, resourceType, orchestrator.UserPermission_PERMISSION_READER, req, resourceId) {
-		slog.Debug("access denied", slog.String("userID", user.Id), slog.String("requestType", resourceType.String()))
+	allowed, resourceIDs := authz.CheckAccess(ctx, user.Id, reqType, resourceType, orchestrator.UserPermission_PERMISSION_READER, resourceId)
 
-		return service.ErrPermissionDenied
-	}
-
-	return nil
+	return allowed, resourceIDs, nil
 }
 
 type permissionStore struct {
@@ -316,4 +321,55 @@ func (ps permissionStore) HasPermission(ctx context.Context, userId string, reso
 	}
 
 	return count > 0, nil
+}
+
+// PermissionForResource returns a list of resource IDs for which the given user has at least the specified permission.
+func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, resourceType orchestrator.UserPermission_ResourceType, permission orchestrator.UserPermission_Permission) ([]string, error) {
+	var (
+		userPermissions []orchestrator.UserPermission
+		err             error
+	)
+
+	allowed := []orchestrator.UserPermission_Permission{permission}
+	switch permission {
+	case orchestrator.UserPermission_PERMISSION_READER:
+		allowed = []orchestrator.UserPermission_Permission{
+			orchestrator.UserPermission_PERMISSION_READER,
+			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+			orchestrator.UserPermission_PERMISSION_ADMIN,
+		}
+	case orchestrator.UserPermission_PERMISSION_CONTRIBUTOR:
+		allowed = []orchestrator.UserPermission_Permission{
+			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+			orchestrator.UserPermission_PERMISSION_ADMIN,
+		}
+	case orchestrator.UserPermission_PERMISSION_ADMIN:
+		allowed = []orchestrator.UserPermission_Permission{
+			orchestrator.UserPermission_PERMISSION_ADMIN,
+		}
+	}
+
+	// Use shared pagination helper; add explicit condition args
+	userPermissions, _, err = service.PaginateStorage[orchestrator.UserPermission](
+		&orchestrator.ListUserPermissionsRequest{
+			OrderBy: "resource_id",
+			Asc:     true,
+		},
+		ps.db,
+		service.DefaultPaginationOpts,
+		"user_id = ? AND resource_type = ? AND permission IN (?)",
+		userID,
+		resourceType,
+		allowed,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
+	}
+
+	resourceIDs := make([]string, len(userPermissions))
+	for i := range userPermissions {
+		resourceIDs[i] = userPermissions[i].ResourceId
+	}
+
+	return resourceIDs, nil
 }

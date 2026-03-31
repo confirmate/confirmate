@@ -47,9 +47,10 @@ func (svc *Service) CreateAuditScope(
 	// Generate a new UUID for the audit scope
 	scope.Id = uuid.NewString()
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
-		return nil, service.ErrPermissionDenied
-	}
+	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
+	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Persist the new audit scope in the database
 	err = svc.db.Create(scope)
@@ -78,7 +79,8 @@ func (svc *Service) GetAuditScope(
 	req *connect.Request[orchestrator.GetAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope orchestrator.AuditScope
+		scope   orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request
@@ -91,8 +93,14 @@ func (svc *Service) GetAuditScope(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&scope)) {
-		return nil, service.ErrPermissionDenied
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.GetAuditScopeId())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	if !allowed {
+		return connect.NewResponse(&orchestrator.AuditScope{}), err
 	}
 
 	res = connect.NewResponse(&scope)
@@ -105,21 +113,16 @@ func (svc *Service) ListAuditScopes(
 	req *connect.Request[orchestrator.ListAuditScopesRequest],
 ) (res *connect.Response[orchestrator.ListAuditScopesResponse], err error) {
 	var (
-		scopes []*orchestrator.AuditScope
-		conds  []any
-		npt    string
+		scopes       []*orchestrator.AuditScope
+		conds        []any
+		npt          string
+		resourceList []string
+		allowed      bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
-	}
-
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-			return nil, service.ErrPermissionDenied
-		}
 	}
 
 	// Set default ordering
@@ -128,20 +131,36 @@ func (svc *Service) ListAuditScopes(
 		req.Msg.Asc = true
 	}
 
+	// Use filter from request to build query conditions
 	// Filter by target_of_evaluation_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
 		conds = append(conds, "target_of_evaluation_id = ?", *req.Msg.Filter.TargetOfEvaluationId)
 	}
-
-	if !all {
-		conds = append(conds, "target_of_evaluation_id IN ?", allowed)
-	}
-
 	// Filter by catalog_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.CatalogId != nil {
 		conds = append(conds, "catalog_id = ?", *req.Msg.Filter.CatalogId)
 	}
 
+	// Check access via the configured auth strategy
+	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, "")
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// If access is not allowed to all resources and the resource list is empty, return an empty response
+	if len(resourceList) == 0 && !allowed {
+		return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
+			AuditScopes:   []*orchestrator.AuditScope{},
+			NextPageToken: "",
+		}), nil
+	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !allowed {
+		conds = append(conds, "id IN ?", resourceList)
+	}
+
+	// Query the database with pagination and the constructed conditions
 	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -167,9 +186,9 @@ func (svc *Service) UpdateAuditScope(
 	}
 
 	scope = req.Msg.AuditScope
-	if scope == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-		return nil, service.ErrPermissionDenied
-	}
+	// if scope == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Update the audit scope
 	err = svc.db.Update(scope, "id = ?", scope.Id)
@@ -211,9 +230,9 @@ func (svc *Service) RemoveAuditScope(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&scope)) {
-		return nil, service.ErrPermissionDenied
-	}
+	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&scope)) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
 
 	// Delete the audit scope
 	err = svc.db.Delete(&scope, "id = ?", req.Msg.AuditScopeId)
