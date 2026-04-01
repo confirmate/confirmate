@@ -36,17 +36,17 @@ cat <<'EOF'
 EOF
 
 # ── 1. Sync submodules ────────────────────────────────────────────────────────
-echo "[1/4] Syncing submodules..."
+echo "[1/5] Syncing submodules..."
 cd "${REPO_ROOT}"
 git submodule sync --quiet
 git submodule update --init --remote collectors/code-analysis
 
 # ── 2. Build & start the confirmate all-in-one binary ─────────────────────────
-echo "[2/4] Building confirmate..."
+echo "[2/5] Building confirmate..."
 cd "${REPO_ROOT}"
 go build -o bin/confirmate ./core/cmd/confirmate
 
-echo "[2/4] Starting confirmate (API on :${API_PORT})..."
+echo "[2/5] Starting confirmate (API on :${API_PORT})..."
 ./bin/confirmate \
   --db-in-memory \
   --api-port "${API_PORT}" \
@@ -57,19 +57,34 @@ PID_CONFIRMATE=$!
 echo "      PID ${PID_CONFIRMATE} — logs: logs/confirmate.log"
 
 # ── 3. Start the UI ───────────────────────────────────────────────────────────
-echo "[3/4] Starting UI (http://localhost:${UI_PORT})..."
+echo "[3/5] Starting UI (http://localhost:${UI_PORT})..."
 mkdir -p "${REPO_ROOT}/logs"
-cd "${REPO_ROOT}/ui-legacy"
-pnpm install --silent
-pnpm run dev -- --port "${UI_PORT}" &>"${REPO_ROOT}/logs/ui.log" &
+cd "${REPO_ROOT}/ui"
+npm install --silent
+npm run dev -- --port "${UI_PORT}" &>"${REPO_ROOT}/logs/ui.log" &
 PID_UI=$!
 echo "      PID ${PID_UI} — logs: logs/ui.log"
 
-# ── 4. Start the code-analysis collector ──────────────────────────────────────
-echo "[4/4] Starting code-analysis collector..."
+# ── 4. Set up jep virtualenv for Python frontend ─────────────────────────────
+echo "[4/5] Setting up Python virtualenv with jep..."
+mkdir -p ~/.virtualenvs
+# Recreate the venv if the interpreter it was built with is gone
+if [[ -d ~/.virtualenvs/cpg ]] && ! ~/.virtualenvs/cpg/bin/python3 -c "" 2>/dev/null; then
+  rm -rf ~/.virtualenvs/cpg
+fi
+if [[ ! -d ~/.virtualenvs/cpg ]]; then
+  python3 -m venv ~/.virtualenvs/cpg
+fi
+# shellcheck disable=SC1090
+source ~/.virtualenvs/cpg/bin/activate
+pip3 install --quiet jep
+deactivate
+
+# ── 5. Start the code-analysis collector ──────────────────────────────────────
+echo "[5/5] Starting code-analysis collector..."
 cd "${REPO_ROOT}/collectors/code-analysis"
 
-./gradlew --quiet run &>"${REPO_ROOT}/logs/code-analysis.log" &
+./gradlew --quiet :example-project:run &>"${REPO_ROOT}/logs/code-analysis.log" &
 PID_COLLECTOR=$!
 echo "      PID ${PID_COLLECTOR} — logs: logs/code-analysis.log"
 
