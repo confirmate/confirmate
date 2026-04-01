@@ -1545,30 +1545,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-        post:
-            tags:
-                - Orchestrator
-            description: Ensures that the currently authenticated user exists in the system, creating a new user entry if necessary.
-            operationId: Orchestrator_UpsertCurrentUser
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/User'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UpsertCurrentUserResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/users/me:
         get:
             tags:
@@ -2450,11 +2426,6 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
-        UpsertCurrentUserResponse:
-            type: object
-            properties:
-                user:
-                    $ref: '#/components/schemas/User'
         UpsertUserPermissionResponse:
             type: object
             properties:

@@ -16,45 +16,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertCurrentUser ensures that the calling user exists in the DB (create or update) and returns the corresponding user record.
-func (svc *Service) UpsertCurrentUser(
-	ctx context.Context,
-	req *connect.Request[orchestrator.UpsertCurrentUserRequest],
-) (res *connect.Response[orchestrator.UpsertCurrentUserResponse], err error) {
-	// Validate the request
-	if err = service.Validate(req); err != nil {
-		return nil, err
-	}
-
-	err = svc.db.Save(req.Msg.User)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	// Notify subscribers
-	go svc.publishEvent(&orchestrator.ChangeEvent{
-		Timestamp:   timestamppb.Now(),
-		Category:    orchestrator.EventCategory_EVENT_CATEGORY_USER,
-		RequestType: orchestrator.RequestType_REQUEST_TYPE_STORED,
-		EntityId:    req.Msg.User.Id,
-		Entity: &orchestrator.ChangeEvent_User{
-			User: req.Msg.User,
-		},
-	})
-
-	// Add/update time fields
-	if req.Msg.User.ExpirationDate == nil {
-		claims, _ := auth.ClaimsFromContext(ctx)
-		req.Msg.User.ExpirationDate = timestamppb.New(time.Unix(service.GetClaimInt64(claims, "exp"), 0)) // Set expiration date from JWT claim if not provided
-	}
-	req.Msg.User.LastAccess = timestamppb.Now() // Set last access to now
-
-	res = connect.NewResponse(&orchestrator.UpsertCurrentUserResponse{
-		User: req.Msg.User,
-	})
-	return
-}
-
 // UpsertCurrentUserPermission ensures that the calling user has the specified permission for the given resource (create or update).
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
@@ -326,6 +287,7 @@ func (ps permissionStore) HasPermission(ctx context.Context, userId string, reso
 // PermissionForResource returns a list of resource IDs for which the given user has at least the specified permission.
 func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, resourceType orchestrator.UserPermission_ResourceType, permission orchestrator.UserPermission_Permission) ([]string, error) {
 	var (
+		conds           []any
 		userPermissions []orchestrator.UserPermission
 		err             error
 	)
@@ -349,18 +311,20 @@ func (ps permissionStore) PermissionForResources(ctx context.Context, userID str
 		}
 	}
 
-	// Use shared pagination helper; add explicit condition args
-	userPermissions, _, err = service.PaginateStorage[orchestrator.UserPermission](
-		&orchestrator.ListUserPermissionsRequest{
-			OrderBy: "resource_id",
-			Asc:     true,
-		},
-		ps.db,
-		service.DefaultPaginationOpts,
+	// Get all permissions for the user and resource type.
+	conds = []any{
 		"user_id = ? AND resource_type = ? AND permission IN (?)",
 		userID,
 		resourceType,
 		allowed,
+	}
+	err = ps.db.List(
+		&userPermissions,
+		"resource_id",
+		true,
+		0,
+		-1,
+		conds...,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
