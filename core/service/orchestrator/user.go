@@ -256,7 +256,7 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	// TODO(anatheka): Should we check if the user is already in the DB?
 	// Extract user information from claims
 	user = &orchestrator.User{
-		Id:             service.GetClaim(claims, "sub"),
+		Id:             service.GetClaim(claims, "iss") + "|" + service.GetClaim(claims, "sub"),
 		Username:       util.Ref(service.GetClaim(claims, "preferred_username")),
 		FirstName:      util.Ref(service.GetClaim(claims, "given_name")),
 		LastName:       util.Ref(service.GetClaim(claims, "family_name")),
