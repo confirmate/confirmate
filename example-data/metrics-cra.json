@@ -1,6 +1,7 @@
 [
   {
     "id": "AdminMFAEnabled",
+    "uuid": "a9b83395-3e92-4abc-96cd-b024504cb39b",
     "name": "Admin's MFA: Enabled",
     "description": "This metric is used to assess if MFA for admins is enabled",
     "category": "Identity Management",
@@ -16,6 +17,7 @@
   },
   {
     "id": "AnomalyDetectionEnabled",
+    "uuid": "cd3dc393-5ca1-4ea2-a75e-f75499f5c77c",
     "name": "Anomaly Detection: Enabled",
     "description": "This metric is used to assess if Anomaly Detection is enabled",
     "category": "Logging & Monitoring",
@@ -31,6 +33,7 @@
   },
   {
     "id": "AtRestEncryptionEnabled",
+    "uuid": "ec2952ab-d71e-4046-bc0d-991d65397bc5",
     "name": "Storage Encryption: Enabled",
     "description": "This metric is used to assess if storage encryption is enabled",
     "category": "Storage Encryption",
@@ -46,6 +49,7 @@
   },
   {
     "id": "AutomaticUpdatesEnabled",
+    "uuid": "9fb574ac-10ca-4bd7-ab00-f49675b4e6de",
     "name": "Automatic Updates: Enabled",
     "description": "This metric is used to assess if automatic updates are enabled",
     "category": "Endpoint Security",
@@ -61,6 +65,7 @@
   },
   {
     "id": "AutomaticUpdatesInterval",
+    "uuid": "28cbd415-d031-4704-ba63-cea8c9cd7d6a",
     "name": "Automatic Updates: Interval",
     "description": "This metric is used to assess if automatic updates are performed with sufficient frequency (hours)",
     "category": "Endpoint Security",
@@ -74,6 +79,7 @@
   },
   {
     "id": "IdentityRecentActivity",
+    "uuid": "23a48bc3-5534-4e17-8615-b5d497a6bd56",
     "name": "Identity: Recent Activity",
     "description": "This metric is used to assess if a user is still active (days)",
     "category": "Identity Management",
@@ -87,6 +93,7 @@
   },
   {
     "id": "StrongCryptographicHash",
+    "uuid": "06ef4588-2097-4601-bb5f-992674f994b0",
     "name": "Application: Usage of Strong Cryptographic Hashes",
     "description": "This rule assesses whether a resource that offers the property CryptographicHash has its algorithm set correctly",
     "category": "Application Security",
@@ -103,6 +110,7 @@
   },
   {
     "id": "TransportEncryptionEnabled",
+    "uuid": "13de67df-56e9-45b5-b092-270178a8ea11",
     "name": "Transport Encryption: Enabled",
     "description": "This metric is used if transport encryption is enabled",
     "category": "Transport Encryption",
@@ -118,6 +126,7 @@
   },
   {
     "id": "AccessControlMechanismsImplemented",
+    "uuid": "3f5502ec-d5fb-4fd3-99d2-165c093f0211",
     "name": "Identity Management: Implementation of Access Control Mechanisms",
     "description": "This metric checks for the existence of proper access control mechanisms",
     "category": "Identity Management",
@@ -133,6 +142,7 @@
   },
   {
     "id": "VulnerabilityScanReportUpdated",
+    "uuid": "1fe2ae30-dc7b-4e40-bcfc-53a1d0b414b5",
     "name": "Vulnerability Scanning: Report Updated",
     "description": "This metric is used to assess if vulnerability scan reports are regularly updated and available",
     "category": "Vulnerability Management",
@@ -148,6 +158,7 @@
   },
   {
     "id": "SecureConfigurationEnforced",
+    "uuid": "021ea258-39f8-4e0a-b6eb-36fe5fbaf1b7",
     "name": "Configuration: Secure Configuration Enforced",
     "description": "This metric is used to assess if secure configuration is enforced by default",
     "category": "Configuration Management",
@@ -163,6 +174,7 @@
   },
   {
     "id": "PostponeAlertOptionEnabled",
+    "uuid": "8723d4e4-7513-4e43-a4ca-2d561cddebec",
     "name": "Automatic Updates: Postpone Alert Option Enabled",
     "description": "This metric is used to assess if users can postpone updates and receive notifications",
     "category": "Endpoint Security",
@@ -178,6 +190,7 @@
   },
   {
     "id": "IdentityPasswordPolicyEnabled",
+    "uuid": "3d4a6413-5d6b-4664-8910-5e4739df4217",
     "name": "Identity: Password Policy Enabled",
     "description": "This metric is used to assess if a password policy is enabled for identity management",
     "category": "Identity Management",
@@ -193,6 +206,7 @@
   },
   {
     "id": "UnauthorizedAccessReported",
+    "uuid": "a2e3934f-239b-4fda-90f5-db50dc96023d",
     "name": "Security Monitoring: Unauthorized Access Reported",
     "description": "This metric is used to assess if unauthorized access attempts are detected and reported",
     "category": "Security Monitoring",
@@ -208,6 +222,7 @@
   },
   {
     "id": "DataMinimisationTechniquesEnabled",
+    "uuid": "a4d7c4a5-05fa-427c-8cb8-b30cb81a1963",
     "name": "Privacy: Data Minimization Techniques Enabled",
     "description": "This metric is used to assess if data minimization techniques are enabled and enforced",
     "category": "Privacy",
@@ -223,6 +238,7 @@
   },
   {
     "id": "AutomatedDeletionOfDataEnabled",
+    "uuid": "8816f0d1-31a6-4e6e-a2c4-f1905a9c4fe9",
     "name": "Privacy: Automated Deletion of Data Enabled",
     "description": "This metric is used to assess if automated deletion of data is configured",
     "category": "Privacy",
@@ -238,6 +254,7 @@
   },
   {
     "id": "DDOSMechanismActivated",
+    "uuid": "a5689fb6-7f3d-43f4-be17-4caa3f9c82f4",
     "name": "Network Security: DDoS Protection Mechanism Activated",
     "description": "This metric is used to assess if DDoS protection mechanisms are activated",
     "category": "Network Security",
@@ -253,6 +270,7 @@
   },
   {
     "id": "StandardProtocolsListed",
+    "uuid": "b5a8d8e1-8f0d-479c-8a7f-591b33626a15",
     "name": "Network Security: Standard Protocols Listed",
     "description": "This metric is used to assess if only required standard protocols and interfaces are enabled",
     "category": "Network Security",
@@ -268,6 +286,7 @@
   },
   {
     "id": "RiskAssessmentMappingtoServicesandControl",
+    "uuid": "aaa83510-d4fd-495c-9697-b8eb9662dd32",
     "name": "Risk Management: Risk Assessment Mapping to Services and Controls",
     "description": "This metric is used to assess if risk assessments are mapped to services and security controls",
     "category": "Risk Management",
@@ -283,6 +302,7 @@
   },
   {
     "id": "BackupEnabled",
+    "uuid": "0435c183-1f01-4372-a133-de337d2cc13c",
     "name": "Data Protection: Backup Enabled",
     "description": "This metric is used to assess if backup mechanisms are enabled for critical data flows",
     "category": "Data Protection",
@@ -298,6 +318,7 @@
   },
   {
     "id": "ActivityLoggingEnabled",
+    "uuid": "6b097abe-da65-4ce1-8ed8-2da3bbb0d2c2",
     "name": "Logging & Monitoring: Activity Logging Enabled",
     "description": "This metric is used to assess if activity logging is enabled for security-relevant activities",
     "category": "Logging & Monitoring",
@@ -313,6 +334,7 @@
   },
   {
     "id": "LoggingOptOutMechanismAvailable",
+    "uuid": "f73bab3d-4641-43c3-93ec-0b8b56c99e0d",
     "name": "Logging & Monitoring: Logging Opt-Out Mechanism Available",
     "description": "This metric is used to assess if a logging opt-out mechanism is available to users",
     "category": "Logging & Monitoring",
@@ -328,6 +350,7 @@
   },
   {
     "id": "SecurityDataAvailableToUser",
+    "uuid": "080a1f0f-00e4-48dc-9af0-ceb8e16d9672",
     "name": "Logging & Monitoring: Security Data Available to User",
     "description": "This metric is used to assess if security-related data and logs are available to users",
     "category": "Logging & Monitoring",
@@ -343,6 +366,7 @@
   },
   {
     "id": "SecureDataDeletionMechanismActivated",
+    "uuid": "0c6e4889-5cba-4875-ac1a-a09e3d98514f",
     "name": "Privacy: Secure Data Deletion Mechanism Activated",
     "description": "This metric is used to assess if secure data deletion mechanisms are activated and available to users",
     "category": "Privacy",

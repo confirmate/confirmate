@@ -2,9 +2,9 @@
     {
         "id": "CRA_Catalog",
         "name": "Cyber Resilience Act Catalog",
-        "description": "Catalog mapping CRA requirements to security metrics",
+    "description": "A practical catalog that translates Cyber Resilience Act requirements into measurable security metrics for assessment, reporting, and continuous compliance.",
         "short_name": "CRA",
-        "all_in_scope": true,
+        "all_in_scope": false,
         "categories": [
             {
                 "name": "Product Security Requirements (Part I)",
