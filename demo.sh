@@ -84,7 +84,7 @@ deactivate
 echo "[5/5] Starting code-analysis collector..."
 cd "${REPO_ROOT}/collectors/code-analysis"
 
-./gradlew --quiet :example-project:run &>"${REPO_ROOT}/logs/code-analysis.log" &
+./gradlew :example-project:run &>"${REPO_ROOT}/logs/code-analysis.log" &
 PID_COLLECTOR=$!
 echo "      PID ${PID_COLLECTOR} — logs: logs/code-analysis.log"
 

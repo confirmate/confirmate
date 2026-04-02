@@ -498,10 +498,10 @@ const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06source\x12\"\n" +
 	"\x06target\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06target\x12\x17\n" +
-	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04type2\xc2\x02\n" +
+	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04type2\xcc\x02\n" +
 	"\tResources\x12\xa0\x01\n" +
-	"\x0eUpdateResource\x12-.confirmate.evidence.v1.UpdateResourceRequest\x1a(.confirmate.evidence.v1.ResourceSnapshot\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/evidence_store/resources/{resource.id}\x12\x91\x01\n" +
-	"\x0eListGraphEdges\x12-.confirmate.evidence.v1.ListGraphEdgesRequest\x1a..confirmate.evidence.v1.ListGraphEdgesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/evidence/graph/edgesB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
+	"\x0eUpdateResource\x12-.confirmate.evidence.v1.UpdateResourceRequest\x1a(.confirmate.evidence.v1.ResourceSnapshot\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/evidence_store/resources/{resource.id}\x12\x9b\x01\n" +
+	"\x0eListGraphEdges\x12-.confirmate.evidence.v1.ListGraphEdgesRequest\x1a..confirmate.evidence.v1.ListGraphEdgesResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/v1/evidence_store/resources/edgesB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
 
 var (
 	file_api_evidence_evidence_proto_rawDescOnce sync.Once

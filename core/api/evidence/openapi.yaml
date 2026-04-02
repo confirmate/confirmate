@@ -6,45 +6,6 @@ info:
     title: ""
     version: 0.0.1
 paths:
-    /v1/evidence/graph/edges:
-        get:
-            tags:
-                - Resources
-            description: |-
-                ListGraphEdges returns the edges (relationship) between resources in our
-                 resource graph.
-            operationId: Resources_ListGraphEdges
-            parameters:
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListGraphEdgesResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/evidence_store/evidence:
         post:
             tags:
@@ -188,6 +149,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListResourcesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evidence_store/resources/edges:
+        get:
+            tags:
+                - Resources
+            description: |-
+                ListGraphEdges returns the edges (relationship) between resources in our
+                 resource graph.
+            operationId: Resources_ListGraphEdges
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGraphEdgesResponse'
                 default:
                     description: Default error response
                     content:

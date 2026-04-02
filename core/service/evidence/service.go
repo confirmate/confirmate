@@ -35,7 +35,9 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
 
 const (
 	DefaultAssessmentURL     = "http://localhost:9090"
@@ -90,6 +92,7 @@ type Service struct {
 	toolIdsMu sync.RWMutex
 
 	evidenceconnect.UnimplementedEvidenceStoreHandler
+	evidenceconnect.UnimplementedResourcesHandler
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -487,6 +490,59 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	}
 
 	return
+}
+
+// ListGraphEdges returns edges between resources derived via [ontology.Related], which finds all
+// _id/_ids fields on each concrete ontology resource and matches them against known resource IDs.
+// This implements the [evidenceconnect.ResourcesHandler.ListGraphEdges] RPC method.
+func (svc *Service) ListGraphEdges(_ context.Context, _ *connect.Request[evidence.ListGraphEdgesRequest]) (
+	res *connect.Response[evidence.ListGraphEdgesResponse], err error) {
+
+	var snapshots []*evidence.ResourceSnapshot
+	if err = svc.db.List(&snapshots, "id", true, 0, -1); err != nil {
+		return nil, service.HandleDatabaseError(err)
+	}
+
+	// Build a set of all known resource IDs for fast lookup.
+	ids := make(map[string]struct{}, len(snapshots))
+	for _, s := range snapshots {
+		ids[s.Id] = struct{}{}
+	}
+
+	seen := make(map[string]struct{})
+	var edges []*evidence.GraphEdge
+
+	for _, s := range snapshots {
+		if s.Resource == nil {
+			continue
+		}
+		// The ontology Resource is a oneof — ranging over it visits only the set concrete field.
+		s.Resource.ProtoReflect().Range(func(_ protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+			concrete, ok := v.Message().Interface().(ontology.IsResource)
+			if !ok {
+				return true
+			}
+			for _, rel := range ontology.Related(concrete) {
+				if _, ok := ids[rel.Value]; !ok {
+					continue
+				}
+				edgeID := s.Id + "→" + rel.Value
+				if _, dup := seen[edgeID]; dup {
+					continue
+				}
+				seen[edgeID] = struct{}{}
+				edges = append(edges, &evidence.GraphEdge{
+					Id:     edgeID,
+					Source: s.Id,
+					Target: rel.Value,
+					Type:   rel.Property,
+				})
+			}
+			return true
+		})
+	}
+
+	return connect.NewResponse(&evidence.ListGraphEdgesResponse{Edges: edges}), nil
 }
 
 func (svc *Service) RegisterEvidenceHook(evidenceHook evidence.EvidenceHookFunc) {

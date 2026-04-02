@@ -4,26 +4,6 @@
  */
 
 export interface paths {
-    "/v1/evidence/graph/edges": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * @description ListGraphEdges returns the edges (relationship) between resources in our
-         *      resource graph.
-         */
-        get: operations["Resources_ListGraphEdges"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/evidence_store/evidence": {
         parameters: {
             query?: never;
@@ -90,6 +70,26 @@ export interface paths {
         };
         /** @description Lists all resources collected in the last run, exposed as REST. */
         get: operations["EvidenceStore_ListResources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/resources/edges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description ListGraphEdges returns the edges (relationship) between resources in our
+         *      resource graph.
+         */
+        get: operations["Resources_ListGraphEdges"];
         put?: never;
         post?: never;
         delete?: never;
@@ -194,6 +194,7 @@ export interface components {
         ActivityLogging: {
             enabled?: boolean;
             monitoringLogDataEnabled?: boolean;
+            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -281,6 +282,7 @@ export interface components {
         ApplicationLogging: {
             enabled?: boolean;
             monitoringLogDataEnabled?: boolean;
+            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -413,6 +415,7 @@ export interface components {
         BootLogging: {
             enabled?: boolean;
             monitoringLogDataEnabled?: boolean;
+            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -1996,7 +1999,7 @@ export interface components {
             nextPageToken?: string;
         };
         ListResourcesResponse: {
-            results: components["schemas"]["Resource"][];
+            results: components["schemas"]["ResourceSnapshot"][];
             nextPageToken?: string;
         };
         ListSupportedResourceTypesResponse: {
@@ -2404,6 +2407,7 @@ export interface components {
         OSLogging: {
             enabled?: boolean;
             monitoringLogDataEnabled?: boolean;
+            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -2927,9 +2931,39 @@ export interface components {
         ResourceLogging: {
             enabled?: boolean;
             monitoringLogDataEnabled?: boolean;
+            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
+        };
+        /**
+         * @description ResourceSnapshot is the persisted representation of a cloud resource.
+         *      It is distinct from confirmate.ontology.v1.Resource, which is the semantic
+         *      discriminated union of all concrete ontology types. ResourceSnapshot carries
+         *      metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
+         *      serialised ontology properties.
+         */
+        ResourceSnapshot: {
+            /**
+             * @description Id contains a unique ID for each resource. This is specific for the cloud
+             *      provider this resource was gathered for and can for example be a resource
+             *      URL.
+             */
+            id: string;
+            /**
+             * @description TargetOfEvaluationId is the UUID for the target of evaluation to which this resource
+             *      belongs to.
+             */
+            targetOfEvaluationId: string;
+            /**
+             * @description ResourceType contains a comma separated string of resource types according
+             *      to our ontology.
+             */
+            resourceType: string;
+            /** @description Reference to the tool which provided the resource */
+            toolId: string;
+            /** @description Semantic representation of the Cloud resource according to our defined ontology */
+            resource?: components["schemas"]["Resource"];
         };
         /** @description RobustnessScore is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         RobustnessScore: Record<string, never>;
@@ -3236,7 +3270,7 @@ export interface components {
             diskEncryption?: components["schemas"]["DiskEncryption"];
         };
         UpdateResourceRequest: {
-            resource: components["schemas"]["Resource"];
+            resource: components["schemas"]["ResourceSnapshot"];
         };
         /** @description UsageStatistics is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         UsageStatistics: {
@@ -3367,6 +3401,7 @@ export interface components {
             cve?: string;
             cwe?: string[];
             description?: string;
+            name?: string;
             url?: string;
         };
         /**
@@ -3605,6 +3640,7 @@ export type SchemaReportDocument = components['schemas']['ReportDocument'];
 export type SchemaResource = components['schemas']['Resource'];
 export type SchemaResourceGroup = components['schemas']['ResourceGroup'];
 export type SchemaResourceLogging = components['schemas']['ResourceLogging'];
+export type SchemaResourceSnapshot = components['schemas']['ResourceSnapshot'];
 export type SchemaRobustnessScore = components['schemas']['RobustnessScore'];
 export type SchemaRoleAssignment = components['schemas']['RoleAssignment'];
 export type SchemaSchemaValidation = components['schemas']['SchemaValidation'];
@@ -3639,40 +3675,6 @@ export type SchemaWorkflow = components['schemas']['Workflow'];
 export type SchemaZoneRedundancy = components['schemas']['ZoneRedundancy'];
 export type $defs = Record<string, never>;
 export interface operations {
-    Resources_ListGraphEdges: {
-        parameters: {
-            query?: {
-                pageSize?: number;
-                pageToken?: string;
-                orderBy?: string;
-                asc?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ListGraphEdgesResponse"];
-                };
-            };
-            /** @description Default error response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Status"];
-                };
-            };
-        };
-    };
     EvidenceStore_StoreEvidence: {
         parameters: {
             query?: never;
@@ -3811,6 +3813,40 @@ export interface operations {
             };
         };
     };
+    Resources_ListGraphEdges: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListGraphEdgesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
     Resources_UpdateResource: {
         parameters: {
             query?: never;
@@ -3832,7 +3868,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Resource"];
+                    "application/json": components["schemas"]["ResourceSnapshot"];
                 };
             };
             /** @description Default error response */
