@@ -28,7 +28,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/emptypb"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -106,13 +106,151 @@ func (Role) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{0}
 }
 
+// ObjectType represents the type of the entity that changed in the orchestrator.
+type ObjectType int32
+
+const (
+	ObjectType_OBJECT_TYPE_UNSPECIFIED           ObjectType = 0
+	ObjectType_OBJECT_TYPE_METRIC                ObjectType = 1
+	ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION  ObjectType = 2
+	ObjectType_OBJECT_TYPE_METRIC_IMPLEMENTATION ObjectType = 3
+	ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION  ObjectType = 4
+	ObjectType_OBJECT_TYPE_AUDIT_SCOPE           ObjectType = 5
+	ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT     ObjectType = 6
+	ObjectType_OBJECT_TYPE_ASSESSMENT_TOOL       ObjectType = 7
+	ObjectType_OBJECT_TYPE_USER                  ObjectType = 8
+	ObjectType_OBJECT_TYPE_CERTIFICATE           ObjectType = 9
+	ObjectType_OBJECT_TYPE_CATALOG               ObjectType = 10
+	ObjectType_OBJECT_TYPE_CATEGORY              ObjectType = 11
+	ObjectType_OBJECT_TYPE_CONTROL               ObjectType = 12
+	ObjectType_OBJECT_TYPE_EVALUATION_RESULT     ObjectType = 13
+	ObjectType_OBJECT_TYPE_EVIDENCE              ObjectType = 14
+)
+
+// Enum value maps for ObjectType.
+var (
+	ObjectType_name = map[int32]string{
+		0:  "OBJECT_TYPE_UNSPECIFIED",
+		1:  "OBJECT_TYPE_METRIC",
+		2:  "OBJECT_TYPE_METRIC_CONFIGURATION",
+		3:  "OBJECT_TYPE_METRIC_IMPLEMENTATION",
+		4:  "OBJECT_TYPE_TARGET_OF_EVALUATION",
+		5:  "OBJECT_TYPE_AUDIT_SCOPE",
+		6:  "OBJECT_TYPE_ASSESSMENT_RESULT",
+		7:  "OBJECT_TYPE_ASSESSMENT_TOOL",
+		8:  "OBJECT_TYPE_USER",
+		9:  "OBJECT_TYPE_CERTIFICATE",
+		10: "OBJECT_TYPE_CATALOG",
+		11: "OBJECT_TYPE_CATEGORY",
+		12: "OBJECT_TYPE_CONTROL",
+		13: "OBJECT_TYPE_EVALUATION_RESULT",
+		14: "OBJECT_TYPE_EVIDENCE",
+	}
+	ObjectType_value = map[string]int32{
+		"OBJECT_TYPE_UNSPECIFIED":           0,
+		"OBJECT_TYPE_METRIC":                1,
+		"OBJECT_TYPE_METRIC_CONFIGURATION":  2,
+		"OBJECT_TYPE_METRIC_IMPLEMENTATION": 3,
+		"OBJECT_TYPE_TARGET_OF_EVALUATION":  4,
+		"OBJECT_TYPE_AUDIT_SCOPE":           5,
+		"OBJECT_TYPE_ASSESSMENT_RESULT":     6,
+		"OBJECT_TYPE_ASSESSMENT_TOOL":       7,
+		"OBJECT_TYPE_USER":                  8,
+		"OBJECT_TYPE_CERTIFICATE":           9,
+		"OBJECT_TYPE_CATALOG":               10,
+		"OBJECT_TYPE_CATEGORY":              11,
+		"OBJECT_TYPE_CONTROL":               12,
+		"OBJECT_TYPE_EVALUATION_RESULT":     13,
+		"OBJECT_TYPE_EVIDENCE":              14,
+	}
+)
+
+func (x ObjectType) Enum() *ObjectType {
+	p := new(ObjectType)
+	*p = x
+	return p
+}
+
+func (x ObjectType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ObjectType) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_orchestrator_user_proto_enumTypes[1].Descriptor()
+}
+
+func (ObjectType) Type() protoreflect.EnumType {
+	return &file_api_orchestrator_user_proto_enumTypes[1]
+}
+
+func (x ObjectType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ObjectType.Descriptor instead.
+func (ObjectType) EnumDescriptor() ([]byte, []int) {
+	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1}
+}
+
+type UserPermission_Permission int32
+
+const (
+	UserPermission_PERMISSION_UNSPECIFIED UserPermission_Permission = 0
+	UserPermission_PERMISSION_READER      UserPermission_Permission = 1
+	UserPermission_PERMISSION_CONTRIBUTOR UserPermission_Permission = 2
+	UserPermission_PERMISSION_ADMIN       UserPermission_Permission = 3
+)
+
+// Enum value maps for UserPermission_Permission.
+var (
+	UserPermission_Permission_name = map[int32]string{
+		0: "PERMISSION_UNSPECIFIED",
+		1: "PERMISSION_READER",
+		2: "PERMISSION_CONTRIBUTOR",
+		3: "PERMISSION_ADMIN",
+	}
+	UserPermission_Permission_value = map[string]int32{
+		"PERMISSION_UNSPECIFIED": 0,
+		"PERMISSION_READER":      1,
+		"PERMISSION_CONTRIBUTOR": 2,
+		"PERMISSION_ADMIN":       3,
+	}
+)
+
+func (x UserPermission_Permission) Enum() *UserPermission_Permission {
+	p := new(UserPermission_Permission)
+	*p = x
+	return p
+}
+
+func (x UserPermission_Permission) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UserPermission_Permission) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_orchestrator_user_proto_enumTypes[2].Descriptor()
+}
+
+func (UserPermission_Permission) Type() protoreflect.EnumType {
+	return &file_api_orchestrator_user_proto_enumTypes[2]
+}
+
+func (x UserPermission_Permission) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UserPermission_Permission.Descriptor instead.
+func (UserPermission_Permission) EnumDescriptor() ([]byte, []int) {
+	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1, 0}
+}
+
 // Represents a user from the IdP
 type User struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID is the unique identifier of the user
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Username is the name used to be displayed
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username *string `protobuf:"bytes,2,opt,name=username,proto3,oneof" json:"username,omitempty"`
 	// Email is the email address of the user, if available.
 	Email *string `protobuf:"bytes,3,opt,name=email,proto3,oneof" json:"email,omitempty"`
 	// FirstName is the first name of the user, if available.
@@ -124,7 +262,11 @@ type User struct {
 	// Enabled indicates whether the user is active/enabled in the system
 	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Attributes contains additional key-value pairs associated with the user, such as department or team.
-	Attributes    map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
+	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
+	// Expiration date indicates when the user's access expires.
+	ExpirationDate *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// LastAccess indicates the last time the user accessed the system.
+	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -167,8 +309,8 @@ func (x *User) GetId() string {
 }
 
 func (x *User) GetUsername() string {
-	if x != nil {
-		return x.Username
+	if x != nil && x.Username != nil {
+		return *x.Username
 	}
 	return ""
 }
@@ -215,26 +357,48 @@ func (x *User) GetAttributes() map[string]string {
 	return nil
 }
 
-type GetCurrentUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+func (x *User) GetExpirationDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpirationDate
+	}
+	return nil
+}
+
+func (x *User) GetLastAccess() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastAccess
+	}
+	return nil
+}
+
+type UserPermission struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// User ID is required to identify the user for whom the perission is being upserted.
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" gorm:"column:user_id;primaryKey"`
+	// Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" gorm:"column:resource_id;primaryKey;index"`
+	// Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+	ResourceType ObjectType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"resource_type,omitempty" gorm:"column:resource_type;primaryKey"`
+	// Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty" gorm:"column:permission;type:integer;not null"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetCurrentUserRequest) Reset() {
-	*x = GetCurrentUserRequest{}
+func (x *UserPermission) Reset() {
+	*x = UserPermission{}
 	mi := &file_api_orchestrator_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetCurrentUserRequest) String() string {
+func (x *UserPermission) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetCurrentUserRequest) ProtoMessage() {}
+func (*UserPermission) ProtoMessage() {}
 
-func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
+func (x *UserPermission) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -246,424 +410,84 @@ func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetCurrentUserRequest.ProtoReflect.Descriptor instead.
-func (*GetCurrentUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UserPermission.ProtoReflect.Descriptor instead.
+func (*UserPermission) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{1}
 }
 
-type GetUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRequest) Reset() {
-	*x = GetUserRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRequest) ProtoMessage() {}
-
-func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetUserRequest) GetUserId() string {
+func (x *UserPermission) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
 	return ""
 }
 
-type ListUsersRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Filter        *ListUsersRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
-	PageSize      int32                    `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                   `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	OrderBy       string                   `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	Asc           bool                     `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUsersRequest) Reset() {
-	*x = ListUsersRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUsersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUsersRequest) ProtoMessage() {}
-
-func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[3]
+func (x *UserPermission) GetResourceId() string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
-func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ListUsersRequest) GetFilter() *ListUsersRequest_Filter {
-	if x != nil {
-		return x.Filter
-	}
-	return nil
-}
-
-func (x *ListUsersRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListUsersRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
+		return x.ResourceId
 	}
 	return ""
 }
 
-func (x *ListUsersRequest) GetOrderBy() string {
+func (x *UserPermission) GetResourceType() ObjectType {
 	if x != nil {
-		return x.OrderBy
+		return x.ResourceType
 	}
-	return ""
+	return ObjectType_OBJECT_TYPE_UNSPECIFIED
 }
 
-func (x *ListUsersRequest) GetAsc() bool {
+func (x *UserPermission) GetPermission() UserPermission_Permission {
 	if x != nil {
-		return x.Asc
+		return x.Permission
 	}
-	return false
-}
-
-type ListUsersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*User                `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUsersResponse) Reset() {
-	*x = ListUsersResponse{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUsersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUsersResponse) ProtoMessage() {}
-
-func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
-func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ListUsersResponse) GetUsers() []*User {
-	if x != nil {
-		return x.Users
-	}
-	return nil
-}
-
-func (x *ListUsersResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
-type ListUserRolesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	Asc           bool                   `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUserRolesRequest) Reset() {
-	*x = ListUserRolesRequest{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUserRolesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUserRolesRequest) ProtoMessage() {}
-
-func (x *ListUserRolesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUserRolesRequest.ProtoReflect.Descriptor instead.
-func (*ListUserRolesRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ListUserRolesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListUserRolesRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
-func (x *ListUserRolesRequest) GetAsc() bool {
-	if x != nil {
-		return x.Asc
-	}
-	return false
-}
-
-type ListUserRolesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Roles         []Role                 `protobuf:"varint,1,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUserRolesResponse) Reset() {
-	*x = ListUserRolesResponse{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUserRolesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUserRolesResponse) ProtoMessage() {}
-
-func (x *ListUserRolesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUserRolesResponse.ProtoReflect.Descriptor instead.
-func (*ListUserRolesResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ListUserRolesResponse) GetRoles() []Role {
-	if x != nil {
-		return x.Roles
-	}
-	return nil
-}
-
-type ListUsersRequest_Filter struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Filter by role (e.g., "compliance_manager")
-	Role *Role `protobuf:"varint,1,opt,name=role,proto3,enum=confirmate.orchestrator.v1.Role,oneof" json:"role,omitempty"`
-	// Optional. Filter by enabled/disabled status
-	Enabled *bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
-	// Optional. Search query for username, email, first name, or last name
-	Search *string `protobuf:"bytes,3,opt,name=search,proto3,oneof" json:"search,omitempty"`
-	// Optional. Filter by specific attribute key-value pairs (e.g., department)
-	Attributes    map[string]string `protobuf:"bytes,4,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListUsersRequest_Filter) Reset() {
-	*x = ListUsersRequest_Filter{}
-	mi := &file_api_orchestrator_user_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListUsersRequest_Filter) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListUsersRequest_Filter) ProtoMessage() {}
-
-func (x *ListUsersRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_user_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListUsersRequest_Filter.ProtoReflect.Descriptor instead.
-func (*ListUsersRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_user_proto_rawDescGZIP(), []int{3, 0}
-}
-
-func (x *ListUsersRequest_Filter) GetRole() Role {
-	if x != nil && x.Role != nil {
-		return *x.Role
-	}
-	return Role_ROLE_UNSPECIFIED
-}
-
-func (x *ListUsersRequest_Filter) GetEnabled() bool {
-	if x != nil && x.Enabled != nil {
-		return *x.Enabled
-	}
-	return false
-}
-
-func (x *ListUsersRequest_Filter) GetSearch() string {
-	if x != nil && x.Search != nil {
-		return *x.Search
-	}
-	return ""
-}
-
-func (x *ListUsersRequest_Filter) GetAttributes() map[string]string {
-	if x != nil {
-		return x.Attributes
-	}
-	return nil
+	return UserPermission_PERMISSION_UNSPECIFIED
 }
 
 var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xfc\x03\n" +
+	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xea\x05\n" +
 	"\x04User\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12&\n" +
-	"\busername\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\busername\x12\x19\n" +
-	"\x05email\x18\x03 \x01(\tH\x00R\x05email\x88\x01\x01\x12\"\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1f\n" +
+	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x19\n" +
+	"\x05email\x18\x03 \x01(\tH\x01R\x05email\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"first_name\x18\x04 \x01(\tH\x01R\tfirstName\x88\x01\x01\x12 \n" +
-	"\tlast_name\x18\x05 \x01(\tH\x02R\blastName\x88\x01\x01\x12`\n" +
+	"first_name\x18\x04 \x01(\tH\x02R\tfirstName\x88\x01\x01\x12 \n" +
+	"\tlast_name\x18\x05 \x01(\tH\x03R\blastName\x88\x01\x01\x12`\n" +
 	"\x05roles\x18\x06 \x03(\x0e2 .confirmate.orchestrator.v1.RoleB(\xbaH\n" +
 	"\x92\x01\a\"\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x05roles\x12\x18\n" +
 	"\aenabled\x18\a \x01(\bR\aenabled\x12m\n" +
 	"\n" +
 	"attributes\x18\b \x03(\v20.confirmate.orchestrator.v1.User.AttributesEntryB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\n" +
-	"attributes\x1a=\n" +
+	"attributes\x12v\n" +
+	"\x0fexpiration_date\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x12n\n" +
+	"\vlast_access\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\n" +
+	"lastAccess\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
+	"\t_usernameB\b\n" +
 	"\x06_emailB\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
-	"_last_name\"\x17\n" +
-	"\x15GetCurrentUserRequest\"5\n" +
-	"\x0eGetUserRequest\x12#\n" +
-	"\auser_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\"\xa8\x04\n" +
-	"\x10ListUsersRequest\x12P\n" +
-	"\x06filter\x18\x01 \x01(\v23.confirmate.orchestrator.v1.ListUsersRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
-	"\tpage_size\x18\n" +
-	" \x01(\x05R\bpageSize\x12\x1d\n" +
+	"_last_name\"\xc7\x04\n" +
+	"\x0eUserPermission\x12G\n" +
+	"\auser_id\x18\x01 \x01(\tB.\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03 gorm:\"column:user_id;primaryKey\"R\x06userId\x12[\n" +
+	"\vresource_id\x18\x02 \x01(\tB:\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03*gorm:\"column:resource_id;primaryKey;index\"R\n" +
+	"resourceId\x12\x83\x01\n" +
+	"\rresource_type\x18\x03 \x01(\x0e2&.confirmate.orchestrator.v1.ObjectTypeB6\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03&gorm:\"column:resource_type;primaryKey\"R\fresourceType\x12\x95\x01\n" +
 	"\n" +
-	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
-	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xcd\x02\n" +
-	"\x06Filter\x12C\n" +
-	"\x04role\x18\x01 \x01(\x0e2 .confirmate.orchestrator.v1.RoleB\b\xbaH\x05\x82\x01\x02\x10\x01H\x00R\x04role\x88\x01\x01\x12\x1d\n" +
-	"\aenabled\x18\x02 \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1b\n" +
-	"\x06search\x18\x03 \x01(\tH\x02R\x06search\x88\x01\x01\x12c\n" +
+	"permission\x18\x04 \x01(\x0e25.confirmate.orchestrator.v1.UserPermission.PermissionB>\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03.gorm:\"column:permission;type:integer;not null\"R\n" +
+	"permission\"q\n" +
 	"\n" +
-	"attributes\x18\x04 \x03(\v2C.confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntryR\n" +
-	"attributes\x1a=\n" +
-	"\x0fAttributesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
-	"\x05_roleB\n" +
-	"\n" +
-	"\b_enabledB\t\n" +
-	"\a_searchB\t\n" +
-	"\a_filter\"s\n" +
-	"\x11ListUsersResponse\x126\n" +
-	"\x05users\x18\x01 \x03(\v2 .confirmate.orchestrator.v1.UserR\x05users\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"d\n" +
-	"\x14ListUserRolesRequest\x12\x1b\n" +
-	"\tpage_size\x18\n" +
-	" \x01(\x05R\bpageSize\x12\x1d\n" +
-	"\n" +
-	"page_token\x18\v \x01(\tR\tpageToken\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\"O\n" +
-	"\x15ListUserRolesResponse\x126\n" +
-	"\x05roles\x18\x01 \x03(\x0e2 .confirmate.orchestrator.v1.RoleR\x05roles*\xed\x01\n" +
+	"Permission\x12\x1a\n" +
+	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11PERMISSION_READER\x10\x01\x12\x1a\n" +
+	"\x16PERMISSION_CONTRIBUTOR\x10\x02\x12\x14\n" +
+	"\x10PERMISSION_ADMIN\x10\x03*\xed\x01\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -673,12 +497,25 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
 	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
 	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a2\x90\x04\n" +
-	"\x0eUserManagement\x12{\n" +
-	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12{\n" +
-	"\tListUsers\x12,.confirmate.orchestrator.v1.ListUsersRequest\x1a-.confirmate.orchestrator.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12t\n" +
-	"\aGetUser\x12*.confirmate.orchestrator.v1.GetUserRequest\x1a .confirmate.orchestrator.v1.User\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/users/{user_id}\x12\x8d\x01\n" +
-	"\rListUserRoles\x120.confirmate.orchestrator.v1.ListUserRolesRequest\x1a1.confirmate.orchestrator.v1.ListUserRolesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/users/rolesB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\xd1\x03\n" +
+	"\n" +
+	"ObjectType\x12\x1b\n" +
+	"\x17OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12OBJECT_TYPE_METRIC\x10\x01\x12$\n" +
+	" OBJECT_TYPE_METRIC_CONFIGURATION\x10\x02\x12%\n" +
+	"!OBJECT_TYPE_METRIC_IMPLEMENTATION\x10\x03\x12$\n" +
+	" OBJECT_TYPE_TARGET_OF_EVALUATION\x10\x04\x12\x1b\n" +
+	"\x17OBJECT_TYPE_AUDIT_SCOPE\x10\x05\x12!\n" +
+	"\x1dOBJECT_TYPE_ASSESSMENT_RESULT\x10\x06\x12\x1f\n" +
+	"\x1bOBJECT_TYPE_ASSESSMENT_TOOL\x10\a\x12\x14\n" +
+	"\x10OBJECT_TYPE_USER\x10\b\x12\x1b\n" +
+	"\x17OBJECT_TYPE_CERTIFICATE\x10\t\x12\x17\n" +
+	"\x13OBJECT_TYPE_CATALOG\x10\n" +
+	"\x12\x18\n" +
+	"\x14OBJECT_TYPE_CATEGORY\x10\v\x12\x17\n" +
+	"\x13OBJECT_TYPE_CONTROL\x10\f\x12!\n" +
+	"\x1dOBJECT_TYPE_EVALUATION_RESULT\x10\r\x12\x18\n" +
+	"\x14OBJECT_TYPE_EVIDENCE\x10\x0eB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_user_proto_rawDescOnce sync.Once
@@ -692,42 +529,29 @@ func file_api_orchestrator_user_proto_rawDescGZIP() []byte {
 	return file_api_orchestrator_user_proto_rawDescData
 }
 
-var file_api_orchestrator_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_api_orchestrator_user_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_api_orchestrator_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_api_orchestrator_user_proto_goTypes = []any{
-	(Role)(0),                       // 0: confirmate.orchestrator.v1.Role
-	(*User)(nil),                    // 1: confirmate.orchestrator.v1.User
-	(*GetCurrentUserRequest)(nil),   // 2: confirmate.orchestrator.v1.GetCurrentUserRequest
-	(*GetUserRequest)(nil),          // 3: confirmate.orchestrator.v1.GetUserRequest
-	(*ListUsersRequest)(nil),        // 4: confirmate.orchestrator.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),       // 5: confirmate.orchestrator.v1.ListUsersResponse
-	(*ListUserRolesRequest)(nil),    // 6: confirmate.orchestrator.v1.ListUserRolesRequest
-	(*ListUserRolesResponse)(nil),   // 7: confirmate.orchestrator.v1.ListUserRolesResponse
-	nil,                             // 8: confirmate.orchestrator.v1.User.AttributesEntry
-	(*ListUsersRequest_Filter)(nil), // 9: confirmate.orchestrator.v1.ListUsersRequest.Filter
-	nil,                             // 10: confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
+	(Role)(0),                      // 0: confirmate.orchestrator.v1.Role
+	(ObjectType)(0),                // 1: confirmate.orchestrator.v1.ObjectType
+	(UserPermission_Permission)(0), // 2: confirmate.orchestrator.v1.UserPermission.Permission
+	(*User)(nil),                   // 3: confirmate.orchestrator.v1.User
+	(*UserPermission)(nil),         // 4: confirmate.orchestrator.v1.UserPermission
+	nil,                            // 5: confirmate.orchestrator.v1.User.AttributesEntry
+	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
 }
 var file_api_orchestrator_user_proto_depIdxs = []int32{
-	0,  // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
-	8,  // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
-	9,  // 2: confirmate.orchestrator.v1.ListUsersRequest.filter:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter
-	1,  // 3: confirmate.orchestrator.v1.ListUsersResponse.users:type_name -> confirmate.orchestrator.v1.User
-	0,  // 4: confirmate.orchestrator.v1.ListUserRolesResponse.roles:type_name -> confirmate.orchestrator.v1.Role
-	0,  // 5: confirmate.orchestrator.v1.ListUsersRequest.Filter.role:type_name -> confirmate.orchestrator.v1.Role
-	10, // 6: confirmate.orchestrator.v1.ListUsersRequest.Filter.attributes:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
-	2,  // 7: confirmate.orchestrator.v1.UserManagement.GetCurrentUser:input_type -> confirmate.orchestrator.v1.GetCurrentUserRequest
-	4,  // 8: confirmate.orchestrator.v1.UserManagement.ListUsers:input_type -> confirmate.orchestrator.v1.ListUsersRequest
-	3,  // 9: confirmate.orchestrator.v1.UserManagement.GetUser:input_type -> confirmate.orchestrator.v1.GetUserRequest
-	6,  // 10: confirmate.orchestrator.v1.UserManagement.ListUserRoles:input_type -> confirmate.orchestrator.v1.ListUserRolesRequest
-	1,  // 11: confirmate.orchestrator.v1.UserManagement.GetCurrentUser:output_type -> confirmate.orchestrator.v1.User
-	5,  // 12: confirmate.orchestrator.v1.UserManagement.ListUsers:output_type -> confirmate.orchestrator.v1.ListUsersResponse
-	1,  // 13: confirmate.orchestrator.v1.UserManagement.GetUser:output_type -> confirmate.orchestrator.v1.User
-	7,  // 14: confirmate.orchestrator.v1.UserManagement.ListUserRoles:output_type -> confirmate.orchestrator.v1.ListUserRolesResponse
-	11, // [11:15] is the sub-list for method output_type
-	7,  // [7:11] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
+	5, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
+	6, // 2: confirmate.orchestrator.v1.User.expiration_date:type_name -> google.protobuf.Timestamp
+	6, // 3: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
+	1, // 4: confirmate.orchestrator.v1.UserPermission.resource_type:type_name -> confirmate.orchestrator.v1.ObjectType
+	2, // 5: confirmate.orchestrator.v1.UserPermission.permission:type_name -> confirmate.orchestrator.v1.UserPermission.Permission
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_user_proto_init() }
@@ -736,17 +560,15 @@ func file_api_orchestrator_user_proto_init() {
 		return
 	}
 	file_api_orchestrator_user_proto_msgTypes[0].OneofWrappers = []any{}
-	file_api_orchestrator_user_proto_msgTypes[3].OneofWrappers = []any{}
-	file_api_orchestrator_user_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_user_proto_rawDesc), len(file_api_orchestrator_user_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   10,
+			NumEnums:      3,
+			NumMessages:   3,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_api_orchestrator_user_proto_goTypes,
 		DependencyIndexes: file_api_orchestrator_user_proto_depIdxs,

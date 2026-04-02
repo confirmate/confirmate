@@ -157,6 +157,8 @@ func (svc *Service) UpdateMetric(
 
 	metric = req.Msg.Metric
 
+	// TODO(all): Do we want an access check here or is it enough, that the user has a valid token?
+
 	// Update the metric
 	err = svc.db.Update(metric, "id = ?", metric.Id)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric")); err != nil {
@@ -203,6 +205,8 @@ func (svc *Service) RemoveMetric(
 	if metric.DeprecatedSince == nil {
 		metric.DeprecatedSince = timestamppb.Now()
 	}
+
+	// TODO(all): Do we want an access check here or is it enought, that the user has a valid token?
 
 	// Update the metric with the deprecated timestamp
 	err = svc.db.Update(metric, "id = ?", req.Msg.MetricId)
@@ -258,6 +262,8 @@ func (svc *Service) UpdateMetricImplementation(
 	}
 
 	impl = req.Msg.Implementation
+
+	// TODO(all): Do we want an access check here or is it enought, that the user has a valid token?
 
 	// Update the metric implementation
 	err = svc.db.Update(impl, "metric_id = ?", impl.MetricId)
@@ -368,7 +374,8 @@ func (svc *Service) UpdateMetricConfiguration(
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
 ) (res *connect.Response[assessment.MetricConfiguration], err error) {
 	var (
-		config *assessment.MetricConfiguration
+		config  *assessment.MetricConfiguration
+		allowed bool
 	)
 
 	// Validate the request
@@ -377,8 +384,18 @@ func (svc *Service) UpdateMetricConfiguration(
 	}
 
 	config = req.Msg.Configuration
-	if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-		return nil, service.ErrPermissionDenied
+
+	// Check access via the configured auth strategy
+	// TODO(all): Who is able to change the configuration of a metric? Should this be restricted to users with permissions on the TOE or only admin users?
+	// if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	// 	return nil, service.ErrPermissionDenied
+	// }
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	// Save the updated metric configuration

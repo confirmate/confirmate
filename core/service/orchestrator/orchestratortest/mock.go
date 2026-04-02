@@ -44,6 +44,7 @@ const (
 	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
 	MockToeId2        = "00000000-0000-0000-0000-000000000002"
 	MockToeId3        = "00000000-0000-0000-0000-000000000003"
+	MockUserId1       = "00000000-0000-0000-0000-000000000001"
 )
 
 // Mock string IDs for consistent testing
@@ -350,6 +351,13 @@ var (
 				EvidenceRecordedAt: timestamppb.Now(),
 			},
 		},
+	}
+	MockUser1 = &orchestrator.User{
+		Id:        MockUserId1,
+		Username:  util.Ref("testuser"),
+		Email:     util.Ref("email-1"),
+		FirstName: util.Ref("Test"),
+		LastName:  util.Ref("User"),
 	}
 )
 

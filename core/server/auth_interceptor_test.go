@@ -23,7 +23,11 @@ import (
 	"net/http"
 	"testing"
 
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
+	"confirmate.io/core/persistence"
+	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
@@ -93,6 +97,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 	}
 	type fields struct {
 		interceptor *AuthInterceptor
+		db          persistence.DB
 	}
 	type gotData struct {
 		code       connect.Code
@@ -144,14 +149,40 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			wantErr: wantError,
 		},
 		{
-			name:   "valid token passes and sets claims",
-			args:   args{authHeader: "Bearer " + validToken},
-			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
-			want: func(t *testing.T, got gotData, _ ...any) bool {
+			name: "valid token passes, sets claims and stores in DB",
+			args: args{authHeader: "Bearer " + validToken},
+			fields: fields{
+				interceptor: NewAuthInterceptor(WithPublicKey(publicKey)),
+				db: persistencetest.NewInMemoryDB(t,
+					[]any{orchestrator.User{}},
+					nil,
+				),
+			},
+			want: func(t *testing.T, got gotData, args ...any) bool {
+				wantUser := &orchestrator.User{
+					Id:         "user-1",
+					Username:   util.Ref(""),
+					Email:      util.Ref(""),
+					FirstName:  util.Ref(""),
+					LastName:   util.Ref(""),
+					Enabled:    true,
+					Attributes: map[string]string{"sub": "user-1"},
+				}
+
+				// Check if claims are set correctly
 				_, ok := got.claims["cladmin"]
-				return assert.True(t, got.nextCalled) &&
-					assert.NotNil(t, got.claims) &&
-					assert.True(t, ok)
+				assert.True(t, ok)
+				_, ok = got.claims["sub"]
+				assert.True(t, ok)
+
+				// Check if user is stored in the DB
+				db, ok := args[0].(persistence.DB)
+				assert.NotNil(t, ok)
+				assert.NotNil(t, db)
+				user := assert.InDB[orchestrator.User](t, db, "user-1")
+				assert.Equal(t, wantUser, user)
+
+				return assert.True(t, got.nextCalled)
 			},
 			wantErr: assert.NoError,
 		},
@@ -179,7 +210,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			got := gotData{code: connect.CodeOf(err), nextCalled: nextCalled, claims: claims}
 
 			assert.True(t, tt.wantErr(t, err))
-			assert.True(t, tt.want(t, got))
+			assert.True(t, tt.want(t, got, tt.fields.db))
 		})
 	}
 }
@@ -342,7 +373,7 @@ func TestAuthInterceptorWrapStreamingHandler(t *testing.T) {
 			got := gotData{code: connect.CodeOf(err), nextCalled: nextCalled, claimsSet: claimsSet}
 
 			assert.True(t, tt.wantErr(t, err))
-			assert.True(t, tt.want(t, got))
+			assert.True(t, tt.want(t, got), context.Background())
 		})
 	}
 }

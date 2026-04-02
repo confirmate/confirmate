@@ -79,14 +79,19 @@ type AuthInterceptor struct {
 
 // NewAuthInterceptor creates a new auth interceptor.
 func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
-	var cfg *AuthConfig
+	var (
+		cfg *AuthConfig
+	)
 
 	cfg = &AuthConfig{}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 
-	interceptor = &AuthInterceptor{cfg: cfg}
+	interceptor = &AuthInterceptor{
+		cfg: cfg,
+	}
+
 	return interceptor
 }
 
@@ -109,9 +114,10 @@ func (ai *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
+		// Store claims in ctx
 		ctx = auth.WithClaims(ctx, claims)
-		res, err = next(ctx, req)
-		return res, err
+
+		return next(ctx, req)
 	}
 }
 
@@ -139,7 +145,9 @@ func (ai *AuthInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFun
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
+		// Store claims in ctx
 		ctx = auth.WithClaims(ctx, claims)
+
 		return next(ctx, conn)
 	}
 }

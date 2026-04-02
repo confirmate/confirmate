@@ -18,19 +18,15 @@ package service
 import (
 	"context"
 	"errors"
-	"slices"
+	"log/slog"
 
-	"confirmate.io/core/api"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 
 	"connectrpc.com/connect"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 const (
-	// DefaultTargetOfEvaluationsClaim is the default claim key containing allowed TOE IDs.
-	DefaultTargetOfEvaluationsClaim = "TargetOfEvaluationid"
 	// DefaultAllowAllClaim is the default claim key granting access to all TOEs.
 	DefaultAllowAllClaim = "cladmin"
 )
@@ -40,140 +36,172 @@ var ErrPermissionDenied = connect.NewError(connect.CodePermissionDenied, errors.
 
 // AuthorizationStrategy implements access checks based on the request and context.
 type AuthorizationStrategy interface {
-	CheckAccess(ctx context.Context, typ orchestrator.RequestType, req api.HasTargetOfEvaluationId) bool
-	AllowedTargetOfEvaluations(ctx context.Context) (all bool, IDs []string)
+	CheckAccess(ctx context.Context,
+		userId string,
+		reqType orchestrator.RequestType,
+		userPermission orchestrator.UserPermission_Permission,
+		resourceId string,
+		objectType orchestrator.ObjectType) (bool, []string)
 }
 
 // CheckAccess checks access via the configured strategy.
 //
-// If no strategy is configured, access is allowed by default. It uses [resolveTargetOfEvaluationID]
-// to extract the target_of_evaluation_id from either the request itself or its payload.
-func CheckAccess[T any](authz AuthorizationStrategy, ctx context.Context, typ orchestrator.RequestType, req *connect.Request[T]) bool {
+// If no authorization strategy is configured (i.e., authz is nil), it defaults to allowing all access, returning true and nil for resource IDs. This design choice ensures that in the absence of an explicit strategy, the system remains permissive by default, which can be useful during development or in scenarios where access control is not a concern. However, in production environments, it is recommended to configure an appropriate authorization strategy to enforce access control policies effectively.
+func CheckAccess[T any](authz AuthorizationStrategy,
+	ctx context.Context,
+	userId string,
+	reqType orchestrator.RequestType,
+	userPermission orchestrator.UserPermission_Permission,
+	resourceId string,
+	objectType orchestrator.ObjectType) (bool, []string) {
 	if authz == nil {
-		return true
-	}
-
-	if req == nil {
-		return authz.CheckAccess(ctx, typ, nil)
-	}
-
-	return authz.CheckAccess(ctx, typ, resolveTargetOfEvaluationID(req.Any()))
-}
-
-// resolveTargetOfEvaluationID attempts to extract a target_of_evaluation_id from the request (if it
-// implements [api.HasTargetOfEvaluationId]) or its payload (if it is an [api.PayloadRequest]).
-func resolveTargetOfEvaluationID(req any) api.HasTargetOfEvaluationId {
-	if req == nil {
-		return nil
-	}
-
-	withTargetOfEvaluationID, ok := req.(api.HasTargetOfEvaluationId)
-	if ok {
-		return withTargetOfEvaluationID
-	}
-
-	payloadReq, ok := req.(api.PayloadRequest)
-	if !ok {
-		return nil
-	}
-
-	payload := payloadReq.GetPayload()
-	if payload == nil {
-		return nil
-	}
-
-	withTargetOfEvaluationID, ok = payload.(api.HasTargetOfEvaluationId)
-	if ok {
-		return withTargetOfEvaluationID
-	}
-
-	return nil
-}
-
-// AuthorizationStrategyJWT expects a list of TOE IDs in a JWT claim key.
-type AuthorizationStrategyJWT struct {
-	TargetOfEvaluationsKey string
-	AllowAllKey            string
-}
-
-// CheckAccess checks whether the request can be fulfilled using the current access strategy.
-func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context, _ orchestrator.RequestType, req api.HasTargetOfEvaluationId) (ok bool) {
-	var (
-		all  bool
-		list []string
-	)
-
-	if a == nil {
-		return false
-	}
-
-	all, list = a.AllowedTargetOfEvaluations(ctx)
-	if all {
-		return true
-	}
-
-	if req == nil {
-		return false
-	}
-
-	ok = slices.Contains(list, req.GetTargetOfEvaluationId())
-	return ok
-}
-
-// AllowedTargetOfEvaluations retrieves a list of allowed TOE IDs according to the current access strategy.
-func (a *AuthorizationStrategyJWT) AllowedTargetOfEvaluations(ctx context.Context) (all bool, list []string) {
-	var (
-		claims  jwt.MapClaims
-		ok      bool
-		rawList any
-	)
-
-	if a == nil {
-		return false, nil
-	}
-
-	if ctx == nil {
-		return false, nil
-	}
-
-	claims, ok = auth.ClaimsFromContext(ctx)
-	if !ok {
-		return false, nil
-	}
-
-	if b, ok := claims[a.AllowAllKey].(bool); ok && b {
 		return true, nil
 	}
 
-	rawList, ok = claims[a.TargetOfEvaluationsKey]
-	if !ok {
+	return authz.CheckAccess(ctx,
+		userId,
+		reqType,
+		userPermission,
+		resourceId,
+		objectType)
+}
+
+type AuthorizationStrategyJWT struct {
+	AllowAllKey string
+
+	// Permissions is an interface to check user permissions stored in the Orchestrator DB. It is used as part of the JWT-based authorization strategy to determine access rights based on the user's permissions.
+	Permissions PermissionStore
+}
+
+// CheckAccess checks whether the request can be fulfilled using the current access strategy.
+func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
+	userId string,
+	reqType orchestrator.RequestType,
+	userPermission orchestrator.UserPermission_Permission,
+	resourceId string,
+	objectType orchestrator.ObjectType) (allowed bool, resourceIDs []string) {
+	var (
+		err            error
+		objectTypeUsed orchestrator.ObjectType
+	)
+
+	if a == nil || userId == "" {
 		return false, nil
 	}
 
-	switch v := rawList.(type) {
-	case []interface{}:
-		for _, item := range v {
-			if s, ok := item.(string); ok {
-				list = append(list, s)
-			}
+	// Check AllowAllKey claim to allow access to all (e.g., {"cladmin": true}).
+	if claims, ok := auth.ClaimsFromContext(ctx); ok && a.AllowAllKey != "" {
+		if b, ok := claims[a.AllowAllKey].(bool); ok && b {
+			return true, nil
 		}
-	case []string:
-		list = append(list, v...)
 	}
 
-	return false, list
+	if a.Permissions == nil {
+		slog.Error("Permission store is not configured for JWT authorization strategy")
+		return false, nil
+	}
+
+	// Check if ToE ID or Audit Scope ID is necessary for the permission check; return false if not provided.
+	switch objectType {
+	case orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		orchestrator.ObjectType_OBJECT_TYPE_EVIDENCE,
+		orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT:
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
+	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT,
+		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
+	default:
+		return false, nil
+	}
+
+	// For list requests, we check if the user has reader permissions for any resources of the given type and return the list of resource IDs they have access to.
+	if reqType == orchestrator.RequestType_REQUEST_TYPE_LIST {
+		resourceIDs, err = a.Permissions.PermissionForResources(ctx,
+			userId,
+			orchestrator.UserPermission_PERMISSION_READER,
+			reqType,
+			objectTypeUsed,
+		)
+		if err != nil {
+			return false, nil
+		}
+
+		return false, resourceIDs
+	}
+
+	// For update and delete requests, we check if the user has the required permissions for the specific resource ID.
+	if resourceId == "" {
+		return false, nil
+	}
+	switch reqType {
+	case orchestrator.RequestType_REQUEST_TYPE_UPDATED:
+		userPermission = orchestrator.UserPermission_PERMISSION_CONTRIBUTOR
+	case orchestrator.RequestType_REQUEST_TYPE_DELETED:
+		userPermission = orchestrator.UserPermission_PERMISSION_ADMIN
+	}
+
+	allowed, err = a.Permissions.HasPermission(ctx,
+		userId,
+		resourceId,
+		userPermission,
+		reqType,
+		objectTypeUsed,
+	)
+	if err != nil {
+		return false, nil
+	}
+
+	return allowed, nil
 }
 
 // AuthorizationStrategyAllowAll allows all requests.
 type AuthorizationStrategyAllowAll struct{}
 
 // CheckAccess returns true for all requests.
-func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context, _ orchestrator.RequestType, _ api.HasTargetOfEvaluationId) (ok bool) {
+func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
+	_ string,
+	_ orchestrator.RequestType,
+	_ orchestrator.UserPermission_Permission,
+	_ string,
+	_ orchestrator.ObjectType) (ok bool, resourceIDs []string) {
 	// Keep this strategy permissive by design.
-	return true
+	return true, nil
 }
 
-// AllowedTargetOfEvaluations returns all = true for this strategy.
-func (*AuthorizationStrategyAllowAll) AllowedTargetOfEvaluations(_ context.Context) (all bool, list []string) {
-	return true, nil
+// GetClaim is a helper function to extract a specific claim from the claims map, returning an empty string if the claim is not present or not a string.
+func GetClaim(claims map[string]any, key string) string {
+	if val, ok := claims[key]; ok && val != nil {
+		return val.(string)
+	}
+	return ""
+}
+
+// GetClaimInt64 extracts a numeric claim as int64, returning 0 if missing or not numeric.
+func GetClaimInt64(claims map[string]any, key string) int64 {
+	val, ok := claims[key]
+	if !ok || val == nil {
+		return 0
+	}
+
+	switch v := val.(type) {
+	case int64:
+		return v
+	case int:
+		return int64(v)
+	case int32:
+		return int64(v)
+	case float64:
+		return int64(v)
+	case float32:
+		return int64(v)
+	case uint64:
+		return int64(v)
+	case uint:
+		return int64(v)
+	case uint32:
+		return int64(v)
+	default:
+		return 0
+	}
 }

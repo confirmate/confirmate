@@ -54,6 +54,8 @@ func (svc *Service) CreateTargetOfEvaluation(
 	toe.CreatedAt = now
 	toe.UpdatedAt = now
 
+	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
+
 	// Persist the target of evaluation in the database
 	err = svc.db.Create(toe)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -81,7 +83,8 @@ func (svc *Service) GetTargetOfEvaluation(
 	req *connect.Request[orchestrator.GetTargetOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
 	var (
-		toe orchestrator.TargetOfEvaluation
+		toe     orchestrator.TargetOfEvaluation
+		allowed bool
 	)
 
 	// Validate the request
@@ -89,13 +92,18 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-		return nil, service.ErrPermissionDenied
-	}
-
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return connect.NewResponse(&orchestrator.TargetOfEvaluation{}), nil
 	}
 
 	res = connect.NewResponse(&toe)
@@ -108,8 +116,11 @@ func (svc *Service) ListTargetsOfEvaluation(
 	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], err error) {
 	var (
-		toes []*orchestrator.TargetOfEvaluation
-		npt  string
+		toes         []*orchestrator.TargetOfEvaluation
+		conds        []any
+		npt          string
+		resourceList []string
+		allowed      bool
 	)
 
 	// Validate request
@@ -124,12 +135,26 @@ func (svc *Service) ListTargetsOfEvaluation(
 		req.Msg.Asc = true
 	}
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all {
-		toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts, "id IN ?", allowed)
-	} else {
-		toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts)
+	// Check access via the configured auth strategy
+	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	// If access is not allowed to all resources and the resource list is empty, return an empty response
+	if len(resourceList) == 0 && !allowed {
+		return connect.NewResponse(&orchestrator.ListTargetsOfEvaluationResponse{
+			TargetsOfEvaluation: []*orchestrator.TargetOfEvaluation{},
+			NextPageToken:       "",
+		}), nil
+	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !allowed {
+		conds = append(conds, "id IN ?", resourceList)
+	}
+
+	toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -146,20 +171,27 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
-	var toe *orchestrator.TargetOfEvaluation
+	var (
+		toe     *orchestrator.TargetOfEvaluation
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	toe = req.Msg.TargetOfEvaluation
-	if toe == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-		return nil, service.ErrPermissionDenied
-	}
-
 	// Update timestamp
 	toe.UpdatedAt = timestamppb.Now()
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.TargetOfEvaluation.GetId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Update the target of evaluation
 	err = svc.db.Update(toe, "id = ?", toe.Id)
@@ -188,7 +220,8 @@ func (svc *Service) RemoveTargetOfEvaluation(
 	req *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		toe orchestrator.TargetOfEvaluation
+		toe     orchestrator.TargetOfEvaluation
+		allowed bool
 	)
 
 	// Validate the request
@@ -196,8 +229,13 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, req) {
-		return nil, service.ErrPermissionDenied
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	// Delete the target of evaluation
@@ -224,7 +262,8 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 	req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest],
 ) (res *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], err error) {
 	var (
-		count int64
+		count   int64
+		allowed bool
 	)
 
 	// Validate the request
@@ -232,8 +271,13 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-		return nil, service.ErrPermissionDenied
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{})

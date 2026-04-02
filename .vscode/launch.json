@@ -5,10 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch confirmate",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/confirmate",
+            "cwd": "${workspaceFolder}/core",
+            "args": [
+                "--db-in-memory",
+                "--log-level", "debug",
+                "--auth-enabled",
+            ]
+        },
+        {
             "name": "Launch orchestrator",
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${workspaceFolder}/core/cmd/orchestrator"
+            "program": "${workspaceFolder}/core/cmd/orchestrator",
+            "cwd": "${workspaceFolder}/core",
+            "args": [
+                "--db-in-memory",
+                "--log-level", "debug",
+            ]
         }]
 }

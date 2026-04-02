@@ -25,28 +25,6 @@ import "tagger/tagger.proto";
 
 option go_package = "confirmate.io/core/api/orchestrator";
 
-service UserManagement {
-  // Returns information about the currently authenticated user
-  rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
-    option (google.api.http) = {get: "/v1/users/me"};
-  }
-
-  // Lists users with optional filtering
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
-    option (google.api.http) = {get: "/v1/users"};
-  }
-
-  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-  rpc GetUser(GetUserRequest) returns (User) {
-    option (google.api.http) = {get: "/v1/users/{user_id}"};
-  }
-
-  // Lists all predefined roles in the system.
-  rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
-    option (google.api.http) = {get: "/v1/users/roles"};
-  }
-}
-
 // Represents a user from the IdP
 message User {
   // ID is the unique identifier of the user
@@ -56,10 +34,7 @@ message User {
   ];
 
   // Username is the name used to be displayed
-  string username = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  optional string username = 2;
 
   // Email is the email address of the user, if available.
   optional string email = 3;
@@ -80,6 +55,12 @@ message User {
 
   // Attributes contains additional key-value pairs associated with the user, such as department or team.
   map<string, string> attributes = 8 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  // Expiration date indicates when the user's access expires.
+  google.protobuf.Timestamp expiration_date = 9 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  // LastAccess indicates the last time the user accessed the system.
+  google.protobuf.Timestamp last_access = 10 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 }
 
 // Predefined roles in the system. These should align with the roles defined in the IdP
@@ -94,50 +75,71 @@ enum Role {
   ROLE_CHIEF_INFORMATION_SECURITY_OFFICER = 7;
 }
 
-message GetCurrentUserRequest {
-  // Empty request - user is identified from authentication context
-}
-
-message GetUserRequest {
+message UserPermission {
+  // User ID is required to identify the user for whom the perission is being upserted. 
   string user_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:user_id;primaryKey\""
   ];
-}
 
-message ListUsersRequest {
-  message Filter {
-    // Optional. Filter by role (e.g., "compliance_manager")
-    optional Role role = 1 [(buf.validate.field).enum = {defined_only: true}];
+  // Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+  string resource_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:resource_id;primaryKey;index\""
+  ];
 
-    // Optional. Filter by enabled/disabled status
-    optional bool enabled = 2;
+  // Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+  ObjectType resource_type = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:resource_type;primaryKey\""
+  ];
 
-    // Optional. Search query for username, email, first name, or last name
-    optional string search = 3;
+  // Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+  Permission permission = 4 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:permission;type:integer;not null\""
+  ];
 
-    // Optional. Filter by specific attribute key-value pairs (e.g., department)
-    map<string, string> attributes = 4;
+  enum Permission {
+    PERMISSION_UNSPECIFIED = 0;
+    PERMISSION_READER = 1;
+    PERMISSION_CONTRIBUTOR = 2;
+    PERMISSION_ADMIN = 3;
   }
 
-  optional Filter filter = 1;
-
-  int32 page_size = 10;
-  string page_token = 11;
-  string order_by = 12;
-  bool asc = 13;
+  // enum ResourceType {
+  //   RESOURCE_TYPE_UNSPECIFIED = 0;
+  //   RESOURCE_TYPE_TOE = 1;
+  //   RESOURCE_TYPE_ASSESSMENT_RESULT = 2;
+  //   RESOURCE_TYPE_CATALOG = 3;
+  //   RESOURCE_TYPE_AUDIT_SCOPE = 4;
+  //   RESOURCE_TYPE_CERTIFICATE = 5;
+  //   RESOURCE_TYPE_EVIDENCE = 6;
+  //   RESOURCE_TYPE_USER = 7;
+  //   RESOURCE_TYPE_METRIC_CONFIGURATION = 8;
+  //   RESOURCE_TYPE_EVALUATIONRESULT = 9;
+  // }
 }
 
-message ListUsersResponse {
-  repeated User users = 1;
-  string next_page_token = 2;
-}
-
-message ListUserRolesRequest {
-  int32 page_size = 10;
-  string page_token = 11;
-  bool asc = 13;
-}
-message ListUserRolesResponse {
-  repeated Role roles = 1;
+// ObjectType represents the type of the entity that changed in the orchestrator.
+enum ObjectType {
+  OBJECT_TYPE_UNSPECIFIED = 0;
+  OBJECT_TYPE_METRIC = 1;
+  OBJECT_TYPE_METRIC_CONFIGURATION = 2;
+  OBJECT_TYPE_METRIC_IMPLEMENTATION = 3;
+  OBJECT_TYPE_TARGET_OF_EVALUATION = 4;
+  OBJECT_TYPE_AUDIT_SCOPE = 5;
+  OBJECT_TYPE_ASSESSMENT_RESULT = 6;
+  OBJECT_TYPE_ASSESSMENT_TOOL = 7;
+  OBJECT_TYPE_USER = 8;
+  OBJECT_TYPE_CERTIFICATE = 9;
+  OBJECT_TYPE_CATALOG = 10;
+  OBJECT_TYPE_CATEGORY = 11;
+  OBJECT_TYPE_CONTROL = 12;
+  OBJECT_TYPE_EVALUATION_RESULT = 13;
+  OBJECT_TYPE_EVIDENCE = 14;
 }

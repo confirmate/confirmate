@@ -335,7 +335,43 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
+  // Upsert resource permmissions for the currently authenticated user, creating a new user entry if necessary.
+  rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/user_permission"
+      body: "user_permission"
+    };
+  }
 
+  // Returns information about the currently authenticated user
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/me"};
+  }
+
+  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/{user_id}"};
+  }
+
+  // Lists users with optional filtering
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/users"};
+  }
+
+  // Lists user permission.
+  rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
+    option (google.api.http) = {get: "/v1/users/permissions"};
+  }
+
+  // Lists all predefined roles in the system.
+  rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
+    option (google.api.http) = {get: "/v1/users/roles"};
+  }
+
+  // Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+  rpc RemoveUser(RemoveUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/{user_id}"};
+  }
 }
 
 message RegisterAssessmentToolRequest {
@@ -574,6 +610,7 @@ enum EventCategory {
   EVENT_CATEGORY_AUDIT_SCOPE = 5;
   EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
   EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
+  EVENT_CATEGORY_USER = 8;
 }
 
 message SubscribeRequest {
@@ -607,6 +644,10 @@ enum RequestType {
   REQUEST_TYPE_REGISTERED = 4;
   // RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
   REQUEST_TYPE_STORED = 5;
+  // RequestTypeGet indicates that an entity was retrieved from the orchestrator.
+  REQUEST_TYPE_GET = 6;
+  // RequestTypeList indicates that a list of entities was retrieved from the orchestrator.
+  REQUEST_TYPE_LIST = 7;
 }
 
 // ChangeEvent represents a change that occurred to an entity managed by the orchestrator.
@@ -645,6 +686,7 @@ message ChangeEvent {
     confirmate.assessment.v1.MetricConfiguration metric_configuration = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
     AssessmentTool assessment_tool = 16;
+    User user = 17;
   }
 }
 
@@ -1167,3 +1209,89 @@ message State {
   // Reference to the certificate
   string certificate_id = 5;
 }
+
+message UpsertUserPermissionRequest {
+  UserPermission user_permission = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message UpsertUserPermissionResponse {
+  UserPermission user_permission = 1;
+}
+
+message GetCurrentUserRequest {
+  // Empty request - user is identified from authentication context
+}
+
+message GetUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListUsersRequest {
+  message Filter {
+    // Optional. Filter by role (e.g., "compliance_manager")
+    optional Role role = 1 [(buf.validate.field).enum = {defined_only: true}];
+
+    // Optional. Filter by enabled/disabled status
+    optional bool enabled = 2;
+
+    // Optional. Search query for username, email, first name, or last name
+    optional string search = 3;
+
+    // Optional. Filter by specific attribute key-value pairs (e.g., department)
+    map<string, string> attributes = 4;
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message ListUserPermissionsRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUserPermissionsResponse {
+  repeated UserPermission user_permissions = 1;
+
+  string next_page_token = 2;
+}
+
+message ListUserRolesRequest {
+  int32 page_size = 10;
+  string page_token = 11;
+  bool asc = 13;
+}
+message ListUserRolesResponse {
+  repeated Role roles = 1;
+}
+
+message RemoveUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+

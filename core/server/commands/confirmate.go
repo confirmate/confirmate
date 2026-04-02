@@ -106,15 +106,14 @@ var ConfirmateCommand = &cli.Command{
 				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
 			}
 
+			// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
 			interceptors = append(interceptors, server.NewAuthInterceptor(
 				server.WithJWKS(jwksURL),
 			))
 			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
 				service.DefaultAllowAllClaim,
 			))
 			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
 				service.DefaultAllowAllClaim,
 			))
 		}
@@ -146,7 +145,6 @@ var ConfirmateCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-
 		apiPort = cmd.Uint16("api-port")
 
 		orchestratorClient = http.DefaultClient
