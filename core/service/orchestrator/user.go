@@ -244,7 +244,7 @@ type permissionStore struct {
 }
 
 // HasPermission checks if the given user has the specified permission for the resource.
-func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceType orchestrator.UserPermission_ResourceType, resourceId string, permission orchestrator.UserPermission_Permission) (bool, error) {
+func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceType orchestrator.UserPermission_ResourceType, resourceId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType) (bool, error) {
 	var (
 		count          int64
 		err            error
@@ -285,13 +285,15 @@ func (ps permissionStore) HasPermission(ctx context.Context, userId string, reso
 }
 
 // PermissionForResource returns a list of resource IDs for which the given user has at least the specified permission.
-func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, resourceType orchestrator.UserPermission_ResourceType, permission orchestrator.UserPermission_Permission) ([]string, error) {
+func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, resourceType orchestrator.UserPermission_ResourceType, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType) ([]string, error) {
 	var (
 		conds           []any
 		userPermissions []orchestrator.UserPermission
 		err             error
 	)
 
+	// Define a list of allowed permissions based on the requested permission.
+	// If a lower permission is requested, also accept higher permissions (ADMIN > CONTRIBUTOR > READER).
 	allowed := []orchestrator.UserPermission_Permission{permission}
 	switch permission {
 	case orchestrator.UserPermission_PERMISSION_READER:
