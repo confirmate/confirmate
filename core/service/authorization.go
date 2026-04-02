@@ -90,7 +90,7 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 
 	// Check AllowAllKey claim to allow access to all (e.g., {"cladmin": true}).
 	if claims, ok := auth.ClaimsFromContext(ctx); ok && a.AllowAllKey != "" {
-		if b, ok := claims["sub"].(string); ok && b == a.AllowAllKey {
+		if b, ok := claims[a.AllowAllKey].(bool); ok && b {
 			return true, nil
 		}
 	}
@@ -106,6 +106,7 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 			userId,
 			resourceType,
 			orchestrator.UserPermission_PERMISSION_READER,
+			reqType,
 		)
 		if err != nil {
 			return false, nil
@@ -130,6 +131,7 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 		resourceType,
 		resourceId,
 		userPermission,
+		reqType,
 	)
 	if err != nil {
 		return false, nil
