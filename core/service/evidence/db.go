@@ -6,5 +6,5 @@ import (
 
 var types = []any{
 	&evidence.Evidence{},
-	&evidence.Resource{},
+	&evidence.ResourceSnapshot{},
 }

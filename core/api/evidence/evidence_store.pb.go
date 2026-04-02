@@ -604,7 +604,7 @@ func (x *ListResourcesRequest) GetAsc() bool {
 
 type ListResourcesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Results       []*Resource            `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Results       []*ResourceSnapshot    `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
 	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -640,7 +640,7 @@ func (*ListResourcesResponse) Descriptor() ([]byte, []int) {
 	return file_api_evidence_evidence_store_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *ListResourcesResponse) GetResults() []*Resource {
+func (x *ListResourcesResponse) GetResults() []*ResourceSnapshot {
 	if x != nil {
 		return x.Results
 	}
@@ -845,9 +845,9 @@ const file_api_evidence_evidence_store_proto_rawDesc = "" +
 	"\x18_target_of_evaluation_idB\n" +
 	"\n" +
 	"\b_tool_idB\t\n" +
-	"\a_filter\"\x80\x01\n" +
-	"\x15ListResourcesResponse\x12?\n" +
-	"\aresults\x18\x01 \x03(\v2 .confirmate.evidence.v1.ResourceB\x03\xe0A\x02R\aresults\x12&\n" +
+	"\a_filter\"\x88\x01\n" +
+	"\x15ListResourcesResponse\x12G\n" +
+	"\aresults\x18\x01 \x03(\v2(.confirmate.evidence.v1.ResourceSnapshotB\x03\xe0A\x02R\aresults\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x12\n" +
 	"\x10ListToolsRequest\".\n" +
 	"\x11ListToolsResponse\x12\x19\n" +
@@ -896,7 +896,7 @@ var file_api_evidence_evidence_store_proto_goTypes = []any{
 	(*ListToolsResponse)(nil),                  // 13: confirmate.evidence.v1.ListToolsResponse
 	(*ListResourcesRequest_Filter)(nil),        // 14: confirmate.evidence.v1.ListResourcesRequest.Filter
 	(*Evidence)(nil),                           // 15: confirmate.evidence.v1.Evidence
-	(*Resource)(nil),                           // 16: confirmate.evidence.v1.Resource
+	(*ResourceSnapshot)(nil),                   // 16: confirmate.evidence.v1.ResourceSnapshot
 }
 var file_api_evidence_evidence_store_proto_depIdxs = []int32{
 	15, // 0: confirmate.evidence.v1.StoreEvidenceRequest.evidence:type_name -> confirmate.evidence.v1.Evidence
@@ -904,7 +904,7 @@ var file_api_evidence_evidence_store_proto_depIdxs = []int32{
 	5,  // 2: confirmate.evidence.v1.ListEvidencesRequest.filter:type_name -> confirmate.evidence.v1.Filter
 	15, // 3: confirmate.evidence.v1.ListEvidencesResponse.evidences:type_name -> confirmate.evidence.v1.Evidence
 	14, // 4: confirmate.evidence.v1.ListResourcesRequest.filter:type_name -> confirmate.evidence.v1.ListResourcesRequest.Filter
-	16, // 5: confirmate.evidence.v1.ListResourcesResponse.results:type_name -> confirmate.evidence.v1.Resource
+	16, // 5: confirmate.evidence.v1.ListResourcesResponse.results:type_name -> confirmate.evidence.v1.ResourceSnapshot
 	1,  // 6: confirmate.evidence.v1.EvidenceStore.StoreEvidence:input_type -> confirmate.evidence.v1.StoreEvidenceRequest
 	1,  // 7: confirmate.evidence.v1.EvidenceStore.StoreEvidences:input_type -> confirmate.evidence.v1.StoreEvidenceRequest
 	4,  // 8: confirmate.evidence.v1.EvidenceStore.ListEvidences:input_type -> confirmate.evidence.v1.ListEvidencesRequest
