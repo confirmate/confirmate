@@ -198,7 +198,7 @@ func (svc *Service) initEvidenceChannel() {
 // This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	var (
-		r *evidence.Resource
+		r *evidence.ResourceSnapshot
 	)
 
 	// Validate request
@@ -212,7 +212,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("evidence stored",
+	slog.Debug("Evidence stored",
 		slog.String("evidence_id", req.Msg.Evidence.Id),
 		slog.String("tool_id", req.Msg.Evidence.ToolId),
 		slog.String("target_of_evaluation_id", req.Msg.Evidence.TargetOfEvaluationId))
@@ -222,31 +222,35 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	svc.toolIds[req.Msg.Evidence.GetToolId()] = struct{}{}
 	svc.toolIdsMu.Unlock()
 
-	// Store Resource:
-	// Build a resource struct. This will hold the latest sync state of the
-	// resource for our storage layer. This is needed to store the resource in our DBs
-	r, err = evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
+	// Store resource snapshot. This will hold the latest sync state of the resource and its
+	// association to ToE for our storage layer.
+	r, err = evidence.ToResourceSnapshot(
+		req.Msg.Evidence.GetOntologyResource(),
+		req.Msg.GetTargetOfEvaluationId(),
+		req.Msg.Evidence.GetToolId(),
+	)
 	if err != nil {
 		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
 	}
-	// Persist the latest state of the resource; Save already uses the primary key.
+	// Persist the latest snapshot of the resource; Save already uses the primary key.
 	err = svc.db.Save(r)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("resource upserted for evidence",
+	slog.Debug("Resource snapshot upserted for evidence",
 		slog.String("resource_id", r.Id),
 		slog.String("resource_type", r.ResourceType),
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
 
-	// Send evidence to the channel for further processing and acknowledge receipt, without waiting for the processing to finish. This allows the sender to continue
-	// without waiting for the evidence to be processed.
+	// Send evidence to the channel for further processing and acknowledge receipt, without waiting
+	// for the processing to finish. This allows the sender to continue without waiting for the
+	// evidence to be processed.
 	svc.channelEvidence <- req.Msg.Evidence
 
-	slog.Debug("received and handled store evidence request",
+	slog.Debug("Received and handled store evidence request",
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
@@ -477,7 +481,7 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	// Join query with AND and prepend the query
 	args = append([]any{strings.Join(query, " AND ")}, args...)
 
-	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Resource](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
+	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.ResourceSnapshot](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}

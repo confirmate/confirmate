@@ -27,7 +27,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	anypb "google.golang.org/protobuf/types/known/anypb"
+	_ "google.golang.org/protobuf/types/known/anypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -136,9 +136,12 @@ func (x *Evidence) GetExperimentalRelatedResourceIds() []string {
 	return nil
 }
 
-// Resource is a wrapper around google.protobuf.Value that is needed for
-// persistence reasons.
-type Resource struct {
+// ResourceSnapshot is the persisted representation of a cloud resource.
+// It is distinct from confirmate.ontology.v1.Resource, which is the semantic
+// discriminated union of all concrete ontology types. ResourceSnapshot carries
+// metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
+// serialised ontology properties.
+type ResourceSnapshot struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Id contains a unique ID for each resource. This is specific for the cloud
 	// provider this resource was gathered for and can for example be a resource
@@ -152,27 +155,26 @@ type Resource struct {
 	ResourceType string `protobuf:"bytes,3,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	// Reference to the tool which provided the resource
 	ToolId string `protobuf:"bytes,4,opt,name=tool_id,json=toolId,proto3" json:"tool_id,omitempty"`
-	// Properties contains a protobuf message that describe the resource in the
-	// terms of our ontology.
-	Properties    *anypb.Any `protobuf:"bytes,10,opt,name=properties,proto3" json:"properties,omitempty" gorm:"serializer:anypb;type:json"`
+	// Semantic representation of the Cloud resource according to our defined ontology
+	Resource      *ontology.Resource `protobuf:"bytes,6,opt,name=resource,proto3" json:"resource,omitempty" gorm:"serializer:json"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Resource) Reset() {
-	*x = Resource{}
+func (x *ResourceSnapshot) Reset() {
+	*x = ResourceSnapshot{}
 	mi := &file_api_evidence_evidence_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Resource) String() string {
+func (x *ResourceSnapshot) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Resource) ProtoMessage() {}
+func (*ResourceSnapshot) ProtoMessage() {}
 
-func (x *Resource) ProtoReflect() protoreflect.Message {
+func (x *ResourceSnapshot) ProtoReflect() protoreflect.Message {
 	mi := &file_api_evidence_evidence_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -184,49 +186,49 @@ func (x *Resource) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Resource.ProtoReflect.Descriptor instead.
-func (*Resource) Descriptor() ([]byte, []int) {
+// Deprecated: Use ResourceSnapshot.ProtoReflect.Descriptor instead.
+func (*ResourceSnapshot) Descriptor() ([]byte, []int) {
 	return file_api_evidence_evidence_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Resource) GetId() string {
+func (x *ResourceSnapshot) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Resource) GetTargetOfEvaluationId() string {
+func (x *ResourceSnapshot) GetTargetOfEvaluationId() string {
 	if x != nil {
 		return x.TargetOfEvaluationId
 	}
 	return ""
 }
 
-func (x *Resource) GetResourceType() string {
+func (x *ResourceSnapshot) GetResourceType() string {
 	if x != nil {
 		return x.ResourceType
 	}
 	return ""
 }
 
-func (x *Resource) GetToolId() string {
+func (x *ResourceSnapshot) GetToolId() string {
 	if x != nil {
 		return x.ToolId
 	}
 	return ""
 }
 
-func (x *Resource) GetProperties() *anypb.Any {
+func (x *ResourceSnapshot) GetResource() *ontology.Resource {
 	if x != nil {
-		return x.Properties
+		return x.Resource
 	}
 	return nil
 }
 
 type UpdateResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Resource      *ResourceSnapshot      `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -261,7 +263,7 @@ func (*UpdateResourceRequest) Descriptor() ([]byte, []int) {
 	return file_api_evidence_evidence_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *UpdateResourceRequest) GetResource() *Resource {
+func (x *UpdateResourceRequest) GetResource() *ResourceSnapshot {
 	if x != nil {
 		return x.Resource
 	}
@@ -467,21 +469,18 @@ const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12 \n" +
 	"\atool_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06toolId\x12Y\n" +
 	"\bresource\x18\x06 \x01(\v2 .confirmate.ontology.v1.ResourceB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\bresource\x12g\n" +
-	"!experimental_related_resource_ids\x18\xe7\a \x03(\tB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x1eexperimentalRelatedResourceIds\"\xa7\x02\n" +
-	"\bResource\x12\x1a\n" +
+	"!experimental_related_resource_ids\x18\xe7\a \x03(\tB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x1eexperimentalRelatedResourceIds\"\xa3\x02\n" +
+	"\x10ResourceSnapshot\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12/\n" +
 	"\rresource_type\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12#\n" +
 	"\atool_id\x18\x04 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06toolId\x12e\n" +
-	"\n" +
-	"properties\x18\n" +
-	" \x01(\v2\x14.google.protobuf.AnyB/\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:json\"R\n" +
-	"properties\"Z\n" +
-	"\x15UpdateResourceRequest\x12A\n" +
-	"\bresource\x18\x01 \x01(\v2 .confirmate.evidence.v1.ResourceB\x03\xe0A\x02R\bresource\"\x80\x01\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06toolId\x12Y\n" +
+	"\bresource\x18\x06 \x01(\v2 .confirmate.ontology.v1.ResourceB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\bresource\"b\n" +
+	"\x15UpdateResourceRequest\x12I\n" +
+	"\bresource\x18\x01 \x01(\v2(.confirmate.evidence.v1.ResourceSnapshotB\x03\xe0A\x02R\bresource\"\x80\x01\n" +
 	"\x15ListGraphEdgesRequest\x12\x1b\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05R\bpageSize\x12\x1d\n" +
@@ -499,9 +498,9 @@ const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06source\x12\"\n" +
 	"\x06target\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06target\x12\x17\n" +
-	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04type2\xba\x02\n" +
-	"\tResources\x12\x98\x01\n" +
-	"\x0eUpdateResource\x12-.confirmate.evidence.v1.UpdateResourceRequest\x1a .confirmate.evidence.v1.Resource\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/evidence_store/resources/{resource.id}\x12\x91\x01\n" +
+	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04type2\xc2\x02\n" +
+	"\tResources\x12\xa0\x01\n" +
+	"\x0eUpdateResource\x12-.confirmate.evidence.v1.UpdateResourceRequest\x1a(.confirmate.evidence.v1.ResourceSnapshot\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/evidence_store/resources/{resource.id}\x12\x91\x01\n" +
 	"\x0eListGraphEdges\x12-.confirmate.evidence.v1.ListGraphEdgesRequest\x1a..confirmate.evidence.v1.ListGraphEdgesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/evidence/graph/edgesB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
 
 var (
@@ -519,24 +518,23 @@ func file_api_evidence_evidence_proto_rawDescGZIP() []byte {
 var file_api_evidence_evidence_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_api_evidence_evidence_proto_goTypes = []any{
 	(*Evidence)(nil),               // 0: confirmate.evidence.v1.Evidence
-	(*Resource)(nil),               // 1: confirmate.evidence.v1.Resource
+	(*ResourceSnapshot)(nil),       // 1: confirmate.evidence.v1.ResourceSnapshot
 	(*UpdateResourceRequest)(nil),  // 2: confirmate.evidence.v1.UpdateResourceRequest
 	(*ListGraphEdgesRequest)(nil),  // 3: confirmate.evidence.v1.ListGraphEdgesRequest
 	(*ListGraphEdgesResponse)(nil), // 4: confirmate.evidence.v1.ListGraphEdgesResponse
 	(*GraphEdge)(nil),              // 5: confirmate.evidence.v1.GraphEdge
 	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
 	(*ontology.Resource)(nil),      // 7: confirmate.ontology.v1.Resource
-	(*anypb.Any)(nil),              // 8: google.protobuf.Any
 }
 var file_api_evidence_evidence_proto_depIdxs = []int32{
 	6, // 0: confirmate.evidence.v1.Evidence.timestamp:type_name -> google.protobuf.Timestamp
 	7, // 1: confirmate.evidence.v1.Evidence.resource:type_name -> confirmate.ontology.v1.Resource
-	8, // 2: confirmate.evidence.v1.Resource.properties:type_name -> google.protobuf.Any
-	1, // 3: confirmate.evidence.v1.UpdateResourceRequest.resource:type_name -> confirmate.evidence.v1.Resource
+	7, // 2: confirmate.evidence.v1.ResourceSnapshot.resource:type_name -> confirmate.ontology.v1.Resource
+	1, // 3: confirmate.evidence.v1.UpdateResourceRequest.resource:type_name -> confirmate.evidence.v1.ResourceSnapshot
 	5, // 4: confirmate.evidence.v1.ListGraphEdgesResponse.edges:type_name -> confirmate.evidence.v1.GraphEdge
 	2, // 5: confirmate.evidence.v1.Resources.UpdateResource:input_type -> confirmate.evidence.v1.UpdateResourceRequest
 	3, // 6: confirmate.evidence.v1.Resources.ListGraphEdges:input_type -> confirmate.evidence.v1.ListGraphEdgesRequest
-	1, // 7: confirmate.evidence.v1.Resources.UpdateResource:output_type -> confirmate.evidence.v1.Resource
+	1, // 7: confirmate.evidence.v1.Resources.UpdateResource:output_type -> confirmate.evidence.v1.ResourceSnapshot
 	4, // 8: confirmate.evidence.v1.Resources.ListGraphEdges:output_type -> confirmate.evidence.v1.ListGraphEdgesResponse
 	7, // [7:9] is the sub-list for method output_type
 	5, // [5:7] is the sub-list for method input_type

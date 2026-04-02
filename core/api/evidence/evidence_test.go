@@ -18,14 +18,11 @@ package evidence
 import (
 	"testing"
 
-	anypb "google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
-	"confirmate.io/core/util/prototest"
 )
 
 func TestEvidence_GetOntologyResource(t *testing.T) {
@@ -89,68 +86,7 @@ func TestEvidence_GetOntologyResource(t *testing.T) {
 	}
 }
 
-func TestResource_ToOntologyResource(t *testing.T) {
-	type fields struct {
-		Id                   string
-		TargetOfEvaluationId string
-		ResourceType         string
-		Properties           *anypb.Any
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		want    ontology.IsResource
-		wantErr assert.WantErr
-	}{
-		{
-			name: "happy path VM",
-			fields: fields{
-				Id:                   "vm1",
-				TargetOfEvaluationId: "target1",
-				ResourceType:         "VirtualMachine",
-				Properties: prototest.NewAny(t, &ontology.VirtualMachine{
-					Id:              "vm1",
-					BlockStorageIds: []string{"bs1"},
-				}),
-			},
-			want: &ontology.VirtualMachine{
-				Id:              "vm1",
-				BlockStorageIds: []string{"bs1"},
-			},
-			wantErr: assert.Nil[error],
-		},
-		{
-			name: "not an ontology resource",
-			fields: fields{
-				Id:                   "vm1",
-				TargetOfEvaluationId: "target1",
-				ResourceType:         "Something",
-				Properties:           prototest.NewAny(t, &emptypb.Empty{}),
-			},
-			want: nil,
-			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.ErrorContains(t, err, ontology.ErrNotOntologyResource.Error())
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := &Resource{
-				Id:                   tt.fields.Id,
-				TargetOfEvaluationId: tt.fields.TargetOfEvaluationId,
-				ResourceType:         tt.fields.ResourceType,
-				Properties:           tt.fields.Properties,
-			}
-			got, err := r.ToOntologyResource()
-
-			tt.wantErr(t, err)
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestToEvidenceResource(t *testing.T) {
+func TestToResourceSnapshot(t *testing.T) {
 	type args struct {
 		resource    ontology.IsResource
 		ctID        string
@@ -159,7 +95,7 @@ func TestToEvidenceResource(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *Resource
+		want    *ResourceSnapshot
 		wantErr assert.WantErr
 	}{
 		{
@@ -178,21 +114,25 @@ func TestToEvidenceResource(t *testing.T) {
 				ctID:        "test-toe-id",
 				collectorID: "test-collector-id",
 			},
-			want: &Resource{
+			want: &ResourceSnapshot{
 				Id:                   "my-block-storage",
 				TargetOfEvaluationId: "test-toe-id",
 				ToolId:               "test-collector-id",
 				ResourceType:         "BlockStorage,Storage,Infrastructure,Resource",
-				Properties: prototest.NewAny(t, &ontology.BlockStorage{
-					Id:   "my-block-storage",
-					Name: "My Block Storage",
-					Backups: []*ontology.Backup{
-						{
-							Enabled:   true,
-							StorageId: util.Ref("my-offsite-backup-id"),
+				Resource: &ontology.Resource{
+					Type: &ontology.Resource_BlockStorage{
+						BlockStorage: &ontology.BlockStorage{
+							Id:   "my-block-storage",
+							Name: "My Block Storage",
+							Backups: []*ontology.Backup{
+								{
+									Enabled:   true,
+									StorageId: util.Ref("my-offsite-backup-id"),
+								},
+							},
 						},
 					},
-				}),
+				},
 			},
 			wantErr: assert.Nil[error],
 		},
@@ -200,7 +140,7 @@ func TestToEvidenceResource(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotR, err := ToEvidenceResource(tt.args.resource, tt.args.ctID, tt.args.collectorID)
+			gotR, err := ToResourceSnapshot(tt.args.resource, tt.args.ctID, tt.args.collectorID)
 
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.want, gotR)

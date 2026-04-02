@@ -54,9 +54,12 @@ message Evidence {
   repeated string experimental_related_resource_ids = 999 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
-// Resource is a wrapper around google.protobuf.Value that is needed for
-// persistence reasons.
-message Resource {
+// ResourceSnapshot is the persisted representation of a cloud resource.
+// It is distinct from confirmate.ontology.v1.Resource, which is the semantic
+// discriminated union of all concrete ontology types. ResourceSnapshot carries
+// metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
+// serialised ontology properties.
+message ResourceSnapshot {
   // Id contains a unique ID for each resource. This is specific for the cloud
   // provider this resource was gathered for and can for example be a resource
   // URL.
@@ -82,13 +85,8 @@ message Resource {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Properties contains a protobuf message that describe the resource in the
-  // terms of our ontology.
-  google.protobuf.Any properties = 10 [
-    (tagger.tags) = "gorm:\"serializer:anypb;type:json\"",
-    (buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // Semantic representation of the Cloud resource according to our defined ontology
+  confirmate.ontology.v1.Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
 // Maps cloud resources and its properties to the format of the
@@ -97,7 +95,7 @@ service Resources {
   // UpdateResource updates a resource (or creates it, if it does not exist).
   // This is used to give third-party tools the possibility to add something to
   // the resource graph.
-  rpc UpdateResource(UpdateResourceRequest) returns (confirmate.evidence.v1.Resource) {
+  rpc UpdateResource(UpdateResourceRequest) returns (confirmate.evidence.v1.ResourceSnapshot) {
     option (google.api.http) = {
       post: "/v1/evidence_store/resources/{resource.id}"
       body: "*"
@@ -112,7 +110,7 @@ service Resources {
 }
 
 message UpdateResourceRequest {
-  confirmate.evidence.v1.Resource resource = 1 [(google.api.field_behavior) = REQUIRED];
+  confirmate.evidence.v1.ResourceSnapshot resource = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListGraphEdgesRequest {

@@ -221,7 +221,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Resource'
+                                $ref: '#/components/schemas/ResourceSnapshot'
                 default:
                     description: Default error response
                     content:
@@ -329,6 +329,8 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
+                name:
+                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -477,6 +479,8 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
+                name:
+                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -690,6 +694,8 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
+                name:
+                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -3236,7 +3242,7 @@ components:
                 results:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Resource'
+                        $ref: '#/components/schemas/ResourceSnapshot'
                 nextPageToken:
                     type: string
         ListSupportedResourceTypesResponse:
@@ -3967,6 +3973,8 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
+                name:
+                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -4878,6 +4886,8 @@ components:
                     type: boolean
                 monitoringLogDataEnabled:
                     type: boolean
+                name:
+                    type: string
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -4888,6 +4898,43 @@ components:
                     items:
                         type: string
             description: ResourceLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        ResourceSnapshot:
+            required:
+                - id
+                - targetOfEvaluationId
+                - resourceType
+                - toolId
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: |-
+                        Id contains a unique ID for each resource. This is specific for the cloud
+                         provider this resource was gathered for and can for example be a resource
+                         URL.
+                targetOfEvaluationId:
+                    type: string
+                    description: |-
+                        TargetOfEvaluationId is the UUID for the target of evaluation to which this resource
+                         belongs to.
+                resourceType:
+                    type: string
+                    description: |-
+                        ResourceType contains a comma separated string of resource types according
+                         to our ontology.
+                toolId:
+                    type: string
+                    description: Reference to the tool which provided the resource
+                resource:
+                    allOf:
+                        - $ref: '#/components/schemas/Resource'
+                    description: Semantic representation of the Cloud resource according to our defined ontology
+            description: |-
+                ResourceSnapshot is the persisted representation of a cloud resource.
+                 It is distinct from confirmate.ontology.v1.Resource, which is the semantic
+                 discriminated union of all concrete ontology types. ResourceSnapshot carries
+                 metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
+                 serialised ontology properties.
         RobustnessScore:
             type: object
             properties: {}
@@ -5427,7 +5474,7 @@ components:
             type: object
             properties:
                 resource:
-                    $ref: '#/components/schemas/Resource'
+                    $ref: '#/components/schemas/ResourceSnapshot'
         UsageStatistics:
             type: object
             properties:
@@ -5654,6 +5701,8 @@ components:
                     items:
                         type: string
                 description:
+                    type: string
+                name:
                     type: string
                 url:
                     type: string
