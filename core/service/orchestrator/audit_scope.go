@@ -94,7 +94,7 @@ func (svc *Service) GetAuditScope(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.GetAuditScopeId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -141,7 +141,7 @@ func (svc *Service) ListAuditScopes(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, "")
+	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -190,7 +190,7 @@ func (svc *Service) UpdateAuditScope(
 	scope = req.Msg.AuditScope
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.AuditScope.GetId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.AuditScope.GetId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -240,7 +240,7 @@ func (svc *Service) RemoveAuditScope(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, orchestrator.UserPermission_RESOURCE_TYPE_AUDIT_SCOPE, req.Msg.AuditScopeId)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.AuditScopeId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

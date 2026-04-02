@@ -39,9 +39,9 @@ type AuthorizationStrategy interface {
 	CheckAccess(ctx context.Context,
 		userId string,
 		reqType orchestrator.RequestType,
-		resourceType orchestrator.UserPermission_ResourceType,
 		userPermission orchestrator.UserPermission_Permission,
-		resourceId string) (bool, []string)
+		resourceId string,
+		objectType orchestrator.ObjectType) (bool, []string)
 }
 
 // CheckAccess checks access via the configured strategy.
@@ -51,9 +51,9 @@ func CheckAccess[T any](authz AuthorizationStrategy,
 	ctx context.Context,
 	userId string,
 	reqType orchestrator.RequestType,
-	resource_type orchestrator.UserPermission_ResourceType,
 	userPermission orchestrator.UserPermission_Permission,
-	resourceId string) (bool, []string) {
+	resourceId string,
+	objectType orchestrator.ObjectType) (bool, []string) {
 	if authz == nil {
 		return true, nil
 	}
@@ -61,9 +61,9 @@ func CheckAccess[T any](authz AuthorizationStrategy,
 	return authz.CheckAccess(ctx,
 		userId,
 		reqType,
-		resource_type,
 		userPermission,
-		resourceId)
+		resourceId,
+		objectType)
 }
 
 type AuthorizationStrategyJWT struct {
@@ -77,11 +77,12 @@ type AuthorizationStrategyJWT struct {
 func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 	userId string,
 	reqType orchestrator.RequestType,
-	resourceType orchestrator.UserPermission_ResourceType,
 	userPermission orchestrator.UserPermission_Permission,
-	resourceId string) (allowed bool, resourceIDs []string) {
+	resourceId string,
+	objectType orchestrator.ObjectType) (allowed bool, resourceIDs []string) {
 	var (
-		err error
+		err            error
+		objectTypeUsed orchestrator.ObjectType
 	)
 
 	if a == nil || userId == "" {
@@ -100,13 +101,27 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 		return false, nil
 	}
 
+	// Check if ToE ID or Audit Scope ID is necessary for the permission check; return false if not provided.
+	switch objectType {
+	case orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		orchestrator.ObjectType_OBJECT_TYPE_EVIDENCE,
+		orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT:
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
+	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT,
+		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
+	default:
+		return false, nil
+	}
+
 	// For list requests, we check if the user has reader permissions for any resources of the given type and return the list of resource IDs they have access to.
 	if reqType == orchestrator.RequestType_REQUEST_TYPE_LIST {
 		resourceIDs, err = a.Permissions.PermissionForResources(ctx,
 			userId,
-			resourceType,
 			orchestrator.UserPermission_PERMISSION_READER,
 			reqType,
+			objectTypeUsed,
 		)
 		if err != nil {
 			return false, nil
@@ -128,10 +143,10 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 
 	allowed, err = a.Permissions.HasPermission(ctx,
 		userId,
-		resourceType,
 		resourceId,
 		userPermission,
 		reqType,
+		objectTypeUsed,
 	)
 	if err != nil {
 		return false, nil
@@ -147,9 +162,9 @@ type AuthorizationStrategyAllowAll struct{}
 func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 	_ string,
 	_ orchestrator.RequestType,
-	_ orchestrator.UserPermission_ResourceType,
 	_ orchestrator.UserPermission_Permission,
-	_ string) (ok bool, resourceIDs []string) {
+	_ string,
+	_ orchestrator.ObjectType) (ok bool, resourceIDs []string) {
 	// Keep this strategy permissive by design.
 	return true, nil
 }

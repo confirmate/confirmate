@@ -78,7 +78,7 @@ func (svc *Service) GetCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_RESOURCE_TYPE_CERTIFICATE, req.Msg.GetCertificateId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetCertificateId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -116,7 +116,7 @@ func (svc *Service) ListCertificates(
 
 	// TODO(all): Should we check if the user has access to the TargetOfEvaluation and only return certificates for that TargetOfEvaluation? Or do we want to check access for each certificate individually?
 	// Check access via the configured auth strategy
-	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, orchestrator.UserPermission_RESOURCE_TYPE_CERTIFICATE, "")
+	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -207,7 +207,7 @@ func (svc *Service) UpdateCertificate(
 	// }
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, orchestrator.UserPermission_RESOURCE_TYPE_CERTIFICATE, req.Msg.Certificate.GetId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.Certificate.GetId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -245,7 +245,7 @@ func (svc *Service) RemoveCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, orchestrator.UserPermission_RESOURCE_TYPE_CERTIFICATE, req.Msg.GetCertificateId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.GetCertificateId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

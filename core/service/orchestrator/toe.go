@@ -98,7 +98,7 @@ func (svc *Service) GetTargetOfEvaluation(
 	}
 
 	// Check access via the configured strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_RESOURCE_TYPE_TOE, req.Msg.GetTargetOfEvaluationId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -136,7 +136,7 @@ func (svc *Service) ListTargetsOfEvaluation(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, orchestrator.UserPermission_RESOURCE_TYPE_TOE, "")
+	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -185,7 +185,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	toe.UpdatedAt = timestamppb.Now()
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, orchestrator.UserPermission_RESOURCE_TYPE_TOE, req.Msg.TargetOfEvaluation.GetId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.TargetOfEvaluation.GetId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -230,7 +230,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, orchestrator.UserPermission_RESOURCE_TYPE_TOE, req.Msg.GetTargetOfEvaluationId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -272,7 +272,7 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_RESOURCE_TYPE_TOE, req.Msg.GetTargetOfEvaluationId())
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

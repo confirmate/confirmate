@@ -91,7 +91,7 @@ message UserPermission {
   ];
 
   // Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
-  ResourceType resource_type = 3 [
+  ObjectType resource_type = 3 [
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED,
     (tagger.tags) = "gorm:\"column:resource_type;primaryKey\""
@@ -111,15 +111,35 @@ message UserPermission {
     PERMISSION_ADMIN = 3;
   }
 
-  enum ResourceType {
-    RESOURCE_TYPE_UNSPECIFIED = 0;
-    RESOURCE_TYPE_TOE = 1;
-    RESOURCE_TYPE_ASSESSMENT_RESULT = 2;
-    RESOURCE_TYPE_CATALOG = 3;
-    RESOURCE_TYPE_AUDIT_SCOPE = 4;
-    RESOURCE_TYPE_CERTIFICATE = 5;
-    RESOURCE_TYPE_EVIDENCE = 6;
-    RESOURCE_TYPE_USER = 7;
-    RESOURCE_TYPE_METRIC_CONFIGURATION = 8;
-  }
+  // enum ResourceType {
+  //   RESOURCE_TYPE_UNSPECIFIED = 0;
+  //   RESOURCE_TYPE_TOE = 1;
+  //   RESOURCE_TYPE_ASSESSMENT_RESULT = 2;
+  //   RESOURCE_TYPE_CATALOG = 3;
+  //   RESOURCE_TYPE_AUDIT_SCOPE = 4;
+  //   RESOURCE_TYPE_CERTIFICATE = 5;
+  //   RESOURCE_TYPE_EVIDENCE = 6;
+  //   RESOURCE_TYPE_USER = 7;
+  //   RESOURCE_TYPE_METRIC_CONFIGURATION = 8;
+  //   RESOURCE_TYPE_EVALUATIONRESULT = 9;
+  // }
+}
+
+// ObjectType represents the type of the entity that changed in the orchestrator.
+enum ObjectType {
+  OBJECT_TYPE_UNSPECIFIED = 0;
+  OBJECT_TYPE_METRIC = 1;
+  OBJECT_TYPE_METRIC_CONFIGURATION = 2;
+  OBJECT_TYPE_METRIC_IMPLEMENTATION = 3;
+  OBJECT_TYPE_TARGET_OF_EVALUATION = 4;
+  OBJECT_TYPE_AUDIT_SCOPE = 5;
+  OBJECT_TYPE_ASSESSMENT_RESULT = 6;
+  OBJECT_TYPE_ASSESSMENT_TOOL = 7;
+  OBJECT_TYPE_USER = 8;
+  OBJECT_TYPE_CERTIFICATE = 9;
+  OBJECT_TYPE_CATALOG = 10;
+  OBJECT_TYPE_CATEGORY = 11;
+  OBJECT_TYPE_CONTROL = 12;
+  OBJECT_TYPE_EVALUATION_RESULT = 13;
+  OBJECT_TYPE_EVIDENCE = 14;
 }

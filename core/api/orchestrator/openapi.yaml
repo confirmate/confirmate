@@ -2499,15 +2499,21 @@ components:
                     description: Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
                 resourceType:
                     enum:
-                        - RESOURCE_TYPE_UNSPECIFIED
-                        - RESOURCE_TYPE_TOE
-                        - RESOURCE_TYPE_ASSESSMENT_RESULT
-                        - RESOURCE_TYPE_CATALOG
-                        - RESOURCE_TYPE_AUDIT_SCOPE
-                        - RESOURCE_TYPE_CERTIFICATE
-                        - RESOURCE_TYPE_EVIDENCE
-                        - RESOURCE_TYPE_USER
-                        - RESOURCE_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
                     type: string
                     description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
                     format: enum

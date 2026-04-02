@@ -390,7 +390,7 @@ func (svc *Service) UpdateMetricConfiguration(
 	// if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
 	// 	return nil, service.ErrPermissionDenied
 	// }
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, orchestrator.UserPermission_RESOURCE_TYPE_METRIC_CONFIGURATION, "")
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

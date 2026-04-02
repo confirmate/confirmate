@@ -68,7 +68,7 @@ func (svc *Service) GetUser(
 	}
 
 	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, orchestrator.UserPermission_RESOURCE_TYPE_USER, req.Msg.UserId)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
 	}
@@ -195,7 +195,7 @@ func (svc *Service) RemoveUser(
 }
 
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
-func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceType orchestrator.UserPermission_ResourceType, resourceId string) (bool, []string, error) {
+func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceId string, objectType orchestrator.ObjectType) (bool, []string, error) {
 	var (
 		user *orchestrator.User
 		err  error
@@ -234,7 +234,7 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		return false, nil, fmt.Errorf("failed to ensure current user: %w", err)
 	}
 
-	allowed, resourceIDs := authz.CheckAccess(ctx, user.Id, reqType, resourceType, orchestrator.UserPermission_PERMISSION_READER, resourceId)
+	allowed, resourceIDs := authz.CheckAccess(ctx, user.Id, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
 
 	return allowed, resourceIDs, nil
 }
@@ -244,7 +244,7 @@ type permissionStore struct {
 }
 
 // HasPermission checks if the given user has the specified permission for the resource.
-func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceType orchestrator.UserPermission_ResourceType, resourceId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType) (bool, error) {
+func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
 	var (
 		count          int64
 		err            error
@@ -275,7 +275,7 @@ func (ps permissionStore) HasPermission(ctx context.Context, userId string, reso
 	count, err = ps.db.Count(
 		&userPermission,
 		"user_id = ? AND resource_type = ? AND resource_id = ? AND permission IN (?)",
-		userId, resourceType, resourceId, allowed,
+		userId, resourceId, allowed, objectType,
 	)
 	if err != nil {
 		return false, fmt.Errorf("failed to check permissions: %w", err)
@@ -285,7 +285,7 @@ func (ps permissionStore) HasPermission(ctx context.Context, userId string, reso
 }
 
 // PermissionForResource returns a list of resource IDs for which the given user has at least the specified permission.
-func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, resourceType orchestrator.UserPermission_ResourceType, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType) ([]string, error) {
+func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
 	var (
 		conds           []any
 		userPermissions []orchestrator.UserPermission
@@ -317,8 +317,8 @@ func (ps permissionStore) PermissionForResources(ctx context.Context, userID str
 	conds = []any{
 		"user_id = ? AND resource_type = ? AND permission IN (?)",
 		userID,
-		resourceType,
 		allowed,
+		objectType,
 	}
 	err = ps.db.List(
 		&userPermissions,
