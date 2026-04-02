@@ -5,6 +5,7 @@
 	import ResourceOverview from '$lib/components/evidence/ResourceOverview.svelte';
 	import ResourceColumns from '$lib/components/evidence/ResourceColumns.svelte';
 	import ResourceDetail from '$lib/components/evidence/ResourceDetail.svelte';
+	import ResourceSummaryBar from '$lib/components/evidence/ResourceSummaryBar.svelte';
 	import ResourceGraph from '$lib/components/graph/ResourceGraph.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { Share, TableCells, Bars3BottomLeft } from '@steeze-ui/heroicons';
@@ -18,7 +19,13 @@
 	const toeId = page.params.id ?? '';
 
 	let view = $state<'list' | 'columns' | 'graph'>('graph');
-	let selected = $state<Resource | null>(null);
+
+	// Resource selected for graph summary bar / columns
+	let graphSelected = $state<Resource | null>(null);
+	let columnsSelected = $state<Resource | null>(null);
+
+	// Full evidence detail drawer — only opened explicitly via "View evidence"
+	let detailResource = $state<Resource | null>(null);
 </script>
 
 <div class="flex min-h-0 flex-1 flex-col">
@@ -59,44 +66,87 @@
 		{/snippet}
 	</SectionHeader>
 
-	<!-- Main area + slide-over -->
-	<div class="relative mt-6 flex min-h-0 gap-6">
-		<!-- Content -->
-		<div class="min-w-0 flex-1 overflow-hidden {view === 'columns' ? 'flex flex-col' : ''}">
-			{#if view === 'list'}
-				<ResourceOverview
-					resources={data.resources}
-					results={data.results}
-					onselect={(r) => (selected = r)}
-				/>
-			{:else if view === 'columns'}
-				<ResourceColumns
-					resources={data.resources}
-					edges={data.edges}
-					results={data.results}
-					onselect={(r) => (selected = r)}
-				/>
-			{:else}
-				<ResourceGraph
-					resources={data.resources}
-					edges={data.edges}
-					results={data.results}
-					selectedId={selected?.id ?? null}
-					onresourceselect={(r) => (selected = r)}
-				/>
-			{/if}
-		</div>
+	<div class="mt-6 flex min-h-0 flex-1 flex-col">
 
-		<!-- Resource detail slide-over -->
-		{#if selected}
-			<div class="w-96 shrink-0 overflow-hidden rounded-xl border border-gray-200 shadow-lg" style="max-height: calc(100vh - 12rem);">
-				<ResourceDetail
-					resource={selected}
-					results={data.results}
-					{toeId}
-					onclose={() => (selected = null)}
-				/>
+		<!-- LIST: table + side detail drawer -->
+		{#if view === 'list'}
+			<div class="flex min-h-0 gap-6">
+				<div class="min-w-0 flex-1">
+					<ResourceOverview
+						resources={data.resources}
+						results={data.results}
+						onselect={(r) => (detailResource = r)}
+					/>
+				</div>
+				{#if detailResource}
+					<div class="w-96 shrink-0 overflow-hidden rounded-xl border border-gray-200 shadow-lg" style="max-height: calc(100vh - 12rem);">
+						<ResourceDetail
+							resource={detailResource}
+							results={data.results}
+							{toeId}
+							onclose={() => (detailResource = null)}
+						/>
+					</div>
+				{/if}
 			</div>
+
+		<!-- COLUMNS: miller columns above, detail below -->
+		{:else if view === 'columns'}
+			<div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200">
+				<div class="min-h-0 flex-1 overflow-hidden">
+					<ResourceColumns
+						resources={data.resources}
+						edges={data.edges}
+						results={data.results}
+						onselect={(r) => { columnsSelected = r; detailResource = null; }}
+					/>
+				</div>
+				{#if columnsSelected}
+					<ResourceDetail
+						resource={columnsSelected}
+						results={data.results}
+						{toeId}
+						onclose={() => (columnsSelected = null)}
+						horizontal
+					/>
+				{/if}
+			</div>
+
+		<!-- GRAPH: graph above, summary bar + optional detail below -->
+		{:else}
+			<div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200">
+				<div class="min-h-0 flex-1">
+					<ResourceGraph
+						resources={data.resources}
+						edges={data.edges}
+						results={data.results}
+						selectedId={graphSelected?.id ?? null}
+						onresourceselect={(r) => { graphSelected = r; detailResource = null; }}
+					/>
+				</div>
+				{#if graphSelected}
+					<ResourceSummaryBar
+						resource={graphSelected}
+						results={data.results}
+						onclose={() => (graphSelected = null)}
+						ondetail={() => (detailResource = graphSelected)}
+					/>
+				{/if}
+			</div>
+
+			<!-- Full evidence detail — opens below when "View evidence" is clicked -->
+			{#if detailResource}
+				<div class="mt-4 overflow-hidden rounded-xl border border-gray-200 shadow-sm" style="max-height: 28rem;">
+					<ResourceDetail
+						resource={detailResource}
+						results={data.results}
+						{toeId}
+						onclose={() => (detailResource = null)}
+						horizontal
+					/>
+				</div>
+			{/if}
 		{/if}
+
 	</div>
 </div>

@@ -11,13 +11,13 @@
 		results: AssessmentResult[];
 		toeId: string;
 		onclose: () => void;
+		/** When true, header + evidence list are laid out side-by-side (for inline/below panels). */
+		horizontal?: boolean;
 	}
-	let { resource, results, toeId, onclose }: Props = $props();
+	let { resource, results, toeId, onclose, horizontal = false }: Props = $props();
 
-	// Derived assessment results for this resource
 	let resourceResults = $derived(results.filter((r) => r.resourceId === resource.id));
 
-	// Extract a field from the ontology union (Evidence.resource or ResourceSnapshot.resource)
 	function getResourceProp(res: Evidence['resource'], prop: string): unknown {
 		if (!res) return undefined;
 		for (const val of Object.values(res)) {
@@ -28,18 +28,15 @@
 		return undefined;
 	}
 
-	// Evidence loading (lazy, client-side filtered by resource.id)
 	let evidences = $state<Evidence[]>([]);
 	let loading = $state(false);
 	let loadError = $state<string | null>(null);
 	let nextPageToken = $state<string | undefined>(undefined);
 	let hasMore = $state(false);
-
 	let expandedId = $state<string | null>(null);
 
-	// Re-load when resource changes
 	$effect(() => {
-		void resource.id; // track
+		void resource.id;
 		evidences = [];
 		nextPageToken = undefined;
 		hasMore = false;
@@ -63,10 +60,7 @@
 				}
 			});
 			const page = (res.data?.evidences ?? []) as Evidence[];
-			// Match by the id nested inside the evidence's ontology union resource
-			const filtered = page.filter(
-				(e) => getResourceProp(e.resource, 'id') === resource.id
-			);
+			const filtered = page.filter((e) => getResourceProp(e.resource, 'id') === resource.id);
 			evidences = [...evidences, ...filtered];
 			nextPageToken = res.data?.nextPageToken ?? undefined;
 			hasMore = !!nextPageToken;
@@ -96,57 +90,56 @@
 	let resourceType = $derived(resource.resourceType.split(',')[0].trim());
 </script>
 
-<!-- Slide-over panel -->
-<div class="flex h-full flex-col overflow-hidden border-l border-gray-200 bg-white shadow-xl">
-	<!-- Header -->
-	<div class="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4">
-		<div class="min-w-0">
-			<p class="truncate font-semibold text-gray-900">{shortName}</p>
-			<p class="mt-0.5 text-xs text-gray-400">{resourceType}</p>
-			<p class="mt-0.5 max-w-xs truncate font-mono text-xs text-gray-300">{resource.id}</p>
+<div class="flex h-full {horizontal ? 'flex-row' : 'flex-col'} overflow-hidden bg-white">
+
+	<!-- Left/Top: header + assessment -->
+	<div class="{horizontal ? 'w-72 shrink-0 border-r' : 'border-b'} border-gray-100 flex flex-col">
+		<!-- Header -->
+		<div class="flex items-start justify-between gap-3 px-4 py-3">
+			<div class="min-w-0">
+				<p class="truncate font-semibold text-gray-900">{shortName}</p>
+				<p class="mt-0.5 text-xs text-gray-400">{resourceType}</p>
+				<p class="mt-0.5 max-w-xs truncate font-mono text-xs text-gray-300">{resource.id}</p>
+			</div>
+			<button onclick={onclose} class="shrink-0 text-gray-400 hover:text-gray-600">
+				<Icon src={XMark} class="h-4 w-4" />
+			</button>
 		</div>
-		<button onclick={onclose} class="shrink-0 text-gray-400 hover:text-gray-600">
-			<Icon src={XMark} class="h-5 w-5" />
-		</button>
+
+		<!-- Assessment -->
+		<div class="border-t border-gray-100 px-4 py-3">
+			<p class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">Assessment</p>
+			{#if resourceResults.length === 0}
+				<span class="inline-flex items-center gap-1 text-xs text-gray-400">
+					<Icon src={MinusCircle} class="h-3.5 w-3.5" />
+					No results
+				</span>
+			{:else}
+				<div class="flex flex-wrap gap-1.5">
+					{#each resourceResults as r}
+						<span
+							class="{r.compliant
+								? 'bg-green-50 text-green-700 ring-green-200'
+								: 'bg-red-50 text-red-700 ring-red-200'} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1"
+						>
+							{#if r.compliant}
+								<Icon src={CheckCircle} class="h-3 w-3" />
+							{:else}
+								<Icon src={XCircle} class="h-3 w-3" />
+							{/if}
+							{r.metricId}
+						</span>
+					{/each}
+				</div>
+			{/if}
+		</div>
 	</div>
 
-	<!-- Metrics strip -->
-	{#if resourceResults.length > 0}
-		<div class="border-b border-gray-100 px-5 py-3">
-			<p class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">Assessment</p>
-			<div class="flex flex-wrap gap-2">
-				{#each resourceResults as r}
-					<span
-						class="{r.compliant
-							? 'bg-green-50 text-green-700 ring-green-200'
-							: 'bg-red-50 text-red-700 ring-red-200'} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1"
-					>
-						{#if r.compliant}
-							<Icon src={CheckCircle} class="h-3 w-3" />
-						{:else}
-							<Icon src={XCircle} class="h-3 w-3" />
-						{/if}
-						{r.metricId}
-					</span>
-				{/each}
-			</div>
-		</div>
-	{:else}
-		<div class="border-b border-gray-100 px-5 py-3">
-			<span class="inline-flex items-center gap-1 text-xs text-gray-400">
-				<Icon src={MinusCircle} class="h-3.5 w-3.5" />
-				No assessment results
-			</span>
-		</div>
-	{/if}
-
-	<!-- Evidence list -->
-	<div class="flex-1 overflow-y-auto px-5 py-4">
-		<div class="mb-3 flex items-center justify-between">
-			<p class="text-xs font-semibold tracking-wide text-gray-400 uppercase">
-				Evidences{evidences.length > 0 ? ` (${evidences.length}${hasMore ? '+' : ''})` : ''}
-			</p>
-		</div>
+	<!-- Right/Bottom: evidence list -->
+	<div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
+		<p class="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+			Evidences{evidences.length > 0 ? ` (${evidences.length}${hasMore ? '+' : ''})` : ''}
+		</p>
 
 		{#if loading && evidences.length === 0}
 			<p class="text-sm text-gray-400">Loading...</p>
@@ -177,7 +170,6 @@
 					</li>
 				{/each}
 			</ul>
-
 			{#if hasMore}
 				<button
 					onclick={loadEvidences}
