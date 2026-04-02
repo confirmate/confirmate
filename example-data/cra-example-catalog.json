@@ -1,0 +1,351 @@
+[
+    {
+        "id": "CRA_Catalog",
+        "name": "Cyber Resilience Act Catalog",
+        "description": "Catalog mapping CRA requirements to security metrics",
+        "short_name": "CRA",
+        "all_in_scope": true,
+        "categories": [
+            {
+                "name": "Product Security Requirements (Part I)",
+                "description": "Cybersecurity requirements relating to the properties of products with digital elements",
+                "controls": [
+                    {
+                        "id": "CRA-I-1.1.2",
+                        "name": "No Known Exploitable Vulnerabilities",
+                        "description": "Products with digital elements shall be made available on the market without known exploitable vulnerabilities",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.2.1",
+                                "description": "Regular vulnerability scanning must be performed",
+                                "metrics": [
+                                    {
+                                        "id": "VulnerabilityScanReportUpdated"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.3",
+                        "name": "Secure by Default Configuration",
+                        "description": "Products with digital elements shall be made available on the market with a secure by default configuration",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.3.1",
+                                "description": "Secure configuration must be enforced by default",
+                                "metrics": [
+                                    {
+                                        "id": "SecureConfigurationEnforced"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.4",
+                        "name": "Security Updates",
+                        "description": "Products shall ensure vulnerabilities can be addressed through security updates with automatic updates, opt-out, notifications, and postpone options",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.4.1",
+                                "description": "Automatic updates must check for updates within appropriate intervals",
+                                "metrics": [
+                                    {
+                                        "id": "AutomaticUpdatesInterval"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.4.2",
+                                "description": "Automatic updates must be enabled by default",
+                                "metrics": [
+                                    {
+                                        "id": "AutomaticUpdatesEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.4.3",
+                                "description": "Users must be able to postpone updates and receive notifications",
+                                "metrics": [
+                                    {
+                                        "id": "PostponeAlertOptionEnabled"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.5",
+                        "name": "Access Control and Unauthorized Access Protection",
+                        "description": "Products shall ensure protection from unauthorised access through authentication, authorization, identity management, and reporting mechanisms",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.5.1",
+                                "description": "Access control mechanisms must be implemented at critical points",
+                                "metrics": [
+                                    {
+                                        "id": "AccessControlMechanismsImplemented"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.5.2",
+                                "description": "Password policies must be enabled for identity management",
+                                "metrics": [
+                                    {
+                                        "id": "IdentityPasswordPolicyEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.5.3",
+                                "description": "Unauthorized access attempts must be reported",
+                                "metrics": [
+                                    {
+                                        "id": "UnauthorizedAccessReported"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.5.4",
+                                "description": "Multi-factor authentication must be enabled for administrative access",
+                                "metrics": [
+                                    {
+                                        "id": "AdminMFAEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.5.5",
+                                "description": "Anomaly detection mechanisms must be enabled",
+                                "metrics": [
+                                    {
+                                        "id": "AnomalyDetectionEnabled"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.6",
+                        "name": "Data Confidentiality Protection",
+                        "description": "Products shall protect confidentiality of data through encryption at rest and in transit using state-of-the-art mechanisms",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.6.1",
+                                "description": "Data at rest must be encrypted",
+                                "metrics": [
+                                    {
+                                        "id": "AtRestEncryptionEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.6.2",
+                                "description": "Strong cryptographic algorithms must be used",
+                                "metrics": [
+                                    {
+                                        "id": "StrongCryptographicHash"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.6.3",
+                                "description": "Data in transit must be encrypted",
+                                "metrics": [
+                                    {
+                                        "id": "TransportEncryptionEnabled"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.7",
+                        "name": "Data Integrity Protection",
+                        "description": "Products shall protect integrity of data, commands, programs and configuration against unauthorized manipulation",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.7.1",
+                                "description": "Secure protocols must be enabled for data transmission",
+                                "metrics": [
+                                    {
+                                        "id": "TransportEncryptionEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.7.2",
+                                "description": "Password policies must be enforced",
+                                "metrics": [
+                                    {
+                                        "id": "IdentityPasswordPolicyEnabled"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.8",
+                        "name": "Data Minimization",
+                        "description": "Products shall process only data that is adequate, relevant and limited to what is necessary (data minimisation principle)",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.8.1",
+                                "description": "Data minimization techniques must be enabled",
+                                "metrics": [
+                                    {
+                                        "id": "DataMinimisationTechniquesEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.8.2",
+                                "description": "Automated deletion of data must be configured",
+                                "metrics": [
+                                    {
+                                        "id": "AutomatedDeletionOfDataEnabled"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.9",
+                        "name": "Availability and DoS Protection",
+                        "description": "Products shall protect availability of essential functions through resilience and mitigation measures against denial-of-service attacks",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.9.1",
+                                "description": "DDoS protection mechanisms must be activated",
+                                "metrics": [
+                                    {
+                                        "id": "DDOSMechanismActivated"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.10",
+                        "name": "Minimize Impact on Other Services",
+                        "description": "Products shall minimize negative impact on availability of services provided by other devices or networks",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.10.1",
+                                "description": "Standard protocols must be listed and only required interfaces enabled",
+                                "metrics": [
+                                    {
+                                        "id": "StandardProtocolsListed"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.11",
+                        "name": "Limit Attack Surfaces",
+                        "description": "Products shall be designed to limit attack surfaces, including external interfaces",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.11.1",
+                                "description": "Risk assessment must be mapped to services and controls",
+                                "metrics": [
+                                    {
+                                        "id": "RiskAssessmentMappingtoServicesandControl"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.11.2",
+                                "description": "Only required interfaces and protocols must be enabled",
+                                "metrics": [
+                                    {
+                                        "id": "StandardProtocolsListed"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.12",
+                        "name": "Exploitation Mitigation",
+                        "description": "Products shall reduce the impact of incidents using appropriate exploitation mitigation mechanisms",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.12.1",
+                                "description": "Backup mechanisms must be enabled for critical data flows",
+                                "metrics": [
+                                    {
+                                        "id": "BackupEnabled"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.13",
+                        "name": "Security Logging and Monitoring",
+                        "description": "Products shall provide security-related information by recording and monitoring relevant internal activity with opt-out mechanism",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.13.1",
+                                "description": "Activity logging must be enabled for security-relevant activities",
+                                "metrics": [
+                                    {
+                                        "id": "ActivityLoggingEnabled"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.13.2",
+                                "description": "Identity activity must be tracked and available",
+                                "metrics": [
+                                    {
+                                        "id": "IdentityRecentActivity"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.13.3",
+                                "description": "Logging opt-out mechanism must be available to users",
+                                "metrics": [
+                                    {
+                                        "id": "LoggingOptOutMechanismAvailable"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "CRA-I-1.1.13.4",
+                                "description": "Security data must be available to users",
+                                "metrics": [
+                                    {
+                                        "id": "SecurityDataAvailableToUser"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "CRA-I-1.1.14",
+                        "name": "Secure Data Deletion",
+                        "description": "Products shall provide the possibility for users to securely and easily remove all data and settings permanently, with secure data transfer capability",
+                        "controls": [
+                            {
+                                "id": "CRA-I-1.1.14.1",
+                                "description": "Secure data deletion mechanism must be activated",
+                                "metrics": [
+                                    {
+                                        "id": "SecureDataDeletionMechanismActivated"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
