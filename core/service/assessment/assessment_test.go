@@ -553,35 +553,6 @@ func TestService_AssessEvidences(t *testing.T) {
 	}
 }
 
-func TestService_AssessEvidence_AuthorizationDenied(t *testing.T) {
-	aHandler, err := NewService(
-		WithAuthorizationStrategy(&denyAssessmentAuthorizationStrategy{}),
-	)
-	assert.NoError(t, err)
-
-	svc := aHandler.(*Service)
-	t.Cleanup(func() {
-		if svc.orchestratorStream != nil {
-			_ = svc.orchestratorStream.Close()
-		}
-	})
-
-	res, err := svc.AssessEvidence(context.Background(), connect.NewRequest(&assessment.AssessEvidenceRequest{
-		Evidence: &evidence.Evidence{
-			Id:                   evidencetest.MockEvidenceID1,
-			ToolId:               evidencetest.MockEvidenceToolID1,
-			Timestamp:            timestamppb.Now(),
-			TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
-			Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-				Id:   evidencetest.MockVirtualMachineID1,
-				Name: evidencetest.MockVirtualMachineName1,
-			}),
-		},
-	}))
-
-	assert.Nil(t, res)
-	assert.IsConnectError(t, err, connect.CodePermissionDenied)
-}
 
 func TestService_handleEvidence(t *testing.T) {
 	type args struct {

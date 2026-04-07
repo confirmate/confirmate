@@ -164,7 +164,7 @@ func (ai *AuthInterceptor) isPublic(procedure string) (ok bool) {
 	return ok
 }
 
-func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err error) {
+func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, err error) {
 	var (
 		jwks     *keyfunc.JWKS
 		keyFunc  jwt.Keyfunc
@@ -195,12 +195,14 @@ func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err e
 		}
 	}
 
-	parsed, err = jwt.ParseWithClaims(token, jwt.MapClaims{}, keyFunc)
+	// Parse JWT token and extract claims
+	parsed, err = jwt.ParseWithClaims(token, &auth.OAuthClaims{}, keyFunc)
 	if err != nil {
 		return nil, err
 	}
 
-	claims, claimsOK = parsed.Claims.(jwt.MapClaims)
+	// Convert claims to expected type
+	claims, claimsOK = parsed.Claims.(*auth.OAuthClaims)
 	if !claimsOK {
 		return nil, errors.New("invalid token claims")
 	}
@@ -208,6 +210,9 @@ func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err e
 	return claims, nil
 }
 
+// bearerToken extracts the token from the Authorization header. It expects the header to be in the
+// format "Bearer <token>". If the header is missing, malformed, or the token is empty, it returns
+// an error.
 func bearerToken(header string) (token string, err error) {
 	var parts []string
 

@@ -23,11 +23,7 @@ import (
 	"net/http"
 	"testing"
 
-	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
-	"confirmate.io/core/persistence"
-	"confirmate.io/core/persistence/persistencetest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
@@ -97,12 +93,11 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 	}
 	type fields struct {
 		interceptor *AuthInterceptor
-		db          persistence.DB
 	}
 	type gotData struct {
 		code       connect.Code
 		nextCalled bool
-		claims     jwt.MapClaims
+		claims     *auth.OAuthClaims
 	}
 
 	var (
@@ -149,38 +144,13 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			wantErr: wantError,
 		},
 		{
-			name: "valid token passes, sets claims and stores in DB",
-			args: args{authHeader: "Bearer " + validToken},
-			fields: fields{
-				interceptor: NewAuthInterceptor(WithPublicKey(publicKey)),
-				db: persistencetest.NewInMemoryDB(t,
-					[]any{orchestrator.User{}},
-					nil,
-				),
-			},
-			want: func(t *testing.T, got gotData, args ...any) bool {
-				wantUser := &orchestrator.User{
-					Id:         "user-1",
-					Username:   util.Ref(""),
-					Email:      util.Ref(""),
-					FirstName:  util.Ref(""),
-					LastName:   util.Ref(""),
-					Enabled:    true,
-					Attributes: map[string]string{"sub": "user-1"},
-				}
-
+			name:   "valid token passes, sets claims",
+			args:   args{authHeader: "Bearer " + validToken},
+			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
+			want: func(t *testing.T, got gotData, _ ...any) bool {
 				// Check if claims are set correctly
-				_, ok := got.claims["cladmin"]
-				assert.True(t, ok)
-				_, ok = got.claims["sub"]
-				assert.True(t, ok)
-
-				// Check if user is stored in the DB
-				db, ok := args[0].(persistence.DB)
-				assert.NotNil(t, ok)
-				assert.NotNil(t, db)
-				user := assert.InDB[orchestrator.User](t, db, "user-1")
-				assert.Equal(t, wantUser, user)
+				assert.True(t, got.claims.IsAdminToken)
+				assert.NotEmpty(t, got.claims.Subject)
 
 				return assert.True(t, got.nextCalled)
 			},
@@ -192,7 +162,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var (
 				nextCalled bool
-				claims     jwt.MapClaims
+				claims     *auth.OAuthClaims
 			)
 
 			wrapped := tt.fields.interceptor.WrapUnary(func(ctx context.Context, _ connect.AnyRequest) (connect.AnyResponse, error) {
@@ -210,7 +180,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			got := gotData{code: connect.CodeOf(err), nextCalled: nextCalled, claims: claims}
 
 			assert.True(t, tt.wantErr(t, err))
-			assert.True(t, tt.want(t, got, tt.fields.db))
+			assert.True(t, tt.want(t, got))
 		})
 	}
 }
@@ -237,15 +207,15 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[jwt.MapClaims]
+		want    assert.Want[*auth.OAuthClaims]
 		wantErr assert.WantErr
 	}{
 		{
 			name:   "jwks validates signature",
 			args:   args{token: validJWKSToken},
 			fields: fields{interceptor: &AuthInterceptor{cfg: &AuthConfig{useJWKS: true, jwks: jwks}}},
-			want: func(t *testing.T, got jwt.MapClaims, _ ...any) bool {
-				return assert.Equal(t, "jwks-user", got["sub"])
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "jwks-user", got.Subject)
 			},
 			wantErr: assert.NoError,
 		},
@@ -253,7 +223,7 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			name:   "jwks rejects invalid signature",
 			args:   args{token: invalidJWKSToken},
 			fields: fields{interceptor: &AuthInterceptor{cfg: &AuthConfig{useJWKS: true, jwks: jwks}}},
-			want:   assert.AnyValue[jwt.MapClaims],
+			want:   assert.AnyValue[*auth.OAuthClaims],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return wantError(t, err, msgAndArgs...)
 			},
@@ -262,8 +232,8 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			name:   "public key validates signature",
 			args:   args{token: validPublicKeyToken},
 			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
-			want: func(t *testing.T, got jwt.MapClaims, _ ...any) bool {
-				return assert.Equal(t, "pk-user", got["sub"])
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "pk-user", got.Subject)
 			},
 			wantErr: assert.NoError,
 		},
@@ -271,7 +241,7 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			name:   "missing public key returns error",
 			args:   args{token: validPublicKeyToken},
 			fields: fields{interceptor: NewAuthInterceptor()},
-			want:   assert.AnyValue[jwt.MapClaims],
+			want:   assert.AnyValue[*auth.OAuthClaims],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "no public key configured", msgAndArgs...)
 			},

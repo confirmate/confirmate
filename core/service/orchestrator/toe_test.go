@@ -164,9 +164,11 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 				req: &orchestrator.GetTargetOfEvaluationRequest{
 					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
 				},
-				context: auth.WithClaims(context.Background(), jwt.MapClaims{
-					"sub":    "user-1",
-					"cladmin": true,
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: "user-1",
+					},
+					IsAdminToken: true,
 				}),
 			},
 			fields: fields{
@@ -174,7 +176,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
-				authz: &service.AuthorizationStrategyJWT{AllowAllKey: service.DefaultAllowAllClaim},
+				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&

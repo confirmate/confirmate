@@ -110,12 +110,8 @@ var ConfirmateCommand = &cli.Command{
 			interceptors = append(interceptors, server.NewAuthInterceptor(
 				server.WithJWKS(jwksURL),
 			))
-			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultAllowAllClaim,
-			))
-			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyJWT(
-				service.DefaultAllowAllClaim,
-			))
+			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
+			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
 		}
 
 		interceptors = append(interceptors, &server.LoggingInterceptor{})

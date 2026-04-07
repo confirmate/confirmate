@@ -86,9 +86,7 @@ var OrchestratorCommand = &cli.Command{
 			interceptors = append(interceptors, server.NewAuthInterceptor(
 				server.WithJWKS(jwksURL),
 			))
-			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultAllowAllClaim,
-			))
+			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		}
 
 		interceptors = append(interceptors, &server.LoggingInterceptor{})

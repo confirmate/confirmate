@@ -86,7 +86,12 @@ func TestService_GetUser(t *testing.T) {
 		{
 			name: "err: permission denied - deny strategy",
 			args: args{
-				ctx: auth.WithClaims(context.Background(), jwt.MapClaims{"sub": "caller", "iss": "test"}),
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: "caller",
+						Issuer:  "test",
+					},
+				}),
 				req: connect.NewRequest(&orchestrator.GetUserRequest{
 					UserId: orchestratortest.MockUserId1,
 				}),
@@ -103,7 +108,13 @@ func TestService_GetUser(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				ctx: auth.WithClaims(context.Background(), jwt.MapClaims{"sub": "caller", "iss": "test", service.DefaultAllowAllClaim: true}),
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: "caller",
+						Issuer:  "test",
+					},
+					IsAdminToken: true,
+				}),
 				req: connect.NewRequest(&orchestrator.GetUserRequest{
 					UserId: orchestratortest.MockUserId1,
 				}),
@@ -113,7 +124,7 @@ func TestService_GetUser(t *testing.T) {
 					err := d.Create(orchestratortest.MockUser1)
 					assert.NoError(t, err)
 				}),
-				authz: &service.AuthorizationStrategyJWT{AllowAllKey: service.DefaultAllowAllClaim},
+				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
 				return assert.Equal(t, orchestratortest.MockUserId1, got.Msg.Id)

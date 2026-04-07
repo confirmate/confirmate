@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
@@ -197,33 +196,38 @@ func (svc *Service) RemoveUser(
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
 func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceId string, objectType orchestrator.ObjectType) (bool, []string, error) {
 	var (
-		user *orchestrator.User
-		err  error
+		user   *orchestrator.User
+		claims *auth.OAuthClaims
+		err    error
 	)
 
-	if svc == nil {
-		return false, nil, fmt.Errorf("service is nil")
-	}
-	if svc.db == nil {
-		return false, nil, fmt.Errorf("database is not initialized")
-	}
+	// If we have no authorization strategy, we allow all access by default. This is useful for
+	// internal (test) services that do not require authentication/authorization.
 	if authz == nil {
 		return true, nil, nil
 	}
 
+	if svc == nil {
+		return false, nil, fmt.Errorf("service is nil")
+	}
+
+	if svc.db == nil {
+		return false, nil, fmt.Errorf("database is not initialized")
+	}
+
 	// Get claims from context
-	claims, _ := auth.ClaimsFromContext(ctx)
+	claims, _ = auth.ClaimsFromContext(ctx)
 
 	// TODO(anatheka): Should we check if the user is already in the DB?
 	// Extract user information from claims
 	user = &orchestrator.User{
-		Id:             service.GetClaim(claims, "iss") + "|" + service.GetClaim(claims, "sub"),
-		Username:       util.Ref(service.GetClaim(claims, "preferred_username")),
-		FirstName:      util.Ref(service.GetClaim(claims, "given_name")),
-		LastName:       util.Ref(service.GetClaim(claims, "family_name")),
+		Id:             claims.Issuer + "|" + claims.Subject, // Use "iss|sub" as a unique identifier for the user, as recommended by the OIDC specification for the "sub" claim. This ensures uniqueness across different identity providers.
+		Username:       util.Ref(claims.PreferredUsername),
+		FirstName:      util.Ref(claims.GivenName),
+		LastName:       util.Ref(claims.FamilyName),
 		Enabled:        true,
-		Email:          util.Ref(service.GetClaim(claims, "email")),
-		ExpirationDate: timestamppb.New(time.Unix(service.GetClaimInt64(claims, "exp"), 0)),
+		Email:          util.Ref(claims.Email),
+		ExpirationDate: timestamppb.New(claims.ExpiresAt.Time),
 		LastAccess:     timestamppb.Now(),
 	}
 

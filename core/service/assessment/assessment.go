@@ -144,12 +144,10 @@ func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Opti
 	}
 }
 
-// WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
-func WithAuthorizationStrategyJWT(allowAllKey string) service.Option[Service] {
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization.
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 	return func(svc *Service) {
-		svc.authz = &service.AuthorizationStrategyJWT{
-			AllowAllKey: allowAllKey,
-		}
+		svc.authz = &service.AuthorizationStrategyPermissionStore{}
 	}
 }
 

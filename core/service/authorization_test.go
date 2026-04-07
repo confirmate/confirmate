@@ -22,8 +22,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 	"confirmate.io/core/util/assert"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type denyAuthorizationStrategy struct{}
@@ -72,7 +70,7 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 		objectType     orchestrator.ObjectType
 	}
 	type fields struct {
-		strategy *AuthorizationStrategyJWT
+		strategy *AuthorizationStrategyPermissionStore
 	}
 
 	tests := []struct {
@@ -92,9 +90,7 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 				resourceId:     "resource-1",
 				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
-			fields: fields{strategy: &AuthorizationStrategyJWT{
-				AllowAllKey: DefaultAllowAllClaim,
-			}},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{}},
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.False(t, got)
 			},
@@ -103,16 +99,14 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 		{
 			name: "allows when allow-all claim is true",
 			args: args{
-				ctx:            auth.WithClaims(context.Background(), jwt.MapClaims{DefaultAllowAllClaim: true}),
+				ctx:            auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
 				userId:         "user-1",
 				reqType:        orchestrator.RequestType_REQUEST_TYPE_GET,
 				userPermission: orchestrator.UserPermission_PERMISSION_READER,
 				resourceId:     "any",
 				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
-			fields: fields{strategy: &AuthorizationStrategyJWT{
-				AllowAllKey: DefaultAllowAllClaim,
-			}},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{}},
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.True(t, got)
 			},
@@ -128,9 +122,7 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 				resourceId:     "resource-1",
 				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
-			fields: fields{strategy: &AuthorizationStrategyJWT{
-				AllowAllKey: DefaultAllowAllClaim,
-			}},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{}},
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.False(t, got)
 			},

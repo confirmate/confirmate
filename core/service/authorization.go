@@ -26,11 +26,6 @@ import (
 	"connectrpc.com/connect"
 )
 
-const (
-	// DefaultAllowAllClaim is the default claim key granting access to all TOEs.
-	DefaultAllowAllClaim = "cladmin"
-)
-
 // ErrPermissionDenied represents an error, where permission to fulfill the request is denied.
 var ErrPermissionDenied = connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 
@@ -41,7 +36,8 @@ type AuthorizationStrategy interface {
 		reqType orchestrator.RequestType,
 		userPermission orchestrator.UserPermission_Permission,
 		resourceId string,
-		objectType orchestrator.ObjectType) (bool, []string)
+		objectType orchestrator.ObjectType,
+	) (bool, []string)
 }
 
 // CheckAccess checks access via the configured strategy.
@@ -66,15 +62,17 @@ func CheckAccess[T any](authz AuthorizationStrategy,
 		objectType)
 }
 
-type AuthorizationStrategyJWT struct {
-	AllowAllKey string
-
+// AuthorizationStrategyPermissionStore implements access checks based on user permissions stored in
+// a [PermissionStore]. It checks permissions for the user making the request and the requested
+// resource, returning whether access is allowed and, for list requests, the IDs of resources the
+// user has access to.
+type AuthorizationStrategyPermissionStore struct {
 	// Permissions is an interface to check user permissions stored in the Orchestrator DB. It is used as part of the JWT-based authorization strategy to determine access rights based on the user's permissions.
 	Permissions PermissionStore
 }
 
 // CheckAccess checks whether the request can be fulfilled using the current access strategy.
-func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
+func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	userId string,
 	reqType orchestrator.RequestType,
 	userPermission orchestrator.UserPermission_Permission,
@@ -89,11 +87,9 @@ func (a *AuthorizationStrategyJWT) CheckAccess(ctx context.Context,
 		return false, nil
 	}
 
-	// Check AllowAllKey claim to allow access to all (e.g., {"cladmin": true}).
-	if claims, ok := auth.ClaimsFromContext(ctx); ok && a.AllowAllKey != "" {
-		if b, ok := claims[a.AllowAllKey].(bool); ok && b {
-			return true, nil
-		}
+	// Check IsAdminToken claim to allow access to all.
+	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+		return true, nil
 	}
 
 	if a.Permissions == nil {
@@ -166,44 +162,8 @@ func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 	_ orchestrator.RequestType,
 	_ orchestrator.UserPermission_Permission,
 	_ string,
-	_ orchestrator.ObjectType) (ok bool, resourceIDs []string) {
+	_ orchestrator.ObjectType) (ok bool, resourceIDs []string,
+) {
 	// Keep this strategy permissive by design.
 	return true, nil
-}
-
-// GetClaim is a helper function to extract a specific claim from the claims map, returning an empty string if the claim is not present or not a string.
-func GetClaim(claims map[string]any, key string) string {
-	if val, ok := claims[key]; ok && val != nil {
-		return val.(string)
-	}
-	return ""
-}
-
-// GetClaimInt64 extracts a numeric claim as int64, returning 0 if missing or not numeric.
-func GetClaimInt64(claims map[string]any, key string) int64 {
-	val, ok := claims[key]
-	if !ok || val == nil {
-		return 0
-	}
-
-	switch v := val.(type) {
-	case int64:
-		return v
-	case int:
-		return int64(v)
-	case int32:
-		return int64(v)
-	case float64:
-		return int64(v)
-	case float32:
-		return int64(v)
-	case uint64:
-		return int64(v)
-	case uint:
-		return int64(v)
-	case uint32:
-		return int64(v)
-	default:
-		return 0
-	}
 }

@@ -107,11 +107,11 @@ func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Opti
 	}
 }
 
-// WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
-func WithAuthorizationStrategyJWT(allowAllKey string) service.Option[Service] {
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization.
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 	return func(svc *Service) {
-		svc.authz = &service.AuthorizationStrategyJWT{
-			AllowAllKey: allowAllKey,
+		svc.authz = &service.AuthorizationStrategyPermissionStore{
+			// Permission store will be set-up later in NewService when the database is initialized.
 		}
 	}
 }
@@ -145,9 +145,10 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 		return nil, fmt.Errorf("could not create db: %w", err)
 	}
 
-	// If using JWT-based authorization, set up the permission store for fine-grained permission checks
-	if jwStrat, ok := svc.authz.(*service.AuthorizationStrategyJWT); ok {
-		jwStrat.Permissions = permissionStore{
+	// If using permission store-based authorization, set up the permission store for fine-grained
+	// permission checks
+	if permStrat, ok := svc.authz.(*service.AuthorizationStrategyPermissionStore); ok {
+		permStrat.Permissions = permissionStore{
 			db: svc.db,
 		}
 	}

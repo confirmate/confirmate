@@ -16,31 +16,22 @@
 package auth
 
 import (
-	"context"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-type contextKey string
+// OAuthClaims represents the expected claims in the JWT token for authentication. It extends the
+// standard JWT claims with additional fields commonly used in OAuth2 and OpenID Connect tokens.
+type OAuthClaims struct {
+	jwt.RegisteredClaims
+	Scope             string `json:"scope,omitempty"`
+	Email             string `json:"email,omitempty"`
+	PreferredUsername string `json:"preferred_username,omitempty"`
+	GivenName         string `json:"given_name,omitempty"`
+	FamilyName        string `json:"family_name,omitempty"`
 
-const (
-	claimsContextKey contextKey = "auth-claims"
-)
-
-// WithClaims stores verified JWT claims in the context.
-func WithClaims(ctx context.Context, claims *OAuthClaims) (out context.Context) {
-	if ctx == nil || claims == nil {
-		return ctx
-	}
-
-	out = context.WithValue(ctx, claimsContextKey, claims)
-	return out
-}
-
-// ClaimsFromContext returns verified JWT claims from the context, if present.
-func ClaimsFromContext(ctx context.Context) (claims *OAuthClaims, ok bool) {
-	if ctx == nil {
-		return nil, false
-	}
-
-	claims, ok = ctx.Value(claimsContextKey).(*OAuthClaims)
-	return claims, ok
+	// IsAdminToken is a custom claim that indicates whether the token is an admin token. This can
+	// be used to grant elevated permissions to tokens that are meant for administrative purposes.
+	// The presence and value of this claim should be determined by the authentication provider
+	// issuing the token.
+	IsAdminToken bool `json:"cfadmin,omitempty"`
 }
