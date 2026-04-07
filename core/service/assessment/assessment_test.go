@@ -31,7 +31,6 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 
-	coreapi "confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -57,11 +56,7 @@ import (
 
 type denyAssessmentAuthorizationStrategy struct{}
 
-func (*denyAssessmentAuthorizationStrategy) CheckAccess(context.Context, apiOrch.RequestType, coreapi.HasTargetOfEvaluationId) bool {
-	return false
-}
-
-func (*denyAssessmentAuthorizationStrategy) AllowedTargetOfEvaluations(context.Context) (bool, []string) {
+func (*denyAssessmentAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ apiOrch.RequestType, _ apiOrch.UserPermission_Permission, _ string, _ apiOrch.ObjectType) (bool, []string) {
 	return false, nil
 }
 

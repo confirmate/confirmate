@@ -42,10 +42,15 @@ func (svc *Service) CreateCertificate(
 	// TODO(all): Generate new ID?
 	cert = req.Msg.Certificate
 
-	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
-	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	// Check access via the configured auth strategy
+	var allowed bool
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Persist the new certificate in the database
 	err = svc.db.Create(cert)
@@ -83,7 +88,7 @@ func (svc *Service) GetCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return connect.NewResponse(&orchestrator.Certificate{}), nil
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	res = connect.NewResponse(&cert)
@@ -201,13 +206,10 @@ func (svc *Service) UpdateCertificate(
 		return nil, err
 	}
 
-	// cert = req.Msg.Certificate
-	// if cert == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	cert = req.Msg.Certificate
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.Certificate.GetId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, cert.GetId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

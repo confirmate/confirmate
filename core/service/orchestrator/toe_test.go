@@ -165,9 +165,8 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
 				},
 				context: auth.WithClaims(context.Background(), jwt.MapClaims{
-					"sub":                  "user-1",
-					"cladmin":              false,
-					"targetOfEvaluationId": []string{orchestratortest.MockTargetOfEvaluation1.Id},
+					"sub":    "user-1",
+					"cladmin": true,
 				}),
 			},
 			fields: fields{
@@ -175,7 +174,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
-				authz: &service.AuthorizationStrategyJWT{},
+				authz: &service.AuthorizationStrategyJWT{AllowAllKey: service.DefaultAllowAllClaim},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&

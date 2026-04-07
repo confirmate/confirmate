@@ -47,10 +47,14 @@ func (svc *Service) StoreAssessmentResult(
 
 	result = req.Msg.Result
 
-	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
-	// if result == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	// Check access via the configured auth strategy
+	allowed, _, err := CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, result.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Set timestamp
 	result.CreatedAt = timestamppb.Now()
@@ -102,7 +106,7 @@ func (svc *Service) GetAssessmentResult(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return connect.NewResponse(&assessment.AssessmentResult{}), nil
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 	res = connect.NewResponse(&result)
 	return

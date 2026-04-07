@@ -343,7 +343,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "authorization failure",
+			name: "authorization failure returns empty list",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{
 					Filter: &orchestrator.ListAuditScopesRequest_Filter{
@@ -355,10 +355,10 @@ func TestService_ListAuditScopes(t *testing.T) {
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.ListAuditScopesResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.AuditScopes))
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "filter by catalog",

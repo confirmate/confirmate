@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package orchestrator
 
 import (
@@ -15,10 +30,36 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func TestService_UpsertCurrentUser(t *testing.T) {
+func TestService_GetCurrentUser(t *testing.T) {
+	tests := []struct {
+		name    string
+		want    assert.Want[*connect.Response[orchestrator.User]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "returns empty user",
+			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{}
+
+			res, err := svc.GetCurrentUser(context.Background(), connect.NewRequest(&orchestrator.GetCurrentUserRequest{}))
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
+		})
+	}
+}
+
+func TestService_GetUser(t *testing.T) {
 	type args struct {
 		ctx context.Context
-		req *connect.Request[orchestrator.UpsertCurrentUserRequest]
+		req *connect.Request[orchestrator.GetUserRequest]
 	}
 	type fields struct {
 		db    persistence.DB
@@ -28,65 +69,59 @@ func TestService_UpsertCurrentUser(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[*connect.Response[orchestrator.UpsertCurrentUserResponse]]
+		want    assert.Want[*connect.Response[orchestrator.User]]
 		wantErr assert.WantErr
 	}{
 		{
-			name: "err: db error",
+			name: "err: invalid request - missing user id",
 			args: args{
 				ctx: context.Background(),
-				req: connect.NewRequest(&orchestrator.UpsertCurrentUserRequest{
-					User: orchestratortest.MockUser1,
-				}),
+				req: connect.NewRequest(&orchestrator.GetUserRequest{}),
 			},
-			fields: fields{
-				db: persistencetest.SaveErrorDB(t, persistence.ErrDatabase, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.UpsertCurrentUserResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInternal)
-			},
-		},
-		{
-			name: "err: invalid request",
-			args: args{
-				ctx: context.Background(),
-				req: connect.NewRequest(&orchestrator.UpsertCurrentUserRequest{}),
-			},
-			fields: fields{},
-			want:   assert.Nil[*connect.Response[orchestrator.UpsertCurrentUserResponse]],
+			want: assert.Nil[*connect.Response[orchestrator.User]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{
-			name: "happy path",
+			name: "err: permission denied - deny strategy",
 			args: args{
-				ctx: auth.WithClaims(context.Background(), jwt.MapClaims{
-					"exp": float64(9999999999),
-					"sub": "cliadmin",
-				}),
-				req: connect.NewRequest(&orchestrator.UpsertCurrentUserRequest{
-					User: orchestratortest.MockUser1,
+				ctx: auth.WithClaims(context.Background(), jwt.MapClaims{"sub": "caller", "iss": "test"}),
+				req: connect.NewRequest(&orchestrator.GetUserRequest{
+					UserId: orchestratortest.MockUserId1,
 				}),
 			},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-				authz: &service.AuthorizationStrategyJWT{},
+				authz: &denyAuthorizationStrategy{},
 			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertCurrentUserResponse], args ...any) bool {
-				want := orchestratortest.MockUser1
-
-				assert.NotEmpty(t, got.Msg.User.GetExpirationDate())
-				assert.NotEmpty(t, got.Msg.User.GetLastAccess())
-				got.Msg.User.ExpirationDate = nil
-				got.Msg.User.LastAccess = nil
-
-				return assert.Equal(t, want, got.Msg.User)
+			want: assert.Nil[*connect.Response[orchestrator.User]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "happy path",
+			args: args{
+				ctx: auth.WithClaims(context.Background(), jwt.MapClaims{"sub": "caller", "iss": "test", service.DefaultAllowAllClaim: true}),
+				req: connect.NewRequest(&orchestrator.GetUserRequest{
+					UserId: orchestratortest.MockUserId1,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockUser1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyJWT{AllowAllKey: service.DefaultAllowAllClaim},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
+				return assert.Equal(t, orchestratortest.MockUserId1, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
@@ -94,9 +129,9 @@ func TestService_UpsertCurrentUser(t *testing.T) {
 				authz: tt.fields.authz,
 			}
 
-			res, err := svc.UpsertCurrentUser(tt.args.ctx, tt.args.req)
-			tt.want(t, res)
-			tt.wantErr(t, err)
+			res, err := svc.GetUser(tt.args.ctx, tt.args.req)
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
 		})
 	}
 }

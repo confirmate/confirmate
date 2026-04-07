@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	api "confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
@@ -36,11 +35,7 @@ import (
 
 type denyAuthorizationStrategy struct{}
 
-func (*denyAuthorizationStrategy) CheckAccess(context.Context, orchestrator.RequestType, api.HasTargetOfEvaluationId) bool {
-	return false
-}
-
-func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(context.Context) (bool, []string) {
+func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string) {
 	return false, nil
 }
 
@@ -330,7 +325,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 		},
 		{
-			name: "authorization failure",
+			name: "authorization failure returns empty list",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
 					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
@@ -342,10 +337,10 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.Results))
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "list all",

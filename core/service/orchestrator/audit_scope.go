@@ -47,10 +47,15 @@ func (svc *Service) CreateAuditScope(
 	// Generate a new UUID for the audit scope
 	scope.Id = uuid.NewString()
 
-	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
-	// if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
-	// 	return nil, service.ErrPermissionDenied
-	// }
+	// Check access via the configured auth strategy
+	var allowed bool
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, scope.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Persist the new audit scope in the database
 	err = svc.db.Create(scope)
@@ -99,7 +104,7 @@ func (svc *Service) GetAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return connect.NewResponse(&orchestrator.AuditScope{}), nil
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	res = connect.NewResponse(&scope)

@@ -103,7 +103,7 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return connect.NewResponse(&orchestrator.TargetOfEvaluation{}), nil
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	res = connect.NewResponse(&toe)
@@ -181,17 +181,19 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		return nil, err
 	}
 
-	// Update timestamp
-	toe.UpdatedAt = timestamppb.Now()
+	toe = req.Msg.TargetOfEvaluation
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.TargetOfEvaluation.GetId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, toe.GetId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
 		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
+
+	// Update timestamp
+	toe.UpdatedAt = timestamppb.Now()
 
 	// Update the target of evaluation
 	err = svc.db.Update(toe, "id = ?", toe.Id)

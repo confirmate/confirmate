@@ -208,7 +208,7 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		return false, nil, fmt.Errorf("database is not initialized")
 	}
 	if authz == nil {
-		return false, nil, fmt.Errorf("authorization strategy is not configured")
+		return true, nil, nil
 	}
 
 	// Get claims from context
