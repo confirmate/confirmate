@@ -26,8 +26,10 @@ import (
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
+
 	"connectrpc.com/connect"
 	"github.com/golang-jwt/jwt/v5"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestService_GetCurrentUser(t *testing.T) {
@@ -88,6 +90,235 @@ func TestService_GetCurrentUser(t *testing.T) {
 			svc := &Service{db: tt.fields.db}
 
 			res, err := svc.GetCurrentUser(tt.ctx, connect.NewRequest(&orchestrator.GetCurrentUserRequest{}))
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
+		})
+	}
+}
+
+func TestService_UpsertUserPermission(t *testing.T) {
+	type args struct {
+		req *connect.Request[orchestrator.UpsertUserPermissionRequest]
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[orchestrator.UpsertUserPermissionResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: invalid request - missing permission",
+			args: args{
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "happy path",
+			args: args{
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables)},
+			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			res, err := svc.UpsertUserPermission(context.Background(), tt.args.req)
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
+		})
+	}
+}
+
+func TestService_ListUsers(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    assert.Want[*connect.Response[orchestrator.ListUsersResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name:   "empty list",
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables)},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.Users))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.Users)) &&
+					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.Users[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			res, err := svc.ListUsers(context.Background(), connect.NewRequest(&orchestrator.ListUsersRequest{}))
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
+		})
+	}
+}
+
+func TestService_ListUserPermissions(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    assert.Want[*connect.Response[orchestrator.ListUserPermissionsResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: invalid request - missing user id",
+			want: assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "happy path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					}))
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
+					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.UserPermissions[0].UserId)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			userId := ""
+			if tt.fields.db != nil {
+				userId = orchestratortest.MockUserId1
+			}
+			res, err := svc.ListUserPermissions(context.Background(), connect.NewRequest(&orchestrator.ListUserPermissionsRequest{UserId: userId}))
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
+		})
+	}
+}
+
+func TestService_ListUserRoles(t *testing.T) {
+	tests := []struct {
+		name    string
+		want    assert.Want[*connect.Response[orchestrator.ListUserRolesResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "returns all defined roles",
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserRolesResponse], _ ...any) bool {
+				// Role_name includes ROLE_UNSPECIFIED, so subtract 1
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, len(orchestrator.Role_name)-1, len(got.Msg.Roles))
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{}
+
+			res, err := svc.ListUserRoles(context.Background(), connect.NewRequest(&orchestrator.ListUserRolesRequest{}))
+			assert.True(t, tt.wantErr(t, err))
+			assert.True(t, tt.want(t, res))
+		})
+	}
+}
+
+func TestService_RemoveUser(t *testing.T) {
+	type args struct {
+		req *connect.Request[orchestrator.RemoveUserRequest]
+	}
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[emptypb.Empty]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: invalid request - missing user id",
+			args: args{req: connect.NewRequest(&orchestrator.RemoveUserRequest{})},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "happy path",
+			args: args{req: connect.NewRequest(&orchestrator.RemoveUserRequest{UserId: orchestratortest.MockUserId1})},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], _ ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+
+			res, err := svc.RemoveUser(context.Background(), tt.args.req)
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})
