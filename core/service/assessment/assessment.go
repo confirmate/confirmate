@@ -541,11 +541,11 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 		})
 
 		resp, err = svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
-		config = resp.Msg
-
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric configuration for %s: %w", metric.Id, err)
 		}
+
+		config = resp.Msg
 
 		cache = cachedConfiguration{
 			cachedAt:            time.Now(),

@@ -22,12 +22,10 @@ package orchestrator
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	_ "confirmate.io/core/api/common"
 	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -263,8 +261,6 @@ type User struct {
 	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Attributes contains additional key-value pairs associated with the user, such as department or team.
 	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
-	// Expiration date indicates when the user's access expires.
-	ExpirationDate *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// LastAccess indicates the last time the user accessed the system.
 	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	unknownFields protoimpl.UnknownFields
@@ -357,13 +353,6 @@ func (x *User) GetAttributes() map[string]string {
 	return nil
 }
 
-func (x *User) GetExpirationDate() *timestamppb.Timestamp {
-	if x != nil {
-		return x.ExpirationDate
-	}
-	return nil
-}
-
 func (x *User) GetLastAccess() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastAccess
@@ -447,7 +436,7 @@ var File_api_orchestrator_user_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x18api/common/runtime.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xea\x05\n" +
+	"\x1bapi/orchestrator/user.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xf2\x04\n" +
 	"\x04User\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1f\n" +
@@ -461,8 +450,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\aenabled\x18\a \x01(\bR\aenabled\x12m\n" +
 	"\n" +
 	"attributes\x18\b \x03(\v20.confirmate.orchestrator.v1.User.AttributesEntryB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\n" +
-	"attributes\x12v\n" +
-	"\x0fexpiration_date\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x12n\n" +
+	"attributes\x12n\n" +
 	"\vlast_access\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\n" +
 	"lastAccess\x1a=\n" +
@@ -543,15 +531,14 @@ var file_api_orchestrator_user_proto_goTypes = []any{
 var file_api_orchestrator_user_proto_depIdxs = []int32{
 	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
 	5, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
-	6, // 2: confirmate.orchestrator.v1.User.expiration_date:type_name -> google.protobuf.Timestamp
-	6, // 3: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
-	1, // 4: confirmate.orchestrator.v1.UserPermission.resource_type:type_name -> confirmate.orchestrator.v1.ObjectType
-	2, // 5: confirmate.orchestrator.v1.UserPermission.permission:type_name -> confirmate.orchestrator.v1.UserPermission.Permission
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	6, // 2: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
+	1, // 3: confirmate.orchestrator.v1.UserPermission.resource_type:type_name -> confirmate.orchestrator.v1.ObjectType
+	2, // 4: confirmate.orchestrator.v1.UserPermission.permission:type_name -> confirmate.orchestrator.v1.UserPermission.Permission
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_user_proto_init() }

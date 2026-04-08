@@ -10,6 +10,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/util"
+
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -198,6 +199,7 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	var (
 		user   *orchestrator.User
 		claims *auth.OAuthClaims
+		ok     bool
 		err    error
 	)
 
@@ -207,38 +209,44 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		return true, nil, nil
 	}
 
-	if svc == nil {
-		return false, nil, fmt.Errorf("service is nil")
+	var userId string
+
+	// If JWT claims are present, provision the user in the DB (JIT provisioning) and use their ID.
+	// If no claims are present, use an empty user ID — strategies like AuthorizationStrategyAllowAll
+	// don't require a user ID, while AuthorizationStrategyPermissionStore will deny empty IDs.
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if ok && claims != nil {
+		if svc == nil {
+			return false, nil, fmt.Errorf("service is nil")
+		}
+
+		if svc.db == nil {
+			return false, nil, fmt.Errorf("database is not initialized")
+		}
+
+		// TODO(anatheka): Should we check if the user is already in the DB?
+		// Extract user information from claims
+		user = &orchestrator.User{
+			Id:         claims.Issuer + "|" + claims.Subject, // Use "iss|sub" as a unique identifier for the user, as recommended by the OIDC specification for the "sub" claim. This ensures uniqueness across different identity providers.
+			Username:   util.Ref(claims.PreferredUsername),
+			FirstName:  util.Ref(claims.GivenName),
+			LastName:   util.Ref(claims.FamilyName),
+			Enabled:    true,
+			Email:      util.Ref(claims.Email),
+			LastAccess: timestamppb.Now(),
+		}
+
+		// Ensure the user exists in the DB.
+		// We do not need the response, we only want to know if an error occurred.
+		err = svc.db.Save(user)
+		if err != nil {
+			return false, nil, fmt.Errorf("failed to ensure current user: %w", err)
+		}
+
+		userId = user.Id
 	}
 
-	if svc.db == nil {
-		return false, nil, fmt.Errorf("database is not initialized")
-	}
-
-	// Get claims from context
-	claims, _ = auth.ClaimsFromContext(ctx)
-
-	// TODO(anatheka): Should we check if the user is already in the DB?
-	// Extract user information from claims
-	user = &orchestrator.User{
-		Id:             claims.Issuer + "|" + claims.Subject, // Use "iss|sub" as a unique identifier for the user, as recommended by the OIDC specification for the "sub" claim. This ensures uniqueness across different identity providers.
-		Username:       util.Ref(claims.PreferredUsername),
-		FirstName:      util.Ref(claims.GivenName),
-		LastName:       util.Ref(claims.FamilyName),
-		Enabled:        true,
-		Email:          util.Ref(claims.Email),
-		ExpirationDate: timestamppb.New(claims.ExpiresAt.Time),
-		LastAccess:     timestamppb.Now(),
-	}
-
-	// Ensure the user exists in the DB.
-	// We do not need the response, we only want to know if an error occurred.
-	err = svc.db.Save(user)
-	if err != nil {
-		return false, nil, fmt.Errorf("failed to ensure current user: %w", err)
-	}
-
-	allowed, resourceIDs := authz.CheckAccess(ctx, user.Id, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
+	allowed, resourceIDs := authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
 
 	return allowed, resourceIDs, nil
 }

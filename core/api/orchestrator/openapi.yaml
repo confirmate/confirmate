@@ -2474,10 +2474,6 @@ components:
                     additionalProperties:
                         type: string
                     description: Attributes contains additional key-value pairs associated with the user, such as department or team.
-                expirationDate:
-                    type: string
-                    description: Expiration date indicates when the user's access expires.
-                    format: date-time
                 lastAccess:
                     type: string
                     description: LastAccess indicates the last time the user accessed the system.

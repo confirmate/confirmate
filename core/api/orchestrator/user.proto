@@ -15,11 +15,8 @@ syntax = "proto3";
 
 package confirmate.orchestrator.v1;
 
-import "api/common/runtime.proto";
 import "buf/validate/validate.proto";
-import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
 
@@ -48,16 +45,14 @@ message User {
   // Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
   repeated Role roles = 6 [
     (buf.validate.field).repeated.items.enum.defined_only = true,
-    (tagger.tags) = "gorm:\"serializer:json\""];
+    (tagger.tags) = "gorm:\"serializer:json\""
+  ];
 
   // Enabled indicates whether the user is active/enabled in the system
   bool enabled = 7;
 
   // Attributes contains additional key-value pairs associated with the user, such as department or team.
   map<string, string> attributes = 8 [(tagger.tags) = "gorm:\"serializer:json\""];
-
-  // Expiration date indicates when the user's access expires.
-  google.protobuf.Timestamp expiration_date = 9 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 
   // LastAccess indicates the last time the user accessed the system.
   google.protobuf.Timestamp last_access = 10 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
@@ -76,7 +71,7 @@ enum Role {
 }
 
 message UserPermission {
-  // User ID is required to identify the user for whom the perission is being upserted. 
+  // User ID is required to identify the user for whom the perission is being upserted.
   string user_id = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED,

@@ -447,6 +447,7 @@ func TestService_AssessEvidences(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID1,
 						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
+							Name:              "boot-log-1",
 							LoggingServiceIds: nil,
 							Enabled:           true,
 						},
@@ -461,6 +462,7 @@ func TestService_AssessEvidences(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID2,
 						Name: evidencetest.MockVirtualMachineName2,
 						BootLogging: &ontology.BootLogging{
+							Name:              "boot-log-2",
 							LoggingServiceIds: nil,
 							Enabled:           false,
 						},
