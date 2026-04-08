@@ -43,7 +43,9 @@ func (svc *Service) UpsertUserPermission(
 		return nil, err
 	}
 
-	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{})
+	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{
+		UserPermission: req.Msg.UserPermission,
+	})
 	return
 }
 
@@ -100,7 +102,7 @@ func (svc *Service) GetUser(
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment result")); err != nil {
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
 		return nil, err
 	}
 
@@ -214,11 +216,23 @@ func (svc *Service) RemoveUser(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveUserRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
-	var user orchestrator.User
+	var (
+		user    orchestrator.User
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Only admins may delete users.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Delete(&user, "id = ?", req.Msg.UserId)
@@ -260,26 +274,43 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 			return false, nil, fmt.Errorf("database is not initialized")
 		}
 
-		// TODO(anatheka): Should we check if the user is already in the DB?
-		// Extract user information from claims
-		user = &orchestrator.User{
-			Id:         claims.Issuer + "|" + claims.Subject, // Use "iss|sub" as a unique identifier for the user, as recommended by the OIDC specification for the "sub" claim. This ensures uniqueness across different identity providers.
-			Username:   util.Ref(claims.PreferredUsername),
-			FirstName:  util.Ref(claims.GivenName),
-			LastName:   util.Ref(claims.FamilyName),
-			Enabled:    true,
-			Email:      util.Ref(claims.Email),
-			LastAccess: timestamppb.Now(),
-		}
+		// JIT-provision the user using a read-then-update approach to avoid overwriting existing
+		// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
+		// by the OIDC specification, ensuring uniqueness across identity providers.
+		userId = claims.Issuer + "|" + claims.Subject
+		user = &orchestrator.User{}
+		err = svc.db.Get(user, "id = ?", userId)
 
-		// Ensure the user exists in the DB.
-		// We do not need the response, we only want to know if an error occurred.
-		err = svc.db.Save(user)
-		if err != nil {
-			return false, nil, fmt.Errorf("failed to ensure current user: %w", err)
+		if errors.Is(err, persistence.ErrRecordNotFound) {
+			// User not found: create them with all identity fields.
+			user = &orchestrator.User{
+				Id:         userId,
+				Username:   util.Ref(claims.PreferredUsername),
+				FirstName:  util.Ref(claims.GivenName),
+				LastName:   util.Ref(claims.FamilyName),
+				Enabled:    true,
+				Email:      util.Ref(claims.Email),
+				LastAccess: timestamppb.Now(),
+			}
+			err = svc.db.Create(user)
+			if err != nil {
+				return false, nil, fmt.Errorf("failed to create user: %w", err)
+			}
+		} else if err != nil {
+			return false, nil, fmt.Errorf("failed to look up user: %w", err)
+		} else {
+			// User exists: update only identity fields and last_access to preserve other persisted
+			// fields such as enabled status.
+			user.Username = util.Ref(claims.PreferredUsername)
+			user.FirstName = util.Ref(claims.GivenName)
+			user.LastName = util.Ref(claims.FamilyName)
+			user.Email = util.Ref(claims.Email)
+			user.LastAccess = timestamppb.Now()
+			err = svc.db.Save(user)
+			if err != nil {
+				return false, nil, fmt.Errorf("failed to update user: %w", err)
+			}
 		}
-
-		userId = user.Id
 	}
 
 	allowed, resourceIDs := authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
@@ -323,7 +354,7 @@ func (ps permissionStore) HasPermission(ctx context.Context, userId string, reso
 	count, err = ps.db.Count(
 		&userPermission,
 		"user_id = ? AND resource_type = ? AND resource_id = ? AND permission IN (?)",
-		userId, resourceId, allowed, objectType,
+		userId, objectType, resourceId, allowed,
 	)
 	if err != nil {
 		return false, fmt.Errorf("failed to check permissions: %w", err)
@@ -365,8 +396,8 @@ func (ps permissionStore) PermissionForResources(ctx context.Context, userID str
 	conds = []any{
 		"user_id = ? AND resource_type = ? AND permission IN (?)",
 		userID,
-		allowed,
 		objectType,
+		allowed,
 	}
 	err = ps.db.List(
 		&userPermissions,

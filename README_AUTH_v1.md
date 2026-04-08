@@ -1,4 +1,6 @@
-# DEPRECATED. DO WE WANT TO UPDATE THIS FILE OR DELETE?????
+# Hybrid Resource Authorization (Deprecated Design Document)
+
+**Deprecated:** This document is retained for historical context. It may not reflect the current authorization design. See [core/docs/authentication-and-authorization.md](core/docs/authentication-and-authorization.md) for the up-to-date design.
 
 # Design Document: Hybrid Resource Authorization
 

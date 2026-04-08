@@ -1642,7 +1642,7 @@ paths:
         post:
             tags:
                 - Orchestrator
-            description: Upsert resource permmissions for the currently authenticated user, creating a new user entry if necessary.
+            description: Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
             operationId: Orchestrator_UpsertUserPermission
             requestBody:
                 content:

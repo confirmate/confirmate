@@ -321,10 +321,12 @@ func TestService_ListUserRoles(t *testing.T) {
 
 func TestService_RemoveUser(t *testing.T) {
 	type args struct {
+		ctx context.Context
 		req *connect.Request[orchestrator.RemoveUserRequest]
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -335,15 +337,33 @@ func TestService_RemoveUser(t *testing.T) {
 	}{
 		{
 			name: "err: invalid request - missing user id",
-			args: args{req: connect.NewRequest(&orchestrator.RemoveUserRequest{})},
+			args: args{ctx: context.Background(), req: connect.NewRequest(&orchestrator.RemoveUserRequest{})},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{
+			name: "err: permission denied - non-admin",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&orchestrator.RemoveUserRequest{UserId: orchestratortest.MockUserId1}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "happy path",
-			args: args{req: connect.NewRequest(&orchestrator.RemoveUserRequest{UserId: orchestratortest.MockUserId1})},
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&orchestrator.RemoveUserRequest{UserId: orchestratortest.MockUserId1}),
+			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockUser1))
@@ -358,9 +378,9 @@ func TestService_RemoveUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db}
+			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
 
-			res, err := svc.RemoveUser(context.Background(), tt.args.req)
+			res, err := svc.RemoveUser(tt.args.ctx, tt.args.req)
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})

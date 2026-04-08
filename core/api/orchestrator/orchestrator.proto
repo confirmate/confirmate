@@ -335,7 +335,7 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
-  // Upsert resource permmissions for the currently authenticated user, creating a new user entry if necessary.
+  // Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
       post: "/v1/users/user_permission"
@@ -673,7 +673,7 @@ message ChangeEvent {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes). 
+  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes).
   // When present, should be a valid UUID.
   optional string target_of_evaluation_id = 5;
 
@@ -763,21 +763,15 @@ message TargetOfEvaluation {
 
   // List of user IDs with explicit permission to view this target (Read-only).
   // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-  repeated User readers = 12 [
-    (tagger.tags) = "gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\""
-  ];
+  repeated User readers = 12 [(tagger.tags) = "gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\""];
 
   // List of user IDs responsible for the content and maintenance of this target.
   // These users can modify settings and data but cannot manage other users' access.
-  repeated User contributors = 13 [
-    (tagger.tags) = "gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\""
-  ];
+  repeated User contributors = 13 [(tagger.tags) = "gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\""];
 
   // List of user IDs with administrative control over this target.
   // These users can manage permissions for others and perform destructive actions like deletion.
-  repeated User admins = 14 [
-    (tagger.tags) = "gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\""
-  ];
+  repeated User admins = 14 [(tagger.tags) = "gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\""];
 }
 
 message Catalog {
@@ -934,21 +928,15 @@ message AuditScope {
 
   // List of user IDs with explicit permission to view this target (Read-only).
   // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-  repeated User readers = 6 [
-    (tagger.tags) = "gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\""
-  ];
+  repeated User readers = 6 [(tagger.tags) = "gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\""];
 
   // List of user IDs responsible for the content and maintenance of this target.
   // These users can modify settings and data but cannot manage other users' access.
-  repeated User contributors = 7 [
-    (tagger.tags) = "gorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\""
-  ];
+  repeated User contributors = 7 [(tagger.tags) = "gorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\""];
 
   // List of user IDs with administrative control over this target.
   // These users can manage permissions for others and perform destructive actions like deletion.
-  repeated User admins = 8 [
-    (tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""
-  ];
+  repeated User admins = 8 [(tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""];
 }
 
 message GetAssessmentResultRequest {
@@ -1293,5 +1281,3 @@ message RemoveUserRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 }
-
-
