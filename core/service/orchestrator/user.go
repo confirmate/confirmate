@@ -22,12 +22,21 @@ func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
 ) (res *connect.Response[orchestrator.UpsertUserPermissionResponse], err error) {
+	var allowed bool
+
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	// TODO (anatheka): Add authorization check to ensure the user has the right to upsert this permission
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	err = svc.db.Save(req.Msg.UserPermission)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -145,6 +154,7 @@ func (svc *Service) ListUserPermissions(
 		permissions []*orchestrator.UserPermission
 		conds       []any
 		npt         string
+		allowed     bool
 	)
 
 	// Validate request
@@ -153,7 +163,14 @@ func (svc *Service) ListUserPermissions(
 		return nil, err
 	}
 
-	// TODO(anatheka): Add auth check
+	// Only admins may list permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
@@ -161,8 +178,6 @@ func (svc *Service) ListUserPermissions(
 		req.Msg.Asc = true
 	}
 
-	// TODO (anatheka): Implement
-	// First implementation for testing purposes
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err

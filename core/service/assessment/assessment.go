@@ -273,13 +273,6 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	ev = req.Msg.Evidence
 
-	// TODO(all): Do we want an access check here or is it enough, that the user has a valid token?
-	// // Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	// if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-	// 	slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
-	// 	return nil, service.ErrPermissionDenied
-	// }
-
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
 	if resource == nil {

@@ -98,10 +98,12 @@ func TestService_GetCurrentUser(t *testing.T) {
 
 func TestService_UpsertUserPermission(t *testing.T) {
 	type args struct {
+		ctx context.Context
 		req *connect.Request[orchestrator.UpsertUserPermissionRequest]
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -113,6 +115,7 @@ func TestService_UpsertUserPermission(t *testing.T) {
 		{
 			name: "err: invalid request - missing permission",
 			args: args{
+				ctx: context.Background(),
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{}),
 			},
 			want: assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
@@ -121,8 +124,28 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			},
 		},
 		{
+			name: "err: permission denied - non-admin",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables), authz: &service.AuthorizationStrategyPermissionStore{}},
+			want:   assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
 					UserPermission: &orchestrator.UserPermission{
 						UserId:       orchestratortest.MockUserId1,
@@ -142,9 +165,9 @@ func TestService_UpsertUserPermission(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db}
+			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
 
-			res, err := svc.UpsertUserPermission(context.Background(), tt.args.req)
+			res, err := svc.UpsertUserPermission(tt.args.ctx, tt.args.req)
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})
@@ -197,24 +220,47 @@ func TestService_ListUsers(t *testing.T) {
 }
 
 func TestService_ListUserPermissions(t *testing.T) {
+	type args struct {
+		ctx    context.Context
+		userId string
+	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
+		args    args
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.ListUserPermissionsResponse]]
 		wantErr assert.WantErr
 	}{
 		{
 			name: "err: invalid request - missing user id",
+			args: args{ctx: context.Background()},
 			want: assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{
+			name: "err: permission denied - non-admin",
+			args: args{
+				ctx:    context.Background(),
+				userId: orchestratortest.MockUserId1,
+			},
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables), authz: &service.AuthorizationStrategyPermissionStore{}},
+			want:   assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "happy path",
+			args: args{
+				ctx:    auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
+				userId: orchestratortest.MockUserId1,
+			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(&orchestrator.UserPermission{
@@ -236,13 +282,9 @@ func TestService_ListUserPermissions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db}
+			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
 
-			userId := ""
-			if tt.fields.db != nil {
-				userId = orchestratortest.MockUserId1
-			}
-			res, err := svc.ListUserPermissions(context.Background(), connect.NewRequest(&orchestrator.ListUserPermissionsRequest{UserId: userId}))
+			res, err := svc.ListUserPermissions(tt.args.ctx, connect.NewRequest(&orchestrator.ListUserPermissionsRequest{UserId: tt.args.userId}))
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})

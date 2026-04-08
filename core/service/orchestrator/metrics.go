@@ -157,8 +157,6 @@ func (svc *Service) UpdateMetric(
 
 	metric = req.Msg.Metric
 
-	// TODO(all): Do we want an access check here or is it enough, that the user has a valid token?
-
 	// Update the metric
 	err = svc.db.Update(metric, "id = ?", metric.Id)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("metric")); err != nil {
@@ -205,8 +203,6 @@ func (svc *Service) RemoveMetric(
 	if metric.DeprecatedSince == nil {
 		metric.DeprecatedSince = timestamppb.Now()
 	}
-
-	// TODO(all): Do we want an access check here or is it enought, that the user has a valid token?
 
 	// Update the metric with the deprecated timestamp
 	err = svc.db.Update(metric, "id = ?", req.Msg.MetricId)
@@ -262,8 +258,6 @@ func (svc *Service) UpdateMetricImplementation(
 	}
 
 	impl = req.Msg.Implementation
-
-	// TODO(all): Do we want an access check here or is it enough, that the user has a valid token?
 
 	// Update the metric implementation
 	err = svc.db.Update(impl, "metric_id = ?", impl.MetricId)

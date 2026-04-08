@@ -119,7 +119,6 @@ func (svc *Service) ListCertificates(
 		req.Msg.Asc = true
 	}
 
-	// TODO(all): Should we check if the user has access to the TargetOfEvaluation and only return certificates for that TargetOfEvaluation? Or do we want to check access for each certificate individually?
 	// Check access via the configured auth strategy
 	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
