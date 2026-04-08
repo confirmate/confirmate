@@ -302,30 +302,30 @@ var (
 	// 	Controls:  []*orchestrator.Control{MockControl2},
 	// }
 
-	// // Mock Controls
-	// MockControl1 = &orchestrator.Control{
-	// 	Id:                MockControlId1,
-	// 	Name:              MockControlName1,
-	// 	CategoryName:      MockCategoryName1,
-	// 	CategoryCatalogId: MockCatalogId1,
-	// 	Controls:          []*orchestrator.Control{MockSubControl1},
-	// }
-	// MockSubControl1 = &orchestrator.Control{
-	// 	Id:                             MockSubControlId1,
-	// 	Name:                           MockSubControlName1,
-	// 	CategoryName:                   MockCategoryName1,
-	// 	CategoryCatalogId:              MockCatalogId1,
-	// 	Metrics:                        []*assessment.Metric{MockMetric1},
-	// 	ParentControlId:                util.Ref(MockControlId1),
-	// 	ParentControlCategoryName:      util.Ref(MockCategoryName1),
-	// 	ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
-	// }
-	// MockControl2 = &orchestrator.Control{
-	// 	Id:                MockControlId2,
-	// 	Name:              MockControlName2,
-	// 	CategoryName:      MockCategoryName2,
-	// 	CategoryCatalogId: MockCatalogId2,
-	// }
+	// Mock Controls
+	MockControl1 = &orchestrator.Control{
+		Id:                MockControlId1,
+		Name:              MockControlName1,
+		CategoryName:      MockCategoryName1,
+		CategoryCatalogId: MockCatalogId1,
+		Controls:          []*orchestrator.Control{MockSubControl1},
+	}
+	MockSubControl1 = &orchestrator.Control{
+		Id:                             MockSubControlId1,
+		Name:                           MockSubControlName1,
+		CategoryName:                   MockCategoryName1,
+		CategoryCatalogId:              MockCatalogId1,
+		Metrics:                        []*assessment.Metric{MockMetric1},
+		ParentControlId:                util.Ref(MockControlId1),
+		ParentControlCategoryName:      util.Ref(MockCategoryName1),
+		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+	}
+	MockControl2 = &orchestrator.Control{
+		Id:                MockControlId2,
+		Name:              MockControlName2,
+		CategoryName:      MockCategoryName2,
+		CategoryCatalogId: MockCatalogId2,
+	}
 
 	// Mock Certificates
 	MockCertificate1 = &orchestrator.Certificate{
