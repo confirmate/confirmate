@@ -102,7 +102,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 
 	var (
 		privateKey, publicKey = mustECDSAKeyPair(t)
-		validToken            = mustSignES256Token(t, privateKey, "kid-1", jwt.MapClaims{"sub": "user-1", "cladmin": true})
+		validToken            = mustSignES256Token(t, privateKey, "kid-1", jwt.MapClaims{"sub": "user-1", "cfadmin": true})
 		invalidToken          = mustSignES256Token(t, mustECDSAKeyPairPrivateOnly(t), "kid-1", jwt.MapClaims{"sub": "user-1"})
 	)
 
