@@ -620,6 +620,8 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 			status = handleCompliant(r)
 		case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
 			// Evaluation status does not change if it is already not_compliant
+			// TODO(lebogg): This approach of simply doing nothing does not always work. Because now a compliant manual result can't override the non-compliant ones (see `happy path - with non-compliant assessment results but manual compliant result` in test `TestService_evaluateControl`)
+			// TODO(lebogg): One idea would be to add a check earlier if the `evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY` is for the whole parent control, then we can skip probably everything. But then we potentially loose some information about the sub-controls, because we are not evaluating them at all. But we don't do that anyway as we see here in this case
 		}
 
 		// We are interested in all result IDs in order to provide a trace back from evaluation result back to assessment (and evidence).

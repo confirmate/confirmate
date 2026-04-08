@@ -2074,13 +2074,12 @@ func TestService_evaluateControl(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path - without manual results",
 			args: args{
 				ctx:        context.Background(),
 				auditScope: evaluationtest.MockAuditScope1,
 				catalog:    evaluationtest.MockCatalog1,
 				control:    evaluationtest.MockControl1,
-				// manual:     []*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult1},
 			},
 			fields: fields{
 				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
@@ -2108,12 +2107,96 @@ func TestService_evaluateControl(t *testing.T) {
 					// Remove MockControl1, MockSubcontrol21 and MockSubcontrol11 because they are already part of MockCatalog1 or MockControl2, respectively. And therefore they are inserted already
 					//err = d.Create(evaluationtest.MockControl1)
 					//assert.NoError(t, err)
+					// This could be also removed because it is not relevant for the tests
 					err = d.Create(evaluationtest.MockControl2)
 					assert.NoError(t, err)
 					//err = d.Create(evaluationtest.MockSubcontrol21)
 					//assert.NoError(t, err)
 					//err = d.Create(evaluationtest.MockSubcontrol11)
 					//assert.NoError(t, err)
+				}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				// Assert that evaluation results were stored in the database (one for control, one for subcontrol)
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+
+				// We should have 2 results: one for Control 1 and one for Control 1.1 (subcontrol)
+				if !assert.Equal(t, 2, len(evalResults.Msg.Results)) {
+					return false
+				}
+
+				// Find the result for the main control (Control 1)
+				var mainControlResult *evaluation.EvaluationResult
+				for _, result := range evalResults.Msg.Results {
+					if result.ControlId == evaluationtest.MockControlId1 {
+						mainControlResult = result
+						break
+					}
+				}
+
+				if !assert.NotNil(t, mainControlResult, "Should have result for main control") {
+					return false
+				}
+
+				// Verify the main control result fields
+				assert.NotEmpty(t, mainControlResult.Id)
+				assert.NotNil(t, mainControlResult.Timestamp)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, mainControlResult.Status)
+				assert.Equal(t, evaluationtest.MockToeId1, mainControlResult.TargetOfEvaluationId)
+				assert.Equal(t, evaluationtest.MockControlId1, mainControlResult.ControlId)
+				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)
+				assert.Equal(t, evaluationtest.MockCategoryName1, mainControlResult.ControlCategoryName)
+				assert.Equal(t, evaluationtest.MockAuditScopeId1, mainControlResult.AuditScopeId)
+				assert.Equal(t, 2, len(mainControlResult.AssessmentResultIds))
+
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			// Currently, this test does not work. See TODO in the implementation of Service.evaluateControl for details.
+			name: "happy path - with non-compliant assessment results but manual compliant result",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				control:    evaluationtest.MockControl1,
+				manual:     []*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult1},
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:         evaluationtest.MockAssessmentResultId1,
+						MetricId:   evaluationtest.MockMetricId1,
+						Compliant:  false,
+						ResourceId: "resource-1",
+					},
+					{
+						Id:         evaluationtest.MockAssessmentResultId2,
+						MetricId:   evaluationtest.MockMetricId1,
+						Compliant:  false,
+						ResourceId: "resource-2",
+					},
+				}),
+				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
+					{
+						Model:     orchestrator.TargetOfEvaluation{},
+						Field:     "ConfiguredMetrics",
+						JoinTable: assessment.MetricConfiguration{},
+					}}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockCatalog1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockControl2)
+					assert.NoError(t, err)
 				}),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
