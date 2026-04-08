@@ -106,6 +106,20 @@ func newOrchestratorClientForTest(testSrv *httptest.Server) orchestratorconnect.
 	return orchestratorconnect.NewOrchestratorClient(testSrv.Client(), testSrv.URL)
 }
 
+// newOrchestratorClientWithAssessmentResults creates a mock orchestrator client with assessment results for testing
+func newOrchestratorClientWithAssessmentResults(t *testing.T, assessmentResults []*assessment.AssessmentResult) orchestratorconnect.OrchestratorClient {
+	t.Helper()
+	handler := &mockOrchestratorHandler{
+		assessmentResults: assessmentResults,
+	}
+	_, testSrv := servertest.NewTestConnectServer(
+		t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+	)
+	t.Cleanup(testSrv.Close)
+	return newOrchestratorClientForTest(testSrv)
+}
+
 // mockControlsForCatalog returns mock controls for a catalog
 func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 	// Return 4 controls as expected by the test
