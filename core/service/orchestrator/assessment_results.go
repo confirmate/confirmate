@@ -134,7 +134,7 @@ func (svc *Service) ListAssessmentResults(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "timestamp"
+		req.Msg.OrderBy = "created_at"
 		req.Msg.Asc = false
 	}
 
