@@ -31,15 +31,53 @@ import (
 )
 
 func TestService_GetCurrentUser(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
 	tests := []struct {
 		name    string
+		ctx     context.Context
+		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.User]]
 		wantErr assert.WantErr
 	}{
 		{
-			name: "returns empty user",
+			name: "err: unauthenticated - no claims",
+			ctx:  context.Background(),
+			want: assert.Nil[*connect.Response[orchestrator.User]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeUnauthenticated)
+			},
+		},
+		{
+			name: "err: not found - user not in DB",
+			ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject: "user-1",
+					Issuer:  "test",
+				},
+			}),
+			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables)},
+			want:   assert.Nil[*connect.Response[orchestrator.User]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "happy path",
+			ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject: "user-1",
+					Issuer:  "test",
+				},
+			}),
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.User{Id: "test|user-1", Enabled: true}))
+				}),
+			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
-				return assert.NotNil(t, got)
+				return assert.NotNil(t, got) && assert.Equal(t, "test|user-1", got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 		},
@@ -47,9 +85,9 @@ func TestService_GetCurrentUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{}
+			svc := &Service{db: tt.fields.db}
 
-			res, err := svc.GetCurrentUser(context.Background(), connect.NewRequest(&orchestrator.GetCurrentUserRequest{}))
+			res, err := svc.GetCurrentUser(tt.ctx, connect.NewRequest(&orchestrator.GetCurrentUserRequest{}))
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})

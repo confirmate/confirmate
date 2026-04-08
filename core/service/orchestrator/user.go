@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -43,10 +44,21 @@ func (svc *Service) GetCurrentUser(
 	req *connect.Request[orchestrator.GetCurrentUserRequest],
 ) (res *connect.Response[orchestrator.User], err error) {
 	var (
-		user orchestrator.User
+		claims *auth.OAuthClaims
+		user   orchestrator.User
+		ok     bool
 	)
 
-	// TODO (anatheka): Implement
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok || claims == nil {
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
+	}
+
+	userId := claims.Issuer + "|" + claims.Subject
+	err = svc.db.Get(&user, "id = ?", userId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
+		return nil, err
+	}
 
 	res = connect.NewResponse(&user)
 	return
@@ -168,13 +180,17 @@ func (svc *Service) ListUserRoles(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserRolesRequest],
 ) (res *connect.Response[orchestrator.ListUserRolesResponse], err error) {
-	var (
-		roles orchestrator.ListUserRolesResponse
-	)
+	var roles []orchestrator.Role
 
-	// TODO (anatheka): Implement
+	for v := range orchestrator.Role_name {
+		role := orchestrator.Role(v)
+		if role == orchestrator.Role_ROLE_UNSPECIFIED {
+			continue
+		}
+		roles = append(roles, role)
+	}
 
-	res = connect.NewResponse(&roles)
+	res = connect.NewResponse(&orchestrator.ListUserRolesResponse{Roles: roles})
 	return
 }
 
@@ -183,12 +199,17 @@ func (svc *Service) RemoveUser(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveUserRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
+	var user orchestrator.User
+
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	// TODO (anatheka): Implement
+	err = svc.db.Delete(&user, "id = ?", req.Msg.UserId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
+		return nil, err
+	}
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
