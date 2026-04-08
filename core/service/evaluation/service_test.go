@@ -14,6 +14,7 @@ import (
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	//"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/server"
@@ -2054,6 +2055,9 @@ func TestService_addJobToScheduler(t *testing.T) {
 }
 
 func TestService_evaluateControl(t *testing.T) {
+	// TODO: Remove later
+	// log.Configure("TRACE")
+
 	type args struct {
 		ctx        context.Context
 		auditScope *orchestrator.AuditScope
@@ -2090,14 +2094,15 @@ func TestService_evaluateControl(t *testing.T) {
 					}}, func(d persistence.DB) {
 					err := d.Create(evaluationtest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockControl1)
-					assert.NoError(t, err)
+					// Remove MockControl1, MockSubcontrol21 and MockSubcontrol11 because they are already part of MockCatalog1 or MockControl2, respectively. And therefore they are inserted already
+					//err = d.Create(evaluationtest.MockControl1)
+					//assert.NoError(t, err)
 					err = d.Create(evaluationtest.MockControl2)
 					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockSubcontrol21)
-					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockSubcontrol11)
-					assert.NoError(t, err)
+					//err = d.Create(evaluationtest.MockSubcontrol21)
+					//assert.NoError(t, err)
+					//err = d.Create(evaluationtest.MockSubcontrol11)
+					//assert.NoError(t, err)
 				}),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
