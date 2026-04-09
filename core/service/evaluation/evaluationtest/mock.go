@@ -95,6 +95,7 @@ var (
 		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		Comment:              util.Ref("Mock evaluation result 1"),
+		Data:                 []byte{},
 	}
 
 	MockEvaluationResult2 = &evaluation.EvaluationResult{
