@@ -555,19 +555,11 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
 					assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory2)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl2)
-					// assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 3, len(got.Msg.Controls))
+				return assert.Equal(t, 7, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
