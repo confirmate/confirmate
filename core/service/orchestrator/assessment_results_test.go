@@ -35,8 +35,8 @@ import (
 
 type denyAuthorizationStrategy struct{}
 
-func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string, error) {
-	return false, nil, nil
+func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string) {
+	return false, nil
 }
 
 func TestService_StoreAssessmentResult(t *testing.T) {

@@ -37,7 +37,7 @@ type AuthorizationStrategy interface {
 		userPermission orchestrator.UserPermission_Permission,
 		resourceId string,
 		objectType orchestrator.ObjectType,
-	) (bool, []string, error)
+	) (bool, []string)
 }
 
 // CheckAccess checks access via the configured strategy.
@@ -49,9 +49,9 @@ func CheckAccess[T any](authz AuthorizationStrategy,
 	reqType orchestrator.RequestType,
 	userPermission orchestrator.UserPermission_Permission,
 	resourceId string,
-	objectType orchestrator.ObjectType) (bool, []string, error) {
+	objectType orchestrator.ObjectType) (bool, []string) {
 	if authz == nil {
-		return true, nil, nil
+		return true, nil
 	}
 
 	return authz.CheckAccess(ctx,
@@ -77,24 +77,24 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	reqType orchestrator.RequestType,
 	userPermission orchestrator.UserPermission_Permission,
 	resourceId string,
-	objectType orchestrator.ObjectType) (allowed bool, resourceIDs []string, err error) {
+	objectType orchestrator.ObjectType) (allowed bool, resourceIDs []string) {
 	var (
+		err            error
 		objectTypeUsed orchestrator.ObjectType
 	)
 
 	if a == nil || userId == "" {
-		return false, nil, nil
+		return false, nil
 	}
 
 	// Check IsAdminToken claim to allow access to all.
 	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
-		return true, nil, nil
+		return true, nil
 	}
 
 	if a.Permissions == nil {
-		err = errors.New("permission store is not configured for authorization")
-		slog.Error("Permission store is not configured for JWT authorization strategy", "err", err)
-		return false, nil, err
+		slog.Error("Permission store is not configured for JWT authorization strategy")
+		return false, nil
 	}
 
 	// Check if ToE ID or Audit Scope ID is necessary for the permission check; return false if not provided.
@@ -111,7 +111,7 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
 	default:
 		slog.Debug("Unsupported object type for permission check", "objectType", objectType)
-		return false, nil, nil
+		return false, nil
 	}
 
 	// For list requests, we check if the user has reader permissions for any resources of the given type and return the list of resource IDs they have access to.
@@ -124,15 +124,15 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		)
 		if err != nil {
 			slog.Error("permission lookup failed", "userId", userId, "objectType", objectTypeUsed, "err", err)
-			return false, nil, err
+			return false, nil
 		}
 
-		return false, resourceIDs, nil
+		return false, resourceIDs
 	}
 
 	// For update and delete requests, we check if the user has the required permissions for the specific resource ID.
 	if resourceId == "" {
-		return false, nil, nil
+		return false, nil
 	}
 	switch reqType {
 	case orchestrator.RequestType_REQUEST_TYPE_UPDATED:
@@ -150,10 +150,10 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	)
 	if err != nil {
 		slog.Error("permission check failed", "userId", userId, "resourceId", resourceId, "objectType", objectTypeUsed, "err", err)
-		return false, nil, err
+		return false, nil
 	}
 
-	return allowed, nil, nil
+	return allowed, nil
 }
 
 // AuthorizationStrategyAllowAll allows all requests.
@@ -165,8 +165,8 @@ func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 	_ orchestrator.RequestType,
 	_ orchestrator.UserPermission_Permission,
 	_ string,
-	_ orchestrator.ObjectType) (ok bool, resourceIDs []string, err error,
+	_ orchestrator.ObjectType) (ok bool, resourceIDs []string,
 ) {
 	// Keep this strategy permissive by design.
-	return true, nil, nil
+	return true, nil
 }

@@ -26,8 +26,8 @@ import (
 
 type denyAuthorizationStrategy struct{}
 
-func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string, error) {
-	return false, nil, nil
+func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string) {
+	return false, nil
 }
 
 func TestCheckAccess(t *testing.T) {
@@ -54,8 +54,7 @@ func TestCheckAccess(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _, err := CheckAccess[struct{}](tt.authz, context.Background(), "user-1", orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_PERMISSION_READER, "resource-1", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
-			assert.NoError(t, err)
+			got, _ := CheckAccess[struct{}](tt.authz, context.Background(), "user-1", orchestrator.RequestType_REQUEST_TYPE_GET, orchestrator.UserPermission_PERMISSION_READER, "resource-1", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 			tt.want(t, got)
 		})
 	}
@@ -127,14 +126,14 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.False(t, got)
 			},
-			wantErr: assert.Error,
+			wantErr: assert.NoError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _, err := tt.fields.strategy.CheckAccess(tt.args.ctx, tt.args.userId, tt.args.reqType, tt.args.userPermission, tt.args.resourceId, tt.args.objectType)
-			assert.True(t, tt.wantErr(t, err))
+			got, _ := tt.fields.strategy.CheckAccess(tt.args.ctx, tt.args.userId, tt.args.reqType, tt.args.userPermission, tt.args.resourceId, tt.args.objectType)
+			assert.True(t, tt.wantErr(t, nil))
 			assert.True(t, tt.want(t, got))
 		})
 	}
