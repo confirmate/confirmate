@@ -38,6 +38,8 @@ type AuthorizationStrategy interface {
 		resourceId string,
 		objectType orchestrator.ObjectType,
 	) (bool, []string)
+	AllowedTargetOfEvaluations(ctx context.Context, userId string) (all bool, toeIds []string)
+	AllowedAuditScopes(ctx context.Context, userId string) (all bool, auditScopeIds []string)
 }
 
 // CheckAccess checks access via the configured strategy.
@@ -163,6 +165,56 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	return allowed, nil
 }
 
+// AllowedTargetOfEvaluations returns a list of Target of Evaluation IDs the user has access to, or all if the user has access to all ToEs.
+func (a *AuthorizationStrategyPermissionStore) AllowedTargetOfEvaluations(ctx context.Context, userId string) (all bool, toeIds []string) {
+	if a == nil || userId == "" {
+		return false, nil
+	}
+
+	// Check IsAdminToken claim to allow access to all.
+	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+		return true, nil
+	}
+
+	toeIds, err := a.Permissions.PermissionForResources(ctx,
+		userId,
+		orchestrator.UserPermission_PERMISSION_READER,
+		orchestrator.RequestType_REQUEST_TYPE_LIST,
+		orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+	)
+	if err != nil {
+		slog.Error("permission lookup failed for Target of Evaluations", "userId", userId, "err", err)
+		return false, nil
+	}
+
+	return false, toeIds
+}
+
+// AllowedAuditScopes returns a list of Audit Scope IDs the user has access to, or all if the user has access to all audit scopes.
+func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Context, userId string) (all bool, auditScopeIds []string) {
+	if a == nil || userId == "" {
+		return false, nil
+	}
+
+	// Check IsAdminToken claim to allow access to all.
+	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+		return true, nil
+	}
+
+	auditScopeIds, err := a.Permissions.PermissionForResources(ctx,
+		userId,
+		orchestrator.UserPermission_PERMISSION_READER,
+		orchestrator.RequestType_REQUEST_TYPE_LIST,
+		orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+	)
+	if err != nil {
+		slog.Error("permission lookup failed for Audit Scopes", "userId", userId, "err", err)
+		return false, nil
+	}
+
+	return false, auditScopeIds
+}
+
 // AuthorizationStrategyAllowAll allows all requests.
 type AuthorizationStrategyAllowAll struct{}
 
@@ -175,5 +227,15 @@ func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 	_ orchestrator.ObjectType) (ok bool, resourceIDs []string,
 ) {
 	// Keep this strategy permissive by design.
+	return true, nil
+}
+
+// AllowedTargetOfEvaluations returns true and nil, allowing access to all ToEs.
+func (a *AuthorizationStrategyAllowAll) AllowedTargetOfEvaluations(ctx context.Context, userId string) (all bool, toeIds []string) {
+	return true, nil
+}
+
+// AllowedAuditScopes returns true and nil, allowing access to all audit scopes.
+func (a *AuthorizationStrategyAllowAll) AllowedAuditScopes(ctx context.Context, userId string) (all bool, auditScopeIds []string) {
 	return true, nil
 }
