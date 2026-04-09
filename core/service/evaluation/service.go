@@ -448,7 +448,6 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		cancel   context.CancelFunc
 	)
 
-	// TODO(lebogg) Where is assurance level matched?
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
 	controls = slices.Collect(maps.Values(svc.catalogControls[auditScope.CatalogId]))
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
@@ -617,7 +616,6 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		// are appended to the end (see above), it should be good, though. Also you could argue it doesn't matter with
 		// a manual result.
 		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach (maybe add all sub controls of a manual result to the ignored list)
-		// TODO(lebogg): Shouldn't  be parentControlId zero value?
 		if r.ParentControlId == nil && r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
 			status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY
 			continue
@@ -625,6 +623,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 
 		// status is the current evaluation status, r.Status is the status of the evaluation result of the subcontrol
 		// Note: Status should only contain the evaluation status without _MANUALLY!
+		// TODO(lebogg): Why "without _MANUALLY"? Then maybe my fix above is not right.
 		switch status {
 		case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
 			// check the given evaluation result for the current evaluation status PENDING
