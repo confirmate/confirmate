@@ -119,6 +119,7 @@ func (svc *Service) ListUsers(
 		users []*orchestrator.User
 		conds []any
 		npt   string
+		allowed bool
 	)
 
 	// Validate request
@@ -133,8 +134,15 @@ func (svc *Service) ListUsers(
 		req.Msg.Asc = true
 	}
 
-	// TODO (anatheka): Implement
-	// First implementation for testing purposes
+	// Only admins may list users.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -211,7 +219,7 @@ func (svc *Service) ListUserRoles(
 	return
 }
 
-// RemoveUser deletes a user from the system based on their unique identifier.
+// RemoveUser disables a user in the system based on their unique identifier.
 func (svc *Service) RemoveUser(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveUserRequest],
@@ -235,8 +243,14 @@ func (svc *Service) RemoveUser(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.db.Delete(&user, "id = ?", req.Msg.UserId)
+	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
+		return nil, err
+	}
+
+	user.Enabled = false
+	err = svc.db.Save(&user)
+	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 

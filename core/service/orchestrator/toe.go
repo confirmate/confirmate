@@ -36,8 +36,9 @@ func (svc *Service) CreateTargetOfEvaluation(
 	req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
 	var (
-		toe *orchestrator.TargetOfEvaluation
-		now = timestamppb.Now()
+		toe     *orchestrator.TargetOfEvaluation
+		now     = timestamppb.Now()
+		allowed bool
 	)
 
 	// Validate the request, ignoring ID field which may be auto-generated
@@ -54,7 +55,14 @@ func (svc *Service) CreateTargetOfEvaluation(
 	toe.CreatedAt = now
 	toe.UpdatedAt = now
 
-	// TODO(all): Do we want to check that here or is it enough, that the user has a valid token?
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Persist the target of evaluation in the database
 	err = svc.db.Create(toe)
@@ -92,11 +100,6 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, err
 	}
 
-	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
-		return nil, err
-	}
-
 	// Check access via the configured strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
@@ -104,6 +107,11 @@ func (svc *Service) GetTargetOfEvaluation(
 	}
 	if !allowed {
 		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
+
+	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("target of evaluation")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&toe)

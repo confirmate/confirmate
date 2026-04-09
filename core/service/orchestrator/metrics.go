@@ -380,7 +380,7 @@ func (svc *Service) UpdateMetricConfiguration(
 	config = req.Msg.Configuration
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, config.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

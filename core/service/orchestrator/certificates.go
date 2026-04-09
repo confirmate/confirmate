@@ -88,7 +88,7 @@ func (svc *Service) GetCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("certificate")
 	}
 
 	res = connect.NewResponse(&cert)
@@ -251,7 +251,7 @@ func (svc *Service) RemoveCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("certificate")
 	}
 
 	// Delete the certificate

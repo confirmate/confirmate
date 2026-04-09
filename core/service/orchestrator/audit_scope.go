@@ -104,7 +104,7 @@ func (svc *Service) GetAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("audit scope")
 	}
 
 	res = connect.NewResponse(&scope)
@@ -250,7 +250,7 @@ func (svc *Service) RemoveAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("audit scope")
 	}
 
 	// Delete the audit scope

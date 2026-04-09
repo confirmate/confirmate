@@ -123,6 +123,7 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 			objectTypeUsed,
 		)
 		if err != nil {
+			slog.Error("permission lookup failed", "userId", userId, "objectType", objectTypeUsed, "err", err)
 			return false, nil
 		}
 
@@ -148,6 +149,7 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		objectTypeUsed,
 	)
 	if err != nil {
+		slog.Error("permission check failed", "userId", userId, "resourceId", resourceId, "objectType", objectTypeUsed, "err", err)
 		return false, nil
 	}
 
