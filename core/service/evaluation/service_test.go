@@ -2317,3 +2317,120 @@ func TestService_evaluateControl(t *testing.T) {
 		})
 	}
 }
+
+func TestService_evaluateCatalog(t *testing.T) {
+	type args struct {
+		ctx        context.Context
+		auditScope *orchestrator.AuditScope
+		catalog    *orchestrator.Catalog
+		interval   int
+	}
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		db                 persistence.DB
+		catalogControls    map[string]map[string]*orchestrator.Control
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*Service]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "happy path - evaluates all relevant controls in catalog",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				interval:   5,
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:                   evaluationtest.MockAssessmentResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+					{
+						Id:                   evaluationtest.MockAssessmentResultId2,
+						MetricId:             evaluationtest.MockMetricId2,
+						Compliant:            true,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+				}),
+				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
+					{
+						Model:     orchestrator.TargetOfEvaluation{},
+						Field:     "ConfiguredMetrics",
+						JoinTable: assessment.MetricConfiguration{},
+					}}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockCatalog1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockControl2)
+					assert.NoError(t, err)
+				}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				// Assert that evaluation results were created in the database
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+
+				// We should have 5 results total:
+				// - 1 for Control 1 (parent)
+				// - 1 for Control 1.1 (subcontrol)
+				// - 1 for Control 1.2 (subcontrol)
+				// - 1 for Control 2 (parent)
+				// - 1 for Control 2.1 (subcontrol)
+				if !assert.Equal(t, 5, len(evalResults.Msg.Results)) {
+					return false
+				}
+
+				// Extract control IDs from results
+				controlIds := make([]string, len(evalResults.Msg.Results))
+				for i, result := range evalResults.Msg.Results {
+					controlIds[i] = result.ControlId
+				}
+
+				// Verify all expected controls are present
+				expectedControlIds := []string{
+					evaluationtest.MockControlId1,
+					evaluationtest.MockControlId2,
+					evaluationtest.MockSubcontrolId11,
+					evaluationtest.MockSubcontrolId12,
+					evaluationtest.MockSubcontrolID21,
+				}
+				for _, expectedId := range expectedControlIds {
+					assert.Contains(t, controlIds, expectedId)
+				}
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				db:                 tt.fields.db,
+				catalogControls:    tt.fields.catalogControls,
+			}
+
+			gotErr := svc.evaluateCatalog(tt.args.ctx, tt.args.auditScope, tt.args.catalog, tt.args.interval)
+			tt.wantErr(t, gotErr)
+			tt.want(t, &svc)
+		})
+	}
+}
