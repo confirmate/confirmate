@@ -30,7 +30,7 @@ var DefaultConfig = Config{
 	Password:         "confirmate",
 	SSLMode:          "disable",
 	MaxConn:          10,
-	InMemoryDB:       true,
+	InMemoryDB:       false,
 	Types:            []any{},
 	CustomJoinTables: []CustomJoinTable{},
 }
