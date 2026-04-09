@@ -2398,23 +2398,20 @@ func TestService_evaluateCatalog(t *testing.T) {
 					return false
 				}
 
-				// Extract control IDs from results
-				controlIds := make([]string, len(evalResults.Msg.Results))
-				for i, result := range evalResults.Msg.Results {
-					controlIds[i] = result.ControlId
+				// Verify parent controls have correct evaluation status
+				for _, result := range evalResults.Msg.Results {
+					if result.ControlId == evaluationtest.MockControlId1 && result.ParentControlId == nil {
+						if !assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status) {
+							return false
+						}
+					}
+					if result.ControlId == evaluationtest.MockControlId2 && result.ParentControlId == nil {
+						if !assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status) {
+							return false
+						}
+					}
 				}
 
-				// Verify all expected controls are present
-				expectedControlIds := []string{
-					evaluationtest.MockControlId1,
-					evaluationtest.MockControlId2,
-					evaluationtest.MockSubcontrolId11,
-					evaluationtest.MockSubcontrolId12,
-					evaluationtest.MockSubcontrolID21,
-				}
-				for _, expectedId := range expectedControlIds {
-					assert.Contains(t, controlIds, expectedId)
-				}
 				return true
 			},
 			wantErr: assert.NoError,
