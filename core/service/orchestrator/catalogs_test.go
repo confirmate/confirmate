@@ -603,24 +603,11 @@ func TestService_ListControls(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory2)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl1)
-					// assert.NoError(t, err)
-					// 	err = d.Create(&orchestrator.Control{
-					// 		Id:                "control-3",
-					// 		Name:              "Mock Control 3",
-					// 		CategoryName:      "category-2",
-					// 		CategoryCatalogId: orchestratortest.MockControl1.CategoryCatalogId,
-					// 	})
-					// 	assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Controls))
+				return assert.Equal(t, 3, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
