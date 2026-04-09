@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
-	"strings"
 	"testing"
 	"time"
 
@@ -1729,74 +1728,6 @@ func Test_getMetricIds(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getMetricIds(tt.args.metrics)
 			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func Test_values(t *testing.T) {
-	var (
-		control1 = orchestratortest.MockControl1
-		control2 = orchestratortest.MockControl2
-	)
-
-	// Ensure deterministic comparisons regardless of map iteration order.
-	sortControls := func(controls []*orchestrator.Control) {
-		slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
-			return strings.Compare(a.Id, b.Id)
-		})
-	}
-
-	type args struct {
-		m map[string]*orchestrator.Control
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want assert.Want[[]*orchestrator.Control]
-	}{
-		{
-			name: "empty map",
-			args: args{
-				m: map[string]*orchestrator.Control{},
-			},
-			want: func(t *testing.T, got []*orchestrator.Control, msgAndArgs ...any) bool {
-				sortControls(got)
-				return assert.Equal(t, []*orchestrator.Control{}, got)
-			},
-		},
-		{
-			name: "single control",
-			args: args{
-				m: map[string]*orchestrator.Control{
-					control1.Id: control1,
-				},
-			},
-			want: func(t *testing.T, got []*orchestrator.Control, msgAndArgs ...any) bool {
-				sortControls(got)
-				return assert.Equal(t, []*orchestrator.Control{control1}, got)
-			},
-		},
-		{
-			name: "multiple controls",
-			args: args{
-				m: map[string]*orchestrator.Control{
-					control1.Id: control1,
-					control2.Id: control2,
-				},
-			},
-			want: func(t *testing.T, got []*orchestrator.Control, msgAndArgs ...any) bool {
-				sortControls(got)
-				return assert.Equal(t, []*orchestrator.Control{control1, control2}, got)
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := values(tt.args.m)
-
-			tt.want(t, got)
 		})
 	}
 }

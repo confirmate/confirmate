@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"net/http"
 	"slices"
 	"strings"
@@ -449,7 +450,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 
 	// TODO(lebogg) Where is assurance level matched?
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
-	controls = values(svc.catalogControls[auditScope.CatalogId])
+	controls = slices.Collect(maps.Values(svc.catalogControls[auditScope.CatalogId]))
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
 		return strings.Compare(a.Id, b.Id)
 	})
@@ -930,17 +931,4 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 	}
 
 	return metricIds
-}
-
-// TODO(lebogg): Try it out
-// TODO(oxisto): We can remove it with maps.Values in Go 1.22+
-// Remove after Test for evaluateCatalog is available
-func values[M ~map[K]V, K comparable, V any](m M) []V {
-	rr := make([]V, 0, len(m))
-
-	for _, v := range m {
-		rr = append(rr, v)
-	}
-
-	return rr
 }
