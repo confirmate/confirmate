@@ -35,3 +35,11 @@ type OAuthClaims struct {
 	// issuing the token.
 	IsAdminToken bool `json:"cfadmin,omitempty"`
 }
+
+// GetConfirmateUserIDFromClaims constructs a unique user ID from the claims. It combines the issuer and subject
+func GetConfirmateUserIDFromClaims(claims *OAuthClaims) string {
+	if claims == nil || claims.RegisteredClaims.Issuer == "" || claims.RegisteredClaims.Subject == "" {
+		return ""
+	}
+	return claims.RegisteredClaims.Issuer + "|" + claims.RegisteredClaims.Subject
+}
