@@ -43,16 +43,19 @@ const (
 	MockControlId1     = "Control 1"
 	MockControlId2     = "Control 2"
 	MockSubcontrolId11 = "Control 1.1"
+	MockSubcontrolId12 = "Control 1.2"
 	MockSubcontrolID21 = "Control 2.1"
 
 	MockControlName1     = "Control Name 1"
 	MockControlName2     = "Control Name 2"
 	MockSubcontrolName11 = "Control Name 1.1"
+	MockSubcontrolName12 = "Control Name 1.2"
 	MockSubcontrolName21 = "Control Name 2.1"
 
 	MockControlDescription1     = "Description for Control 1"
 	MockControlDescription2     = "Description for Control 2"
 	MockSubcontrolDescription11 = "Description for Control 1.1"
+	MockSubcontrolDescription12 = "Description for Control 1.2"
 	MockSubcontrolDescription21 = "Description for Control 2.1"
 
 	// Mock Metrics
@@ -216,6 +219,7 @@ var (
 		Description:       MockControlDescription1,
 		Controls: []*orchestrator.Control{
 			MockSubcontrol11,
+			MockSubcontrol12,
 			// {
 			// Id:   MockSubcontrolId11,
 			// Name: MockSubcontrolName11,
@@ -252,6 +256,25 @@ var (
 			Category:    MockMetricCategory1,
 			Version:     MockDefaultVersion,
 			Comments:    util.Ref(MockMetricComments1),
+		},
+		}}
+	MockSubcontrol12 = &orchestrator.Control{
+		Id:                MockSubcontrolId12,
+		Name:              MockSubcontrolName12,
+		CategoryName:      MockCategoryName1,
+		CategoryCatalogId: MockCatalogId1,
+		Description:       MockSubcontrolDescription12,
+		// AssuranceLevel:                 util.Ref("basic"),
+		ParentControlId:                util.Ref(MockControlId1),
+		ParentControlCategoryName:      util.Ref(MockCategoryName1),
+		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+		Metrics: []*assessment.Metric{{
+			Id:          MockMetricId2,
+			Name:        MockMetricName2,
+			Description: MockMetricDescription2,
+			Category:    MockMetricCategory2,
+			Version:     MockDefaultVersion,
+			Comments:    util.Ref(MockMetricComments2),
 		},
 		}}
 	MockControl2 = &orchestrator.Control{

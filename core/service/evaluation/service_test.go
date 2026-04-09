@@ -2095,6 +2095,12 @@ func TestService_evaluateControl(t *testing.T) {
 						Compliant:  true,
 						ResourceId: "resource-2",
 					},
+					{
+						Id:         evaluationtest.MockAssessmentResultId3,
+						MetricId:   evaluationtest.MockMetricId2,
+						Compliant:  true,
+						ResourceId: "resource-3",
+					},
 				}),
 				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
 					{
@@ -2119,6 +2125,7 @@ func TestService_evaluateControl(t *testing.T) {
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
 					},
@@ -2129,8 +2136,8 @@ func TestService_evaluateControl(t *testing.T) {
 				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
 				assert.NoError(t, err)
 
-				// We should have 2 results: one for Control 1 and one for Control 1.1 (subcontrol)
-				if !assert.Equal(t, 2, len(evalResults.Msg.Results)) {
+				// We should have 2 results: one for Control 1 and two for Control 1.1 and 1.2 (sub controls)
+				if !assert.Equal(t, 3, len(evalResults.Msg.Results)) {
 					return false
 				}
 
@@ -2156,14 +2163,13 @@ func TestService_evaluateControl(t *testing.T) {
 				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)
 				assert.Equal(t, evaluationtest.MockCategoryName1, mainControlResult.ControlCategoryName)
 				assert.Equal(t, evaluationtest.MockAuditScopeId1, mainControlResult.AuditScopeId)
-				assert.Equal(t, 2, len(mainControlResult.AssessmentResultIds))
+				assert.Equal(t, 4, len(mainControlResult.AssessmentResultIds))
 
 				return true
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			// Currently, this test does not work. See TODO in the implementation of Service.evaluateControl for details.
 			name: "happy path - with non-compliant assessment results but manual compliant result",
 			args: args{
 				ctx:        context.Background(),
