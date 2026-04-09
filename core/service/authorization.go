@@ -38,8 +38,8 @@ type AuthorizationStrategy interface {
 		resourceId string,
 		objectType orchestrator.ObjectType,
 	) (bool, []string)
-	AllowedTargetOfEvaluations(ctx context.Context, userId string) (all bool, toeIds []string)
-	AllowedAuditScopes(ctx context.Context, userId string) (all bool, auditScopeIds []string)
+	AllowedTargetOfEvaluations(ctx context.Context) (all bool, toeIds []string)
+	AllowedAuditScopes(ctx context.Context) (all bool, auditScopeIds []string)
 }
 
 // CheckAccess checks access via the configured strategy.
@@ -166,15 +166,23 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 }
 
 // AllowedTargetOfEvaluations returns a list of Target of Evaluation IDs the user has access to, or all if the user has access to all ToEs.
-func (a *AuthorizationStrategyPermissionStore) AllowedTargetOfEvaluations(ctx context.Context, userId string) (all bool, toeIds []string) {
-	if a == nil || userId == "" {
+func (a *AuthorizationStrategyPermissionStore) AllowedTargetOfEvaluations(ctx context.Context) (all bool, toeIds []string) {
+	var (
+		claims *auth.OAuthClaims
+		ok     bool
+		userId string
+	)
+	if a == nil {
 		return false, nil
 	}
 
 	// Check IsAdminToken claim to allow access to all.
-	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
 		return true, nil
 	}
+
+	// Get user ID
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
 
 	toeIds, err := a.Permissions.PermissionForResources(ctx,
 		userId,
@@ -191,8 +199,12 @@ func (a *AuthorizationStrategyPermissionStore) AllowedTargetOfEvaluations(ctx co
 }
 
 // AllowedAuditScopes returns a list of Audit Scope IDs the user has access to, or all if the user has access to all audit scopes.
-func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Context, userId string) (all bool, auditScopeIds []string) {
-	if a == nil || userId == "" {
+func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Context) (all bool, auditScopeIds []string) {
+	var (
+		userId string
+		claims *auth.OAuthClaims
+	)
+	if a == nil {
 		return false, nil
 	}
 
@@ -200,6 +212,9 @@ func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Co
 	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
 		return true, nil
 	}
+
+	// Get user ID
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
 
 	auditScopeIds, err := a.Permissions.PermissionForResources(ctx,
 		userId,
@@ -231,11 +246,11 @@ func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 }
 
 // AllowedTargetOfEvaluations returns true and nil, allowing access to all ToEs.
-func (a *AuthorizationStrategyAllowAll) AllowedTargetOfEvaluations(ctx context.Context, userId string) (all bool, toeIds []string) {
+func (a *AuthorizationStrategyAllowAll) AllowedTargetOfEvaluations(ctx context.Context) (all bool, toeIds []string) {
 	return true, nil
 }
 
 // AllowedAuditScopes returns true and nil, allowing access to all audit scopes.
-func (a *AuthorizationStrategyAllowAll) AllowedAuditScopes(ctx context.Context, userId string) (all bool, auditScopeIds []string) {
+func (a *AuthorizationStrategyAllowAll) AllowedAuditScopes(ctx context.Context) (all bool, auditScopeIds []string) {
 	return true, nil
 }
