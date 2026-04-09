@@ -609,6 +609,18 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	var resultIds = []string{}
 
 	for _, r := range results {
+		// Special case: If the evaluation result of the parent control was set to "COMPLIANT MANUALLY", the whole
+		// control will be evaluated as compliant, regardless of the subcontrol results.
+		// Note: Depending on the ordering of the (sub)controls, we might lose some resultIds. Because manual results
+		// are appended to the end (see above), it should be good, though. Also you could argue it doesn't matter with
+		// a manual result.
+		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach.
+		// TODO(lebogg): Shouldn't  be parentControlId zero value?
+		if r.ControlId == util.Deref(r.ParentControlId) || r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
+			status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY
+			continue
+		}
+
 		// status is the current evaluation status, r.Status is the status of the evaluation result of the subcontrol
 		// Note: Status should only contain the evaluation status without _MANUALLY!
 		switch status {

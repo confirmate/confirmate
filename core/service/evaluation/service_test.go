@@ -2233,7 +2233,7 @@ func TestService_evaluateControl(t *testing.T) {
 				// Verify the main control result fields
 				assert.NotEmpty(t, mainControlResult.Id)
 				assert.NotNil(t, mainControlResult.Timestamp)
-				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, mainControlResult.Status)
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, mainControlResult.Status)
 				assert.Equal(t, evaluationtest.MockToeId1, mainControlResult.TargetOfEvaluationId)
 				assert.Equal(t, evaluationtest.MockControlId1, mainControlResult.ControlId)
 				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)

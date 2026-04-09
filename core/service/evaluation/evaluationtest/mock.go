@@ -151,7 +151,8 @@ var (
 		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
 		ParentControlId:      util.Ref(MockControlId1),
 		Comment:              util.Ref("Mock manual evaluation result 1"),
-		Data:                 make([]byte, 1024*1024), // 1MB data blob
+		// TODO(lebogg): Consider to make this smaller (faster tests and less boilerplate in test messages)
+		Data: make([]byte, 1024*1024), // 1MB data blob
 	}
 	// MockManualEvaluationResult2 is identical to MockManualEvaluationResult1 except for the ID. The ID is missing.
 	MockManualEvaluationResult2 = &evaluation.EvaluationResult{
