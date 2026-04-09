@@ -123,8 +123,9 @@ func (svc *Service) ListAssessmentResults(
 		npt          string
 		where        string
 		args         []any
-		allowed      bool
-		resourceList []string
+		whereClauses []string
+		all          bool
+		toeIds       []string
 	)
 
 	// Validate the request
@@ -137,8 +138,6 @@ func (svc *Service) ListAssessmentResults(
 		req.Msg.OrderBy = "created_at"
 		req.Msg.Asc = false
 	}
-
-	var whereClauses []string
 
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
@@ -177,6 +176,21 @@ func (svc *Service) ListAssessmentResults(
 		conds = append(conds, args...)
 	}
 
+	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
+	if !all && len(toeIds) == 0 {
+		// User has no access to any ToE, return empty result
+		return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+			Results:       []*assessment.AssessmentResult{},
+			NextPageToken: "",
+		}), nil
+	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !all {
+		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
+	}
+
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
@@ -184,6 +198,16 @@ func (svc *Service) ListAssessmentResults(
 		// Reuse the WHERE query and args directly.
 		if where != "" {
 			where = "WHERE " + where
+		}
+
+		// Add filter for allowed ToE IDs if not allowed to access all
+		if !all {
+			wherePrefix := "WHERE "
+			if where != "" {
+				wherePrefix = " AND "
+			}
+			where += wherePrefix + "target_of_evaluation_id IN ?"
+			args = append(args, toeIds)
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
@@ -207,25 +231,6 @@ func (svc *Service) ListAssessmentResults(
 			NextPageToken: "",
 		})
 		return
-	}
-
-	// Check access via the configured auth strategy
-	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	// If access is not allowed to all resources and the resource list is empty, return an empty response
-	if len(resourceList) == 0 && !allowed {
-		return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
-			Results:       []*assessment.AssessmentResult{},
-			NextPageToken: "",
-		}), nil
-	}
-
-	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
-	if !allowed {
-		conds = append(conds, "id IN ?", resourceList)
 	}
 
 	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
