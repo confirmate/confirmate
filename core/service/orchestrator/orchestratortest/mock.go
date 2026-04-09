@@ -36,12 +36,12 @@ const (
 	MockMetricId2     = "00000000-0000-0000-0000-000000000002"
 	MockMetricId3     = "00000000-0000-0000-0000-000000000003"
 	MockMetricId4     = "00000000-0000-0000-0000-000000000004"
-	MockToeId1        = "00000000-0000-0000-0000-000000000001"
 	MockResultId1     = "00000000-0000-0000-0002-000000000001"
 	MockResultId2     = "00000000-0000-0000-0002-000000000002"
 	MockResultId3     = "00000000-0000-0000-0002-000000000003"
 	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
 	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
+	MockToeId1        = "00000000-0000-0000-0000-000000000001"
 	MockToeId2        = "00000000-0000-0000-0000-000000000002"
 	MockToeId3        = "00000000-0000-0000-0000-000000000003"
 	MockUserId1       = "00000000-0000-0000-0000-000000000001"
@@ -332,6 +332,28 @@ var (
 		},
 	}
 
+	// MockAssessmentResult3 for integration testing - can be reused for additional result in streams
+	MockAssessmentResultToE2 = &assessment.AssessmentResult{
+		Id:                   "00000000-0000-0000-0003-000000000006",
+		CreatedAt:            timestamppb.Now(),
+		MetricId:             MockMetricId3,
+		MetricConfiguration:  MockMetricConfiguration3,
+		Compliant:            true,
+		EvidenceId:           MockEvidenceId1,
+		ResourceId:           MockResourceId3,
+		ResourceTypes:        []string{"compute"},
+		ComplianceComment:    "Third resource test",
+		TargetOfEvaluationId: MockToeId2,
+		ToolId:               util.Ref(MockToolId1),
+		HistoryUpdatedAt:     timestamppb.Now(),
+		History: []*assessment.Record{
+			{
+				EvidenceId:         MockEvidenceId1,
+				EvidenceRecordedAt: timestamppb.Now(),
+			},
+		},
+	}
+
 	// MockAssessmentResultForDuplicate - result with id that can be pre-created to test duplicate errors
 	MockAssessmentResultForDuplicate = &assessment.AssessmentResult{
 		Id:                   "00000000-0000-0000-0002-000000000004",
@@ -359,6 +381,13 @@ var (
 		Email:     util.Ref("email-1"),
 		FirstName: util.Ref("Test"),
 		LastName:  util.Ref("User"),
+	}
+
+	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
+		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		ResourceId:   MockToeId1,
+		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 )
 

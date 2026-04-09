@@ -30,15 +30,25 @@ import (
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type denyAuthorizationStrategy struct{}
 
 func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string) {
 	return false, nil
+}
+
+func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(_ context.Context) (bool, []string) {
+	return true, nil
+}
+
+func (*denyAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, []string) {
+	return true, nil
 }
 
 func TestService_StoreAssessmentResult(t *testing.T) {
@@ -432,12 +442,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{
 					Permissions: permissionStore{
 						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-							err := d.Create(&orchestrator.UserPermission{
-								UserId:       orchestratortest.MockUser1.Id,
-								Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
-								ResourceId:   orchestratortest.MockNewAssessmentResult.GetTargetOfEvaluationId(),
-								ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-							})
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						}),
 					},
@@ -466,7 +471,8 @@ func TestService_GetAssessmentResult(t *testing.T) {
 
 func TestService_ListAssessmentResults(t *testing.T) {
 	type args struct {
-		req *orchestrator.ListAssessmentResultsRequest
+		req     *orchestrator.ListAssessmentResultsRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -491,7 +497,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
 			},
 		},
 		{
@@ -513,17 +520,51 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "happy path: user is not authorized to view any results for the specified target of evaluation",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResultToE2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], _ ...any) bool {
+				return assert.Empty(t, got.Msg.Results)
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "list all",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockAssessmentResult2)
+					err = d.Create(orchestratortest.MockAssessmentResultToE2)
 					assert.NoError(t, err)
 				}),
+				authz: &denyAuthorizationStrategy{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
@@ -547,6 +588,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
+				authz: &denyAuthorizationStrategy{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
@@ -570,6 +612,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
+				authz: &denyAuthorizationStrategy{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
@@ -593,6 +636,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
+				authz: &denyAuthorizationStrategy{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Both MockAssessmentResult1 and MockAssessmentResult2 have tool-1
@@ -617,6 +661,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
+				authz: &denyAuthorizationStrategy{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Both MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID
@@ -641,6 +686,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
+				authz: &denyAuthorizationStrategy{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
@@ -655,8 +701,22 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				req: &orchestrator.ListAssessmentResultsRequest{
 					LatestByResourceId: &[]bool{true}[0],
 				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
 			},
 			fields: fields{
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Create multiple results with different combinations of resource_id and metric_id
 					// to test that we get the latest for each unique (resource_id, metric_id) pair
@@ -667,21 +727,21 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
 					}
 					result11middle := &assessment.AssessmentResult{
 						Id:                   "result-1-1-middle",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
 					}
 					result11latest := &assessment.AssessmentResult{
 						Id:                   "result-1-1-latest",
 						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
 						MetricId:             "metric-1",
 						ResourceId:           "resource-1",
-						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
 					}
 
 					// Resource 1, Metric 2: 2 results, latest should be result-1-2-latest
@@ -734,11 +794,15 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						err := d.Create(r)
 						assert.NoError(t, err)
 					}
+
+					// Add user and user permission to authorize user for the TOE1
+					err := d.Create(orchestratortest.MockUser1)
+					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Should return exactly 4 results (one per unique resource_id/metric_id combination)
-				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 4, len(got.Msg.Results)) {
+				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 3, len(got.Msg.Results)) {
 					return false
 				}
 
@@ -750,7 +814,6 @@ func TestService_ListAssessmentResults(t *testing.T) {
 
 				// Verify we got the latest result for each (resource_id, metric_id) pair
 				expectedIds := []string{
-					"result-1-1-latest", // resource-1, metric-1: latest of 3
 					"result-1-2-latest", // resource-1, metric-2: latest of 2
 					"result-2-1-latest", // resource-2, metric-1: latest of 2
 					"result-2-2-single", // resource-2, metric-2: only 1
@@ -776,8 +839,22 @@ func TestService_ListAssessmentResults(t *testing.T) {
 						MetricId: &[]string{"metric-1"}[0],
 					},
 				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
 			},
 			fields: fields{
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						},
+						)},
+				},
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					// Create results for different metrics and resources
 					result11old := &assessment.AssessmentResult{
@@ -853,6 +930,96 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: with allow-all authorization strategy",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockNewAssessmentResult)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				assert.Equal(t, 2, len(got.Msg.Results))
+				return assert.Equal(t,
+					orchestratortest.MockNewAssessmentResult,
+					got.Msg.Results[0],
+					cmp.Options{
+						cmpopts.IgnoreFields(assessment.AssessmentResult{}, "CreatedAt"),
+					},
+				)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockNewAssessmentResult)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, orchestratortest.MockNewAssessmentResult, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockUser1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockNewAssessmentResult)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				assert.Equal(t, 1, len(got.Msg.Results))
+				return assert.Equal(t, orchestratortest.MockNewAssessmentResult, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
@@ -861,7 +1028,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.ListAssessmentResults(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.ListAssessmentResults(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
