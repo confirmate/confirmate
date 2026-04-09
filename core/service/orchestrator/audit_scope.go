@@ -94,12 +94,12 @@ func (svc *Service) GetAuditScope(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.AuditScopeId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("audit scope")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
@@ -117,11 +117,11 @@ func (svc *Service) ListAuditScopes(
 	req *connect.Request[orchestrator.ListAuditScopesRequest],
 ) (res *connect.Response[orchestrator.ListAuditScopesResponse], err error) {
 	var (
-		scopes       []*orchestrator.AuditScope
-		conds        []any
-		npt          string
-		resourceList []string
-		allowed      bool
+		scopes        []*orchestrator.AuditScope
+		conds         []any
+		npt           string
+		all           bool
+		auditScopeIds []string
 	)
 
 	// Validate the request
@@ -145,14 +145,10 @@ func (svc *Service) ListAuditScopes(
 		conds = append(conds, "catalog_id = ?", *req.Msg.Filter.CatalogId)
 	}
 
-	// Check access via the configured auth strategy
-	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	// If access is not allowed to all resources and the resource list is empty, return an empty response
-	if len(resourceList) == 0 && !allowed {
+	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	all, auditScopeIds = svc.authz.AllowedAuditScopes(ctx)
+	if !all && len(auditScopeIds) == 0 {
+		// User has no access to any ToE, return empty result
 		return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
 			AuditScopes:   []*orchestrator.AuditScope{},
 			NextPageToken: "",
@@ -160,8 +156,8 @@ func (svc *Service) ListAuditScopes(
 	}
 
 	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
-	if !allowed {
-		conds = append(conds, "target_of_evaluation_id IN ?", resourceList)
+	if !all {
+		conds = append(conds, "id IN ?", auditScopeIds)
 	}
 
 	// Query the database with pagination and the constructed conditions

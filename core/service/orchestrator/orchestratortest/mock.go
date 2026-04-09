@@ -389,6 +389,13 @@ var (
 		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
+
+	MockUserPermissionsAuditScopeAdmin = &orchestrator.UserPermission{
+		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		ResourceId:   MockScopeId1,
+		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+	}
 )
 
 // NewMockAssessmentResultForConcurrentStream creates a unique assessment result for concurrent stream testing

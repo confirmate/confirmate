@@ -388,6 +388,7 @@ func TestService_GetAssessmentResult(t *testing.T) {
 					err := d.Create(orchestratortest.MockNewAssessmentResult)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.AssessmentResult], args ...any) bool {
 				assert.NotNil(t, got.Msg)
@@ -425,7 +426,6 @@ func TestService_GetAssessmentResult(t *testing.T) {
 					Id: orchestratortest.MockNewAssessmentResult.GetId(),
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
-					IsAdminToken: false,
 					RegisteredClaims: jwt.RegisteredClaims{
 						Subject: orchestratortest.MockUserId1,
 						Issuer:  orchestratortest.MockUserIssuer1,
