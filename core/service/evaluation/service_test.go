@@ -572,28 +572,16 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		},
 		{
 			name: "Happy path: no assessment results available (Get latest assessment_results returns empty list). We add pending Eval Result",
-			fields: func() fields {
-				// Create test server that returns empty assessment results (no error)
-				handler := &mockOrchestratorHandler{
-					// No error set, so ListAssessmentResults will return empty list
-				}
-				_, testSrv := servertest.NewTestConnectServer(
-					t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
-				)
-				t.Cleanup(testSrv.Close)
-
-				return fields{
-					orchestratorClient: newOrchestratorClientForTest(testSrv),
-					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
-					catalogControls: map[string]map[string]*orchestrator.Control{
-						orchestratortest.MockControl1.GetCategoryCatalogId(): {
-							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
-							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
-						},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{}),
+				db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
 					},
-				}
-			}(),
+				},
+			},
 			args: args{
 				ctx: context.Background(),
 				auditScope: &orchestrator.AuditScope{
@@ -666,43 +654,31 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		},
 		{
 			name: "Happy path: assessment results available and all compliant. We add compliant Eval Result",
-			fields: func() fields {
-				// Create test server that returns compliant assessment results
-				handler := &mockOrchestratorHandler{
-					assessmentResults: []*assessment.AssessmentResult{
-						{
-							Id:                   "assessment-result-1",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-1",
-							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-						},
-						{
-							Id:                   "assessment-result-2",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-2",
-							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-						},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:                   "assessment-result-1",
+						MetricId:             orchestratortest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
-				}
-				_, testSrv := servertest.NewTestConnectServer(
-					t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
-				)
-				t.Cleanup(testSrv.Close)
-
-				return fields{
-					orchestratorClient: newOrchestratorClientForTest(testSrv),
-					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
-					catalogControls: map[string]map[string]*orchestrator.Control{
-						orchestratortest.MockControl1.GetCategoryCatalogId(): {
-							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
-							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
-						},
+					{
+						Id:                   "assessment-result-2",
+						MetricId:             orchestratortest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
-				}
-			}(),
+				}),
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+					},
+				},
+			},
 			args: args{
 				ctx: context.Background(),
 				auditScope: &orchestrator.AuditScope{
@@ -738,50 +714,38 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		},
 		{
 			name: "Happy path: assessment results available with at least one non-compliant. We add non-compliant Eval Result",
-			fields: func() fields {
-				// Create test server that returns mixed assessment results (some compliant, some not)
-				handler := &mockOrchestratorHandler{
-					assessmentResults: []*assessment.AssessmentResult{
-						{
-							Id:                   "assessment-result-1",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-1",
-							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-						},
-						{
-							Id:                   "assessment-result-2",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            false,
-							ResourceId:           "resource-2",
-							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-						},
-						{
-							Id:                   "assessment-result-3",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-3",
-							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-						},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:                   "assessment-result-1",
+						MetricId:             orchestratortest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
-				}
-				_, testSrv := servertest.NewTestConnectServer(
-					t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
-				)
-				t.Cleanup(testSrv.Close)
-
-				return fields{
-					orchestratorClient: newOrchestratorClientForTest(testSrv),
-					db:                 persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
-					catalogControls: map[string]map[string]*orchestrator.Control{
-						orchestratortest.MockControl1.GetCategoryCatalogId(): {
-							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
-							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
-						},
+					{
+						Id:                   "assessment-result-2",
+						MetricId:             orchestratortest.MockMetricId1,
+						Compliant:            false,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
-				}
-			}(),
+					{
+						Id:                   "assessment-result-3",
+						MetricId:             orchestratortest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-3",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+					},
+				}),
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+					},
+				},
+			},
 			args: args{
 				ctx: context.Background(),
 				auditScope: &orchestrator.AuditScope{
@@ -819,35 +783,23 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		},
 		{
 			name: "Database error when creating evaluation result",
-			fields: func() fields {
-				// Create test server that returns compliant assessment results
-				handler := &mockOrchestratorHandler{
-					assessmentResults: []*assessment.AssessmentResult{
-						{
-							Id:         "assessment-result-1",
-							MetricId:   orchestratortest.MockMetricId1,
-							Compliant:  true,
-							ResourceId: "resource-1",
-						},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:         "assessment-result-1",
+						MetricId:   orchestratortest.MockMetricId1,
+						Compliant:  true,
+						ResourceId: "resource-1",
 					},
-				}
-				_, testSrv := servertest.NewTestConnectServer(
-					t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
-				)
-				t.Cleanup(testSrv.Close)
-
-				return fields{
-					orchestratorClient: newOrchestratorClientForTest(testSrv),
-					db:                 persistencetest.CreateErrorDB(t, persistence.ErrConstraintFailed, types, []persistence.CustomJoinTable{}),
-					catalogControls: map[string]map[string]*orchestrator.Control{
-						orchestratortest.MockControl1.GetCategoryCatalogId(): {
-							fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
-							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
-						},
+				}),
+				db: persistencetest.CreateErrorDB(t, persistence.ErrConstraintFailed, types, []persistence.CustomJoinTable{}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					orchestratortest.MockControl1.GetCategoryCatalogId(): {
+						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
+						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
 					},
-				}
-			}(),
+				},
+			},
 			args: args{
 				ctx: context.Background(),
 				auditScope: &orchestrator.AuditScope{
