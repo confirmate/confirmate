@@ -48,7 +48,7 @@ func (svc *Service) StoreAssessmentResult(
 	result = req.Msg.Result
 
 	// Check access via the configured auth strategy
-	allowed, _, err := CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, result.GetId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	allowed, _, err := CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, result.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
 	}
@@ -101,7 +101,7 @@ func (svc *Service) GetAssessmentResult(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.Id, orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, result.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
