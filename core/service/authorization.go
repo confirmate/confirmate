@@ -132,6 +132,11 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		return false, resourceIDs
 	}
 
+	if reqType == orchestrator.RequestType_REQUEST_TYPE_CREATED {
+		// TODO(all): For create requests, we check if the user has contributor permissions. For now, everyone can add new resources, but we might want to restrict this in the future.
+		return true, nil
+	}
+
 	// For update and delete requests, we check if the user has the required permissions for the specific resource ID.
 	if resourceId == "" {
 		return false, nil
