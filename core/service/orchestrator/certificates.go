@@ -70,6 +70,7 @@ func (svc *Service) GetCertificate(
 	var (
 		cert    orchestrator.Certificate
 		allowed bool
+		ids     []string
 	)
 
 	// Validate the request
@@ -77,18 +78,22 @@ func (svc *Service) GetCertificate(
 		return nil, err
 	}
 
-	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
-		return nil, err
-	}
-
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if !allowed {
+	if !allowed && len(ids) == 0 {
 		return nil, service.ErrNotFound("certificate")
+	}
+
+	if allowed {
+		err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+	} else {
+		err = svc.db.Get(&cert, "id = ? AND target_of_evaluation_id IN ?", req.Msg.CertificateId, ids)
+	}
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&cert)
@@ -234,24 +239,37 @@ func (svc *Service) RemoveCertificate(
 	var (
 		cert    orchestrator.Certificate
 		allowed bool
+		ids     []string
 	)
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+	// Check access via the configured auth strategy
+	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed && len(ids) == 0 {
+		return nil, service.ErrNotFound("certificate")
+	}
+
+	if allowed {
+		err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
+	} else {
+		err = svc.db.Get(&cert, "id = ? AND target_of_evaluation_id IN ?", req.Msg.CertificateId, ids)
+	}
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
 		return nil, err
 	}
 
-	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("certificate")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	// Delete the certificate

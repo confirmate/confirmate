@@ -86,6 +86,7 @@ func (svc *Service) GetAuditScope(
 	var (
 		scope   orchestrator.AuditScope
 		allowed bool
+		ids     []string
 	)
 
 	// Validate the request
@@ -93,18 +94,22 @@ func (svc *Service) GetAuditScope(
 		return nil, err
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
-		return nil, err
-	}
-
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, scope.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if !allowed {
+	if !allowed && len(ids) == 0 {
 		return nil, service.ErrNotFound("audit scope")
+	}
+
+	if allowed {
+		err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	} else {
+		err = svc.db.Get(&scope, "id = ? AND target_of_evaluation_id IN ?", req.Msg.AuditScopeId, ids)
+	}
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&scope)
@@ -232,6 +237,7 @@ func (svc *Service) RemoveAuditScope(
 	var (
 		scope   orchestrator.AuditScope
 		allowed bool
+		ids     []string
 	)
 
 	// Validate the request
@@ -239,18 +245,30 @@ func (svc *Service) RemoveAuditScope(
 		return nil, err
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	// Check access via the configured auth strategy
+	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed && len(ids) == 0 {
+		return nil, service.ErrNotFound("audit scope")
+	}
+
+	if allowed {
+		err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	} else {
+		err = svc.db.Get(&scope, "id = ? AND target_of_evaluation_id IN ?", req.Msg.AuditScopeId, ids)
+	}
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
 
-	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, scope.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("audit scope")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	// Delete the audit scope

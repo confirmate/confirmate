@@ -88,6 +88,7 @@ func (svc *Service) GetAssessmentResult(
 	var (
 		result  assessment.AssessmentResult
 		allowed bool
+		ids     []string
 	)
 
 	// Validate the request
@@ -95,18 +96,22 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
-	err = svc.db.Get(&result, "id = ?", req.Msg.Id)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment result")); err != nil {
-		return nil, err
-	}
-
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, result.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if !allowed {
+	if !allowed && len(ids) == 0 {
 		return nil, service.ErrNotFound("assessment result")
+	}
+
+	if allowed {
+		err = svc.db.Get(&result, "id = ?", req.Msg.Id)
+	} else {
+		err = svc.db.Get(&result, "id = ? AND target_of_evaluation_id IN ?", req.Msg.Id, ids)
+	}
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("assessment result")); err != nil {
+		return nil, err
 	}
 	res = connect.NewResponse(&result)
 	return

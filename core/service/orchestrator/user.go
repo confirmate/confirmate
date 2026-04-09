@@ -327,7 +327,10 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		}
 	}
 
-	allowed, resourceIDs := authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
+	allowed, resourceIDs, err := authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
+	if err != nil {
+		return false, nil, err
+	}
 
 	return allowed, resourceIDs, nil
 }

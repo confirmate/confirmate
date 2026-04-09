@@ -56,8 +56,8 @@ import (
 
 type denyAssessmentAuthorizationStrategy struct{}
 
-func (*denyAssessmentAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ apiOrch.RequestType, _ apiOrch.UserPermission_Permission, _ string, _ apiOrch.ObjectType) (bool, []string) {
-	return false, nil
+func (*denyAssessmentAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ apiOrch.RequestType, _ apiOrch.UserPermission_Permission, _ string, _ apiOrch.ObjectType) (bool, []string, error) {
+	return false, nil, nil
 }
 
 func TestMain(m *testing.M) {
