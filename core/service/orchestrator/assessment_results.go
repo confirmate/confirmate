@@ -101,7 +101,7 @@ func (svc *Service) GetAssessmentResult(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, result.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -225,7 +225,7 @@ func (svc *Service) ListAssessmentResults(
 
 	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
 	if !allowed {
-		conds = append(conds, "id IN ?", resourceList)
+		conds = append(conds, "target_of_evaluation_id IN ?", resourceList)
 	}
 
 	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)

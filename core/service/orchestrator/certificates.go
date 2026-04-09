@@ -83,7 +83,7 @@ func (svc *Service) GetCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetCertificateId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -135,7 +135,7 @@ func (svc *Service) ListCertificates(
 
 	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
 	if !allowed {
-		conds = append(conds, "id IN ?", resourceList)
+		conds = append(conds, "target_of_evaluation_id IN ?", resourceList)
 	}
 
 	// Query the database with pagination and the constructed conditions
@@ -208,7 +208,7 @@ func (svc *Service) UpdateCertificate(
 	cert = req.Msg.Certificate
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, cert.GetId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -246,7 +246,7 @@ func (svc *Service) RemoveCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.GetCertificateId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
