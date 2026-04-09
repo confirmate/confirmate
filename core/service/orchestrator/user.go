@@ -116,9 +116,9 @@ func (svc *Service) ListUsers(
 	req *connect.Request[orchestrator.ListUsersRequest],
 ) (res *connect.Response[orchestrator.ListUsersResponse], err error) {
 	var (
-		users []*orchestrator.User
-		conds []any
-		npt   string
+		users   []*orchestrator.User
+		conds   []any
+		npt     string
 		allowed bool
 	)
 

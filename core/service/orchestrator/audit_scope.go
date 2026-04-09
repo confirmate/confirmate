@@ -95,7 +95,7 @@ func (svc *Service) GetAuditScope(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	allowed, ids, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, req.Msg.AuditScopeId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -103,11 +103,7 @@ func (svc *Service) GetAuditScope(
 		return nil, service.ErrNotFound("audit scope")
 	}
 
-	if allowed {
-		err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
-	} else {
-		err = svc.db.Get(&scope, "id = ? AND target_of_evaluation_id IN ?", req.Msg.AuditScopeId, ids)
-	}
+	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}

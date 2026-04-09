@@ -555,7 +555,6 @@ func TestService_AssessEvidences(t *testing.T) {
 	}
 }
 
-
 func TestService_handleEvidence(t *testing.T) {
 	type args struct {
 		evidence *evidence.Evidence
