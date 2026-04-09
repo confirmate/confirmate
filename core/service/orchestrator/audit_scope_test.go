@@ -917,7 +917,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 
 func TestService_RemoveAuditScope(t *testing.T) {
 	type args struct {
-		req *orchestrator.RemoveAuditScopeRequest
+		req     *orchestrator.RemoveAuditScopeRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -931,7 +932,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.RemoveAuditScopeRequest{
 					AuditScopeId: orchestratortest.MockAuditScope1.Id,
@@ -941,10 +942,72 @@ func TestService_RemoveAuditScope(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
-				return assert.NotNil(t, got)
+				return assert.NotNil(t, got) &&
+					assert.Empty(t, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.RemoveAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Empty(t, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.RemoveAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Empty(t, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -958,7 +1021,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -977,7 +1041,41 @@ func TestService_RemoveAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied) &&
+					assert.ErrorContains(t, err, service.ErrPermissionDenied.Error())
+			},
+		},
+		{
+			name: "authorization error: with authorization strategy with permission store and user permissions ",
+			args: args{
+				req: &orchestrator.RemoveAuditScopeRequest{
+					AuditScopeId: orchestratortest.MockAuditScope2.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied) &&
+					assert.ErrorContains(t, err, service.ErrPermissionDenied.Error())
 			},
 		},
 		{
@@ -1003,7 +1101,7 @@ func TestService_RemoveAuditScope(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.RemoveAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.RemoveAuditScope(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})

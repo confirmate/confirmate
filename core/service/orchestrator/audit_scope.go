@@ -241,7 +241,7 @@ func (svc *Service) RemoveAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("audit scope")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
