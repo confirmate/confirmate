@@ -658,7 +658,7 @@ func TestService_GetControl(t *testing.T) {
 				req: &orchestrator.GetControlRequest{
 					ControlId:    orchestratortest.MockControlId1,
 					CategoryName: orchestratortest.MockCategoryName1,
-					CatalogId:    orchestratortest.MockControlId1,
+					CatalogId:    orchestratortest.MockCatalogId1,
 				},
 			},
 			fields: fields{
