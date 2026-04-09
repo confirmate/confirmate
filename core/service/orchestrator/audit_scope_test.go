@@ -678,7 +678,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 
 func TestService_UpdateAuditScope(t *testing.T) {
 	type args struct {
-		req *orchestrator.UpdateAuditScopeRequest
+		req     *orchestrator.UpdateAuditScopeRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -692,7 +693,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
@@ -708,6 +709,89 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					Id:                   orchestratortest.MockAuditScope1.Id,
+					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
+					TargetOfEvaluationId: orchestratortest.MockToeId2,
+					CatalogId:            "catalog-1-updated",
+				}
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
+						CatalogId:            "catalog-1-updated",
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					Id:                   orchestratortest.MockAuditScope1.Id,
+					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
+					TargetOfEvaluationId: orchestratortest.MockToeId2,
+					CatalogId:            "catalog-1-updated",
+				}
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockScopeId1,
+						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
+						CatalogId:            "catalog-1-updated",
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockUser1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAuditScope2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
 				want := &orchestrator.AuditScope{
@@ -731,7 +815,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -769,7 +854,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "audit scope not found")
 			},
 		},
 		{
@@ -810,7 +896,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, service.ErrConstraintFailed.Error())
 			},
 		},
 	}
@@ -821,7 +908,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateAuditScope(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateAuditScope(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})

@@ -267,6 +267,7 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		claims *auth.OAuthClaims
 		ok     bool
 		err    error
+		userId string
 	)
 
 	// If we have no authorization strategy, we allow all access by default. This is useful for
@@ -274,8 +275,6 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	if authz == nil {
 		return true, nil, nil
 	}
-
-	var userId string
 
 	// If JWT claims are present, provision the user in the DB (JIT provisioning) and use their ID.
 	// If no claims are present, use an empty user ID — strategies like AuthorizationStrategyAllowAll
