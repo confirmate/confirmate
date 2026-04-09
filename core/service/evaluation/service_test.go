@@ -2318,6 +2318,8 @@ func TestService_evaluateControl(t *testing.T) {
 	}
 }
 
+// TestService_evaluateCatalog covers happy paths with different scenarios (with/without manual results).
+// Error cases are not tested currently.
 func TestService_evaluateCatalog(t *testing.T) {
 	type args struct {
 		ctx        context.Context
@@ -2411,6 +2413,83 @@ func TestService_evaluateCatalog(t *testing.T) {
 						}
 					}
 				}
+
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - with manual results ignores parent control",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				interval:   5,
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:                   evaluationtest.MockAssessmentResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+					{
+						Id:                   evaluationtest.MockAssessmentResultId2,
+						MetricId:             evaluationtest.MockMetricId2,
+						Compliant:            true,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					},
+				}),
+				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
+					{
+						Model:     orchestrator.TargetOfEvaluation{},
+						Field:     "ConfiguredMetrics",
+						JoinTable: assessment.MetricConfiguration{},
+					}}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockCatalog1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockControl2)
+					assert.NoError(t, err)
+					// Create manual evaluation result for Control 1 (parent control)
+					err = d.Create(evaluationtest.MockManualEvaluationResult1)
+					assert.NoError(t, err)
+				}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+
+				// We should have 3 results total:
+				// - Control 1 is ignored (manual result exists)
+				// - 1 for Control 2 (parent)
+				// - 1 for Control 2.1 (subcontrol)
+				// - MockManualEvaluationResult1 (the manual one for Control 1)
+				if !assert.Equal(t, 3, len(evalResults.Msg.Results)) {
+					return false
+				}
+
+				// Extract control IDs from results
+				controlIds := make([]string, len(evalResults.Msg.Results))
+				for i, result := range evalResults.Msg.Results {
+					controlIds[i] = result.ControlId
+				}
+
+				// Verify expected controls are present
+				assert.Contains(t, controlIds, evaluationtest.MockControlId1) // Manual result
+				assert.Contains(t, controlIds, evaluationtest.MockControlId2)
+				assert.Contains(t, controlIds, evaluationtest.MockSubcontrolID21)
 
 				return true
 			},
