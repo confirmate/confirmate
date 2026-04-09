@@ -2492,7 +2492,7 @@ components:
                     description: User ID is required to identify the user for whom the perission is being upserted.
                 resourceId:
                     type: string
-                    description: Resource ID is required to identify the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+                    description: Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
                 resourceType:
                     enum:
                         - OBJECT_TYPE_UNSPECIFIED
@@ -2511,7 +2511,7 @@ components:
                         - OBJECT_TYPE_EVALUATION_RESULT
                         - OBJECT_TYPE_EVIDENCE
                     type: string
-                    description: Resource type is required to specify the type of the resource for which the permission is being upserted (e.g., ToE, Assessment Result, Catalog).
+                    description: Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
                     format: enum
                 permission:
                     enum:
