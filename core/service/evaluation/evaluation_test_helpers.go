@@ -41,7 +41,7 @@ func (m *mockOrchestratorHandler) ListControls(
 // ListAssessmentResults returns assessment results or an error if configured
 func (m *mockOrchestratorHandler) ListAssessmentResults(
 	_ context.Context,
-	_ *connect.Request[orchestrator.ListAssessmentResultsRequest],
+	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
 	if m.listAssessmentResultError != nil {
 		return nil, m.listAssessmentResultError
@@ -51,6 +51,50 @@ func (m *mockOrchestratorHandler) ListAssessmentResults(
 	if results == nil {
 		results = []*assessment.AssessmentResult{}
 	}
+
+	// Filter by target of evaluation id and metric ids if provided
+	if req.Msg.Filter != nil {
+		filtered := []*assessment.AssessmentResult{}
+		for _, result := range results {
+			// Filter by target of evaluation id
+			if req.Msg.Filter.TargetOfEvaluationId != nil &&
+				result.TargetOfEvaluationId != *req.Msg.Filter.TargetOfEvaluationId {
+				continue
+			}
+			// Filter by metric ids
+			if len(req.Msg.Filter.MetricIds) > 0 {
+				metricMatch := false
+				for _, metricId := range req.Msg.Filter.MetricIds {
+					if result.MetricId == metricId {
+						metricMatch = true
+						break
+					}
+				}
+				if !metricMatch {
+					continue
+				}
+			}
+			filtered = append(filtered, result)
+		}
+		results = filtered
+	}
+
+	// If LatestByResourceId is true, group by resource_id and keep only the latest for each
+	if req.Msg.LatestByResourceId != nil && *req.Msg.LatestByResourceId {
+		latestByResource := make(map[string]*assessment.AssessmentResult)
+		for _, result := range results {
+			existing, found := latestByResource[result.ResourceId]
+			if !found || result.CreatedAt.AsTime().After(existing.CreatedAt.AsTime()) {
+				latestByResource[result.ResourceId] = result
+			}
+		}
+		// Convert map back to slice
+		results = make([]*assessment.AssessmentResult, 0, len(latestByResource))
+		for _, result := range latestByResource {
+			results = append(results, result)
+		}
+	}
+
 	return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
 		Results: results,
 	}), nil

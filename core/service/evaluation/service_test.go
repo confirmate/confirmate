@@ -2084,22 +2084,25 @@ func TestService_evaluateControl(t *testing.T) {
 			fields: fields{
 				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
 					{
-						Id:         evaluationtest.MockAssessmentResultId1,
-						MetricId:   evaluationtest.MockMetricId1,
-						Compliant:  true,
-						ResourceId: "resource-1",
+						Id:                   evaluationtest.MockAssessmentResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
 					{
-						Id:         evaluationtest.MockAssessmentResultId2,
-						MetricId:   evaluationtest.MockMetricId1,
-						Compliant:  true,
-						ResourceId: "resource-2",
+						Id:                   evaluationtest.MockAssessmentResultId2,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
 					{
-						Id:         evaluationtest.MockAssessmentResultId3,
-						MetricId:   evaluationtest.MockMetricId2,
-						Compliant:  true,
-						ResourceId: "resource-3",
+						Id:                   evaluationtest.MockAssessmentResultId3,
+						MetricId:             evaluationtest.MockMetricId2,
+						Compliant:            true,
+						ResourceId:           "resource-3",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
 				}),
 				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
@@ -2163,7 +2166,7 @@ func TestService_evaluateControl(t *testing.T) {
 				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)
 				assert.Equal(t, evaluationtest.MockCategoryName1, mainControlResult.ControlCategoryName)
 				assert.Equal(t, evaluationtest.MockAuditScopeId1, mainControlResult.AuditScopeId)
-				assert.Equal(t, 4, len(mainControlResult.AssessmentResultIds))
+				assert.Equal(t, 3, len(mainControlResult.AssessmentResultIds))
 
 				return true
 			},
