@@ -92,10 +92,9 @@ var (
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		Comment:              util.Ref("Mock evaluation result 1"),
-		Data:                 make([]byte, 1024*1024), // 1MB data blob
 	}
 
 	MockEvaluationResult2 = &evaluation.EvaluationResult{
@@ -106,7 +105,7 @@ var (
 		ControlCategoryName:  MockCategoryName2,
 		ControlCatalogId:     MockCatalogId2,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(5 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId3},
 		Comment:              util.Ref("Mock evaluation result 2"),
 		Data:                 []byte{},
@@ -121,7 +120,7 @@ var (
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(10 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              util.Ref("Mock evaluation result 3"),
 		Data:                 []byte{},
@@ -135,7 +134,7 @@ var (
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
 		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
 		Comment:              util.Ref("Mock evaluation result 4"),
@@ -149,13 +148,11 @@ var (
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(20 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
-		ParentControlId:      util.Ref(MockControlId1),
 		Comment:              util.Ref("Mock manual evaluation result 1"),
-		// TODO(lebogg): Consider to make this smaller (faster tests and less boilerplate in test messages)
-		Data: make([]byte, 1024*1024), // 1MB data blob
+		Data:                 make([]byte, 2*2), // small blob
 	}
 	// MockManualEvaluationResult2 is identical to MockManualEvaluationResult1 except for the ID. The ID is missing.
 	MockManualEvaluationResult2 = &evaluation.EvaluationResult{
@@ -165,12 +162,12 @@ var (
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.Now(),
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(25 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
 		ParentControlId:      util.Ref(MockControlId1),
 		Comment:              util.Ref("Mock manual evaluation result 1"),
-		Data:                 make([]byte, 1024*1024), // 1MB data blob
+		Data:                 make([]byte, 2*2), // small blob
 	}
 )
 

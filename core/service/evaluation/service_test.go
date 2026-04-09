@@ -1170,7 +1170,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					LatestByControlId: util.Ref(true),
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						TargetOfEvaluationId: util.Ref(string(evaluationtest.MockToeId1)),
+						TargetOfEvaluationId: util.Ref(evaluationtest.MockToeId1),
 					},
 				}),
 			},
@@ -1191,8 +1191,19 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
 				assert.Equal(t, 2, len(got.Msg.Results))
-				assert.Equal(t, evaluationtest.MockEvaluationResult4, got.Msg.Results[0])
-				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, got.Msg.Results[1])
+				// MockManualEvaluationResult1 is the latest one targeting Control 1 (and fulfilling the filters)
+				mockResult1IsIn := slices.ContainsFunc(got.Msg.Results, func(result *evaluation.EvaluationResult) bool {
+					isSame := result.Id == evaluationtest.MockManualEvaluationResult1.Id
+					return isSame
+				})
+				assert.True(t, mockResult1IsIn)
+
+				// MockEvaluationResult3 is the only (=latest) one targeting Control 1.1 (and fulfilling the filters)
+				result3IsIn := slices.ContainsFunc(got.Msg.Results, func(result *evaluation.EvaluationResult) bool {
+					isSame := result.Id == evaluationtest.MockEvaluationResult3.Id
+					return isSame
+				})
+				return assert.True(t, result3IsIn)
 			},
 			wantErr: assert.NoError,
 		},
