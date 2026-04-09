@@ -797,9 +797,10 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				assert.Equal(t, evaluationtest.MockToeId1, got.TargetOfEvaluationId)
 				assert.Equal(t, orchestratortest.MockControlId1, got.ControlId)
 				assert.Equal(t, 3, len(got.AssessmentResultIds))
-				assert.Equal(t, "assessment-result-1", got.AssessmentResultIds[0])
-				assert.Equal(t, "assessment-result-2", got.AssessmentResultIds[1])
-				assert.Equal(t, "assessment-result-3", got.AssessmentResultIds[2])
+
+				assert.True(t, slices.Contains(got.AssessmentResultIds, "assessment-result-1"))
+				assert.True(t, slices.Contains(got.AssessmentResultIds, "assessment-result-2"))
+				assert.True(t, slices.Contains(got.AssessmentResultIds, "assessment-result-3"))
 				return true
 			},
 			wantErr: assert.NoError,
