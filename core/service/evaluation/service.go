@@ -617,7 +617,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		// a manual result.
 		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach (maybe add all sub controls of a manual result to the ignored list)
 		// TODO(lebogg): Shouldn't  be parentControlId zero value?
-		if r.ControlId == util.Deref(r.ParentControlId) || r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
+		if r.ParentControlId == nil && r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
 			status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY
 			continue
 		}
