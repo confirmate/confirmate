@@ -148,13 +148,6 @@ func seedCLIData(t *testing.T, db persistence.DB) {
 	assert.NoError(t, db.Create(orchestratortest.MockMetricConfiguration1))
 	assert.NoError(t, db.Create(orchestratortest.MockCatalog1))
 	assert.NoError(t, db.Create(orchestratortest.MockCatalog2))
-	// TODO(lebogg): Commented out because they do not exist
-	//assert.NoError(t, db.Create(orchestratortest.MockCatalog3))
-	//assert.NoError(t, db.Create(orchestratortest.MockCatalog1Category1))
-	//assert.NoError(t, db.Create(orchestratortest.MockCatalog2Category2))
-	// TODO(lebogg): Commented out because they are already populated via catalog creations above
-	//assert.NoError(t, db.Create(orchestratortest.MockControl1))
-	//assert.NoError(t, db.Create(orchestratortest.MockControl2))
 	assert.NoError(t, db.Create(orchestratortest.MockCertificate1))
 	assert.NoError(t, db.Create(orchestratortest.MockCertificate2))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentTool1))
