@@ -104,15 +104,12 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	case orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 		orchestrator.ObjectType_OBJECT_TYPE_EVIDENCE,
 		orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT,
-		orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION:
+		orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION,
+		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
-	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE:
+	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
-	case orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
-		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
-	case orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT:
-		// TODO: Migrate evaluation-result permissions to audit-scope IDs.
-		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
 	default:
 		slog.Debug("Unsupported object type for permission check", "objectType", objectType)
 		return false, nil
@@ -203,13 +200,14 @@ func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Co
 	var (
 		userId string
 		claims *auth.OAuthClaims
+		ok     bool
 	)
 	if a == nil {
 		return false, nil
 	}
 
 	// Check IsAdminToken claim to allow access to all.
-	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
 		return true, nil
 	}
 
