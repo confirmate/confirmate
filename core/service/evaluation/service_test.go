@@ -2053,6 +2053,8 @@ func TestService_addJobToScheduler(t *testing.T) {
 	}
 }
 
+// TestService_evaluateControl currently covers mainly the different switch cases regarding control evaluation. We could
+// add more tests for covering other scenarios (e.g. ignored controls) and errors.
 func TestService_evaluateControl(t *testing.T) {
 	type args struct {
 		ctx        context.Context
@@ -2139,7 +2141,7 @@ func TestService_evaluateControl(t *testing.T) {
 				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
 				assert.NoError(t, err)
 
-				// We should have 2 results: one for Control 1 and two for Control 1.1 and 1.2 (sub controls)
+				// We should have 3 results: one for Control 1 and two for Control 1.1 and 1.2 (sub controls)
 				if !assert.Equal(t, 3, len(evalResults.Msg.Results)) {
 					return false
 				}
@@ -2184,16 +2186,25 @@ func TestService_evaluateControl(t *testing.T) {
 			fields: fields{
 				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
 					{
-						Id:         evaluationtest.MockAssessmentResultId1,
-						MetricId:   evaluationtest.MockMetricId1,
-						Compliant:  false,
-						ResourceId: "resource-1",
+						Id:                   evaluationtest.MockAssessmentResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
 					{
-						Id:         evaluationtest.MockAssessmentResultId2,
-						MetricId:   evaluationtest.MockMetricId1,
-						Compliant:  false,
-						ResourceId: "resource-2",
+						Id:                   evaluationtest.MockAssessmentResultId2,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            true,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+					},
+					{
+						Id:                   evaluationtest.MockAssessmentResultId3,
+						MetricId:             evaluationtest.MockMetricId2,
+						Compliant:            true,
+						ResourceId:           "resource-3",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 					},
 				}),
 				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
@@ -2211,6 +2222,7 @@ func TestService_evaluateControl(t *testing.T) {
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
 					},
@@ -2221,8 +2233,8 @@ func TestService_evaluateControl(t *testing.T) {
 				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
 				assert.NoError(t, err)
 
-				// We should have 2 results: one for Control 1 and one for Control 1.1 (subcontrol)
-				if !assert.Equal(t, 2, len(evalResults.Msg.Results)) {
+				// We should have 3 results: one for Control 1 and two for Control 1.1 and 1.2 (sub controls)
+				if !assert.Equal(t, 3, len(evalResults.Msg.Results)) {
 					return false
 				}
 
@@ -2248,8 +2260,75 @@ func TestService_evaluateControl(t *testing.T) {
 				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)
 				assert.Equal(t, evaluationtest.MockCategoryName1, mainControlResult.ControlCategoryName)
 				assert.Equal(t, evaluationtest.MockAuditScopeId1, mainControlResult.AuditScopeId)
-				assert.Equal(t, 2, len(mainControlResult.AssessmentResultIds))
+				assert.Equal(t, 3, len(mainControlResult.AssessmentResultIds))
 
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: non-compliant subcontrols",
+			args: args{
+				ctx:        context.Background(),
+				auditScope: evaluationtest.MockAuditScope1,
+				catalog:    evaluationtest.MockCatalog1,
+				control:    evaluationtest.MockControl1,
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
+					{
+						Id:                   evaluationtest.MockAssessmentResultId1,
+						MetricId:             evaluationtest.MockMetricId1,
+						Compliant:            false,
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+					},
+					{
+						Id:                   evaluationtest.MockAssessmentResultId2,
+						MetricId:             evaluationtest.MockMetricId2,
+						Compliant:            false,
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+					},
+				}),
+				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
+					{
+						Model:     orchestrator.TargetOfEvaluation{},
+						Field:     "ConfiguredMetrics",
+						JoinTable: assessment.MetricConfiguration{},
+					}}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+					},
+				},
+			},
+			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				evalResults, err := got.ListEvaluationResults(context.Background(), connect.NewRequest(&evaluation.ListEvaluationResultsRequest{}))
+				assert.NoError(t, err)
+
+				if !assert.Equal(t, 3, len(evalResults.Msg.Results)) {
+					return false
+				}
+
+				var mainControlResult *evaluation.EvaluationResult
+				for _, result := range evalResults.Msg.Results {
+					if result.ControlId == evaluationtest.MockControlId1 {
+						mainControlResult = result
+						break
+					}
+				}
+
+				if !assert.NotNil(t, mainControlResult) {
+					return false
+				}
+
+				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, mainControlResult.Status)
 				return true
 			},
 			wantErr: assert.NoError,
