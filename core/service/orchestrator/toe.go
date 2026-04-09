@@ -61,7 +61,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("target of evaluation")
 	}
 
 	// Persist the target of evaluation in the database
@@ -106,7 +106,7 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("target of evaluation")
 	}
 
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
@@ -197,7 +197,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("target of evaluation")
 	}
 
 	// Update timestamp

@@ -22,7 +22,9 @@ func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
 ) (res *connect.Response[orchestrator.UpsertUserPermissionResponse], err error) {
-	var allowed bool
+	var (
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
@@ -98,7 +100,7 @@ func (svc *Service) GetUser(
 
 	if !allowed {
 		slog.Debug("access denied", slog.String("userID", req.Msg.UserId), slog.String("requestType", orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED.String()))
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrNotFound("user")
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
@@ -140,7 +142,7 @@ func (svc *Service) ListUsers(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrPermissionDenied
+		return nil, service.ErrNotFound("user")
 	}
 
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)

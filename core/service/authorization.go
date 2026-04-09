@@ -104,11 +104,13 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT,
 		orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
-	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
-		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
+	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE:
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
+	case orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
 	case orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT:
-		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
+		// TODO: Migrate evaluation-result permissions to audit-scope IDs.
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
 	default:
 		slog.Debug("Unsupported object type for permission check", "objectType", objectType)
 		return false, nil

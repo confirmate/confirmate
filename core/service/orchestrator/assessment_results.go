@@ -101,12 +101,12 @@ func (svc *Service) GetAssessmentResult(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, result.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.Id, orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("assessment result")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 	res = connect.NewResponse(&result)
 	return

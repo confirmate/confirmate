@@ -31,7 +31,8 @@ func (svc *Service) CreateCertificate(
 	req *connect.Request[orchestrator.CreateCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
 	var (
-		cert *orchestrator.Certificate
+		cert    *orchestrator.Certificate
+		allowed bool
 	)
 
 	// Validate the request
@@ -43,7 +44,6 @@ func (svc *Service) CreateCertificate(
 	cert = req.Msg.Certificate
 
 	// Check access via the configured auth strategy
-	var allowed bool
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -83,7 +83,7 @@ func (svc *Service) GetCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.CertificateId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -246,7 +246,7 @@ func (svc *Service) RemoveCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.CertificateId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
