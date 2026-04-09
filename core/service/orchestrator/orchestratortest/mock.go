@@ -73,6 +73,7 @@ const (
 	MockToolId1          = "tool-1"
 	MockToolId2          = "tool-2"
 	MockToolIdConcurrent = "tool-concurrent"
+	MockUserIssuer1      = "test-issuer"
 )
 
 var (
@@ -353,7 +354,7 @@ var (
 		},
 	}
 	MockUser1 = &orchestrator.User{
-		Id:        MockUserId1,
+		Id:        MockUserIssuer1 + "|" + MockUserId1,
 		Username:  util.Ref("testuser"),
 		Email:     util.Ref("email-1"),
 		FirstName: util.Ref("Test"),
