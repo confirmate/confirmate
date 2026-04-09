@@ -671,16 +671,18 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				handler := &mockOrchestratorHandler{
 					assessmentResults: []*assessment.AssessmentResult{
 						{
-							Id:         "assessment-result-1",
-							MetricId:   orchestratortest.MockMetricId1,
-							Compliant:  true,
-							ResourceId: "resource-1",
+							Id:                   "assessment-result-1",
+							MetricId:             orchestratortest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 						},
 						{
-							Id:         "assessment-result-2",
-							MetricId:   orchestratortest.MockMetricId1,
-							Compliant:  true,
-							ResourceId: "resource-2",
+							Id:                   "assessment-result-2",
+							MetricId:             orchestratortest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 						},
 					},
 				}
@@ -741,22 +743,25 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				handler := &mockOrchestratorHandler{
 					assessmentResults: []*assessment.AssessmentResult{
 						{
-							Id:         "assessment-result-1",
-							MetricId:   orchestratortest.MockMetricId1,
-							Compliant:  true,
-							ResourceId: "resource-1",
+							Id:                   "assessment-result-1",
+							MetricId:             orchestratortest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 						},
 						{
-							Id:         "assessment-result-2",
-							MetricId:   orchestratortest.MockMetricId1,
-							Compliant:  false,
-							ResourceId: "resource-2",
+							Id:                   "assessment-result-2",
+							MetricId:             orchestratortest.MockMetricId1,
+							Compliant:            false,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 						},
 						{
-							Id:         "assessment-result-3",
-							MetricId:   orchestratortest.MockMetricId1,
-							Compliant:  true,
-							ResourceId: "resource-3",
+							Id:                   "assessment-result-3",
+							MetricId:             orchestratortest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-3",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
 						},
 					},
 				}
