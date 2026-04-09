@@ -555,6 +555,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		g        *errgroup.Group
 	)
 
+	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
 	// Gather a list of sub control IDs that we have manual results for and thus we are ignoring
 	ignored = make([]string, 0, len(manual))
 	for _, result := range manual {
@@ -614,7 +615,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		// Note: Depending on the ordering of the (sub)controls, we might lose some resultIds. Because manual results
 		// are appended to the end (see above), it should be good, though. Also you could argue it doesn't matter with
 		// a manual result.
-		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach.
+		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach (maybe add all sub controls of a manual result to the ignored list)
 		// TODO(lebogg): Shouldn't  be parentControlId zero value?
 		if r.ControlId == util.Deref(r.ParentControlId) || r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
 			status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY
