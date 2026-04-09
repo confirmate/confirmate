@@ -408,7 +408,7 @@ func (ps permissionStore) PermissionForResources(ctx context.Context, userID str
 		}
 	}
 
-	// Get all permissions for the user and resource type.
+	// Get all permissions for the user and object type that match the allowed permissions, then extract the resource IDs from those permissions.
 	conds = []any{
 		"user_id = ? AND resource_type = ? AND permission IN (?)",
 		userID,
