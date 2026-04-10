@@ -228,7 +228,23 @@ func TestService_ListCatalogs(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListCatalogsRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListCatalogsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "happy path: list all catalogs",
 			args: args{
 				req: &orchestrator.ListCatalogsRequest{},
 			},
@@ -242,12 +258,13 @@ func TestService_ListCatalogs(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCatalogsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Catalogs))
+				assert.Equal(t, 2, len(got.Msg.Catalogs))
+				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg.Catalogs[0])
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			name: "empty list",
+			name: "happy path: empty list",
 			args: args{
 				req: &orchestrator.ListCatalogsRequest{},
 			},
