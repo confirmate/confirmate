@@ -238,7 +238,8 @@ func TestService_ListMetrics(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
 			},
 		},
 		{
@@ -256,7 +257,7 @@ func TestService_ListMetrics(t *testing.T) {
 			},
 		},
 		{
-			name: "happy path: list all metrics without depricated metrics",
+			name: "happy path: list all metrics without deprecated metrics",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
