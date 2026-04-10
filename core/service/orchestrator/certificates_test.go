@@ -224,7 +224,8 @@ func TestService_CreateCertificate(t *testing.T) {
 
 func TestService_GetCertificate(t *testing.T) {
 	type args struct {
-		req *orchestrator.GetCertificateRequest
+		req     *orchestrator.GetCertificateRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -238,7 +239,7 @@ func TestService_GetCertificate(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.GetCertificateRequest{
 					CertificateId: orchestratortest.MockCertificate1.Id,
@@ -249,10 +250,67 @@ func TestService_GetCertificate(t *testing.T) {
 					err := d.Create(orchestratortest.MockCertificate1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCertificate1, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.GetCertificateRequest{
+					CertificateId: orchestratortest.MockCertificate1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockCertificate1, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.GetCertificateRequest{
+					CertificateId: orchestratortest.MockCertificate1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockCertificate1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -266,22 +324,8 @@ func TestService_GetCertificate(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-			},
-		},
-		{
-			name: "not found",
-			args: args{
-				req: &orchestrator.GetCertificateRequest{
-					CertificateId: orchestratortest.MockNonExistentId,
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -315,7 +359,8 @@ func TestService_GetCertificate(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "certificate not found")
 			},
 		},
 	}
@@ -326,7 +371,7 @@ func TestService_GetCertificate(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.GetCertificate(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.GetCertificate(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
