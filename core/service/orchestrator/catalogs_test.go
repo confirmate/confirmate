@@ -244,6 +244,19 @@ func TestService_ListCatalogs(t *testing.T) {
 			},
 		},
 		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.ListCatalogsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListCatalogsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
 			name: "happy path: list all catalogs",
 			args: args{
 				req: &orchestrator.ListCatalogsRequest{},
@@ -589,7 +602,9 @@ func TestService_ListControls(t *testing.T) {
 		{
 			name: "validation error - empty request",
 			args: args{
-				req: &orchestrator.ListControlsRequest{},
+				req: &orchestrator.ListControlsRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -597,7 +612,22 @@ func TestService_ListControls(t *testing.T) {
 			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.ErrorContains(t, err, "invalid request")
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					CatalogId: orchestratortest.MockCatalog1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 		},
 		{
