@@ -151,7 +151,7 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -165,7 +165,8 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
