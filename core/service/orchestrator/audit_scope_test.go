@@ -632,7 +632,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 					err = d.Create(orchestratortest.MockAuditScope2)
 					assert.NoError(t, err)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
@@ -656,7 +656,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 					err = d.Create(orchestratortest.MockAuditScope2)
 					assert.NoError(t, err)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
