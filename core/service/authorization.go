@@ -85,13 +85,13 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		objectTypeUsed orchestrator.ObjectType
 	)
 
-	if a == nil || userId == "" {
-		return false, nil
-	}
-
 	// Check IsAdminToken claim to allow access to all.
 	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
 		return true, nil
+	}
+
+	if a == nil || userId == "" {
+		return false, nil
 	}
 
 	if a.Permissions == nil {
