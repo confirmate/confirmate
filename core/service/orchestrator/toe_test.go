@@ -88,7 +88,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
@@ -159,15 +160,32 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.GetTargetOfEvaluationRequest{
 					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
-					RegisteredClaims: jwt.RegisteredClaims{
-						Subject: "user-1",
-					},
 					IsAdminToken: true,
 				}),
 			},
@@ -184,84 +202,85 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
-		// {
-		// 	name: "validation error - empty request",
-		// 	args: args{
-		// 		req: &orchestrator.GetTargetOfEvaluationRequest{},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 	},
-		// 	want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-		// 	wantErr: func(t *testing.T, err error, args ...any) bool {
-		// 		return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-		// 	},
-		// },
-		// {
-		// 	name: "not found",
-		// 	args: args{
-		// 		req: &orchestrator.GetTargetOfEvaluationRequest{
-		// 			TargetOfEvaluationId: orchestratortest.MockEmptyUuid,
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 	},
-		// 	want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-		// 	wantErr: func(t *testing.T, err error, args ...any) bool {
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
 		{
 			name: "authorization failure",
 			args: args{
-				req: &orchestrator.CreateTargetOfEvaluationRequest{
-					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
-						Name: "test-toe",
-					},
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockEmptyUuid,
 				},
 			},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want:   assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
 			},
-			wantDB: assert.NotNil[persistence.DB],
 		},
-		// 		return assert.ErrorContains(t, err, "target of evaluation not found")
-		// 	},
-		// },
-		// {
-		// 	name: "authorization failure",
-		// 	args: args{
-		// 		req: &orchestrator.GetTargetOfEvaluationRequest{
-		// 			TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 		authz: &denyAuthorizationStrategy{},
-		// 	},
-		// 	want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-		// 	wantErr: func(t *testing.T, err error, args ...any) bool {
-		// 		return assert.IsConnectError(t, err, connect.CodePermissionDenied)
-		// 	},
-		// },
-		// {
-		// 	name: "db error - not found",
-		// 	args: args{
-		// 		req: &orchestrator.GetTargetOfEvaluationRequest{
-		// 			TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
-		// 	},
-		// 	want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-		// 	wantErr: func(t *testing.T, err error, args ...any) bool {
-		// 		return assert.IsConnectError(t, err, connect.CodeNotFound)
-		// 	},
-		// },
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -279,7 +298,8 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 
 func TestService_ListTargetsOfEvaluation(t *testing.T) {
 	type args struct {
-		req *orchestrator.ListTargetsOfEvaluationRequest
+		req     *orchestrator.ListTargetsOfEvaluationRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -293,20 +313,142 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "authorization failure returns empty list",
 			args: args{
 				req: &orchestrator.ListTargetsOfEvaluationRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.TargetsOfEvaluation))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListTargetsOfEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "error - db error",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{},
+			},
+			fields: fields{
+				db:    persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListTargetsOfEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal)
+			},
+		},
+		{
+			name: "happy path: with allow-all authorization strategy",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
+					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 2, len(got.Msg.TargetsOfEvaluation)) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg.TargetsOfEvaluation[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 2, len(got.Msg.TargetsOfEvaluation)) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg.TargetsOfEvaluation[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.ListTargetsOfEvaluationRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListTargetsOfEvaluationResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, 1, len(got.Msg.TargetsOfEvaluation)) &&
-					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.TargetsOfEvaluation[0].Id)
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg.TargetsOfEvaluation[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -315,9 +457,10 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.ListTargetsOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.ListTargetsOfEvaluation(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -326,7 +469,8 @@ func TestService_ListTargetsOfEvaluation(t *testing.T) {
 
 func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 	type args struct {
-		req *orchestrator.UpdateTargetOfEvaluationRequest
+		req     *orchestrator.UpdateTargetOfEvaluationRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -341,90 +485,121 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 		wantDB  assert.Want[persistence.DB]
 	}{
 		{
-			name: "happy path",
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.UpdateTargetOfEvaluationRequest{},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateTargetOfEvaluationRequest{
 					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
 						Id:   orchestratortest.MockTargetOfEvaluation1.Id,
-						{
-							name: "validation error - empty request",
-							args: args{
-								req:     &orchestrator.GetTargetOfEvaluationRequest{},
-								context: context.Background(),
-							},
-							fields: fields{
-								db: persistencetest.NewInMemoryDB(t, types, joinTables),
-							},
-							want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-							wantErr: func(t *testing.T, err error, args ...any) bool {
-								return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
-							},
-						},
-						{
-							name: "not found",
-							args: args{
-								req: &orchestrator.GetTargetOfEvaluationRequest{
-									TargetOfEvaluationId: orchestratortest.MockEmptyUuid,
-								},
-								context: context.Background(),
-							},
-							fields: fields{
-								db: persistencetest.NewInMemoryDB(t, types, joinTables),
-							},
-							want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-							wantErr: func(t *testing.T, err error, args ...any) bool {
-								return assert.ErrorContains(t, err, "target of evaluation not found")
-							},
-						},
-						{
-							name: "authorization failure",
-							args: args{
-								req: &orchestrator.GetTargetOfEvaluationRequest{
-									TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
-								},
-								context: context.Background(),
-							},
-							fields: fields{
-								db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-								authz: &denyAuthorizationStrategy{},
-							},
-							want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-							wantErr: func(t *testing.T, err error, args ...any) bool {
-								return assert.IsConnectError(t, err, connect.CodePermissionDenied)
-							},
-						},
-						{
-							name: "db error - not found",
-							args: args{
-								req: &orchestrator.GetTargetOfEvaluationRequest{
-									TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
-								},
-								context: context.Background(),
-							},
-							fields: fields{
-								db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
-							},
-							want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-							wantErr: func(t *testing.T, err error, args ...any) bool {
-								return assert.IsConnectError(t, err, connect.CodeNotFound)
-							},
-						},
-			args: args{
-				req: &orchestrator.UpdateTargetOfEvaluationRequest{
-					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
-						Id:   orchestratortest.MockEmptyUuid,
 						Name: "updated-name",
 					},
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockTargetOfEvaluation2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
-			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.ErrorContains(t, err, "target of evaluation not found")
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], msgAndArgs ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, "updated-name", got.Msg.Name) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
 			},
-			wantDB: assert.NotNil[persistence.DB],
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Id:   orchestratortest.MockTargetOfEvaluation1.Id,
+						Name: "updated-name",
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], msgAndArgs ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, "updated-name", got.Msg.Name) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.UpdateTargetOfEvaluationRequest{
+					TargetOfEvaluation: &orchestrator.TargetOfEvaluation{
+						Id:   orchestratortest.MockTargetOfEvaluation1.Id,
+						Name: "updated-name",
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], msgAndArgs ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, "updated-name", got.Msg.Name) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name: "authorization failure",
@@ -457,7 +632,8 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				db:    persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.TargetOfEvaluation]],
 			wantErr: func(t *testing.T, err error, args ...any) bool {
@@ -473,7 +649,7 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateTargetOfEvaluation(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db, res)
@@ -483,7 +659,8 @@ func TestService_UpdateTargetOfEvaluation(t *testing.T) {
 
 func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 	type args struct {
-		req *orchestrator.RemoveTargetOfEvaluationRequest
+		req     *orchestrator.RemoveTargetOfEvaluationRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -498,7 +675,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 		wantDB  assert.Want[persistence.DB]
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.RemoveTargetOfEvaluationRequest{
 					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
@@ -509,9 +686,88 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
-				return assert.NotNil(t, got.Msg)
+				return assert.Empty(t, got.Msg)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				res := assert.Is[*connect.Response[emptypb.Empty]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				// Verify entity was deleted
+				var toe orchestrator.TargetOfEvaluation
+				err := db.Get(&toe, "id = ?", orchestratortest.MockTargetOfEvaluation1.Id)
+				assert.ErrorIs(t, err, persistence.ErrRecordNotFound)
+				return true
+			},
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.RemoveTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
+				return assert.Empty(t, got.Msg)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				res := assert.Is[*connect.Response[emptypb.Empty]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				// Verify entity was deleted
+				var toe orchestrator.TargetOfEvaluation
+				err := db.Get(&toe, "id = ?", orchestratortest.MockTargetOfEvaluation1.Id)
+				assert.ErrorIs(t, err, persistence.ErrRecordNotFound)
+				return true
+			},
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.RemoveTargetOfEvaluationRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
+				return assert.Empty(t, got.Msg)
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
@@ -535,7 +791,8 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, args ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
@@ -568,7 +825,8 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				db:    persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, args ...any) bool {
@@ -586,7 +844,7 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.RemoveTargetOfEvaluation(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.RemoveTargetOfEvaluation(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db, res)
@@ -596,7 +854,8 @@ func TestService_RemoveTargetOfEvaluation(t *testing.T) {
 
 func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 	type args struct {
-		req *orchestrator.GetTargetOfEvaluationStatisticsRequest
+		req     *orchestrator.GetTargetOfEvaluationStatisticsRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -610,7 +869,7 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.GetTargetOfEvaluationStatisticsRequest{
 					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
@@ -637,6 +896,97 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 					})
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, int64(1), got.Msg.NumberOfAssessmentResults) &&
+					assert.Equal(t, int64(1), got.Msg.NumberOfSelectedCatalogs)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationStatisticsRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create one target of evaluation
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+
+					// Create one assessment result
+					err = d.Create(&assessment.AssessmentResult{
+						Id:                   orchestratortest.MockAssessmentResult1.Id,
+						TargetOfEvaluationId: orchestratortest.MockAssessmentResult1.TargetOfEvaluationId,
+					})
+					assert.NoError(t, err)
+
+					// Create one audit scope
+					err = d.Create(&orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+					})
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, int64(1), got.Msg.NumberOfAssessmentResults) &&
+					assert.Equal(t, int64(1), got.Msg.NumberOfSelectedCatalogs)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.GetTargetOfEvaluationStatisticsRequest{
+					TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create one target of evaluation
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+
+					// Create one assessment result
+					err = d.Create(&assessment.AssessmentResult{
+						Id:                   orchestratortest.MockAssessmentResult1.Id,
+						TargetOfEvaluationId: orchestratortest.MockAssessmentResult1.TargetOfEvaluationId,
+					})
+					assert.NoError(t, err)
+
+					// Create one audit scope
+					err = d.Create(&orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation1.Id,
+					})
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.GetTargetOfEvaluationStatisticsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
@@ -683,7 +1033,7 @@ func TestService_GetTargetOfEvaluationStatistics(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.GetTargetOfEvaluationStatistics(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.GetTargetOfEvaluationStatistics(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -701,7 +1051,7 @@ func TestService_CreateDefaultTargetOfEvaluation(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "create default",
+			name: "happy path",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
@@ -712,7 +1062,7 @@ func TestService_CreateDefaultTargetOfEvaluation(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "already exists",
+			name: "err: ToE already exists",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
@@ -721,6 +1071,16 @@ func TestService_CreateDefaultTargetOfEvaluation(t *testing.T) {
 			},
 			want:    assert.Nil[*orchestrator.TargetOfEvaluation],
 			wantErr: assert.NoError,
+		},
+		{
+			name: "err: db error",
+			fields: fields{
+				db: persistencetest.CountErrorDB(t, persistence.ErrDatabase, types, joinTables),
+			},
+			want: assert.Nil[*orchestrator.TargetOfEvaluation],
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorIs(t, err, persistence.ErrDatabase)
+			},
 		},
 	}
 
