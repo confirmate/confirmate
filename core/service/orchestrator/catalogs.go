@@ -47,6 +47,8 @@ func (svc *Service) CreateCatalog(
 
 	catalog = req.Msg.Catalog
 
+	// TODO(anatheka): Add authorization check for creating catalogs (e.g., admin-only operation)
+
 	// Persist the new catalog in the database
 	err = svc.db.Create(catalog)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -127,6 +129,8 @@ func (svc *Service) UpdateCatalog(
 
 	catalog = req.Msg.Catalog
 
+	// TODO(anatheka): Add authorization check for creating catalogs (e.g., admin-only operation)
+
 	// Update the catalog
 	err = svc.db.Update(catalog, "id = ?", catalog.Id)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
@@ -150,6 +154,8 @@ func (svc *Service) RemoveCatalog(
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
+
+	// TODO(anatheka): Add authorization check for creating catalogs (e.g., admin-only operation)
 
 	// Delete the catalog
 	err = svc.db.Delete(&catalog, "id = ?", req.Msg.CatalogId)
