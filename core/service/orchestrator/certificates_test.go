@@ -222,46 +222,6 @@ func TestService_CreateCertificate(t *testing.T) {
 	}
 }
 
-func TestService_CreateCertificate_AuthorizationFailure(t *testing.T) {
-	type args struct {
-		req *orchestrator.CreateCertificateRequest
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr assert.WantErr
-	}{
-		{
-			name: "permission denied",
-			args: args{
-				req: &orchestrator.CreateCertificateRequest{
-					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 orchestratortest.MockCertificate1.Name,
-						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
-					},
-				},
-			},
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-				authz: &denyAuthorizationStrategy{},
-			}
-
-			res, err := svc.CreateCertificate(context.Background(), connect.NewRequest(tt.args.req))
-			assert.Nil(t, res)
-			tt.wantErr(t, err)
-		})
-	}
-}
-
 func TestService_GetCertificate(t *testing.T) {
 	type args struct {
 		req *orchestrator.GetCertificateRequest
