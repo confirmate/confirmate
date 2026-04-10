@@ -749,6 +749,20 @@ func TestService_GetControl(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetControlRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Control]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetControlRequest{
@@ -769,7 +783,7 @@ func TestService_GetControl(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Control], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockControl1.Id, got.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockControl1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
