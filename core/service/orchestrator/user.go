@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertCurrentUserPermission ensures that the calling user has the specified permission for the given resource (create or update).
+// UpsertCurrentUserPermission allows the authenticated user to update their own permissions for a specific resource.
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
@@ -142,7 +142,7 @@ func (svc *Service) ListUsers(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("user")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -274,7 +274,7 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	// If no claims are present, use an empty user ID — strategies like AuthorizationStrategyAllowAll
 	// don't require a user ID, while AuthorizationStrategyPermissionStore will deny empty IDs.
 	claims, ok = auth.ClaimsFromContext(ctx)
-	if ok && claims != nil {
+	if ok && claims != nil && claims.Issuer != "" && claims.Subject != "" {
 		if svc == nil {
 			return false, nil, fmt.Errorf("service is nil")
 		}

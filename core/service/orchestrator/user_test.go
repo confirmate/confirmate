@@ -113,14 +113,15 @@ func TestService_UpsertUserPermission(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "err: invalid request - missing permission",
+			name: "err: invalid request",
 			args: args{
 				ctx: context.Background(),
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{}),
 			},
 			want: assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request:")
 			},
 		},
 		{
@@ -136,16 +137,18 @@ func TestService_UpsertUserPermission(t *testing.T) {
 					},
 				}),
 			},
-			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables), authz: &service.AuthorizationStrategyPermissionStore{}},
-			want:   assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
 			},
 		},
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
-				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
 					UserPermission: &orchestrator.UserPermission{
 						UserId:       orchestratortest.MockUserId1,
@@ -155,7 +158,72 @@ func TestService_UpsertUserPermission(t *testing.T) {
 					},
 				}),
 			},
-			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables)},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: true,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
 				return assert.NotNil(t, got)
 			},
@@ -175,34 +243,101 @@ func TestService_UpsertUserPermission(t *testing.T) {
 }
 
 func TestService_ListUsers(t *testing.T) {
+	type args struct {
+		context context.Context
+		req     *connect.Request[orchestrator.ListUsersRequest]
+	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
+		args    args
 		fields  fields
 		want    assert.Want[*connect.Response[orchestrator.ListUsersResponse]]
 		wantErr assert.WantErr
 	}{
 		{
-			name:   "empty list",
-			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables)},
-			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
-				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.Users))
+			name: "err: database error",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{}),
 			},
-			wantErr: assert.NoError,
+			fields: fields{
+				db:    persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListUsersResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "database error:")
+			},
 		},
 		{
-			name: "happy path",
+			name: "validation error",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageToken: "!!!invalid-base64!!!"}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListUsersResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request:")
+			},
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListUsersResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "happy path: with allow-all authorization strategy",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
+			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockUser1))
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.Users)) &&
-					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.Users[0].Id)
+					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{}),
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.Users)) &&
+					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
 			},
 			wantErr: assert.NoError,
 		},
@@ -210,9 +345,12 @@ func TestService_ListUsers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db}
+			svc := &Service{
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
+			}
 
-			res, err := svc.ListUsers(context.Background(), connect.NewRequest(&orchestrator.ListUsersRequest{}))
+			res, err := svc.ListUsers(tt.args.context, tt.args.req)
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})
