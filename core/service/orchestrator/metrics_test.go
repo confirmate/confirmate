@@ -62,7 +62,8 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
 			},
 		},
 		{
@@ -77,8 +78,7 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id) &&
-					assert.Equal(t, orchestratortest.MockMetric1.Description, got.Msg.Description)
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -92,7 +92,8 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
