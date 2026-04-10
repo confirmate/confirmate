@@ -507,6 +507,20 @@ func TestService_GetCategory(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetCategoryRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Category]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetCategoryRequest{
@@ -524,7 +538,7 @@ func TestService_GetCategory(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Category], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCategory1.Name, got.Msg.Name)
+				return assert.Equal(t, orchestratortest.MockCategory1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
