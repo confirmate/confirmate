@@ -62,6 +62,7 @@ const (
 	MockMetricName1      = "Mock Metric 1"
 	MockMetricName2      = "Mock Metric 2"
 	MockMetricName3      = "Mock Metric 3"
+	MockMetricName4      = "Mock Metric 4"
 	MockMetricIdDefault  = "metric-default"
 	MockResourceId1      = "resource-1"
 	MockResourceId2      = "resource-2"
@@ -96,6 +97,13 @@ var (
 		Id:          MockMetricId3,
 		Name:        MockMetricName3,
 		Description: "Mock Metric 3",
+		Version:     MockDefaultVersion,
+		Category:    MockTestCategory,
+	}
+	MockMetric4 = &assessment.Metric{
+		Id:          MockMetricId4,
+		Name:        MockMetricName4,
+		Description: "Mock Metric 4",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
 	}
@@ -142,6 +150,13 @@ var (
 		TargetValue:          structpb.NewBoolValue(true),
 		IsDefault:            false,
 	}
+	MockMetricConfiguration4 = &assessment.MetricConfiguration{
+		TargetOfEvaluationId: MockToeId2,
+		MetricId:             MockMetricId4,
+		Operator:             "==",
+		TargetValue:          structpb.NewBoolValue(true),
+		IsDefault:            false,
+	}
 	MockMetricConfigurationDefault = &assessment.MetricConfiguration{
 		MetricId:    MockMetricIdDefault,
 		Operator:    "==",
@@ -176,6 +191,42 @@ var (
 		Id:          MockCatalogId3,
 		Name:        "Mock Catalog 3",
 		Description: "Mock catalog description 3",
+	}
+	MockFullCatalog = &orchestrator.Catalog{
+		Id:          MockCatalogId1,
+		Name:        "Mock Catalog 1",
+		Description: "Mock catalog description 1",
+		Categories: []*orchestrator.Category{
+			{
+				Name:      MockCategoryName1,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                             MockControlId1,
+						CategoryName:                   MockCategoryName1,
+						CategoryCatalogId:              MockCatalogId1,
+						ParentControlId:                util.Ref(MockControlId1),
+						ParentControlCategoryName:      util.Ref(MockCategoryName1),
+						ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+					},
+				},
+			},
+
+			{
+				Name:      MockCategoryName2,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                             MockControlId2,
+						CategoryName:                   MockCategoryName2,
+						CategoryCatalogId:              MockCatalogId1,
+						ParentControlId:                util.Ref(MockControlId2),
+						ParentControlCategoryName:      util.Ref(MockCategoryName2),
+						ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+					},
+				},
+			},
+		},
 	}
 
 	// Mock Categories
