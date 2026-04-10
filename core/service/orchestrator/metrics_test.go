@@ -170,8 +170,7 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id)
-				return true
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -197,21 +196,6 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[assessment.Metric]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
-			},
-		},
-		{
-			name: "db error - not found",
-			args: args{
-				req: &orchestrator.GetMetricRequest{
-					MetricId: orchestratortest.MockMetric1.Id,
-				},
-			},
-			fields: fields{
-				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
