@@ -587,7 +587,21 @@ func TestService_ListControls(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.ListControlsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
+			name: "happy path: list all",
 			args: args{
 				req: &orchestrator.ListControlsRequest{},
 			},
