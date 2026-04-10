@@ -380,7 +380,8 @@ func TestService_GetCertificate(t *testing.T) {
 
 func TestService_ListCertificates(t *testing.T) {
 	type args struct {
-		req *orchestrator.ListCertificatesRequest
+		req     *orchestrator.ListCertificatesRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -394,7 +395,48 @@ func TestService_ListCertificates(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "authorization failure returns empty list",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.Certificates))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListCertificatesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.ListCertificatesRequest{},
 			},
@@ -405,10 +447,67 @@ func TestService_ListCertificates(t *testing.T) {
 					err = d.Create(orchestratortest.MockCertificate2)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, 2, len(got.Msg.Certificates))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 2, len(got.Msg.Certificates))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: permissionStore{
+						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 1, len(got.Msg.Certificates))
 			},
 			wantErr: assert.NoError,
 		},
@@ -418,7 +517,8 @@ func TestService_ListCertificates(t *testing.T) {
 				req: &orchestrator.ListCertificatesRequest{},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
@@ -431,9 +531,10 @@ func TestService_ListCertificates(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.ListCertificates(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.ListCertificates(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})

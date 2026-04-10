@@ -104,8 +104,8 @@ func (svc *Service) ListCertificates(
 		certificates []*orchestrator.Certificate
 		conds        []any
 		npt          string
-		resourceList []string
-		allowed      bool
+		all          bool
+		toeIds       []string
 	)
 
 	// Validate the request
@@ -119,14 +119,10 @@ func (svc *Service) ListCertificates(
 		req.Msg.Asc = true
 	}
 
-	// Check access via the configured auth strategy
-	allowed, resourceList, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	// If access is not allowed to all resources and the resource list is empty, return an empty response
-	if len(resourceList) == 0 && !allowed {
+	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
+	if !all && len(toeIds) == 0 {
+		// User has no access to any ToE, return empty result
 		return connect.NewResponse(&orchestrator.ListCertificatesResponse{
 			Certificates:  []*orchestrator.Certificate{},
 			NextPageToken: "",
@@ -134,8 +130,8 @@ func (svc *Service) ListCertificates(
 	}
 
 	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
-	if !allowed {
-		conds = append(conds, "target_of_evaluation_id IN ?", resourceList)
+	if !all {
+		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
 	}
 
 	// Query the database with pagination and the constructed conditions
