@@ -242,12 +242,12 @@ func (svc *Service) RemoveCertificate(
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.CertificateId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, cert.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, service.ErrNotFound("certificate")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	// Delete the certificate
