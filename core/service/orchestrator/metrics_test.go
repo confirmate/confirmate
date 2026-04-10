@@ -29,8 +29,10 @@ import (
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/clitest"
+	"github.com/google/go-cmp/cmp"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -342,6 +344,9 @@ func TestService_UpdateMetric(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
+				assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "description"),
+				})
 				return assert.Equal(t, "Updated description", got.Msg.Description)
 			},
 			wantErr: assert.NoError,
@@ -356,7 +361,8 @@ func TestService_UpdateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -395,7 +401,8 @@ func TestService_UpdateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "metric not found")
 			},
 		},
 		{
@@ -416,7 +423,8 @@ func TestService_UpdateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					errors.Is(err, persistence.ErrConstraintFailed)
 			},
 		},
 	}
