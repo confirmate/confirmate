@@ -557,6 +557,22 @@ func TestService_ListPublicCertificates(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListPublicCertificatesRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListPublicCertificatesResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
 			name: "list all public certificates",
 			args: args{
 				req: &orchestrator.ListPublicCertificatesRequest{},
