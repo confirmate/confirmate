@@ -244,11 +244,11 @@ func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 }
 
 // AllowedTargetOfEvaluations returns true and nil, allowing access to all ToEs.
-func (a *AuthorizationStrategyAllowAll) AllowedTargetOfEvaluations(ctx context.Context) (all bool, toeIds []string) {
+func (a *AuthorizationStrategyAllowAll) AllowedTargetOfEvaluations(_ context.Context) (all bool, toeIds []string) {
 	return true, nil
 }
 
 // AllowedAuditScopes returns true and nil, allowing access to all audit scopes.
-func (a *AuthorizationStrategyAllowAll) AllowedAuditScopes(ctx context.Context) (all bool, auditScopeIds []string) {
+func (a *AuthorizationStrategyAllowAll) AllowedAuditScopes(_ context.Context) (all bool, auditScopeIds []string) {
 	return true, nil
 }
