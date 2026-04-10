@@ -323,8 +323,13 @@ func TestService_UpdateCatalog(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalog1.Id,
+					Name:        "Updated Catalog",
+					Description: "Updated description",
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, "Updated Catalog", got.Msg.Name)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -338,7 +343,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
