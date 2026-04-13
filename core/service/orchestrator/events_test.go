@@ -64,6 +64,7 @@ func TestService_RegisterSubscriber(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Register a subscriber
