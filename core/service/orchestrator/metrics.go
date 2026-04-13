@@ -50,8 +50,10 @@ func (svc *Service) CreateMetric(
 	req *connect.Request[orchestrator.CreateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
 	var (
-		metric  *assessment.Metric
-		allowed bool
+		metric   *assessment.Metric
+		metricID string
+		impl     *assessment.MetricImplementation
+		allowed  bool
 	)
 
 	// Validate the request
@@ -59,13 +61,24 @@ func (svc *Service) CreateMetric(
 		return nil, err
 	}
 
+	metricID = uuid.NewString()
+	if req.Msg.GetMetric().GetImplementation() != nil {
+		impl = &assessment.MetricImplementation{
+			MetricId:  metricID,
+			Lang:      req.Msg.GetMetric().GetImplementation().GetLang(),
+			Code:      req.Msg.GetMetric().GetImplementation().GetCode(),
+			UpdatedAt: timestamppb.Now(),
+		}
+	}
+
 	metric = &assessment.Metric{
-		Id:          uuid.NewString(),
-		Name:        req.Msg.GetMetric().GetName(),
-		Description: req.Msg.GetMetric().GetDescription(),
-		Version:     req.Msg.GetMetric().GetVersion(),
-		Comments:    req.Msg.GetMetric().GetComments(),
-		Category:    req.Msg.GetMetric().GetCategory(),
+		Id:             metricID,
+		Name:           req.Msg.GetMetric().GetName(),
+		Description:    req.Msg.GetMetric().GetDescription(),
+		Version:        req.Msg.GetMetric().GetVersion(),
+		Comments:       req.Msg.GetMetric().GetComments(),
+		Category:       req.Msg.GetMetric().GetCategory(),
+		Implementation: impl,
 	}
 
 	// Only admins may grant or revoke permissions.

@@ -84,10 +84,10 @@ func TestService_RegisterSubscriber(t *testing.T) {
 		assert.NotNil(t, event)
 		assert.Equal(t, orchestrator.EventCategory_EVENT_CATEGORY_METRIC, event.Category)
 		assert.Equal(t, orchestrator.RequestType_REQUEST_TYPE_CREATED, event.RequestType)
-		assert.Equal(t, orchestratortest.MockMetric1.Id, event.EntityId)
+		assert.NotEmpty(t, event.EntityId)
 		metric := event.GetMetric()
 		assert.NotNil(t, metric)
-		assert.Equal(t, orchestratortest.MockMetric1.Id, metric.Id)
+		assert.Equal(t, event.EntityId, metric.Id)
 	case <-time.After(1 * time.Second):
 		t.Fatal("timeout waiting for event")
 	}

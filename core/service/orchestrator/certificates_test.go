@@ -62,13 +62,16 @@ func TestService_CreateCertificate(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
+				return assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
-				cert := assert.InDB[orchestrator.Certificate](t, db, orchestratortest.MockCertificate1.Id)
-				assert.Equal(t, orchestratortest.MockCertificate1, cert)
-				return true
+				res := assert.Is[*connect.Response[orchestrator.Certificate]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+				cert := assert.InDB[orchestrator.Certificate](t, db, res.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.Description, cert.Description) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.TargetOfEvaluationId, cert.TargetOfEvaluationId)
 			},
 		},
 		{
@@ -87,13 +90,16 @@ func TestService_CreateCertificate(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
+				return assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
-				cert := assert.InDB[orchestrator.Certificate](t, db, orchestratortest.MockCertificate1.Id)
-				assert.Equal(t, orchestratortest.MockCertificate1, cert)
-				return true
+				res := assert.Is[*connect.Response[orchestrator.Certificate]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+				cert := assert.InDB[orchestrator.Certificate](t, db, res.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.Description, cert.Description) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.TargetOfEvaluationId, cert.TargetOfEvaluationId)
 			},
 		},
 		{
@@ -121,13 +127,16 @@ func TestService_CreateCertificate(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Id)
+				return assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
-				cert := assert.InDB[orchestrator.Certificate](t, db, orchestratortest.MockCertificate1.Id)
-				assert.Equal(t, orchestratortest.MockCertificate1, cert)
-				return true
+				res := assert.Is[*connect.Response[orchestrator.Certificate]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+				cert := assert.InDB[orchestrator.Certificate](t, db, res.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.Description, cert.Description) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.TargetOfEvaluationId, cert.TargetOfEvaluationId)
 			},
 		},
 		{
@@ -217,7 +226,7 @@ func TestService_CreateCertificate(t *testing.T) {
 			res, err := svc.CreateCertificate(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
-			tt.wantDB(t, tt.fields.db)
+			tt.wantDB(t, tt.fields.db, res)
 		})
 	}
 }

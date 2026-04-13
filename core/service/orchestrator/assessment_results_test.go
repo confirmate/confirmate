@@ -30,7 +30,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"connectrpc.com/connect"
@@ -945,7 +945,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					orchestratortest.MockNewAssessmentResult,
 					got.Msg.Results[0],
 					cmp.Options{
-						cmpopts.IgnoreFields(assessment.AssessmentResult{}, "CreatedAt"),
+						protocmp.IgnoreFields(&assessment.AssessmentResult{}, "created_at"),
 					},
 				)
 			},

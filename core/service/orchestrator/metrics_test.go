@@ -147,7 +147,10 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "id"),
+				}) &&
+					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 		},
@@ -167,7 +170,10 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "id"),
+				}) &&
+					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 		},
@@ -773,7 +779,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[assessment.MetricImplementation], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, orchestratortest.MockMetricImplementation1, got.Msg, cmp.Options{
-					protocmp.IgnoreFields(&assessment.MetricImplementation{}, "code"),
+					protocmp.IgnoreFields(&assessment.MetricImplementation{}, "code", "updated_at"),
 				})
 				return assert.Equal(t, "updated code", got.Msg.Code)
 			},
@@ -805,7 +811,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[assessment.MetricImplementation], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, orchestratortest.MockMetricImplementation1, got.Msg, cmp.Options{
-					protocmp.IgnoreFields(&assessment.MetricImplementation{}, "code"),
+					protocmp.IgnoreFields(&assessment.MetricImplementation{}, "code", "updated_at"),
 				})
 				return assert.Equal(t, "updated code", got.Msg.Code)
 			},

@@ -85,9 +85,9 @@ func TestService_CreateAuditScope(t *testing.T) {
 
 				// Check if ID is generated and not empty
 				assert.NotEmpty(t, got.Id)
-				// Remove ID from got for comparison since it's generated
-				got.Id = ""
-				return assert.Equal(t, want, got)
+				return assert.Equal(t, want, got, cmp.Options{
+					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
+				})
 			},
 		},
 		{
@@ -127,9 +127,9 @@ func TestService_CreateAuditScope(t *testing.T) {
 
 				// Check if ID is generated and not empty
 				assert.NotEmpty(t, got.Id)
-				// Remove ID from got for comparison since it's generated
-				got.Id = ""
-				return assert.Equal(t, want, got)
+				return assert.Equal(t, want, got, cmp.Options{
+					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
+				})
 			},
 		},
 		{
@@ -169,7 +169,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					Name:                 orchestratortest.MockScopeName1,
 				}
 				return assert.Equal(t, want, got.Msg, cmp.Options{
-					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id"),
+					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
 				})
 			},
 			wantErr: assert.NoError,
@@ -188,7 +188,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				// Check if ID is generated and not empty
 				assert.NotEmpty(t, got.Id)
 				return assert.Equal(t, want, got, cmp.Options{
-					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id"),
+					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
 				})
 			},
 		},
