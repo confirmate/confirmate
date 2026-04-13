@@ -174,3 +174,52 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 		})
 	}
 }
+
+func TestService_Subscribe(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		req *connect.Request[orchestrator.SubscribeRequest]
+	}
+	type fields struct {
+		authz service.AuthorizationStrategy
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		stream  *connect.ServerStream[orchestrator.ChangeEvent]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "validation error - empty request",
+			args: args{},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
+			},
+		},
+		{
+			name: "authorization error",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&orchestrator.SubscribeRequest{}),
+			},
+			fields: fields{
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				authz: tt.fields.authz,
+			}
+			gotErr := svc.Subscribe(tt.args.ctx, tt.args.req, tt.stream)
+
+			tt.wantErr(t, gotErr)
+		})
+	}
+}
