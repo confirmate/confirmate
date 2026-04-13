@@ -100,6 +100,7 @@ func TestService_RegisterSubscriber_WithFilter(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Register a subscriber with filter for METRIC category only

@@ -296,7 +296,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -329,7 +329,7 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.Id)
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
