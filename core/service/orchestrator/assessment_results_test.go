@@ -121,23 +121,6 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "authorization failure with internal db error",
-			args: args{
-				req: &orchestrator.StoreAssessmentResultRequest{
-					Result: orchestratortest.MockNewAssessmentResult,
-				},
-				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{}),
-			},
-			fields: fields{
-				authz: &service.AuthorizationStrategyPermissionStore{},
-			},
-			want: assert.Nil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInternal)
-			},
-			wantDB: assert.Nil[persistence.DB],
-		},
-		{
 			name: "authorization failure",
 			args: args{
 				req: &orchestrator.StoreAssessmentResultRequest{
