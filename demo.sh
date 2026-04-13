@@ -50,7 +50,9 @@ echo "[2/5] Starting confirmate (API on :${API_PORT})..."
 ./bin/confirmate \
   --db-in-memory \
   --api-port "${API_PORT}" \
+  --catalogs-default-path ./example-data/catalogs \
   --catalogs-load-default \
+  --metrics-default-path ./example-data/metrics \
   --metrics-load-default \
   &>"${REPO_ROOT}/logs/confirmate.log" &
 PID_CONFIRMATE=$!

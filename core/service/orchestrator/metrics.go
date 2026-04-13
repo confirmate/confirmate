@@ -458,12 +458,31 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 			return fmt.Errorf("error accessing path %s: %w", path, err)
 		}
 
-		// Skip directories and non-yaml files
-		if info.IsDir() || (!strings.HasSuffix(info.Name(), ".yaml") && !strings.HasSuffix(info.Name(), ".yml")) {
+		// Skip directories and unsupported file types
+		if info.IsDir() {
 			return nil
 		}
 
-		// Read the YAML file
+		// JSON files: treat as an array of metrics
+		if strings.HasSuffix(info.Name(), ".json") {
+			b, err := os.ReadFile(path)
+			if err != nil {
+				return fmt.Errorf("error reading file %s: %w", path, err)
+			}
+			var batch []*assessment.Metric
+			if err = json.Unmarshal(b, &batch); err != nil {
+				slog.Warn("Could not parse metrics JSON file, skipping", "file", info.Name(), log.Err(err))
+				return nil
+			}
+			metrics = append(metrics, batch...)
+			return nil
+		}
+
+		// YAML files: single metric per file
+		if !strings.HasSuffix(info.Name(), ".yaml") && !strings.HasSuffix(info.Name(), ".yml") {
+			return nil
+		}
+
 		b, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("error reading file %s: %w", path, err)

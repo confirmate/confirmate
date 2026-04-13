@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { SchemaCategory, SchemaControl } from '$lib/api/openapi/orchestrator';
 	import ControlRow from './ControlRow.svelte';
+	import { ChevronDown } from '@steeze-ui/heroicons';
+	import { Icon } from '@steeze-ui/svelte-icon';
 
 	let {
 		category,
@@ -13,22 +15,22 @@
 	let open = $state(true);
 </script>
 
-<div class="rounded-lg border border-gray-200 bg-white">
+<div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
 	<button
 		type="button"
 		onclick={() => (open = !open)}
-		class="flex w-full items-center justify-between px-4 py-3 text-left"
+		class="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-gray-50"
 	>
-		<div>
+		<div class="flex items-center gap-2.5">
+			<Icon
+				src={ChevronDown}
+				class="h-4 w-4 shrink-0 text-gray-400 transition-transform {open ? '' : '-rotate-90'}"
+			/>
 			<span class="font-medium text-gray-900">{category.name}</span>
-			<span class="ml-2 text-sm text-gray-400">{controls.length} controls</span>
+			<span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+				{controls.length}
+			</span>
 		</div>
-		<svg
-			class="h-4 w-4 shrink-0 text-gray-400 transition-transform {open ? 'rotate-180' : ''}"
-			fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
-		>
-			<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-		</svg>
 	</button>
 
 	{#if open}

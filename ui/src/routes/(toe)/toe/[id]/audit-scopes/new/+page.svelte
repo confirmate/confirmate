@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import { orchestratorClient } from '$lib/api/client';
 	import CatalogPicker from '$lib/components/toe/CatalogPicker.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -30,6 +30,7 @@
 				catalogId: selectedCatalog.id
 			}
 		});
+		await invalidate((url) => url.pathname === '/v1/orchestrator/audit_scopes');
 		goto(`/toe/${data.toe.id}/audit-scopes/`);
 	}
 </script>
