@@ -165,6 +165,7 @@ func (svc *Service) RemoveCatalog(
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
 		catalog orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -172,7 +173,14 @@ func (svc *Service) RemoveCatalog(
 		return nil, err
 	}
 
-	// TODO(anatheka): Add authorization check for creating catalogs (e.g., admin-only operation)
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Delete the catalog
 	err = svc.db.Delete(&catalog, "id = ?", req.Msg.CatalogId)
