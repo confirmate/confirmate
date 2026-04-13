@@ -97,12 +97,12 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 	type gotData struct {
 		code       connect.Code
 		nextCalled bool
-		claims     jwt.MapClaims
+		claims     *auth.OAuthClaims
 	}
 
 	var (
 		privateKey, publicKey = mustECDSAKeyPair(t)
-		validToken            = mustSignES256Token(t, privateKey, "kid-1", jwt.MapClaims{"sub": "user-1", "cladmin": true})
+		validToken            = mustSignES256Token(t, privateKey, "kid-1", jwt.MapClaims{"sub": "user-1", "cfadmin": true})
 		invalidToken          = mustSignES256Token(t, mustECDSAKeyPairPrivateOnly(t), "kid-1", jwt.MapClaims{"sub": "user-1"})
 	)
 
@@ -144,14 +144,15 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			wantErr: wantError,
 		},
 		{
-			name:   "valid token passes and sets claims",
+			name:   "valid token passes, sets claims",
 			args:   args{authHeader: "Bearer " + validToken},
 			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
 			want: func(t *testing.T, got gotData, _ ...any) bool {
-				_, ok := got.claims["cladmin"]
-				return assert.True(t, got.nextCalled) &&
-					assert.NotNil(t, got.claims) &&
-					assert.True(t, ok)
+				// Check if claims are set correctly
+				assert.True(t, got.claims.IsAdminToken)
+				assert.NotEmpty(t, got.claims.Subject)
+
+				return assert.True(t, got.nextCalled)
 			},
 			wantErr: assert.NoError,
 		},
@@ -161,7 +162,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var (
 				nextCalled bool
-				claims     jwt.MapClaims
+				claims     *auth.OAuthClaims
 			)
 
 			wrapped := tt.fields.interceptor.WrapUnary(func(ctx context.Context, _ connect.AnyRequest) (connect.AnyResponse, error) {
@@ -206,15 +207,15 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 		name    string
 		args    args
 		fields  fields
-		want    assert.Want[jwt.MapClaims]
+		want    assert.Want[*auth.OAuthClaims]
 		wantErr assert.WantErr
 	}{
 		{
 			name:   "jwks validates signature",
 			args:   args{token: validJWKSToken},
 			fields: fields{interceptor: &AuthInterceptor{cfg: &AuthConfig{useJWKS: true, jwks: jwks}}},
-			want: func(t *testing.T, got jwt.MapClaims, _ ...any) bool {
-				return assert.Equal(t, "jwks-user", got["sub"])
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "jwks-user", got.Subject)
 			},
 			wantErr: assert.NoError,
 		},
@@ -222,7 +223,7 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			name:   "jwks rejects invalid signature",
 			args:   args{token: invalidJWKSToken},
 			fields: fields{interceptor: &AuthInterceptor{cfg: &AuthConfig{useJWKS: true, jwks: jwks}}},
-			want:   assert.AnyValue[jwt.MapClaims],
+			want:   assert.AnyValue[*auth.OAuthClaims],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return wantError(t, err, msgAndArgs...)
 			},
@@ -231,8 +232,8 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			name:   "public key validates signature",
 			args:   args{token: validPublicKeyToken},
 			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
-			want: func(t *testing.T, got jwt.MapClaims, _ ...any) bool {
-				return assert.Equal(t, "pk-user", got["sub"])
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "pk-user", got.Subject)
 			},
 			wantErr: assert.NoError,
 		},
@@ -240,7 +241,7 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			name:   "missing public key returns error",
 			args:   args{token: validPublicKeyToken},
 			fields: fields{interceptor: NewAuthInterceptor()},
-			want:   assert.AnyValue[jwt.MapClaims],
+			want:   assert.AnyValue[*auth.OAuthClaims],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "no public key configured", msgAndArgs...)
 			},
@@ -342,7 +343,7 @@ func TestAuthInterceptorWrapStreamingHandler(t *testing.T) {
 			got := gotData{code: connect.CodeOf(err), nextCalled: nextCalled, claimsSet: claimsSet}
 
 			assert.True(t, tt.wantErr(t, err))
-			assert.True(t, tt.want(t, got))
+			assert.True(t, tt.want(t, got), context.Background())
 		})
 	}
 }

@@ -20,7 +20,6 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/util"
 
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -36,14 +35,16 @@ const (
 	MockMetricId2     = "00000000-0000-0000-0000-000000000002"
 	MockMetricId3     = "00000000-0000-0000-0000-000000000003"
 	MockMetricId4     = "00000000-0000-0000-0000-000000000004"
-	MockToeId1        = "00000000-0000-0000-0000-000000000001"
 	MockResultId1     = "00000000-0000-0000-0002-000000000001"
 	MockResultId2     = "00000000-0000-0000-0002-000000000002"
 	MockResultId3     = "00000000-0000-0000-0002-000000000003"
 	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
 	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
+	MockToeId1        = "00000000-0000-0000-0000-000000000001"
 	MockToeId2        = "00000000-0000-0000-0000-000000000002"
 	MockToeId3        = "00000000-0000-0000-0000-000000000003"
+	MockUserId1       = "00000000-0000-0000-0000-000000000001"
+	MockUserId2       = "00000000-0000-0000-0000-000000000002"
 )
 
 // Mock string IDs for consistent testing
@@ -61,6 +62,7 @@ const (
 	MockMetricName1      = "Mock Metric 1"
 	MockMetricName2      = "Mock Metric 2"
 	MockMetricName3      = "Mock Metric 3"
+	MockMetricName4      = "Mock Metric 4"
 	MockMetricIdDefault  = "metric-default"
 	MockResourceId1      = "resource-1"
 	MockResourceId2      = "resource-2"
@@ -72,6 +74,7 @@ const (
 	MockToolId1          = "tool-1"
 	MockToolId2          = "tool-2"
 	MockToolIdConcurrent = "tool-concurrent"
+	MockUserIssuer1      = "test-issuer"
 )
 
 var (
@@ -94,6 +97,13 @@ var (
 		Id:          MockMetricId3,
 		Name:        MockMetricName3,
 		Description: "Mock Metric 3",
+		Version:     MockDefaultVersion,
+		Category:    MockTestCategory,
+	}
+	MockMetric4 = &assessment.Metric{
+		Id:          MockMetricId4,
+		Name:        MockMetricName4,
+		Description: "Mock Metric 4",
 		Version:     MockDefaultVersion,
 		Category:    MockTestCategory,
 	}
@@ -140,6 +150,13 @@ var (
 		TargetValue:          structpb.NewBoolValue(true),
 		IsDefault:            false,
 	}
+	MockMetricConfiguration4 = &assessment.MetricConfiguration{
+		TargetOfEvaluationId: MockToeId2,
+		MetricId:             MockMetricId4,
+		Operator:             "==",
+		TargetValue:          structpb.NewBoolValue(true),
+		IsDefault:            false,
+	}
 	MockMetricConfigurationDefault = &assessment.MetricConfiguration{
 		MetricId:    MockMetricIdDefault,
 		Operator:    "==",
@@ -174,6 +191,42 @@ var (
 		Id:          MockCatalogId3,
 		Name:        "Mock Catalog 3",
 		Description: "Mock catalog description 3",
+	}
+	MockFullCatalog = &orchestrator.Catalog{
+		Id:          MockCatalogId1,
+		Name:        "Mock Catalog 1",
+		Description: "Mock catalog description 1",
+		Categories: []*orchestrator.Category{
+			{
+				Name:      MockCategoryName1,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                             MockControlId1,
+						CategoryName:                   MockCategoryName1,
+						CategoryCatalogId:              MockCatalogId1,
+						ParentControlId:                new(MockControlId1),
+						ParentControlCategoryName:      new(MockCategoryName1),
+						ParentControlCategoryCatalogId: new(MockCatalogId1),
+					},
+				},
+			},
+
+			{
+				Name:      MockCategoryName2,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:                             MockControlId2,
+						CategoryName:                   MockCategoryName2,
+						CategoryCatalogId:              MockCatalogId1,
+						ParentControlId:                new(MockControlId2),
+						ParentControlCategoryName:      new(MockCategoryName2),
+						ParentControlCategoryCatalogId: new(MockCatalogId1),
+					},
+				},
+			},
+		},
 	}
 
 	// Mock Categories
@@ -256,7 +309,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "Resource is compliant",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -276,7 +329,7 @@ var (
 		ResourceTypes:        []string{"storage"},
 		ComplianceComment:    "Resource is not compliant",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -298,7 +351,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "New resource is compliant",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -320,7 +373,29 @@ var (
 		ResourceTypes:        []string{"compute"},
 		ComplianceComment:    "Third resource test",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
+		HistoryUpdatedAt:     timestamppb.Now(),
+		History: []*assessment.Record{
+			{
+				EvidenceId:         MockEvidenceId1,
+				EvidenceRecordedAt: timestamppb.Now(),
+			},
+		},
+	}
+
+	// MockAssessmentResult3 for integration testing - can be reused for additional result in streams
+	MockAssessmentResultToE2 = &assessment.AssessmentResult{
+		Id:                   "00000000-0000-0000-0003-000000000006",
+		CreatedAt:            timestamppb.Now(),
+		MetricId:             MockMetricId3,
+		MetricConfiguration:  MockMetricConfiguration3,
+		Compliant:            true,
+		EvidenceId:           MockEvidenceId1,
+		ResourceId:           MockResourceId3,
+		ResourceTypes:        []string{"compute"},
+		ComplianceComment:    "Third resource test",
+		TargetOfEvaluationId: MockToeId2,
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -342,7 +417,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "Duplicate test",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -350,6 +425,35 @@ var (
 				EvidenceRecordedAt: timestamppb.Now(),
 			},
 		},
+	}
+	MockUser1 = &orchestrator.User{
+		Id:        MockUserIssuer1 + "|" + MockUserId1,
+		Username:  new("testuser"),
+		Email:     new("email-1"),
+		FirstName: new("Test"),
+		LastName:  new("User"),
+	}
+
+	MockUser2 = &orchestrator.User{
+		Id:        MockUserIssuer1 + "|" + MockUserId2,
+		Username:  new("testuser 2"),
+		Email:     new("email-2"),
+		FirstName: new("Test"),
+		LastName:  new("User 2"),
+	}
+
+	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
+		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		ResourceId:   MockToeId1,
+		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+	}
+
+	MockUserPermissionsAuditScopeAdmin = &orchestrator.UserPermission{
+		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		ResourceId:   MockScopeId1,
+		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 )
 
@@ -375,7 +479,7 @@ func NewMockAssessmentResultForConcurrentStream(streamID int) *assessment.Assess
 		ResourceTypes:        []string{"compute"},
 		ComplianceComment:    "Concurrent stream test",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolIdConcurrent),
+		ToolId:               new(MockToolIdConcurrent),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
