@@ -359,9 +359,11 @@ func TestService_ListCatalogs(t *testing.T) {
 func TestService_UpdateCatalog(t *testing.T) {
 	type args struct {
 		req *orchestrator.UpdateCatalogRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -371,7 +373,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateCatalogRequest{
 					Catalog: &orchestrator.Catalog{
@@ -386,6 +388,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				want := &orchestrator.Catalog{
@@ -397,6 +400,61 @@ func TestService_UpdateCatalog(t *testing.T) {
 				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{
+					Catalog: &orchestrator.Catalog{
+						Id:          orchestratortest.MockCatalog1.Id,
+						Name:        "Updated Catalog",
+						Description: "Updated description",
+					},
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: true,
+					},
+				),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalog1.Id,
+					Name:        "Updated Catalog",
+					Description: "Updated description",
+				}
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{
+					Catalog: &orchestrator.Catalog{
+						Id:          orchestratortest.MockCatalog1.Id,
+						Name:        "Updated Catalog",
+						Description: "Updated description",
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -442,7 +500,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -461,7 +520,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				db:    persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -473,9 +533,10 @@ func TestService_UpdateCatalog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateCatalog(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateCatalog(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
