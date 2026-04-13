@@ -282,11 +282,23 @@ func (svc *Service) UpdateMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricImplementationRequest],
 ) (res *connect.Response[assessment.MetricImplementation], err error) {
-	var impl *assessment.MetricImplementation
+	var (
+		impl    *assessment.MetricImplementation
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_IMPLEMENTATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	impl = req.Msg.Implementation
