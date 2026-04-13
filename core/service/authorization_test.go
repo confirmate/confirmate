@@ -250,6 +250,110 @@ func TestAuthorizationStrategyPermissionStore_AllowedAuditScopes(t *testing.T) {
 			fields: fields{
 				authz: &AuthorizationStrategyPermissionStore{
 					&fakePermissionStore{
+						ids: []string{orchestratortest.MockScopeId1, orchestratortest.MockScopeId2},
+						err: nil,
+					},
+				},
+			},
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Equal(t, []string{orchestratortest.MockScopeId1, orchestratortest.MockScopeId2}, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := tt.fields.authz
+			got, got2 := a.AllowedAuditScopes(tt.args.ctx)
+			tt.wantAllowed(t, got)
+			tt.wantResourceIds(t, got2)
+		})
+	}
+}
+
+func TestAuthorizationStrategyPermissionStore_AllowedTargetOfEvaluations(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
+	type fields struct {
+		authz *AuthorizationStrategyPermissionStore
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		args            args
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "err: authz is nil",
+			args: args{
+				ctx: context.Background(),
+			},
+			fields: fields{authz: nil},
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIds: assert.Nil[[]string],
+		},
+		{
+			name: "err: permission store returns error",
+			args: args{
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+					},
+				),
+			},
+			fields: fields{
+				authz: &AuthorizationStrategyPermissionStore{
+					Permissions: &fakePermissionStore{
+						ids: nil,
+						err: errors.New("some error"),
+					},
+				},
+			},
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIds: assert.Nil[[]string],
+		},
+		{
+			name: "happy path: admin token allows all audit scopes",
+			args: args{
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{IsAdminToken: true},
+				),
+			},
+			fields: fields{authz: &AuthorizationStrategyPermissionStore{}},
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: assert.Nil[[]string],
+		},
+		{
+			name: "happy path: permissions store allows specific ToEs",
+			args: args{
+				auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+					},
+				),
+			},
+			fields: fields{
+				authz: &AuthorizationStrategyPermissionStore{
+					&fakePermissionStore{
 						ids: []string{orchestratortest.MockToeId1, orchestratortest.MockToeId2},
 						err: nil,
 					},
@@ -266,7 +370,7 @@ func TestAuthorizationStrategyPermissionStore_AllowedAuditScopes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := tt.fields.authz
-			got, got2 := a.AllowedAuditScopes(tt.args.ctx)
+			got, got2 := a.AllowedTargetOfEvaluations(tt.args.ctx)
 			tt.wantAllowed(t, got)
 			tt.wantResourceIds(t, got2)
 		})
@@ -368,27 +472,3 @@ func TestAuthorizationStrategyPermissionStore_AllowedAuditScopes(t *testing.T) {
 // 		})
 // 	}
 // }
-
-func TestAuthorizationStrategyPermissionStore_AllowedTargetOfEvaluations(t *testing.T) {
-	tests := []struct {
-		name  string // description of this test case
-		want  bool
-		want2 []string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// TODO: construct the receiver type.
-			var a AuthorizationStrategyPermissionStore
-			got, got2 := a.AllowedTargetOfEvaluations(context.Background())
-			// TODO: update the condition below to compare got with tt.want.
-			if true {
-				t.Errorf("AllowedTargetOfEvaluations() = %v, want %v", got, tt.want)
-			}
-			if true {
-				t.Errorf("AllowedTargetOfEvaluations() = %v, want %v", got2, tt.want2)
-			}
-		})
-	}
-}
