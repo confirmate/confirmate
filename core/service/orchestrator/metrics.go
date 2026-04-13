@@ -158,7 +158,10 @@ func (svc *Service) UpdateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
-	var metric *assessment.Metric
+	var (
+		metric  *assessment.Metric
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
@@ -166,6 +169,15 @@ func (svc *Service) UpdateMetric(
 	}
 
 	metric = req.Msg.Metric
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the metric
 	err = svc.db.Update(metric, "id = ?", metric.Id)
