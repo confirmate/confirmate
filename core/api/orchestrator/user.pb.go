@@ -117,12 +117,13 @@ const (
 	ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT     ObjectType = 6
 	ObjectType_OBJECT_TYPE_ASSESSMENT_TOOL       ObjectType = 7
 	ObjectType_OBJECT_TYPE_USER                  ObjectType = 8
-	ObjectType_OBJECT_TYPE_CERTIFICATE           ObjectType = 9
-	ObjectType_OBJECT_TYPE_CATALOG               ObjectType = 10
-	ObjectType_OBJECT_TYPE_CATEGORY              ObjectType = 11
-	ObjectType_OBJECT_TYPE_CONTROL               ObjectType = 12
-	ObjectType_OBJECT_TYPE_EVALUATION_RESULT     ObjectType = 13
-	ObjectType_OBJECT_TYPE_EVIDENCE              ObjectType = 14
+	ObjectType_OBJECT_TYPE_USER_PERMISSION       ObjectType = 9
+	ObjectType_OBJECT_TYPE_CERTIFICATE           ObjectType = 10
+	ObjectType_OBJECT_TYPE_CATALOG               ObjectType = 11
+	ObjectType_OBJECT_TYPE_CATEGORY              ObjectType = 12
+	ObjectType_OBJECT_TYPE_CONTROL               ObjectType = 13
+	ObjectType_OBJECT_TYPE_EVALUATION_RESULT     ObjectType = 14
+	ObjectType_OBJECT_TYPE_EVIDENCE              ObjectType = 15
 )
 
 // Enum value maps for ObjectType.
@@ -137,12 +138,13 @@ var (
 		6:  "OBJECT_TYPE_ASSESSMENT_RESULT",
 		7:  "OBJECT_TYPE_ASSESSMENT_TOOL",
 		8:  "OBJECT_TYPE_USER",
-		9:  "OBJECT_TYPE_CERTIFICATE",
-		10: "OBJECT_TYPE_CATALOG",
-		11: "OBJECT_TYPE_CATEGORY",
-		12: "OBJECT_TYPE_CONTROL",
-		13: "OBJECT_TYPE_EVALUATION_RESULT",
-		14: "OBJECT_TYPE_EVIDENCE",
+		9:  "OBJECT_TYPE_USER_PERMISSION",
+		10: "OBJECT_TYPE_CERTIFICATE",
+		11: "OBJECT_TYPE_CATALOG",
+		12: "OBJECT_TYPE_CATEGORY",
+		13: "OBJECT_TYPE_CONTROL",
+		14: "OBJECT_TYPE_EVALUATION_RESULT",
+		15: "OBJECT_TYPE_EVIDENCE",
 	}
 	ObjectType_value = map[string]int32{
 		"OBJECT_TYPE_UNSPECIFIED":           0,
@@ -154,12 +156,13 @@ var (
 		"OBJECT_TYPE_ASSESSMENT_RESULT":     6,
 		"OBJECT_TYPE_ASSESSMENT_TOOL":       7,
 		"OBJECT_TYPE_USER":                  8,
-		"OBJECT_TYPE_CERTIFICATE":           9,
-		"OBJECT_TYPE_CATALOG":               10,
-		"OBJECT_TYPE_CATEGORY":              11,
-		"OBJECT_TYPE_CONTROL":               12,
-		"OBJECT_TYPE_EVALUATION_RESULT":     13,
-		"OBJECT_TYPE_EVIDENCE":              14,
+		"OBJECT_TYPE_USER_PERMISSION":       9,
+		"OBJECT_TYPE_CERTIFICATE":           10,
+		"OBJECT_TYPE_CATALOG":               11,
+		"OBJECT_TYPE_CATEGORY":              12,
+		"OBJECT_TYPE_CONTROL":               13,
+		"OBJECT_TYPE_EVALUATION_RESULT":     14,
+		"OBJECT_TYPE_EVIDENCE":              15,
 	}
 )
 
@@ -485,7 +488,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
 	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
 	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\xd1\x03\n" +
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\xf2\x03\n" +
 	"\n" +
 	"ObjectType\x12\x1b\n" +
 	"\x17OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -496,14 +499,15 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x17OBJECT_TYPE_AUDIT_SCOPE\x10\x05\x12!\n" +
 	"\x1dOBJECT_TYPE_ASSESSMENT_RESULT\x10\x06\x12\x1f\n" +
 	"\x1bOBJECT_TYPE_ASSESSMENT_TOOL\x10\a\x12\x14\n" +
-	"\x10OBJECT_TYPE_USER\x10\b\x12\x1b\n" +
-	"\x17OBJECT_TYPE_CERTIFICATE\x10\t\x12\x17\n" +
-	"\x13OBJECT_TYPE_CATALOG\x10\n" +
-	"\x12\x18\n" +
-	"\x14OBJECT_TYPE_CATEGORY\x10\v\x12\x17\n" +
-	"\x13OBJECT_TYPE_CONTROL\x10\f\x12!\n" +
-	"\x1dOBJECT_TYPE_EVALUATION_RESULT\x10\r\x12\x18\n" +
-	"\x14OBJECT_TYPE_EVIDENCE\x10\x0eB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"\x10OBJECT_TYPE_USER\x10\b\x12\x1f\n" +
+	"\x1bOBJECT_TYPE_USER_PERMISSION\x10\t\x12\x1b\n" +
+	"\x17OBJECT_TYPE_CERTIFICATE\x10\n" +
+	"\x12\x17\n" +
+	"\x13OBJECT_TYPE_CATALOG\x10\v\x12\x18\n" +
+	"\x14OBJECT_TYPE_CATEGORY\x10\f\x12\x17\n" +
+	"\x13OBJECT_TYPE_CONTROL\x10\r\x12!\n" +
+	"\x1dOBJECT_TYPE_EVALUATION_RESULT\x10\x0e\x12\x18\n" +
+	"\x14OBJECT_TYPE_EVIDENCE\x10\x0fB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_user_proto_rawDescOnce sync.Once

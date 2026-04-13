@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
@@ -32,7 +31,7 @@ func (svc *Service) UpsertUserPermission(
 	}
 
 	// Only admins may grant or revoke permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -92,15 +91,13 @@ func (svc *Service) GetUser(
 		return nil, err
 	}
 
-	// Check access via the configured strategy, which may include JIT provisioning of the user in the context for JWT-based authz strategies
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
+	// Only admins may get users.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
 	}
-
 	if !allowed {
-		slog.Debug("access denied", slog.String("userID", req.Msg.UserId), slog.String("requestType", orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED.String()))
-		return nil, service.ErrNotFound("user")
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
@@ -176,7 +173,7 @@ func (svc *Service) ListUserPermissions(
 	}
 
 	// Only admins may list permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

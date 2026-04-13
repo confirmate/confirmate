@@ -2504,6 +2504,7 @@ components:
                         - OBJECT_TYPE_ASSESSMENT_RESULT
                         - OBJECT_TYPE_ASSESSMENT_TOOL
                         - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
                         - OBJECT_TYPE_CERTIFICATE
                         - OBJECT_TYPE_CATALOG
                         - OBJECT_TYPE_CATEGORY

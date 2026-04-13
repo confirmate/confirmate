@@ -45,6 +45,7 @@ const (
 	MockToeId2        = "00000000-0000-0000-0000-000000000002"
 	MockToeId3        = "00000000-0000-0000-0000-000000000003"
 	MockUserId1       = "00000000-0000-0000-0000-000000000001"
+	MockUserId2       = "00000000-0000-0000-0000-000000000002"
 )
 
 // Mock string IDs for consistent testing
@@ -432,6 +433,14 @@ var (
 		Email:     util.Ref("email-1"),
 		FirstName: util.Ref("Test"),
 		LastName:  util.Ref("User"),
+	}
+
+	MockUser2 = &orchestrator.User{
+		Id:        MockUserIssuer1 + "|" + MockUserId2,
+		Username:  util.Ref("testuser 2"),
+		Email:     util.Ref("email-2"),
+		FirstName: util.Ref("Test"),
+		LastName:  util.Ref("User 2"),
 	}
 
 	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
