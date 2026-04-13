@@ -50,7 +50,8 @@ func (svc *Service) CreateMetric(
 	req *connect.Request[orchestrator.CreateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
 	var (
-		metric *assessment.Metric
+		metric  *assessment.Metric
+		allowed bool
 	)
 
 	// Validate the request
@@ -59,6 +60,15 @@ func (svc *Service) CreateMetric(
 	}
 
 	metric = req.Msg.Metric
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+	}
 
 	// Persist the new metric in the database
 	err = svc.db.Create(metric)
