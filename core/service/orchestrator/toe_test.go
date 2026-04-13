@@ -28,10 +28,9 @@ import (
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -64,9 +63,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg, cmp.Options{
-					cmpopts.IgnoreFields(assessment.AssessmentResult{}, "Id"),
-				}) &&
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
@@ -75,9 +73,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				assert.NotNil(t, res)
 
 				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe, cmp.Options{
-					cmpopts.IgnoreFields(assessment.AssessmentResult{}, "Id"),
-				}) &&
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, toe.GetId())
 			},
 		},
@@ -98,9 +95,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg, cmp.Options{
-					cmpopts.IgnoreFields(assessment.AssessmentResult{}, "Id"),
-				}) &&
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
@@ -109,9 +105,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				assert.NotNil(t, res)
 
 				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe, cmp.Options{
-					cmpopts.IgnoreFields(assessment.AssessmentResult{}, "Id"),
-				}) &&
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, toe.GetId())
 			},
 		},
@@ -140,9 +135,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg, cmp.Options{
-					cmpopts.IgnoreFields(assessment.AssessmentResult{}, "Id"),
-				}) &&
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, got.Msg.Id)
 			},
 			wantErr: assert.NoError,
@@ -151,9 +145,8 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				assert.NotNil(t, res)
 
 				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe, cmp.Options{
-					cmpopts.IgnoreFields(assessment.AssessmentResult{}, "Id"),
-				}) &&
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, toe.GetId())
 			},
 		},

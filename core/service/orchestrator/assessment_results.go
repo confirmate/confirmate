@@ -25,7 +25,6 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -143,19 +142,19 @@ func (svc *Service) ListAssessmentResults(
 	if req.Msg.Filter != nil {
 		if req.Msg.Filter.TargetOfEvaluationId != nil {
 			whereClauses = append(whereClauses, "target_of_evaluation_id = ?")
-			args = append(args, util.Deref(req.Msg.Filter.TargetOfEvaluationId))
+			args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())
 		}
 		if req.Msg.Filter.Compliant != nil {
 			whereClauses = append(whereClauses, "compliant = ?")
-			args = append(args, util.Deref(req.Msg.Filter.Compliant))
+			args = append(args, req.Msg.Filter.GetCompliant())
 		}
 		if req.Msg.Filter.MetricId != nil {
 			whereClauses = append(whereClauses, "metric_id = ?")
-			args = append(args, util.Deref(req.Msg.Filter.MetricId))
+			args = append(args, req.Msg.Filter.GetMetricId())
 		}
 		if req.Msg.Filter.ToolId != nil {
 			whereClauses = append(whereClauses, "tool_id = ?")
-			args = append(args, util.Deref(req.Msg.Filter.ToolId))
+			args = append(args, req.Msg.Filter.GetToolId())
 		}
 		if len(req.Msg.Filter.AssessmentResultIds) > 0 {
 			// Build IN clause dynamically to support ramsql (doesn't support array binding)
@@ -194,7 +193,7 @@ func (svc *Service) ListAssessmentResults(
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
-	if req.Msg.LatestByResourceId != nil && util.Deref(req.Msg.LatestByResourceId) {
+	if req.Msg.LatestByResourceId != nil && req.Msg.GetLatestByResourceId() {
 		// Reuse the WHERE query and args directly.
 		if where != "" {
 			where = "WHERE " + where

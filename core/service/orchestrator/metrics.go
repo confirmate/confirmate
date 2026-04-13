@@ -31,7 +31,7 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
+	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
 	"go.yaml.in/yaml/v3"
@@ -59,7 +59,14 @@ func (svc *Service) CreateMetric(
 		return nil, err
 	}
 
-	metric = req.Msg.Metric
+	metric = &assessment.Metric{
+		Id:          uuid.NewString(),
+		Name:        req.Msg.GetMetric().GetName(),
+		Description: req.Msg.GetMetric().GetDescription(),
+		Version:     req.Msg.GetMetric().GetVersion(),
+		Comments:    req.Msg.GetMetric().GetComments(),
+		Category:    req.Msg.GetMetric().GetCategory(),
+	}
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
@@ -168,7 +175,14 @@ func (svc *Service) UpdateMetric(
 		return nil, err
 	}
 
-	metric = req.Msg.Metric
+	metric = &assessment.Metric{
+		Id:          req.Msg.GetMetric().GetId(),
+		Name:        req.Msg.GetMetric().GetName(),
+		Description: req.Msg.GetMetric().GetDescription(),
+		Version:     req.Msg.GetMetric().GetVersion(),
+		Comments:    req.Msg.GetMetric().GetComments(),
+		Category:    req.Msg.GetMetric().GetCategory(),
+	}
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
@@ -301,7 +315,12 @@ func (svc *Service) UpdateMetricImplementation(
 		return nil, service.ErrPermissionDenied
 	}
 
-	impl = req.Msg.Implementation
+	impl = &assessment.MetricImplementation{
+		MetricId:  req.Msg.GetImplementation().GetMetricId(),
+		Lang:      req.Msg.GetImplementation().GetLang(),
+		Code:      req.Msg.GetImplementation().GetCode(),
+		UpdatedAt: timestamppb.Now(),
+	}
 
 	// Update the metric implementation
 	err = svc.db.Update(impl, "metric_id = ?", impl.MetricId)
@@ -421,7 +440,14 @@ func (svc *Service) UpdateMetricConfiguration(
 		return nil, err
 	}
 
-	config = req.Msg.Configuration
+	config = &assessment.MetricConfiguration{
+		MetricId:             req.Msg.GetConfiguration().GetMetricId(),
+		TargetOfEvaluationId: req.Msg.GetConfiguration().GetTargetOfEvaluationId(),
+		Operator:             req.Msg.GetConfiguration().GetOperator(),
+		TargetValue:          req.Msg.GetConfiguration().GetTargetValue(),
+		IsDefault:            false,
+		UpdatedAt:            timestamppb.Now(),
+	}
 
 	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, config.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
@@ -444,7 +470,7 @@ func (svc *Service) UpdateMetricConfiguration(
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
 		RequestType:          orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:             config.MetricId,
-		TargetOfEvaluationId: util.Ref(config.TargetOfEvaluationId),
+		TargetOfEvaluationId: new(config.TargetOfEvaluationId),
 		Entity: &orchestrator.ChangeEvent_MetricConfiguration{
 			MetricConfiguration: config,
 		},

@@ -20,6 +20,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -40,8 +41,17 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	// TODO(all): Generate new ID?
-	cert = req.Msg.Certificate
+	cert = &orchestrator.Certificate{
+		Id:                   uuid.NewString(),
+		Name:                 req.Msg.GetCertificate().GetName(),
+		Description:          req.Msg.GetCertificate().GetDescription(),
+		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
+		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
+		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
+		Standard:             req.Msg.GetCertificate().GetStandard(),
+		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
+		Cab:                  req.Msg.GetCertificate().GetCab(),
+	}
 
 	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
@@ -201,7 +211,17 @@ func (svc *Service) UpdateCertificate(
 		return nil, err
 	}
 
-	cert = req.Msg.Certificate
+	cert = &orchestrator.Certificate{
+		Id:                   req.Msg.GetCertificate().GetId(),
+		Name:                 req.Msg.GetCertificate().GetName(),
+		Description:          req.Msg.GetCertificate().GetDescription(),
+		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
+		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
+		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
+		Standard:             req.Msg.GetCertificate().GetStandard(),
+		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
+		Cab:                  req.Msg.GetCertificate().GetCab(),
+	}
 
 	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)

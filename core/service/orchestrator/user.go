@@ -9,7 +9,6 @@ import (
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -291,11 +290,11 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 			// User not found: create them with all identity fields.
 			user = &orchestrator.User{
 				Id:         userId,
-				Username:   util.Ref(claims.PreferredUsername),
-				FirstName:  util.Ref(claims.GivenName),
-				LastName:   util.Ref(claims.FamilyName),
+				Username:   new(claims.PreferredUsername),
+				FirstName:  new(claims.GivenName),
+				LastName:   new(claims.FamilyName),
 				Enabled:    true,
-				Email:      util.Ref(claims.Email),
+				Email:      new(claims.Email),
 				LastAccess: timestamppb.Now(),
 			}
 			err = svc.db.Create(user)
@@ -307,10 +306,10 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		} else {
 			// User exists: update only identity fields and last_access to preserve other persisted
 			// fields such as enabled status.
-			user.Username = util.Ref(claims.PreferredUsername)
-			user.FirstName = util.Ref(claims.GivenName)
-			user.LastName = util.Ref(claims.FamilyName)
-			user.Email = util.Ref(claims.Email)
+			user.Username = new(claims.PreferredUsername)
+			user.FirstName = new(claims.GivenName)
+			user.LastName = new(claims.FamilyName)
+			user.Email = new(claims.Email)
 			user.LastAccess = timestamppb.Now()
 			err = svc.db.Save(user)
 			if err != nil {

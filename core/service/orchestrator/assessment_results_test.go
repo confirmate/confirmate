@@ -27,7 +27,6 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/go-cmp/cmp"
@@ -492,7 +491,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
 					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-						TargetOfEvaluationId: util.Ref(orchestratortest.MockToeId1),
+						TargetOfEvaluationId: new(orchestratortest.MockToeId1),
 					},
 				},
 			},
@@ -638,7 +637,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
 					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-						TargetOfEvaluationId: util.Ref(orchestratortest.MockToeId1),
+						TargetOfEvaluationId: new(orchestratortest.MockToeId1),
 					},
 				},
 			},

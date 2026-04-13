@@ -20,7 +20,6 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/util"
 
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -206,9 +205,9 @@ var (
 						Id:                             MockControlId1,
 						CategoryName:                   MockCategoryName1,
 						CategoryCatalogId:              MockCatalogId1,
-						ParentControlId:                util.Ref(MockControlId1),
-						ParentControlCategoryName:      util.Ref(MockCategoryName1),
-						ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+						ParentControlId:                new(MockControlId1),
+						ParentControlCategoryName:      new(MockCategoryName1),
+						ParentControlCategoryCatalogId: new(MockCatalogId1),
 					},
 				},
 			},
@@ -221,9 +220,9 @@ var (
 						Id:                             MockControlId2,
 						CategoryName:                   MockCategoryName2,
 						CategoryCatalogId:              MockCatalogId1,
-						ParentControlId:                util.Ref(MockControlId2),
-						ParentControlCategoryName:      util.Ref(MockCategoryName2),
-						ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+						ParentControlId:                new(MockControlId2),
+						ParentControlCategoryName:      new(MockCategoryName2),
+						ParentControlCategoryCatalogId: new(MockCatalogId1),
 					},
 				},
 			},
@@ -310,7 +309,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "Resource is compliant",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -330,7 +329,7 @@ var (
 		ResourceTypes:        []string{"storage"},
 		ComplianceComment:    "Resource is not compliant",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -352,7 +351,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "New resource is compliant",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -374,7 +373,7 @@ var (
 		ResourceTypes:        []string{"compute"},
 		ComplianceComment:    "Third resource test",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -396,7 +395,7 @@ var (
 		ResourceTypes:        []string{"compute"},
 		ComplianceComment:    "Third resource test",
 		TargetOfEvaluationId: MockToeId2,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -418,7 +417,7 @@ var (
 		ResourceTypes:        []string{"vm"},
 		ComplianceComment:    "Duplicate test",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolId1),
+		ToolId:               new(MockToolId1),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{
@@ -429,18 +428,18 @@ var (
 	}
 	MockUser1 = &orchestrator.User{
 		Id:        MockUserIssuer1 + "|" + MockUserId1,
-		Username:  util.Ref("testuser"),
-		Email:     util.Ref("email-1"),
-		FirstName: util.Ref("Test"),
-		LastName:  util.Ref("User"),
+		Username:  new("testuser"),
+		Email:     new("email-1"),
+		FirstName: new("Test"),
+		LastName:  new("User"),
 	}
 
 	MockUser2 = &orchestrator.User{
 		Id:        MockUserIssuer1 + "|" + MockUserId2,
-		Username:  util.Ref("testuser 2"),
-		Email:     util.Ref("email-2"),
-		FirstName: util.Ref("Test"),
-		LastName:  util.Ref("User 2"),
+		Username:  new("testuser 2"),
+		Email:     new("email-2"),
+		FirstName: new("Test"),
+		LastName:  new("User 2"),
 	}
 
 	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
@@ -480,7 +479,7 @@ func NewMockAssessmentResultForConcurrentStream(streamID int) *assessment.Assess
 		ResourceTypes:        []string{"compute"},
 		ComplianceComment:    "Concurrent stream test",
 		TargetOfEvaluationId: MockToeId1,
-		ToolId:               util.Ref(MockToolIdConcurrent),
+		ToolId:               new(MockToolIdConcurrent),
 		HistoryUpdatedAt:     timestamppb.Now(),
 		History: []*assessment.Record{
 			{

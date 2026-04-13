@@ -46,7 +46,19 @@ func (svc *Service) CreateTargetOfEvaluation(
 		return nil, err
 	}
 
-	toe = req.Msg.TargetOfEvaluation
+	toe = &orchestrator.TargetOfEvaluation{
+		Id:                uuid.NewString(),
+		Name:              req.Msg.GetTargetOfEvaluation().GetName(),
+		Description:       req.Msg.GetTargetOfEvaluation().GetDescription(),
+		ConfiguredMetrics: req.Msg.GetTargetOfEvaluation().GetConfiguredMetrics(),
+		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
+		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
+		Readers:           req.Msg.GetTargetOfEvaluation().GetReaders(),
+		Contributors:      req.Msg.GetTargetOfEvaluation().GetContributors(),
+		Admins:            req.Msg.GetTargetOfEvaluation().GetAdmins(),
+		CreatedAt:         now,
+		UpdatedAt:         now,
+	}
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
@@ -56,13 +68,6 @@ func (svc *Service) CreateTargetOfEvaluation(
 	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
-
-	// Generate a new UUID for the target of evaluation
-	toe.Id = uuid.NewString()
-
-	// Set timestamps
-	toe.CreatedAt = now
-	toe.UpdatedAt = now
 
 	// Persist the target of evaluation in the database
 	err = svc.db.Create(toe)
@@ -185,7 +190,18 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		return nil, err
 	}
 
-	toe = req.Msg.TargetOfEvaluation
+	toe = &orchestrator.TargetOfEvaluation{
+		Id:                req.Msg.GetTargetOfEvaluation().GetId(),
+		Name:              req.Msg.GetTargetOfEvaluation().GetName(),
+		Description:       req.Msg.GetTargetOfEvaluation().GetDescription(),
+		ConfiguredMetrics: req.Msg.GetTargetOfEvaluation().GetConfiguredMetrics(),
+		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
+		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
+		Readers:           req.Msg.GetTargetOfEvaluation().GetReaders(),
+		Contributors:      req.Msg.GetTargetOfEvaluation().GetContributors(),
+		Admins:            req.Msg.GetTargetOfEvaluation().GetAdmins(),
+		UpdatedAt:         timestamppb.Now(),
+	}
 
 	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, toe.GetId(), orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
@@ -195,9 +211,6 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
-
-	// Update timestamp
-	toe.UpdatedAt = timestamppb.Now()
 
 	// Update the target of evaluation
 	err = svc.db.Update(toe, "id = ?", toe.Id)

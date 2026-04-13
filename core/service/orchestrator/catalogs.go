@@ -46,7 +46,11 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:         req.Msg.GetCatalog().GetId(),
+		Name:       req.Msg.GetCatalog().GetName(),
+		Categories: req.Msg.GetCatalog().GetCategories(),
+	}
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
@@ -137,7 +141,11 @@ func (svc *Service) UpdateCatalog(
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:         req.Msg.GetCatalog().GetId(),
+		Name:       req.Msg.GetCatalog().GetName(),
+		Categories: req.Msg.GetCatalog().GetCategories(),
+	}
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)

@@ -35,7 +35,6 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -419,7 +418,7 @@ func (svc *Service) handleEvidence(
 			ResourceTypes:        types,
 			ComplianceComment:    data.Message,
 			ComplianceDetails:    data.ComparisonResult,
-			ToolId:               util.Ref(assessment.AssessmentToolId),
+			ToolId:               new(assessment.AssessmentToolId),
 			HistoryUpdatedAt:     timestamppb.Now(),
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),

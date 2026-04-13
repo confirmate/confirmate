@@ -43,10 +43,16 @@ func (svc *Service) CreateAuditScope(
 		return nil, err
 	}
 
-	scope = req.Msg.AuditScope
-
-	// Generate a new UUID for the audit scope
-	scope.Id = uuid.NewString()
+	scope = &orchestrator.AuditScope{
+		Id:                   uuid.NewString(),
+		Name:                 req.Msg.GetAuditScope().GetName(),
+		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
+		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
+		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
+		Readers:              req.Msg.GetAuditScope().GetReaders(),
+		Contributors:         req.Msg.GetAuditScope().GetContributors(),
+		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+	}
 
 	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, scope.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
@@ -188,7 +194,16 @@ func (svc *Service) UpdateAuditScope(
 		return nil, err
 	}
 
-	scope = req.Msg.AuditScope
+	scope = &orchestrator.AuditScope{
+		Id:                   req.Msg.GetAuditScope().GetId(),
+		Name:                 req.Msg.GetAuditScope().GetName(),
+		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
+		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
+		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
+		Readers:              req.Msg.GetAuditScope().GetReaders(),
+		Contributors:         req.Msg.GetAuditScope().GetContributors(),
+		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+	}
 
 	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, scope.GetId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
