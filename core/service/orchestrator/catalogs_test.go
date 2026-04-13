@@ -66,7 +66,7 @@ func TestService_CreateCatalog(t *testing.T) {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
 					assert.Equal(t, orchestratortest.MockCatalog1.Name, got.Msg.Name) &&
-					assert.Empty(t, got.Msg.Description)
+					assert.Equal(t, orchestratortest.MockCatalog1.Description, got.Msg.Description)
 			},
 			wantErr: assert.NoError,
 		},
@@ -91,7 +91,7 @@ func TestService_CreateCatalog(t *testing.T) {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
 					assert.Equal(t, orchestratortest.MockCatalog1.Name, got.Msg.Name) &&
-					assert.Empty(t, got.Msg.Description)
+					assert.Equal(t, orchestratortest.MockCatalog1.Description, got.Msg.Description)
 			},
 			wantErr: assert.NoError,
 		},
@@ -398,7 +398,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
 					assert.Equal(t, "Updated Catalog", got.Msg.Name) &&
-					assert.Empty(t, got.Msg.Description)
+					assert.Equal(t, "Updated description", got.Msg.Description)
 			},
 			wantErr: assert.NoError,
 		},
@@ -430,7 +430,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
 					assert.Equal(t, "Updated Catalog", got.Msg.Name) &&
-					assert.Empty(t, got.Msg.Description)
+					assert.Equal(t, "Updated description", got.Msg.Description)
 			},
 			wantErr: assert.NoError,
 		},

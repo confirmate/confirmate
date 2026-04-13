@@ -47,9 +47,14 @@ func (svc *Service) CreateCatalog(
 	}
 
 	catalog = &orchestrator.Catalog{
-		Id:         req.Msg.GetCatalog().GetId(),
-		Name:       req.Msg.GetCatalog().GetName(),
-		Categories: req.Msg.GetCatalog().GetCategories(),
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
 	}
 
 	// Only admins may grant or revoke permissions.
@@ -142,9 +147,14 @@ func (svc *Service) UpdateCatalog(
 	}
 
 	catalog = &orchestrator.Catalog{
-		Id:         req.Msg.GetCatalog().GetId(),
-		Name:       req.Msg.GetCatalog().GetName(),
-		Categories: req.Msg.GetCatalog().GetCategories(),
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
 	}
 
 	// Only admins may grant or revoke permissions.
