@@ -430,6 +430,22 @@ func TestService_UpdateMetric(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.UpdateMetricRequest{
+					Metric: orchestratortest.MockMetric1,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "validation error - empty request",
 			args: args{
 				req: &orchestrator.UpdateMetricRequest{},
