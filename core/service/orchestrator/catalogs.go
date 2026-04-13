@@ -38,6 +38,7 @@ func (svc *Service) CreateCatalog(
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
 		catalog *orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -47,8 +48,14 @@ func (svc *Service) CreateCatalog(
 
 	catalog = req.Msg.Catalog
 
-	// TODO(anatheka): Add authorization check for creating catalogs (e.g., admin-only operation)
-
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 	// Persist the new catalog in the database
 	err = svc.db.Create(catalog)
 	if err = service.HandleDatabaseError(err); err != nil {

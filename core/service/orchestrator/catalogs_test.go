@@ -24,8 +24,10 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -36,9 +38,11 @@ import (
 func TestService_CreateCatalog(t *testing.T) {
 	type args struct {
 		req *orchestrator.CreateCatalogRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -48,20 +52,66 @@ func TestService_CreateCatalog(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.CreateCatalogRequest{
 					Catalog: orchestratortest.MockCatalog1,
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{
+					Catalog: orchestratortest.MockCatalog1,
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: true,
+					},
+				),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{
+					Catalog: orchestratortest.MockCatalog1,
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: false,
+					},
+				),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -101,7 +151,8 @@ func TestService_CreateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -113,9 +164,10 @@ func TestService_CreateCatalog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.CreateCatalog(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.CreateCatalog(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})

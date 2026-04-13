@@ -187,7 +187,7 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-				authz: &service.AuthorizationStrategyAllowAll{},
+				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
 				return assert.NotNil(t, got)
