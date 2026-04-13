@@ -36,9 +36,9 @@ func (svc *Service) CreateTargetOfEvaluation(
 	req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest],
 ) (res *connect.Response[orchestrator.TargetOfEvaluation], err error) {
 	var (
-		toe *orchestrator.TargetOfEvaluation
-		now = timestamppb.Now()
-		// allowed bool
+		toe     *orchestrator.TargetOfEvaluation
+		now     = timestamppb.Now()
+		allowed bool
 	)
 
 	// Validate the request, ignoring ID field which may be auto-generated
@@ -48,21 +48,21 @@ func (svc *Service) CreateTargetOfEvaluation(
 
 	toe = req.Msg.TargetOfEvaluation
 
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
 	// Generate a new UUID for the target of evaluation
 	toe.Id = uuid.NewString()
 
 	// Set timestamps
 	toe.CreatedAt = now
 	toe.UpdatedAt = now
-
-	// // Check access via the configured auth strategy
-	// allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
-	// if err != nil {
-	// 	return nil, connect.NewError(connect.CodeInternal, err)
-	// }
-	// if !allowed {
-	// 	return nil, service.ErrNotFound("target of evaluation")
-	// }
 
 	// Persist the target of evaluation in the database
 	err = svc.db.Create(toe)
