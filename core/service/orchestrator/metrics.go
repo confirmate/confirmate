@@ -207,12 +207,22 @@ func (svc *Service) RemoveMetric(
 	req *connect.Request[orchestrator.RemoveMetricRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		metric *assessment.Metric
+		metric  *assessment.Metric
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Check if metric exists
