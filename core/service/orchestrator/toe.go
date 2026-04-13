@@ -106,7 +106,7 @@ func (svc *Service) GetTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&toe, "id = ?", req.Msg.TargetOfEvaluationId)
@@ -193,7 +193,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Update timestamp
@@ -241,7 +241,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Delete the target of evaluation
@@ -283,7 +283,7 @@ func (svc *Service) GetTargetOfEvaluationStatistics(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	res = connect.NewResponse(&orchestrator.GetTargetOfEvaluationStatisticsResponse{})

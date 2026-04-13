@@ -67,7 +67,7 @@ func (svc *Service) CreateMetric(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Persist the new metric in the database
@@ -395,7 +395,7 @@ func (svc *Service) UpdateMetricConfiguration(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Save the updated metric configuration

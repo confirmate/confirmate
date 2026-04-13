@@ -54,7 +54,7 @@ func (svc *Service) CreateAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Persist the new audit scope in the database
@@ -99,7 +99,7 @@ func (svc *Service) GetAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
@@ -196,7 +196,7 @@ func (svc *Service) UpdateAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Update the audit scope
@@ -241,7 +241,7 @@ func (svc *Service) RemoveAuditScope(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)

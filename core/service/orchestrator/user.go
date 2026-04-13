@@ -97,7 +97,7 @@ func (svc *Service) GetUser(
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
@@ -139,7 +139,7 @@ func (svc *Service) ListUsers(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)

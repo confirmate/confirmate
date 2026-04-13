@@ -49,7 +49,7 @@ func (svc *Service) CreateCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Persist the new certificate in the database
@@ -88,7 +88,7 @@ func (svc *Service) GetCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	res = connect.NewResponse(&cert)
@@ -209,7 +209,7 @@ func (svc *Service) UpdateCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Update the certificate
@@ -247,7 +247,7 @@ func (svc *Service) RemoveCertificate(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, service.ErrPermissionDenied)
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Delete the certificate
