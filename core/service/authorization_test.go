@@ -30,6 +30,14 @@ func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orc
 	return false, nil
 }
 
+func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
+func (*denyAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
 func TestCheckAccess(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -135,6 +143,93 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 			got, _ := tt.fields.strategy.CheckAccess(tt.args.ctx, tt.args.userId, tt.args.reqType, tt.args.userPermission, tt.args.resourceId, tt.args.objectType)
 			assert.True(t, tt.wantErr(t, nil))
 			assert.True(t, tt.want(t, got))
+		})
+	}
+}
+
+func TestAuthorizationStrategyAllowAll_CheckAccess(t *testing.T) {
+	type fields struct {
+		authz *AuthorizationStrategyAllowAll
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "happy path: allows all access",
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Nil(t, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got2 := tt.fields.authz.CheckAccess(context.Background(), "", 0, 0, "", 0)
+			assert.True(t, tt.wantAllowed(t, got))
+			assert.True(t, tt.wantResourceIds(t, got2))
+		})
+	}
+}
+
+func TestAuthorizationStrategyAllowAll_AllowedTargetOfEvaluations(t *testing.T) {
+	type fields struct {
+		authz *AuthorizationStrategyAllowAll
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "happy path: allows all access to ToEs",
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Nil(t, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got2 := tt.fields.authz.AllowedTargetOfEvaluations(context.Background())
+			tt.wantAllowed(t, got)
+			tt.wantResourceIds(t, got2)
+		})
+	}
+}
+
+func TestAuthorizationStrategyAllowAll_AllowedAuditScopes(t *testing.T) {
+	type fields struct {
+		authz *AuthorizationStrategyAllowAll
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "happy path: allows all access to audit scopes",
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Nil(t, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got2 := tt.fields.authz.AllowedAuditScopes(context.Background())
+			tt.wantAllowed(t, got)
+			tt.wantResourceIds(t, got2)
 		})
 	}
 }
