@@ -39,7 +39,7 @@ type fakePermissionStore struct {
 }
 
 func (f *fakePermissionStore) HasPermission(ctx context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
-	panic("not used")
+	return len(f.ids) > 0 && f.err == nil, f.err
 }
 
 func (f *fakePermissionStore) PermissionForResources(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
@@ -104,11 +104,11 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
-		args    args
-		fields  fields
-		want    assert.Want[bool]
-		wantErr assert.WantErr
+		name            string
+		args            args
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIDs assert.Want[[]string]
 	}{
 		{
 			name: "empty userId returns false",
@@ -121,13 +121,33 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
 			fields: fields{strategy: &AuthorizationStrategyPermissionStore{}},
-			want: func(t *testing.T, got bool, _ ...any) bool {
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.False(t, got)
 			},
-			wantErr: assert.NoError,
+			wantResourceIDs: assert.Nil[[]string],
 		},
 		{
-			name: "allows when allow-all claim is true",
+			name: "err: resourceID is empty for UPDATED and DELETED requests",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			},
+			fields: fields{
+				strategy: &AuthorizationStrategyPermissionStore{
+					Permissions: &fakePermissionStore{},
+				},
+			},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: assert.Nil[[]string],
+		},
+		{
+			name: "happy path: admin token allows access without checking permissions store",
 			args: args{
 				ctx:            auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
 				userId:         "user-1",
@@ -137,13 +157,31 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
 			fields: fields{strategy: &AuthorizationStrategyPermissionStore{}},
-			want: func(t *testing.T, got bool, _ ...any) bool {
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.True(t, got)
 			},
-			wantErr: assert.NoError,
+			wantResourceIDs: assert.Nil[[]string],
 		},
 		{
-			name: "no permissions store returns false",
+			name: "err: unsupported object type",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_GET,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType(999),
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: assert.Nil[[]string],
+		},
+		{
+			name: "err: no permissions store",
 			args: args{
 				ctx:            context.Background(),
 				userId:         "user-1",
@@ -153,18 +191,125 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
 			fields: fields{strategy: &AuthorizationStrategyPermissionStore{}},
-			want: func(t *testing.T, got bool, _ ...any) bool {
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.False(t, got)
 			},
-			wantErr: assert.NoError,
+			wantResourceIDs: assert.Nil[[]string],
+		},
+		{
+			name: "err: req type LIST error",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_LIST,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: nil,
+					err: errors.New("some error"),
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: assert.Nil[[]string],
+		},
+		{
+			name: "err: req type UPDATED error",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: nil,
+					err: errors.New("some error"),
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: assert.Nil[[]string],
+		},
+		{
+			name: "happy path: req type List",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_LIST,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: []string{"resource-1", "resource-2"},
+					err: nil,
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: func(t *testing.T, got []string, _ ...any) bool {
+				return assert.Equal(t, []string{"resource-1", "resource-2"}, got)
+			},
+		},
+		{
+			name: "happy path: req type Created",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_CREATED,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: []string{"resource-1", "resource-2"},
+					err: nil,
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIDs: assert.Nil[[]string],
+		},
+		{
+			name: "happy path: req type UPDATED",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_UPDATED,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: []string{"resource-1"},
+					err: nil,
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIDs: assert.Nil[[]string],
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := tt.fields.strategy.CheckAccess(tt.args.ctx, tt.args.userId, tt.args.reqType, tt.args.userPermission, tt.args.resourceId, tt.args.objectType)
-			assert.True(t, tt.wantErr(t, nil))
-			assert.True(t, tt.want(t, got))
+			got, got2 := tt.fields.strategy.CheckAccess(tt.args.ctx, tt.args.userId, tt.args.reqType, tt.args.userPermission, tt.args.resourceId, tt.args.objectType)
+			assert.True(t, tt.wantResourceIDs(t, got2))
+			assert.True(t, tt.wantAllowed(t, got))
 		})
 	}
 }
@@ -377,98 +522,89 @@ func TestAuthorizationStrategyPermissionStore_AllowedTargetOfEvaluations(t *test
 	}
 }
 
-// func TestAuthorizationStrategyAllowAll_CheckAccess(t *testing.T) {
-// 	type fields struct {
-// 		authz *AuthorizationStrategyAllowAll
-// 	}
-// 		{
-// 			name: "happy path: allows all access",
-// 			fields: fields{
-// 				authz: &AuthorizationStrategyAllowAll{},
-// 			},
-// 			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
-// 				return assert.True(t, got)
-// 			},
-// 			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
-// 				return assert.Nil(t, got)
-// 			},
-// 		},
-// 				return assert.True(t, got)
-// 			},
-// 			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
-// 				return assert.Nil(t, got)
-// 			},
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			got, got2 := tt.fields.authz.CheckAccess(context.Background(), "", 0, 0, "", 0)
-// 			assert.True(t, tt.wantAllowed(t, got))
-// 			assert.True(t, tt.wantResourceIds(t, got2))
-// 		})
-// 	}
-// }
+func TestAuthorizationStrategyAllowAll_CheckAccess(t *testing.T) {
+	type fields struct {
+		authz *AuthorizationStrategyAllowAll
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "happy path: allows all access",
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Nil(t, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got2 := tt.fields.authz.CheckAccess(context.Background(), "", 0, 0, "", 0)
+			assert.True(t, tt.wantAllowed(t, got))
+			assert.True(t, tt.wantResourceIds(t, got2))
+		})
+	}
+}
 
-// func TestAuthorizationStrategyAllowAll_AllowedTargetOfEvaluations(t *testing.T) {
-// 		{
-// 			name: "happy path: allows all access to ToEs",
-// 			fields: fields{
-// 				authz: &AuthorizationStrategyAllowAll{},
-// 			},
-// 			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
-// 				return assert.True(t, got)
-// 			},
-// 			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
-// 				return assert.Nil(t, got)
-// 			},
-// 		},
-// 		{
-// 			name: "happy path: allows all access to ToEs",
-// 			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
-// 				return assert.True(t, got)
-// 			},
-// 			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
-// 				return assert.Nil(t, got)
-// 			},
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			got, got2 := tt.fields.authz.AllowedTargetOfEvaluations(context.Background())
-// 			tt.wantAllowed(t, got)
-// 			tt.wantResourceIds(t, got2)
-// 		})
-// 	}
-// 		{
-// 			name: "happy path: allows all access to audit scopes",
-// 			fields: fields{
-// 				authz: &AuthorizationStrategyAllowAll{},
-// 			},
-// 			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
-// 				return assert.True(t, got)
-// 			},
-// 			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
-// 				return assert.Nil(t, got)
-// 			},
-// 		},
-// 		wantAllowed     assert.Want[bool]
-// 		wantResourceIds assert.Want[[]string]
-// 	}{
-// 		{
-// 			name: "happy path: allows all access to audit scopes",
-// 			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
-// 				return assert.True(t, got)
-// 			},
-// 			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
-// 				return assert.Nil(t, got)
-// 			},
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			got, got2 := tt.fields.authz.AllowedAuditScopes(context.Background())
-// 			tt.wantAllowed(t, got)
-// 			tt.wantResourceIds(t, got2)
-// 		})
-// 	}
-// }
+func TestAuthorizationStrategyAllowAll_AllowedTargetOfEvaluations(t *testing.T) {
+	type fields struct {
+		authz *AuthorizationStrategyAllowAll
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "happy path: allows all access to ToEs",
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Nil(t, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got2 := tt.fields.authz.AllowedTargetOfEvaluations(context.Background())
+			tt.wantAllowed(t, got)
+			tt.wantResourceIds(t, got2)
+		})
+	}
+}
+
+func TestAuthorizationStrategyAllowAll_AllowedAuditScopes(t *testing.T) {
+	type fields struct {
+		authz *AuthorizationStrategyAllowAll
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		wantAllowed     assert.Want[bool]
+		wantResourceIds assert.Want[[]string]
+	}{
+		{
+			name: "happy path: allows all access to audit scopes",
+			wantAllowed: func(t *testing.T, got bool, msgAndArgs ...any) bool {
+				return assert.True(t, got)
+			},
+			wantResourceIds: func(t *testing.T, got []string, msgAndArgs ...any) bool {
+				return assert.Nil(t, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got2 := tt.fields.authz.AllowedAuditScopes(context.Background())
+			tt.wantAllowed(t, got)
+			tt.wantResourceIds(t, got2)
+		})
+	}
+}
