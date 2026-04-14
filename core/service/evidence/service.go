@@ -408,9 +408,8 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 }
 
 // ListTools returns the IDs of all evidence collecting tools that have provided evidence so far.
-// Part of the public API, also exposed as REST.
-//
-// The result is served from an in-memory cache that is populated on each [StoreEvidence] call.
+// Part of the public API, also exposed as REST. The result is served from an in-memory cache that
+// is populated on each [StoreEvidence] call.
 func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.ListToolsRequest]) (
 	res *connect.Response[evidence.ListToolsResponse], err error) {
 
