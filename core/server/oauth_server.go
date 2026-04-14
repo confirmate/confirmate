@@ -75,6 +75,14 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 				return storage.LoadSigningKeys(expandedKeyPath, keyPassword, saveOnCreate)
 			}),
 			oauth2.WithPublicURL(oauthPublicURL),
+			oauth2.WithCustomClaimsFunc(func(clientID string) map[string]any {
+				// For now, make all clients and users administrators - in the future, we will
+				// support multiple users in the all-in-one server and assign permissions based on
+				// the authenticated user's role and/or client ID
+				return map[string]any{
+					"cfadmin": true,
+				}
+			}),
 		)
 
 		authSrv = oauth2.NewServer("", opts...)
