@@ -359,10 +359,23 @@ func (svc *Service) CreateEvaluationResult(_ context.Context, req *connect.Reque
 	if err = validateCreateEvaluationResultRequest(req); err != nil {
 		return nil, err
 	}
-	// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
-	req.Msg.Result.Id = uuid.NewString()
 
-	eval = req.Msg.Result
+	eval = &evaluation.EvaluationResult{
+		Id:                   uuid.NewString(),
+		TargetOfEvaluationId: req.Msg.Result.GetTargetOfEvaluationId(),
+		AuditScopeId:         req.Msg.Result.GetAuditScopeId(),
+		ControlId:            req.Msg.Result.GetControlId(),
+		ControlCategoryName:  req.Msg.Result.GetControlCategoryName(),
+		ControlCatalogId:     req.Msg.Result.GetControlCatalogId(),
+		ParentControlId:      new(req.Msg.Result.GetParentControlId()),
+		Status:               req.Msg.Result.GetStatus(),
+		Timestamp:            timestamppb.Now(),
+		AssessmentResultIds:  req.Msg.Result.GetAssessmentResultIds(),
+		Comment:              new(req.Msg.Result.GetComment()),
+		ValidUntil:           req.Msg.Result.GetValidUntil(),
+		Data:                 req.Msg.Result.GetData(),
+	}
+
 	err = svc.db.Create(eval)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
