@@ -38,6 +38,7 @@ func (svc *Service) CreateCatalog(
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
 		catalog *orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -45,8 +46,25 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
 
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 	// Persist the new catalog in the database
 	err = svc.db.Create(catalog)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -118,14 +136,35 @@ func (svc *Service) UpdateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
-	var catalog *orchestrator.Catalog
+	var (
+		catalog *orchestrator.Catalog
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the catalog
 	err = svc.db.Update(catalog, "id = ?", catalog.Id)
@@ -144,11 +183,21 @@ func (svc *Service) RemoveCatalog(
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
 		catalog orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Delete the catalog

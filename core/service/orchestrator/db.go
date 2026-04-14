@@ -32,6 +32,7 @@ var types = []any{
 	&orchestrator.AuditScope{},
 	&orchestrator.AssessmentTool{},
 	&orchestrator.User{},
+	&orchestrator.UserPermission{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},
 	&assessment.Metric{},

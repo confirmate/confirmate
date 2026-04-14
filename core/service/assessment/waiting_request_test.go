@@ -224,11 +224,14 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		},
 	}
 
-	_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+	res, err := orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
 		Metric: metric,
 	},
 	))
 	assert.NoError(t, err)
+	if res != nil && res.Msg != nil {
+		metric.Id = res.Msg.Id
+	}
 
 	_, err = orchSvc.UpdateMetricConfiguration(
 		context.Background(),
