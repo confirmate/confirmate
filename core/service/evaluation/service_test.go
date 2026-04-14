@@ -26,6 +26,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -335,7 +336,7 @@ func TestService_CreateEvaluationResult(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}),
 			},
 			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
-				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, got.Msg)
+				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, got.Msg, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "Id", "Timestamp"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1953,8 +1954,8 @@ func TestService_addJobToScheduler(t *testing.T) {
 	}
 }
 
-// TestService_evaluateControl currently covers mainly the different switch cases regarding control evaluation. We could
-// add more tests for covering other scenarios (e.g. ignored controls) and errors.
+// TestService_evaluateControl currently covers mainly the different switch cases regarding control evaluation.
+// TODO(all): We could add more tests for covering other scenarios (e.g. ignored controls) and errors.
 func TestService_evaluateControl(t *testing.T) {
 	type args struct {
 		ctx        context.Context
@@ -2015,16 +2016,6 @@ func TestService_evaluateControl(t *testing.T) {
 					}}, func(d persistence.DB) {
 					err := d.Create(evaluationtest.MockCatalog1)
 					assert.NoError(t, err)
-					// Remove MockControl1, MockSubcontrol21 and MockSubcontrol11 because they are already part of MockCatalog1 or MockControl2, respectively. And therefore they are inserted already
-					//err = d.Create(evaluationtest.MockControl1)
-					//assert.NoError(t, err)
-					// This could be also removed because it is not relevant for the tests
-					err = d.Create(evaluationtest.MockControl2)
-					assert.NoError(t, err)
-					//err = d.Create(evaluationtest.MockSubcontrol21)
-					//assert.NoError(t, err)
-					//err = d.Create(evaluationtest.MockSubcontrol11)
-					//assert.NoError(t, err)
 				}),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
@@ -2059,18 +2050,24 @@ func TestService_evaluateControl(t *testing.T) {
 					return false
 				}
 
-				// Verify the main control result fields
+				// Verify the main control result fields that are not deterministic (ID and Timestamp) and the number of assessment results, then compare the rest of the fields
 				assert.NotEmpty(t, mainControlResult.Id)
 				assert.NotNil(t, mainControlResult.Timestamp)
-				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, mainControlResult.Status)
-				assert.Equal(t, evaluationtest.MockToeId1, mainControlResult.TargetOfEvaluationId)
-				assert.Equal(t, evaluationtest.MockControlId1, mainControlResult.ControlId)
-				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)
-				assert.Equal(t, evaluationtest.MockCategoryName1, mainControlResult.ControlCategoryName)
-				assert.Equal(t, evaluationtest.MockAuditScopeId1, mainControlResult.AuditScopeId)
 				assert.Equal(t, 3, len(mainControlResult.AssessmentResultIds))
 
-				return true
+				want := &evaluation.EvaluationResult{
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					AuditScopeId:         evaluationtest.MockAuditScopeId1,
+					ControlId:            evaluationtest.MockControlId1,
+					ControlCategoryName:  evaluationtest.MockCategoryName1,
+					ControlCatalogId:     evaluationtest.MockCatalogId1,
+					ParentControlId:      nil,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+					Comment:              nil,
+					ValidUntil:           nil,
+					Data:                 []byte{},
+				}
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -2151,18 +2148,25 @@ func TestService_evaluateControl(t *testing.T) {
 					return false
 				}
 
-				// Verify the main control result fields
+				// Verify the main control result fields that are not deterministic (ID and Timestamp) and the number of assessment results, then compare the rest of the fields
 				assert.NotEmpty(t, mainControlResult.Id)
 				assert.NotNil(t, mainControlResult.Timestamp)
-				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, mainControlResult.Status)
-				assert.Equal(t, evaluationtest.MockToeId1, mainControlResult.TargetOfEvaluationId)
-				assert.Equal(t, evaluationtest.MockControlId1, mainControlResult.ControlId)
-				assert.Equal(t, evaluationtest.MockCatalogId1, mainControlResult.ControlCatalogId)
-				assert.Equal(t, evaluationtest.MockCategoryName1, mainControlResult.ControlCategoryName)
-				assert.Equal(t, evaluationtest.MockAuditScopeId1, mainControlResult.AuditScopeId)
 				assert.Equal(t, 3, len(mainControlResult.AssessmentResultIds))
 
-				return true
+				want := &evaluation.EvaluationResult{
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					AuditScopeId:         evaluationtest.MockAuditScopeId1,
+					ControlId:            evaluationtest.MockControlId1,
+					ControlCategoryName:  evaluationtest.MockCategoryName1,
+					ControlCatalogId:     evaluationtest.MockCatalogId1,
+					ParentControlId:      nil,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+					Comment:              nil,
+					ValidUntil:           nil,
+					Data:                 []byte{},
+				}
+
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -2228,8 +2232,20 @@ func TestService_evaluateControl(t *testing.T) {
 					return false
 				}
 
-				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, mainControlResult.Status)
-				return true
+				want := &evaluation.EvaluationResult{
+					TargetOfEvaluationId: evaluationtest.MockToeId1,
+					AuditScopeId:         evaluationtest.MockAuditScopeId1,
+					ControlId:            evaluationtest.MockControlId1,
+					ControlCategoryName:  evaluationtest.MockCategoryName1,
+					ControlCatalogId:     evaluationtest.MockCatalogId1,
+					ParentControlId:      nil,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+					Comment:              nil,
+					ValidUntil:           nil,
+					Data:                 []byte{},
+				}
+
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
