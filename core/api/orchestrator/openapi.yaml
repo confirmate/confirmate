@@ -102,7 +102,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StoreEvaluationResultResponse'
+                                $ref: '#/components/schemas/EvaluationResult'
                 default:
                     description: Default error response
                     content:
@@ -2534,9 +2534,6 @@ components:
                 StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a
                  custom unary RPC and therefore requires a response message according to the
                  style convention. Since no return values are required, this is empty.
-        StoreEvaluationResultResponse:
-            type: object
-            properties: {}
         TargetOfEvaluation:
             required:
                 - id
