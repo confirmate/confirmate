@@ -703,8 +703,20 @@ func TestService_GetCategory(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Category], args ...any) bool {
+				want := &orchestrator.Category{
+					Name:      orchestratortest.MockCategoryName1,
+					CatalogId: orchestratortest.MockCatalogId1,
+					Controls: []*orchestrator.Control{
+						{
+							Id:                orchestratortest.MockControlId1,
+							Name:              orchestratortest.MockControlName1,
+							CategoryName:      orchestratortest.MockCategoryName1,
+							CategoryCatalogId: orchestratortest.MockCatalogId1,
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCategory1, got.Msg)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},

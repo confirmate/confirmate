@@ -25,6 +25,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
@@ -224,7 +225,11 @@ func (svc *Service) GetCategory(
 		return nil, err
 	}
 
-	err = svc.db.Get(&category, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
+	err = svc.db.Get(&category,
+		// Preload fills in associated entities, in this case controls. We want to only select those controls which do
+		// not have a parent, e.g., the top-level
+		persistence.WithPreload("Controls", "parent_control_id IS NULL"),
+		"name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("category")); err != nil {
 		return nil, err
 	}
