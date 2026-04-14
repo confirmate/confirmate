@@ -21,8 +21,8 @@ require (
 
 // runtime dependencies - protobuf/Connect
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20251209175733-2a1774d88802.1
-	buf.build/go/protovalidate v1.1.0
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
+	buf.build/go/protovalidate v1.1.3
 	cel.dev/expr v0.25.1 // indirect
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/grpcreflect v1.3.0
@@ -109,11 +109,10 @@ require (
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/glebarez/sqlite v1.10.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/net v0.49.0 // indirect
+	golang.org/x/net v0.53.0 // indirect
 	google.golang.org/grpc v1.78.0 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
