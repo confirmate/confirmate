@@ -27,7 +27,7 @@ require (
 	buf.build/go/protovalidate v1.1.0
 	cel.dev/expr v0.25.1 // indirect
 	connectrpc.com/connect v1.19.1
-	connectrpc.com/grpcreflect v1.2.0
+	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/vanguard v0.3.1-0.20250909182909-a5d6122b29b4
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/google/cel-go v0.27.0 // indirect
