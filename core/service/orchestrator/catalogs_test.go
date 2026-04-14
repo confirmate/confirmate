@@ -355,15 +355,25 @@ func TestService_ListCatalogs(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCatalogsResponse], args ...any) bool {
-				want := orchestratortest.MockCatalog1
-				// Remove controls
-				for i := range want.Categories {
-					want.Categories[i].Controls = nil
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalogId1,
+					Name:        orchestratortest.MockCatalogName1,
+					Description: orchestratortest.MockCatalogDescription1,
+					Categories: []*orchestrator.Category{
+						{
+							Name:      orchestratortest.MockCategoryName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+						{
+							Name:      orchestratortest.MockCategoryName2,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+					},
 				}
 
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, 2, len(got.Msg.Catalogs))
-				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg.Catalogs[0])
+				return assert.Equal(t, want, got.Msg.Catalogs[0])
 			},
 			wantErr: assert.NoError,
 		},
