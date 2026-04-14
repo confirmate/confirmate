@@ -270,7 +270,7 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			name: "list assessment results",
 			args: args{
 				get: func() string {
-					return (&ListAssessmentResultsRequest{Filter: &ListAssessmentResultsRequest_Filter{TargetOfEvaluationId: ref("toe-7")}}).GetTargetOfEvaluationId()
+					return (&ListAssessmentResultsRequest{Filter: &ListAssessmentResultsRequest_Filter{TargetOfEvaluationId: new("toe-7")}}).GetTargetOfEvaluationId()
 				},
 				want: "toe-7",
 			},
@@ -283,7 +283,7 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			name: "list audit scopes",
 			args: args{
 				get: func() string {
-					return (&ListAuditScopesRequest{Filter: &ListAuditScopesRequest_Filter{TargetOfEvaluationId: ref("toe-8")}}).GetTargetOfEvaluationId()
+					return (&ListAuditScopesRequest{Filter: &ListAuditScopesRequest_Filter{TargetOfEvaluationId: new("toe-8")}}).GetTargetOfEvaluationId()
 				},
 				want: "toe-8",
 			},
@@ -313,8 +313,4 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			tt.want(t, tt.args.want, got)
 		})
 	}
-}
-
-func ref(v string) *string {
-	return &v
 }

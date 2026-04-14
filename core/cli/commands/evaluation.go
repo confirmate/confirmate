@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"confirmate.io/core/api/evaluation"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
@@ -57,7 +56,7 @@ func EvaluationResultsListCommand() *cli.Command {
 			req := &evaluation.ListEvaluationResultsRequest{
 				PageSize:          int32(c.Int("page-size")),
 				PageToken:         c.String("page-token"),
-				LatestByControlId: util.Ref(c.Bool("latest")),
+				LatestByControlId: new(c.Bool("latest")),
 			}
 
 			// Apply filters if provided
@@ -112,7 +111,7 @@ func EvaluationStartCommand() *cli.Command {
 			client := EvaluationClient(ctx, c)
 			resp, err := client.StartEvaluation(ctx, connect.NewRequest(&evaluation.StartEvaluationRequest{
 				AuditScopeId: auditScopeID,
-				Interval:     util.Ref(toInt32(interval)),
+				Interval:     new(toInt32(interval)),
 			}))
 			if err != nil {
 				return err

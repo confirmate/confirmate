@@ -13,6 +13,7 @@ import (
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+
 	//"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
@@ -22,7 +23,6 @@ import (
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
@@ -226,7 +226,7 @@ func Test_validateCreateEvaluationResultRequest(t *testing.T) {
 						Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 						Timestamp:            timestamppb.Now(),
 						ValidUntil:           timestamppb.Now(),
-						Comment:              util.Ref("Manual evaluation"),
+						Comment:              new("Manual evaluation"),
 					},
 				}),
 			},
@@ -356,7 +356,7 @@ func TestService_CreateEvaluationResult(t *testing.T) {
 				assert.Equal(t, evaluationtest.MockCategoryName1, got.Msg.ControlCategoryName)
 				assert.Equal(t, evaluationtest.MockCatalogId1, got.Msg.ControlCatalogId)
 				assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY, got.Msg.Status)
-				assert.Equal(t, "Mock manual evaluation result 1", util.Deref(got.Msg.Comment))
+				assert.Equal(t, "Mock manual evaluation result 1", got.Msg.GetComment())
 				assert.Equal(t, 2, len(got.Msg.AssessmentResultIds))
 				return assert.NotEmpty(t, got.Msg.Data)
 			},
@@ -412,7 +412,7 @@ func TestService_CreateEvaluationResult_LargeBlobIntegration(t *testing.T) {
 			Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 			Timestamp:            timestamppb.Now(),
 			ValidUntil:           timestamppb.Now(),
-			Comment:              util.Ref("Integration test for large blob storage"),
+			Comment:              new("Integration test for large blob storage"),
 			Data:                 largeBlob,
 		},
 	})
@@ -904,7 +904,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 								{
 									Id:       orchestratortest.MockMetricId2,
 									Version:  "2.0",
-									Comments: util.Ref("Direct metric on control"),
+									Comments: new("Direct metric on control"),
 								},
 							},
 						},
@@ -920,7 +920,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 				{
 					Id:       orchestratortest.MockMetricId2,
 					Version:  "2.0",
-					Comments: util.Ref("Direct metric on control"),
+					Comments: new("Direct metric on control"),
 				},
 			},
 			wantErr: assert.NoError,
@@ -1104,7 +1104,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			name: "error: database error",
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
-					LatestByControlId: util.Ref(true),
+					LatestByControlId: new(true),
 				}),
 			},
 			fields: fields{
@@ -1119,9 +1119,9 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			name: "happy path: filter by `get latest by control id` and filter by ToE",
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
-					LatestByControlId: util.Ref(true),
+					LatestByControlId: new(true),
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						TargetOfEvaluationId: util.Ref(evaluationtest.MockToeId1),
+						TargetOfEvaluationId: new(evaluationtest.MockToeId1),
 					},
 				}),
 			},
@@ -1163,7 +1163,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						ValidManualOnly: util.Ref(true),
+						ValidManualOnly: new(true),
 					},
 				}),
 			},
@@ -1191,7 +1191,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						ParentsOnly: util.Ref(true),
+						ParentsOnly: new(true),
 					},
 				}),
 			},
@@ -1218,7 +1218,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						SubControls: util.Ref(string(evaluationtest.MockSubcontrolId11)),
+						SubControls: new(string(evaluationtest.MockSubcontrolId11)),
 					},
 				}),
 			},
@@ -1244,7 +1244,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						ControlId: util.Ref(string(evaluationtest.MockControlId2)),
+						ControlId: new(string(evaluationtest.MockControlId2)),
 					},
 				}),
 			},
@@ -1268,7 +1268,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						CatalogId: util.Ref(string(evaluationtest.MockCatalogId2)),
+						CatalogId: new(string(evaluationtest.MockCatalogId2)),
 					},
 				}),
 			},
@@ -1292,7 +1292,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&evaluation.ListEvaluationResultsRequest{
 					Filter: &evaluation.ListEvaluationResultsRequest_Filter{
-						TargetOfEvaluationId: util.Ref(evaluationtest.MockToeId2),
+						TargetOfEvaluationId: new(evaluationtest.MockToeId2),
 					},
 				}),
 			},

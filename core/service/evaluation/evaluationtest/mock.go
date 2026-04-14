@@ -6,7 +6,6 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -94,7 +93,7 @@ var (
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
-		Comment:              util.Ref("Mock evaluation result 1"),
+		Comment:              new("Mock evaluation result 1"),
 		Data:                 []byte{},
 	}
 
@@ -108,7 +107,7 @@ var (
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(5 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId3},
-		Comment:              util.Ref("Mock evaluation result 2"),
+		Comment:              new("Mock evaluation result 2"),
 		Data:                 []byte{},
 	}
 
@@ -117,13 +116,13 @@ var (
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockSubcontrolId11,
-		ParentControlId:      util.Ref(MockControlId1),
+		ParentControlId:      new(MockControlId1),
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(10 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
-		Comment:              util.Ref("Mock evaluation result 3"),
+		Comment:              new("Mock evaluation result 3"),
 		Data:                 []byte{},
 	}
 
@@ -138,7 +137,7 @@ var (
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
 		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
-		Comment:              util.Ref("Mock evaluation result 4"),
+		Comment:              new("Mock evaluation result 4"),
 		Data:                 []byte{},
 	}
 	MockManualEvaluationResult1 = &evaluation.EvaluationResult{
@@ -152,7 +151,7 @@ var (
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(20 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
-		Comment:              util.Ref("Mock manual evaluation result 1"),
+		Comment:              new("Mock manual evaluation result 1"),
 		Data:                 make([]byte, 2*2), // small blob
 	}
 	// MockManualEvaluationResult2 is identical to MockManualEvaluationResult1 except for the ID. The ID is missing.
@@ -166,8 +165,8 @@ var (
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(25 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
-		ParentControlId:      util.Ref(MockControlId1),
-		Comment:              util.Ref("Mock manual evaluation result 1"),
+		ParentControlId:      new(MockControlId1),
+		Comment:              new("Mock manual evaluation result 1"),
 		Data:                 make([]byte, 2*2), // small blob
 	}
 )
@@ -224,17 +223,17 @@ var (
 			// 	CategoryName:                   MockCategoryName1,
 			// 	CategoryCatalogId:              MockCatalogId1,
 			// 	Description:                    MockSubcontrolDescription11,
-			// 	AssuranceLevel:                 util.Ref("basic"),
-			// 	ParentControlId:                util.Ref(MockControlId1),
-			// 	ParentControlCategoryName:      util.Ref(MockCategoryName1),
-			// 	ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+			// 	AssuranceLevel:                 new("basic"),
+			// 	ParentControlId:                new(MockControlId1),
+			// 	ParentControlCategoryName:      new(MockCategoryName1),
+			// 	ParentControlCategoryCatalogId: new(MockCatalogId1),
 			// 	Metrics: []*assessment.Metric{{
 			// 		Id:          MockMetricId1,
 			// 		Name:        MockMetricName1,
 			// 		Description: MockMetricDescription1,
 			// 		Category:    MockMetricCategory1,
 			// 		Version:     MockDefaultVersion,
-			// 		Comments:    util.Ref(MockMetricComments1),
+			// 		Comments:    new(MockMetricComments1),
 			// }}},
 		}}
 	MockSubcontrol11 = &orchestrator.Control{
@@ -243,17 +242,17 @@ var (
 		CategoryName:      MockCategoryName1,
 		CategoryCatalogId: MockCatalogId1,
 		Description:       MockSubcontrolDescription11,
-		// AssuranceLevel:                 util.Ref("basic"),
-		ParentControlId:                util.Ref(MockControlId1),
-		ParentControlCategoryName:      util.Ref(MockCategoryName1),
-		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+		// AssuranceLevel:                 new("basic"),
+		ParentControlId:                new(MockControlId1),
+		ParentControlCategoryName:      new(MockCategoryName1),
+		ParentControlCategoryCatalogId: new(MockCatalogId1),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId1,
 			Name:        MockMetricName1,
 			Description: MockMetricDescription1,
 			Category:    MockMetricCategory1,
 			Version:     MockDefaultVersion,
-			Comments:    util.Ref(MockMetricComments1),
+			Comments:    new(MockMetricComments1),
 		},
 		}}
 	MockSubcontrol12 = &orchestrator.Control{
@@ -262,17 +261,17 @@ var (
 		CategoryName:      MockCategoryName1,
 		CategoryCatalogId: MockCatalogId1,
 		Description:       MockSubcontrolDescription12,
-		// AssuranceLevel:                 util.Ref("basic"),
-		ParentControlId:                util.Ref(MockControlId1),
-		ParentControlCategoryName:      util.Ref(MockCategoryName1),
-		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+		// AssuranceLevel:                 new("basic"),
+		ParentControlId:                new(MockControlId1),
+		ParentControlCategoryName:      new(MockCategoryName1),
+		ParentControlCategoryCatalogId: new(MockCatalogId1),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId2,
 			Name:        MockMetricName2,
 			Description: MockMetricDescription2,
 			Category:    MockMetricCategory2,
 			Version:     MockDefaultVersion,
-			Comments:    util.Ref(MockMetricComments2),
+			Comments:    new(MockMetricComments2),
 		},
 		}}
 	MockControl2 = &orchestrator.Control{
@@ -289,17 +288,17 @@ var (
 			// CategoryName:                   MockCategoryName1,
 			// CategoryCatalogId:              MockCatalogId1,
 			// Description:                    MockControlDescription2,
-			// AssuranceLevel:                 util.Ref("basic"),
-			// ParentControlId:                util.Ref(MockControlId2),
-			// ParentControlCategoryName:      util.Ref(MockCategoryName1),
-			// ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+			// AssuranceLevel:                 new("basic"),
+			// ParentControlId:                new(MockControlId2),
+			// ParentControlCategoryName:      new(MockCategoryName1),
+			// ParentControlCategoryCatalogId: new(MockCatalogId1),
 			// Metrics: []*assessment.Metric{{
 			// 	Id:          MockMetricId2,
 			// 	Name:        MockMetricName2,
 			// 	Description: MockMetricDescription2,
 			// 	Category:    MockMetricCategory2,
 			// 	Version:     MockDefaultVersion,
-			// 	Comments:    util.Ref("This is a comment"),
+			// 	Comments:    new("This is a comment"),
 			// }},
 			// },
 		},
@@ -310,17 +309,17 @@ var (
 		CategoryName:                   MockCategoryName1,
 		CategoryCatalogId:              MockCatalogId1,
 		Description:                    MockSubcontrolDescription21,
-		AssuranceLevel:                 util.Ref("basic"),
-		ParentControlId:                util.Ref(MockControlId2),
-		ParentControlCategoryName:      util.Ref(MockCategoryName1),
-		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+		AssuranceLevel:                 new("basic"),
+		ParentControlId:                new(MockControlId2),
+		ParentControlCategoryName:      new(MockCategoryName1),
+		ParentControlCategoryCatalogId: new(MockCatalogId1),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId2,
 			Name:        MockMetricName2,
 			Description: MockMetricDescription2,
 			Category:    MockMetricCategory2,
 			Version:     MockDefaultVersion,
-			Comments:    util.Ref(MockMetricComments2),
+			Comments:    new(MockMetricComments2),
 		},
 		}}
 )

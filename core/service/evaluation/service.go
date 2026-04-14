@@ -21,7 +21,6 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
@@ -280,11 +279,11 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 			args = append(args, fmt.Sprintf("%s%%", req.Msg.Filter.GetSubControls()))
 		}
 
-		if util.Deref(req.Msg.Filter.ParentsOnly) {
+		if req.Msg.Filter.GetParentsOnly() {
 			query = append(query, "parent_control_id IS NULL")
 		}
 
-		if util.Deref(req.Msg.Filter.ValidManualOnly) {
+		if req.Msg.Filter.GetValidManualOnly() {
 			query = append(query, "status IN ?")
 			args = append(args, []any{
 				evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
@@ -463,9 +462,9 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		Filter: &evaluation.ListEvaluationResultsRequest_Filter{
 			TargetOfEvaluationId: &auditScope.TargetOfEvaluationId,
 			CatalogId:            &auditScope.CatalogId,
-			ValidManualOnly:      util.Ref(true),
+			ValidManualOnly:      new(true),
 		},
-		LatestByControlId: util.Ref(true),
+		LatestByControlId: new(true),
 	},
 		func(ctx context.Context, req *evaluation.ListEvaluationResultsRequest) (*evaluation.ListEvaluationResultsResponse, error) {
 			res, err := svc.ListEvaluationResults(ctx, connect.NewRequest(req))
@@ -699,7 +698,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 				TargetOfEvaluationId: &auditScope.TargetOfEvaluationId,
 				MetricIds:            getMetricIds(metrics),
 			},
-			LatestByResourceId: util.Ref(true),
+			LatestByResourceId: new(true),
 		}, func(ctx context.Context, req *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error) {
 			res, err := svc.orchestratorClient.ListAssessmentResults(ctx, connect.NewRequest(req))
 			if err != nil {
