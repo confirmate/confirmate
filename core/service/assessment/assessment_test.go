@@ -755,7 +755,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		Category:    "LoggingMonitoring",
 		Description: evidencetest.MockMetricDescription1,
 		Version:     evidencetest.MockMetricVersion1,
-		Comments:    evidencetest.MockMetricComments1,
+		Comments:    new(evidencetest.MockMetricComments1),
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -791,7 +791,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 	})
 
 	// Create metric
-	metric := &assessment.Metric{
+	metric = &assessment.Metric{
 		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 		Name:        "BootLoggingEnabled",
 		Category:    "LoggingMonitoring",
@@ -804,9 +804,6 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 			Code:     ValidRego(),
 		},
 	}
-
-	createTestMetric(t, orchSvc, metric)
-	configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueString)
 
 	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
 	// tool id (="VirtualMachine-{evidencetest.MockEvidenceToolID}")
@@ -936,7 +933,7 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				Category:    "LoggingMonitoring",
 				Description: evidencetest.MockMetricDescription1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    evidencetest.MockMetricComments1,
+				Comments:    new(evidencetest.MockMetricComments1),
 				Implementation: &assessment.MetricImplementation{
 					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -972,7 +969,7 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 			})
 
 			// Create metric
-			metric := &assessment.Metric{
+			metric = &assessment.Metric{
 				Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 				Name:        "BootLoggingEnabled",
 				Category:    "LoggingMonitoring",
@@ -986,8 +983,6 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				},
 			}
 
-			createTestMetric(t, orchSvc, metric)
-			configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueString)
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)
 
