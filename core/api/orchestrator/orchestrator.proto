@@ -17,6 +17,7 @@ package confirmate.orchestrator.v1;
 
 import "api/assessment/metric.proto";
 import "api/assessment/result.proto";
+import "api/evaluation/evaluation.proto";
 import "api/common/runtime.proto";
 import "api/orchestrator/user.proto";
 import "buf/validate/validate.proto";
@@ -80,9 +81,25 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results/{id}"};
   }
 
-  // List all assessment results. Part of the public API, also exposed as REST.
-  rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
+  // Creates an evaluation result
+  rpc CreateEvaluationResult(CreateEvaluationResultRequest) returns (confirmate.evaluation.v1.EvaluationResult) {
+    option (google.api.http) = {
+      post: "/v1/evaluation/results"
+      body: "result"
+    };
+  }
+
+   // List all assessment results. Part of the public API, also exposed as REST.
+   rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results"};
+  }
+
+
+  // List all evaluation results that the user can access. It can further be
+  // restricted by various filtering options. Part of the public API, also
+  // exposed as REST.
+  rpc ListEvaluationResults(ListEvaluationResultsRequest) returns (ListEvaluationResultsResponse) {
+    option (google.api.http) = {get: "/v1/evaluation/results"};
   }
 
   // Creates a new metric
@@ -437,6 +454,49 @@ message StoreAssessmentResultResponse {}
 message StoreAssessmentResultsResponse {
   bool   status         = 1;
   string status_message = 2;
+}
+
+message CreateEvaluationResultRequest {
+  confirmate.evaluation.v1.EvaluationResult result = 1 [(buf.validate.field).required = true];
+}
+
+message ListEvaluationResultsRequest {
+  message Filter {
+    // Optional. Lists only evaluation results for a specific target of evaluation.
+    optional string target_of_evaluation_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Lists only evaluation results for a specific catalog.
+    optional string catalog_id = 2 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists only evaluation results for a specific control id.
+    optional string control_id = 3 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists all evaluation results for the given initial control id
+    // substring, e.g., if the substring 'CMK-01.' is given it returns the
+    // controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+    optional string sub_controls = 4 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists only results for parent controls
+    optional bool parents_only = 5;
+
+    // Optional. Lists only manual results in their validity period
+    optional bool valid_manual_only = 6;
+  }
+
+  optional Filter filter = 1;
+
+  // Optional. Latest results grouped by control_id.
+  optional bool latest_by_control_id = 2;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListEvaluationResultsResponse {
+  repeated confirmate.evaluation.v1.EvaluationResult results = 1;
+  string next_page_token = 2;
 }
 
 message CreateMetricRequest {

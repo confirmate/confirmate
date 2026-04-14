@@ -237,186 +237,6 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	return
 }
 
-// ListEvaluationResults is a method implementation of the assessment interface
-func (svc *Service) ListEvaluationResults(_ context.Context,
-	req *connect.Request[evaluation.ListEvaluationResultsRequest],
-) (res *connect.Response[evaluation.ListEvaluationResultsResponse], err error) {
-	var (
-		query     []string
-		partition []string
-		args      []any
-	)
-
-	// Validate the request
-	if err = service.Validate(req); err != nil {
-		return nil, err
-	}
-
-	// Filtering evaluation results by
-	// * target of evaluation ID
-	// * control ID
-	// * sub-controls
-	if req.Msg.Filter != nil {
-		if req.Msg.Filter.TargetOfEvaluationId != nil {
-			query = append(query, "target_of_evaluation_id = ?")
-			args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())
-		}
-
-		if req.Msg.Filter.CatalogId != nil {
-			query = append(query, "control_catalog_id = ?")
-			args = append(args, req.Msg.Filter.GetCatalogId())
-		}
-
-		if req.Msg.Filter.ControlId != nil {
-			query = append(query, "control_id = ?")
-			args = append(args, req.Msg.Filter.GetControlId())
-		}
-
-		// TODO(anatheka): change that, in other catalogs maybe it's not that easy to get the sub-control by name
-		if req.Msg.Filter.SubControls != nil {
-			partition = append(partition, "control_id")
-			query = append(query, "control_id LIKE ?")
-			args = append(args, fmt.Sprintf("%s%%", req.Msg.Filter.GetSubControls()))
-		}
-
-		if req.Msg.Filter.GetParentsOnly() {
-			query = append(query, "parent_control_id IS NULL")
-		}
-
-		if req.Msg.Filter.GetValidManualOnly() {
-			query = append(query, "status IN ?")
-			args = append(args, []any{
-				evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-				evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY,
-			})
-
-			// Use parameterized query instead of CURRENT_TIMESTAMP SQL function for compatibility with in-memory test
-			// database (ramsql)
-			query = append(query, "valid_until IS NULL OR valid_until >= ?")
-			args = append(args, time.Now())
-		}
-	}
-
-	res = &connect.Response[evaluation.ListEvaluationResultsResponse]{Msg: &evaluation.ListEvaluationResultsResponse{Results: make([]*evaluation.EvaluationResult, 0)}}
-
-	// If we want to have it grouped by resource ID, we need to do a raw query
-	if req.Msg.GetLatestByControlId() {
-		// In the raw SQL, we need to build the whole WHERE statement
-		var where string
-		if len(query) > 0 {
-			where = "WHERE " + strings.Join(query, " AND ")
-		}
-
-		// TODO(all): Is there a better solution? Ramsql does not support our SQL statement, so we have to do it that way for now.
-		// Simple query, then reduce to "latest per control_id" in Go, because doing it in SQL is to complex for ramsql. We need to order by timestamp desc, so that the first entry per control_id is the latest one.
-		sql := fmt.Sprintf(`
-			SELECT *
-			FROM evaluation_results
-			%s
-			ORDER BY control_catalog_id, control_id, timestamp DESC;
-		`, where)
-
-		err = svc.db.Raw(&res.Msg.Results, sql, args...)
-		if err = service.HandleDatabaseError(err); err != nil {
-			return nil, err
-		}
-
-		// Reduce results to the latest entry per control_id
-		deduped := make([]*evaluation.EvaluationResult, 0, len(res.Msg.Results))
-		seen := make(map[string]bool)
-
-		for _, r := range res.Msg.Results {
-			key := r.GetControlId()
-			if seen[key] {
-				continue
-			}
-			seen[key] = true
-			deduped = append(deduped, r)
-		}
-
-		res.Msg.Results = deduped
-	} else {
-		// join query with AND and prepend the query
-		args = append([]any{strings.Join(query, " AND ")}, args...)
-
-		// Paginate the results according to the request
-		res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evaluation.EvaluationResult](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
-		if err = service.HandleDatabaseError(err); err != nil {
-			return nil, err
-		}
-	}
-
-	return
-}
-
-// CreateEvaluationResult is a method implementation of the assessment interface to store only manually created Evaluation Results
-func (svc *Service) CreateEvaluationResult(_ context.Context, req *connect.Request[evaluation.CreateEvaluationResultRequest]) (res *connect.Response[evaluation.EvaluationResult], err error) {
-	var (
-		eval *evaluation.EvaluationResult
-	)
-
-	// Validate the request
-	if err = validateCreateEvaluationResultRequest(req); err != nil {
-		return nil, err
-	}
-
-	eval = &evaluation.EvaluationResult{
-		Id:                   uuid.NewString(),
-		TargetOfEvaluationId: req.Msg.Result.GetTargetOfEvaluationId(),
-		AuditScopeId:         req.Msg.Result.GetAuditScopeId(),
-		ControlId:            req.Msg.Result.GetControlId(),
-		ControlCategoryName:  req.Msg.Result.GetControlCategoryName(),
-		ControlCatalogId:     req.Msg.Result.GetControlCatalogId(),
-		ParentControlId:      new(req.Msg.Result.GetParentControlId()),
-		Status:               req.Msg.Result.GetStatus(),
-		Timestamp:            timestamppb.Now(),
-		AssessmentResultIds:  req.Msg.Result.GetAssessmentResultIds(),
-		Comment:              new(req.Msg.Result.GetComment()),
-		ValidUntil:           req.Msg.Result.GetValidUntil(),
-		Data:                 req.Msg.Result.GetData(),
-	}
-
-	err = svc.db.Create(eval)
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	res = connect.NewResponse(eval)
-
-	return res, nil
-}
-
-// validateCreateEvaluationResultRequest validates the CreateEvaluationResultRequest and prepares it for processing. It
-// returns a buf connect error that can be used directly by the caller
-func validateCreateEvaluationResultRequest(req *connect.Request[evaluation.CreateEvaluationResultRequest]) error {
-	// Validate the request with a preparation function
-	if err := service.ValidateWithPrep(req, func() {
-		// Check if Result is nil before accessing it to avoid nil pointer dereference. ValidateWithPrep will then
-		// return the `invalid request` error
-		if req.Msg.Result == nil {
-			return
-		}
-		// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
-		req.Msg.Result.Id = uuid.NewString()
-	}); err != nil {
-		return err
-	}
-
-	// We only allow manually created statuses
-	if req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY &&
-		req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY {
-		return connect.NewError(connect.CodeInvalidArgument, errors.New("only manually set statuses are allowed"))
-	}
-
-	// The ValidUntil field must be checked separately as it is an optional field and not checked by the request
-	// validation. It is only mandatory when manually creating a result.
-	if req.Msg.Result.ValidUntil == nil {
-		return connect.NewError(connect.CodeInvalidArgument, errors.New("validity must be set"))
-	}
-
-	return nil
-}
-
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
 // interval. It returns an buf connect error that can be used directly by the caller
 func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) (err error) {
@@ -471,21 +291,21 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	//
 	// TODO(oxisto): Its problematic to use the context from the original StartEvaluation request, since this token
 	// might time out at some point
-	results, err := api.ListAllPaginated(ctx, &evaluation.ListEvaluationResultsRequest{
-		Filter: &evaluation.ListEvaluationResultsRequest_Filter{
+	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
+		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
 			TargetOfEvaluationId: &auditScope.TargetOfEvaluationId,
 			CatalogId:            &auditScope.CatalogId,
 			ValidManualOnly:      new(true),
 		},
 		LatestByControlId: new(true),
 	},
-		func(ctx context.Context, req *evaluation.ListEvaluationResultsRequest) (*evaluation.ListEvaluationResultsResponse, error) {
-			res, err := svc.ListEvaluationResults(ctx, connect.NewRequest(req))
+		func(ctx context.Context, req *orchestrator.ListEvaluationResultsRequest) (*orchestrator.ListEvaluationResultsResponse, error) {
+			res, err := svc.orchestratorClient.ListEvaluationResults(ctx, connect.NewRequest(req))
 			if err != nil {
 				return nil, err
 			}
 			return res.Msg, nil
-		}, func(res *evaluation.ListEvaluationResultsResponse) []*evaluation.EvaluationResult {
+		}, func(res *orchestrator.ListEvaluationResultsResponse) []*evaluation.EvaluationResult {
 			return res.Results
 		})
 	if err != nil {

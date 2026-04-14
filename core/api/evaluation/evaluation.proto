@@ -23,21 +23,6 @@ service Evaluation {
   rpc StopEvaluation(StopEvaluationRequest) returns (StopEvaluationResponse) {
     option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/stop"};
   }
-
-  // List all evaluation results that the user can access. It can further be
-  // restricted by various filtering options. Part of the public API, also
-  // exposed as REST.
-  rpc ListEvaluationResults(ListEvaluationResultsRequest) returns (ListEvaluationResultsResponse) {
-    option (google.api.http) = {get: "/v1/evaluation/results"};
-  }
-
-  // Creates an evaluation result
-  rpc CreateEvaluationResult(CreateEvaluationResultRequest) returns (EvaluationResult) {
-    option (google.api.http) = {
-      post: "/v1/evaluation/results"
-      body: "result"
-    };
-  }
 }
 
 message StartEvaluationRequest {
@@ -55,9 +40,6 @@ message StartEvaluationResponse {
   bool successful = 1;
 }
 
-message CreateEvaluationResultRequest {
-  EvaluationResult result = 1 [(buf.validate.field).required = true];
-}
 
 message StopEvaluationRequest {
   string audit_scope_id = 1 [
@@ -67,45 +49,6 @@ message StopEvaluationRequest {
 }
 
 message StopEvaluationResponse {}
-
-message ListEvaluationResultsRequest {
-  message Filter {
-    // Optional. Lists only evaluation results for a specific target of evaluation.
-    optional string target_of_evaluation_id = 1 [(buf.validate.field).string.uuid = true];
-
-    // Optional. Lists only evaluation results for a specific catalog.
-    optional string catalog_id = 2 [(buf.validate.field).string.min_len = 1];
-
-    // Optional. Lists only evaluation results for a specific control id.
-    optional string control_id = 3 [(buf.validate.field).string.min_len = 1];
-
-    // Optional. Lists all evaluation results for the given initial control id
-    // substring, e.g., if the substring 'CMK-01.' is given it returns the
-    // controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
-    optional string sub_controls = 4 [(buf.validate.field).string.min_len = 1];
-
-    // Optional. Lists only results for parent controls
-    optional bool parents_only = 5;
-
-    // Optional. Lists only manual results in their validity period
-    optional bool valid_manual_only = 6;
-  }
-
-  optional Filter filter = 1;
-
-  // Optional. Latest results grouped by control_id.
-  optional bool latest_by_control_id = 2;
-
-  int32 page_size = 10;
-  string page_token = 11;
-  string order_by = 12;
-  bool asc = 13;
-}
-
-message ListEvaluationResultsResponse {
-  repeated EvaluationResult results = 1;
-  string next_page_token = 2;
-}
 
 // A evaluation result resource, representing the result after evaluating the
 // target of evaluation with a specific control target_of_evaluation_id, category_name and
