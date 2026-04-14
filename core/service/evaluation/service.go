@@ -21,7 +21,6 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/stream"
 
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
@@ -45,8 +44,6 @@ type Service struct {
 	cfg Config
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
-	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
-	streamMutex        sync.Mutex
 
 	scheduler *gocron.Scheduler
 
@@ -486,12 +483,9 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		AssessmentResultIds:  resultIds,
 	}
 
-	svc.streamMutex.Lock()
-	err = svc.orchestratorStream.Send(&orchestrator.StoreEvaluationResultRequest{
+	_, err = svc.orchestratorClient.StoreEvaluationResult(ctx, connect.NewRequest(&orchestrator.StoreEvaluationResultRequest{
 		Result: result,
-	})
-	svc.streamMutex.Unlock()
-
+	}))
 	if err != nil {
 		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
 	}
@@ -597,12 +591,9 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		AssessmentResultIds:  resultIds,
 	}
 
-	svc.streamMutex.Lock()
-	err = svc.orchestratorStream.Send(&orchestrator.StoreEvaluationResultRequest{
+	_, err = svc.orchestratorClient.StoreEvaluationResult(ctx, connect.NewRequest(&orchestrator.StoreEvaluationResultRequest{
 		Result: eval,
-	})
-	svc.streamMutex.Unlock()
-
+	}))
 	if err != nil {
 		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
 	}
