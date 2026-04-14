@@ -43,21 +43,12 @@ const (
 	MockToeId1        = "00000000-0000-0000-0000-000000000001"
 	MockToeId2        = "00000000-0000-0000-0000-000000000002"
 	MockToeId3        = "00000000-0000-0000-0000-000000000003"
-	MockScopeName1    = "Mock Audit Scope 1"
-	MockScopeName2    = "Mock Audit Scope 2"
 	MockUserId1       = "00000000-0000-0000-0000-000000000001"
 	MockUserId2       = "00000000-0000-0000-0000-000000000002"
 )
 
 // Mock strings for consistent testing
 const (
-	MockMetricName1             = "Mock Metric 1"
-	MockMetricName2             = "Mock Metric 2"
-	MockMetricName3             = "Mock Metric 3"
-	MockMetricDescription1      = "Mock Metric Description 1"
-	MockMetricDescription2      = "Mock Metric Description 2"
-	MockMetricDescription3      = "Mock Metric Description 3"
-	MockMetricIdDefault         = "metric-default"
 	MockCatalogId1              = "catalog-1"
 	MockCatalogId2              = "catalog-2"
 	MockCatalogId3              = "catalog-3"
@@ -69,22 +60,38 @@ const (
 	MockCatalogDescription3     = "Mock catalog description 3"
 	MockCategoryName1           = "category-1"
 	MockCategoryName2           = "category-2"
+	MockCompliantComment        = "Resource is compliant"
+	MockNotCompliantComment     = "Resource is not compliant"
 	MockControlId1              = "control-1"
 	MockControlId2              = "control-2"
 	MockControlName1            = "Mock Control 1"
 	MockControlName2            = "Mock Control 2"
 	MockSubControlId1           = "control-1-1"
 	MockSubControlName1         = "Mock Sub-Control 1"
+	MockSubControlId2           = "control-1-2"
+	MockSubControlName2         = "Mock Sub-Control 2"
 	MockCertificateId1          = "certificate-1"
 	MockCertificateId2          = "certificate-2"
 	MockCertifiateName1         = "Mock Certificate 1"
 	MockCertifiateName2         = "Mock Certificate 2"
 	MockCertificateDescription1 = "Mock certificate description 1"
 	MockCertificateDescription2 = "Mock certificate description 2"
+	MockDefaultVersion          = "v1"
+	MockMetricDescription1      = "Mock Metric Description 1"
+	MockMetricDescription2      = "Mock Metric Description 2"
+	MockMetricDescription3      = "Mock Metric Description 3"
+	MockMetricName1             = "Mock Metric 1"
+	MockMetricName2             = "Mock Metric 2"
+	MockMetricName3             = "Mock Metric 3"
+	MockMetricName4             = "Mock Metric 4"
+	MockMetricIdDefault         = "metric-default"
 	MockResourceId1             = "resource-1"
 	MockResourceId2             = "resource-2"
 	MockResourceIdNew           = "resource-new"
 	MockResourceId3             = "resource-3"
+	MockScopeName1              = "Mock Audit Scope 1"
+	MockScopeName2              = "Mock Audit Scope 2"
+	MockTestCategory            = "test-category"
 	MockToolId1                 = "tool-1"
 	MockToolId2                 = "tool-2"
 	MockToolName1               = "Mock Tool 1"
@@ -92,36 +99,7 @@ const (
 	MockToolDescription1        = "Mock assessment tool"
 	MockToolDescription2        = "Mock assessment tool"
 	MockToolIdConcurrent        = "tool-concurrent"
-	MockTestCategory            = "test-category"
-	MockCompliantComment        = "Resource is compliant"
-	MockNotCompliantComment     = "Resource is not compliant"
-	MockDefaultVersion          = "v1"
-	MockCatalogId1       = "catalog-1"
-	MockCatalogId2       = "catalog-2"
-	MockCatalogId3       = "catalog-3"
-	MockCategoryName1    = "category-1"
-	MockCategoryName2    = "category-2"
-	MockControlId1       = "control-1"
-	MockControlId2       = "control-2"
-	MockCertificateId1   = "certificate-1"
-	MockCertificateId2   = "certificate-2"
-	MockDefaultVersion   = "v1"
-	MockMetricName1      = "Mock Metric 1"
-	MockMetricName2      = "Mock Metric 2"
-	MockMetricName3      = "Mock Metric 3"
-	MockMetricName4      = "Mock Metric 4"
-	MockMetricIdDefault  = "metric-default"
-	MockResourceId1      = "resource-1"
-	MockResourceId2      = "resource-2"
-	MockResourceIdNew    = "resource-new"
-	MockResourceId3      = "resource-3"
-	MockScopeName1       = "Mock Audit Scope 1"
-	MockScopeName2       = "Mock Audit Scope 2"
-	MockTestCategory     = "test-category"
-	MockToolId1          = "tool-1"
-	MockToolId2          = "tool-2"
-	MockToolIdConcurrent = "tool-concurrent"
-	MockUserIssuer1      = "test-issuer"
+	MockUserIssuer1             = "test-issuer"
 )
 
 var (
@@ -248,19 +226,19 @@ var (
 								CategoryName:                   MockCategoryName1,
 								CategoryCatalogId:              MockCatalogId1,
 								Metrics:                        []*assessment.Metric{MockMetric1},
-								ParentControlId:                util.Ref(MockControlId1),
-								ParentControlCategoryName:      util.Ref(MockCategoryName1),
-								ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+								ParentControlId:                new(MockControlId1),
+								ParentControlCategoryName:      new(MockCategoryName1),
+								ParentControlCategoryCatalogId: new(MockCatalogId1),
 							},
 							{
-								Id:                             MockControlId2,
-								Name:                           MockControlName2,
+								Id:                             MockSubControlId2,
+								Name:                           MockSubControlName2,
 								CategoryName:                   MockCategoryName1,
 								CategoryCatalogId:              MockCatalogId1,
 								Metrics:                        []*assessment.Metric{MockMetric2},
-								ParentControlId:                util.Ref(MockControlId1),
-								ParentControlCategoryName:      util.Ref(MockCategoryName1),
-								ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+								ParentControlId:                new(MockControlId1),
+								ParentControlCategoryName:      new(MockCategoryName1),
+								ParentControlCategoryCatalogId: new(MockCatalogId1),
 							},
 						},
 					},
@@ -282,9 +260,9 @@ var (
 								CategoryName:                   MockCategoryName2,
 								CategoryCatalogId:              MockCatalogId1,
 								Metrics:                        []*assessment.Metric{MockMetric1},
-								ParentControlId:                util.Ref(MockControlId2),
-								ParentControlCategoryName:      util.Ref(MockCategoryName2),
-								ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+								ParentControlId:                new(MockControlId2),
+								ParentControlCategoryName:      new(MockCategoryName2),
+								ParentControlCategoryCatalogId: new(MockCatalogId1),
 							},
 						},
 					},
@@ -315,9 +293,9 @@ var (
 								CategoryName:                   MockCategoryName2,
 								CategoryCatalogId:              MockCatalogId2,
 								Metrics:                        []*assessment.Metric{MockMetric2},
-								ParentControlId:                util.Ref(MockControlId2),
-								ParentControlCategoryName:      util.Ref(MockCategoryName2),
-								ParentControlCategoryCatalogId: util.Ref(MockCatalogId2),
+								ParentControlId:                new(MockControlId2),
+								ParentControlCategoryName:      new(MockCategoryName2),
+								ParentControlCategoryCatalogId: new(MockCatalogId2),
 							},
 						},
 					},
@@ -362,22 +340,22 @@ var (
 		},
 	}
 
-	// // Mock Categories
-	// MockCatalog1Category1 = &orchestrator.Category{
-	// 	Name:      MockCategoryName1,
-	// 	CatalogId: MockCatalogId1,
-	// 	Controls:  []*orchestrator.Control{MockControl1},
-	// }
-	// MockCatalog1Category2 = &orchestrator.Category{
-	// 	Name:      MockCategoryName2,
-	// 	CatalogId: MockCatalogId1,
-	// 	Controls: []*orchestrator.Control{MockControl2},
-	// }
-	// MockCatalog2Category2 = &orchestrator.Category{
-	// 	Name:      MockCategoryName2,
-	// 	CatalogId: MockCatalogId2,
-	// 	Controls:  []*orchestrator.Control{MockControl2},
-	// }
+	// Mock Categories
+	MockCatalog1Category1 = &orchestrator.Category{
+		Name:      MockCategoryName1,
+		CatalogId: MockCatalogId1,
+		Controls:  []*orchestrator.Control{MockControl1},
+	}
+	MockCatalog1Category2 = &orchestrator.Category{
+		Name:      MockCategoryName2,
+		CatalogId: MockCatalogId1,
+		Controls:  []*orchestrator.Control{MockControl2},
+	}
+	MockCatalog2Category2 = &orchestrator.Category{
+		Name:      MockCategoryName2,
+		CatalogId: MockCatalogId2,
+		Controls:  []*orchestrator.Control{MockControl2},
+	}
 
 	// Mock Controls
 	MockControl1 = &orchestrator.Control{
@@ -393,9 +371,9 @@ var (
 		CategoryName:                   MockCategoryName1,
 		CategoryCatalogId:              MockCatalogId1,
 		Metrics:                        []*assessment.Metric{MockMetric1},
-		ParentControlId:                util.Ref(MockControlId1),
-		ParentControlCategoryName:      util.Ref(MockCategoryName1),
-		ParentControlCategoryCatalogId: util.Ref(MockCatalogId1),
+		ParentControlId:                new(MockControlId1),
+		ParentControlCategoryName:      new(MockCategoryName1),
+		ParentControlCategoryCatalogId: new(MockCatalogId1),
 	}
 	MockControl2 = &orchestrator.Control{
 		Id:                MockControlId2,
