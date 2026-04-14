@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/evaluation"
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service/evidence/evidencetest"
 )
 
-func TestCreateEvaluationResultRequest_GetTargetOfEvaluationId(t *testing.T) {
+func TestStoreEvaluationResultRequest_GetTargetOfEvaluationId(t *testing.T) {
 	type args struct {
-		req *evaluation.CreateEvaluationResultRequest
+		req *orchestrator.StoreEvaluationResultRequest
 	}
 	tests := []struct {
 		name string
@@ -20,7 +21,7 @@ func TestCreateEvaluationResultRequest_GetTargetOfEvaluationId(t *testing.T) {
 			name: "Happy path",
 			want: evidencetest.MockTargetOfEvaluationID1,
 			args: args{
-				req: &evaluation.CreateEvaluationResultRequest{
+				req: &orchestrator.StoreEvaluationResultRequest{
 					Result: &evaluation.EvaluationResult{
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
@@ -33,7 +34,7 @@ func TestCreateEvaluationResultRequest_GetTargetOfEvaluationId(t *testing.T) {
 			got := tt.args.req.GetTargetOfEvaluationId()
 
 			if got != tt.want {
-				t.Errorf("CreateEvaluationResultRequest.GetTargetOfEvaluationId() = %v, want %v", got, tt.want)
+				t.Errorf("StoreEvaluationResultRequest.GetTargetOfEvaluationId() = %v, want %v", got, tt.want)
 			}
 		})
 	}

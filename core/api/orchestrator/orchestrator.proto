@@ -81,8 +81,8 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results/{id}"};
   }
 
-  // Creates an evaluation result
-  rpc CreateEvaluationResult(CreateEvaluationResultRequest) returns (confirmate.evaluation.v1.EvaluationResult) {
+  // Store the evaluation result provided by the evaluation component.″
+  rpc StoreEvaluationResult(StoreEvaluationResultRequest) returns (StoreEvaluationResultResponse) {
     option (google.api.http) = {
       post: "/v1/evaluation/results"
       body: "result"
@@ -456,9 +456,12 @@ message StoreAssessmentResultsResponse {
   string status_message = 2;
 }
 
-message CreateEvaluationResultRequest {
-  confirmate.evaluation.v1.EvaluationResult result = 1 [(buf.validate.field).required = true];
+message StoreEvaluationResultRequest {
+  confirmate.evaluation.v1.EvaluationResult result = 1 [(buf.validate.field).required = true,
+  (google.api.field_behavior) = REQUIRED];
 }
+
+message StoreEvaluationResultResponse {}
 
 message ListEvaluationResultsRequest {
   message Filter {
