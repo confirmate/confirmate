@@ -628,7 +628,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Lists users with optional filtering */
-        get: operations["UserManagement_ListUsers"];
+        get: operations["Orchestrator_ListUsers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -645,7 +645,24 @@ export interface paths {
             cookie?: never;
         };
         /** @description Returns information about the currently authenticated user */
-        get: operations["UserManagement_GetCurrentUser"];
+        get: operations["Orchestrator_GetCurrentUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists user permission. */
+        get: operations["Orchestrator_ListUserPermissions"];
         put?: never;
         post?: never;
         delete?: never;
@@ -662,9 +679,26 @@ export interface paths {
             cookie?: never;
         };
         /** @description Lists all predefined roles in the system. */
-        get: operations["UserManagement_ListUserRoles"];
+        get: operations["Orchestrator_ListUserRoles"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/user_permission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary. */
+        post: operations["Orchestrator_UpsertUserPermission"];
         delete?: never;
         options?: never;
         head?: never;
@@ -679,10 +713,11 @@ export interface paths {
             cookie?: never;
         };
         /** @description Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin. */
-        get: operations["UserManagement_GetUser"];
+        get: operations["Orchestrator_GetUser"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** @description Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes. */
+        delete: operations["Orchestrator_RemoveUser"];
         options?: never;
         head?: never;
         patch?: never;
@@ -938,6 +973,10 @@ export interface components {
             targetsOfEvaluation: components["schemas"]["TargetOfEvaluation"][];
             nextPageToken?: string;
         };
+        ListUserPermissionsResponse: {
+            userPermissions?: components["schemas"]["UserPermission"][];
+            nextPageToken?: string;
+        };
         ListUserRolesResponse: {
             roles?: ("ROLE_UNSPECIFIED" | "ROLE_ADMIN" | "ROLE_COMPLIANCE_MANAGER" | "ROLE_EXPERT_COMPLIANCE_MANAGER" | "ROLE_INTERNAL_CONTROL_OWNER" | "ROLE_TECHNICAL_IMPLEMENTER" | "ROLE_AUDITOR" | "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER")[];
         };
@@ -1104,12 +1143,15 @@ export interface components {
             /** @description an icon for the target of evaluation used by the UI */
             icon?: string;
         };
+        UpsertUserPermissionResponse: {
+            userPermission?: components["schemas"]["UserPermission"];
+        };
         /** @description Represents a user from the IdP */
         User: {
             /** @description ID is the unique identifier of the user */
             id: string;
             /** @description Username is the name used to be displayed */
-            username: string;
+            username?: string;
             /** @description Email is the email address of the user, if available. */
             email?: string;
             /** @description FirstName is the first name of the user, if available. */
@@ -1124,6 +1166,29 @@ export interface components {
             attributes?: {
                 [key: string]: string;
             };
+            /**
+             * Format: date-time
+             * @description LastAccess indicates the last time the user accessed the system.
+             */
+            lastAccess?: string;
+        };
+        UserPermission: {
+            /** @description User ID is required to identify the user for whom the perission is being upserted. */
+            userId: string;
+            /** @description Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope. */
+            resourceId: string;
+            /**
+             * Format: enum
+             * @description Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+             * @enum {string}
+             */
+            resourceType: "OBJECT_TYPE_UNSPECIFIED" | "OBJECT_TYPE_METRIC" | "OBJECT_TYPE_METRIC_CONFIGURATION" | "OBJECT_TYPE_METRIC_IMPLEMENTATION" | "OBJECT_TYPE_TARGET_OF_EVALUATION" | "OBJECT_TYPE_AUDIT_SCOPE" | "OBJECT_TYPE_ASSESSMENT_RESULT" | "OBJECT_TYPE_ASSESSMENT_TOOL" | "OBJECT_TYPE_USER" | "OBJECT_TYPE_USER_PERMISSION" | "OBJECT_TYPE_CERTIFICATE" | "OBJECT_TYPE_CATALOG" | "OBJECT_TYPE_CATEGORY" | "OBJECT_TYPE_CONTROL" | "OBJECT_TYPE_EVALUATION_RESULT" | "OBJECT_TYPE_EVIDENCE";
+            /**
+             * Format: enum
+             * @description Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+             * @enum {string}
+             */
+            permission: "PERMISSION_UNSPECIFIED" | "PERMISSION_READER" | "PERMISSION_CONTRIBUTOR" | "PERMISSION_ADMIN";
         };
     };
     responses: never;
@@ -1155,6 +1220,7 @@ export type SchemaListMetricConfigurationResponse = components['schemas']['ListM
 export type SchemaListMetricsResponse = components['schemas']['ListMetricsResponse'];
 export type SchemaListPublicCertificatesResponse = components['schemas']['ListPublicCertificatesResponse'];
 export type SchemaListTargetsOfEvaluationResponse = components['schemas']['ListTargetsOfEvaluationResponse'];
+export type SchemaListUserPermissionsResponse = components['schemas']['ListUserPermissionsResponse'];
 export type SchemaListUserRolesResponse = components['schemas']['ListUserRolesResponse'];
 export type SchemaListUsersResponse = components['schemas']['ListUsersResponse'];
 export type SchemaMetric = components['schemas']['Metric'];
@@ -1167,7 +1233,9 @@ export type SchemaStatus = components['schemas']['Status'];
 export type SchemaStoreAssessmentResultResponse = components['schemas']['StoreAssessmentResultResponse'];
 export type SchemaTargetOfEvaluation = components['schemas']['TargetOfEvaluation'];
 export type SchemaTargetOfEvaluationMetadata = components['schemas']['TargetOfEvaluation_Metadata'];
+export type SchemaUpsertUserPermissionResponse = components['schemas']['UpsertUserPermissionResponse'];
 export type SchemaUser = components['schemas']['User'];
+export type SchemaUserPermission = components['schemas']['UserPermission'];
 export type $defs = Record<string, never>;
 export interface operations {
     Orchestrator_ListAssessmentResults: {
@@ -2709,7 +2777,7 @@ export interface operations {
             };
         };
     };
-    UserManagement_ListUsers: {
+    Orchestrator_ListUsers: {
         parameters: {
             query?: {
                 /** @description Optional. Filter by role (e.g., "compliance_manager") */
@@ -2749,7 +2817,7 @@ export interface operations {
             };
         };
     };
-    UserManagement_GetCurrentUser: {
+    Orchestrator_GetCurrentUser: {
         parameters: {
             query?: never;
             header?: never;
@@ -2778,7 +2846,42 @@ export interface operations {
             };
         };
     };
-    UserManagement_ListUserRoles: {
+    Orchestrator_ListUserPermissions: {
+        parameters: {
+            query?: {
+                userId?: string;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListUserPermissionsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListUserRoles: {
         parameters: {
             query?: {
                 pageSize?: number;
@@ -2811,7 +2914,40 @@ export interface operations {
             };
         };
     };
-    UserManagement_GetUser: {
+    Orchestrator_UpsertUserPermission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserPermission"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpsertUserPermissionResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetUser: {
         parameters: {
             query?: never;
             header?: never;
@@ -2830,6 +2966,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["User"];
                 };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Default error response */
             default: {

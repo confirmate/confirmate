@@ -79,7 +79,7 @@ if [[ ! -d ~/.virtualenvs/cpg ]]; then
 fi
 # shellcheck disable=SC1090
 source ~/.virtualenvs/cpg/bin/activate
-pip3 install --quiet jep
+pip3 install --quiet "jep==4.3.1"
 deactivate
 
 # ── 5. Start the code-analysis collector ──────────────────────────────────────

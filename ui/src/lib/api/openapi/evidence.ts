@@ -193,8 +193,9 @@ export interface components {
         /** @description ActivityLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ActivityLogging: {
             enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
             monitoringLogDataEnabled?: boolean;
-            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -281,8 +282,9 @@ export interface components {
         /** @description ApplicationLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ApplicationLogging: {
             enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
             monitoringLogDataEnabled?: boolean;
-            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -414,8 +416,9 @@ export interface components {
         /** @description BootLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         BootLogging: {
             enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
             monitoringLogDataEnabled?: boolean;
-            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -516,19 +519,19 @@ export interface components {
             name?: string;
             /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
             raw?: string;
+            codeSignoff?: components["schemas"]["CodeSignoff"];
             geoLocation?: components["schemas"]["GeoLocation"];
             loggings?: components["schemas"]["Logging"][];
             redundancies?: components["schemas"]["Redundancy"][];
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
         };
-        /** @description Confidentiality is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
-        Confidentiality: {
-            customerKeyEncryption?: components["schemas"]["CustomerKeyEncryption"];
-            diskEncryption?: components["schemas"]["DiskEncryption"];
-            managedKeyEncryption?: components["schemas"]["ManagedKeyEncryption"];
-            transportEncryption?: components["schemas"]["TransportEncryption"];
-            encryptionInUse?: components["schemas"]["EncryptionInUse"];
+        /**
+         * @description CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
+         */
+        CodeSignoff: {
+            enforced?: boolean;
         };
         /**
          * @description Configuration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -665,6 +668,23 @@ export interface components {
             dataLocation?: components["schemas"]["DataLocation"];
             parentId?: string;
         };
+        /** @description ContactPerson is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ContactPerson: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            emailAddress?: string;
+            id?: string;
+            jobTitle?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            phoneNumber?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            parentId?: string;
+        };
         /** @description Container is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Container: {
             /** Format: date-time */
@@ -768,6 +788,23 @@ export interface components {
             dataLocation?: components["schemas"]["DataLocation"];
             parentId?: string;
         };
+        /** @description CoordinatedVulnerabilityDisclosurePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CoordinatedVulnerabilityDisclosurePolicy: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            contextId?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            policyRuleIds?: string[];
+            parentId?: string;
+        };
         /** @description CreateEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         CreateEncryptedDisk: {
             codeRegion?: components["schemas"]["CodeRegion"];
@@ -797,6 +834,26 @@ export interface components {
             keyUrl?: string;
             basedOn?: components["schemas"]["Cipher"];
             secretId?: string;
+        };
+        /** @description CyberSecurityRiskAssessmentDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CyberSecurityRiskAssessmentDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
         };
         /** @description DDoSProtection is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         DDoSProtection: Record<string, never>;
@@ -859,6 +916,8 @@ export interface components {
             name?: string;
             /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
             raw?: string;
+            /** Format: double */
+            ttl?: number;
             activityLogging?: components["schemas"]["ActivityLogging"];
             atRestEncryption?: components["schemas"]["AtRestEncryption"];
             backups?: components["schemas"]["Backup"][];
@@ -913,6 +972,26 @@ export interface components {
             basedOn?: components["schemas"]["Cipher"];
             secretId?: string;
         };
+        /** @description DistributionOfUpdatesDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DistributionOfUpdatesDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
         /** @description DocumentDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         DocumentDatabaseService: {
             /** Format: date-time */
@@ -953,6 +1032,26 @@ export interface components {
          *      Represents an entity that loads a piece of code dynamically during runtime. Examples include a class loader in Java, loading shared library code in C++. Interpreters, such as Python can also load code dynamically during runtime.
          */
         DynamicLoading: Record<string, never>;
+        /** @description EUDeclarationOfConformity is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        EUDeclarationOfConformity: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
         /**
          * @description Encryption is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
          *      This represents an encryption.
@@ -1314,7 +1413,7 @@ export interface components {
             algorithm?: string;
             usesSalt?: boolean;
             codeRegion?: components["schemas"]["CodeRegion"];
-            confidentiality?: components["schemas"]["Confidentiality"];
+            securityFeature?: components["schemas"]["SecurityFeature"];
         };
         /**
          * @description Defines the HTTP configuration for an API service. It contains a list of
@@ -1345,6 +1444,7 @@ export interface components {
         HttpClient: {
             isTls?: boolean;
             authenticity?: components["schemas"]["Authenticity"];
+            uses?: components["schemas"]["TransportEncryption"];
         };
         /**
          * @description HttpEndpoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -1353,12 +1453,15 @@ export interface components {
          */
         HttpEndpoint: {
             handler?: string;
+            /** Format: int32 */
+            inputSize?: number;
             method?: string;
             path?: string;
             url?: string;
             authenticity?: components["schemas"]["Authenticity"];
             authorization?: components["schemas"]["Authorization"];
             httpRequestContext?: components["schemas"]["HttpRequestContext"];
+            rateLimiting?: components["schemas"]["RateLimiting"];
             transportEncryption?: components["schemas"]["TransportEncryption"];
         };
         /**
@@ -1369,9 +1472,13 @@ export interface components {
             codeRegion?: components["schemas"]["CodeRegion"];
             http?: components["schemas"]["Http"];
         };
-        /** @description HttpRequest is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        /**
+         * @description HttpRequest is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      enum:method=GET,POST,PUT,HEAD,PATCH,OPTIONS,CONNECT,TRACE,DELETE,UNKNOWN
+         */
         HttpRequest: {
             call?: string;
+            method?: string;
             reqBody?: string;
             codeRegion?: components["schemas"]["CodeRegion"];
             httpClient?: components["schemas"]["HttpClient"];
@@ -2129,7 +2236,10 @@ export interface components {
             codeRegion?: components["schemas"]["CodeRegion"];
             logging?: components["schemas"]["Logging"];
         };
-        /** @description Logging is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        /**
+         * @description Logging is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      enum:logLevel=DEBUG,INFO,WARN,ERROR
+         */
         Logging: {
             activityLogging?: components["schemas"]["ActivityLogging"];
             applicationLogging?: components["schemas"]["ApplicationLogging"];
@@ -2311,6 +2421,28 @@ export interface components {
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
         };
+        /**
+         * @description MonitoringProcedure is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      intervalMonths: Review frequency (in months) for reviewing monitoring procedures
+         */
+        MonitoringProcedure: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            /**
+             * Format: int32
+             * @description The interval refers to the interval in months.
+             */
+            intervalMonths?: number;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            parentId?: string;
+        };
         /** @description MultiFactorAuthentiation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         MultiFactorAuthentiation: {
             contextIsChecked?: boolean;
@@ -2406,8 +2538,9 @@ export interface components {
         /** @description OSLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         OSLogging: {
             enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
             monitoringLogDataEnabled?: boolean;
-            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -2574,11 +2707,35 @@ export interface components {
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
         };
+        /** @description PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        PolicyDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            governanceId?: string;
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
         /**
-         * @description Policy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-         *      Represents a policy that can be applied to a resource or a set of resources. Policies can contain rules and operations that define how access to the resource is controlled.
+         * @description Principal is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a principal that is allowed to access a resource. This can for example be a (structure representing) a user or a group of users.
          */
-        Policy: {
+        Principal: Record<string, never>;
+        /** @description Product is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Product: {
+            contextOfUse?: string;
             /** Format: date-time */
             creationTime?: string;
             description?: string;
@@ -2587,15 +2744,26 @@ export interface components {
                 [key: string]: string;
             };
             name?: string;
+            programmingVersion?: string;
+            purpose?: string;
             /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
             raw?: string;
-            contextId?: string;
-            dataLocation?: components["schemas"]["DataLocation"];
-            policyRuleIds?: string[];
+            /**
+             * Format: date-time
+             * @description Support ends date for a certain resource.
+             */
+            supportEnds?: string;
+            type?: string;
+            codeIds?: string[];
+            contactPersonId?: string;
+            dataIds?: string[];
+            governanceIds?: string[];
+            hardwareIds?: string[];
+            infrastructureIds?: string[];
             parentId?: string;
         };
-        /** @description PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
-        PolicyDocument: {
+        /** @description ProductionAndMonitoringProcessDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ProductionAndMonitoringProcessDocument: {
             /** Format: date-time */
             creationTime?: string;
             description?: string;
@@ -2614,11 +2782,6 @@ export interface components {
             validatedBy?: components["schemas"]["SchemaValidation"];
             securityFeatures?: components["schemas"]["SecurityFeature"][];
         };
-        /**
-         * @description Principal is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-         *      Represents a principal that is allowed to access a resource. This can for example be a (structure representing) a user or a group of users.
-         */
-        Principal: Record<string, never>;
         /**
          * @description ProtectedAsset is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      Represents an asset that is protected by a policy. This can be an in-memory data structure, a file, a database, or any other resource that requires access control.
@@ -2883,22 +3046,31 @@ export interface components {
             configurationSource?: components["schemas"]["ConfigurationSource"];
             context?: components["schemas"]["Context"];
             configurationDocument?: components["schemas"]["ConfigurationDocument"];
+            cyberSecurityRiskAssessmentDocument?: components["schemas"]["CyberSecurityRiskAssessmentDocument"];
+            distributionOfUpdatesDocument?: components["schemas"]["DistributionOfUpdatesDocument"];
+            euDeclarationOfConformity?: components["schemas"]["EUDeclarationOfConformity"];
             reportDocument?: components["schemas"]["ReportDocument"];
             logDocument?: components["schemas"]["LogDocument"];
             policyDocument?: components["schemas"]["PolicyDocument"];
+            productionAndMonitoringProcessDocument?: components["schemas"]["ProductionAndMonitoringProcessDocument"];
+            sbomDocument?: components["schemas"]["SBOMDocument"];
             securityAdvisoryDocument?: components["schemas"]["SecurityAdvisoryDocument"];
             serviceMetadataDocument?: components["schemas"]["ServiceMetadataDocument"];
+            userInformationAndIntructionDocument?: components["schemas"]["UserInformationAndIntructionDocument"];
             file?: components["schemas"]["File"];
             fileHandle?: components["schemas"]["FileHandle"];
             machineLearningDataset?: components["schemas"]["MachineLearningDataset"];
             machineLearningModel?: components["schemas"]["MachineLearningModel"];
-            policy?: components["schemas"]["Policy"];
+            coordinatedVulnerabilityDisclosurePolicy?: components["schemas"]["CoordinatedVulnerabilityDisclosurePolicy"];
             andRule?: components["schemas"]["AndRule"];
             token?: components["schemas"]["Token"];
             value?: components["schemas"]["Value"];
-            memory?: components["schemas"]["Memory"];
+            contactPerson?: components["schemas"]["ContactPerson"];
+            monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
             awarenessTraining?: components["schemas"]["AwarenessTraining"];
             securityTraining?: components["schemas"]["SecurityTraining"];
+            memory?: components["schemas"]["Memory"];
+            product?: components["schemas"]["Product"];
             application?: components["schemas"]["Application"];
             library?: components["schemas"]["Library"];
             package?: components["schemas"]["Package"];
@@ -2930,8 +3102,9 @@ export interface components {
         /** @description ResourceLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ResourceLogging: {
             enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
             monitoringLogDataEnabled?: boolean;
-            name?: string;
             retentionPeriod?: string;
             securityAlertsEnabled?: boolean;
             loggingServiceIds?: string[];
@@ -2988,6 +3161,26 @@ export interface components {
             redundancies?: components["schemas"]["Redundancy"][];
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description SBOMDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SBOMDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
         };
         /** @description SchemaValidation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SchemaValidation: {
@@ -3085,6 +3278,7 @@ export interface components {
         /** @description SecurityFeature is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
         SecurityFeature: {
             anomalyDetection?: components["schemas"]["AnomalyDetection"];
+            codeSignoff?: components["schemas"]["CodeSignoff"];
             activityLogging?: components["schemas"]["ActivityLogging"];
             applicationLogging?: components["schemas"]["ApplicationLogging"];
             bootLogging?: components["schemas"]["BootLogging"];
@@ -3277,6 +3471,26 @@ export interface components {
             /** Format: int32 */
             apiHitsPerMonth?: number;
         };
+        /** @description UserInformationAndIntructionDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        UserInformationAndIntructionDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
         /** @description VMImage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         VMImage: {
             /** Format: date-time */
@@ -3401,7 +3615,8 @@ export interface components {
             cve?: string;
             cwe?: string[];
             description?: string;
-            name?: string;
+            /** @description exploitable: Indicates whether a vulnerability is exploitable for the given target of evaluation (TOE) */
+            exploitable?: boolean;
             url?: string;
         };
         /**
@@ -3491,7 +3706,7 @@ export type SchemaCipher = components['schemas']['Cipher'];
 export type SchemaCipherSuite = components['schemas']['CipherSuite'];
 export type SchemaCodeRegion = components['schemas']['CodeRegion'];
 export type SchemaCodeRepository = components['schemas']['CodeRepository'];
-export type SchemaConfidentiality = components['schemas']['Confidentiality'];
+export type SchemaCodeSignoff = components['schemas']['CodeSignoff'];
 export type SchemaConfiguration = components['schemas']['Configuration'];
 export type SchemaConfigurationDocument = components['schemas']['ConfigurationDocument'];
 export type SchemaConfigurationGroup = components['schemas']['ConfigurationGroup'];
@@ -3499,16 +3714,19 @@ export type SchemaConfigurationGroupSource = components['schemas']['Configuratio
 export type SchemaConfigurationOption = components['schemas']['ConfigurationOption'];
 export type SchemaConfigurationOptionSource = components['schemas']['ConfigurationOptionSource'];
 export type SchemaConfigurationSource = components['schemas']['ConfigurationSource'];
+export type SchemaContactPerson = components['schemas']['ContactPerson'];
 export type SchemaContainer = components['schemas']['Container'];
 export type SchemaContainerImage = components['schemas']['ContainerImage'];
 export type SchemaContainerOrchestration = components['schemas']['ContainerOrchestration'];
 export type SchemaContainerRegistry = components['schemas']['ContainerRegistry'];
 export type SchemaContext = components['schemas']['Context'];
+export type SchemaCoordinatedVulnerabilityDisclosurePolicy = components['schemas']['CoordinatedVulnerabilityDisclosurePolicy'];
 export type SchemaCreateEncryptedDisk = components['schemas']['CreateEncryptedDisk'];
 export type SchemaCreateSecret = components['schemas']['CreateSecret'];
 export type SchemaCryptographicHash = components['schemas']['CryptographicHash'];
 export type SchemaCustomHttpPattern = components['schemas']['CustomHttpPattern'];
 export type SchemaCustomerKeyEncryption = components['schemas']['CustomerKeyEncryption'];
+export type SchemaCyberSecurityRiskAssessmentDocument = components['schemas']['CyberSecurityRiskAssessmentDocument'];
 export type SchemaDDoSProtection = components['schemas']['DDoSProtection'];
 export type SchemaDarwin = components['schemas']['Darwin'];
 export type SchemaDataLocation = components['schemas']['DataLocation'];
@@ -3519,9 +3737,11 @@ export type SchemaDeAllocate = components['schemas']['DeAllocate'];
 export type SchemaDecryption = components['schemas']['Decryption'];
 export type SchemaDeviceProvisioningService = components['schemas']['DeviceProvisioningService'];
 export type SchemaDiskEncryption = components['schemas']['DiskEncryption'];
+export type SchemaDistributionOfUpdatesDocument = components['schemas']['DistributionOfUpdatesDocument'];
 export type SchemaDocumentDatabaseService = components['schemas']['DocumentDatabaseService'];
 export type SchemaDocumentSignature = components['schemas']['DocumentSignature'];
 export type SchemaDynamicLoading = components['schemas']['DynamicLoading'];
+export type SchemaEuDeclarationOfConformity = components['schemas']['EUDeclarationOfConformity'];
 export type SchemaEncryption = components['schemas']['Encryption'];
 export type SchemaEncryptionInUse = components['schemas']['EncryptionInUse'];
 export type SchemaEncryptionOperation = components['schemas']['EncryptionOperation'];
@@ -3600,6 +3820,7 @@ export type SchemaManagedKeyEncryption = components['schemas']['ManagedKeyEncryp
 export type SchemaMemory = components['schemas']['Memory'];
 export type SchemaMessageAuthenticationCode = components['schemas']['MessageAuthenticationCode'];
 export type SchemaMessagingHub = components['schemas']['MessagingHub'];
+export type SchemaMonitoringProcedure = components['schemas']['MonitoringProcedure'];
 export type SchemaMultiFactorAuthentiation = components['schemas']['MultiFactorAuthentiation'];
 export type SchemaMultiModalDatabaseService = components['schemas']['MultiModalDatabaseService'];
 export type SchemaNetworkInterface = components['schemas']['NetworkInterface'];
@@ -3617,9 +3838,10 @@ export type SchemaPackage = components['schemas']['Package'];
 export type SchemaPadding = components['schemas']['Padding'];
 export type SchemaPasswordBasedAuthentication = components['schemas']['PasswordBasedAuthentication'];
 export type SchemaPasswordPolicy = components['schemas']['PasswordPolicy'];
-export type SchemaPolicy = components['schemas']['Policy'];
 export type SchemaPolicyDocument = components['schemas']['PolicyDocument'];
 export type SchemaPrincipal = components['schemas']['Principal'];
+export type SchemaProduct = components['schemas']['Product'];
+export type SchemaProductionAndMonitoringProcessDocument = components['schemas']['ProductionAndMonitoringProcessDocument'];
 export type SchemaProtectedAsset = components['schemas']['ProtectedAsset'];
 export type SchemaProvideConfiguration = components['schemas']['ProvideConfiguration'];
 export type SchemaProvideConfigurationGroup = components['schemas']['ProvideConfigurationGroup'];
@@ -3643,6 +3865,7 @@ export type SchemaResourceLogging = components['schemas']['ResourceLogging'];
 export type SchemaResourceSnapshot = components['schemas']['ResourceSnapshot'];
 export type SchemaRobustnessScore = components['schemas']['RobustnessScore'];
 export type SchemaRoleAssignment = components['schemas']['RoleAssignment'];
+export type SchemaSbomDocument = components['schemas']['SBOMDocument'];
 export type SchemaSchemaValidation = components['schemas']['SchemaValidation'];
 export type SchemaSecret = components['schemas']['Secret'];
 export type SchemaSecurityAdvisoryDocument = components['schemas']['SecurityAdvisoryDocument'];
@@ -3662,6 +3885,7 @@ export type SchemaTransportEncryption = components['schemas']['TransportEncrypti
 export type SchemaUnlockEncryptedDisk = components['schemas']['UnlockEncryptedDisk'];
 export type SchemaUpdateResourceRequest = components['schemas']['UpdateResourceRequest'];
 export type SchemaUsageStatistics = components['schemas']['UsageStatistics'];
+export type SchemaUserInformationAndIntructionDocument = components['schemas']['UserInformationAndIntructionDocument'];
 export type SchemaVmImage = components['schemas']['VMImage'];
 export type SchemaValidateJwt = components['schemas']['ValidateJwt'];
 export type SchemaValue = components['schemas']['Value'];
