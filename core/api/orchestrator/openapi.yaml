@@ -3,7 +3,8 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: Orchestrator API
+    description: Manages the orchestration of components within the confirmate architecture
     version: 0.0.1
 paths:
     /v1/orchestrator/assessment_results:
@@ -1485,9 +1486,9 @@ paths:
     /v1/users:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Lists users with optional filtering
-            operationId: UserManagement_ListUsers
+            operationId: Orchestrator_ListUsers
             parameters:
                 - name: filter.role
                   in: query
@@ -1547,9 +1548,9 @@ paths:
     /v1/users/me:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Returns information about the currently authenticated user
-            operationId: UserManagement_GetCurrentUser
+            operationId: Orchestrator_GetCurrentUser
             responses:
                 "200":
                     description: OK
@@ -1563,12 +1564,53 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/permissions:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permission.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/roles:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Lists all predefined roles in the system.
-            operationId: UserManagement_ListUserRoles
+            operationId: Orchestrator_ListUserRoles
             parameters:
                 - name: pageSize
                   in: query
@@ -1596,12 +1638,37 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/user_permission:
+        post:
+            tags:
+                - Orchestrator
+            description: Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+            operationId: Orchestrator_UpsertUserPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPermission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/{userId}:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-            operationId: UserManagement_GetUser
+            operationId: Orchestrator_GetUser
             parameters:
                 - name: userId
                   in: path
@@ -1615,6 +1682,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+            operationId: Orchestrator_RemoveUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
                 default:
                     description: Default error response
                     content:
@@ -2064,6 +2152,15 @@ components:
                         $ref: '#/components/schemas/TargetOfEvaluation'
                 nextPageToken:
                     type: string
+        ListUserPermissionsResponse:
+            type: object
+            properties:
+                userPermissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserPermission'
+                nextPageToken:
+                    type: string
         ListUserRolesResponse:
             type: object
             properties:
@@ -2329,10 +2426,14 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
+        UpsertUserPermissionResponse:
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
         User:
             required:
                 - id
-                - username
             type: object
             properties:
                 id:
@@ -2373,8 +2474,54 @@ components:
                     additionalProperties:
                         type: string
                     description: Attributes contains additional key-value pairs associated with the user, such as department or team.
+                lastAccess:
+                    type: string
+                    description: LastAccess indicates the last time the user accessed the system.
+                    format: date-time
             description: Represents a user from the IdP
+        UserPermission:
+            required:
+                - userId
+                - resourceId
+                - resourceType
+                - permission
+            type: object
+            properties:
+                userId:
+                    type: string
+                    description: User ID is required to identify the user for whom the perission is being upserted.
+                resourceId:
+                    type: string
+                    description: Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
+                resourceType:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                    type: string
+                    description: Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+                    format: enum
+                permission:
+                    enum:
+                        - PERMISSION_UNSPECIFIED
+                        - PERMISSION_READER
+                        - PERMISSION_CONTRIBUTOR
+                        - PERMISSION_ADMIN
+                    type: string
+                    description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+                    format: enum
 tags:
     - name: Orchestrator
-      description: Manages the orchestration of components within the confirmate architecture
-    - name: UserManagement

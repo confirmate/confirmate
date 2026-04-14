@@ -16,31 +16,44 @@
 package auth
 
 import (
-	"context"
+	"testing"
+
+	"confirmate.io/core/util/assert"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-type contextKey string
+func TestGetConfirmateUserIDFromClaims(t *testing.T) {
+	tests := []struct {
+		name   string // description of this test case
+		claims *OAuthClaims
+		want   assert.Want[string]
+	}{
+		{
+			name: "err: claims is nil",
+			want: func(t *testing.T, got string, _ ...any) bool {
+				return assert.Equal(t, "", got)
+			},
+		},
+		{
+			name: "happy path",
+			claims: &OAuthClaims{
+				RegisteredClaims: jwt.RegisteredClaims{
+					Issuer:  "testIssuer",
+					Subject: "testSubject",
+				},
+			},
+			want: func(t *testing.T, got string, _ ...any) bool {
+				expected := "testIssuer|testSubject"
 
-const (
-	claimsContextKey contextKey = "auth-claims"
-)
-
-// WithClaims stores verified JWT claims in the context.
-func WithClaims(ctx context.Context, claims *OAuthClaims) (out context.Context) {
-	if ctx == nil || claims == nil {
-		return ctx
+				return assert.Equal(t, expected, got)
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := GetConfirmateUserIDFromClaims(tt.claims)
 
-	out = context.WithValue(ctx, claimsContextKey, claims)
-	return out
-}
-
-// ClaimsFromContext returns verified JWT claims from the context, if present.
-func ClaimsFromContext(ctx context.Context) (claims *OAuthClaims, ok bool) {
-	if ctx == nil {
-		return nil, false
+			tt.want(t, got)
+		})
 	}
-
-	claims, ok = ctx.Value(claimsContextKey).(*OAuthClaims)
-	return claims, ok
 }

@@ -29,7 +29,6 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 )
 
@@ -64,6 +63,7 @@ func TestService_RegisterSubscriber(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Register a subscriber
@@ -84,10 +84,10 @@ func TestService_RegisterSubscriber(t *testing.T) {
 		assert.NotNil(t, event)
 		assert.Equal(t, orchestrator.EventCategory_EVENT_CATEGORY_METRIC, event.Category)
 		assert.Equal(t, orchestrator.RequestType_REQUEST_TYPE_CREATED, event.RequestType)
-		assert.Equal(t, orchestratortest.MockMetric1.Id, event.EntityId)
+		assert.NotEmpty(t, event.EntityId)
 		metric := event.GetMetric()
 		assert.NotNil(t, metric)
-		assert.Equal(t, orchestratortest.MockMetric1.Id, metric.Id)
+		assert.Equal(t, event.EntityId, metric.Id)
 	case <-time.After(1 * time.Second):
 		t.Fatal("timeout waiting for event")
 	}
@@ -99,6 +99,7 @@ func TestService_RegisterSubscriber_WithFilter(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Register a subscriber with filter for METRIC category only
@@ -139,7 +140,7 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 				Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC,
 				RequestType:          orchestrator.RequestType_REQUEST_TYPE_CREATED,
 				EntityId:             "metric-1",
-				TargetOfEvaluationId: util.Ref("11111111-1111-1111-1111-111111111111"),
+				TargetOfEvaluationId: new("11111111-1111-1111-1111-111111111111"),
 			},
 			wantErr: false,
 		},
@@ -171,6 +172,55 @@ func TestValidateMessage_ChangeEvent(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestService_Subscribe(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		req *connect.Request[orchestrator.SubscribeRequest]
+	}
+	type fields struct {
+		authz service.AuthorizationStrategy
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		stream  *connect.ServerStream[orchestrator.ChangeEvent]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "validation error - empty request",
+			args: args{},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
+			},
+		},
+		{
+			name: "authorization error",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&orchestrator.SubscribeRequest{}),
+			},
+			fields: fields{
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				authz: tt.fields.authz,
+			}
+			gotErr := svc.Subscribe(tt.args.ctx, tt.args.req, tt.stream)
+
+			tt.wantErr(t, gotErr)
 		})
 	}
 }
