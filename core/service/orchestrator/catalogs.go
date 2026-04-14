@@ -76,7 +76,8 @@ func (svc *Service) CreateCatalog(
 	return
 }
 
-// GetCatalog retrieves a catalog by ID.
+// GetCatalog retrieves a specific catalog by it's ID. The catalog includes a list of all
+// of it categories as well as the first level of controls in each category.
 func (svc *Service) GetCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCatalogRequest],
@@ -90,7 +91,11 @@ func (svc *Service) GetCatalog(
 		return nil, err
 	}
 
-	err = svc.db.Get(&catalog, "id = ?", req.Msg.CatalogId)
+	err = svc.db.Get(&catalog,
+		// Preload fills in associated entities, in this case controls. We want to only select those controls which do
+		// not have a parent, e.g., the top-level
+		persistence.WithPreload("Categories.Controls", "parent_control_id IS NULL"),
+		"id = ?", req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
 		return nil, err
 	}
@@ -211,7 +216,9 @@ func (svc *Service) RemoveCatalog(
 	return
 }
 
-// GetCategory retrieves a category by name and catalog ID.
+// GetCategory retrieves a category of a catalog specified by the catalog ID and the
+// category name. It includes the first level of controls within each
+// category.
 func (svc *Service) GetCategory(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCategoryRequest],
