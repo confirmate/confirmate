@@ -951,8 +951,34 @@ func TestService_GetControl(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Control], args ...any) bool {
+				want := &orchestrator.Control{
+					Id:                orchestratortest.MockControlId1,
+					Name:              orchestratortest.MockControlName1,
+					CategoryName:      orchestratortest.MockCategoryName1,
+					CategoryCatalogId: orchestratortest.MockCatalogId1,
+					Controls: []*orchestrator.Control{
+						{
+							Id:                             orchestratortest.MockSubControlId1,
+							Name:                           orchestratortest.MockSubControlName1,
+							CategoryName:                   orchestratortest.MockCategoryName1,
+							CategoryCatalogId:              orchestratortest.MockCatalogId1,
+							ParentControlId:                new(orchestratortest.MockControlId1),
+							ParentControlCategoryName:      new(orchestratortest.MockCategoryName1),
+							ParentControlCategoryCatalogId: new(orchestratortest.MockCatalogId1),
+						},
+						{
+							Id:                             orchestratortest.MockSubControlId2,
+							Name:                           orchestratortest.MockSubControlName2,
+							CategoryName:                   orchestratortest.MockCategoryName1,
+							CategoryCatalogId:              orchestratortest.MockCatalogId1,
+							ParentControlId:                new(orchestratortest.MockControlId1),
+							ParentControlCategoryName:      new(orchestratortest.MockCategoryName1),
+							ParentControlCategoryCatalogId: new(orchestratortest.MockCatalogId1),
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockControl1, got.Msg)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},

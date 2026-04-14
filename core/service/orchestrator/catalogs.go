@@ -289,7 +289,10 @@ func (svc *Service) ListControls(
 	return
 }
 
-// GetControl retrieves a control by ID, category name, and catalog ID.
+// GetControl retrieves a control specified by the catalog ID, the control's category
+// name and the control ID. If present, it also includes a list of
+// sub-controls if present or a list of metrics if no sub-controls but metrics
+// are present.
 func (svc *Service) GetControl(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetControlRequest],
