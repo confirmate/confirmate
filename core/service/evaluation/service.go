@@ -45,7 +45,7 @@ type Service struct {
 	cfg Config
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
-	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreEvaluationResultRequest, orchestrator.StoreEvaluationResultResponse]
+	orchestratorStream *stream.RestartableBidiStream[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
 	streamMutex        sync.Mutex
 
 	scheduler *gocron.Scheduler
@@ -602,6 +602,10 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		Result: eval,
 	})
 	svc.streamMutex.Unlock()
+
+	if err != nil {
+		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
+	}
 
 	slog.Info("Evaluation result created",
 		slog.String("control id", control.Id),
