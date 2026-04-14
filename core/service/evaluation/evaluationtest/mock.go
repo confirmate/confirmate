@@ -147,6 +147,7 @@ var (
 		ControlId:            MockControlId1,
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
+		ParentControlId:      new(""),
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(20 * time.Minute)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
