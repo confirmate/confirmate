@@ -104,7 +104,8 @@ func (svc *Service) GetCatalog(
 	return
 }
 
-// ListCatalogs lists all catalogs.
+// ListCatalogs lists all security controls catalogs. Each catalog includes a list of its
+// categories but no additional sub-resources.
 func (svc *Service) ListCatalogs(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCatalogsRequest],
