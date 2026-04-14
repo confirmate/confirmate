@@ -23,8 +23,8 @@ require (
 
 // runtime dependencies - protobuf/Connect
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20251209175733-2a1774d88802.1
-	buf.build/go/protovalidate v1.1.0
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
+	buf.build/go/protovalidate v1.1.3
 	cel.dev/expr v0.25.1 // indirect
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/grpcreflect v1.3.0
