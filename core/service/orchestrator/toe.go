@@ -30,7 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// CreateTargetOfEvaluation creates a new target of evaluation.
+// CreateTargetOfEvaluation registers a new target of evaluation.
 func (svc *Service) CreateTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateTargetOfEvaluationRequest],
@@ -90,7 +90,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 	return
 }
 
-// GetTargetOfEvaluation retrieves a target of evaluation by ID.
+// GetTargetOfEvaluation retrieves a target of evaluation.
 func (svc *Service) GetTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetTargetOfEvaluationRequest],
@@ -123,7 +123,7 @@ func (svc *Service) GetTargetOfEvaluation(
 	return
 }
 
-// ListTargetsOfEvaluation lists all targets of evaluation.
+// ListTargetsOfEvaluation lists all targets of evaluations.
 func (svc *Service) ListTargetsOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListTargetsOfEvaluationRequest],
@@ -233,7 +233,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 	return
 }
 
-// RemoveTargetOfEvaluation removes a target of evaluation by ID.
+// RemoveTargetOfEvaluation removes a target of evaluation.
 func (svc *Service) RemoveTargetOfEvaluation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveTargetOfEvaluationRequest],
@@ -275,7 +275,7 @@ func (svc *Service) RemoveTargetOfEvaluation(
 	return
 }
 
-// GetTargetOfEvaluationStatistics retrieves statistics for targets of evaluation.
+// GetTargetOfEvaluationStatistics retrieves target of evaluation statistics.
 func (svc *Service) GetTargetOfEvaluationStatistics(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetTargetOfEvaluationStatisticsRequest],

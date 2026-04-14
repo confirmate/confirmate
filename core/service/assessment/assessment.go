@@ -208,6 +208,8 @@ func (svc *Service) initOrchestratorStream() (err error) {
 	return
 }
 
+// AssessEvidences assesses stream of evidences sent by the discovery and returns a response
+// stream. Part of the public API. Not exposed as REST.
 func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStream[assessment.AssessEvidenceRequest, assessment.AssessEvidencesResponse]) (err error) {
 	var (
 		req           *assessment.AssessEvidenceRequest
@@ -252,7 +254,8 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 	}
 }
 
-// AssessEvidence is a method implementation of the assessment interface: It assesses a single evidence
+// AssessEvidence assesses the evidence sent by the discovery. Part of the public API, also
+// exposed as REST.
 func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[assessment.AssessEvidenceRequest]) (res *connect.Response[assessment.AssessEvidenceResponse], err error) {
 	var (
 		resource        ontology.IsResource

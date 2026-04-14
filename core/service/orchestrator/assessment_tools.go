@@ -26,7 +26,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// RegisterAssessmentTool registers a new assessment tool.
+// RegisterAssessmentTool registers the passed assessment tool.
 func (svc *Service) RegisterAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RegisterAssessmentToolRequest],
@@ -63,7 +63,7 @@ func (svc *Service) RegisterAssessmentTool(
 	return
 }
 
-// GetAssessmentTool retrieves an assessment tool by ID.
+// GetAssessmentTool returns assessment tool given by the passed tool id.
 func (svc *Service) GetAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentToolRequest],
@@ -86,7 +86,8 @@ func (svc *Service) GetAssessmentTool(
 	return
 }
 
-// ListAssessmentTools lists all assessment tools.
+// ListAssessmentTools lists all assessment tools assessing evidences for the metric given by the
+// passed metric id.
 func (svc *Service) ListAssessmentTools(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentToolsRequest],
@@ -119,7 +120,7 @@ func (svc *Service) ListAssessmentTools(
 	return
 }
 
-// UpdateAssessmentTool updates an existing assessment tool.
+// UpdateAssessmentTool updates the assessment tool given by the passed id.
 func (svc *Service) UpdateAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAssessmentToolRequest],
@@ -152,7 +153,8 @@ func (svc *Service) UpdateAssessmentTool(
 	return
 }
 
-// DeregisterAssessmentTool removes an assessment tool by ID.
+// DeregisterAssessmentTool removes assessment tool with passed id from the list of active assessment
+// tools.
 func (svc *Service) DeregisterAssessmentTool(
 	ctx context.Context,
 	req *connect.Request[orchestrator.DeregisterAssessmentToolRequest],

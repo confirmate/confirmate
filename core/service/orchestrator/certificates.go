@@ -72,7 +72,7 @@ func (svc *Service) CreateCertificate(
 	return
 }
 
-// GetCertificate retrieves a certificate by ID.
+// GetCertificate retrieves a certificate.
 func (svc *Service) GetCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCertificateRequest],
@@ -105,7 +105,7 @@ func (svc *Service) GetCertificate(
 	return
 }
 
-// ListCertificates lists all certificates.
+// ListCertificates lists all target certificates.
 func (svc *Service) ListCertificates(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCertificatesRequest],
@@ -157,7 +157,7 @@ func (svc *Service) ListCertificates(
 	return
 }
 
-// ListPublicCertificates lists all certificates without state history.
+// ListPublicCertificates lists all target certificates without state history.
 func (svc *Service) ListPublicCertificates(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListPublicCertificatesRequest],
@@ -242,7 +242,7 @@ func (svc *Service) UpdateCertificate(
 	return
 }
 
-// RemoveCertificate removes a certificate by ID.
+// RemoveCertificate removes a certificate.
 func (svc *Service) RemoveCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveCertificateRequest],

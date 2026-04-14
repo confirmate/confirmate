@@ -37,6 +37,11 @@ jobs:
           go install github.com/srikrsna/protoc-gen-gotag
           go generate ./...
         working-directory: ./core
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: ./core
       - name: Build
         run: |
           mkdir -p build

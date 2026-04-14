@@ -31,7 +31,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// CreateCatalog creates a new catalog.
+// CreateCatalog creates a new security controls catalog.
 func (svc *Service) CreateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateCatalogRequest],
@@ -75,7 +75,8 @@ func (svc *Service) CreateCatalog(
 	return
 }
 
-// GetCatalog retrieves a catalog by ID.
+// GetCatalog retrieves a specific catalog by its ID. The catalog includes a list of all of its
+// categories as well as the first level of controls in each category.
 func (svc *Service) GetCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCatalogRequest],
@@ -98,7 +99,8 @@ func (svc *Service) GetCatalog(
 	return
 }
 
-// ListCatalogs lists all catalogs.
+// ListCatalogs lists all security controls catalogs. Each catalog includes a list of its categories
+// but no additional sub-resources.
 func (svc *Service) ListCatalogs(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCatalogsRequest],
@@ -176,7 +178,7 @@ func (svc *Service) UpdateCatalog(
 	return
 }
 
-// RemoveCatalog removes a catalog by ID.
+// RemoveCatalog removes a catalog.
 func (svc *Service) RemoveCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveCatalogRequest],
@@ -210,7 +212,8 @@ func (svc *Service) RemoveCatalog(
 	return
 }
 
-// GetCategory retrieves a category by name and catalog ID.
+// GetCategory retrieves a category of a catalog specified by the catalog ID and the category name.
+// It includes the first level of controls within each category.
 func (svc *Service) GetCategory(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCategoryRequest],
@@ -233,7 +236,8 @@ func (svc *Service) GetCategory(
 	return
 }
 
-// ListControls lists all controls, optionally filtered by catalog ID.
+// ListControls lists all controls. If a catalog ID and a category name is specified, then only
+// controls contained in this category are returned.
 func (svc *Service) ListControls(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListControlsRequest],
@@ -277,7 +281,9 @@ func (svc *Service) ListControls(
 	return
 }
 
-// GetControl retrieves a control by ID, category name, and catalog ID.
+// GetControl retrieves a control specified by the catalog ID, the control's category name and the
+// control ID. If present, it also includes a list of sub-controls if present or a list of metrics
+// if no sub-controls but metrics are present.
 func (svc *Service) GetControl(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetControlRequest],

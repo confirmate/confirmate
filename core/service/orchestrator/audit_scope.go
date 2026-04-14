@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// CreateAuditScope creates a new audit scope.
+// CreateAuditScope creates a new Audit Scope.
 func (svc *Service) CreateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateAuditScopeRequest],
@@ -84,7 +84,7 @@ func (svc *Service) CreateAuditScope(
 	return
 }
 
-// GetAuditScope retrieves an audit scope by ID.
+// GetAuditScope retrieves an Audit Scope.
 func (svc *Service) GetAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAuditScopeRequest],
@@ -117,7 +117,7 @@ func (svc *Service) GetAuditScope(
 	return
 }
 
-// ListAuditScopes lists all audit scopes.
+// ListAuditScopes lists all Audit Scopes.
 func (svc *Service) ListAuditScopes(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAuditScopesRequest],
@@ -179,7 +179,7 @@ func (svc *Service) ListAuditScopes(
 	return
 }
 
-// UpdateAuditScope updates an existing audit scope.
+// UpdateAuditScope updates an existing Audit Scope.
 func (svc *Service) UpdateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAuditScopeRequest],
@@ -235,7 +235,7 @@ func (svc *Service) UpdateAuditScope(
 	return
 }
 
-// RemoveAuditScope removes an audit scope by ID.
+// RemoveAuditScope removes an Audit Scope.
 func (svc *Service) RemoveAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveAuditScopeRequest],

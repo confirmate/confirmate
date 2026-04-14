@@ -235,11 +235,11 @@ type OrchestratorClient interface {
 	GetMetric(context.Context, *connect.Request[orchestrator.GetMetricRequest]) (*connect.Response[assessment.Metric], error)
 	// List all metrics provided by the metric catalog
 	ListMetrics(context.Context, *connect.Request[orchestrator.ListMetricsRequest]) (*connect.Response[orchestrator.ListMetricsResponse], error)
-	// Removes a new metric
+	// Removes a metric
 	RemoveMetric(context.Context, *connect.Request[orchestrator.RemoveMetricRequest]) (*connect.Response[emptypb.Empty], error)
 	// Registers a new target of evaluation
 	CreateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.CreateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
-	// Registers a new target of evaluation
+	// Updates an existing target of evaluation
 	UpdateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
 	// Retrieves a target of evaluation
 	GetTargetOfEvaluation(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
@@ -286,7 +286,7 @@ type OrchestratorClient interface {
 	GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Removes a catalog
 	RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error)
-	// Updates an existing certificate
+	// Updates an existing catalog
 	UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Retrieves a category of a catalog specified by the catalog ID and the
 	// category name. It includes the first level of controls within each
@@ -1017,11 +1017,11 @@ type OrchestratorHandler interface {
 	GetMetric(context.Context, *connect.Request[orchestrator.GetMetricRequest]) (*connect.Response[assessment.Metric], error)
 	// List all metrics provided by the metric catalog
 	ListMetrics(context.Context, *connect.Request[orchestrator.ListMetricsRequest]) (*connect.Response[orchestrator.ListMetricsResponse], error)
-	// Removes a new metric
+	// Removes a metric
 	RemoveMetric(context.Context, *connect.Request[orchestrator.RemoveMetricRequest]) (*connect.Response[emptypb.Empty], error)
 	// Registers a new target of evaluation
 	CreateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.CreateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
-	// Registers a new target of evaluation
+	// Updates an existing target of evaluation
 	UpdateTargetOfEvaluation(context.Context, *connect.Request[orchestrator.UpdateTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
 	// Retrieves a target of evaluation
 	GetTargetOfEvaluation(context.Context, *connect.Request[orchestrator.GetTargetOfEvaluationRequest]) (*connect.Response[orchestrator.TargetOfEvaluation], error)
@@ -1068,7 +1068,7 @@ type OrchestratorHandler interface {
 	GetCatalog(context.Context, *connect.Request[orchestrator.GetCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Removes a catalog
 	RemoveCatalog(context.Context, *connect.Request[orchestrator.RemoveCatalogRequest]) (*connect.Response[emptypb.Empty], error)
-	// Updates an existing certificate
+	// Updates an existing catalog
 	UpdateCatalog(context.Context, *connect.Request[orchestrator.UpdateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Retrieves a category of a catalog specified by the catalog ID and the
 	// category name. It includes the first level of controls within each

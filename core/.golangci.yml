@@ -1,0 +1,10 @@
+version: "2"
+linters:
+  enable:
+    - revive
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        arguments:
+          - disableStutteringCheck

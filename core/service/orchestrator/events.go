@@ -26,7 +26,7 @@ import (
 	"connectrpc.com/connect"
 )
 
-// Subscribe subscribes to change events.
+// Subscribe subscribes to change events in the orchestrator.
 func (svc *Service) Subscribe(
 	ctx context.Context,
 	req *connect.Request[orchestrator.SubscribeRequest],

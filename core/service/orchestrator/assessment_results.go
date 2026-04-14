@@ -30,7 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// StoreAssessmentResult stores a single assessment result.
+// StoreAssessmentResult stores the assessment result provided by an assessment tool.
 func (svc *Service) StoreAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
@@ -79,7 +79,7 @@ func (svc *Service) StoreAssessmentResult(
 	return
 }
 
-// GetAssessmentResult retrieves an assessment result by ID.
+// GetAssessmentResult gets an assessment result by ID.
 func (svc *Service) GetAssessmentResult(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
@@ -111,7 +111,7 @@ func (svc *Service) GetAssessmentResult(
 	return
 }
 
-// ListAssessmentResults lists all assessment results with optional filtering.
+// ListAssessmentResults lists all assessment results. Part of the public API, also exposed as REST.
 func (svc *Service) ListAssessmentResults(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
@@ -244,7 +244,8 @@ func (svc *Service) ListAssessmentResults(
 	return
 }
 
-// StoreAssessmentResults stores assessment results via a bidirectional stream.
+// StoreAssessmentResults stores stream of assessment results provided by an assessment tool and
+// returns a response stream. Part of the public API, not exposed as REST.
 func (svc *Service) StoreAssessmentResults(
 	ctx context.Context,
 	stream *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse],
