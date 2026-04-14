@@ -13,7 +13,7 @@
 //
 // This file is part of Confirmate Core.
 
-// package persistencetest provides utilities for testing database operations in Confirmate Core.
+// Package persistencetest provides utilities for testing database operations in Confirmate Core.
 package persistencetest
 
 import (

@@ -35,7 +35,6 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -114,6 +113,9 @@ type Service struct {
 	// pe contains the actual policy evaluation engine we use
 	pe policies.PolicyEval
 
+	// authz defines our authorization strategy for target-of-evaluation scoped access.
+	authz service.AuthorizationStrategy
+
 	// cfg contains the service configuration
 	cfg Config
 
@@ -127,6 +129,20 @@ type Service struct {
 func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
 		svc.cfg = cfg
+	}
+}
+
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization.
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyPermissionStore{}
 	}
 }
 
@@ -147,6 +163,10 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 
 	for _, o = range opts {
 		o(svc)
+	}
+
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
 	}
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
@@ -252,12 +272,6 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	}
 
 	ev = req.Msg.Evidence
-
-	// // TODO: Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	// if !svc.authz.CheckAccess(ctx, service.AccessUpdate, req) {
-	// 	slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
-	// 	return nil, service.ErrPermissionDenied
-	// }
 
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
@@ -405,7 +419,7 @@ func (svc *Service) handleEvidence(
 			ResourceTypes:        types,
 			ComplianceComment:    data.Message,
 			ComplianceDetails:    data.ComparisonResult,
-			ToolId:               util.Ref(assessment.AssessmentToolId),
+			ToolId:               new(assessment.AssessmentToolId),
 			HistoryUpdatedAt:     timestamppb.Now(),
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),

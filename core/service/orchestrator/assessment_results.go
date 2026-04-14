@@ -25,7 +25,6 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -33,7 +32,7 @@ import (
 
 // StoreAssessmentResult stores a single assessment result.
 func (svc *Service) StoreAssessmentResult(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.StoreAssessmentResultRequest],
 ) (res *connect.Response[orchestrator.StoreAssessmentResultResponse], err error) {
 	var (
@@ -46,6 +45,15 @@ func (svc *Service) StoreAssessmentResult(
 	}
 
 	result = req.Msg.Result
+
+	// Check access via the configured auth strategy
+	allowed, _, err := CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, result.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Set timestamp
 	result.CreatedAt = timestamppb.Now()
@@ -73,11 +81,12 @@ func (svc *Service) StoreAssessmentResult(
 
 // GetAssessmentResult retrieves an assessment result by ID.
 func (svc *Service) GetAssessmentResult(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.GetAssessmentResultRequest],
 ) (res *connect.Response[assessment.AssessmentResult], err error) {
 	var (
-		result assessment.AssessmentResult
+		result  assessment.AssessmentResult
+		allowed bool
 	)
 
 	// Validate the request
@@ -90,19 +99,32 @@ func (svc *Service) GetAssessmentResult(
 		return nil, err
 	}
 
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, result.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 	res = connect.NewResponse(&result)
 	return
 }
 
 // ListAssessmentResults lists all assessment results with optional filtering.
 func (svc *Service) ListAssessmentResults(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
 	var (
-		results []*assessment.AssessmentResult
-		conds   []any
-		npt     string
+		results      []*assessment.AssessmentResult
+		conds        []any
+		npt          string
+		where        string
+		args         []any
+		whereClauses []string
+		all          bool
+		toeIds       []string
 	)
 
 	// Validate the request
@@ -112,71 +134,84 @@ func (svc *Service) ListAssessmentResults(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "timestamp"
+		req.Msg.OrderBy = "created_at"
 		req.Msg.Asc = false
 	}
 
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
-		var whereClauses []string
-		var args []any
-
 		if req.Msg.Filter.TargetOfEvaluationId != nil {
 			whereClauses = append(whereClauses, "target_of_evaluation_id = ?")
-			args = append(args, util.Deref(req.Msg.Filter.TargetOfEvaluationId))
+			args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())
 		}
 		if req.Msg.Filter.Compliant != nil {
 			whereClauses = append(whereClauses, "compliant = ?")
-			args = append(args, util.Deref(req.Msg.Filter.Compliant))
+			args = append(args, req.Msg.Filter.GetCompliant())
 		}
 		if req.Msg.Filter.MetricId != nil {
 			whereClauses = append(whereClauses, "metric_id = ?")
-			args = append(args, util.Deref(req.Msg.Filter.MetricId))
+			args = append(args, req.Msg.Filter.GetMetricId())
 		}
 		if req.Msg.Filter.ToolId != nil {
 			whereClauses = append(whereClauses, "tool_id = ?")
-			args = append(args, util.Deref(req.Msg.Filter.ToolId))
+			args = append(args, req.Msg.Filter.GetToolId())
 		}
 		if len(req.Msg.Filter.AssessmentResultIds) > 0 {
 			// Build IN clause dynamically to support ramsql (doesn't support array binding)
-			placeholders := strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
+			var placeholders string
+			placeholders = strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
 			placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
 			whereClauses = append(whereClauses, "id IN ("+placeholders+")")
 			for _, id := range req.Msg.Filter.AssessmentResultIds {
 				args = append(args, id)
 			}
 		}
+	}
 
-		// Combine all WHERE clauses with AND
-		if len(whereClauses) > 0 {
-			whereQuery := strings.Join(whereClauses, " AND ")
-			conds = append(conds, whereQuery)
-			conds = append(conds, args...)
-		}
+	// Combine all WHERE clauses with AND
+	if len(whereClauses) > 0 {
+		where = strings.Join(whereClauses, " AND ")
+		conds = append(conds, where)
+		conds = append(conds, args...)
+	}
+
+	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
+	if !all && len(toeIds) == 0 {
+		// User has no access to any ToE, return empty result
+		return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+			Results:       []*assessment.AssessmentResult{},
+			NextPageToken: "",
+		}), nil
+	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !all {
+		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
 	}
 
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
-	if req.Msg.LatestByResourceId != nil && util.Deref(req.Msg.LatestByResourceId) {
-		// Build WHERE clause from existing conditions
-		var where string
-		var args []any
+	if req.Msg.LatestByResourceId != nil && req.Msg.GetLatestByResourceId() {
+		// Reuse the WHERE query and args directly.
+		if where != "" {
+			where = "WHERE " + where
+		}
 
-		if len(conds) > 0 {
-			// conds is structured as [query1, args1, query2, args2, ...]
-			var whereParts []string
-			for i := 0; i < len(conds); i += 2 {
-				whereParts = append(whereParts, conds[i].(string))
-				if i+1 < len(conds) {
-					args = append(args, conds[i+1])
-				}
+		// Add filter for allowed ToE IDs if not allowed to access all
+		if !all {
+			wherePrefix := "WHERE "
+			if where != "" {
+				wherePrefix = " AND "
 			}
-			where = "WHERE " + strings.Join(whereParts, " AND ")
+			where += wherePrefix + "target_of_evaluation_id IN ?"
+			args = append(args, toeIds)
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
-		query := fmt.Sprintf(`
+		var query string
+		query = fmt.Sprintf(`
 			SELECT DISTINCT ON (resource_id, metric_id) *
 			FROM assessment_results
 			%s

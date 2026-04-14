@@ -34,7 +34,8 @@ func (svc *Service) CreateAuditScope(
 	req *connect.Request[orchestrator.CreateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope *orchestrator.AuditScope
+		scope   *orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request, ignoring ID field which will be auto-generated
@@ -42,10 +43,25 @@ func (svc *Service) CreateAuditScope(
 		return nil, err
 	}
 
-	scope = req.Msg.AuditScope
+	scope = &orchestrator.AuditScope{
+		Id:                   uuid.NewString(),
+		Name:                 req.Msg.GetAuditScope().GetName(),
+		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
+		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
+		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
+		Readers:              req.Msg.GetAuditScope().GetReaders(),
+		Contributors:         req.Msg.GetAuditScope().GetContributors(),
+		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+	}
 
-	// Generate a new UUID for the audit scope
-	scope.Id = uuid.NewString()
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, scope.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Persist the new audit scope in the database
 	err = svc.db.Create(scope)
@@ -74,12 +90,22 @@ func (svc *Service) GetAuditScope(
 	req *connect.Request[orchestrator.GetAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope orchestrator.AuditScope
+		scope   orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
@@ -97,9 +123,11 @@ func (svc *Service) ListAuditScopes(
 	req *connect.Request[orchestrator.ListAuditScopesRequest],
 ) (res *connect.Response[orchestrator.ListAuditScopesResponse], err error) {
 	var (
-		scopes []*orchestrator.AuditScope
-		conds  []any
-		npt    string
+		scopes        []*orchestrator.AuditScope
+		conds         []any
+		npt           string
+		all           bool
+		auditScopeIds []string
 	)
 
 	// Validate the request
@@ -113,16 +141,32 @@ func (svc *Service) ListAuditScopes(
 		req.Msg.Asc = true
 	}
 
+	// Use filter from request to build query conditions
 	// Filter by target_of_evaluation_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
 		conds = append(conds, "target_of_evaluation_id = ?", *req.Msg.Filter.TargetOfEvaluationId)
 	}
-
 	// Filter by catalog_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.CatalogId != nil {
 		conds = append(conds, "catalog_id = ?", *req.Msg.Filter.CatalogId)
 	}
 
+	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	all, auditScopeIds = svc.authz.AllowedAuditScopes(ctx)
+	if !all && len(auditScopeIds) == 0 {
+		// User has no access to any ToE, return empty result
+		return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
+			AuditScopes:   []*orchestrator.AuditScope{},
+			NextPageToken: "",
+		}), nil
+	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !all {
+		conds = append(conds, "id IN ?", auditScopeIds)
+	}
+
+	// Query the database with pagination and the constructed conditions
 	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -140,14 +184,35 @@ func (svc *Service) UpdateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
-	var scope *orchestrator.AuditScope
+	var (
+		scope   *orchestrator.AuditScope
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	scope = req.Msg.AuditScope
+	scope = &orchestrator.AuditScope{
+		Id:                   req.Msg.GetAuditScope().GetId(),
+		Name:                 req.Msg.GetAuditScope().GetName(),
+		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
+		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
+		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
+		Readers:              req.Msg.GetAuditScope().GetReaders(),
+		Contributors:         req.Msg.GetAuditScope().GetContributors(),
+		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, scope.GetId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the audit scope
 	err = svc.db.Update(scope, "id = ?", scope.Id)
@@ -176,11 +241,26 @@ func (svc *Service) RemoveAuditScope(
 	req *connect.Request[orchestrator.RemoveAuditScopeRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		scope orchestrator.AuditScope
+		scope   orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.AuditScopeId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
 

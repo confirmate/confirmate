@@ -31,7 +31,7 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
+	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
 	"go.yaml.in/yaml/v3"
@@ -50,7 +50,10 @@ func (svc *Service) CreateMetric(
 	req *connect.Request[orchestrator.CreateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
 	var (
-		metric *assessment.Metric
+		metric   *assessment.Metric
+		metricID string
+		impl     *assessment.MetricImplementation
+		allowed  bool
 	)
 
 	// Validate the request
@@ -58,7 +61,34 @@ func (svc *Service) CreateMetric(
 		return nil, err
 	}
 
-	metric = req.Msg.Metric
+	metricID = uuid.NewString()
+	if req.Msg.GetMetric().GetImplementation() != nil {
+		impl = &assessment.MetricImplementation{
+			MetricId:  metricID,
+			Lang:      req.Msg.GetMetric().GetImplementation().GetLang(),
+			Code:      req.Msg.GetMetric().GetImplementation().GetCode(),
+			UpdatedAt: timestamppb.Now(),
+		}
+	}
+
+	metric = &assessment.Metric{
+		Id:             metricID,
+		Name:           req.Msg.GetMetric().GetName(),
+		Description:    req.Msg.GetMetric().GetDescription(),
+		Version:        req.Msg.GetMetric().GetVersion(),
+		Comments:       req.Msg.GetMetric().GetComments(),
+		Category:       req.Msg.GetMetric().GetCategory(),
+		Implementation: impl,
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Persist the new metric in the database
 	err = svc.db.Create(metric)
@@ -125,7 +155,13 @@ func (svc *Service) ListMetrics(
 		req.Msg.Asc = true
 	}
 
-	metrics, npt, err = service.PaginateStorage[*assessment.Metric](req.Msg, svc.db, service.DefaultPaginationOpts)
+	// Filter metrics with empty DeprecatedSince field
+	metrics, npt, err = service.PaginateStorage[*assessment.Metric](
+		req.Msg,
+		svc.db,
+		service.DefaultPaginationOpts,
+		"deprecated_since IS NULL",
+	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -142,14 +178,33 @@ func (svc *Service) UpdateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
-	var metric *assessment.Metric
+	var (
+		metric  *assessment.Metric
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	metric = req.Msg.Metric
+	metric = &assessment.Metric{
+		Id:          req.Msg.GetMetric().GetId(),
+		Name:        req.Msg.GetMetric().GetName(),
+		Description: req.Msg.GetMetric().GetDescription(),
+		Version:     req.Msg.GetMetric().GetVersion(),
+		Comments:    req.Msg.GetMetric().GetComments(),
+		Category:    req.Msg.GetMetric().GetCategory(),
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the metric
 	err = svc.db.Update(metric, "id = ?", metric.Id)
@@ -179,12 +234,22 @@ func (svc *Service) RemoveMetric(
 	req *connect.Request[orchestrator.RemoveMetricRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		metric *assessment.Metric
+		metric  *assessment.Metric
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Check if metric exists
@@ -244,14 +309,31 @@ func (svc *Service) UpdateMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricImplementationRequest],
 ) (res *connect.Response[assessment.MetricImplementation], err error) {
-	var impl *assessment.MetricImplementation
+	var (
+		impl    *assessment.MetricImplementation
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	impl = req.Msg.Implementation
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_IMPLEMENTATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	impl = &assessment.MetricImplementation{
+		MetricId:  req.Msg.GetImplementation().GetMetricId(),
+		Lang:      req.Msg.GetImplementation().GetLang(),
+		Code:      req.Msg.GetImplementation().GetCode(),
+		UpdatedAt: timestamppb.Now(),
+	}
 
 	// Update the metric implementation
 	err = svc.db.Update(impl, "metric_id = ?", impl.MetricId)
@@ -362,7 +444,8 @@ func (svc *Service) UpdateMetricConfiguration(
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
 ) (res *connect.Response[assessment.MetricConfiguration], err error) {
 	var (
-		config *assessment.MetricConfiguration
+		config  *assessment.MetricConfiguration
+		allowed bool
 	)
 
 	// Validate the request
@@ -370,7 +453,23 @@ func (svc *Service) UpdateMetricConfiguration(
 		return nil, err
 	}
 
-	config = req.Msg.Configuration
+	config = &assessment.MetricConfiguration{
+		MetricId:             req.Msg.GetConfiguration().GetMetricId(),
+		TargetOfEvaluationId: req.Msg.GetConfiguration().GetTargetOfEvaluationId(),
+		Operator:             req.Msg.GetConfiguration().GetOperator(),
+		TargetValue:          req.Msg.GetConfiguration().GetTargetValue(),
+		IsDefault:            false,
+		UpdatedAt:            timestamppb.Now(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, config.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Save the updated metric configuration
 	err = svc.db.Save(config)
@@ -384,7 +483,7 @@ func (svc *Service) UpdateMetricConfiguration(
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
 		RequestType:          orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:             config.MetricId,
-		TargetOfEvaluationId: util.Ref(config.TargetOfEvaluationId),
+		TargetOfEvaluationId: new(config.TargetOfEvaluationId),
 		Entity: &orchestrator.ChangeEvent_MetricConfiguration{
 			MetricConfiguration: config,
 		},

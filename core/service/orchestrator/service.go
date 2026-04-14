@@ -42,6 +42,9 @@ type Service struct {
 	db  persistence.DB
 	cfg Config
 
+	// authz defines our authorization strategy for target-of-evaluation scoped access.
+	authz service.AuthorizationStrategy
+
 	// subscribers is a map of subscribers for change events
 	subscribers      map[int64]*subscriber
 	subscribersMutex sync.RWMutex
@@ -97,6 +100,22 @@ func WithConfig(cfg Config) service.Option[Service] {
 	}
 }
 
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization.
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyPermissionStore{
+			// Permission store will be set-up later in NewService when the database is initialized.
+		}
+	}
+}
+
 // NewService creates a new orchestrator service and returns a
 // [orchestratorconnect.OrchestratorHandler].
 //
@@ -113,6 +132,10 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 		o(svc)
 	}
 
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
+	}
+
 	// Initialize the database with the defined auto-migration types and join tables
 	pcfg := svc.cfg.PersistenceConfig
 	pcfg.Types = types
@@ -120,6 +143,14 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
 	if err != nil {
 		return nil, fmt.Errorf("could not create db: %w", err)
+	}
+
+	// If using permission store-based authorization, set up the permission store for fine-grained
+	// permission checks
+	if permStrat, ok := svc.authz.(*service.AuthorizationStrategyPermissionStore); ok {
+		permStrat.Permissions = permissionStore{
+			db: svc.db,
+		}
 	}
 
 	// Initialize subscribers map
@@ -144,6 +175,14 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	handler = svc
 	return
 }
+
+// func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, allowed []string) {
+// 	if svc == nil || svc.authz == nil {
+// 		return true, nil
+// 	}
+
+// 	return svc.authz.AllowedTargetOfEvaluations(ctx)
+// }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.
 func (svc *Service) GetRuntimeInfo(

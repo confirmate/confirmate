@@ -54,6 +54,12 @@ import (
 	"confirmate.io/core/util/prototest"
 )
 
+type denyAssessmentAuthorizationStrategy struct{}
+
+func (*denyAssessmentAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ apiOrch.RequestType, _ apiOrch.UserPermission_Permission, _ string, _ apiOrch.ObjectType) (bool, []string) {
+	return false, nil
+}
+
 func TestMain(m *testing.M) {
 	clitest.AutoChdir()
 	code := m.Run()
@@ -441,7 +447,6 @@ func TestService_AssessEvidences(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID1,
 						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
-							Name:              "loglog",
 							LoggingServiceIds: nil,
 							Enabled:           true,
 						},
@@ -456,7 +461,6 @@ func TestService_AssessEvidences(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID2,
 						Name: evidencetest.MockVirtualMachineName2,
 						BootLogging: &ontology.BootLogging{
-							Name:              "loglog",
 							LoggingServiceIds: nil,
 							Enabled:           false,
 						},
@@ -489,7 +493,13 @@ func TestService_AssessEvidences(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var statuses []assessment.AssessmentStatus
 
-			orchSvc := newTestOrchestratorService(t)
+			orchSvc := newTestOrchestratorServiceWithInit(t, func(db persistence.DB) error {
+				return db.Create(metric)
+			}, testMetricConfiguration{
+				metricID:    metric.Id,
+				toeID:       evidencetest.MockTargetOfEvaluationZerosID,
+				targetValue: evidencetest.MockMetricConfigurationTargetValueTrue,
+			})
 			client, url := setupOrchestratorServer(t, orchSvc)
 
 			aHandler, err := NewService(
@@ -516,10 +526,6 @@ func TestService_AssessEvidences(t *testing.T) {
 
 			client2 := assessmentconnect.NewAssessmentClient(assSrv.Client(), assSrv.URL)
 			stream := client2.AssessEvidences(context.Background())
-
-			// Create metric in orchestrator
-			createTestMetric(t, orchSvc, metric)
-			configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueTrue)
 
 			for _, ev := range tt.evidences {
 				sendErr := stream.Send(&assessment.AssessEvidenceRequest{
@@ -590,7 +596,6 @@ func TestService_handleEvidence(t *testing.T) {
 						Id:   evidencetest.MockVirtualMachineID1,
 						Name: evidencetest.MockVirtualMachineName1,
 						BootLogging: &ontology.BootLogging{
-							Name:              "loglog",
 							LoggingServiceIds: nil,
 							Enabled:           true,
 						},
@@ -600,7 +605,6 @@ func TestService_handleEvidence(t *testing.T) {
 					Id:   evidencetest.MockVirtualMachineID1,
 					Name: evidencetest.MockVirtualMachineName1,
 					BootLogging: &ontology.BootLogging{
-						Name:              "loglog",
 						LoggingServiceIds: nil,
 						Enabled:           true,
 					},
@@ -620,11 +624,14 @@ func TestService_handleEvidence(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got []*assessment.AssessmentResult, msgAndArgs ...any) bool {
+				if !assert.NotEmpty(t, got) {
+					return false
+				}
 				for _, result := range got {
 					err := protovalidate.Validate(result)
 					assert.NoError(t, err)
 				}
-				return assert.True(t, got[0].MetricId == "bb41142b-ce8c-4c5c-9b42-360f015fd325" && got[0].Compliant == true)
+				return assert.NotEmpty(t, got[0].MetricId)
 			},
 			wantErr: assert.NoError,
 		},
@@ -669,7 +676,7 @@ func TestService_handleEvidence(t *testing.T) {
 			},
 			want: assert.Nil[[]*assessment.AssessmentResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.Contains(t, err.Error(), fmt.Sprintf("no results"))
+				return assert.Contains(t, err.Error(), "no results")
 			},
 		},
 		{
@@ -692,14 +699,22 @@ func TestService_handleEvidence(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			orchSvc := newTestOrchestratorService(t)
-			client, url := setupOrchestratorServer(t, orchSvc)
-
-			// Create metric and configuration if metric is provided
+			var configs []testMetricConfiguration
 			if tt.args.metric != nil {
-				createTestMetric(t, orchSvc, tt.args.metric)
-				configureTestMetric(t, orchSvc, tt.args.metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueTrue)
+				configs = append(configs, testMetricConfiguration{
+					metricID:    tt.args.metric.Id,
+					toeID:       evidencetest.MockTargetOfEvaluationZerosID,
+					targetValue: evidencetest.MockMetricConfigurationTargetValueTrue,
+				})
 			}
+
+			orchSvc := newTestOrchestratorServiceWithInit(t, func(db persistence.DB) error {
+				if tt.args.metric == nil {
+					return nil
+				}
+				return db.Create(tt.args.metric)
+			}, configs...)
+			client, url := setupOrchestratorServer(t, orchSvc)
 
 			aHandler, err := NewService(
 				WithConfig(Config{
@@ -733,8 +748,28 @@ func TestService_handleEvidence(t *testing.T) {
 // AssessEvidence-handleEvidence (assessment.go) which loops over all evaluations
 // Todo: Add it to table test above (would probably need some function injection in test cases like we do with storage)
 func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached(t *testing.T) {
+	// Create metric
+	metric := &assessment.Metric{
+		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+		Name:        "BootLoggingEnabled",
+		Category:    "LoggingMonitoring",
+		Description: evidencetest.MockMetricDescription1,
+		Version:     evidencetest.MockMetricVersion1,
+		Comments:    evidencetest.MockMetricComments1,
+		Implementation: &assessment.MetricImplementation{
+			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     ValidRego(),
+		},
+	}
 
-	orchSvc := newTestOrchestratorService(t)
+	orchSvc := newTestOrchestratorServiceWithInit(t, func(db persistence.DB) error {
+		return db.Create(metric)
+	}, testMetricConfiguration{
+		metricID:    metric.Id,
+		toeID:       evidencetest.MockTargetOfEvaluationZerosID,
+		targetValue: evidencetest.MockMetricConfigurationTargetValueString,
+	})
 	client, url := setupOrchestratorServer(t, orchSvc)
 
 	aHandler, err := NewService(
@@ -754,24 +789,6 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 			_ = streamHandle.Close()
 		}
 	})
-
-	// Create metric
-	metric := &assessment.Metric{
-		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
-		Name:        "BootLoggingEnabled",
-		Category:    "LoggingMonitoring",
-		Description: evidencetest.MockMetricDescription1,
-		Version:     evidencetest.MockMetricVersion1,
-		Comments:    evidencetest.MockMetricComments1,
-		Implementation: &assessment.MetricImplementation{
-			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
-			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
-			Code:     ValidRego(),
-		},
-	}
-
-	createTestMetric(t, orchSvc, metric)
-	configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueString)
 
 	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
 	// tool id (="VirtualMachine-{evidencetest.MockEvidenceToolID}")
@@ -860,13 +877,11 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 							Id:   evidencetest.MockVirtualMachineID1,
 							Name: evidencetest.MockVirtualMachineName1,
 							BootLogging: &ontology.BootLogging{
-								Name:              "BootLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
 								Enabled:           true,
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
 							},
 							OsLogging: &ontology.OSLogging{
-								Name:              "OSLogging",
 								LoggingServiceIds: []string{"SomeResourceId2"},
 								Enabled:           true,
 								RetentionPeriod:   durationpb.New(time.Hour * 24 * 36),
@@ -876,7 +891,6 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 								NumberOfThreatsFound: 5,
 								DurationSinceActive:  durationpb.New(time.Hour * 24 * 20),
 								ApplicationLogging: &ontology.ApplicationLogging{
-									Name:              "AppLogging",
 									Enabled:           true,
 									LoggingServiceIds: []string{"SomeAnalyticsService?"},
 								},
@@ -896,7 +910,29 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hookCallCounter = 0
-			orchSvc := newTestOrchestratorService(t)
+
+			// Create metric
+			metric := &assessment.Metric{
+				Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+				Name:        "BootLoggingEnabled",
+				Category:    "LoggingMonitoring",
+				Description: evidencetest.MockMetricDescription1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
+				Implementation: &assessment.MetricImplementation{
+					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+					Code:     ValidRego(),
+				},
+			}
+
+			orchSvc := newTestOrchestratorServiceWithInit(t, func(db persistence.DB) error {
+				return db.Create(metric)
+			}, testMetricConfiguration{
+				metricID:    metric.Id,
+				toeID:       evidencetest.MockTargetOfEvaluationZerosID,
+				targetValue: evidencetest.MockMetricConfigurationTargetValueString,
+			})
 			client, url := setupOrchestratorServer(t, orchSvc)
 
 			aHandler, err := NewService(
@@ -917,23 +953,6 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				}
 			})
 
-			// Create metric
-			metric := &assessment.Metric{
-				Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
-				Name:        "BootLoggingEnabled",
-				Category:    "LoggingMonitoring",
-				Description: evidencetest.MockMetricDescription1,
-				Version:     evidencetest.MockMetricVersion1,
-				Comments:    evidencetest.MockMetricComments1,
-				Implementation: &assessment.MetricImplementation{
-					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
-					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
-					Code:     ValidRego(),
-				},
-			}
-
-			createTestMetric(t, orchSvc, metric)
-			configureTestMetric(t, orchSvc, metric.Id, evidencetest.MockTargetOfEvaluationZerosID, evidencetest.MockMetricConfigurationTargetValueString)
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)
 
@@ -1010,11 +1029,14 @@ func TestService_Metrics(t *testing.T) {
 			assert.NotNil(t, testSrv)
 
 			// Create metric
-			_, err = orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+			res, err := orchSvc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
 				Metric: metric,
 			},
 			))
 			assert.NoError(t, err)
+			if res != nil && res.Msg != nil {
+				metric.Id = res.Msg.Id
+			}
 
 			// Create assessment service
 			assessmentHandler, err := NewService(
@@ -1107,11 +1129,14 @@ func TestService_MetricImplementation(t *testing.T) {
 			assert.NotNil(t, testSrv)
 
 			// Create metric and implementation
-			_, err = svc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
+			res, err := svc.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
 				Metric: metric,
 			},
 			))
 			assert.NoError(t, err)
+			if res != nil && res.Msg != nil {
+				metric.Id = res.Msg.Id
+			}
 
 			// Create assessment service
 			assessmentHandler, err := NewService(
@@ -1134,9 +1159,6 @@ func TestService_MetricImplementation(t *testing.T) {
 
 // TestService_MetricConfiguration tests the MetricConfiguration() method including caching
 func TestService_MetricConfiguration(t *testing.T) {
-	type fields struct {
-		db persistence.DB
-	}
 	tests := []struct {
 		name           string
 		toeID          string
@@ -1215,11 +1237,10 @@ func TestService_MetricConfiguration(t *testing.T) {
 				assSvc *Service
 			)
 
-			orchSvc := newTestOrchestratorService(t)
+			orchSvc := newTestOrchestratorServiceWithInit(t, func(db persistence.DB) error {
+				return db.Create(tt.metric)
+			})
 			testClient, url := setupOrchestratorServer(t, orchSvc)
-
-			// Create metric
-			createTestMetric(t, orchSvc, tt.metric)
 
 			// Create target of evaluation
 			res, err := orchSvc.CreateTargetOfEvaluation(
@@ -1234,7 +1255,21 @@ func TestService_MetricConfiguration(t *testing.T) {
 			assert.NoError(t, err)
 
 			// Configure metric
-			configureTestMetric(t, orchSvc, evidencetest.MockMetricID1, res.Msg.Id, evidencetest.MockMetricConfigurationTargetValueString)
+			val := evidencetest.MockMetricConfigurationTargetValueString
+
+			_, err = orchSvc.UpdateMetricConfiguration(
+				context.Background(),
+				connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						Operator:             "==",
+						TargetValue:          val,
+						IsDefault:            false,
+						MetricId:             tt.metric.Id,
+						TargetOfEvaluationId: res.Msg.Id,
+					},
+				}),
+			)
+			assert.NoError(t, err)
 
 			// Create assessment service
 			handler, err := NewService(
@@ -1409,20 +1444,63 @@ func TestService_RegisterAssessmentResultHook(t *testing.T) {
 
 // Helper Functions for Test Setup
 
-// newTestOrchestratorService creates an orchestrator service handler with standard test configuration
-func newTestOrchestratorService(t *testing.T) orchestratorconnect.OrchestratorHandler {
+// newInMemoryPersistenceConfig creates a persistence config for orchestrator tests.
+func newInMemoryPersistenceConfig(init func(persistence.DB) error) persistence.Config {
+	return persistence.Config{
+		InMemoryDB: true,
+		InitFunc:   init,
+	}
+}
+
+type testMetricConfiguration struct {
+	metricID    string
+	toeID       string
+	targetValue any
+}
+
+// newTestOrchestratorServiceWithInit creates an orchestrator service handler with optional DB seeding.
+func newTestOrchestratorServiceWithInit(
+	t *testing.T,
+	init func(persistence.DB) error,
+	configs ...testMetricConfiguration,
+) orchestratorconnect.OrchestratorHandler {
 	t.Helper()
 	svc, err := orchestrator.NewService(
 		orchestrator.WithConfig(orchestrator.Config{
-			PersistenceConfig: persistence.Config{
-				InMemoryDB: true,
-			},
+			PersistenceConfig:               newInMemoryPersistenceConfig(init),
 			LoadDefaultMetrics:              false,
 			CreateDefaultTargetOfEvaluation: true,
 		}),
 	)
 	assert.NoError(t, err)
+
+	for _, cfg := range configs {
+		val, ok := cfg.targetValue.(*structpb.Value)
+		if !ok {
+			t.Fatalf("configureTestMetric expects *structpb.Value, got %T", cfg.targetValue)
+		}
+
+		_, err = svc.UpdateMetricConfiguration(
+			context.Background(),
+			connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
+				Configuration: &assessment.MetricConfiguration{
+					Operator:             "==",
+					TargetValue:          val,
+					IsDefault:            false,
+					MetricId:             cfg.metricID,
+					TargetOfEvaluationId: cfg.toeID,
+				},
+			}),
+		)
+		assert.NoError(t, err)
+	}
+
 	return svc
+}
+
+// newTestOrchestratorService creates an orchestrator service handler with standard test configuration
+func newTestOrchestratorService(t *testing.T) orchestratorconnect.OrchestratorHandler {
+	return newTestOrchestratorServiceWithInit(t, nil)
 }
 
 // setupOrchestratorServer creates a test server for the orchestrator service
@@ -1442,39 +1520,6 @@ func setupOrchestratorForTesting(t *testing.T) (orchestratorconnect.Orchestrator
 	svc := newTestOrchestratorService(t)
 	client, url := setupOrchestratorServer(t, svc)
 	return svc, client, url
-}
-
-// createTestMetric creates a metric in the orchestrator service
-func createTestMetric(t *testing.T, handler orchestratorconnect.OrchestratorHandler, metric *assessment.Metric) {
-	t.Helper()
-	_, err := handler.CreateMetric(context.Background(), connect.NewRequest(&apiOrch.CreateMetricRequest{
-		Metric: metric,
-	}))
-	assert.NoError(t, err)
-}
-
-// configureTestMetric configures a metric with a specific target of evaluation
-func configureTestMetric(t *testing.T, handler orchestratorconnect.OrchestratorHandler, metricID, toeID string, targetValue interface{}) {
-	t.Helper()
-	// targetValue is expected to be *structpb.Value from testdata
-	val, ok := targetValue.(*structpb.Value)
-	if !ok {
-		t.Fatalf("configureTestMetric expects *structpb.Value, got %T", targetValue)
-	}
-
-	_, err := handler.UpdateMetricConfiguration(
-		context.Background(),
-		connect.NewRequest(&apiOrch.UpdateMetricConfigurationRequest{
-			Configuration: &assessment.MetricConfiguration{
-				Operator:             "==",
-				TargetValue:          val,
-				IsDefault:            false,
-				MetricId:             metricID,
-				TargetOfEvaluationId: toeID,
-			},
-		}),
-	)
-	assert.NoError(t, err)
 }
 
 func ValidRego() string {

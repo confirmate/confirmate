@@ -27,6 +27,22 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// assessmentFlags contains the flags that are specific to configuring the assessment service.
+var assessmentFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "assessment-orchestrator-address",
+		Usage:   "Address of the orchestrator service the assessment service connects to",
+		Value:   assessment.DefaultOrchestratorURL,
+		Sources: envVarSources("assessment-orchestrator-address"),
+	},
+	&cli.StringFlag{
+		Name:    "assessment-rego-package",
+		Usage:   "Rego package to use for assessments",
+		Value:   assessment.DefaultConfig.RegoPackage,
+		Sources: envVarSources("assessment-rego-package"),
+	},
+}
+
 // AssessmentCommand is the command to start the assessment server.
 var AssessmentCommand = &cli.Command{
 	Name:  "assessment",
@@ -58,41 +74,14 @@ var AssessmentCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
+			server.WithReflection(),
 		)
 	},
-	Flags: []cli.Flag{
-		&cli.Uint16Flag{
-			Name:  "api-port",
-			Usage: "Port to run the API server (Connect, gRPC, REST) on",
-			Value: server.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: server.DefaultConfig.LogLevel,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-origins",
-			Usage: "Specifies the origins allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedOrigins,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-methods",
-			Usage: "Specifies the methods allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedMethods,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-headers",
-			Usage: "Specifies the headers allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedHeaders,
-		},
-		&cli.StringFlag{
-			Name:  "assessment-orchestrator-address",
-			Usage: "Address of the orchestrator service the assessment service connects to",
-		},
-		&cli.StringFlag{
-			Name:  "assessment-rego-package",
-			Usage: "Rego package to use for assessments",
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		apiFlags,
+		authFlags,
+		serviceAuthFlags,
+		assessmentFlags,
+	),
 }

@@ -24,11 +24,13 @@ import (
 	"sync"
 	"testing"
 
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/cli/commands"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
+	evidencesvc "confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
@@ -74,10 +76,11 @@ func ensureHarness(t *testing.T) error {
 
 func newTestServer(t *testing.T) (*httptest.Server, error) {
 	var (
-		err     error
-		svc     orchestratorconnect.OrchestratorHandler
-		srv     *server.Server
-		testSrv *httptest.Server
+		err        error
+		svc        orchestratorconnect.OrchestratorHandler
+		evidenceSvc evidenceconnect.EvidenceStoreHandler
+		srv        *server.Server
+		testSrv    *httptest.Server
 	)
 
 	svc, err = orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
@@ -97,8 +100,16 @@ func newTestServer(t *testing.T) (*httptest.Server, error) {
 		return nil, err
 	}
 
+	evidenceSvc, err = evidencesvc.NewService(evidencesvc.WithConfig(evidencesvc.Config{
+		PersistenceConfig: persistence.Config{InMemoryDB: true},
+	}))
+	if err != nil {
+		return nil, err
+	}
+
 	srv, testSrv = servertest.NewTestConnectServer(t,
 		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(evidenceSvc)),
 	)
 	_ = srv
 

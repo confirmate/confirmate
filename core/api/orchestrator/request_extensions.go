@@ -93,3 +93,13 @@ func (r *UpdateMetricImplementationRequest) GetPayload() proto.Message {
 func (r *StoreAssessmentResultRequest) GetPayload() proto.Message {
 	return r.GetResult()
 }
+
+// GetTargetOfEvaluationId returns the target of evaluation ID from [ListAssessmentResultsRequest].
+func (r *ListAssessmentResultsRequest) GetTargetOfEvaluationId() string {
+	return r.GetFilter().GetTargetOfEvaluationId()
+}
+
+// GetTargetOfEvaluationId returns the target of evaluation ID from [ListAuditScopesRequest].
+func (r *ListAuditScopesRequest) GetTargetOfEvaluationId() string {
+	return r.GetFilter().GetTargetOfEvaluationId()
+}
