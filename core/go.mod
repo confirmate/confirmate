@@ -9,16 +9,16 @@ require (
 	github.com/lmittmann/tint v1.1.3
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.21
-	github.com/oxisto/oauth2go v0.15.0
+	github.com/oxisto/oauth2go v0.16.0
 	github.com/urfave/cli/v3 v3.8.0
-	golang.org/x/oauth2 v0.30.0
-	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/oauth2 v0.36.0
+	golang.org/x/sys v0.43.0 // indirect
 )
 
 // runtime dependencies - auth
 require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
-	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 )
 
 // runtime dependencies - protobuf/Connect
@@ -46,9 +46,9 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/proullon/ramsql v0.1.4
-	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
@@ -99,9 +99,9 @@ require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
-	golang.org/x/mod v0.32.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/tools v0.41.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 )
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
