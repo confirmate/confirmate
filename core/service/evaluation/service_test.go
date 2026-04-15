@@ -1851,3 +1851,249 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		})
 	}
 }
+
+func TestService_StartEvaluation(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		req *connect.Request[evaluation.StartEvaluationRequest]
+	}
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		catalogControls    map[string]map[string]*orchestrator.Control
+		scheduler          *gocron.Scheduler
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evaluation.StartEvaluationResponse]]
+		wantSvc assert.Want[*Service]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: evaluation already started for audit scope",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithControls(
+						evaluationtest.MockControl1.Controls,
+						evaluationtest.MockControl2.Controls,
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+				),
+				scheduler: func() *gocron.Scheduler {
+					s := gocron.NewScheduler(time.Local)
+					_, err := s.Every(1).
+						Day().
+						Tag(evaluationtest.MockAuditScopeId1).
+						Do(func() { fmt.Println("Scheduler") })
+					assert.NoError(t, err)
+
+					return s
+				}(),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want:    assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantSvc: assert.NotNil[*Service],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeAlreadyExists) &&
+					assert.ErrorContains(t, err, "evaluation already started for the given audit scope")
+			},
+		},
+		{
+			name: "err: gettging catalog error",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithControls(
+						evaluationtest.MockControl1.Controls,
+						evaluationtest.MockControl2.Controls,
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithGetCatalogNotFoundError(fmt.Errorf("catalog not found")),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want:    assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantSvc: assert.NotNil[*Service],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not get catalog from the orchestrator")
+			},
+		},
+		{
+			name: "err: getting controls from orchestrator returns error",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(&orchestrator.AuditScope{
+						Id:                   evaluationtest.MockAuditScopeId1,
+						TargetOfEvaluationId: evaluationtest.MockToeId1,
+					})),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			want:    assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantSvc: assert.NotNil[*Service],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not cache controls")
+			},
+		},
+		{
+			name: "err: GetAuditScope returns error",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t),
+			},
+			want: assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
+			},
+			wantSvc: assert.NotNil[*Service],
+		},
+		{
+			name: "err: invalid request - empty request",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{}),
+			},
+			want: assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+			wantSvc: assert.NotNil[*Service],
+		},
+		{
+			name: "happy path: with interval argument",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+					Interval:     new((int32(10))),
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithControls(
+						evaluationtest.MockControl1.Controls,
+						evaluationtest.MockControl2.Controls,
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.StartEvaluationResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				return assert.True(t, got.Msg.GetSuccessful())
+			},
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
+				return assert.Equal(t, 10, got.scheduler.Jobs()[0].ScheduledInterval())
+			},
+		},
+		{
+			name: "happy path",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithControls(
+						evaluationtest.MockControl1.Controls,
+						evaluationtest.MockControl2.Controls,
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
+						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.StartEvaluationResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				return assert.True(t, got.Msg.GetSuccessful())
+			},
+			wantSvc: assert.NotNil[*Service],
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			svc := Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				catalogControls:    tt.fields.catalogControls,
+				scheduler:          tt.fields.scheduler,
+			}
+			got, gotErr := svc.StartEvaluation(tt.args.ctx, tt.args.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
+			tt.wantSvc(t, &svc)
+		})
+	}
+}

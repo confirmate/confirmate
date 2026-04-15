@@ -218,24 +218,6 @@ var (
 		Controls: []*orchestrator.Control{
 			MockSubcontrol11,
 			MockSubcontrol12,
-			// {
-			// Id:   MockSubcontrolId11,
-			// Name: MockSubcontrolName11,
-			// 	CategoryName:                   MockCategoryName1,
-			// 	CategoryCatalogId:              MockCatalogId1,
-			// 	Description:                    MockSubcontrolDescription11,
-			// 	AssuranceLevel:                 new("basic"),
-			// 	ParentControlId:                new(MockControlId1),
-			// 	ParentControlCategoryName:      new(MockCategoryName1),
-			// 	ParentControlCategoryCatalogId: new(MockCatalogId1),
-			// 	Metrics: []*assessment.Metric{{
-			// 		Id:          MockMetricId1,
-			// 		Name:        MockMetricName1,
-			// 		Description: MockMetricDescription1,
-			// 		Category:    MockMetricCategory1,
-			// 		Version:     MockDefaultVersion,
-			// 		Comments:    new(MockMetricComments1),
-			// }}},
 		}}
 	MockSubcontrol11 = &orchestrator.Control{
 		Id:                MockSubcontrolId11,
@@ -283,25 +265,6 @@ var (
 		Description:       MockControlDescription2,
 		Controls: []*orchestrator.Control{
 			MockSubcontrol21,
-			// {
-			// Id:                             MockSubcontrolID21,
-			// Name:                           MockControlName2,
-			// CategoryName:                   MockCategoryName1,
-			// CategoryCatalogId:              MockCatalogId1,
-			// Description:                    MockControlDescription2,
-			// AssuranceLevel:                 new("basic"),
-			// ParentControlId:                new(MockControlId2),
-			// ParentControlCategoryName:      new(MockCategoryName1),
-			// ParentControlCategoryCatalogId: new(MockCatalogId1),
-			// Metrics: []*assessment.Metric{{
-			// 	Id:          MockMetricId2,
-			// 	Name:        MockMetricName2,
-			// 	Description: MockMetricDescription2,
-			// 	Category:    MockMetricCategory2,
-			// 	Version:     MockDefaultVersion,
-			// 	Comments:    new("This is a comment"),
-			// }},
-			// },
 		},
 	}
 	MockSubcontrol21 = &orchestrator.Control{

@@ -21,16 +21,29 @@ import (
 // mockOrchestratorHandler is a mock implementation of the orchestrator service for testing
 type mockOrchestratorHandler struct {
 	orchestratorconnect.UnimplementedOrchestratorHandler
-	controls                   []*orchestrator.Control
-	listError                  error
-	listAssessmentResultError  error
-	getAuditScopeNotFoundError error
-	assessmentResults          []*assessment.AssessmentResult
+	// ListControls support
+	controls  []*orchestrator.Control
+	listError error
+
+	// ListAssessmentResults support
+	assessmentResults         []*assessment.AssessmentResult
+	listAssessmentResultError error
+
+	// GetAuditScope support
 	auditScope                 *orchestrator.AuditScope
-	evaluationResults          []*evaluation.EvaluationResult
-	listEvalError              error
-	storeEvalError             error
-	mu                         sync.Mutex
+	getAuditScopeNotFoundError error
+	getAuditScopeError         error
+
+	// GetCatalog support
+	catalog                 *orchestrator.Catalog
+	getCatalogNotFoundError error
+	getCatalogError         error
+
+	// ListEvaluation support
+	evaluationResults []*evaluation.EvaluationResult
+	listEvalError     error
+	storeEvalError    error
+	mu                sync.Mutex
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -158,15 +171,40 @@ func (m *mockOrchestratorHandler) ListEvaluationResults(
 	}), nil
 }
 
-// GetAuditScope returns audit scopes or an error if configured
+// GetAuditScope returns audit scope or an error if configured
 func (m *mockOrchestratorHandler) GetAuditScope(
 	_ context.Context,
 	_ *connect.Request[orchestrator.GetAuditScopeRequest],
 ) (*connect.Response[orchestrator.AuditScope], error) {
+	// 1) allow forcing an arbitrary error (e.g. internal)
+	if m.getAuditScopeError != nil {
+		return nil, m.getAuditScopeError
+	}
+
+	// 2) simulate "not found"
 	if m.auditScope == nil {
 		return nil, m.getAuditScopeNotFoundError
 	}
-	return &connect.Response[orchestrator.AuditScope]{Msg: m.auditScope}, nil
+
+	return connect.NewResponse(m.auditScope), nil
+}
+
+// GetCatalog returns catalog or an error if configured
+func (m *mockOrchestratorHandler) GetCatalog(
+	_ context.Context,
+	_ *connect.Request[orchestrator.GetCatalogRequest],
+) (*connect.Response[orchestrator.Catalog], error) {
+	// 1) allow forcing an arbitrary error (e.g. internal)
+	if m.getCatalogError != nil {
+		return nil, m.getCatalogError
+	}
+
+	// 2) simulate "not found"
+	if m.catalog == nil {
+		return nil, m.getCatalogNotFoundError
+	}
+
+	return connect.NewResponse(m.catalog), nil
 }
 
 // newOrchestratorTestServer creates a mock orchestrator server for testing
@@ -239,9 +277,52 @@ func WithEvaluationResults(results []*evaluation.EvaluationResult) func(*mockOrc
 	return func(h *mockOrchestratorHandler) { h.evaluationResults = results }
 }
 
-// WithControls seeds the handler with controls.
-func WithControls(controls []*orchestrator.Control) func(*mockOrchestratorHandler) {
-	return func(h *mockOrchestratorHandler) { h.controls = controls }
+// WithControls seeds the handler with controls. It accepts one or more control lists and flattens them.
+func WithControls(lists ...[]*orchestrator.Control) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) {
+		var combined []*orchestrator.Control
+		for _, l := range lists {
+			combined = append(combined, l...)
+		}
+		h.controls = combined
+	}
+}
+
+// WithAdditionalControls appends controls to any already configured controls.
+func WithAdditionalControls(controls ...*orchestrator.Control) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) {
+		h.controls = append(h.controls, controls...)
+	}
+}
+
+// WithAuditScope seeds the handler with an audit scope returned by GetAuditScope.
+func WithAuditScope(scope *orchestrator.AuditScope) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.auditScope = scope }
+}
+
+// WithGetAuditScopeError forces GetAuditScope to return the given error.
+func WithGetAuditScopeError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.getAuditScopeError = err }
+}
+
+// WithGetAuditScopeNotFoundError configures the error returned when auditScope is nil.
+func WithGetAuditScopeNotFoundError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.getAuditScopeNotFoundError = err }
+}
+
+// WithCatalog seeds the handler with a catalog returned by GetCatalog.
+func WithCatalog(catalog *orchestrator.Catalog) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.catalog = catalog }
+}
+
+// WithGetCatalogError forces GetCatalog to return the given error.
+func WithGetCatalogError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.getCatalogError = err }
+}
+
+// WithGetCatalogNotFoundError configures the error returned when catalog is nil.
+func WithGetCatalogNotFoundError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.getCatalogNotFoundError = err }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog
