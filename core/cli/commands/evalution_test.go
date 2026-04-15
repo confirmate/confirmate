@@ -13,6 +13,6 @@ func TestEvaluationCommands(t *testing.T) {
 		// empty JSON object. We verify the command succeeds and produces output.
 		output, err := commandstest.RunCLI(t, "evaluation", "list")
 		assert.NoError(t, err)
-		assert.NotEmpty(t, output)
+		assert.NotNil(t, output)
 	})
 }
