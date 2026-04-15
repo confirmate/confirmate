@@ -3,15 +3,19 @@ package evaluation
 import (
 	"context"
 	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // mockOrchestratorHandler is a mock implementation of the orchestrator service for testing
@@ -23,6 +27,10 @@ type mockOrchestratorHandler struct {
 	getAuditScopeNotFoundError error
 	assessmentResults          []*assessment.AssessmentResult
 	auditScope                 *orchestrator.AuditScope
+	evaluationResults          []*evaluation.EvaluationResult
+	listEvalError              error
+	storeEvalError             error
+	mu                         sync.Mutex
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -97,6 +105,56 @@ func (m *mockOrchestratorHandler) ListAssessmentResults(
 
 	return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
 		Results: results,
+	}), nil
+}
+
+// StoreEvaluationResult stores the result in-memory so tests can verify it via ListEvaluationResults.
+func (m *mockOrchestratorHandler) StoreEvaluationResult(
+	_ context.Context,
+	req *connect.Request[orchestrator.StoreEvaluationResultRequest],
+) (*connect.Response[evaluation.EvaluationResult], error) {
+	if m.storeEvalError != nil {
+		return nil, m.storeEvalError
+	}
+
+	if r := req.Msg.GetResult(); r != nil {
+		m.mu.Lock()
+		m.evaluationResults = append(m.evaluationResults, r)
+		m.mu.Unlock()
+	}
+
+	eval := &evaluation.EvaluationResult{
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		ControlCategoryName:  req.Msg.GetResult().GetControlCategoryName(),
+		ControlCatalogId:     req.Msg.GetResult().GetControlCatalogId(),
+		ControlId:            req.Msg.GetResult().GetControlId(),
+		ParentControlId:      req.Msg.GetResult().ParentControlId,
+		TargetOfEvaluationId: req.Msg.GetResult().GetTargetOfEvaluationId(),
+		AuditScopeId:         req.Msg.GetResult().GetAuditScopeId(),
+		Status:               req.Msg.GetResult().GetStatus(),
+		AssessmentResultIds:  req.Msg.GetResult().GetAssessmentResultIds(),
+	}
+
+	return connect.NewResponse(eval), nil
+}
+
+// ListEvaluationResults returns the evaluation results stored via StoreEvaluationResult.
+func (m *mockOrchestratorHandler) ListEvaluationResults(
+	_ context.Context,
+	_ *connect.Request[orchestrator.ListEvaluationResultsRequest],
+) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error) {
+	if m.listEvalError != nil {
+		return nil, m.listEvalError
+	}
+
+	m.mu.Lock()
+	out := make([]*evaluation.EvaluationResult, len(m.evaluationResults))
+	copy(out, m.evaluationResults)
+	m.mu.Unlock()
+
+	return connect.NewResponse(&orchestrator.ListEvaluationResultsResponse{
+		Results: out,
 	}), nil
 }
 

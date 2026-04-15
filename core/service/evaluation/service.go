@@ -596,6 +596,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	}))
 	if err != nil {
 		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
+		return
 	}
 
 	slog.Info("Evaluation result created",
