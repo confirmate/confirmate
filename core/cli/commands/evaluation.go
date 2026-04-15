@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"confirmate.io/core/api/evaluation"
+	"confirmate.io/core/api/orchestrator"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
@@ -53,7 +54,7 @@ func EvaluationResultsListCommand() *cli.Command {
 			},
 		}, PaginationFlags()...),
 		Action: func(ctx context.Context, c *cli.Command) error {
-			req := &evaluation.ListEvaluationResultsRequest{
+			req := &orchestrator.ListEvaluationResultsRequest{
 				PageSize:          int32(c.Int("page-size")),
 				PageToken:         c.String("page-token"),
 				LatestByControlId: new(c.Bool("latest")),
@@ -61,7 +62,7 @@ func EvaluationResultsListCommand() *cli.Command {
 
 			// Apply filters if provided
 			if c.String("target") != "" || c.String("catalog") != "" || c.String("control") != "" || c.String("subcontrol") != "" || c.IsSet("parent") || c.IsSet("valid-manual-only") {
-				filter := &evaluation.ListEvaluationResultsRequest_Filter{}
+				filter := &orchestrator.ListEvaluationResultsRequest_Filter{}
 
 				if targetID := c.String("target"); targetID != "" {
 					filter.TargetOfEvaluationId = &targetID
@@ -86,7 +87,7 @@ func EvaluationResultsListCommand() *cli.Command {
 				req.Filter = filter
 			}
 
-			client := EvaluationClient(ctx, c)
+			client := OrchestratorClient(ctx, c)
 			resp, err := client.ListEvaluationResults(ctx, connect.NewRequest(req))
 			if err != nil {
 				return err
