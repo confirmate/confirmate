@@ -40,7 +40,6 @@ const (
 // [evaluationconnect.EvaluationHandler]).
 type Service struct {
 	evaluationconnect.UnimplementedEvaluationHandler
-	db  persistence.DB
 	cfg Config
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
@@ -90,14 +89,6 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 
 	for _, o := range opts {
 		o(svc)
-	}
-
-	// Initialize the database with the defined auto-migration types and join tables
-	pcfg := svc.cfg.PersistenceConfig
-	pcfg.Types = types
-	svc.db, err = persistence.NewDB(persistence.WithConfig(pcfg))
-	if err != nil {
-		return nil, fmt.Errorf("could not create db: %w", err)
 	}
 
 	// Initialize the Orchestrator client

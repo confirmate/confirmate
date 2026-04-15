@@ -31,36 +31,11 @@ func TestNewService(t *testing.T) {
 		opts []service.Option[Service]
 	}
 	tests := []struct {
-		name string
-		// Named input parameters for target function.
+		name    string
 		args    args
 		want    assert.Want[evaluationconnect.EvaluationHandler]
 		wantErr assert.WantErr
 	}{
-		{
-			name: "db error - creating db with invalid config",
-			args: args{
-				opts: []service.Option[Service]{
-					WithConfig(Config{
-						PersistenceConfig: persistence.Config{
-							Host:             "localhost",
-							Port:             5432,
-							DBName:           "confirmate",
-							User:             "confirmate",
-							Password:         "confirmate",
-							SSLMode:          "disable",
-							MaxConn:          10,
-							InMemoryDB:       false,
-							Types:            []any{},
-							CustomJoinTables: []persistence.CustomJoinTable{},
-						}}),
-				},
-			},
-			want: assert.Nil[evaluationconnect.EvaluationHandler],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "could not create db:")
-			},
-		},
 		{
 			name: "happy path with WithConfig option",
 			args: args{
@@ -78,7 +53,6 @@ func TestNewService(t *testing.T) {
 				if !ok {
 					t.Fatalf("expected *Service, got %T", got)
 				}
-				assert.NotEmpty(t, svc.db)
 				assert.Equal(t, Config{
 					OrchestratorAddress: "http://testhost:8080",
 					OrchestratorClient:  http.DefaultClient,
@@ -102,7 +76,6 @@ func TestNewService(t *testing.T) {
 				if !ok {
 					t.Fatalf("expected *Service, got %T", got)
 				}
-				assert.NotEmpty(t, svc.db)
 				assert.Equal(t, DefaultConfig, svc.cfg)
 				assert.NotEmpty(t, svc.scheduler)
 				assert.NotEmpty(t, orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress), svc.orchestratorClient)
