@@ -274,7 +274,6 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		ignored  []string
 		manual   map[string][]*evaluation.EvaluationResult
 		err      error
-		g        *errgroup.Group
 		cancel   context.CancelFunc
 	)
 
@@ -350,10 +349,10 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	ctx, cancel = context.WithTimeout(ctx, time.Duration(interval)*time.Minute/2)
 	defer cancel()
 
-	g, ctx = errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	for _, control := range relevant {
 		g.Go(func() error {
-			err := svc.evaluateControl(ctx, auditScope, catalog, control, manual[control.Id], interval)
+			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id], interval)
 			if err != nil {
 				return err
 			}
@@ -382,8 +381,6 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		assessmentResultIds = []string{}
 		relevant            []*orchestrator.Control
 		ignored             []string
-		g                   *errgroup.Group
-		cancel              context.CancelFunc
 	)
 
 	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
@@ -414,19 +411,15 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	// Prepare the results slice
 	results = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
 
-	// We are using a timeout of half the interval, so that we are not running into overlapping executions
-	ctx, cancel = context.WithTimeout(ctx, time.Duration(interval)*time.Minute/2)
-	defer cancel()
-
-	g, ctx = errgroup.WithContext(ctx)
+	// Subcontrols parallel auswerten.
+	g, gctx := errgroup.WithContext(ctx)
 	for i, sub := range relevant {
 		g.Go(func() error {
-			result, err := svc.evaluateSubcontrol(ctx, auditScope, sub)
+			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub)
 			if err != nil {
 				return err
 			}
-
-			results[i] = result
+			results[i] = r
 			return nil
 		})
 	}
