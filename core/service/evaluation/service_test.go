@@ -1164,7 +1164,7 @@ func TestService_evaluateControl(t *testing.T) {
 					ControlCategoryName:  evaluationtest.MockCategoryName1,
 					ControlCatalogId:     evaluationtest.MockCatalogId1,
 					ParentControlId:      nil,
-					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 					Comment:              nil,
 					ValidUntil:           nil,
 					Data:                 nil,

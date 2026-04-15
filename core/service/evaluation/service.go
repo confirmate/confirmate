@@ -437,15 +437,15 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		// Note: Depending on the ordering of the (sub)controls, we might lose some resultIds. Because manual results
 		// are appended to the end (see above), it should be good, though. Also you could argue it doesn't matter with
 		// a manual result.
+		// If we have a manual compliant result for the parent control, we can skip all sub-controls and set the status to compliant manually. We can do this because the parent control is evaluated as compliant manually regardless of the sub-control results.
 		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach (maybe add all sub controls of a manual result to the ignored list)
-		if r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
+		if r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY && r.ParentControlId == nil {
 			status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY
 			continue
 		}
 
 		// status is the current evaluation status, r.Status is the status of the evaluation result of the subcontrol
 		// Note: Status should only contain the evaluation status without _MANUALLY!
-		// TODO(lebogg): Why "without _MANUALLY"? Then maybe my fix above is not right.
 		switch status {
 		case evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:
 			// check the given evaluation result for the current evaluation status PENDING
@@ -455,7 +455,6 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 			status = handleCompliant(r)
 		case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT, evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
 			// Evaluation status does not change if it is already not_compliant
-			// TODO(lebogg): It can change if parent controls are manually set to compliant (see above). Currently it works for two layered controls.
 		}
 
 		// We are interested in all result IDs in order to provide a trace back from evaluation result back to assessment (and evidence).
