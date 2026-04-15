@@ -352,9 +352,8 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 
 	g, ctx = errgroup.WithContext(ctx)
 	for _, control := range relevant {
-		control := control // https://golang.org/doc/faq#closures_and_goroutines needed until Go 1.22 (loopvar)
 		g.Go(func() error {
-			err := svc.evaluateControl(ctx, auditScope, catalog, control, manual[control.Id])
+			err := svc.evaluateControl(ctx, auditScope, catalog, control, manual[control.Id], interval)
 			if err != nil {
 				return err
 			}
@@ -375,14 +374,16 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 
 // evaluateControl evaluates a control, e.g., OPS-13. Therefore, the method needs to wait till all sub-controls (e.g.,
 // OPS-13.1) are evaluated.
-func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult) (err error) {
+func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult, interval int) (err error) {
 	var (
-		status   = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
-		result   *evaluation.EvaluationResult
-		results  []*evaluation.EvaluationResult
-		relevant []*orchestrator.Control
-		ignored  []string
-		g        *errgroup.Group
+		status              = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
+		result              *evaluation.EvaluationResult
+		results             []*evaluation.EvaluationResult
+		assessmentResultIds = []string{}
+		relevant            []*orchestrator.Control
+		ignored             []string
+		g                   *errgroup.Group
+		cancel              context.CancelFunc
 	)
 
 	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
@@ -413,9 +414,12 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	// Prepare the results slice
 	results = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
 
+	// We are using a timeout of half the interval, so that we are not running into overlapping executions
+	ctx, cancel = context.WithTimeout(ctx, time.Duration(interval)*time.Minute/2)
+	defer cancel()
+
 	g, ctx = errgroup.WithContext(ctx)
 	for i, sub := range relevant {
-		// i, sub := i, sub // https://golang.org/doc/faq#closures_and_goroutines needed until Go 1.22 (loopvar)
 		g.Go(func() error {
 			result, err := svc.evaluateSubcontrol(ctx, auditScope, sub)
 			if err != nil {
@@ -436,8 +440,6 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 
 	// Copy the manual results
 	copy(results[len(relevant):], manual)
-
-	var resultIds = []string{}
 
 	for _, r := range results {
 		// Special case: If the evaluation result of the parent control was set to "COMPLIANT MANUALLY", the whole
@@ -467,7 +469,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		}
 
 		// We are interested in all result IDs in order to provide a trace back from evaluation result back to assessment (and evidence).
-		resultIds = append(resultIds, r.AssessmentResultIds...)
+		assessmentResultIds = append(assessmentResultIds, r.AssessmentResultIds...)
 	}
 
 	// Create evaluation result
@@ -480,7 +482,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
 		AuditScopeId:         auditScope.Id,
 		Status:               status,
-		AssessmentResultIds:  resultIds,
+		AssessmentResultIds:  assessmentResultIds,
 	}
 
 	_, err = svc.orchestratorClient.StoreEvaluationResult(ctx, connect.NewRequest(&orchestrator.StoreEvaluationResultRequest{
@@ -488,6 +490,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	}))
 	if err != nil {
 		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
+		return errors.New("failed to send evaluation result to orchestrator")
 	}
 
 	slog.Info("Evaluation result created",
@@ -596,7 +599,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	}))
 	if err != nil {
 		slog.Error("Failed to send evaluation result to orchestrator", log.Err(err))
-		return
+		return nil, errors.New("failed to send evaluation result to orchestrator")
 	}
 
 	slog.Info("Evaluation result created",
