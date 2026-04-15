@@ -69,18 +69,22 @@ echo "      PID ${PID_UI} — logs: logs/ui.log"
 
 # ── 4. Set up jep virtualenv for Python frontend ─────────────────────────────
 echo "[4/5] Setting up Python virtualenv with jep..."
-mkdir -p ~/.virtualenvs
+VENV_DIR="${REPO_ROOT}/.venv"
 # Recreate the venv if the interpreter it was built with is gone
-if [[ -d ~/.virtualenvs/cpg ]] && ! ~/.virtualenvs/cpg/bin/python3 -c "" 2>/dev/null; then
-  rm -rf ~/.virtualenvs/cpg
+if [[ -d "${VENV_DIR}" ]] && ! "${VENV_DIR}/bin/python3" -c "" 2>/dev/null; then
+  rm -rf "${VENV_DIR}"
 fi
-if [[ ! -d ~/.virtualenvs/cpg ]]; then
-  python3 -m venv ~/.virtualenvs/cpg
+if [[ ! -d "${VENV_DIR}" ]]; then
+  python3 -m venv "${VENV_DIR}"
 fi
 # shellcheck disable=SC1090
-source ~/.virtualenvs/cpg/bin/activate
+source "${VENV_DIR}/bin/activate"
 pip3 install --quiet "jep==4.3.1"
 deactivate
+
+# Locate the jep native library so the JVM can find it
+JEP_LIBRARY_PATH="$("${VENV_DIR}/bin/python3" -c "import sysconfig; print(sysconfig.get_path('purelib'))")/jep"
+export JEP_LIBRARY_PATH
 
 # ── 5. Start the code-analysis collector ──────────────────────────────────────
 echo "[5/5] Starting code-analysis collector..."
