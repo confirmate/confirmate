@@ -352,7 +352,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	g, gctx := errgroup.WithContext(ctx)
 	for _, control := range relevant {
 		g.Go(func() error {
-			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id], interval)
+			err := svc.evaluateControl(gctx, auditScope, catalog, control, manual[control.Id])
 			if err != nil {
 				return err
 			}
@@ -373,11 +373,11 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 
 // evaluateControl evaluates a control, e.g., OPS-13. Therefore, the method needs to wait till all sub-controls (e.g.,
 // OPS-13.1) are evaluated.
-func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult, interval int) (err error) {
+func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, control *orchestrator.Control, manual []*evaluation.EvaluationResult) (err error) {
 	var (
 		status              = evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING
 		result              *evaluation.EvaluationResult
-		results             []*evaluation.EvaluationResult
+		evaluationResults   []*evaluation.EvaluationResult
 		assessmentResultIds = []string{}
 		relevant            []*orchestrator.Control
 		ignored             []string
@@ -409,9 +409,9 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		slog.Int("number of relevant controls for the audit scope", len(relevant)))
 
 	// Prepare the results slice
-	results = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
+	evaluationResults = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
 
-	// Subcontrols parallel auswerten.
+	// evaluate all subcontrols in parallel
 	g, gctx := errgroup.WithContext(ctx)
 	for i, sub := range relevant {
 		g.Go(func() error {
@@ -419,7 +419,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 			if err != nil {
 				return err
 			}
-			results[i] = r
+			evaluationResults[i] = r
 			return nil
 		})
 	}
@@ -432,16 +432,16 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	}
 
 	// Copy the manual results
-	copy(results[len(relevant):], manual)
+	copy(evaluationResults[len(relevant):], manual)
 
-	for _, r := range results {
+	for _, r := range evaluationResults {
 		// Special case: If the evaluation result of the parent control was set to "COMPLIANT MANUALLY", the whole
 		// control will be evaluated as compliant, regardless of the subcontrol results.
 		// Note: Depending on the ordering of the (sub)controls, we might lose some resultIds. Because manual results
 		// are appended to the end (see above), it should be good, though. Also you could argue it doesn't matter with
 		// a manual result.
 		// TODO(lebogg): This only works for two layered controls where we only have one parent control. For more than 1 sub controls we would need a more sophisticated approach (maybe add all sub controls of a manual result to the ignored list)
-		if r.ParentControlId == nil && r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
+		if r.Status == evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY {
 			status = evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY
 			continue
 		}
@@ -466,6 +466,9 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	}
 
 	// Create evaluation result
+	// slices.Compact only removes adjacent duplicates, so sort first to ensure full deduplication.
+	slices.Sort(assessmentResultIds)
+
 	result = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
@@ -475,7 +478,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
 		AuditScopeId:         auditScope.Id,
 		Status:               status,
-		AssessmentResultIds:  assessmentResultIds,
+		AssessmentResultIds:  slices.Compact(assessmentResultIds),
 	}
 
 	_, err = svc.orchestratorClient.StoreEvaluationResult(ctx, connect.NewRequest(&orchestrator.StoreEvaluationResultRequest{
