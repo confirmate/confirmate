@@ -283,11 +283,8 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		return strings.Compare(a.Id, b.Id)
 	})
 
-	// First, look for any manual evaluation results that are still within their validity period, to see whether we need
-	// to ignore some of the automated ones
-	//
-	// TODO(oxisto): Its problematic to use the context from the original StartEvaluation request, since this token
-	// might time out at some point
+	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
+	// TODO(oxisto): Its problematic to use the context from the original StartEvaluation request, since this token might time out at some point
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
 		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
 			TargetOfEvaluationId: &auditScope.TargetOfEvaluationId,
@@ -315,7 +312,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	// Gather a list of controls, we are ignoring
 	ignored = make([]string, 0, len(results))
 	for _, result := range results {
-		if result.ParentControlId != nil {
+		if result.GetParentControlId() != "" {
 			manual[*result.ParentControlId] = append(manual[*result.ParentControlId], result)
 		} else {
 			ignored = append(ignored, result.ControlId)
