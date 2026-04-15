@@ -208,18 +208,40 @@ func newOrchestratorClientForTest(testSrv *httptest.Server) orchestratorconnect.
 	return orchestratorconnect.NewOrchestratorClient(testSrv.Client(), testSrv.URL)
 }
 
-// newOrchestratorClientWithAssessmentResults creates a mock orchestrator client with assessment results for testing
-func newOrchestratorClientWithAssessmentResults(t *testing.T, assessmentResults []*assessment.AssessmentResult) orchestratorconnect.OrchestratorClient {
+// newOrchestratorClient creates a mock orchestrator client that can serve BOTH assessmentResults and evaluationResults.
+func newOrchestratorClient(
+	t *testing.T,
+	opts ...func(*mockOrchestratorHandler),
+) orchestratorconnect.OrchestratorClient {
 	t.Helper()
-	handler := &mockOrchestratorHandler{
-		assessmentResults: assessmentResults,
+
+	handler := &mockOrchestratorHandler{}
+	for _, opt := range opts {
+		opt(handler)
 	}
+
 	_, testSrv := servertest.NewTestConnectServer(
 		t,
 		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
 	)
 	t.Cleanup(testSrv.Close)
+
 	return newOrchestratorClientForTest(testSrv)
+}
+
+// WithAssessmentResults seeds the handler with assessment results.
+func WithAssessmentResults(results []*assessment.AssessmentResult) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.assessmentResults = results }
+}
+
+// WithEvaluationResults seeds the handler with evaluation results (visible via ListEvaluationResults).
+func WithEvaluationResults(results []*evaluation.EvaluationResult) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.evaluationResults = results }
+}
+
+// WithControls seeds the handler with controls.
+func WithControls(controls []*orchestrator.Control) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.controls = controls }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog

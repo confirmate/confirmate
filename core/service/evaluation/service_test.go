@@ -12,9 +12,9 @@ import (
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"google.golang.org/protobuf/testing/protocmp"
 
 	"confirmate.io/core/persistence"
-	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
@@ -24,35 +24,7 @@ import (
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
-	"google.golang.org/protobuf/testing/protocmp"
 )
-
-// type fakeOrchestratorHandler struct {
-// 	orchestratorconnect.UnimplementedOrchestratorHandler
-
-// 	mu      sync.Mutex
-// 	results []*evaluation.EvaluationResult
-// }
-
-// func (h *fakeOrchestratorHandler) StoreEvaluationResult(
-// 	ctx context.Context,
-// 	s *connect.BidiStream[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult],
-// ) error {
-// 	for {
-// 		req, err := s.Receive()
-// 		if err != nil {
-// 			return nil
-// 		}
-
-// 		if r := req.GetResult(); r != nil {
-// 			h.mu.Lock()
-// 			h.results = append(h.results, r)
-// 			h.mu.Unlock()
-// 		}
-
-// 		_ = s.Send(&evaluation.EvaluationResult{})
-// 	}
-// }
 
 func TestNewService(t *testing.T) {
 	type args struct {
@@ -1043,29 +1015,31 @@ func TestService_evaluateControl(t *testing.T) {
 				interval:   5,
 			},
 			fields: fields{
-				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-					{
-						Id:                   evaluationtest.MockAssessmentResultId1,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            true,
-						ResourceId:           "resource-1",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId2,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            true,
-						ResourceId:           "resource-2",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId3,
-						MetricId:             evaluationtest.MockMetricId2,
-						Compliant:            true,
-						ResourceId:           "resource-3",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-				}),
+				orchestratorClient: newOrchestratorClient(t,
+					WithAssessmentResults([]*assessment.AssessmentResult{
+						{
+							Id:                   evaluationtest.MockAssessmentResultId1,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId2,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId3,
+							MetricId:             evaluationtest.MockMetricId2,
+							Compliant:            true,
+							ResourceId:           "resource-3",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+					}),
+				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
@@ -1125,29 +1099,31 @@ func TestService_evaluateControl(t *testing.T) {
 				manual:     []*evaluation.EvaluationResult{evaluationtest.MockManualEvaluationResult1},
 			},
 			fields: fields{
-				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-					{
-						Id:                   evaluationtest.MockAssessmentResultId1,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            true,
-						ResourceId:           "resource-1",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId2,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            true,
-						ResourceId:           "resource-2",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId3,
-						MetricId:             evaluationtest.MockMetricId2,
-						Compliant:            true,
-						ResourceId:           "resource-3",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-				}),
+				orchestratorClient: newOrchestratorClient(t,
+					WithAssessmentResults([]*assessment.AssessmentResult{
+						{
+							Id:                   evaluationtest.MockAssessmentResultId1,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId2,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId3,
+							MetricId:             evaluationtest.MockMetricId2,
+							Compliant:            true,
+							ResourceId:           "resource-3",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+					}),
+				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
@@ -1207,22 +1183,24 @@ func TestService_evaluateControl(t *testing.T) {
 				control:    evaluationtest.MockControl1,
 			},
 			fields: fields{
-				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-					{
-						Id:                   evaluationtest.MockAssessmentResultId1,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            false,
-						ResourceId:           "resource-1",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId2,
-						MetricId:             evaluationtest.MockMetricId2,
-						Compliant:            false,
-						ResourceId:           "resource-2",
-						TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
-					},
-				}),
+				orchestratorClient: newOrchestratorClient(t,
+					WithAssessmentResults([]*assessment.AssessmentResult{
+						{
+							Id:                   evaluationtest.MockAssessmentResultId1,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            false,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId2,
+							MetricId:             evaluationtest.MockMetricId2,
+							Compliant:            false,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: "00000000-0000-0000-0000-000000000001",
+						},
+					}),
+				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
@@ -1295,7 +1273,6 @@ func TestService_evaluateCatalog(t *testing.T) {
 	}
 	type fields struct {
 		orchestratorClient orchestratorconnect.OrchestratorClient
-		db                 persistence.DB
 		catalogControls    map[string]map[string]*orchestrator.Control
 	}
 	tests := []struct {
@@ -1314,33 +1291,24 @@ func TestService_evaluateCatalog(t *testing.T) {
 				interval:   5,
 			},
 			fields: fields{
-				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-					{
-						Id:                   evaluationtest.MockAssessmentResultId1,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            true,
-						ResourceId:           "resource-1",
-						TargetOfEvaluationId: evaluationtest.MockToeId1,
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId2,
-						MetricId:             evaluationtest.MockMetricId2,
-						Compliant:            true,
-						ResourceId:           "resource-2",
-						TargetOfEvaluationId: evaluationtest.MockToeId1,
-					},
-				}),
-				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
-					{
-						Model:     orchestrator.TargetOfEvaluation{},
-						Field:     "ConfiguredMetrics",
-						JoinTable: assessment.MetricConfiguration{},
-					}}, func(d persistence.DB) {
-					err := d.Create(evaluationtest.MockCatalog1)
-					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockControl2)
-					assert.NoError(t, err)
-				}),
+				orchestratorClient: newOrchestratorClient(t,
+					WithAssessmentResults([]*assessment.AssessmentResult{
+						{
+							Id:                   evaluationtest.MockAssessmentResultId1,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: evaluationtest.MockToeId1,
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId2,
+							MetricId:             evaluationtest.MockMetricId2,
+							Compliant:            true,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: evaluationtest.MockToeId1,
+						},
+					}),
+				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
@@ -1362,21 +1330,15 @@ func TestService_evaluateCatalog(t *testing.T) {
 				// - 1 for Control 1.2 (subcontrol)
 				// - 1 for Control 2 (parent)
 				// - 1 for Control 2.1 (subcontrol)
-				if !assert.Equal(t, 5, len(evalResults.Msg.Results)) {
-					return false
-				}
+				assert.Equal(t, 5, len(evalResults.Msg.Results))
 
 				// Verify parent controls have correct evaluation status
 				for _, result := range evalResults.Msg.Results {
 					if result.ControlId == evaluationtest.MockControlId1 && result.ParentControlId == nil {
-						if !assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status) {
-							return false
-						}
+						assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status)
 					}
 					if result.ControlId == evaluationtest.MockControlId2 && result.ParentControlId == nil {
-						if !assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status) {
-							return false
-						}
+						assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT, result.Status)
 					}
 				}
 
@@ -1393,36 +1355,27 @@ func TestService_evaluateCatalog(t *testing.T) {
 				interval:   5,
 			},
 			fields: fields{
-				orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-					{
-						Id:                   evaluationtest.MockAssessmentResultId1,
-						MetricId:             evaluationtest.MockMetricId1,
-						Compliant:            true,
-						ResourceId:           "resource-1",
-						TargetOfEvaluationId: evaluationtest.MockToeId1,
-					},
-					{
-						Id:                   evaluationtest.MockAssessmentResultId2,
-						MetricId:             evaluationtest.MockMetricId2,
-						Compliant:            true,
-						ResourceId:           "resource-2",
-						TargetOfEvaluationId: evaluationtest.MockToeId1,
-					},
-				}),
-				db: persistencetest.NewInMemoryDB(t, evaluationtest.TypesCatalog, []persistence.CustomJoinTable{
-					{
-						Model:     orchestrator.TargetOfEvaluation{},
-						Field:     "ConfiguredMetrics",
-						JoinTable: assessment.MetricConfiguration{},
-					}}, func(d persistence.DB) {
-					err := d.Create(evaluationtest.MockCatalog1)
-					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockControl2)
-					assert.NoError(t, err)
-					// Create manual evaluation result for Control 1 (parent control)
-					err = d.Create(evaluationtest.MockManualEvaluationResult1)
-					assert.NoError(t, err)
-				}),
+				orchestratorClient: newOrchestratorClient(t,
+					WithAssessmentResults([]*assessment.AssessmentResult{
+						{
+							Id:                   evaluationtest.MockAssessmentResultId1,
+							MetricId:             evaluationtest.MockMetricId1,
+							Compliant:            true,
+							ResourceId:           "resource-1",
+							TargetOfEvaluationId: evaluationtest.MockToeId1,
+						},
+						{
+							Id:                   evaluationtest.MockAssessmentResultId2,
+							MetricId:             evaluationtest.MockMetricId2,
+							Compliant:            true,
+							ResourceId:           "resource-2",
+							TargetOfEvaluationId: evaluationtest.MockToeId1,
+						},
+					}),
+					WithEvaluationResults([]*evaluation.EvaluationResult{
+						evaluationtest.MockManualEvaluationResult1,
+					}),
+				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
 						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
@@ -1437,14 +1390,11 @@ func TestService_evaluateCatalog(t *testing.T) {
 				evalResults, err := got.orchestratorClient.ListEvaluationResults(context.Background(), connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}))
 				assert.NoError(t, err)
 
-				// We should have 3 results total:
-				// - Control 1 is ignored (manual result exists)
-				// - 1 for Control 2 (parent)
-				// - 1 for Control 2.1 (subcontrol)
-				// - MockManualEvaluationResult1 (the manual one for Control 1)
-				if !assert.Equal(t, 3, len(evalResults.Msg.Results)) {
-					return false
-				}
+				// We should have 5 results total:
+				// - 1 for Control 1 (parent) - compliant manually (due to manual result) -> subcontrols (Control 1.1 and Control 1.2) are ignored
+				// - 1 for Control 2 (parent) - compliant
+				// - 1 for Control 2.1 (subcontrol) - compliant
+				assert.Equal(t, 3, len(evalResults.Msg.Results))
 
 				// Extract control IDs from results
 				controlIds := make([]string, len(evalResults.Msg.Results))
@@ -1466,7 +1416,6 @@ func TestService_evaluateCatalog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := Service{
 				orchestratorClient: tt.fields.orchestratorClient,
-				db:                 tt.fields.db,
 				catalogControls:    tt.fields.catalogControls,
 			}
 
@@ -1744,22 +1693,24 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 			name: "happy path - assessment results all compliant => compliant, includes assessment ids",
 			fields: func() fields {
 				return fields{
-					orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-						{
-							Id:                   "assessment-result-1",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-1",
-							TargetOfEvaluationId: evaluationtest.MockToeId1,
-						},
-						{
-							Id:                   "assessment-result-2",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-2",
-							TargetOfEvaluationId: evaluationtest.MockToeId1,
-						},
-					}),
+					orchestratorClient: newOrchestratorClient(t,
+						WithAssessmentResults([]*assessment.AssessmentResult{
+							{
+								Id:                   "assessment-result-1",
+								MetricId:             orchestratortest.MockMetricId1,
+								Compliant:            true,
+								ResourceId:           "resource-1",
+								TargetOfEvaluationId: evaluationtest.MockToeId1,
+							},
+							{
+								Id:                   "assessment-result-2",
+								MetricId:             orchestratortest.MockMetricId1,
+								Compliant:            true,
+								ResourceId:           "resource-2",
+								TargetOfEvaluationId: evaluationtest.MockToeId1,
+							},
+						}),
+					),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockCatalogId1: {
 							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
@@ -1830,22 +1781,24 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 			name: "happy path - assessment results include non-compliant => not compliant",
 			fields: func() fields {
 				return fields{
-					orchestratorClient: newOrchestratorClientWithAssessmentResults(t, []*assessment.AssessmentResult{
-						{
-							Id:                   "assessment-result-1",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            true,
-							ResourceId:           "resource-1",
-							TargetOfEvaluationId: evaluationtest.MockToeId1,
-						},
-						{
-							Id:                   "assessment-result-2",
-							MetricId:             orchestratortest.MockMetricId1,
-							Compliant:            false,
-							ResourceId:           "resource-2",
-							TargetOfEvaluationId: evaluationtest.MockToeId1,
-						},
-					}),
+					orchestratorClient: newOrchestratorClient(t,
+						WithAssessmentResults([]*assessment.AssessmentResult{
+							{
+								Id:                   "assessment-result-1",
+								MetricId:             orchestratortest.MockMetricId1,
+								Compliant:            true,
+								ResourceId:           "resource-1",
+								TargetOfEvaluationId: evaluationtest.MockToeId1,
+							},
+							{
+								Id:                   "assessment-result-2",
+								MetricId:             orchestratortest.MockMetricId1,
+								Compliant:            false,
+								ResourceId:           "resource-2",
+								TargetOfEvaluationId: evaluationtest.MockToeId1,
+							},
+						}),
+					),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockCatalogId1: {
 							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
