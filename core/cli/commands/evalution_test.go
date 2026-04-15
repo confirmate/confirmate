@@ -12,6 +12,6 @@ func TestEvaluationCommands(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		output, err := commandstest.RunCLI(t, "evaluation", "list")
 		assert.NoError(t, err)
-		assert.Contains(t, output, evaluationtest.MockEvaluationResult1.GetId())
+		assert.Contains(t, output, evaluationtest.MockEvaluationResultId1)
 	})
 }
