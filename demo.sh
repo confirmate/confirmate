@@ -69,12 +69,14 @@ echo "      PID ${PID_UI} — logs: logs/ui.log"
 
 # ── 4. Set up jep virtualenv for Python frontend ─────────────────────────────
 echo "[4/5] Setting up Python virtualenv with jep..."
-VENV_DIR="${REPO_ROOT}/.venv"
+VENV_NAME="confirmate-demo"
+VENV_DIR="${HOME}/.virtualenvs/${VENV_NAME}"
 # Recreate the venv if the interpreter it was built with is gone
 if [[ -d "${VENV_DIR}" ]] && ! "${VENV_DIR}/bin/python3" -c "" 2>/dev/null; then
   rm -rf "${VENV_DIR}"
 fi
 if [[ ! -d "${VENV_DIR}" ]]; then
+  mkdir -p "${HOME}/.virtualenvs"
   python3 -m venv "${VENV_DIR}"
 fi
 # shellcheck disable=SC1090
@@ -82,15 +84,14 @@ source "${VENV_DIR}/bin/activate"
 pip3 install --quiet "jep==4.3.1"
 deactivate
 
-# Locate the jep native library so the JVM can find it
-JEP_LIBRARY_PATH="$("${VENV_DIR}/bin/python3" -c "import sysconfig; print(sysconfig.get_path('purelib'))")/jep"
-export JEP_LIBRARY_PATH
+# Tell CPG's JepSingleton which virtualenv to use
+export CPG_PYTHON_VIRTUALENV="${VENV_NAME}"
 
 # ── 5. Start the code-analysis collector ──────────────────────────────────────
 echo "[5/5] Starting code-analysis collector..."
 cd "${REPO_ROOT}/collectors/code-analysis"
 
-./gradlew :example-project:run &>"${REPO_ROOT}/logs/code-analysis.log" &
+./gradlew --no-daemon :example-project:run &>"${REPO_ROOT}/logs/code-analysis.log" &
 PID_COLLECTOR=$!
 echo "      PID ${PID_COLLECTOR} — logs: logs/code-analysis.log"
 
