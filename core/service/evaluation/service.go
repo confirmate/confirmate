@@ -666,11 +666,13 @@ func (svc *Service) cacheControls(catalogId string) error {
 	}
 
 	// Store controls in map
+	svc.catalogsMutex.Lock()
 	svc.catalogControls[catalogId] = make(map[string]*orchestrator.Control)
 	for _, control := range controls {
 		tag = fmt.Sprintf("%s-%s", control.GetCategoryName(), control.GetId())
 		svc.catalogControls[catalogId][tag] = control
 	}
+	svc.catalogsMutex.Unlock()
 
 	return nil
 }
