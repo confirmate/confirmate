@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// StoreEvaluationResult is a method implementation of the assessment interface to store only manually created Evaluation Results
+// StoreEvaluationResult is a method implementation of the evaluation interface
 func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Request[orchestrator.StoreEvaluationResultRequest]) (res *connect.Response[evaluation.EvaluationResult], err error) {
 	var (
 		eval *evaluation.EvaluationResult
@@ -52,7 +52,7 @@ func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Reques
 	return res, nil
 }
 
-// ListEvaluationResults is a method implementation of the assessment interface
+// ListEvaluationResults is a method implementation of the evaluation interface
 func (svc *Service) ListEvaluationResults(_ context.Context,
 	req *connect.Request[orchestrator.ListEvaluationResultsRequest],
 ) (res *connect.Response[orchestrator.ListEvaluationResultsResponse], err error) {
