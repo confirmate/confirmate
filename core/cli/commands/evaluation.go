@@ -101,18 +101,16 @@ func EvaluationStartCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "start",
 		Usage:     "Start the evaluation of a target",
-		ArgsUsage: "<audit-scope-id> <interval>",
+		ArgsUsage: "<audit-scope-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.Args().Len() < 2 {
-				return fmt.Errorf("audit scope ID and interval are required")
+			if c.Args().Len() < 1 {
+				return fmt.Errorf("audit scope ID is required")
 			}
 			auditScopeID := c.Args().Get(0)
-			interval := c.Args().Get(1)
 
 			client := EvaluationClient(ctx, c)
 			resp, err := client.StartEvaluation(ctx, connect.NewRequest(&evaluation.StartEvaluationRequest{
 				AuditScopeId: auditScopeID,
-				Interval:     new(toInt32(interval)),
 			}))
 			if err != nil {
 				return err
