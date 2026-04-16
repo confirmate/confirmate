@@ -215,7 +215,7 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 		Category:    "LoggingMonitoring",
 		Description: evidencetest.MockMetricDescription1,
 		Version:     evidencetest.MockMetricVersion1,
-		Comments:    new(evidencetest.MockMetricComments1),
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,

@@ -235,7 +235,7 @@ var (
 			Description: MockMetricDescription1,
 			Category:    MockMetricCategory1,
 			Version:     MockDefaultVersion,
-			Comments:    new(MockMetricComments1),
+			Comments:    MockMetricComments1,
 		},
 		}}
 	MockSubcontrol12 = &orchestrator.Control{
@@ -254,7 +254,7 @@ var (
 			Description: MockMetricDescription2,
 			Category:    MockMetricCategory2,
 			Version:     MockDefaultVersion,
-			Comments:    new(MockMetricComments2),
+			Comments:    MockMetricComments2,
 		},
 		}}
 	MockControl2 = &orchestrator.Control{
@@ -283,7 +283,7 @@ var (
 			Description: MockMetricDescription2,
 			Category:    MockMetricCategory2,
 			Version:     MockDefaultVersion,
-			Comments:    new(MockMetricComments2),
+			Comments:    MockMetricComments2,
 		},
 		}}
 )

@@ -481,7 +481,7 @@ func TestService_AssessEvidences(t *testing.T) {
 		Category:    "LoggingMonitoring",
 		Description: evidencetest.MockMetricDescription1,
 		Version:     evidencetest.MockMetricVersion1,
-		Comments:    new(evidencetest.MockMetricComments1),
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -615,7 +615,7 @@ func TestService_handleEvidence(t *testing.T) {
 					Category:    "LoggingMonitoring",
 					Description: evidencetest.MockMetricDescription1,
 					Version:     evidencetest.MockMetricVersion1,
-					Comments:    new(evidencetest.MockMetricComments1),
+					Comments:    evidencetest.MockMetricComments1,
 					Implementation: &assessment.MetricImplementation{
 						MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -666,7 +666,7 @@ func TestService_handleEvidence(t *testing.T) {
 					Category:    "DevelopmentLifeCycle",
 					Description: evidencetest.MockMetricDescription1,
 					Version:     evidencetest.MockMetricVersion1,
-					Comments:    new(evidencetest.MockMetricComments1),
+					Comments:    evidencetest.MockMetricComments1,
 					Implementation: &assessment.MetricImplementation{
 						MetricId: "4fbcbf09-35c3-4d7b-b9a9-97c7ba36f0de",
 						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -755,7 +755,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		Category:    "LoggingMonitoring",
 		Description: evidencetest.MockMetricDescription1,
 		Version:     evidencetest.MockMetricVersion1,
-		Comments:    new(evidencetest.MockMetricComments1),
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -797,7 +797,7 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		Category:    "LoggingMonitoring",
 		Description: evidencetest.MockMetricDescription1,
 		Version:     evidencetest.MockMetricVersion1,
-		Comments:    new(evidencetest.MockMetricComments1),
+		Comments:    evidencetest.MockMetricComments1,
 		Implementation: &assessment.MetricImplementation{
 			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -933,7 +933,7 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				Category:    "LoggingMonitoring",
 				Description: evidencetest.MockMetricDescription1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    new(evidencetest.MockMetricComments1),
+				Comments:    evidencetest.MockMetricComments1,
 				Implementation: &assessment.MetricImplementation{
 					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -975,7 +975,7 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 				Category:    "LoggingMonitoring",
 				Description: evidencetest.MockMetricDescription1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    new(evidencetest.MockMetricComments1),
+				Comments:    evidencetest.MockMetricComments1,
 				Implementation: &assessment.MetricImplementation{
 					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
 					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
@@ -1033,7 +1033,7 @@ func TestService_Metrics(t *testing.T) {
 				Category:    evidencetest.MockMetricCategory1,
 				Description: evidencetest.MockMetricDescription1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    new(evidencetest.MockMetricComments1),
+				Comments:    evidencetest.MockMetricComments1,
 			}
 
 			// Create an orchestrator service for testing
@@ -1132,7 +1132,7 @@ func TestService_MetricImplementation(t *testing.T) {
 				Category:       evidencetest.MockMetricCategory1,
 				Description:    evidencetest.MockMetricDescription1,
 				Version:        evidencetest.MockMetricVersion1,
-				Comments:       new(evidencetest.MockMetricComments1),
+				Comments:       evidencetest.MockMetricComments1,
 				Implementation: metricImpl,
 			}
 
@@ -1207,7 +1207,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 				Description: evidencetest.MockMetricDescription1,
 				Category:    evidencetest.MockMetricCategory1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    new(evidencetest.MockMetricComments1),
+				Comments:    evidencetest.MockMetricComments1,
 			},
 			want: func(t *testing.T, got *assessment.MetricConfiguration, msgAndArgs ...any) bool {
 				return assert.NotNil(t, got)
@@ -1223,7 +1223,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 				Description: evidencetest.MockMetricDescription1,
 				Category:    evidencetest.MockMetricCategory1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    new(evidencetest.MockMetricComments1),
+				Comments:    evidencetest.MockMetricComments1,
 			},
 			preCacheConfig: &cachedConfiguration{
 				cachedAt: time.Now(),
@@ -1246,7 +1246,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 				Description: evidencetest.MockMetricDescription1,
 				Category:    evidencetest.MockMetricCategory1,
 				Version:     evidencetest.MockMetricVersion1,
-				Comments:    new(evidencetest.MockMetricComments1),
+				Comments:    evidencetest.MockMetricComments1,
 			},
 			preCacheConfig: &cachedConfiguration{
 				cachedAt: time.Now().Add(-2 * EvictionTime), // Expired

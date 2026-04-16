@@ -60,7 +60,7 @@ func Test_DB_Create(t *testing.T) {
 		Category:    MockMetricCategory1,
 		Description: MockMetricDescription1,
 		Version:     MockMetricVersion1,
-		Comments:    new(MockMetricComments1),
+		Comments:    MockMetricComments1,
 	}
 
 	// Create DB
@@ -126,7 +126,7 @@ func Test_DB_Get(t *testing.T) {
 		Category:    MockMetricCategory1,
 		Description: MockMetricDescription1,
 		Version:     MockMetricVersion1,
-		Comments:    new(MockMetricComments1),
+		Comments:    MockMetricComments1,
 	}
 	// Check if metric has all necessary fields
 	// assert.NoError(t, api.Validate(metric))

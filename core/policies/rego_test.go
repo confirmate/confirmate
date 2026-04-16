@@ -417,7 +417,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 					Name:     "AutomaticUpdatesEnabled",
 					Category: "EndpointSecurity",
 					Version:  "v1",
-					Comments: new("Test comments"),
+					Comments: "Test comments",
 				},
 				baseDir: ".",
 				m: map[string]interface{}{
