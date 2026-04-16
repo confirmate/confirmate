@@ -762,35 +762,6 @@ func TestService_StopEvaluation(t *testing.T) {
 			},
 		},
 		{
-			name: "error: audit scope not found",
-			args: args{
-				req: connect.NewRequest(&evaluation.StopEvaluationRequest{
-					AuditScopeId: evaluationtest.MockAuditScopeId1,
-				}),
-			},
-			fields: func() fields {
-				// Create test server that returns no Audit Scope
-				handler := &mockOrchestratorHandler{
-					getAuditScopeNotFoundError: connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found")),
-				}
-				_, testSrv := servertest.NewTestConnectServer(
-					t,
-					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
-				)
-				t.Cleanup(testSrv.Close)
-
-				return fields{
-					orchestratorClient: newOrchestratorClientForTest(testSrv),
-					scheduler:          gocron.NewScheduler(time.UTC),
-				}
-			}(),
-			want: assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
-					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
-			},
-		},
-		{
 			name: "error: audit scope found but has no schedule",
 			args: args{
 				req: connect.NewRequest(&evaluation.StopEvaluationRequest{

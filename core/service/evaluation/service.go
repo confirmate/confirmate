@@ -193,32 +193,21 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 // StopEvaluation is a method implementation of the evaluation interface: It stops the evaluation for a
 // AuditScope.
 func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[evaluation.StopEvaluationRequest]) (res *connect.Response[evaluation.StopEvaluationResponse], err error) {
-	var auditScopeResponse *connect.Response[orchestrator.AuditScope]
-
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	// Get audit scope
-	auditScopeResponse, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
-		AuditScopeId: req.Msg.GetAuditScopeId(),
-	}))
-	if err != nil {
-		slog.Error("could not get audit scope from orchestrator", log.Err(err))
-		return nil, connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
-	}
-
-	auditScope := auditScopeResponse.Msg
+	auditScopeId := req.Msg.GetAuditScopeId()
 
 	// Stop jobs(s) for given audit scope
-	err = svc.scheduler.RemoveByTags(auditScope.GetId())
+	err = svc.scheduler.RemoveByTags(auditScopeId)
 	if err != nil && errors.Is(err, gocron.ErrJobNotFoundWithTag) {
-		slog.Error("job for audit scope is not running", slog.String("audit scope", auditScope.GetId()), log.Err(err))
-		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("job for audit scope '%s' is not running", auditScope.GetId()))
+		slog.Error("job for audit scope is not running", slog.String("audit scope", auditScopeId), log.Err(err))
+		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("job for audit scope '%s' is not running", auditScopeId))
 	} else if err != nil {
-		slog.Error("could not remove jobs for audit scope '%s': %w", auditScope.GetId(), log.Err(err))
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not remove jobs for audit scope '%s'", auditScope.GetId()))
+		slog.Error("could not remove jobs for audit scope '%s': %w", auditScopeId, log.Err(err))
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not remove jobs for audit scope '%s'", auditScopeId))
 	}
 
 	res = &connect.Response[evaluation.StopEvaluationResponse]{}
