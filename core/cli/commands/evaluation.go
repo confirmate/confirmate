@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
@@ -141,13 +140,4 @@ func EvaluationStopCommand() *cli.Command {
 			return PrettyPrint(resp.Msg)
 		},
 	}
-}
-
-// TODO(anatheka): Move to util
-func toInt32(s string) int32 {
-	n, err := strconv.ParseInt(s, 10, 32)
-	if err != nil {
-		return 0
-	}
-	return int32(n)
 }
