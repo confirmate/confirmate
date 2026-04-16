@@ -1887,7 +1887,7 @@ func TestService_StartEvaluation(t *testing.T) {
 			},
 		},
 		{
-			name: "err: gettging catalog error",
+			name: "err: getting catalog error",
 			args: args{
 				ctx: context.Background(),
 				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
