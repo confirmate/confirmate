@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -11,7 +10,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
 	"connectrpc.com/connect"
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -22,7 +20,7 @@ func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Reques
 	)
 
 	// Validate the request
-	if err = validateStoreEvaluationResultRequest(req); err != nil {
+	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
@@ -162,35 +160,4 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	}
 
 	return
-}
-
-// validateStoreEvaluationResultRequest validates the StoreEvaluationResultRequest and prepares it for processing. It
-// returns a buf connect error that can be used directly by the caller
-func validateStoreEvaluationResultRequest(req *connect.Request[orchestrator.StoreEvaluationResultRequest]) error {
-	// Validate the request with a preparation function
-	if err := service.ValidateWithPrep(req, func() {
-		// Check if Result is nil before accessing it to avoid nil pointer dereference. ValidateWithPrep will then
-		// return the `invalid request` error
-		if req.Msg.Result == nil {
-			return
-		}
-		// A manually created evaluation result typically does not contain a UUID; therefore, we will add one here. This must be done before the validation check to prevent validation failure.
-		req.Msg.Result.Id = uuid.NewString()
-	}); err != nil {
-		return err
-	}
-
-	// We only allow manually created statuses
-	if req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY &&
-		req.Msg.Result.Status != evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY {
-		return connect.NewError(connect.CodeInvalidArgument, errors.New("only manually set statuses are allowed"))
-	}
-
-	// The ValidUntil field must be checked separately as it is an optional field and not checked by the request
-	// validation. It is only mandatory when manually creating a result.
-	if req.Msg.Result.ValidUntil == nil {
-		return connect.NewError(connect.CodeInvalidArgument, errors.New("validity must be set"))
-	}
-
-	return nil
 }
