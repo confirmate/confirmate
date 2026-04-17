@@ -14,7 +14,6 @@ import (
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"google.golang.org/protobuf/testing/protocmp"
 
-	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
@@ -41,7 +40,6 @@ func TestNewService(t *testing.T) {
 			args: args{
 				opts: []service.Option[Service]{
 					WithConfig(Config{
-						PersistenceConfig:   persistence.DefaultConfig,
 						OrchestratorClient:  http.DefaultClient,
 						OrchestratorAddress: "http://testhost:8080",
 					}),
@@ -56,7 +54,6 @@ func TestNewService(t *testing.T) {
 				assert.Equal(t, Config{
 					OrchestratorAddress: "http://testhost:8080",
 					OrchestratorClient:  http.DefaultClient,
-					PersistenceConfig:   persistence.DefaultConfig,
 				}, svc.cfg)
 				assert.NotEmpty(t, svc.scheduler)
 				assert.NotEmpty(t, orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, "http:://testhost:8080"), svc.orchestratorClient)

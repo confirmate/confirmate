@@ -19,7 +19,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/log"
-	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
@@ -56,7 +55,6 @@ type Service struct {
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
 	OrchestratorClient:  http.DefaultClient,
-	PersistenceConfig:   persistence.DefaultConfig,
 }
 
 // Config represents the configuration for the evaluation [Service].
@@ -65,9 +63,6 @@ type Config struct {
 	OrchestratorAddress string
 	// OrchestratorClient is the HTTP client to use for connecting to the Orchestrator service.
 	OrchestratorClient *http.Client
-
-	// PersistenceConfig is the configuration for the persistence layer. If not set, defaults will be used.
-	PersistenceConfig persistence.Config
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
