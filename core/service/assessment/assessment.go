@@ -366,6 +366,8 @@ func (svc *Service) handleEvidence(
 		evaluations []*policies.CombinedResult
 		newError    error
 		metricID    string
+		message     string
+		toolID      string
 		result      *assessment.AssessmentResult
 	)
 
@@ -401,6 +403,19 @@ func (svc *Service) handleEvidence(
 			continue
 		}
 		metricID = data.MetricID
+		message = data.Message
+		if message == "" {
+			if data.Compliant {
+				message = assessment.DefaultCompliantMessage
+			} else {
+				message = assessment.DefaultNonCompliantMessage
+			}
+		}
+
+		toolID = ev.GetToolId()
+		if toolID == "" {
+			toolID = assessment.AssessmentToolId
+		}
 
 		slog.Debug("Evaluated evidence with metric", slog.String("Evidence", ev.Id), slog.String("MetricID", metricID), slog.Bool("Compliant", data.Compliant))
 
@@ -416,9 +431,9 @@ func (svc *Service) handleEvidence(
 			EvidenceId:           ev.GetId(),
 			ResourceId:           resource.GetId(),
 			ResourceTypes:        types,
-			ComplianceComment:    data.Message,
+			ComplianceComment:    message,
 			ComplianceDetails:    data.ComparisonResult,
-			ToolId:               new(assessment.AssessmentToolId),
+			ToolId:               &toolID,
 			HistoryUpdatedAt:     timestamppb.Now(),
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),
