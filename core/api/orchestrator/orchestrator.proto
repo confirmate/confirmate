@@ -124,7 +124,8 @@ service Orchestrator {
     };
   }
 
-  // Updates an existing target of evaluation(UpdateTargetOfEvaluationRequest) returns (TargetOfEvaluation) {
+  // Updates an existing target of evaluation
+  rpc UpdateTargetOfEvaluation(UpdateTargetOfEvaluationRequest) returns (TargetOfEvaluation) {
     option (google.api.http) = {
       put: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
       body: "target_of_evaluation"
