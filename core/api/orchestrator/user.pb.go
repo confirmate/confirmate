@@ -259,13 +259,13 @@ type User struct {
 	// LastName is the last name of the user, if available.
 	LastName *string `protobuf:"bytes,5,opt,name=last_name,json=lastName,proto3,oneof" json:"last_name,omitempty"`
 	// Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
-	Roles []Role `protobuf:"varint,6,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty"`
+	Roles []Role `protobuf:"varint,6,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty" gorm:"serializer:json"`
 	// Enabled indicates whether the user is active/enabled in the system
 	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Attributes contains additional key-value pairs associated with the user, such as department or team.
-	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
 	// LastAccess indicates the last time the user accessed the system.
-	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty"`
+	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -366,13 +366,13 @@ func (x *User) GetLastAccess() *timestamppb.Timestamp {
 type UserPermission struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User ID is required to identify the user for whom the perission is being upserted.
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" gorm:"column:user_id;primaryKey"`
 	// Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
-	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" gorm:"column:resource_id;primaryKey;index"`
 	// Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
-	ResourceType ObjectType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"resource_type,omitempty"`
+	ResourceType ObjectType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"resource_type,omitempty" gorm:"column:resource_type;primaryKey"`
 	// Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
-	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty"`
+	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty" gorm:"column:permission;type:integer;not null"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
