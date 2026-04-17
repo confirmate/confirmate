@@ -111,7 +111,7 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/metrics"};
   }
 
-  // Removes a new metric
+  // Removes a metric
   rpc RemoveMetric(RemoveMetricRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/orchestrator/metrics/{metric_id}"};
   }
@@ -124,7 +124,7 @@ service Orchestrator {
     };
   }
 
-  // Registers a new target of evaluation
+  // Updates an existing target of evaluation
   rpc UpdateTargetOfEvaluation(UpdateTargetOfEvaluationRequest) returns (TargetOfEvaluation) {
     option (google.api.http) = {
       put: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
@@ -262,8 +262,7 @@ service Orchestrator {
     option (google.api.http) = {delete: "/v1/orchestrator/catalogs/{catalog_id}"};
   }
 
-  // Updates an existing certificate
-  rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
+  // Updates an existing catalog(UpdateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
       put: "/v1/orchestrator/catalogs/{catalog.id}"
       body: "catalog"

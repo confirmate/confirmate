@@ -194,8 +194,8 @@ func (svc *Service) initEvidenceChannel() {
 	}()
 }
 
-// StoreEvidence receives an evidence and stores it into the database
-// This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
+// StoreEvidence stores an evidence to the evidence storage. Part of the public API, also exposed as
+// REST.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	var (
 		r *evidence.Resource
@@ -252,9 +252,8 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	return
 }
 
-// StoreEvidences receives a stream of evidences and stores them to the evidence database.
-// It processes each evidence individually and returns a response for each one indicating
-// success or failure. This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidences] RPC method.
+// StoreEvidences stores a stream of evidences to the evidence storage and returns a response stream.
+// Part of the public API, not exposed as REST.
 func (svc *Service) StoreEvidences(ctx context.Context,
 	stream *connect.BidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]) (err error) {
 	// Delegate to a stream-agnostic helper for unit testing with fakes.
@@ -323,8 +322,7 @@ func (svc *Service) storeEvidencesStream(ctx context.Context, stream evidenceStr
 	}
 }
 
-// ListEvidences returns all evidence.
-// This implements the [evidenceconnect.EvidenceStoreHandler.ListEvidences] RPC method.
+// ListEvidences returns all stored evidences. Part of the public API, also exposed as REST.
 func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[evidence.ListEvidencesRequest]) (
 	res *connect.Response[evidence.ListEvidencesResponse], err error) {
 
@@ -371,8 +369,7 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	return
 }
 
-// GetEvidence receives an evidenc ID and returns the corresponding evidence of the storage
-// This implements the [evidenceconnect.EvidenceStoreHandler.GetEvidence] RPC method.
+// GetEvidence returns a particular stored evidence. Part of the public API, also exposed as REST.
 func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence.GetEvidenceRequest]) (
 	res *connect.Response[evidence.Evidence], err error) {
 
@@ -391,8 +388,7 @@ func (svc *Service) GetEvidence(_ context.Context, req *connect.Request[evidence
 	return
 }
 
-// ListSupportedResourceTypes returns the resource types that are supported by this service
-// This implements the [evidenceconnect.EvidenceStoreHandler.ListSupportedResourceTypes] RPC method.
+// ListSupportedResourceTypes returns the resource types that are supported by the EvidenceStore.
 func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.Request[evidence.ListSupportedResourceTypesRequest]) (
 	res *connect.Response[evidence.ListSupportedResourceTypesResponse], err error) {
 
@@ -412,8 +408,8 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 }
 
 // ListTools returns the IDs of all evidence collecting tools that have provided evidence so far.
-// The result is served from an in-memory cache that is populated on each [StoreEvidence] call.
-// This implements the [evidenceconnect.EvidenceStoreHandler.ListTools] RPC method.
+// Part of the public API, also exposed as REST. The result is served from an in-memory cache that
+// is populated on each [StoreEvidence] call.
 func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.ListToolsRequest]) (
 	res *connect.Response[evidence.ListToolsResponse], err error) {
 
@@ -433,8 +429,7 @@ func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.L
 	return
 }
 
-// ListResources returns the list of resources, a pagination token, or an error if the operation fails.
-// This implements the [evidenceconnect.EvidenceStoreHandler.ListResources] RPC method.
+// ListResources lists all resources collected in the last run, exposed as REST.
 func (svc *Service) ListResources(_ context.Context, req *connect.Request[evidence.ListResourcesRequest]) (
 	res *connect.Response[evidence.ListResourcesResponse], err error) {
 	var (

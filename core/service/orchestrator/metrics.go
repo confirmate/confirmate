@@ -111,7 +111,7 @@ func (svc *Service) CreateMetric(
 	return
 }
 
-// GetMetric retrieves a metric by ID.
+// GetMetric returns the metric with the passed metric id.
 func (svc *Service) GetMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricRequest],
@@ -134,7 +134,7 @@ func (svc *Service) GetMetric(
 	return
 }
 
-// ListMetrics lists all metrics.
+// ListMetrics lists all metrics provided by the metric catalog.
 func (svc *Service) ListMetrics(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListMetricsRequest],
@@ -227,8 +227,10 @@ func (svc *Service) UpdateMetric(
 	return
 }
 
-// RemoveMetric removes a metric by ID. The metric is not deleted for backward compatibility,
-// but the deprecated_since field is set to the current timestamp.
+// RemoveMetric removes a metric.
+//
+// Note: The metric is not deleted for backward compatibility, but the deprecated_since field is set
+// to the current timestamp.
 func (svc *Service) RemoveMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveMetricRequest],
@@ -281,7 +283,7 @@ func (svc *Service) RemoveMetric(
 	return
 }
 
-// GetMetricImplementation retrieves a metric implementation by metric ID.
+// GetMetricImplementation returns the metric implementation of the passed metric id.
 func (svc *Service) GetMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricImplementationRequest],
@@ -356,7 +358,8 @@ func (svc *Service) UpdateMetricImplementation(
 	return
 }
 
-// GetMetricConfiguration retrieves a metric configuration for a specific TOE and metric.
+// GetMetricConfiguration retrieves a metric configuration (target value and operator) for a
+// specific target of evaluation and metric ID.
 func (svc *Service) GetMetricConfiguration(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetMetricConfigurationRequest],
@@ -397,7 +400,8 @@ func (svc *Service) GetMetricConfiguration(
 	return
 }
 
-// ListMetricConfigurations lists all metric configurations for a specific TOE.
+// ListMetricConfigurations lists all metric configurations (target value and operator) for a
+// specific target of evaluation ID.
 func (svc *Service) ListMetricConfigurations(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListMetricConfigurationRequest],
@@ -438,7 +442,8 @@ func (svc *Service) ListMetricConfigurations(
 	return
 }
 
-// UpdateMetricConfiguration updates a metric configuration for a specific TOE and metric.
+// UpdateMetricConfiguration updates a metric configuration (target value and operator) for a
+// specific target of evaluation and metric ID.
 func (svc *Service) UpdateMetricConfiguration(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],

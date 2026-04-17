@@ -15,7 +15,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertCurrentUserPermission allows the authenticated user to update their own permissions for a specific resource.
+// UpsertUserPermission upserts resource permissions for the currently authenticated user, creating
+// a new user entry if necessary.
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
@@ -49,7 +50,7 @@ func (svc *Service) UpsertUserPermission(
 	return
 }
 
-// GetCurrentUser retrieves the current authenticated user based on the context of the request.
+// GetCurrentUser returns information about the currently authenticated user.
 func (svc *Service) GetCurrentUser(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCurrentUserRequest],
@@ -75,7 +76,8 @@ func (svc *Service) GetCurrentUser(
 	return
 }
 
-// GetUser retrieves a user by their unique identifier.
+// GetUser retrieves a specific user by their ID. This endpoint is restricted to users with elevated
+// roles, such as admin.
 func (svc *Service) GetUser(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetUserRequest],
@@ -108,7 +110,7 @@ func (svc *Service) GetUser(
 	return
 }
 
-// ListUsers lists all users in the system, optionally filtered by role or other criteria.
+// ListUsers lists users with optional filtering.
 func (svc *Service) ListUsers(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUsersRequest],
@@ -153,7 +155,7 @@ func (svc *Service) ListUsers(
 	return
 }
 
-// ListUserPermissions lists all user permissions for a given userID.
+// ListUserPermissions lists user permission.
 func (svc *Service) ListUserPermissions(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserPermissionsRequest],
@@ -198,7 +200,7 @@ func (svc *Service) ListUserPermissions(
 	return
 }
 
-// ListUserRoles lists all predefined user roles available in the system.
+// ListUserRoles lists all predefined roles in the system.
 func (svc *Service) ListUserRoles(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserRolesRequest],
@@ -217,7 +219,8 @@ func (svc *Service) ListUserRoles(
 	return
 }
 
-// RemoveUser disables a user in the system based on their unique identifier.
+// RemoveUser removes a user from the system. This is a soft delete that disables the user and
+// removes their access, but retains their data for audit purposes.
 func (svc *Service) RemoveUser(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveUserRequest],
