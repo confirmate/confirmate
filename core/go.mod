@@ -2,6 +2,10 @@ module confirmate.io/core
 
 go 1.26
 
+require confirmate.io/collectors/cloud v0.0.0
+
+replace confirmate.io/collectors/cloud => ../collectors/cloud
+
 // runtime dependencies - CLI
 require (
 	github.com/fatih/color v1.18.0 // indirect

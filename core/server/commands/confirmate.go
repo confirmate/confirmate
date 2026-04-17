@@ -18,11 +18,15 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"strings"
 
+	cloud "confirmate.io/collectors/cloud"
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence/evidenceconnect"
+	orchestratorapi "confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
@@ -76,28 +80,91 @@ var oauthServerFlags = []cli.Flag{
 	},
 }
 
+// discoveryFlags contains the flags for configuring optional collector auto-start.
+var discoveryFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "discovery-auto-start",
+		Usage:   "Auto-start discovery collector (none|azure)",
+		Value:   "none",
+		Sources: envVarSources("discovery-auto-start"),
+	},
+	&cli.StringFlag{
+		Name:    "discovery-target-of-evaluation-id",
+		Usage:   "Target of evaluation ID used by auto-started discovery collector",
+		Value:   "",
+		Sources: envVarSources("discovery-target-of-evaluation-id"),
+	},
+	&cli.StringFlag{
+		Name:    "discovery-azure-subscription-id",
+		Usage:   "Azure subscription ID used by auto-started azure discovery collector",
+		Value:   "",
+		Sources: envVarSources("discovery-azure-subscription-id"),
+	},
+	&cli.StringFlag{
+		Name:    "discovery-azure-resource-group",
+		Usage:   "Azure resource group used by auto-started azure discovery collector",
+		Value:   "",
+		Sources: envVarSources("discovery-azure-resource-group"),
+	},
+	&cli.DurationFlag{
+		Name:    "discovery-interval",
+		Usage:   "Collection interval for auto-started discovery collector",
+		Value:   cloud.DefaultConfig().Interval,
+		Sources: envVarSources("discovery-interval"),
+	},
+	&cli.DurationFlag{
+		Name:    "discovery-cycle-timeout",
+		Usage:   "Per-cycle timeout for auto-started discovery collector",
+		Value:   cloud.DefaultConfig().CycleTimeout,
+		Sources: envVarSources("discovery-cycle-timeout"),
+	},
+	&cli.DurationFlag{
+		Name:    "discovery-http-timeout",
+		Usage:   "HTTP timeout used by auto-started discovery collector",
+		Value:   cloud.DefaultConfig().HTTPTimeout,
+		Sources: envVarSources("discovery-http-timeout"),
+	},
+	&cli.StringFlag{
+		Name:    "discovery-tool-id",
+		Usage:   "Tool ID used by auto-started discovery collector",
+		Value:   cloud.DefaultConfig().ToolID,
+		Sources: envVarSources("discovery-tool-id"),
+	},
+	&cli.StringFlag{
+		Name:    "discovery-evidence-store-address",
+		Usage:   "Evidence store base address used by auto-started discovery collector",
+		Value:   "",
+		Sources: envVarSources("discovery-evidence-store-address"),
+	},
+}
+
 // ConfirmateCommand starts the full framework: orchestrator,  assessment and evidence store services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
 	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors        []connect.Interceptor
-			orchestratorOptions []service.Option[orchestrator.Service]
-			assessmentOptions   []service.Option[assessment.Service]
-			evidenceOptions     []service.Option[evidence.Service]
-			jwksURL             string
-			orchestratorOpts    []service.Option[orchestrator.Service]
-			assessmentOpts      []service.Option[assessment.Service]
-			evidenceOpts        []service.Option[evidence.Service]
-			orchestratorSvc     orchestratorconnect.OrchestratorHandler
-			assessmentSvc       assessmentconnect.AssessmentHandler
-			evidenceSvc         evidenceconnect.EvidenceStoreHandler
-			orchestratorClient  *http.Client
-			apiPort             uint16
-			credentials         *clientcredentials.Config
-			authorizer          api.Authorizer
-			serverOpts          []server.Option
+			interceptors                  []connect.Interceptor
+			orchestratorOptions           []service.Option[orchestrator.Service]
+			assessmentOptions             []service.Option[assessment.Service]
+			evidenceOptions               []service.Option[evidence.Service]
+			jwksURL                       string
+			orchestratorOpts              []service.Option[orchestrator.Service]
+			assessmentOpts                []service.Option[assessment.Service]
+			evidenceOpts                  []service.Option[evidence.Service]
+			orchestratorSvc               orchestratorconnect.OrchestratorHandler
+			assessmentSvc                 assessmentconnect.AssessmentHandler
+			evidenceSvc                   evidenceconnect.EvidenceStoreHandler
+			orchestratorClient            *http.Client
+			apiPort                       uint16
+			credentials                   *clientcredentials.Config
+			authorizer                    api.Authorizer
+			serverOpts                    []server.Option
+			discoveryMode                 string
+			discoveryCfg                  cloud.Config
+			toes                          *connect.Response[orchestratorapi.ListTargetsOfEvaluationResponse]
+			assessmentOrchestratorAddress string
+			evidenceAssessmentAddress     string
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -143,6 +210,16 @@ var ConfirmateCommand = &cli.Command{
 		}
 		apiPort = cmd.Uint16("api-port")
 
+		assessmentOrchestratorAddress = cmd.String("assessment-orchestrator-address")
+		if assessmentOrchestratorAddress == assessment.DefaultOrchestratorURL {
+			assessmentOrchestratorAddress = fmt.Sprintf("http://localhost:%d", apiPort)
+		}
+
+		evidenceAssessmentAddress = cmd.String("evidence-assessment-address")
+		if evidenceAssessmentAddress == evidence.DefaultAssessmentURL {
+			evidenceAssessmentAddress = fmt.Sprintf("http://localhost:%d", apiPort)
+		}
+
 		orchestratorClient = http.DefaultClient
 		if cmd.Bool("auth-enabled") {
 			credentials = &clientcredentials.Config{
@@ -157,7 +234,7 @@ var ConfirmateCommand = &cli.Command{
 		// Assessment service configuration
 		assessmentOpts = append([]service.Option[assessment.Service]{
 			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
+				OrchestratorAddress: assessmentOrchestratorAddress,
 				OrchestratorClient:  orchestratorClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
@@ -171,7 +248,7 @@ var ConfirmateCommand = &cli.Command{
 		// EvidenceStore service configuration
 		evidenceOpts = append([]service.Option[evidence.Service]{
 			evidence.WithConfig(evidence.Config{
-				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				AssessmentAddress: evidenceAssessmentAddress,
 				PersistenceConfig: persistence.Config{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
@@ -191,6 +268,48 @@ var ConfirmateCommand = &cli.Command{
 		evidenceSvc, err = evidence.NewService(evidenceOpts...)
 		if err != nil {
 			return err
+		}
+
+		discoveryMode = strings.ToLower(strings.TrimSpace(cmd.String("discovery-auto-start")))
+		if discoveryMode == "azure" {
+			discoveryCfg = cloud.DefaultConfig()
+			discoveryCfg.EvidenceStoreAddress = strings.TrimSpace(cmd.String("discovery-evidence-store-address"))
+			if discoveryCfg.EvidenceStoreAddress == "" {
+				discoveryCfg.EvidenceStoreAddress = fmt.Sprintf("http://localhost:%d", apiPort)
+			}
+
+			discoveryCfg.TargetOfEvaluationID = strings.TrimSpace(cmd.String("discovery-target-of-evaluation-id"))
+			if discoveryCfg.TargetOfEvaluationID == "" {
+				toes, err = orchestratorSvc.ListTargetsOfEvaluation(ctx, connect.NewRequest(&orchestratorapi.ListTargetsOfEvaluationRequest{PageSize: 1}))
+				if err != nil {
+					return fmt.Errorf("resolving default target of evaluation for discovery: %w", err)
+				}
+				if len(toes.Msg.GetTargetsOfEvaluation()) == 0 {
+					return fmt.Errorf("no target of evaluation available for discovery collector; set --discovery-target-of-evaluation-id")
+				}
+				discoveryCfg.TargetOfEvaluationID = toes.Msg.GetTargetsOfEvaluation()[0].GetId()
+			}
+
+			discoveryCfg.AzureSubscriptionID = strings.TrimSpace(cmd.String("discovery-azure-subscription-id"))
+			discoveryCfg.AzureResourceGroup = strings.TrimSpace(cmd.String("discovery-azure-resource-group"))
+			discoveryCfg.Interval = cmd.Duration("discovery-interval")
+			discoveryCfg.CycleTimeout = cmd.Duration("discovery-cycle-timeout")
+			discoveryCfg.HTTPTimeout = cmd.Duration("discovery-http-timeout")
+			discoveryCfg.ToolID = strings.TrimSpace(cmd.String("discovery-tool-id"))
+
+			if err = discoveryCfg.Validate(); err != nil {
+				return fmt.Errorf("invalid discovery collector configuration: %w", err)
+			}
+
+			go func() {
+				err := cloud.Start(ctx, discoveryCfg, slog.Default())
+				if err != nil && !strings.Contains(err.Error(), "context canceled") {
+					slog.Error("discovery collector stopped with error", slog.String("error", err.Error()))
+				}
+			}()
+			slog.Info("started discovery collector", slog.String("mode", discoveryMode), slog.String("target_of_evaluation_id", discoveryCfg.TargetOfEvaluationID), slog.String("resource_group", discoveryCfg.AzureResourceGroup))
+		} else if discoveryMode != "" && discoveryMode != "none" {
+			return fmt.Errorf("unsupported discovery-auto-start mode %q", discoveryMode)
 		}
 
 		// Server options configuration including CORS, logging, handler and gRPC reflection
@@ -242,5 +361,6 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
+		discoveryFlags,
 	),
 }
