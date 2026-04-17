@@ -43,8 +43,7 @@ const (
 
 // EvaluationClient is a client for the confirmate.evaluation.v1.Evaluation service.
 type EvaluationClient interface {
-	// Evaluates periodically all assessment results of a target of evaluation id based
-	// on the given catalog id. Part of the public API, also exposed as REST.
+	// StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
 	StartEvaluation(context.Context, *connect.Request[evaluation.StartEvaluationRequest]) (*connect.Response[evaluation.StartEvaluationResponse], error)
 	// StopEvaluation stops the evaluation for the given audit scope.
 	// Part of the public API, also exposed as REST.
@@ -95,8 +94,7 @@ func (c *evaluationClient) StopEvaluation(ctx context.Context, req *connect.Requ
 
 // EvaluationHandler is an implementation of the confirmate.evaluation.v1.Evaluation service.
 type EvaluationHandler interface {
-	// Evaluates periodically all assessment results of a target of evaluation id based
-	// on the given catalog id. Part of the public API, also exposed as REST.
+	// StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
 	StartEvaluation(context.Context, *connect.Request[evaluation.StartEvaluationRequest]) (*connect.Response[evaluation.StartEvaluationResponse], error)
 	// StopEvaluation stops the evaluation for the given audit scope.
 	// Part of the public API, also exposed as REST.
