@@ -291,7 +291,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(evaluationtest.MockManualEvaluationResult2)
 					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockManualEvaluationResult4)
+					err = d.Create(evaluationtest.MockManualEvaluationResult4) // timestamp is in the past
 					assert.NoError(t, err)
 				}),
 			},
