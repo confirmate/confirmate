@@ -25,7 +25,7 @@ func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Reques
 	}
 
 	eval = &evaluation.EvaluationResult{
-		Id:                   req.Msg.GetTargetOfEvaluationId(),
+		Id:                   req.Msg.Result.GetTargetOfEvaluationId(),
 		TargetOfEvaluationId: req.Msg.Result.GetTargetOfEvaluationId(),
 		AuditScopeId:         req.Msg.Result.GetAuditScopeId(),
 		ControlId:            req.Msg.Result.GetControlId(),

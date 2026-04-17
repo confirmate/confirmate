@@ -99,10 +99,14 @@ func (r *ListAssessmentResultsRequest) GetTargetOfEvaluationId() string {
 	return r.GetFilter().GetTargetOfEvaluationId()
 }
 
-// GetTargetOfEvaluationId is a shortcut to implement TargetOfEvaluationRequest. It returns
-// the target of evaluation ID of the inner object.
-func (req *StoreEvaluationResultRequest) GetTargetOfEvaluationId() string {
-	return req.GetResult().GetTargetOfEvaluationId()
+// GetPayload returns the embedded result from [StoreEvaluationResultRequest].
+func (r *StoreEvaluationResultRequest) GetPayload() proto.Message {
+	return r.GetResult()
+}
+
+// GetTargetOfEvaluationId returns the target of evaluation ID from [ListEvaluationResultRequest].
+func (r *ListEvaluationResultsRequest) GetTargetOfEvaluationId() string {
+	return r.GetFilter().GetTargetOfEvaluationId()
 }
 
 // GetTargetOfEvaluationId returns the target of evaluation ID from [ListAuditScopesRequest].
