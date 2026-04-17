@@ -143,7 +143,7 @@ var (
 	}
 
 	MockManualEvaluationResult2 = &evaluation.EvaluationResult{
-		TargetOfEvaluationId: MockToeId1,
+		TargetOfEvaluationId: MockToeId2,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockSubcontrolId11,
 		ControlCategoryName:  MockCategoryName1,

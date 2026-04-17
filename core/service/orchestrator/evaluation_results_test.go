@@ -298,7 +298,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
 				assert.Equal(t, 1, len(got.Msg.Results))
-				return assert.Equal(t, evaluationtest.MockManualEvaluationResult3, got.Msg.Results[0])
+				return assert.Equal(t, evaluationtest.MockManualEvaluationResult2, got.Msg.Results[0])
 			},
 			wantErr: assert.NoError,
 		},
