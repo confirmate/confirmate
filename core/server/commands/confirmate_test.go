@@ -16,6 +16,8 @@
 package commands
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"confirmate.io/core/util/assert"
@@ -109,6 +111,69 @@ func TestCommandDBInMemoryDefaults(t *testing.T) {
 			}
 
 			assert.Equal(t, tt.wantValue, gotValue)
+		})
+	}
+}
+
+func TestResolveDefaultPolicyPath(t *testing.T) {
+	tests := []struct {
+		name  string
+		setup func(t *testing.T) (path string)
+		want  func(t *testing.T, got string)
+	}{
+		{
+			name: "returns existing direct path",
+			setup: func(t *testing.T) string {
+				tmp := t.TempDir()
+				direct := filepath.Join(tmp, "policies")
+				err := os.MkdirAll(direct, 0o755)
+				if err != nil {
+					t.Fatalf("mkdir direct path: %v", err)
+				}
+				return direct
+			},
+			want: func(t *testing.T, got string) {
+				if got == "" {
+					t.Fatal("expected non-empty path")
+				}
+			},
+		},
+		{
+			name: "returns core-prefixed fallback when original missing",
+			setup: func(t *testing.T) string {
+				tmp := t.TempDir()
+				oldWd, err := os.Getwd()
+				if err != nil {
+					t.Fatalf("getwd: %v", err)
+				}
+				t.Cleanup(func() {
+					_ = os.Chdir(oldWd)
+				})
+				err = os.Chdir(tmp)
+				if err != nil {
+					t.Fatalf("chdir: %v", err)
+				}
+
+				fallback := filepath.Join(tmp, "core", "policies", "security-metrics", "metrics")
+				err = os.MkdirAll(fallback, 0o755)
+				if err != nil {
+					t.Fatalf("mkdir fallback path: %v", err)
+				}
+
+				return filepath.Join("policies", "security-metrics", "metrics")
+			},
+			want: func(t *testing.T, got string) {
+				expected := filepath.Join("core", "policies", "security-metrics", "metrics")
+				assert.Equal(t, expected, got)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := tt.setup(t)
+			got := resolveDefaultPolicyPath(input)
+			tt.want(t, got)
 		})
 	}
 }

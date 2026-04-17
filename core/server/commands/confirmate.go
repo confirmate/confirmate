@@ -19,6 +19,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
@@ -41,6 +43,23 @@ const (
 	DefaultServiceClientID     = "confirmate"
 	DefaultServiceClientSecret = "confirmate"
 )
+
+func resolveDefaultPolicyPath(path string) string {
+	if path == "" {
+		return path
+	}
+
+	if _, err := os.Stat(path); err == nil {
+		return path
+	}
+
+	alt := filepath.Join("core", path)
+	if _, err := os.Stat(alt); err == nil {
+		return alt
+	}
+
+	return path
+}
 
 // oauthServerFlags contains the flags for configuring the embedded OAuth 2.0 server.
 var oauthServerFlags = []cli.Flag{
@@ -82,22 +101,26 @@ var ConfirmateCommand = &cli.Command{
 	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors        []connect.Interceptor
-			orchestratorOptions []service.Option[orchestrator.Service]
-			assessmentOptions   []service.Option[assessment.Service]
-			evidenceOptions     []service.Option[evidence.Service]
-			jwksURL             string
-			orchestratorOpts    []service.Option[orchestrator.Service]
-			assessmentOpts      []service.Option[assessment.Service]
-			evidenceOpts        []service.Option[evidence.Service]
-			orchestratorSvc     orchestratorconnect.OrchestratorHandler
-			assessmentSvc       assessmentconnect.AssessmentHandler
-			evidenceSvc         evidenceconnect.EvidenceStoreHandler
-			orchestratorClient  *http.Client
-			apiPort             uint16
-			credentials         *clientcredentials.Config
-			authorizer          api.Authorizer
-			serverOpts          []server.Option
+			interceptors                  []connect.Interceptor
+			orchestratorOptions           []service.Option[orchestrator.Service]
+			assessmentOptions             []service.Option[assessment.Service]
+			evidenceOptions               []service.Option[evidence.Service]
+			jwksURL                       string
+			orchestratorOpts              []service.Option[orchestrator.Service]
+			assessmentOpts                []service.Option[assessment.Service]
+			evidenceOpts                  []service.Option[evidence.Service]
+			orchestratorSvc               orchestratorconnect.OrchestratorHandler
+			assessmentSvc                 assessmentconnect.AssessmentHandler
+			evidenceSvc                   evidenceconnect.EvidenceStoreHandler
+			orchestratorClient            *http.Client
+			apiPort                       uint16
+			credentials                   *clientcredentials.Config
+			authorizer                    api.Authorizer
+			serverOpts                    []server.Option
+			assessmentOrchestratorAddress string
+			evidenceAssessmentAddress     string
+			catalogsPath                  string
+			metricsPath                   string
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -116,12 +139,15 @@ var ConfirmateCommand = &cli.Command{
 
 		interceptors = append(interceptors, &server.LoggingInterceptor{})
 
+		catalogsPath = resolveDefaultPolicyPath(cmd.String("catalogs-default-path"))
+		metricsPath = resolveDefaultPolicyPath(cmd.String("metrics-default-path"))
+
 		// Orchestrator service configuration
 		orchestratorOpts = append([]service.Option[orchestrator.Service]{
 			orchestrator.WithConfig(orchestrator.Config{
-				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
+				DefaultCatalogsPath:             catalogsPath,
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
-				DefaultMetricsPath:              cmd.String("metrics-default-path"),
+				DefaultMetricsPath:              metricsPath,
 				LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
 				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
 				PersistenceConfig: persistence.Config{
@@ -143,6 +169,16 @@ var ConfirmateCommand = &cli.Command{
 		}
 		apiPort = cmd.Uint16("api-port")
 
+		assessmentOrchestratorAddress = cmd.String("assessment-orchestrator-address")
+		if assessmentOrchestratorAddress == assessment.DefaultOrchestratorURL {
+			assessmentOrchestratorAddress = fmt.Sprintf("http://localhost:%d", apiPort)
+		}
+
+		evidenceAssessmentAddress = cmd.String("evidence-assessment-address")
+		if evidenceAssessmentAddress == evidence.DefaultAssessmentURL {
+			evidenceAssessmentAddress = fmt.Sprintf("http://localhost:%d", apiPort)
+		}
+
 		orchestratorClient = http.DefaultClient
 		if cmd.Bool("auth-enabled") {
 			credentials = &clientcredentials.Config{
@@ -157,7 +193,7 @@ var ConfirmateCommand = &cli.Command{
 		// Assessment service configuration
 		assessmentOpts = append([]service.Option[assessment.Service]{
 			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
+				OrchestratorAddress: assessmentOrchestratorAddress,
 				OrchestratorClient:  orchestratorClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
@@ -171,7 +207,7 @@ var ConfirmateCommand = &cli.Command{
 		// EvidenceStore service configuration
 		evidenceOpts = append([]service.Option[evidence.Service]{
 			evidence.WithConfig(evidence.Config{
-				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				AssessmentAddress: evidenceAssessmentAddress,
 				PersistenceConfig: persistence.Config{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
@@ -185,6 +221,7 @@ var ConfirmateCommand = &cli.Command{
 				AssessmentHTTPClient: &http.Client{
 					Timeout: cmd.Duration("evidence-assessment-http-timeout"),
 				},
+				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
 			}),
 		}, evidenceOptions...)
 
