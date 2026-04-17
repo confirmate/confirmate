@@ -403,9 +403,11 @@ func (svc *Service) ListMetricConfigurations(
 	req *connect.Request[orchestrator.ListMetricConfigurationRequest],
 ) (res *connect.Response[orchestrator.ListMetricConfigurationResponse], err error) {
 	var (
-		configs   []*assessment.MetricConfiguration
-		configMap = make(map[string]*assessment.MetricConfiguration)
-		npt       string
+		customConfigs   []*assessment.MetricConfiguration
+		configsByMetric = make(map[string]*assessment.MetricConfiguration)
+		pagedConfigs    []*assessment.MetricConfiguration
+		configMap       = make(map[string]*assessment.MetricConfiguration)
+		npt             string
 	)
 
 	// Validate the request
@@ -413,21 +415,57 @@ func (svc *Service) ListMetricConfigurations(
 		return nil, err
 	}
 
-	// Set default ordering
-	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "metric_id"
-		req.Msg.Asc = true
-	}
+	// Hardcoded stable ordering strategy for now:
+	// sort ascending by target_of_evaluation_id and break ties by metric_id.
+	req.Msg.OrderBy = "target_of_evaluation_id"
+	req.Msg.Asc = true
 
-	// Use WithoutPreload because MetricConfiguration contains structpb.Value which has unexported fields
-	configs, npt, err = service.PaginateStorage[*assessment.MetricConfiguration](req.Msg, svc.db, service.DefaultPaginationOpts,
+	// Retrieve custom per-target overrides from storage.
+	err = svc.db.List(&customConfigs, req.Msg.GetOrderBy(), req.Msg.GetAsc(), 0, -1,
 		persistence.WithoutPreload(), "target_of_evaluation_id = ?", req.Msg.TargetOfEvaluationId)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
+	// Include one configuration for each known metric by seeding with defaults.
+	for metricID, defaultConfig := range defaultMetricConfigurations {
+		configsByMetric[metricID] = &assessment.MetricConfiguration{
+			Operator:             defaultConfig.Operator,
+			TargetValue:          defaultConfig.TargetValue,
+			IsDefault:            true,
+			MetricId:             metricID,
+			TargetOfEvaluationId: req.Msg.TargetOfEvaluationId,
+			UpdatedAt:            defaultConfig.UpdatedAt,
+		}
+	}
+
+	// Custom configurations override defaults for the same metric.
+	for _, config := range customConfigs {
+		configsByMetric[config.MetricId] = config
+	}
+
+	combinedConfigs := make([]*assessment.MetricConfiguration, 0, len(configsByMetric))
+	for _, config := range configsByMetric {
+		combinedConfigs = append(combinedConfigs, config)
+	}
+
+	pagedConfigs, npt, err = service.PaginateSlice[*assessment.MetricConfiguration](
+		req.Msg,
+		combinedConfigs,
+		func(a *assessment.MetricConfiguration, b *assessment.MetricConfiguration) bool {
+			if a.GetTargetOfEvaluationId() == b.GetTargetOfEvaluationId() {
+				return a.GetMetricId() < b.GetMetricId()
+			}
+			return a.GetTargetOfEvaluationId() < b.GetTargetOfEvaluationId()
+		},
+		service.DefaultPaginationOpts,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	// Convert slice to map indexed by metric ID
-	for _, config := range configs {
+	for _, config := range pagedConfigs {
 		configMap[config.MetricId] = config
 	}
 
