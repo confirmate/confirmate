@@ -89,9 +89,7 @@ func TestService_CreateCatalog(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
-					assert.Equal(t, orchestratortest.MockCatalog1.Name, got.Msg.Name) &&
-					assert.Equal(t, orchestratortest.MockCatalog1.Description, got.Msg.Description)
+				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -206,8 +204,39 @@ func TestService_GetCatalog(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalogId1,
+					Name:        orchestratortest.MockCatalogName1,
+					Description: orchestratortest.MockCatalogDescription1,
+					Categories: []*orchestrator.Category{
+						{
+							Name:      orchestratortest.MockCategoryName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+							Controls: []*orchestrator.Control{
+								{
+									Id:                orchestratortest.MockControlId1,
+									Name:              orchestratortest.MockControlName1,
+									CategoryName:      orchestratortest.MockCategoryName1,
+									CategoryCatalogId: orchestratortest.MockCatalogId1,
+								},
+							},
+						},
+						{
+							Name:      orchestratortest.MockCategoryName2,
+							CatalogId: orchestratortest.MockCatalogId1,
+							Controls: []*orchestrator.Control{
+								{
+									Id:                orchestratortest.MockControlId2,
+									CategoryCatalogId: orchestratortest.MockCatalogId1,
+									CategoryName:      orchestratortest.MockCategoryName2,
+									Name:              orchestratortest.MockControlName2,
+								},
+							},
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -326,9 +355,25 @@ func TestService_ListCatalogs(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCatalogsResponse], args ...any) bool {
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalogId1,
+					Name:        orchestratortest.MockCatalogName1,
+					Description: orchestratortest.MockCatalogDescription1,
+					Categories: []*orchestrator.Category{
+						{
+							Name:      orchestratortest.MockCategoryName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+						{
+							Name:      orchestratortest.MockCategoryName2,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+					},
+				}
+
 				assert.NotNil(t, got.Msg)
 				assert.Equal(t, 2, len(got.Msg.Catalogs))
-				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg.Catalogs[0])
+				return assert.Equal(t, want, got.Msg.Catalogs[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -694,21 +739,31 @@ func TestService_GetCategory(t *testing.T) {
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetCategoryRequest{
-					CatalogId:    orchestratortest.MockCategory1.CatalogId,
-					CategoryName: orchestratortest.MockCategory1.Name,
+					CatalogId:    orchestratortest.MockCatalogId1,
+					CategoryName: orchestratortest.MockCategoryName1,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Category], args ...any) bool {
+				want := &orchestrator.Category{
+					Name:      orchestratortest.MockCategoryName1,
+					CatalogId: orchestratortest.MockCatalogId1,
+					Controls: []*orchestrator.Control{
+						{
+							Id:                orchestratortest.MockControlId1,
+							Name:              orchestratortest.MockControlName1,
+							CategoryName:      orchestratortest.MockCategoryName1,
+							CategoryCatalogId: orchestratortest.MockCatalogId1,
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCategory1, got.Msg)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -716,7 +771,7 @@ func TestService_GetCategory(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetCategoryRequest{
-					CatalogId:    orchestratortest.MockCategory1.CatalogId,
+					CatalogId:    orchestratortest.MockCatalogId1,
 					CategoryName: "non-existent",
 				},
 			},
@@ -798,14 +853,35 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 7, len(got.Msg.Controls))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by catalog",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					CatalogId: orchestratortest.MockCatalog2.Id,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory2)
+					err = d.Create(orchestratortest.MockCatalog2)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl2)
-					assert.NoError(t, err)
+					// err = d.Create(orchestratortest.MockCategory1)
+					// assert.NoError(t, err)
+					// err = d.Create(orchestratortest.MockCategory2)
+					// assert.NoError(t, err)
+					// err = d.Create(orchestratortest.MockControl1)
+					// assert.NoError(t, err)
+					// err = d.Create(orchestratortest.MockControl2)
+					// assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
@@ -815,65 +891,21 @@ func TestService_ListControls(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "filter by catalog",
-			args: args{
-				req: &orchestrator.ListControlsRequest{
-					CatalogId: orchestratortest.MockControl1.CategoryCatalogId,
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCatalog2)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory2)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl2)
-					assert.NoError(t, err)
-				}),
-			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
-				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 1, len(got.Msg.Controls))
-			},
-			wantErr: assert.NoError,
-		},
-		{
 			name: "filter by category",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CategoryName: orchestratortest.MockControl1.CategoryName,
+					CategoryName: orchestratortest.MockCatalog1.Categories[0].Name,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(&orchestrator.Category{
-						Name:      "category-2",
-						CatalogId: orchestratortest.MockCatalog1.Id,
-					})
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
-					err = d.Create(&orchestrator.Control{
-						Id:                "control-3",
-						CategoryName:      "category-2",
-						CategoryCatalogId: orchestratortest.MockControl1.CategoryCatalogId,
-					})
-					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 1, len(got.Msg.Controls))
+				return assert.Equal(t, 3, len(got.Msg.Controls))
 			},
 			wantErr: assert.NoError,
 		},
@@ -923,24 +955,46 @@ func TestService_GetControl(t *testing.T) {
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetControlRequest{
-					ControlId:    orchestratortest.MockControl1.Id,
-					CategoryName: orchestratortest.MockControl1.CategoryName,
-					CatalogId:    orchestratortest.MockControl1.CategoryCatalogId,
+					ControlId:    orchestratortest.MockControlId1,
+					CategoryName: orchestratortest.MockCategoryName1,
+					CatalogId:    orchestratortest.MockCatalogId1,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Control], args ...any) bool {
+				want := &orchestrator.Control{
+					Id:                orchestratortest.MockControlId1,
+					Name:              orchestratortest.MockControlName1,
+					CategoryName:      orchestratortest.MockCategoryName1,
+					CategoryCatalogId: orchestratortest.MockCatalogId1,
+					Controls: []*orchestrator.Control{
+						{
+							Id:                             orchestratortest.MockSubControlId1,
+							Name:                           orchestratortest.MockSubControlName1,
+							CategoryName:                   orchestratortest.MockCategoryName1,
+							CategoryCatalogId:              orchestratortest.MockCatalogId1,
+							ParentControlId:                new(orchestratortest.MockControlId1),
+							ParentControlCategoryName:      new(orchestratortest.MockCategoryName1),
+							ParentControlCategoryCatalogId: new(orchestratortest.MockCatalogId1),
+						},
+						{
+							Id:                             orchestratortest.MockSubControlId2,
+							Name:                           orchestratortest.MockSubControlName2,
+							CategoryName:                   orchestratortest.MockCategoryName1,
+							CategoryCatalogId:              orchestratortest.MockCatalogId1,
+							ParentControlId:                new(orchestratortest.MockControlId1),
+							ParentControlCategoryName:      new(orchestratortest.MockCategoryName1),
+							ParentControlCategoryCatalogId: new(orchestratortest.MockCatalogId1),
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockControl1, got.Msg)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -949,8 +1003,8 @@ func TestService_GetControl(t *testing.T) {
 			args: args{
 				req: &orchestrator.GetControlRequest{
 					ControlId:    "non-existent",
-					CategoryName: orchestratortest.MockControl1.CategoryName,
-					CatalogId:    orchestratortest.MockControl1.CategoryCatalogId,
+					CategoryName: orchestratortest.MockControlId1,
+					CatalogId:    orchestratortest.MockCatalogId1,
 				},
 			},
 			fields: fields{

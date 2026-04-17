@@ -75,6 +75,11 @@ func ErrNotFound(entity string) error {
 	return fmt.Errorf("%s not found", entity)
 }
 
+// ErrIsMissing returns a plain error indicating that a required field is missing.
+func ErrIsMissing(fieldName string) error {
+	return fmt.Errorf("%s is missing", fieldName)
+}
+
 // Validate validates an incoming request using protovalidate.
 // The type parameter T should be a protobuf message type where *T implements [proto.Message].
 //   - If the request or request message is nil, it returns an [ErrEmptyRequest] error.
