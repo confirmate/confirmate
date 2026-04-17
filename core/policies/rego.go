@@ -225,7 +225,9 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 				// Try to check if the metric implementation just does not exist.
 				if connect.CodeOf(err) == connect.CodeNotFound &&
 					(strings.Contains(err.Error(), "implementation for metric not found") ||
-						strings.Contains(err.Error(), "metric configuration not found for metric")) {
+						// Match the root not-found phrase. Wrapped variants (e.g. "... for metric X")
+						// still contain this substring and are treated as non-fatal skips.
+						strings.Contains(err.Error(), "metric configuration not found")) {
 					continue
 				}
 
