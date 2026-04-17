@@ -247,7 +247,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(evaluationtest.MockEvaluationResult3)
 					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockEvaluationResult4)
+					err = d.Create(evaluationtest.MockManualEvaluationResult3)
 					assert.NoError(t, err)
 					err = d.Create(evaluationtest.MockManualEvaluationResult1)
 					assert.NoError(t, err)
@@ -289,14 +289,16 @@ func TestService_ListEvaluationResults(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(evaluationtest.MockEvaluationResult3)
 					assert.NoError(t, err)
-					err = d.Create(evaluationtest.MockEvaluationResult4)
+					err = d.Create(evaluationtest.MockManualEvaluationResult2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockManualEvaluationResult4)
 					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
 				assert.Equal(t, 1, len(got.Msg.Results))
-				return assert.Equal(t, evaluationtest.MockEvaluationResult4, got.Msg.Results[0])
+				return assert.Equal(t, evaluationtest.MockManualEvaluationResult3, got.Msg.Results[0])
 			},
 			wantErr: assert.NoError,
 		},

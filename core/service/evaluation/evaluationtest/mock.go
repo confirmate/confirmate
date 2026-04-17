@@ -126,20 +126,6 @@ var (
 		Data:                 []byte{},
 	}
 
-	MockEvaluationResult4 = &evaluation.EvaluationResult{
-		Id:                   MockEvaluationResultId4,
-		TargetOfEvaluationId: MockToeId1,
-		AuditScopeId:         MockAuditScopeId1,
-		ControlId:            MockControlId1,
-		ControlCategoryName:  MockCategoryName1,
-		ControlCatalogId:     MockCatalogId1,
-		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
-		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
-		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
-		AssessmentResultIds:  []string{MockAssessmentResultId1},
-		Comment:              new("Mock evaluation result 4"),
-		Data:                 []byte{},
-	}
 	MockManualEvaluationResult1 = &evaluation.EvaluationResult{
 		Id:                   MockEvaluationResultId5,
 		TargetOfEvaluationId: MockToeId1,
@@ -155,7 +141,7 @@ var (
 		Comment:              new("Mock manual evaluation result 1"),
 		Data:                 make([]byte, 2*2), // small blob
 	}
-	// MockManualEvaluationResult2 is identical to MockManualEvaluationResult1 except for the ID. The ID is missing.
+
 	MockManualEvaluationResult2 = &evaluation.EvaluationResult{
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
@@ -169,6 +155,37 @@ var (
 		ParentControlId:      new(MockControlId1),
 		Comment:              new("Mock manual evaluation result 1"),
 		Data:                 make([]byte, 2*2), // small blob
+	}
+
+	MockManualEvaluationResult3 = &evaluation.EvaluationResult{
+		Id:                   MockEvaluationResultId4,
+		TargetOfEvaluationId: MockToeId1,
+		AuditScopeId:         MockAuditScopeId1,
+		ControlId:            MockControlId1,
+		ControlCategoryName:  MockCategoryName1,
+		ControlCatalogId:     MockCatalogId1,
+		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
+		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
+		AssessmentResultIds:  []string{MockAssessmentResultId1},
+		Comment:              new("Mock evaluation result 4"),
+		Data:                 []byte{},
+	}
+
+	// Evaluation Result with valid until in the past, should be filtered out when fetching valid evaluation results
+	MockManualEvaluationResult4 = &evaluation.EvaluationResult{
+		Id:                   MockEvaluationResultId4,
+		TargetOfEvaluationId: MockToeId1,
+		AuditScopeId:         MockAuditScopeId1,
+		ControlId:            MockControlId1,
+		ControlCategoryName:  MockCategoryName1,
+		ControlCatalogId:     MockCatalogId1,
+		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
+		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(-15 * time.Minute)),
+		ValidUntil:           timestamppb.New(time.Now().Add(-24 * time.Hour)),
+		AssessmentResultIds:  []string{MockAssessmentResultId1},
+		Comment:              new("Mock evaluation result 4"),
+		Data:                 []byte{},
 	}
 )
 
