@@ -5077,8 +5077,10 @@ type ListEvaluationResultsRequest_Filter struct {
 	ParentsOnly *bool `protobuf:"varint,5,opt,name=parents_only,json=parentsOnly,proto3,oneof" json:"parents_only,omitempty"`
 	// Optional. Lists only manual results in their validity period
 	ValidManualOnly *bool `protobuf:"varint,6,opt,name=valid_manual_only,json=validManualOnly,proto3,oneof" json:"valid_manual_only,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Optional. Lists only evaluation results for a specific audit scope.
+	AuditScopeId  *string `protobuf:"bytes,7,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListEvaluationResultsRequest_Filter) Reset() {
@@ -5151,6 +5153,13 @@ func (x *ListEvaluationResultsRequest_Filter) GetValidManualOnly() bool {
 		return *x.ValidManualOnly
 	}
 	return false
+}
+
+func (x *ListEvaluationResultsRequest_Filter) GetAuditScopeId() string {
+	if x != nil && x.AuditScopeId != nil {
+		return *x.AuditScopeId
+	}
+	return ""
 }
 
 type ListMetricsRequest_Filter struct {
@@ -5663,7 +5672,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\bR\x06status\x12%\n" +
 	"\x0estatus_message\x18\x02 \x01(\tR\rstatusMessage\"m\n" +
 	"\x1cStoreEvaluationResultRequest\x12M\n" +
-	"\x06result\x18\x01 \x01(\v2*.confirmate.evaluation.v1.EvaluationResultB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06result\"\xe6\x05\n" +
+	"\x06result\x18\x01 \x01(\v2*.confirmate.evaluation.v1.EvaluationResultB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06result\"\xae\x06\n" +
 	"\x1cListEvaluationResultsRequest\x12\\\n" +
 	"\x06filter\x18\x01 \x01(\v2?.confirmate.orchestrator.v1.ListEvaluationResultsRequest.FilterH\x00R\x06filter\x88\x01\x01\x124\n" +
 	"\x14latest_by_control_id\x18\x02 \x01(\bH\x01R\x11latestByControlId\x88\x01\x01\x12\x1b\n" +
@@ -5672,7 +5681,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xa4\x03\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xec\x03\n" +
 	"\x06Filter\x12D\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x14targetOfEvaluationId\x88\x01\x01\x12+\n" +
 	"\n" +
@@ -5681,13 +5690,15 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"control_id\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x02R\tcontrolId\x88\x01\x01\x12/\n" +
 	"\fsub_controls\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x03R\vsubControls\x88\x01\x01\x12&\n" +
 	"\fparents_only\x18\x05 \x01(\bH\x04R\vparentsOnly\x88\x01\x01\x12/\n" +
-	"\x11valid_manual_only\x18\x06 \x01(\bH\x05R\x0fvalidManualOnly\x88\x01\x01B\x1a\n" +
+	"\x11valid_manual_only\x18\x06 \x01(\bH\x05R\x0fvalidManualOnly\x88\x01\x01\x123\n" +
+	"\x0eaudit_scope_id\x18\a \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x06R\fauditScopeId\x88\x01\x01B\x1a\n" +
 	"\x18_target_of_evaluation_idB\r\n" +
 	"\v_catalog_idB\r\n" +
 	"\v_control_idB\x0f\n" +
 	"\r_sub_controlsB\x0f\n" +
 	"\r_parents_onlyB\x14\n" +
-	"\x12_valid_manual_onlyB\t\n" +
+	"\x12_valid_manual_onlyB\x11\n" +
+	"\x0f_audit_scope_idB\t\n" +
 	"\a_filterB\x17\n" +
 	"\x15_latest_by_control_id\"\x8d\x01\n" +
 	"\x1dListEvaluationResultsResponse\x12D\n" +

@@ -230,6 +230,49 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: filter by Audit Scope",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+					LatestByControlId: new(true),
+					Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
+						AuditScopeId: new(evaluationtest.MockAuditScopeId2),
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+					err := d.Create(evaluationtest.MockEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockEvaluationResult3)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockManualEvaluationResult1)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockManualEvaluationResult2)
+					assert.NoError(t, err)
+					err = d.Create(evaluationtest.MockManualEvaluationResult3)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListEvaluationResultsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 2, len(got.Msg.Results))
+				mockResult1IsIn := slices.ContainsFunc(got.Msg.Results, func(result *evaluation.EvaluationResult) bool {
+					isSame := result.Id == evaluationtest.MockEvaluationResult2.Id
+					return isSame
+				})
+				assert.True(t, mockResult1IsIn)
+
+				result3IsIn := slices.ContainsFunc(got.Msg.Results, func(result *evaluation.EvaluationResult) bool {
+					isSame := result.Id == evaluationtest.MockManualEvaluationResult3.Id
+					return isSame
+				})
+				return assert.True(t, result3IsIn)
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "happy path: filter by `get latest by control id` and filter by ToE",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{

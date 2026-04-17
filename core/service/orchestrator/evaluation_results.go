@@ -70,6 +70,11 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	// * control ID
 	// * sub-controls
 	if req.Msg.Filter != nil {
+		if req.Msg.Filter.AuditScopeId != nil {
+			query = append(query, "audit_scope_id = ?")
+			args = append(args, req.Msg.Filter.GetAuditScopeId())
+		}
+
 		if req.Msg.Filter.TargetOfEvaluationId != nil {
 			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())

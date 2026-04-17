@@ -482,6 +482,10 @@ message ListEvaluationResultsRequest {
 
     // Optional. Lists only manual results in their validity period
     optional bool valid_manual_only = 6;
+
+    // Optional. Lists only evaluation results for a specific audit scope.
+    optional string audit_scope_id = 7 [(buf.validate.field).string.uuid = true];
+
   }
 
   optional Filter filter = 1;

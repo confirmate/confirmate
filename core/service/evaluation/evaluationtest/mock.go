@@ -11,11 +11,14 @@ import (
 
 const (
 	// Mock IDs for evaluation results
-	MockEvaluationResultId1 = "00000000-0000-0000-0000-000000000001"
-	MockEvaluationResultId2 = "00000000-0000-0000-0000-000000000002"
-	MockEvaluationResultId3 = "00000000-0000-0000-0000-000000000003"
-	MockEvaluationResultId4 = "00000000-0000-0000-0000-000000000004"
-	MockEvaluationResultId5 = "00000000-0000-0000-0000-000000000005"
+	MockEvaluationResultId1   = "00000000-0000-0000-0000-000000000001"
+	MockEvaluationResultId2   = "00000000-0000-0000-0000-000000000002"
+	MockEvaluationResultId3   = "00000000-0000-0000-0000-000000000003"
+	MockEvaluationResultId4   = "00000000-0000-0000-0000-000000000004"
+	MockEvaluationResultId101 = "00000000-0000-0000-0000-000000000101"
+	MockEvaluationResultId102 = "00000000-0000-0000-0000-000000000102"
+	MockEvaluationResultId103 = "00000000-0000-0000-0000-000000000103"
+	MockEvaluationResultId104 = "00000000-0000-0000-0000-000000000104"
 
 	// Mock IDs for audit scopes
 	MockAuditScopeId1 = "00000000-0000-0000-0001-000000000001"
@@ -125,9 +128,22 @@ var (
 		Comment:              new("Mock evaluation result 3"),
 		Data:                 []byte{},
 	}
+	MockEvaluationResult4 = &evaluation.EvaluationResult{
+		Id:                   MockEvaluationResultId4,
+		TargetOfEvaluationId: MockToeId1,
+		AuditScopeId:         MockAuditScopeId2,
+		ControlId:            MockControlId1,
+		ControlCategoryName:  MockCategoryName1,
+		ControlCatalogId:     MockCatalogId1,
+		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
+		Comment:              new("Mock evaluation result 1"),
+		Data:                 []byte{},
+	}
 
 	MockManualEvaluationResult1 = &evaluation.EvaluationResult{
-		Id:                   MockEvaluationResultId5,
+		Id:                   MockEvaluationResultId101,
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockControlId1,
@@ -143,6 +159,7 @@ var (
 	}
 
 	MockManualEvaluationResult2 = &evaluation.EvaluationResult{
+		Id:                   MockEvaluationResultId102,
 		TargetOfEvaluationId: MockToeId2,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockSubcontrolId11,
@@ -153,14 +170,14 @@ var (
 		AssessmentResultIds:  []string{MockAssessmentResultId1, MockAssessmentResultId2},
 		ValidUntil:           timestamppb.New(time.Now().Add(48 * time.Hour)),
 		ParentControlId:      new(MockControlId1),
-		Comment:              new("Mock manual evaluation result 1"),
+		Comment:              new("Mock manual evaluation result 2"),
 		Data:                 make([]byte, 2*2), // small blob
 	}
 
 	MockManualEvaluationResult3 = &evaluation.EvaluationResult{
-		Id:                   MockEvaluationResultId4,
+		Id:                   MockEvaluationResultId103,
 		TargetOfEvaluationId: MockToeId1,
-		AuditScopeId:         MockAuditScopeId1,
+		AuditScopeId:         MockAuditScopeId2,
 		ControlId:            MockControlId1,
 		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
@@ -168,13 +185,13 @@ var (
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
 		ValidUntil:           timestamppb.New(time.Now().Add(24 * time.Hour)),
 		AssessmentResultIds:  []string{MockAssessmentResultId1},
-		Comment:              new("Mock evaluation result 4"),
+		Comment:              new("Mock evaluation result 3"),
 		Data:                 []byte{},
 	}
 
 	// Evaluation Result with valid until in the past, should be filtered out when fetching valid evaluation results
 	MockManualEvaluationResult4 = &evaluation.EvaluationResult{
-		Id:                   MockEvaluationResultId4,
+		Id:                   MockEvaluationResultId104,
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockControlId1,

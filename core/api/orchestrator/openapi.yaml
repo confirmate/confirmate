@@ -50,6 +50,11 @@ paths:
                   description: Optional. Lists only manual results in their validity period
                   schema:
                     type: boolean
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific audit scope.
+                  schema:
+                    type: string
                 - name: latestByControlId
                   in: query
                   description: Optional. Latest results grouped by control_id.
