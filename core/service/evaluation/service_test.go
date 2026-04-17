@@ -308,7 +308,7 @@ func TestService_getMetricsFromSubControls(t *testing.T) {
 			},
 			wantMetrics: nil,
 			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, service.ErrControlNotAvailable)
+				return assert.ErrorContains(t, err, service.ErrNotFound("control").Error())
 			},
 		},
 		{
@@ -504,7 +504,7 @@ func TestService_getControl(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, service.ErrControlNotAvailable)
+				return assert.ErrorContains(t, err, service.ErrNotFound("control").Error())
 			},
 		},
 		{

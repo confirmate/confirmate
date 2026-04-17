@@ -54,9 +54,6 @@ var (
 
 	// ErrDatabaseError is returned for general database errors.
 	ErrDatabaseError = errors.New("database error")
-
-	// ErrControlNotAvailable is returned when a given control is not available in the catalog.
-	ErrControlNotAvailable = errors.New("control is not available in the catalog")
 )
 
 var (

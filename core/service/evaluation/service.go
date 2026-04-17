@@ -686,7 +686,7 @@ func (svc *Service) getControl(catalogId, categoryName, controlId string) (contr
 
 	control, ok := svc.catalogControls[catalogId][tag]
 	if !ok {
-		return nil, service.ErrControlNotAvailable
+		return nil, service.ErrNotFound("control")
 	}
 
 	return
