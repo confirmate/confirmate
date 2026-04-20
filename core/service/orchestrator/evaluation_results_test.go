@@ -88,7 +88,7 @@ func TestService_StoreEvaluationResult(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[evaluation.EvaluationResult], msgAndArgs ...any) bool {
 				assert.NotEmpty(t, got.Msg.GetId())
 				assert.NotEmpty(t, got.Msg.GetTimestamp())
-				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, got.Msg, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp"))
+				return assert.Equal(t, evaluationtest.MockManualEvaluationResult1, got.Msg, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "timestamp"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -153,7 +153,7 @@ func TestService_StoreEvaluationResult_LargeBlobIntegration(t *testing.T) {
 	// Verify the creation was successful
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
-	assert.NotEmpty(t, res.Msg.Id)
+	assert.Equal(t, evaluationtest.MockEvaluationResultId1, res.Msg.GetId())
 
 	// Verify the response contains the correct blob size
 	assert.Equal(t, 1024*1024, len(res.Msg.Data))
