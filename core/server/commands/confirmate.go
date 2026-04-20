@@ -184,8 +184,8 @@ var ConfirmateCommand = &cli.Command{
 			toes                          *connect.Response[orchestratorapi.ListTargetsOfEvaluationResponse]
 			assessmentOrchestratorAddress string
 			evidenceAssessmentAddress     string
-			catalogsPath                 string
-			metricsPath                  string
+			catalogsPath                  string
+			metricsPath                   string
 		)
 
 		if cmd.Bool("auth-enabled") {
