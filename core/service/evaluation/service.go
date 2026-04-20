@@ -637,7 +637,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	)
 
 	if catalogId == "" {
-		return service.ErrIsMissing("catalog ID")
+		return errors.New("catalog ID is missing")
 	}
 
 	// Get controls for given catalog
@@ -675,11 +675,11 @@ func (svc *Service) cacheControls(catalogId string) error {
 // getControl returns the control for the given catalogID, CategoryName and controlID.
 func (svc *Service) getControl(catalogId, categoryName, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
-		return nil, service.ErrIsMissing("catalog id")
+		return nil, errors.New("catalog id is missing")
 	} else if categoryName == "" {
-		return nil, service.ErrIsMissing("category name")
+		return nil, errors.New("category name is missing")
 	} else if controlId == "" {
-		return nil, service.ErrIsMissing("control id")
+		return nil, errors.New("control id is missing")
 	}
 
 	tag := fmt.Sprintf("%s-%s", categoryName, controlId)
