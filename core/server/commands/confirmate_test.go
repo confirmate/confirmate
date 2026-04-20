@@ -16,6 +16,8 @@
 package commands
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"confirmate.io/core/util/assert"
@@ -111,4 +113,43 @@ func TestCommandDBInMemoryDefaults(t *testing.T) {
 			assert.Equal(t, tt.wantValue, gotValue)
 		})
 	}
+}
+
+func TestResolveDefaultPolicyPath(t *testing.T) {
+	t.Run("resolves to core fallback when original path is missing", func(t *testing.T) {
+		var (
+			tmp      string
+			oldWd    string
+			err      error
+			input    string
+			expected string
+			got      string
+		)
+
+		tmp = t.TempDir()
+		oldWd, err = os.Getwd()
+		if err != nil {
+			t.Fatalf("getwd: %v", err)
+		}
+
+		t.Cleanup(func() {
+			_ = os.Chdir(oldWd)
+		})
+
+		err = os.Chdir(tmp)
+		if err != nil {
+			t.Fatalf("chdir: %v", err)
+		}
+
+		expected = filepath.Join("core", "policies", "security-metrics", "metrics")
+		err = os.MkdirAll(expected, 0o755)
+		if err != nil {
+			t.Fatalf("mkdir fallback path: %v", err)
+		}
+
+		input = filepath.Join("policies", "security-metrics", "metrics")
+		got = resolveDefaultPolicyPath(input)
+
+		assert.Equal(t, expected, got)
+	})
 }

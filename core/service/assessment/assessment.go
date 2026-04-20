@@ -231,6 +231,13 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 			Evidence: req.Evidence,
 		})
 
+		slog.Debug("AssessEvidences received evidence",
+			slog.String("evidence_id", req.GetEvidence().GetId()),
+			slog.String("tool_id", req.GetEvidence().GetToolId()),
+			slog.String("target_of_evaluation_id", req.GetEvidence().GetTargetOfEvaluationId()),
+			slog.Int("related_resource_ids", len(req.GetEvidence().GetExperimentalRelatedResourceIds())),
+		)
+
 		assessmentRes, err = svc.AssessEvidence(ctx, assessmentReq)
 		if err != nil {
 			slog.Error("AssessEvidenceStream: could not assess evidence:", log.Err(err))
@@ -238,11 +245,22 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 				Status:        assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
 				StatusMessage: err.Error(),
 			}
+		} else if assessmentRes == nil || assessmentRes.Msg == nil {
+			res = &assessment.AssessEvidencesResponse{
+				Status:        assessment.AssessmentStatus_ASSESSMENT_STATUS_FAILED,
+				StatusMessage: "assessment produced no response",
+			}
 		} else {
 			res = &assessment.AssessEvidencesResponse{
 				Status: assessmentRes.Msg.Status,
 			}
 		}
+
+		slog.Debug("AssessEvidences sending status",
+			slog.String("evidence_id", req.GetEvidence().GetId()),
+			slog.String("status", res.GetStatus().String()),
+			slog.String("status_message", res.GetStatusMessage()),
+		)
 
 		err = stream.Send(res)
 		if err != nil {
@@ -395,6 +413,8 @@ func (svc *Service) handleEvidence(
 	}
 
 	for _, data := range evaluations {
+		toolID := ev.GetToolId()
+
 		// That there is an empty (nil) evaluation should be caught beforehand, but you never know.
 		if data == nil {
 			slog.Error("One empty policy evaluation detected for evidence. That should not happen.", slog.String("Evidence", ev.GetId()))
@@ -418,7 +438,7 @@ func (svc *Service) handleEvidence(
 			ResourceTypes:        types,
 			ComplianceComment:    data.Message,
 			ComplianceDetails:    data.ComparisonResult,
-			ToolId:               new(assessment.AssessmentToolId),
+			ToolId:               &toolID,
 			HistoryUpdatedAt:     timestamppb.Now(),
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),
@@ -429,11 +449,9 @@ func (svc *Service) handleEvidence(
 		// Inform hooks about new assessment result
 		go svc.informHooks(ctx, result, nil)
 
-		svc.streamMutex.Lock()
-		err = svc.orchestratorStream.Send(&orchestrator.StoreAssessmentResultRequest{
+		_, err = svc.orchestratorClient.StoreAssessmentResult(ctx, connect.NewRequest(&orchestrator.StoreAssessmentResultRequest{
 			Result: result,
-		})
-		svc.streamMutex.Unlock()
+		}))
 
 		if err != nil {
 			slog.Error("Failed to send assessment result to orchestrator", log.Err(err))

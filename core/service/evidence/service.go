@@ -139,10 +139,20 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 // sendToAssessment forwards evidence to the assessment service using the restartable stream.
 func (svc *Service) sendToAssessment(evidence *evidence.Evidence) (err error) {
-	// Send evidence to the assessment service using the persistent stream
-	err = svc.assessmentStream.Send(&assessment.AssessEvidenceRequest{Evidence: evidence})
+	var res *connect.Response[assessment.AssessEvidenceResponse]
+
+	res, err = svc.assessmentClient.AssessEvidence(
+		context.Background(),
+		connect.NewRequest(&assessment.AssessEvidenceRequest{Evidence: evidence}),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to send evidence %s: %w", evidence.Id, err)
+	}
+	if res == nil || res.Msg == nil {
+		return fmt.Errorf("failed to send evidence %s: assessment produced no response", evidence.Id)
+	}
+	if res.Msg.GetStatus() != assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED {
+		return fmt.Errorf("failed to send evidence %s: assessment status %s", evidence.Id, res.Msg.GetStatus().String())
 	}
 	return nil
 }

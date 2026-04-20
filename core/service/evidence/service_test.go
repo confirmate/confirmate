@@ -161,12 +161,12 @@ func TestService_sendToAssessment(t *testing.T) {
 	assert.NoError(t, err)
 	awaitAssessmentRequest(t, recorder.received, evidenceOne.Id)
 
-	// Step 4: Close stream and verify send error.
+	// Step 4: Close the pre-created stream and verify dispatch still succeeds.
 	assert.NoError(t, svc.assessmentStream.Close())
 	evidenceTwo := &evidence.Evidence{Id: uuid.NewString()}
 	err = svc.sendToAssessment(evidenceTwo)
-	assert.Error(t, err)
-	assert.ErrorContains(t, err, "failed to send evidence")
+	assert.NoError(t, err)
+	awaitAssessmentRequest(t, recorder.received, evidenceTwo.Id)
 }
 
 // TestService_initAssessmentStream verifies creation, idempotency, and error handling.
@@ -1233,9 +1233,9 @@ func TestService_initEvidenceChannel(t *testing.T) {
 	svc.channelEvidence <- ev
 	awaitAssessmentRequest(t, assessmentRecorder.received, ev.Id)
 
-	// Error path: close stream to trigger send error.
+	// Closing the pre-created stream must not block evidence dispatch.
 	assert.NoError(t, svc.assessmentStream.Close())
-	svc.channelEvidence <- &evidence.Evidence{Id: uuid.NewString()}
-	// Give worker time to process and log error
-	time.Sleep(100 * time.Millisecond)
+	ev = &evidence.Evidence{Id: uuid.NewString()}
+	svc.channelEvidence <- ev
+	awaitAssessmentRequest(t, assessmentRecorder.received, ev.Id)
 }
