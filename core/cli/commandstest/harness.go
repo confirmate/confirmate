@@ -30,6 +30,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
+	"confirmate.io/core/service/evaluation/evaluationtest"
 	evidencesvc "confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
@@ -76,11 +77,11 @@ func ensureHarness(t *testing.T) error {
 
 func newTestServer(t *testing.T) (*httptest.Server, error) {
 	var (
-		err        error
-		svc        orchestratorconnect.OrchestratorHandler
+		err         error
+		svc         orchestratorconnect.OrchestratorHandler
 		evidenceSvc evidenceconnect.EvidenceStoreHandler
-		srv        *server.Server
-		testSrv    *httptest.Server
+		srv         *server.Server
+		testSrv     *httptest.Server
 	)
 
 	svc, err = orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
@@ -148,16 +149,13 @@ func seedCLIData(t *testing.T, db persistence.DB) {
 	assert.NoError(t, db.Create(orchestratortest.MockMetricConfiguration1))
 	assert.NoError(t, db.Create(orchestratortest.MockCatalog1))
 	assert.NoError(t, db.Create(orchestratortest.MockCatalog2))
-	assert.NoError(t, db.Create(orchestratortest.MockCatalog3))
-	assert.NoError(t, db.Create(orchestratortest.MockCategory1))
-	assert.NoError(t, db.Create(orchestratortest.MockCategory2))
-	assert.NoError(t, db.Create(orchestratortest.MockControl1))
-	assert.NoError(t, db.Create(orchestratortest.MockControl2))
 	assert.NoError(t, db.Create(orchestratortest.MockCertificate1))
 	assert.NoError(t, db.Create(orchestratortest.MockCertificate2))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentTool1))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentTool2))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentResult1))
+	assert.NoError(t, db.Create(evaluationtest.MockEvaluationResult1))
+	assert.NoError(t, db.Create(evaluationtest.MockEvaluationResult2))
 }
 
 func captureOutput(t *testing.T, fn func() error) (string, error) {

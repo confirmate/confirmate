@@ -21,6 +21,7 @@ package orchestratorconnect
 import (
 	assessment "confirmate.io/core/api/assessment"
 	common "confirmate.io/core/api/common"
+	evaluation "confirmate.io/core/api/evaluation"
 	orchestrator "confirmate.io/core/api/orchestrator"
 	connect "connectrpc.com/connect"
 	context "context"
@@ -74,9 +75,15 @@ const (
 	// OrchestratorGetAssessmentResultProcedure is the fully-qualified name of the Orchestrator's
 	// GetAssessmentResult RPC.
 	OrchestratorGetAssessmentResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAssessmentResult"
+	// OrchestratorStoreEvaluationResultProcedure is the fully-qualified name of the Orchestrator's
+	// StoreEvaluationResult RPC.
+	OrchestratorStoreEvaluationResultProcedure = "/confirmate.orchestrator.v1.Orchestrator/StoreEvaluationResult"
 	// OrchestratorListAssessmentResultsProcedure is the fully-qualified name of the Orchestrator's
 	// ListAssessmentResults RPC.
 	OrchestratorListAssessmentResultsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAssessmentResults"
+	// OrchestratorListEvaluationResultsProcedure is the fully-qualified name of the Orchestrator's
+	// ListEvaluationResults RPC.
+	OrchestratorListEvaluationResultsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListEvaluationResults"
 	// OrchestratorCreateMetricProcedure is the fully-qualified name of the Orchestrator's CreateMetric
 	// RPC.
 	OrchestratorCreateMetricProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateMetric"
@@ -225,8 +232,14 @@ type OrchestratorClient interface {
 	StoreAssessmentResults(context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	// Get an assessment result by ID
 	GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
+	// Store the evaluation result provided by the evaluation component.″
+	StoreEvaluationResult(context.Context, *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error)
 	// List all assessment results. Part of the public API, also exposed as REST.
 	ListAssessmentResults(context.Context, *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error)
+	// List all evaluation results that the user can access. It can further be
+	// restricted by various filtering options. Part of the public API, also
+	// exposed as REST.
+	ListEvaluationResults(context.Context, *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error)
 	// Creates a new metric
 	CreateMetric(context.Context, *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error)
 	// Updates an existing metric
@@ -388,10 +401,22 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("GetAssessmentResult")),
 			connect.WithClientOptions(opts...),
 		),
+		storeEvaluationResult: connect.NewClient[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult](
+			httpClient,
+			baseURL+OrchestratorStoreEvaluationResultProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("StoreEvaluationResult")),
+			connect.WithClientOptions(opts...),
+		),
 		listAssessmentResults: connect.NewClient[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse](
 			httpClient,
 			baseURL+OrchestratorListAssessmentResultsProcedure,
 			connect.WithSchema(orchestratorMethods.ByName("ListAssessmentResults")),
+			connect.WithClientOptions(opts...),
+		),
+		listEvaluationResults: connect.NewClient[orchestrator.ListEvaluationResultsRequest, orchestrator.ListEvaluationResultsResponse](
+			httpClient,
+			baseURL+OrchestratorListEvaluationResultsProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListEvaluationResults")),
 			connect.WithClientOptions(opts...),
 		),
 		createMetric: connect.NewClient[orchestrator.CreateMetricRequest, assessment.Metric](
@@ -671,7 +696,9 @@ type orchestratorClient struct {
 	storeAssessmentResult           *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
 	storeAssessmentResults          *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	getAssessmentResult             *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
+	storeEvaluationResult           *connect.Client[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
 	listAssessmentResults           *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
+	listEvaluationResults           *connect.Client[orchestrator.ListEvaluationResultsRequest, orchestrator.ListEvaluationResultsResponse]
 	createMetric                    *connect.Client[orchestrator.CreateMetricRequest, assessment.Metric]
 	updateMetric                    *connect.Client[orchestrator.UpdateMetricRequest, assessment.Metric]
 	getMetric                       *connect.Client[orchestrator.GetMetricRequest, assessment.Metric]
@@ -758,9 +785,19 @@ func (c *orchestratorClient) GetAssessmentResult(ctx context.Context, req *conne
 	return c.getAssessmentResult.CallUnary(ctx, req)
 }
 
+// StoreEvaluationResult calls confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult.
+func (c *orchestratorClient) StoreEvaluationResult(ctx context.Context, req *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error) {
+	return c.storeEvaluationResult.CallUnary(ctx, req)
+}
+
 // ListAssessmentResults calls confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults.
 func (c *orchestratorClient) ListAssessmentResults(ctx context.Context, req *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
 	return c.listAssessmentResults.CallUnary(ctx, req)
+}
+
+// ListEvaluationResults calls confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults.
+func (c *orchestratorClient) ListEvaluationResults(ctx context.Context, req *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error) {
+	return c.listEvaluationResults.CallUnary(ctx, req)
 }
 
 // CreateMetric calls confirmate.orchestrator.v1.Orchestrator.CreateMetric.
@@ -1007,8 +1044,14 @@ type OrchestratorHandler interface {
 	StoreAssessmentResults(context.Context, *connect.BidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]) error
 	// Get an assessment result by ID
 	GetAssessmentResult(context.Context, *connect.Request[orchestrator.GetAssessmentResultRequest]) (*connect.Response[assessment.AssessmentResult], error)
+	// Store the evaluation result provided by the evaluation component.″
+	StoreEvaluationResult(context.Context, *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error)
 	// List all assessment results. Part of the public API, also exposed as REST.
 	ListAssessmentResults(context.Context, *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error)
+	// List all evaluation results that the user can access. It can further be
+	// restricted by various filtering options. Part of the public API, also
+	// exposed as REST.
+	ListEvaluationResults(context.Context, *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error)
 	// Creates a new metric
 	CreateMetric(context.Context, *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error)
 	// Updates an existing metric
@@ -1166,10 +1209,22 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("GetAssessmentResult")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorStoreEvaluationResultHandler := connect.NewUnaryHandler(
+		OrchestratorStoreEvaluationResultProcedure,
+		svc.StoreEvaluationResult,
+		connect.WithSchema(orchestratorMethods.ByName("StoreEvaluationResult")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorListAssessmentResultsHandler := connect.NewUnaryHandler(
 		OrchestratorListAssessmentResultsProcedure,
 		svc.ListAssessmentResults,
 		connect.WithSchema(orchestratorMethods.ByName("ListAssessmentResults")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorListEvaluationResultsHandler := connect.NewUnaryHandler(
+		OrchestratorListEvaluationResultsProcedure,
+		svc.ListEvaluationResults,
+		connect.WithSchema(orchestratorMethods.ByName("ListEvaluationResults")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorCreateMetricHandler := connect.NewUnaryHandler(
@@ -1454,8 +1509,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorStoreAssessmentResultsHandler.ServeHTTP(w, r)
 		case OrchestratorGetAssessmentResultProcedure:
 			orchestratorGetAssessmentResultHandler.ServeHTTP(w, r)
+		case OrchestratorStoreEvaluationResultProcedure:
+			orchestratorStoreEvaluationResultHandler.ServeHTTP(w, r)
 		case OrchestratorListAssessmentResultsProcedure:
 			orchestratorListAssessmentResultsHandler.ServeHTTP(w, r)
+		case OrchestratorListEvaluationResultsProcedure:
+			orchestratorListEvaluationResultsHandler.ServeHTTP(w, r)
 		case OrchestratorCreateMetricProcedure:
 			orchestratorCreateMetricHandler.ServeHTTP(w, r)
 		case OrchestratorUpdateMetricProcedure:
@@ -1585,8 +1644,16 @@ func (UnimplementedOrchestratorHandler) GetAssessmentResult(context.Context, *co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult is not implemented"))
 }
 
+func (UnimplementedOrchestratorHandler) StoreEvaluationResult(context.Context, *connect.Request[orchestrator.StoreEvaluationResultRequest]) (*connect.Response[evaluation.EvaluationResult], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult is not implemented"))
+}
+
 func (UnimplementedOrchestratorHandler) ListAssessmentResults(context.Context, *connect.Request[orchestrator.ListAssessmentResultsRequest]) (*connect.Response[orchestrator.ListAssessmentResultsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ListEvaluationResults(context.Context, *connect.Request[orchestrator.ListEvaluationResultsRequest]) (*connect.Response[orchestrator.ListEvaluationResultsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) CreateMetric(context.Context, *connect.Request[orchestrator.CreateMetricRequest]) (*connect.Response[assessment.Metric], error) {

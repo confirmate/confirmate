@@ -76,7 +76,7 @@ func (svc *Service) CreateMetric(
 		Name:           req.Msg.GetMetric().GetName(),
 		Description:    req.Msg.GetMetric().GetDescription(),
 		Version:        req.Msg.GetMetric().GetVersion(),
-		Comments:       req.Msg.GetMetric().GetComments(),
+		Comments:       req.Msg.GetMetric().Comments,
 		Category:       req.Msg.GetMetric().GetCategory(),
 		Implementation: impl,
 	}
@@ -193,7 +193,7 @@ func (svc *Service) UpdateMetric(
 		Name:        req.Msg.GetMetric().GetName(),
 		Description: req.Msg.GetMetric().GetDescription(),
 		Version:     req.Msg.GetMetric().GetVersion(),
-		Comments:    req.Msg.GetMetric().GetComments(),
+		Comments:    req.Msg.GetMetric().Comments,
 		Category:    req.Msg.GetMetric().GetCategory(),
 	}
 
