@@ -1,0 +1,72 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 1167 >>
+stream
+BT
+/F1 10 Tf
+72 740 Td
+(Edge Gateway Starter Kit Product Overview) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Edge Gateway Starter Kit) Tj
+0 -16 Td
+(Product Overview) Tj
+0 -16 Td
+(Edge gateway bundle with one control app and one hardware memory component.) Tj
+0 -16 Td
+(The product is classified as CyberPhysicalProduct and is intended to Provide a simple,) Tj
+0 -16 Td
+(secure gateway for sensor data ingestion..) Tj
+0 -16 Td
+(Context of use: Factory-floor telemetry collection and secure cloud forwarding) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(CRA evidence package) Tj
+0 -16 Td
+(The product evidence package includes an application architecture description, a user) Tj
+0 -16 Td
+(information and instruction manual,) Tj
+0 -16 Td
+(a software bill of materials, an EU declaration of conformity, a distribution of updates) Tj
+0 -16 Td
+(description,) Tj
+0 -16 Td
+(a production and monitoring process description, a cyber security risk assessment, and a) Tj
+0 -16 Td
+(coordinated) Tj
+0 -16 Td
+(vulnerability disclosure policy. The product scope also references a monitoring) Tj
+0 -16 Td
+(procedure, a memory) Tj
+0 -16 Td
+(component, and a management virtual machine as supporting evidence.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000185 00000 n 
+0000001404 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1530
+%%EOF

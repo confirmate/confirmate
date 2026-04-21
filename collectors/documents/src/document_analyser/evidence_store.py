@@ -10,8 +10,10 @@ from uuid import uuid4
 
 import httpx
 
+from .evidence_profiles import normalize_resource_type
 from .extractor import AnalysisResult
 from .loaders import Document
+from .proto_schema import enrich_resource_body
 
 
 class EvidenceStoreError(RuntimeError):
@@ -79,9 +81,10 @@ def build_evidence_payloads(
     """Convert analysis output into evidence store payloads."""
     evidence_items = result.data.get("evidence") or []
     if not isinstance(evidence_items, list):
-        return []
+        evidence_items = []
 
     payloads: List[Dict[str, Any]] = []
+    document_map = {str(doc.path): doc for doc in documents}
 
     for idx, item in enumerate(evidence_items):
         doc = documents[idx % len(documents)]
@@ -98,13 +101,18 @@ def build_evidence_payloads(
         raw = snippet
         if citation:
             raw = f"{snippet}\nCitation: {citation}" if snippet else f"Citation: {citation}"
+        raw_lines = [line for line in [raw] if line]
+        raw_lines.append(f"{response_field}: {fulfilled}")
+        if item.get("requirementId"):
+            raw_lines.append(f"Requirement ID: {item['requirementId']}")
+        raw = "\n".join(raw_lines)
         evidence_body: Dict[str, Any] = {
             "id": str(uuid4()),
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "targetOfEvaluationId": config.target_of_evaluation_id,
             "toolId": config.tool_id,
             "resource": {
-                "genericDocument": {
+                "reportDocument": {
                     "id": f"{config.tool_id}:document:{idx}",
                     "name": doc.name,
                     "description": item.get("title") or "Document evidence",
@@ -112,14 +120,63 @@ def build_evidence_payloads(
                     "dataLocation": {
                         "localDataLocation": {"path": str(doc.path)}
                     },
-                    response_field: fulfilled,
-                    # Store the proving snippet in raw to align with proto genericDocument.
+                    # Store the proving snippet and requirement outcome in raw to stay within the ontology schema.
                     "raw": raw,
                 }
             },
             "experimentalRelatedResourceIds": [],
         }
         payloads.append(_strip_none(evidence_body))
+
+    resource_items = result.data.get("resourceEvidence") or []
+    if isinstance(resource_items, list):
+        for idx, item in enumerate(resource_items):
+            if not isinstance(item, dict):
+                continue
+
+            source_path = item.get("sourcePath")
+            doc = document_map.get(str(source_path)) if source_path else None
+            if doc is None:
+                doc = documents[idx % len(documents)]
+            resource_type = normalize_resource_type(item.get("resourceType"))
+            resource_wrapper = item.get("resource")
+            if not resource_type and isinstance(resource_wrapper, dict) and len(resource_wrapper) == 1:
+                resource_type = normalize_resource_type(next(iter(resource_wrapper)))
+            if not resource_type:
+                continue
+
+            if (
+                isinstance(resource_wrapper, dict)
+                and resource_type in resource_wrapper
+                and isinstance(resource_wrapper[resource_type], dict)
+            ):
+                resource_body = dict(resource_wrapper[resource_type])
+            elif isinstance(item.get("resourceBody"), dict):
+                resource_body = dict(item["resourceBody"])
+            elif isinstance(resource_wrapper, dict):
+                resource_body = dict(resource_wrapper)
+            else:
+                continue
+
+            resource_body = enrich_resource_body(
+                resource_type,
+                resource_body,
+                source_path=doc.path,
+                snippet=item.get("snippet") or "",
+                citation=item.get("citation") or "",
+            )
+            payloads.append(
+                _strip_none(
+                    {
+                        "id": str(uuid4()),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "targetOfEvaluationId": config.target_of_evaluation_id,
+                        "toolId": config.tool_id,
+                        "resource": {resource_type: resource_body},
+                        "experimentalRelatedResourceIds": [],
+                    }
+                )
+            )
 
     return payloads
 

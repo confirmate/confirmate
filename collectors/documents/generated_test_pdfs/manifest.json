@@ -1,0 +1,95 @@
+{
+  "fixtures": [
+    {
+      "filename": "cra-fixture-01.pdf",
+      "expectedResourceType": "product",
+      "resourceId": "product-edge-gateway-1",
+      "resourceName": "Edge Gateway Starter Kit",
+      "description": "Edge gateway bundle with one control app and one hardware memory component."
+    },
+    {
+      "filename": "cra-fixture-02.pdf",
+      "expectedResourceType": "application",
+      "resourceId": "app-edge-control-1",
+      "resourceName": "Edge Control App",
+      "description": "Control-plane service that manages connected edge sensors."
+    },
+    {
+      "filename": "cra-fixture-03.pdf",
+      "expectedResourceType": "contactPerson",
+      "resourceId": "contact-person-1",
+      "resourceName": "Maya Fischer",
+      "description": "Primary contact for product security and release approvals."
+    },
+    {
+      "filename": "cra-fixture-04.pdf",
+      "expectedResourceType": "monitoringProcedure",
+      "resourceId": "monitoring-procedure-1",
+      "resourceName": "Quarterly Security Review",
+      "description": "Quarterly review of security telemetry and incident response readiness."
+    },
+    {
+      "filename": "cra-fixture-05.pdf",
+      "expectedResourceType": "memory",
+      "resourceId": "memory-module-1",
+      "resourceName": "8GB Memory Module",
+      "description": "Single memory module used by the edge gateway hardware profile."
+    },
+    {
+      "filename": "cra-fixture-06.pdf",
+      "expectedResourceType": "virtualMachine",
+      "resourceId": "vm-edge-management-1",
+      "resourceName": "Edge Management VM",
+      "description": "VM hosting the management backend for the edge gateway fleet."
+    },
+    {
+      "filename": "cra-fixture-07.pdf",
+      "expectedResourceType": "userInformationAndIntructionDocument",
+      "resourceId": "user-info-doc-1",
+      "resourceName": "User Information and Instruction Document",
+      "description": "User manual and installation instructions for the Edge Gateway Starter Kit."
+    },
+    {
+      "filename": "cra-fixture-08.pdf",
+      "expectedResourceType": "sbomDocument",
+      "resourceId": "sbom-doc-1",
+      "resourceName": "SBOM Document",
+      "description": "Software Bill of Materials listing all components and dependencies."
+    },
+    {
+      "filename": "cra-fixture-09.pdf",
+      "expectedResourceType": "euDeclarationOfConformity",
+      "resourceId": "eu-decl-doc-1",
+      "resourceName": "EU Declaration of Conformity",
+      "description": "EU Declaration of Conformity with applicable directives and standards."
+    },
+    {
+      "filename": "cra-fixture-10.pdf",
+      "expectedResourceType": "distributionOfUpdatesDocument",
+      "resourceId": "distrib-updates-doc-1",
+      "resourceName": "Distribution of Updates Description",
+      "description": "Policy and procedures for distributing security updates and patches."
+    },
+    {
+      "filename": "cra-fixture-11.pdf",
+      "expectedResourceType": "productionAndMonitoringProcessDocument",
+      "resourceId": "prod-monitor-doc-1",
+      "resourceName": "Production and Monitoring Process Description",
+      "description": "Documentation of production processes, quality assurance, and monitoring procedures."
+    },
+    {
+      "filename": "cra-fixture-12.pdf",
+      "expectedResourceType": "cyberSecurityRiskAssessmentDocument",
+      "resourceId": "risk-assess-doc-1",
+      "resourceName": "Cyber Security Risk Assessment Document",
+      "description": "Cyber security risk assessment covering threats, vulnerabilities, and mitigation strategies."
+    },
+    {
+      "filename": "cra-fixture-13.pdf",
+      "expectedResourceType": "coordinatedVulnerabilityDisclosurePolicy",
+      "resourceId": "cvdp-policy-1",
+      "resourceName": "Coordinated Vulnerability Disclosure Policy",
+      "description": "Policy and procedures for coordinated vulnerability disclosure and responsible disclosure timelines."
+    }
+  ]
+}

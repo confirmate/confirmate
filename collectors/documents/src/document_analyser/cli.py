@@ -22,6 +22,18 @@ from .pipeline import (
 )
 from .requirements import get_requirement, list_requirements
 
+SUPPORTED_DOCUMENT_SUFFIXES = {
+    ".pdf",
+    ".txt",
+    ".md",
+    ".rst",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".csv",
+    ".log",
+}
+
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -102,7 +114,45 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Run all predefined requirements instead of the general extractor.",
     )
+    parser.add_argument(
+        "--all-resource-types",
+        action="store_true",
+        help="Extract across all ontology-backed resource types instead of the default CRA-focused set.",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["requirements", "resources"],
+        default="requirements",
+        help="Analysis mode: CRA requirement checks or ontology-whitelist resource extraction.",
+    )
     return parser.parse_args(argv)
+
+
+def expand_input_paths(paths: list[str]) -> list[Path]:
+    """Expand file and directory inputs into concrete document paths."""
+    expanded: list[Path] = []
+
+    for raw_path in paths:
+        target = Path(raw_path)
+        if not target.exists():
+            raise FileNotFoundError(f"Document not found: {target}")
+
+        if target.is_dir():
+            directory_files = sorted(
+                path
+                for path in target.rglob("*")
+                if path.is_file() and path.suffix.lower() in SUPPORTED_DOCUMENT_SUFFIXES
+            )
+            if not directory_files:
+                raise FileNotFoundError(
+                    f"No supported documents found in directory: {target}"
+                )
+            expanded.extend(directory_files)
+            continue
+
+        expanded.append(target)
+
+    return expanded
 
 
 def build_config(args: argparse.Namespace) -> ModelConfig:
@@ -184,13 +234,11 @@ def main(argv: list[str] | None = None) -> int:
         sys.stderr.write(f"Configuration error: {exc}\n")
         return 1
 
-    doc_paths: list[Path] = []
-    for path in args.files:
-        target = Path(path)
-        if not target.exists():
-            sys.stderr.write(f"Document not found: {target}\n")
-            return 1
-        doc_paths.append(target)
+    try:
+        doc_paths = expand_input_paths(args.files)
+    except FileNotFoundError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 1
 
     loader = DocumentLoader()
     extractor = EvidenceExtractor(llm=LLMClient(config))
@@ -200,7 +248,12 @@ def main(argv: list[str] | None = None) -> int:
     if push_enabled:
         publisher = EvidencePublisher(build_evidence_config(args))
     pipeline = DocumentAnalysisPipeline(loader, extractor, publisher)
-    if args.test_requirement:
+    if args.mode == "resources":
+        if args.test_requirement:
+            sys.stderr.write("--test-requirement can only be used with --mode requirements.\n")
+            return 2
+        requirements = None
+    elif args.test_requirement:
         requirement = get_requirement(args.test_requirement)
         if not requirement:
             sys.stderr.write(f"Unknown requirement ID: {args.test_requirement}\n")
@@ -216,6 +269,8 @@ def main(argv: list[str] | None = None) -> int:
             focus=args.focus,
             max_items=args.max_items,
             requirements=requirements,
+            mode=args.mode,
+            include_all_resource_types=args.all_resource_types,
             push=push_enabled,
         )
         print(result.to_json())

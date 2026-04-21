@@ -1,131 +1,287 @@
 # Document-Analyser
 
-Turns unstructured documents (PDF or text) into structured evidence items with snippets and citations. The pipeline is intentionally small:
-- `loaders.DocumentLoader` reads files and normalizes their content.
-- `prompts` + `extractor.DocumentAnalyser` build the prompt and parse the LLM JSON output.
-- `pipeline.DocumentAnalysisPipeline` orchestrates load → extract → optional push.
-- `evidence_store.EvidencePublisher` formats evidence and sends it to an OAuth-protected evidence store.
-- `requirements` holds predefined requirement prompts you can run individually or all at once.
+Document-Analyser turns PDFs and text documents into structured evidence for Confirmate.
 
-## Quick start
-1) Install
+It supports two separate analysis modes:
+
+1. `requirements`
+Checks the predefined CRA requirements from `requirements.py`.
+
+2. `resources`
+Extracts ontology-based resource evidence using the CRA-focused whitelist by default.
+
+It can also:
+- read a single file or an entire directory
+- use remote OpenAI-compatible models or local LLM endpoints
+- push extracted evidence to the Evidence Store
+- generate a PDF test dataset for CRA-relevant resource types
+
+## What It Does
+
+The pipeline is intentionally small:
+
+- `loaders.DocumentLoader` reads PDF or text files and normalizes their content
+- `prompts` + `extractor.DocumentAnalyser` build prompts and parse JSON output from the LLM
+- `pipeline.DocumentAnalysisPipeline` orchestrates load -> extract -> optional push
+- `evidence_store.EvidencePublisher` converts extracted results into Evidence Store payloads
+- `requirements` stores the predefined CRA requirement prompts
+- `evidence_profiles` and `proto_schema` derive supported ontology resource types and fields from the ontology proto
+
+## Supported Modes
+
+### 1. CRA Requirement Checks
+
+Mode: `--mode requirements`
+
+This mode checks documents against the predefined CRA requirements in `src/document_analyser/requirements.py`.
+
+Use this when you want to know whether the document contains evidence for CRA requirement statements such as confidentiality protection, access control, security updates, logging, and similar checks.
+
+Example:
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
+python -m document_analyser.cli file.pdf --mode requirements
 ```
 
-2) Provide model access  
-Set `OPENAI_API_KEY` (or `DOC_ANALYSER_API_KEY`) for remote models. For local OpenAI-compatible servers, set `DOC_ANALYSER_BASE_URL` and any placeholder `DOC_ANALYSER_API_KEY`, then choose the model with `--model`.
-
-3) Run the CLI
-- General analysis:  
-  `python -m document_analyser.cli file.pdf --model gpt-4o-mini --focus "encryption controls"`
-- Local model:  
-  `python -m document_analyser.cli file.pdf --model llama3 --base-url http://localhost:11434/v1 --api-key local`
-- Single requirement:  
-  `python -m document_analyser.cli file.pdf --test-requirement X.1.1.6`
-- All requirements:  
-  `python -m document_analyser.cli file.pdf --all-requirements`
-- Push to evidence store:  
-  `python -m document_analyser.cli file.pdf --push-evidence --evidence-url http://localhost:8080 --evidence-auth client:secret --evidence-target-id <uuid> --evidence-tool-id document-analyser`
-- Evidence-store connectivity test only:  
-  `python -m document_analyser.cli --test-evidence --evidence-url http://localhost:8080 --evidence-auth client:secret`
-- Push prebuilt evidences from JSON file:  
-  `python -m document_analyser.cli --push-evidence-file ../../test_evidence.json --evidence-url http://localhost:8080 --evidence-auth client:secret`
-- Push prebuilt evidences using an existing bearer token:  
-  `TOKEN=$TOKEN python -m document_analyser.cli --push-evidence-file ../../test_evidence.json --evidence-url http://localhost:8080`
-
-Copy-paste examples:
+Single requirement:
 ```bash
-# 1) Remote model quick run
-python -m document_analyser.cli policy.pdf --model gpt-4o-mini --focus "access control"
-
-# 2) Local model (OpenAI-compatible endpoint)
-python -m document_analyser.cli file.pdf --model llama4:maverick --base-url http://172.31.6.131:11434/v1 --api-key local
-
-# 3) Push evidence after analysing all requirements
-python -m document_analyser.cli file.pdf --all-requirements --push-evidence \
-  --evidence-url http://localhost:8080 --evidence-auth clouditor:clouditor --evidence-target-id 00000000-0000-0000-0000-000000000000
+python -m document_analyser.cli file.pdf --mode requirements --test-requirement X.1.1.6
 ```
 
-## CLI flags (trimmed)
-- LLM: `--model`, `--base-url`, `--api-key`, `--focus`, `--max-items`
-- Evidence store: `--push-evidence`, `--evidence-url`, `--evidence-auth client:secret`, `--evidence-token`, `--evidence-target-id`, `--evidence-tool-id`
-- Modes: `--test-requirement <ID>`, `--all-requirements`, `--test-evidence`, `--push-evidence-file <path>`
+### 2. Ontology Whitelist Resource Extraction
 
-Env defaults for the evidence store:  
-`EVIDENCE_STORE_BASE` (or `CONFIRMATE_API_BASE`, default `http://localhost:8080`), `EVIDENCE_BEARER_TOKEN` (or `TOKEN`) to skip OAuth, `AUTH_TOKEN_ENDPOINT` (defaults to `<base>/v1/auth/token`), `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `TARGET_OF_EVALUATION_ID`, `EVIDENCE_TOOL_ID`, `EVIDENCE_PATH` (default `/v1/evidence_store/evidence`). `EVIDENCE_AUTO_PUSH=true` auto-pushes after analysis.
+Mode: `--mode resources`
 
-## How it works
-1) Loader: `loaders.py` reads PDF (via pypdf) or text, joins multiple files with headers.  
-2) Prompting: `prompts.py` builds the system/user messages for general extraction or per-requirement extraction.  
-3) LLM call: `llm.py` wraps the OpenAI-compatible chat client, requesting JSON output.  
-4) Parsing: `extractor.py` runs the LLM, JSON-parses the reply, and packages an `AnalysisResult`. It can run the general extractor or one evidence item per requirement.  
-5) Pipeline: `pipeline.py` stitches loader + extractor and optionally a publisher for a single `run()` entrypoint.  
-6) Publishing: `evidence_store.py` converts evidence items to the target schema and sends them with OAuth.  
-7) CLI: `cli.py` wires flags → config → pipeline.  
-8) Requirements: `requirements.py` stores predefined requirement prompts and IDs.
+This mode extracts ontology-backed resource evidence from documents.
 
-## File map
-- `src/document_analyser/cli.py` – command-line entrypoint.
-- `src/document_analyser/config.py` – model config from env and overrides.
-- `src/document_analyser/loaders.py` – file loading and concatenation.
-- `src/document_analyser/prompts.py` – prompt templates for general/requirement runs.
-- `src/document_analyser/llm.py` – OpenAI-compatible client wrapper.
-- `src/document_analyser/extractor.py` – LLM orchestration and JSON parsing.
-- `src/document_analyser/pipeline.py` – load → extract → optional push coordinator.
-- `src/document_analyser/evidence_store.py` – payload building, OAuth, submission.
-- `src/document_analyser/requirements.py` – predefined requirement prompts.
+By default it uses the CRA-focused whitelist of resource types:
+- `product`
+- `application`
+- `contactPerson`
+- `monitoringProcedure`
+- `memory`
+- `virtualMachine`
+- `userInformationAndIntructionDocument`
+- `sbomDocument`
+- `euDeclarationOfConformity`
+- `distributionOfUpdatesDocument`
+- `productionAndMonitoringProcessDocument`
+- `cyberSecurityRiskAssessmentDocument`
+- `coordinatedVulnerabilityDisclosurePolicy`
 
-## Example output (general analysis)
-```json
-{
-  "sources": ["policy.md"],
-  "analysis": {
-    "document_summary": "Access control policy describing authentication, MFA and audit logging.",
-    "evidence": [
-      {
-        "title": "Authentication",
-        "evidence": "Passwords must be rotated every 90 days with MFA enforced for admins.",
-        "snippet": "Section 2.1 'Authentication'",
-        "citation": "Section 2.1 'Authentication'",
-        "confidence": "high"
-      }
-    ],
-    "gaps": []
-  },
-  "raw_response": "{...raw model output...}"
-}
+Example:
+```bash
+python -m document_analyser.cli file.pdf --mode resources
 ```
 
-## Test Fixtures: CRA-Compliant Evidence
+If you want to allow all ontology resource types derived from the proto schema:
+```bash
+python -m document_analyser.cli file.pdf --mode resources --all-resource-types
+```
 
-The [test_evidence.json](../../test_evidence.json) file in the repository root contains a complete set of 13 CRA-compliant evidence objects for testing the Evidence Store integration without requiring document analysis:
+## Input Options
 
-### Evidence Objects (in order):
-0. **Product** (product-edge-gateway-1) – Edge Gateway Starter Kit with hardware, application, and contact references. Contains `dataIds` linking to all documentation below.
-1. **Application** (app-edge-control-1) – Control-plane service for edge sensor management.
-2. **Contact Person** (contact-person-1) – Primary product security lead.
-3. **Monitoring Procedure** (monitoring-procedure-1) – Quarterly security review.
-4. **Hardware** (memory-module-1) – 8GB memory module.
-5. **Virtual Machine** (vm-edge-management-1) – Management backend VM.
-6. **User Information & Instruction Document** (user-info-doc-1) – User manual in application/json.
-7. **SBOM Document** (sbom-doc-1) – Software bill of materials in application/json (CycloneDX-compatible).
-8. **EU Declaration of Conformity** (eu-decl-doc-1) – Regulatory compliance statement in application/json.
-9. **Distribution of Updates Document** (distrib-updates-doc-1) – Security update policy in application/json.
-10. **Production and Monitoring Process Document** (prod-monitor-doc-1) – QA and monitoring procedures in application/json.
-11. **Cyber Security Risk Assessment Document** (risk-assess-doc-1) – Risk assessment using CVSS in application/json.
-12. **Coordinated Vulnerability Disclosure Policy** (cvdp-policy-1) – CVD procedures for responsible disclosure.
+You can pass either:
 
-### Usage
-Push all test evidences to a local Evidence Store running on port 8080:
+- a single file
+- multiple files
+- a directory
+
+When a directory is passed, the CLI recursively collects supported document files inside it.
+
+Example:
+```bash
+python -m document_analyser.cli generated_test_pdfs --mode resources
+```
+
+## Local LLM Usage
+
+If you are using a local OpenAI-compatible model endpoint, set:
+
+- `DOC_ANALYSER_BASE_URL`
+- `DOC_ANALYSER_API_KEY`
+
+Example:
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --mode resources
+```
+
+Another available model example:
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs \
+  --model SASAI \
+  --mode resources
+```
+
+## Evidence Store Usage
+
+To push extracted evidence to the Evidence Store, use:
+
+- `--push-evidence`
+- `--evidence-url`
+- `--evidence-token`
+
+If your bearer token is already stored in `$TOKEN`:
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --mode resources \
+  --push-evidence \
+  --evidence-url http://localhost:8080 \
+  --evidence-token "$TOKEN"
+```
+
+CRA requirement mode with Evidence Store push:
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --mode requirements \
+  --push-evidence \
+  --evidence-url http://localhost:8080 \
+  --evidence-token "$TOKEN"
+```
+
+## Test Dataset Generation
+
+The repository includes a script that generates a CRA-focused PDF test dataset.
+
+Script:
+```bash
+python3 scripts/generate_test_pdfs.py
+```
+
+Example:
 ```bash
 cd collectors/documents
-PYTHONPATH=src TOKEN=your_bearer_token python -m document_analyser.cli \
-  --push-evidence-file ../../test_evidence.json \
-  --evidence-url http://localhost:8080
+PYTHONPATH=src python3 scripts/generate_test_pdfs.py
 ```
 
-The fixture is CRA-ready and covers all required documentation types (documents, contact, governance, and security assessment policy).
+This creates:
+- `generated_test_pdfs/cra-fixture-01.pdf`, `cra-fixture-02.pdf`, etc.
+- `generated_test_pdfs/manifest.json`
 
+The PDFs are neutral test inputs.
+The `manifest.json` file contains the expected resource type for each PDF, so you can compare analyser output against the ground truth.
+
+## Recommended Testing Workflow
+
+### Test CRA requirement mode
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --mode requirements
+```
+
+### Test ontology whitelist resource mode
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --mode resources
+```
+
+### Test one file at a time
+```bash
+DOC_ANALYSER_BASE_URL=http://172.31.6.131:8000/v1 \
+DOC_ANALYSER_API_KEY=local \
+PYTHONPATH=src \
+python3 -m document_analyser.cli generated_test_pdfs/cra-fixture-01.pdf \
+  --model Qwen/Qwen3.5-122B-A10B-FP8 \
+  --mode resources
+```
+
+## CLI Options
+
+### Core
+- `files`
+  One or more files or directories to analyse
+- `--mode {requirements,resources}`
+  Choose CRA requirement checks or ontology whitelist resource extraction
+- `--model`
+  Model name
+- `--base-url`
+  OpenAI-compatible base URL
+- `--api-key`
+  API key or placeholder for local endpoints
+- `--focus`
+  Optional focus hint for general analysis
+- `--max-items`
+  Maximum number of returned evidence items
+
+### Requirement Mode
+- `--test-requirement <ID>`
+  Run a single CRA requirement
+
+### Resource Mode
+- `--all-resource-types`
+  Use all proto-derived ontology resource types instead of the default CRA whitelist
+
+### Evidence Store
+- `--push-evidence`
+  Send generated evidence to the Evidence Store
+- `--evidence-url`
+  Evidence Store base URL
+- `--evidence-auth`
+  Client credentials in `client_id:client_secret` format
+- `--evidence-token`
+  Bearer token, e.g. `"$TOKEN"`
+- `--evidence-target-id`
+  Override target of evaluation ID
+- `--evidence-tool-id`
+  Override tool ID
+
+### Utility Modes
+- `--test-evidence`
+  Send a minimal connectivity test payload to the Evidence Store
+- `--push-evidence-file <path>`
+  Push prebuilt evidence payloads from a JSON file
+
+## File Map
+
+- `src/document_analyser/cli.py`
+  Command-line entrypoint
+- `src/document_analyser/config.py`
+  Model configuration
+- `src/document_analyser/loaders.py`
+  File loading and PDF extraction
+- `src/document_analyser/prompts.py`
+  Prompt construction
+- `src/document_analyser/extractor.py`
+  LLM orchestration and JSON parsing
+- `src/document_analyser/pipeline.py`
+  Load -> extract -> optional push
+- `src/document_analyser/evidence_store.py`
+  Evidence Store payload building and submission
+- `src/document_analyser/evidence_profiles.py`
+  Proto-derived ontology resource profiles
+- `src/document_analyser/proto_schema.py`
+  Resource normalization helpers
+- `src/document_analyser/requirements.py`
+  CRA requirement prompt definitions
+- `scripts/generate_test_pdfs.py`
+  CRA PDF test dataset generator
+
+## Notes
+
+- `requirements` mode and `resources` mode are intentionally separate
+- `resources` mode uses the CRA-focused whitelist by default
+- passing a directory is supported
+- for local LLMs, using `DOC_ANALYSER_BASE_URL` and `DOC_ANALYSER_API_KEY=local` is the most reliable setup

@@ -4,9 +4,10 @@ import json
 from dataclasses import dataclass
 from typing import Any, Dict, List, Sequence
 
+from .evidence_profiles import get_default_resource_types, normalize_resource_type
 from .llm import LLMClient
 from .loaders import Document, concatenate_documents
-from .prompts import build_messages, build_requirement_messages
+from .prompts import build_messages, build_requirement_messages, build_resource_messages
 from .requirements import RequirementPrompt
 
 
@@ -33,6 +34,20 @@ class DocumentAnalyser:
     def __init__(self, llm: LLMClient):
         self.llm = llm
 
+    @staticmethod
+    def _parse_json_object(raw_response: str) -> Dict[str, Any]:
+        parsed: Dict[str, Any]
+        try:
+            parsed = json.loads(raw_response)
+        except json.JSONDecodeError:
+            parsed = {
+                "document_summary": "",
+                "evidence": [],
+                "gaps": [],
+                "parse_error": "Response was not valid JSON.",
+            }
+        return parsed
+
     def analyse(
         self,
         documents: Sequence[Document],
@@ -52,17 +67,7 @@ class DocumentAnalyser:
         )
 
         raw_response = self.llm.chat(messages, response_format="json")
-        parsed: Dict[str, Any]
-        try:
-            parsed = json.loads(raw_response)
-        except json.JSONDecodeError:
-            # Keep the raw response for debugging instead of failing hard.
-            parsed = {
-                "document_summary": "",
-                "evidence": [],
-                "gaps": [],
-                "parse_error": "Response was not valid JSON.",
-            }
+        parsed = self._parse_json_object(raw_response)
 
         sources = [str(doc.path) for doc in documents]
         return AnalysisResult(data=parsed, raw_response=raw_response, sources=sources)
@@ -120,3 +125,71 @@ class DocumentAnalyser:
             )
 
         return evidence_items
+
+    def analyse_resources(self, documents: Sequence[Document]) -> List[Dict[str, Any]]:
+        return self.analyse_resources_with_scope(documents, include_all_resource_types=False)
+
+    def analyse_resources_with_scope(
+        self,
+        documents: Sequence[Document],
+        include_all_resource_types: bool = False,
+    ) -> List[Dict[str, Any]]:
+        """Extract ontology-backed resource evidence from documents."""
+        if not documents:
+            raise ValueError("No documents provided for analysis.")
+
+        allowed_resource_types = None
+        if not include_all_resource_types:
+            allowed_resource_types = set(get_default_resource_types())
+
+        normalized_items: List[Dict[str, Any]] = []
+        for doc in documents:
+            messages = build_resource_messages(
+                document_text=doc.content,
+                source_name=doc.name,
+                include_all_resource_types=include_all_resource_types,
+            )
+            raw_response = self.llm.chat(messages, response_format="json")
+            parsed = self._parse_json_object(raw_response)
+            raw_items = parsed.get("resourceEvidence") or parsed.get("resources") or []
+            if not isinstance(raw_items, list):
+                continue
+
+            for item in raw_items:
+                if not isinstance(item, dict):
+                    continue
+
+                resource_type = normalize_resource_type(item.get("resourceType"))
+                resource_wrapper = item.get("resource")
+                if not resource_type and isinstance(resource_wrapper, dict) and len(resource_wrapper) == 1:
+                    resource_type = normalize_resource_type(next(iter(resource_wrapper)))
+                if not resource_type:
+                    continue
+                if allowed_resource_types is not None and resource_type not in allowed_resource_types:
+                    continue
+
+                resource_body: Dict[str, Any]
+                if (
+                    isinstance(resource_wrapper, dict)
+                    and resource_type in resource_wrapper
+                    and isinstance(resource_wrapper[resource_type], dict)
+                ):
+                    resource_body = dict(resource_wrapper[resource_type])
+                elif isinstance(item.get("resourceBody"), dict):
+                    resource_body = dict(item["resourceBody"])
+                elif isinstance(resource_wrapper, dict):
+                    resource_body = dict(resource_wrapper)
+                else:
+                    continue
+
+                normalized_items.append(
+                    {
+                        "resourceType": resource_type,
+                        "resource": {resource_type: resource_body},
+                        "snippet": item.get("snippet") or "",
+                        "citation": item.get("citation") or "",
+                        "sourcePath": str(doc.path),
+                    }
+                )
+
+        return normalized_items

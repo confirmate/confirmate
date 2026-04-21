@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Sequence
+from typing import Iterable, List, Literal, Sequence
 
 from .evidence_store import (
     EvidenceStoreClient,
@@ -13,6 +13,8 @@ from .extractor import AnalysisResult, DocumentAnalyser
 from .llm import LLMClient
 from .loaders import Document, load_any_document
 from .requirements import RequirementPrompt
+
+AnalysisMode = Literal["requirements", "resources"]
 
 
 @dataclass
@@ -40,14 +42,37 @@ class EvidenceExtractor:
         focus: str | None = None,
         max_items: int = 8,
         requirements: Sequence[RequirementPrompt] | None = None,
+        mode: AnalysisMode = "requirements",
+        include_all_resource_types: bool = False,
     ) -> AnalysisResult:
-        if requirements:
-            evidence_items = self.analyser.analyse_requirements(documents, requirements)
-            data = {"document_summary": "", "evidence": evidence_items, "gaps": []}
+        if mode == "resources":
+            resource_items = self.analyser.analyse_resources_with_scope(
+                documents,
+                include_all_resource_types=include_all_resource_types,
+            )
+            data = {
+                "document_summary": "",
+                "evidence": [],
+                "resourceEvidence": resource_items,
+                "gaps": [],
+            }
             sources = [str(doc.path) for doc in documents]
             return AnalysisResult(data=data, raw_response="", sources=sources)
 
-        return self.analyser.analyse(documents, focus=focus, max_items=max_items)
+        if requirements:
+            evidence_items = self.analyser.analyse_requirements(documents, requirements)
+            data = {
+                "document_summary": "",
+                "evidence": evidence_items,
+                "resourceEvidence": [],
+                "gaps": [],
+            }
+            sources = [str(doc.path) for doc in documents]
+            return AnalysisResult(data=data, raw_response="", sources=sources)
+
+        result = self.analyser.analyse(documents, focus=focus, max_items=max_items)
+        result.data["resourceEvidence"] = resource_items
+        return result
 
 
 class EvidencePublisher:
@@ -86,6 +111,8 @@ class DocumentAnalysisPipeline:
         focus: str | None = None,
         max_items: int = 8,
         requirements: Sequence[RequirementPrompt] | None = None,
+        mode: AnalysisMode = "requirements",
+        include_all_resource_types: bool = False,
         push: bool = False,
     ) -> tuple[AnalysisResult, int]:
         documents = self.loader.load(paths)
@@ -94,6 +121,8 @@ class DocumentAnalysisPipeline:
             focus=focus,
             max_items=max_items,
             requirements=requirements,
+            mode=mode,
+            include_all_resource_types=include_all_resource_types,
         )
 
         pushed = 0
