@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	DefaultOrchestratorURL = "http://localhost:9090"
+	DefaultOrchestratorURL = "http://localhost:8080"
 
 	// defaultInterval is the default interval time for the scheduler. If no interval is set in the StartEvaluationRequest, the default value is taken.
 	defaultInterval int = 5
