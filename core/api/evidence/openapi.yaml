@@ -4566,6 +4566,10 @@ components:
                         type: string
                 contactPersonId:
                     type: string
+                dataIds:
+                    type: array
+                    items:
+                        type: string
                 governanceIds:
                     type: array
                     items:
