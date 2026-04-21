@@ -45,7 +45,7 @@ var (
 	logger *slog.Logger
 )
 
-const DefaultOrchestratorURL = "http://localhost:9090"
+const DefaultOrchestratorURL = "http://localhost:8080"
 
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{
