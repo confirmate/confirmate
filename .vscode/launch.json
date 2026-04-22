@@ -13,7 +13,9 @@
             "cwd": "${workspaceFolder}/core",
             "args": [
                 "--db-in-memory",
-                "--log-level", "debug"            ]
+                "--log-level", "debug",
+                "--auth-enabled"
+            ]
         },
         {
             "name": "Launch orchestrator",
