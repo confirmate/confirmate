@@ -18,13 +18,13 @@ import (
 	"context"
 	"log/slog"
 
+	"time"
+
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence"
-
-	"net/http"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
@@ -68,12 +68,13 @@ var EvidenceCommand = &cli.Command{
 			slog.String("assessment_address", cmd.String("evidence-assessment-address")),
 			slog.Duration("assessment_timeout", cmd.Duration("evidence-assessment-http-timeout")))
 
+		assessmentClient := service.NewHTTPClient()
+		assessmentClient.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+
 		svc, err := evidence.NewService(
 			evidence.WithConfig(evidence.Config{
-				AssessmentAddress: cmd.String("evidence-assessment-address"),
-				AssessmentHTTPClient: &http.Client{
-					Timeout: cmd.Duration("evidence-assessment-http-timeout"),
-				},
+				AssessmentAddress:    cmd.String("evidence-assessment-address"),
+				AssessmentHTTPClient: assessmentClient,
 				PersistenceConfig: persistence.Config{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
