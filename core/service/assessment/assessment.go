@@ -41,7 +41,15 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+<<<<<<< assessment-improvements
 const DefaultOrchestratorURL = "http://localhost:9090"
+=======
+var (
+	logger *slog.Logger
+)
+
+const DefaultOrchestratorURL = "http://localhost:8080"
+>>>>>>> main
 
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{

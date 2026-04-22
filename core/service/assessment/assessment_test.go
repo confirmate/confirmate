@@ -790,6 +790,21 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 		}
 	})
 
+	// Create metric
+	metric = &assessment.Metric{
+		Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+		Name:        "BootLoggingEnabled",
+		Category:    "LoggingMonitoring",
+		Description: evidencetest.MockMetricDescription1,
+		Version:     evidencetest.MockMetricVersion1,
+		Comments:    evidencetest.MockMetricComments1,
+		Implementation: &assessment.MetricImplementation{
+			MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     ValidRego(),
+		},
+	}
+
 	// First assess evidence with a valid VM resource s.t. the cache is created for the combination of resource type and
 	// tool id (="VirtualMachine-{evidencetest.MockEvidenceToolID}")
 	e := &evidence.Evidence{
@@ -952,6 +967,21 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 					_ = streamHandle.Close()
 				}
 			})
+
+			// Create metric
+			metric = &assessment.Metric{
+				Id:          "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+				Name:        "BootLoggingEnabled",
+				Category:    "LoggingMonitoring",
+				Description: evidencetest.MockMetricDescription1,
+				Version:     evidencetest.MockMetricVersion1,
+				Comments:    evidencetest.MockMetricComments1,
+				Implementation: &assessment.MetricImplementation{
+					MetricId: "bb41142b-ce8c-4c5c-9b42-360f015fd325",
+					Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+					Code:     ValidRego(),
+				},
+			}
 
 			for i, hookFunction := range tt.args.resultHooks {
 				s.RegisterAssessmentResultHook(hookFunction)

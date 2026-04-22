@@ -593,26 +593,8 @@ components:
             properties:
                 annualUpdateCompleted:
                     type: boolean
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
                 successfullyCompletedPercentage:
                     type: boolean
-                parentId:
-                    type: string
             description: AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Backup:
             type: object
@@ -1102,29 +1084,11 @@ components:
         ContactPerson:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
                 emailAddress:
-                    type: string
-                id:
                     type: string
                 jobTitle:
                     type: string
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
                 phoneNumber:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                parentId:
                     type: string
             description: ContactPerson is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Container:
@@ -2233,6 +2197,14 @@ components:
                     $ref: '#/components/schemas/HttpEndpoint'
                 error:
                     $ref: '#/components/schemas/Error'
+                contactPerson:
+                    $ref: '#/components/schemas/ContactPerson'
+                monitoringProcedure:
+                    $ref: '#/components/schemas/MonitoringProcedure'
+                awarenessTraining:
+                    $ref: '#/components/schemas/AwarenessTraining'
+                securityTraining:
+                    $ref: '#/components/schemas/SecurityTraining'
                 httpClient:
                     $ref: '#/components/schemas/HttpClient'
                 httpRequestContext:
@@ -2441,6 +2413,18 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Governance:
+            type: object
+            properties:
+                contactPerson:
+                    $ref: '#/components/schemas/ContactPerson'
+                monitoringProcedure:
+                    $ref: '#/components/schemas/MonitoringProcedure'
+                awarenessTraining:
+                    $ref: '#/components/schemas/AwarenessTraining'
+                securityTraining:
+                    $ref: '#/components/schemas/SecurityTraining'
+            description: Governance is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
         GraphEdge:
             required:
                 - id
@@ -3991,28 +3975,10 @@ components:
         MonitoringProcedure:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
                 intervalMonths:
                     type: integer
                     description: The interval refers to the interval in months.
                     format: int32
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                parentId:
-                    type: string
             description: |-
                 MonitoringProcedure is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  intervalMonths: Review frequency (in months) for reviewing monitoring procedures
@@ -4522,8 +4488,10 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/DocumentSignature'
-                governanceId:
-                    type: string
+                governances:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Governance'
                 parentId:
                     type: string
                 validatedBy:
@@ -4574,16 +4542,16 @@ components:
                     type: array
                     items:
                         type: string
-                contactPersonId:
-                    type: string
+                contactPerson:
+                    $ref: '#/components/schemas/ContactPerson'
                 dataIds:
                     type: array
                     items:
                         type: string
-                governanceIds:
+                governances:
                     type: array
                     items:
-                        type: string
+                        $ref: '#/components/schemas/Governance'
                 hardwareIds:
                     type: array
                     items:
@@ -5120,14 +5088,6 @@ components:
                     $ref: '#/components/schemas/Token'
                 value:
                     $ref: '#/components/schemas/Value'
-                contactPerson:
-                    $ref: '#/components/schemas/ContactPerson'
-                monitoringProcedure:
-                    $ref: '#/components/schemas/MonitoringProcedure'
-                awarenessTraining:
-                    $ref: '#/components/schemas/AwarenessTraining'
-                securityTraining:
-                    $ref: '#/components/schemas/SecurityTraining'
                 memory:
                     $ref: '#/components/schemas/Memory'
                 product:
@@ -5563,26 +5523,8 @@ components:
             properties:
                 annualUpdateCompleted:
                     type: boolean
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
                 successfullyCompletedPercentage:
                     type: boolean
-                parentId:
-                    type: string
             description: SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         ServiceMetadataDocument:
             type: object
