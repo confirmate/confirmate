@@ -143,7 +143,7 @@ var ConfirmateCommand = &cli.Command{
 		}
 		apiPort = cmd.Uint16("api-port")
 
-		orchestratorClient = http.DefaultClient
+		orchestratorClient = service.NewHTTPClient()
 		if cmd.Bool("auth-enabled") {
 			credentials = &clientcredentials.Config{
 				ClientID:     cmd.String("service-oauth2-client-id"),
@@ -182,9 +182,11 @@ var ConfirmateCommand = &cli.Command{
 					InMemoryDB: cmd.Bool("db-in-memory"),
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
-				AssessmentHTTPClient: &http.Client{
-					Timeout: cmd.Duration("evidence-assessment-http-timeout"),
-				},
+				AssessmentHTTPClient: func() *http.Client {
+					c := service.NewHTTPClient()
+					c.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+					return c
+				}(),
 			}),
 		}, evidenceOptions...)
 
