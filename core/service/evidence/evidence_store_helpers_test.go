@@ -24,6 +24,18 @@ type assessmentStreamRecorder struct {
 	received chan *assessment.AssessEvidenceRequest
 }
 
+// AssessEvidence records unary requests so tests can validate the dispatch path
+// used by the evidence worker.
+func (r *assessmentStreamRecorder) AssessEvidence(
+	_ context.Context,
+	req *connect.Request[assessment.AssessEvidenceRequest],
+) (*connect.Response[assessment.AssessEvidenceResponse], error) {
+	r.received <- req.Msg
+	return connect.NewResponse(&assessment.AssessEvidenceResponse{
+		Status: assessment.AssessmentStatus_ASSESSMENT_STATUS_ASSESSED,
+	}), nil
+}
+
 // AssessEvidences implements the streaming RPC and records received requests.
 func (r *assessmentStreamRecorder) AssessEvidences(
 	_ context.Context,

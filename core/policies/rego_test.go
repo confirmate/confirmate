@@ -17,6 +17,8 @@ package policies
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"testing"
 	"time"
@@ -973,6 +975,47 @@ func Test_regoEval_EventSubscriptionIgnoresNilEvents(t *testing.T) {
 	assert.Equal(t, 1, len(regoEvalInstance.qc.cache))
 
 	regoEvalInstance.Close()
+}
+
+func TestResolvePoliciesBaseDir(t *testing.T) {
+	t.Run("returns core when only core fallback exists", func(t *testing.T) {
+		var (
+			tmp          string
+			oldWd        string
+			err          error
+			operatorsDir string
+			got          string
+		)
+
+		tmp = t.TempDir()
+		oldWd, err = os.Getwd()
+		if err != nil {
+			t.Fatalf("getwd: %v", err)
+		}
+
+		t.Cleanup(func() {
+			_ = os.Chdir(oldWd)
+		})
+
+		err = os.Chdir(tmp)
+		if err != nil {
+			t.Fatalf("chdir temp dir: %v", err)
+		}
+
+		operatorsDir = filepath.Join("core", "policies", "security-metrics", "metrics")
+		err = os.MkdirAll(operatorsDir, 0o755)
+		if err != nil {
+			t.Fatalf("mkdir operators dir: %v", err)
+		}
+
+		err = os.WriteFile(filepath.Join(operatorsDir, "operators.rego"), []byte("package cch"), 0o644)
+		if err != nil {
+			t.Fatalf("write operators file: %v", err)
+		}
+
+		got = resolvePoliciesBaseDir()
+		assert.Equal(t, "core", got)
+	})
 }
 
 // Mock event subscriber for testing

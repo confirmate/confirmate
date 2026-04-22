@@ -20,6 +20,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -78,6 +80,19 @@ type queryCache struct {
 type orElseFunc func(key string) (query *rego.PreparedEvalQuery, err error)
 
 type RegoEvalOption func(re *regoEval)
+
+func resolvePoliciesBaseDir() string {
+	candidates := []string{".", "core"}
+
+	for _, base := range candidates {
+		operatorsPath := filepath.Join(base, "policies", "security-metrics", "metrics", "operators.rego")
+		if _, err := os.Stat(operatorsPath); err == nil {
+			return base
+		}
+	}
+
+	return "."
+}
 
 // WithPackageName is an option to configure the package name
 func WithPackageName(pkg string) RegoEvalOption {
@@ -171,7 +186,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		types   []string
 	)
 
-	baseDir = "."
+	baseDir = resolvePoliciesBaseDir()
 
 	m, err = ontology.ResourceMap(r)
 	if err != nil {
@@ -225,7 +240,9 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 				// Try to check if the metric implementation just does not exist.
 				if connect.CodeOf(err) == connect.CodeNotFound &&
 					(strings.Contains(err.Error(), "implementation for metric not found") ||
-						strings.Contains(err.Error(), "metric configuration not found for metric")) {
+						// Match the root not-found phrase. Wrapped variants (e.g. "... for metric X")
+						// still contain this substring and are treated as non-fatal skips.
+						strings.Contains(err.Error(), "metric configuration not found")) {
 					continue
 				}
 
