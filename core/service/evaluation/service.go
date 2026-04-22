@@ -21,6 +21,7 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/service"
 
+
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
@@ -54,7 +55,7 @@ type Service struct {
 // DefaultConfig is the default configuration for the evaluation [Service].
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  http.DefaultClient,
+	OrchestratorClient:  service.DefaultHTTPClient,
 }
 
 // Config represents the configuration for the evaluation [Service].

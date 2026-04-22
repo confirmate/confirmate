@@ -2,10 +2,10 @@ package commands
 
 import (
 	"context"
-	"net/http"
 
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/evaluation"
 
 	"connectrpc.com/connect"
@@ -20,7 +20,7 @@ var EvaluationCommand = &cli.Command{
 		svc, err := evaluation.NewService(
 			evaluation.WithConfig(evaluation.Config{
 				OrchestratorAddress: cmd.String("evaluation-orchestrator-address"),
-				OrchestratorClient:  http.DefaultClient,
+				OrchestratorClient:  service.DefaultHTTPClient,
 			}),
 		)
 		if err != nil {
