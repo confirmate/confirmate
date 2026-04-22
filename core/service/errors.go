@@ -141,6 +141,30 @@ func ValidateWithPrep[T any](req *connect.Request[T], prep func(), opts ...proto
 	return nil
 }
 
+// ValidateMsg validates a protobuf message using the shared protovalidate validator.
+// It performs the same additional checks as Validate (e.g., page_token base64 validation).
+func ValidateMsg(msg proto.Message, opts ...protovalidate.ValidationOption) error {
+	if util.IsNil(msg) {
+		return connect.NewError(connect.CodeInvalidArgument, ErrEmptyRequest)
+	}
+
+	// If present, ensure page_token is a valid base64 string (raw or padded).
+	if fd := msg.ProtoReflect().Descriptor().Fields().ByName("page_token"); fd != nil {
+		v := msg.ProtoReflect().Get(fd)
+		if s := v.String(); s != "" {
+			if err := validatePageTokenBase64(s); err != nil {
+				return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid message: invalid page_token: %w", err))
+			}
+		}
+	}
+
+	if err := validator.Validate(msg, opts...); err != nil {
+		return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid message: %w", err))
+	}
+
+	return nil
+}
+
 // HandleDatabaseError translates database errors into appropriate connect errors.
 //   - If the error is [persistence.ErrRecordNotFound], it returns a [connect.CodeNotFound]
 //     error with the provided notFoundErr (or a default error if not provided).
