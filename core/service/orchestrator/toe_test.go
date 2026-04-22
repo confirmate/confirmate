@@ -79,6 +79,37 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: with organisation details",
+			args: args{
+				req: &orchestrator.CreateTargetOfEvaluationRequest{
+					TargetOfEvaluation: orchestratortest.MockTargetOfEvaluationWithOrganisation,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganisation, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
+					assert.NotEmpty(t, got.Msg.Id) &&
+					assert.NotNil(t, got.Msg.GetOrganisation()) &&
+					assert.Equal(t, orchestratortest.MockOrgName1, got.Msg.GetOrganisation().GetName()) &&
+					assert.Equal(t, orchestratortest.MockOrgContactEmail1, got.Msg.GetOrganisation().GetContactEmail())
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganisation, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
+					assert.NotNil(t, toe.GetOrganisation()) &&
+					assert.Equal(t, orchestratortest.MockOrgName1, toe.GetOrganisation().GetName())
+			},
+		},
+		{
 			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.CreateTargetOfEvaluationRequest{
