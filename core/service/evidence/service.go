@@ -40,7 +40,7 @@ import (
 
 
 const (
-	DefaultAssessmentURL     = "http://localhost:9090"
+	DefaultAssessmentURL     = "http://localhost:8080"
 	defaultEvidenceQueueSize = 1024
 )
 

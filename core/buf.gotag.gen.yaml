@@ -7,3 +7,4 @@ plugins:
       - Mapi/orchestrator/orchestrator.proto
       - Mapi/assessment/metric.proto
       - Mapi/assessment/assessment.proto
+      - Mapi/evaluation/evaluation.proto
