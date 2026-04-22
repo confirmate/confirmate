@@ -104,6 +104,7 @@ const (
 	MockOrgStreet1              = "Mock Street 1"
 	MockOrgCity1                = "Mock City 1"
 	MockOrgZip1                 = "12345"
+	MockOrgCountry1             = "DE"
 	MockOrgContactEmail1        = "contact@mock-org.example"
 	MockOrgWebsite1             = "https://mock-org.example"
 )
@@ -215,9 +216,10 @@ var (
 		Organisation: &orchestrator.TargetOfEvaluation_Organisation{
 			Name: MockOrgName1,
 			Address: &orchestrator.TargetOfEvaluation_Organisation_PostalAddress{
-				Street: MockOrgStreet1,
-				City:   MockOrgCity1,
-				Zip:    MockOrgZip1,
+				Street:  MockOrgStreet1,
+				City:    MockOrgCity1,
+				Zip:     MockOrgZip1,
+				Country: MockOrgCountry1,
 			},
 			ContactEmail: MockOrgContactEmail1,
 			Website:      MockOrgWebsite1,

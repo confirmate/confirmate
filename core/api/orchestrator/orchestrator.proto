@@ -841,10 +841,7 @@ message TargetOfEvaluation {
   // Organisation contains details about the organisation responsible for this target of evaluation.
   message Organisation {
     // Name of the company or organisation.
-    string name = 1 [
-      (buf.validate.field).string.min_len = 1,
-      (google.api.field_behavior) = REQUIRED
-    ];
+    string name = 1;
 
     // PostalAddress holds the physical address of the organisation.
     message PostalAddress {
@@ -856,6 +853,9 @@ message TargetOfEvaluation {
 
       // Postal / ZIP code.
       string zip = 3;
+
+      // Country.
+      string country = 4;
     }
 
     // Postal address of the organisation.
@@ -865,10 +865,7 @@ message TargetOfEvaluation {
     optional string contact_person = 3;
 
     // Contact e-mail address.
-    string contact_email = 4 [
-      (buf.validate.field).string.email = true,
-      (google.api.field_behavior) = REQUIRED
-    ];
+    string contact_email = 4;
 
     // Website URL of the organisation.
     string website = 5;

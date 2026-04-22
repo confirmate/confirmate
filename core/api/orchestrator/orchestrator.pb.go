@@ -5431,7 +5431,9 @@ type TargetOfEvaluation_Organisation_PostalAddress struct {
 	// City.
 	City string `protobuf:"bytes,2,opt,name=city,proto3" json:"city,omitempty"`
 	// Postal / ZIP code.
-	Zip           string `protobuf:"bytes,3,opt,name=zip,proto3" json:"zip,omitempty"`
+	Zip string `protobuf:"bytes,3,opt,name=zip,proto3" json:"zip,omitempty"`
+	// Country.
+	Country       string `protobuf:"bytes,4,opt,name=country,proto3" json:"country,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5483,6 +5485,13 @@ func (x *TargetOfEvaluation_Organisation_PostalAddress) GetCity() string {
 func (x *TargetOfEvaluation_Organisation_PostalAddress) GetZip() string {
 	if x != nil {
 		return x.Zip
+	}
+	return ""
+}
+
+func (x *TargetOfEvaluation_Organisation_PostalAddress) GetCountry() string {
+	if x != nil {
+		return x.Country
 	}
 	return ""
 }
@@ -5970,7 +5979,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12W\n" +
-	"\x11available_metrics\x18\x04 \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x10availableMetrics\"\xb3\x0f\n" +
+	"\x11available_metrics\x18\x04 \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x10availableMetrics\"\xb5\x0f\n" +
 	"\x12TargetOfEvaluation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
@@ -5995,19 +6004,18 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
-	"\x05_icon\x1a\xec\x02\n" +
-	"\fOrganisation\x12\x1e\n" +
-	"\x04name\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12c\n" +
+	"\x05_icon\x1a\xee\x02\n" +
+	"\fOrganisation\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12c\n" +
 	"\aaddress\x18\x02 \x01(\v2I.confirmate.orchestrator.v1.TargetOfEvaluation.Organisation.PostalAddressR\aaddress\x12*\n" +
-	"\x0econtact_person\x18\x03 \x01(\tH\x00R\rcontactPerson\x88\x01\x01\x12/\n" +
-	"\rcontact_email\x18\x04 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02`\x01R\fcontactEmail\x12\x18\n" +
-	"\awebsite\x18\x05 \x01(\tR\awebsite\x1aM\n" +
+	"\x0econtact_person\x18\x03 \x01(\tH\x00R\rcontactPerson\x88\x01\x01\x12#\n" +
+	"\rcontact_email\x18\x04 \x01(\tR\fcontactEmail\x12\x18\n" +
+	"\awebsite\x18\x05 \x01(\tR\awebsite\x1ag\n" +
 	"\rPostalAddress\x12\x16\n" +
 	"\x06street\x18\x01 \x01(\tR\x06street\x12\x12\n" +
 	"\x04city\x18\x02 \x01(\tR\x04city\x12\x10\n" +
-	"\x03zip\x18\x03 \x01(\tR\x03zipB\x11\n" +
+	"\x03zip\x18\x03 \x01(\tR\x03zip\x12\x18\n" +
+	"\acountry\x18\x04 \x01(\tR\acountryB\x11\n" +
 	"\x0f_contact_person\"w\n" +
 	"\n" +
 	"TargetType\x12\x1b\n" +
