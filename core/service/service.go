@@ -27,12 +27,16 @@ var DefaultHTTPClient = NewHTTPClient()
 // NewHTTPClient returns a new [http.Client] configured for HTTP/2.
 func NewHTTPClient() *http.Client {
 	var (
-		p *http.Protocols
+		p         *http.Protocols
+		transport *http.Transport
 	)
 
 	p = new(http.Protocols)
 	p.SetUnencryptedHTTP2(true)
 	p.SetHTTP2(true)
 
-	return &http.Client{Transport: &http.Transport{Protocols: p}}
+	transport = http.DefaultTransport.(*http.Transport).Clone()
+	transport.Protocols = p
+
+	return &http.Client{Transport: transport}
 }

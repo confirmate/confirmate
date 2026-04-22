@@ -21,7 +21,6 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/service"
 
-
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"

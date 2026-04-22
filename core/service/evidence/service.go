@@ -56,7 +56,6 @@ type Config struct {
 	AssessmentAddress string
 
 	// AssessmentHTTPClient is the HTTP client used for assessment service communication.
-	// If nil, http.DefaultClient will be used.
 	AssessmentHTTPClient *http.Client
 
 	// PersistenceConfig is the configuration for the persistence layer.
