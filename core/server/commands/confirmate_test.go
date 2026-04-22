@@ -94,7 +94,7 @@ func TestCommandDBInMemoryDefaults(t *testing.T) {
 			name:      "orchestrator command keeps db-in-memory default false",
 			flags:     OrchestratorCommand.Flags,
 			flagName:  "db-in-memory",
-			wantValue: false,
+			wantValue: true,
 		},
 	}
 

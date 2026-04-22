@@ -8,7 +8,7 @@ replace confirmate.io/collectors/cloud => ../collectors/cloud
 
 // runtime dependencies - CLI
 require (
-	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/color v1.15.0 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
 	github.com/lmittmann/tint v1.1.3
 	github.com/mattn/go-colorable v0.1.14 // indirect
@@ -86,6 +86,13 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
+// runtime dependencies - evaluation
+require (
+	github.com/go-co-op/gocron v1.37.0
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+)
+
 // test dependencies
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -104,10 +111,10 @@ require (
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
 	golang.org/x/mod v0.34.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sync v0.20.0
 	golang.org/x/tools v0.43.0 // indirect
 )
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260302105703-17f4819f2682
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260326130106-3aa2e803f3be
