@@ -17,10 +17,10 @@ package commands
 
 import (
 	"context"
-	"net/http"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
 
 	"connectrpc.com/connect"
@@ -51,7 +51,7 @@ var AssessmentCommand = &cli.Command{
 		svc, err := assessment.NewService(
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-				OrchestratorClient:  http.DefaultClient,
+				OrchestratorClient:  service.DefaultHTTPClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
 		)
