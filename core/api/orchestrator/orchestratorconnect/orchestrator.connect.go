@@ -209,6 +209,24 @@ const (
 	OrchestratorListUserRolesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUserRoles"
 	// OrchestratorRemoveUserProcedure is the fully-qualified name of the Orchestrator's RemoveUser RPC.
 	OrchestratorRemoveUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveUser"
+	// OrchestratorCreateControlImplementationProcedure is the fully-qualified name of the
+	// Orchestrator's CreateControlImplementation RPC.
+	OrchestratorCreateControlImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateControlImplementation"
+	// OrchestratorGetControlImplementationProcedure is the fully-qualified name of the Orchestrator's
+	// GetControlImplementation RPC.
+	OrchestratorGetControlImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetControlImplementation"
+	// OrchestratorListControlImplementationsProcedure is the fully-qualified name of the Orchestrator's
+	// ListControlImplementations RPC.
+	OrchestratorListControlImplementationsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListControlImplementations"
+	// OrchestratorUpdateControlImplementationProcedure is the fully-qualified name of the
+	// Orchestrator's UpdateControlImplementation RPC.
+	OrchestratorUpdateControlImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateControlImplementation"
+	// OrchestratorTransitionControlImplementationStateProcedure is the fully-qualified name of the
+	// Orchestrator's TransitionControlImplementationState RPC.
+	OrchestratorTransitionControlImplementationStateProcedure = "/confirmate.orchestrator.v1.Orchestrator/TransitionControlImplementationState"
+	// OrchestratorRemoveControlImplementationProcedure is the fully-qualified name of the
+	// Orchestrator's RemoveControlImplementation RPC.
+	OrchestratorRemoveControlImplementationProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveControlImplementation"
 )
 
 // OrchestratorClient is a client for the confirmate.orchestrator.v1.Orchestrator service.
@@ -340,6 +358,19 @@ type OrchestratorClient interface {
 	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
 	// Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
 	RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error)
+	// Creates a new control implementation to track a control's compliance status within an audit scope.
+	CreateControlImplementation(context.Context, *connect.Request[orchestrator.CreateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Retrieves a control implementation by ID, including its full transition history.
+	GetControlImplementation(context.Context, *connect.Request[orchestrator.GetControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Lists control implementations with optional filtering by audit scope, state, or assignee.
+	ListControlImplementations(context.Context, *connect.Request[orchestrator.ListControlImplementationsRequest]) (*connect.Response[orchestrator.ListControlImplementationsResponse], error)
+	// Updates a control implementation (e.g., changes the assigned user).
+	UpdateControlImplementation(context.Context, *connect.Request[orchestrator.UpdateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Transitions a control implementation to a new state, enforcing valid state machine transitions
+	// and recording the transition in the history.
+	TransitionControlImplementationState(context.Context, *connect.Request[orchestrator.TransitionControlImplementationStateRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Removes a control implementation.
+	RemoveControlImplementation(context.Context, *connect.Request[orchestrator.RemoveControlImplementationRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewOrchestratorClient constructs a client for the confirmate.orchestrator.v1.Orchestrator
@@ -683,66 +714,108 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("RemoveUser")),
 			connect.WithClientOptions(opts...),
 		),
+		createControlImplementation: connect.NewClient[orchestrator.CreateControlImplementationRequest, orchestrator.ControlImplementation](
+			httpClient,
+			baseURL+OrchestratorCreateControlImplementationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("CreateControlImplementation")),
+			connect.WithClientOptions(opts...),
+		),
+		getControlImplementation: connect.NewClient[orchestrator.GetControlImplementationRequest, orchestrator.ControlImplementation](
+			httpClient,
+			baseURL+OrchestratorGetControlImplementationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("GetControlImplementation")),
+			connect.WithClientOptions(opts...),
+		),
+		listControlImplementations: connect.NewClient[orchestrator.ListControlImplementationsRequest, orchestrator.ListControlImplementationsResponse](
+			httpClient,
+			baseURL+OrchestratorListControlImplementationsProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("ListControlImplementations")),
+			connect.WithClientOptions(opts...),
+		),
+		updateControlImplementation: connect.NewClient[orchestrator.UpdateControlImplementationRequest, orchestrator.ControlImplementation](
+			httpClient,
+			baseURL+OrchestratorUpdateControlImplementationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("UpdateControlImplementation")),
+			connect.WithClientOptions(opts...),
+		),
+		transitionControlImplementationState: connect.NewClient[orchestrator.TransitionControlImplementationStateRequest, orchestrator.ControlImplementation](
+			httpClient,
+			baseURL+OrchestratorTransitionControlImplementationStateProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("TransitionControlImplementationState")),
+			connect.WithClientOptions(opts...),
+		),
+		removeControlImplementation: connect.NewClient[orchestrator.RemoveControlImplementationRequest, emptypb.Empty](
+			httpClient,
+			baseURL+OrchestratorRemoveControlImplementationProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("RemoveControlImplementation")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // orchestratorClient implements OrchestratorClient.
 type orchestratorClient struct {
-	registerAssessmentTool          *connect.Client[orchestrator.RegisterAssessmentToolRequest, orchestrator.AssessmentTool]
-	listAssessmentTools             *connect.Client[orchestrator.ListAssessmentToolsRequest, orchestrator.ListAssessmentToolsResponse]
-	getAssessmentTool               *connect.Client[orchestrator.GetAssessmentToolRequest, orchestrator.AssessmentTool]
-	updateAssessmentTool            *connect.Client[orchestrator.UpdateAssessmentToolRequest, orchestrator.AssessmentTool]
-	deregisterAssessmentTool        *connect.Client[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty]
-	storeAssessmentResult           *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
-	storeAssessmentResults          *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
-	getAssessmentResult             *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
-	storeEvaluationResult           *connect.Client[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
-	listAssessmentResults           *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
-	listEvaluationResults           *connect.Client[orchestrator.ListEvaluationResultsRequest, orchestrator.ListEvaluationResultsResponse]
-	createMetric                    *connect.Client[orchestrator.CreateMetricRequest, assessment.Metric]
-	updateMetric                    *connect.Client[orchestrator.UpdateMetricRequest, assessment.Metric]
-	getMetric                       *connect.Client[orchestrator.GetMetricRequest, assessment.Metric]
-	listMetrics                     *connect.Client[orchestrator.ListMetricsRequest, orchestrator.ListMetricsResponse]
-	removeMetric                    *connect.Client[orchestrator.RemoveMetricRequest, emptypb.Empty]
-	createTargetOfEvaluation        *connect.Client[orchestrator.CreateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	updateTargetOfEvaluation        *connect.Client[orchestrator.UpdateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	getTargetOfEvaluation           *connect.Client[orchestrator.GetTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
-	listTargetsOfEvaluation         *connect.Client[orchestrator.ListTargetsOfEvaluationRequest, orchestrator.ListTargetsOfEvaluationResponse]
-	removeTargetOfEvaluation        *connect.Client[orchestrator.RemoveTargetOfEvaluationRequest, emptypb.Empty]
-	getTargetOfEvaluationStatistics *connect.Client[orchestrator.GetTargetOfEvaluationStatisticsRequest, orchestrator.GetTargetOfEvaluationStatisticsResponse]
-	updateMetricConfiguration       *connect.Client[orchestrator.UpdateMetricConfigurationRequest, assessment.MetricConfiguration]
-	getMetricConfiguration          *connect.Client[orchestrator.GetMetricConfigurationRequest, assessment.MetricConfiguration]
-	listMetricConfigurations        *connect.Client[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse]
-	updateMetricImplementation      *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
-	getMetricImplementation         *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
-	subscribe                       *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
-	createCertificate               *connect.Client[orchestrator.CreateCertificateRequest, orchestrator.Certificate]
-	getCertificate                  *connect.Client[orchestrator.GetCertificateRequest, orchestrator.Certificate]
-	listCertificates                *connect.Client[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse]
-	listPublicCertificates          *connect.Client[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse]
-	updateCertificate               *connect.Client[orchestrator.UpdateCertificateRequest, orchestrator.Certificate]
-	removeCertificate               *connect.Client[orchestrator.RemoveCertificateRequest, emptypb.Empty]
-	createCatalog                   *connect.Client[orchestrator.CreateCatalogRequest, orchestrator.Catalog]
-	listCatalogs                    *connect.Client[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse]
-	getCatalog                      *connect.Client[orchestrator.GetCatalogRequest, orchestrator.Catalog]
-	removeCatalog                   *connect.Client[orchestrator.RemoveCatalogRequest, emptypb.Empty]
-	updateCatalog                   *connect.Client[orchestrator.UpdateCatalogRequest, orchestrator.Catalog]
-	getCategory                     *connect.Client[orchestrator.GetCategoryRequest, orchestrator.Category]
-	listControls                    *connect.Client[orchestrator.ListControlsRequest, orchestrator.ListControlsResponse]
-	getControl                      *connect.Client[orchestrator.GetControlRequest, orchestrator.Control]
-	createAuditScope                *connect.Client[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope]
-	getAuditScope                   *connect.Client[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope]
-	listAuditScopes                 *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
-	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
-	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
-	getRuntimeInfo                  *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
-	upsertUserPermission            *connect.Client[orchestrator.UpsertUserPermissionRequest, orchestrator.UpsertUserPermissionResponse]
-	getCurrentUser                  *connect.Client[orchestrator.GetCurrentUserRequest, orchestrator.User]
-	getUser                         *connect.Client[orchestrator.GetUserRequest, orchestrator.User]
-	listUsers                       *connect.Client[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse]
-	listUserPermissions             *connect.Client[orchestrator.ListUserPermissionsRequest, orchestrator.ListUserPermissionsResponse]
-	listUserRoles                   *connect.Client[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse]
-	removeUser                      *connect.Client[orchestrator.RemoveUserRequest, emptypb.Empty]
+	registerAssessmentTool               *connect.Client[orchestrator.RegisterAssessmentToolRequest, orchestrator.AssessmentTool]
+	listAssessmentTools                  *connect.Client[orchestrator.ListAssessmentToolsRequest, orchestrator.ListAssessmentToolsResponse]
+	getAssessmentTool                    *connect.Client[orchestrator.GetAssessmentToolRequest, orchestrator.AssessmentTool]
+	updateAssessmentTool                 *connect.Client[orchestrator.UpdateAssessmentToolRequest, orchestrator.AssessmentTool]
+	deregisterAssessmentTool             *connect.Client[orchestrator.DeregisterAssessmentToolRequest, emptypb.Empty]
+	storeAssessmentResult                *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultResponse]
+	storeAssessmentResults               *connect.Client[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
+	getAssessmentResult                  *connect.Client[orchestrator.GetAssessmentResultRequest, assessment.AssessmentResult]
+	storeEvaluationResult                *connect.Client[orchestrator.StoreEvaluationResultRequest, evaluation.EvaluationResult]
+	listAssessmentResults                *connect.Client[orchestrator.ListAssessmentResultsRequest, orchestrator.ListAssessmentResultsResponse]
+	listEvaluationResults                *connect.Client[orchestrator.ListEvaluationResultsRequest, orchestrator.ListEvaluationResultsResponse]
+	createMetric                         *connect.Client[orchestrator.CreateMetricRequest, assessment.Metric]
+	updateMetric                         *connect.Client[orchestrator.UpdateMetricRequest, assessment.Metric]
+	getMetric                            *connect.Client[orchestrator.GetMetricRequest, assessment.Metric]
+	listMetrics                          *connect.Client[orchestrator.ListMetricsRequest, orchestrator.ListMetricsResponse]
+	removeMetric                         *connect.Client[orchestrator.RemoveMetricRequest, emptypb.Empty]
+	createTargetOfEvaluation             *connect.Client[orchestrator.CreateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
+	updateTargetOfEvaluation             *connect.Client[orchestrator.UpdateTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
+	getTargetOfEvaluation                *connect.Client[orchestrator.GetTargetOfEvaluationRequest, orchestrator.TargetOfEvaluation]
+	listTargetsOfEvaluation              *connect.Client[orchestrator.ListTargetsOfEvaluationRequest, orchestrator.ListTargetsOfEvaluationResponse]
+	removeTargetOfEvaluation             *connect.Client[orchestrator.RemoveTargetOfEvaluationRequest, emptypb.Empty]
+	getTargetOfEvaluationStatistics      *connect.Client[orchestrator.GetTargetOfEvaluationStatisticsRequest, orchestrator.GetTargetOfEvaluationStatisticsResponse]
+	updateMetricConfiguration            *connect.Client[orchestrator.UpdateMetricConfigurationRequest, assessment.MetricConfiguration]
+	getMetricConfiguration               *connect.Client[orchestrator.GetMetricConfigurationRequest, assessment.MetricConfiguration]
+	listMetricConfigurations             *connect.Client[orchestrator.ListMetricConfigurationRequest, orchestrator.ListMetricConfigurationResponse]
+	updateMetricImplementation           *connect.Client[orchestrator.UpdateMetricImplementationRequest, assessment.MetricImplementation]
+	getMetricImplementation              *connect.Client[orchestrator.GetMetricImplementationRequest, assessment.MetricImplementation]
+	subscribe                            *connect.Client[orchestrator.SubscribeRequest, orchestrator.ChangeEvent]
+	createCertificate                    *connect.Client[orchestrator.CreateCertificateRequest, orchestrator.Certificate]
+	getCertificate                       *connect.Client[orchestrator.GetCertificateRequest, orchestrator.Certificate]
+	listCertificates                     *connect.Client[orchestrator.ListCertificatesRequest, orchestrator.ListCertificatesResponse]
+	listPublicCertificates               *connect.Client[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse]
+	updateCertificate                    *connect.Client[orchestrator.UpdateCertificateRequest, orchestrator.Certificate]
+	removeCertificate                    *connect.Client[orchestrator.RemoveCertificateRequest, emptypb.Empty]
+	createCatalog                        *connect.Client[orchestrator.CreateCatalogRequest, orchestrator.Catalog]
+	listCatalogs                         *connect.Client[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse]
+	getCatalog                           *connect.Client[orchestrator.GetCatalogRequest, orchestrator.Catalog]
+	removeCatalog                        *connect.Client[orchestrator.RemoveCatalogRequest, emptypb.Empty]
+	updateCatalog                        *connect.Client[orchestrator.UpdateCatalogRequest, orchestrator.Catalog]
+	getCategory                          *connect.Client[orchestrator.GetCategoryRequest, orchestrator.Category]
+	listControls                         *connect.Client[orchestrator.ListControlsRequest, orchestrator.ListControlsResponse]
+	getControl                           *connect.Client[orchestrator.GetControlRequest, orchestrator.Control]
+	createAuditScope                     *connect.Client[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope]
+	getAuditScope                        *connect.Client[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope]
+	listAuditScopes                      *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
+	updateAuditScope                     *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
+	removeAuditScope                     *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
+	getRuntimeInfo                       *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
+	upsertUserPermission                 *connect.Client[orchestrator.UpsertUserPermissionRequest, orchestrator.UpsertUserPermissionResponse]
+	getCurrentUser                       *connect.Client[orchestrator.GetCurrentUserRequest, orchestrator.User]
+	getUser                              *connect.Client[orchestrator.GetUserRequest, orchestrator.User]
+	listUsers                            *connect.Client[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse]
+	listUserPermissions                  *connect.Client[orchestrator.ListUserPermissionsRequest, orchestrator.ListUserPermissionsResponse]
+	listUserRoles                        *connect.Client[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse]
+	removeUser                           *connect.Client[orchestrator.RemoveUserRequest, emptypb.Empty]
+	createControlImplementation          *connect.Client[orchestrator.CreateControlImplementationRequest, orchestrator.ControlImplementation]
+	getControlImplementation             *connect.Client[orchestrator.GetControlImplementationRequest, orchestrator.ControlImplementation]
+	listControlImplementations           *connect.Client[orchestrator.ListControlImplementationsRequest, orchestrator.ListControlImplementationsResponse]
+	updateControlImplementation          *connect.Client[orchestrator.UpdateControlImplementationRequest, orchestrator.ControlImplementation]
+	transitionControlImplementationState *connect.Client[orchestrator.TransitionControlImplementationStateRequest, orchestrator.ControlImplementation]
+	removeControlImplementation          *connect.Client[orchestrator.RemoveControlImplementationRequest, emptypb.Empty]
 }
 
 // RegisterAssessmentTool calls confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool.
@@ -1023,6 +1096,41 @@ func (c *orchestratorClient) RemoveUser(ctx context.Context, req *connect.Reques
 	return c.removeUser.CallUnary(ctx, req)
 }
 
+// CreateControlImplementation calls
+// confirmate.orchestrator.v1.Orchestrator.CreateControlImplementation.
+func (c *orchestratorClient) CreateControlImplementation(ctx context.Context, req *connect.Request[orchestrator.CreateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return c.createControlImplementation.CallUnary(ctx, req)
+}
+
+// GetControlImplementation calls confirmate.orchestrator.v1.Orchestrator.GetControlImplementation.
+func (c *orchestratorClient) GetControlImplementation(ctx context.Context, req *connect.Request[orchestrator.GetControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return c.getControlImplementation.CallUnary(ctx, req)
+}
+
+// ListControlImplementations calls
+// confirmate.orchestrator.v1.Orchestrator.ListControlImplementations.
+func (c *orchestratorClient) ListControlImplementations(ctx context.Context, req *connect.Request[orchestrator.ListControlImplementationsRequest]) (*connect.Response[orchestrator.ListControlImplementationsResponse], error) {
+	return c.listControlImplementations.CallUnary(ctx, req)
+}
+
+// UpdateControlImplementation calls
+// confirmate.orchestrator.v1.Orchestrator.UpdateControlImplementation.
+func (c *orchestratorClient) UpdateControlImplementation(ctx context.Context, req *connect.Request[orchestrator.UpdateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return c.updateControlImplementation.CallUnary(ctx, req)
+}
+
+// TransitionControlImplementationState calls
+// confirmate.orchestrator.v1.Orchestrator.TransitionControlImplementationState.
+func (c *orchestratorClient) TransitionControlImplementationState(ctx context.Context, req *connect.Request[orchestrator.TransitionControlImplementationStateRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return c.transitionControlImplementationState.CallUnary(ctx, req)
+}
+
+// RemoveControlImplementation calls
+// confirmate.orchestrator.v1.Orchestrator.RemoveControlImplementation.
+func (c *orchestratorClient) RemoveControlImplementation(ctx context.Context, req *connect.Request[orchestrator.RemoveControlImplementationRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.removeControlImplementation.CallUnary(ctx, req)
+}
+
 // OrchestratorHandler is an implementation of the confirmate.orchestrator.v1.Orchestrator service.
 type OrchestratorHandler interface {
 	// Registers the passed assessment tool
@@ -1152,6 +1260,19 @@ type OrchestratorHandler interface {
 	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
 	// Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
 	RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error)
+	// Creates a new control implementation to track a control's compliance status within an audit scope.
+	CreateControlImplementation(context.Context, *connect.Request[orchestrator.CreateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Retrieves a control implementation by ID, including its full transition history.
+	GetControlImplementation(context.Context, *connect.Request[orchestrator.GetControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Lists control implementations with optional filtering by audit scope, state, or assignee.
+	ListControlImplementations(context.Context, *connect.Request[orchestrator.ListControlImplementationsRequest]) (*connect.Response[orchestrator.ListControlImplementationsResponse], error)
+	// Updates a control implementation (e.g., changes the assigned user).
+	UpdateControlImplementation(context.Context, *connect.Request[orchestrator.UpdateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Transitions a control implementation to a new state, enforcing valid state machine transitions
+	// and recording the transition in the history.
+	TransitionControlImplementationState(context.Context, *connect.Request[orchestrator.TransitionControlImplementationStateRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
+	// Removes a control implementation.
+	RemoveControlImplementation(context.Context, *connect.Request[orchestrator.RemoveControlImplementationRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewOrchestratorHandler builds an HTTP handler from the service implementation. It returns the
@@ -1491,6 +1612,42 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("RemoveUser")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorCreateControlImplementationHandler := connect.NewUnaryHandler(
+		OrchestratorCreateControlImplementationProcedure,
+		svc.CreateControlImplementation,
+		connect.WithSchema(orchestratorMethods.ByName("CreateControlImplementation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorGetControlImplementationHandler := connect.NewUnaryHandler(
+		OrchestratorGetControlImplementationProcedure,
+		svc.GetControlImplementation,
+		connect.WithSchema(orchestratorMethods.ByName("GetControlImplementation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorListControlImplementationsHandler := connect.NewUnaryHandler(
+		OrchestratorListControlImplementationsProcedure,
+		svc.ListControlImplementations,
+		connect.WithSchema(orchestratorMethods.ByName("ListControlImplementations")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorUpdateControlImplementationHandler := connect.NewUnaryHandler(
+		OrchestratorUpdateControlImplementationProcedure,
+		svc.UpdateControlImplementation,
+		connect.WithSchema(orchestratorMethods.ByName("UpdateControlImplementation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorTransitionControlImplementationStateHandler := connect.NewUnaryHandler(
+		OrchestratorTransitionControlImplementationStateProcedure,
+		svc.TransitionControlImplementationState,
+		connect.WithSchema(orchestratorMethods.ByName("TransitionControlImplementationState")),
+		connect.WithHandlerOptions(opts...),
+	)
+	orchestratorRemoveControlImplementationHandler := connect.NewUnaryHandler(
+		OrchestratorRemoveControlImplementationProcedure,
+		svc.RemoveControlImplementation,
+		connect.WithSchema(orchestratorMethods.ByName("RemoveControlImplementation")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/confirmate.orchestrator.v1.Orchestrator/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OrchestratorRegisterAssessmentToolProcedure:
@@ -1603,6 +1760,18 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorListUserRolesHandler.ServeHTTP(w, r)
 		case OrchestratorRemoveUserProcedure:
 			orchestratorRemoveUserHandler.ServeHTTP(w, r)
+		case OrchestratorCreateControlImplementationProcedure:
+			orchestratorCreateControlImplementationHandler.ServeHTTP(w, r)
+		case OrchestratorGetControlImplementationProcedure:
+			orchestratorGetControlImplementationHandler.ServeHTTP(w, r)
+		case OrchestratorListControlImplementationsProcedure:
+			orchestratorListControlImplementationsHandler.ServeHTTP(w, r)
+		case OrchestratorUpdateControlImplementationProcedure:
+			orchestratorUpdateControlImplementationHandler.ServeHTTP(w, r)
+		case OrchestratorTransitionControlImplementationStateProcedure:
+			orchestratorTransitionControlImplementationStateHandler.ServeHTTP(w, r)
+		case OrchestratorRemoveControlImplementationProcedure:
+			orchestratorRemoveControlImplementationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1830,4 +1999,28 @@ func (UnimplementedOrchestratorHandler) ListUserRoles(context.Context, *connect.
 
 func (UnimplementedOrchestratorHandler) RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveUser is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) CreateControlImplementation(context.Context, *connect.Request[orchestrator.CreateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateControlImplementation is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) GetControlImplementation(context.Context, *connect.Request[orchestrator.GetControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetControlImplementation is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) ListControlImplementations(context.Context, *connect.Request[orchestrator.ListControlImplementationsRequest]) (*connect.Response[orchestrator.ListControlImplementationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ListControlImplementations is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) UpdateControlImplementation(context.Context, *connect.Request[orchestrator.UpdateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateControlImplementation is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) TransitionControlImplementationState(context.Context, *connect.Request[orchestrator.TransitionControlImplementationStateRequest]) (*connect.Response[orchestrator.ControlImplementation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.TransitionControlImplementationState is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) RemoveControlImplementation(context.Context, *connect.Request[orchestrator.RemoveControlImplementationRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveControlImplementation is not implemented"))
 }
