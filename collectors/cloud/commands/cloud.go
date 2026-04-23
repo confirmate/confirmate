@@ -93,7 +93,7 @@ var CloudCollectorCommand = &cli.Command{
 			opts = append(opts, cloud.WithCollectorInterval(cmd.Duration("collector-interval")))
 		}
 		if cmd.String("collector-evidence-store-address") != "" {
-			opts = append(opts, cloud.WithEvidenceStoreAddress("collector-evidence-store-address", http.DefaultClient))
+			opts = append(opts, cloud.WithEvidenceStoreAddress(cmd.String("collector-evidence-store-address"), http.DefaultClient))
 		}
 
 		svc = cloud.NewService(opts...)
