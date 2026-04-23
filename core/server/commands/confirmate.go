@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"confirmate.io/core/api"
@@ -28,6 +29,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/collection"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
@@ -76,10 +78,10 @@ var oauthServerFlags = []cli.Flag{
 	},
 }
 
-// ConfirmateCommand starts the full framework: orchestrator,  assessment and evidence store services on one server.
+// ConfirmateCommand starts the full framework: orchestrator,  assessment, evidence store, and collector services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store, and collector services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
 			interceptors        []connect.Interceptor
@@ -97,6 +99,8 @@ var ConfirmateCommand = &cli.Command{
 			apiPort             uint16
 			credentials         *clientcredentials.Config
 			authorizer          api.Authorizer
+			collectionSvc       *collection.Service
+			collectionResults   <-chan collection.CollectionResult
 			serverOpts          []server.Option
 		)
 
@@ -168,6 +172,16 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
+		collectionSvc, err = collection.NewService(
+			collection.WithConfig(collection.Config{
+				Interval:   cmd.Duration("collection-interval"),
+				Collectors: []collection.Collector{newNoOpCollector("confirmate-no-op-collector")},
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
 		// EvidenceStore service configuration
 		evidenceOpts = append([]service.Option[evidence.Service]{
 			evidence.WithConfig(evidence.Config{
@@ -195,6 +209,13 @@ var ConfirmateCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		collectionResults = collectionSvc.Start(ctx)
+		go func() {
+			for range collectionResults {
+				slog.Debug("Collection cycle finished")
+			}
+		}()
 
 		// Server options configuration including CORS, logging, handler and gRPC reflection
 		serverOpts = []server.Option{
@@ -245,5 +266,6 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
+		collectionFlags,
 	),
 }
