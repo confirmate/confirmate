@@ -1,15 +1,17 @@
 <script lang="ts">
-	import type { SchemaCategory, SchemaControl } from '$lib/api/openapi/orchestrator';
+	import type { SchemaCategory, SchemaControl, SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
 	import ControlRow from './ControlRow.svelte';
 	import { ChevronDown } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
 	let {
 		category,
-		controls
+		controls,
+		evaluationByControl = {}
 	}: {
 		category: SchemaCategory;
 		controls: SchemaControl[];
+		evaluationByControl?: Record<string, SchemaEvaluationResult>;
 	} = $props();
 
 	let open = $state(true);
@@ -36,7 +38,7 @@
 	{#if open}
 		<div class="divide-y divide-gray-100 border-t border-gray-100 px-4">
 			{#each controls as control}
-				<ControlRow {control} />
+				<ControlRow {control} evaluation={evaluationByControl[control.id ?? '']} {evaluationByControl} />
 			{/each}
 		</div>
 	{/if}

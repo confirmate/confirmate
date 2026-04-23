@@ -3,6 +3,8 @@
 	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import EvaluationSummary from '$lib/components/ui/EvaluationSummary.svelte';
 	import CategorySection from '$lib/components/toe/CategorySection.svelte';
 	import { evaluationClient } from '$lib/api/client';
 	import type { PageProps } from './$types';
@@ -92,10 +94,16 @@
 		</SectionHeader>
 	</div>
 
+	<EvaluationSummary results={data.evaluationResults} />
+
 	<div class="mt-6 space-y-3">
 		{#if data.catalog?.categories?.length}
 			{#each data.catalog.categories as category}
-				<CategorySection {category} controls={data.controlsByCategory[category.name] ?? []} />
+				<CategorySection
+					{category}
+					controls={data.controlsByCategory[category.name] ?? []}
+					evaluationByControl={data.evaluationByControl}
+				/>
 			{/each}
 		{:else}
 			<EmptyState title="No controls found" description="This catalog has no categories or controls defined." />

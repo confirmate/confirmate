@@ -43,6 +43,10 @@ type Service struct {
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
 
+	// orchestratorCtx is a long running context that is used for all calls to the orchestrator,
+	// e.g., to retrieve controls or store evaluation results.
+	orchestratorCtx context.Context
+
 	scheduler *gocron.Scheduler
 
 	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint
@@ -88,6 +92,8 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 
 	// Initialize the Orchestrator client
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+	// TODO: supply authentication tokens to orchestrator
+	svc.orchestratorCtx = context.Background()
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
@@ -118,7 +124,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	}
 
 	// Get Audit Scope
-	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(svc.orchestratorCtx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
@@ -145,7 +151,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	}
 
 	// Retrieve the catalog
-	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
+	catalogRes, err = svc.orchestratorClient.GetCatalog(svc.orchestratorCtx, connect.NewRequest(&orchestrator.GetCatalogRequest{
 		CatalogId: auditScope.GetCatalogId(),
 	}))
 	if err != nil {
@@ -167,7 +173,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	slog.Info("Starting evaluation ...")
 
 	// Add job to scheduler
-	err = svc.addJobToScheduler(ctx, auditScope, catalog, interval)
+	err = svc.addJobToScheduler(svc.orchestratorCtx, auditScope, catalog, interval)
 	// We can return the error as it is
 	if err != nil {
 		return nil, err
@@ -313,6 +319,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 			return res.Results
 		})
 	if err != nil {
+		slog.Error("Could not retrieve existing manual evaluation results", log.Err(err))
 		err = fmt.Errorf("could not retrieve existing manual evaluation results: %w", err)
 		return err
 	}

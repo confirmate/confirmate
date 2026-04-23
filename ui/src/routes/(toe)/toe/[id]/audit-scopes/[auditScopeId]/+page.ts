@@ -1,6 +1,6 @@
 import { orchestratorClient } from '$lib/api/client';
 import { error } from '@sveltejs/kit';
-import type { SchemaControl } from '$lib/api/openapi/orchestrator';
+import type { SchemaControl, SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ params, fetch }) => {
@@ -34,5 +34,27 @@ export const load = (async ({ params, fetch }) => {
 		])
 	);
 
-	return { auditScope, catalog, controlsByCategory };
+	// Fetch evaluation results (latest by control ID)
+	const evalRes = await client.GET('/v1/evaluation/results', {
+		params: {
+			query: {
+				'filter.auditScopeId': params.auditScopeId,
+				latestByControlId: true,
+				pageSize: 1000
+			}
+		}
+	});
+
+	const evaluationResults = evalRes.data?.results ?? [];
+
+	// Index evaluation results by control ID
+	const evaluationByControl: Record<string, SchemaEvaluationResult> = {};
+	for (const result of evaluationResults) {
+		const key = result.controlId ?? '';
+		if (key) {
+			evaluationByControl[key] = result;
+		}
+	}
+
+	return { auditScope, catalog, controlsByCategory, evaluationResults, evaluationByControl };
 }) satisfies PageLoad;

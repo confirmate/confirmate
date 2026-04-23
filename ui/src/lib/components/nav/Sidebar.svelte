@@ -13,7 +13,7 @@
 		{ name: 'Audit Scopes', href: `/toe/${toeId}/audit-scopes/`, icon: ClipboardDocumentCheck },
 		{ name: 'Resources', href: `/toe/${toeId}/resources/`, icon: ServerStack },
 		{ name: 'Access', href: `/toe/${toeId}/access/`, icon: Users },
-		{ name: 'Document Generator', href: `/toe/${toeId}/document/`, icon: ClipboardDocumentList },
+		{ name: 'Documentation Generation', href: `/toe/${toeId}/documentation/`, icon: ClipboardDocumentList },
 		{ name: 'Settings', href: `/toe/${toeId}/settings/`, icon: Cog6Tooth }
 	]);
 

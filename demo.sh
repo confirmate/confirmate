@@ -106,11 +106,7 @@ fi
 # ── 2. Build & start the confirmate all-in-one binary ─────────────────────────
 echo "[2/5] Building confirmate..."
 cd "${REPO_ROOT}"
-if [[ ! -f "bin/confirmate" ]]; then
-  go build -o bin/confirmate ./core/cmd/confirmate
-else
-  echo "      (using existing binary)"
-fi
+go build -o bin/confirmate ./core/cmd/confirmate
 
 echo "[2/5] Starting confirmate (API on :${API_PORT})..."
 ./bin/confirmate \

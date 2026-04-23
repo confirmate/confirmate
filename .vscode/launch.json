@@ -1,21 +1,48 @@
 {
-	"version": "0.2.0",
-	"configurations": [
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch confirmate",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/confirmate",
+            "cwd": "${workspaceFolder}/core",
+            "args": [
+                "--db-in-memory",
+                "--log-level", "debug",
+                "--auth-enabled"
+            ]
+        },
 		{
-			"name": "Attach to Process (by PID)",
-			"type": "go",
-			"request": "attach",
-			"mode": "local",
-			"processId": 0
-		},
-		{
-			"name": "Launch Core (debug)",
-			"type": "go",
-			"request": "launch",
-			"mode": "debug",
-			"program": "${workspaceFolder}/core/cmd/confirmate",
-			"env": {},
-			"args": []
-		}
-	]
+            "name": "Launch confirmate (demo)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/confirmate",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--db-in-memory",
+                "--log-level", "debug",
+                "--catalogs-default-path=./example-data/catalogs",
+  				"--catalogs-load-default",
+  				"--metrics-default-path=./example-data/metrics",
+  				"--metrics-load-default",
+            ]
+        },
+        {
+            "name": "Launch orchestrator",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/orchestrator",
+            "cwd": "${workspaceFolder}/core",
+            "args": [
+                "--db-in-memory",
+                "--log-level", "debug"
+            ]
+        }]
 }

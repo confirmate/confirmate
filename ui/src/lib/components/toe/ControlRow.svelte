@@ -1,12 +1,58 @@
 <script lang="ts">
-	import type { SchemaControl } from '$lib/api/openapi/orchestrator';
+	import type { SchemaControl, SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
 	import { ChevronDown } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
-	let { control, depth = 0 }: { control: SchemaControl; depth?: number } = $props();
+	let {
+		control,
+		evaluation,
+		evaluationByControl = {},
+		depth = 0
+	}: {
+		control: SchemaControl;
+		evaluation?: SchemaEvaluationResult;
+		evaluationByControl?: Record<string, SchemaEvaluationResult>;
+		depth?: number;
+	} = $props();
 
 	const hasChildren = $derived((control.controls?.length ?? 0) > 0);
 	let open = $state(false);
+
+	const statusColor = $derived.by(() => {
+		if (!evaluation) return 'bg-gray-100 text-gray-400';
+		switch (evaluation.status) {
+			case 'EVALUATION_STATUS_COMPLIANT':
+				return 'bg-emerald-100 text-emerald-700';
+			case 'EVALUATION_STATUS_NOT_COMPLIANT':
+				return 'bg-red-100 text-red-700';
+			case 'EVALUATION_STATUS_COMPLIANT_MANUALLY':
+				return 'bg-gray-100 text-gray-700';
+			case 'EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY':
+				return 'bg-gray-100 text-gray-700';
+			case 'EVALUATION_STATUS_PENDING':
+				return 'bg-amber-100 text-amber-700';
+			default:
+				return 'bg-gray-100 text-gray-400';
+		}
+	});
+
+	const statusLabel = $derived.by(() => {
+		if (!evaluation) return 'Not evaluated';
+		switch (evaluation.status) {
+			case 'EVALUATION_STATUS_COMPLIANT':
+				return 'Compliant';
+			case 'EVALUATION_STATUS_NOT_COMPLIANT':
+				return 'Not compliant';
+			case 'EVALUATION_STATUS_COMPLIANT_MANUALLY':
+				return 'Compliant (manual)';
+			case 'EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY':
+				return 'Not compliant (manual)';
+			case 'EVALUATION_STATUS_PENDING':
+				return 'Pending';
+			default:
+				return 'Unknown';
+		}
+	});
 </script>
 
 <div class="{depth > 0 ? 'ml-5 border-l border-gray-100 pl-4' : ''}">
@@ -20,6 +66,9 @@
 				<div class="mt-0.5 text-sm text-gray-500">{control.description}</div>
 			{/if}
 		</div>
+		<span class="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium {statusColor}">
+			{statusLabel}
+		</span>
 		{#if hasChildren}
 			<button
 				type="button"
@@ -38,7 +87,12 @@
 	{#if hasChildren && open}
 		<div class="mb-1">
 			{#each control.controls! as sub}
-				<svelte:self control={sub} depth={depth + 1} />
+				<svelte:self
+					control={sub}
+					evaluation={evaluationByControl[sub.id ?? '']}
+					{evaluationByControl}
+					depth={depth + 1}
+				/>
 			{/each}
 		</div>
 	{/if}
