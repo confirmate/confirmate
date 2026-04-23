@@ -25,6 +25,7 @@ import (
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
 
 	"connectrpc.com/connect"
@@ -52,17 +53,16 @@ type Collector interface {
 // which do the actual work of collecting evidence. The service itself is responsible for
 // orchestrating the collectors, including scheduling their execution at the configured interval.
 type Service struct {
-	interval             time.Duration
-	collectors           []Collector
-	evidenceStoreClient  evidenceconnect.EvidenceStoreClient
-	evidenceStoreStream  *stream.RestartableBidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
-	targetOfEvaluationID string
+	cfg                 Config
+	evidenceStoreClient evidenceconnect.EvidenceStoreClient
+	evidenceStoreStream *stream.RestartableBidiStream[evidence.StoreEvidenceRequest, evidence.StoreEvidencesResponse]
 }
 
 // DefaultConfig is the default configuration for the collection service.
 var DefaultConfig = Config{
-	Interval:             5 * time.Minute,
-	EvidenceStoreAddress: DefaultEvidenceStoreAddress,
+	Interval:                5 * time.Minute,
+	EvidenceStoreAddress:    DefaultEvidenceStoreAddress,
+	EvidenceStoreHTTPClient: service.DefaultHTTPClient,
 }
 
 // Config is the configuration for the collection service.
@@ -78,19 +78,37 @@ type Config struct {
 	// evidence is disabled.
 	EvidenceStoreAddress string
 
-	// EvidenceStoreHTTPClient is used for evidence store communication. If nil, http.DefaultClient
-	// is used.
+	// EvidenceStoreHTTPClient is used for evidence store communication. If nil,
+	// [service.DefaultHTTPClient] is used.
 	EvidenceStoreHTTPClient *http.Client
 
 	// TargetOfEvaluationID is used when creating evidence records from collected resources.
 	TargetOfEvaluationID string
 }
 
-// NewService creates a new collection service with the given configuration.
-func NewService(cfg Config) (svc *Service, err error) {
+// WithConfig sets the service configuration, overriding the default configuration.
+func WithConfig(cfg Config) service.Option[Service] {
+	return func(svc *Service) {
+		svc.cfg = cfg
+	}
+}
+
+// NewService creates a new collection service with default values.
+func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	var (
+		cfg        Config
 		httpClient *http.Client
 	)
+
+	svc = &Service{
+		cfg: DefaultConfig,
+	}
+
+	for _, o := range opts {
+		o(svc)
+	}
+
+	cfg = svc.cfg
 
 	if cfg.Interval <= 0 {
 		cfg.Interval = DefaultConfig.Interval
@@ -112,16 +130,12 @@ func NewService(cfg Config) (svc *Service, err error) {
 		}
 	}
 
-	svc = &Service{
-		interval:             cfg.Interval,
-		collectors:           cfg.Collectors,
-		targetOfEvaluationID: cfg.TargetOfEvaluationID,
-	}
+	svc.cfg = cfg
 
 	if cfg.EvidenceStoreAddress != "" {
 		httpClient = cfg.EvidenceStoreHTTPClient
 		if httpClient == nil {
-			httpClient = http.DefaultClient
+			httpClient = service.DefaultHTTPClient
 		}
 
 		svc.evidenceStoreClient = evidenceconnect.NewEvidenceStoreClient(httpClient, cfg.EvidenceStoreAddress)
@@ -192,7 +206,7 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 			Evidence: &evidence.Evidence{
 				Id:                   uuid.NewString(),
 				Timestamp:            timestamppb.Now(),
-				TargetOfEvaluationId: svc.targetOfEvaluationID,
+				TargetOfEvaluationId: svc.cfg.TargetOfEvaluationID,
 				ToolId:               collector.ID(),
 				Resource:             ontology.ProtoResource(resource),
 			},

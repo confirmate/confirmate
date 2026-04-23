@@ -49,19 +49,19 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 		collectorNames []string
 	)
 
-	collectorNames = make([]string, len(svc.collectors))
-	for i := range svc.collectors {
-		collectorNames[i] = svc.collectors[i].Name()
+	collectorNames = make([]string, len(svc.cfg.Collectors))
+	for i := range svc.cfg.Collectors {
+		collectorNames[i] = svc.cfg.Collectors[i].Name()
 	}
 
 	slog.Info("Starting collection loop",
-		slog.Duration("interval", svc.interval),
+		slog.Duration("interval", svc.cfg.Interval),
 		slog.Any("collector_names", collectorNames),
 	)
 
 	defer close(resultCh)
 
-	ticker = time.NewTicker(svc.interval)
+	ticker = time.NewTicker(svc.cfg.Interval)
 	defer ticker.Stop()
 
 	runResult = svc.runOnce(ctx)
@@ -100,11 +100,11 @@ func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 	)
 
 	res.StartedAt = time.Now()
-	results = make([]CollectorResult, len(svc.collectors))
+	results = make([]CollectorResult, len(svc.cfg.Collectors))
 
-	for i := range svc.collectors {
+	for i := range svc.cfg.Collectors {
 		collectorIndex := i
-		collector := svc.collectors[collectorIndex]
+		collector := svc.cfg.Collectors[collectorIndex]
 
 		// Run the collector in a separate goroutine to allow concurrent execution of all
 		// collectors. The results are collected in the results slice, which is protected by the

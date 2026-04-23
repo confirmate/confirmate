@@ -99,14 +99,16 @@ var CollectionCommand = &cli.Command{
 			return err
 		}
 
-		svc, err = collection.NewService(collection.Config{
-			Interval:             cmd.Duration("collection-interval"),
-			EvidenceStoreAddress: cmd.String("evidence-store-address"),
-			TargetOfEvaluationID: cmd.String("target-of-evaluation-id"),
-			Collectors: []collection.Collector{
-				newNoOpCollector("cli-no-op-collector"),
-			},
-		})
+		svc, err = collection.NewService(
+			collection.WithConfig(collection.Config{
+				Interval:             cmd.Duration("collection-interval"),
+				EvidenceStoreAddress: cmd.String("evidence-store-address"),
+				TargetOfEvaluationID: cmd.String("target-of-evaluation-id"),
+				Collectors: []collection.Collector{
+					newNoOpCollector("cli-no-op-collector"),
+				},
+			}),
+		)
 		if err != nil {
 			return err
 		}

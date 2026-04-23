@@ -100,14 +100,16 @@ func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 
 	errBoom = errors.New("boom")
 
-	svc, err = collection.NewService(collection.Config{
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector("collector-ok", nil),
-			collectiontest.NewFunctionCollector("collector-fail", func() ([]ontology.IsResource, error) {
-				return nil, errBoom
-			}),
-		},
-	})
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector-ok", nil),
+				collectiontest.NewFunctionCollector("collector-fail", func() ([]ontology.IsResource, error) {
+					return nil, errBoom
+				}),
+			},
+		}),
+	)
 	assert.NoError(t, err)
 	defer func() {
 		assert.NoError(t, svc.Close())
@@ -155,21 +157,23 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 	ctx, cancel = context.WithCancel(context.Background())
 	defer cancel()
 
-	svc, err = collection.NewService(collection.Config{
-		Interval: 20 * time.Millisecond,
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector("good-collector", func() ([]ontology.IsResource, error) {
-				successCalls.Add(1)
-				return nil, nil
-			}),
-			collectiontest.NewFunctionCollector("fail-collector", func() ([]ontology.IsResource, error) {
-				mu.Lock()
-				failingCalledOnce = true
-				mu.Unlock()
-				return nil, errors.New("expected failure")
-			}),
-		},
-	})
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Interval: 20 * time.Millisecond,
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("good-collector", func() ([]ontology.IsResource, error) {
+					successCalls.Add(1)
+					return nil, nil
+				}),
+				collectiontest.NewFunctionCollector("fail-collector", func() ([]ontology.IsResource, error) {
+					mu.Lock()
+					failingCalledOnce = true
+					mu.Unlock()
+					return nil, errors.New("expected failure")
+				}),
+			},
+		}),
+	)
 	assert.NoError(t, err)
 
 	resultCh = svc.Start(ctx)
@@ -215,18 +219,20 @@ func TestRunOnce_ForwardsCollectedResourcesToEvidenceStore(t *testing.T) {
 
 	targetOfEvaluationID = uuid.NewString()
 
-	svc, err = collection.NewService(collection.Config{
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
-				return []ontology.IsResource{
-					&ontology.VirtualMachine{Id: "vm-1"},
-				}, nil
-			}),
-		},
-		TargetOfEvaluationID:    targetOfEvaluationID,
-		EvidenceStoreAddress:    testHTTPServer.URL,
-		EvidenceStoreHTTPClient: testHTTPServer.Client(),
-	})
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+					return []ontology.IsResource{
+						&ontology.VirtualMachine{Id: "vm-1"},
+					}, nil
+				}),
+			},
+			TargetOfEvaluationID:    targetOfEvaluationID,
+			EvidenceStoreAddress:    testHTTPServer.URL,
+			EvidenceStoreHTTPClient: testHTTPServer.Client(),
+		}),
+	)
 	assert.NoError(t, err)
 	defer func() {
 		assert.NoError(t, svc.Close())
@@ -270,18 +276,20 @@ func TestRunOnce_ReturnsError_WhenEvidenceStoreReturnsErrorStatus(t *testing.T) 
 
 	targetOfEvaluationID = uuid.NewString()
 
-	svc, err = collection.NewService(collection.Config{
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
-				return []ontology.IsResource{
-					&ontology.VirtualMachine{Id: "vm-1"},
-				}, nil
-			}),
-		},
-		TargetOfEvaluationID:    targetOfEvaluationID,
-		EvidenceStoreAddress:    testHTTPServer.URL,
-		EvidenceStoreHTTPClient: testHTTPServer.Client(),
-	})
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
+					return []ontology.IsResource{
+						&ontology.VirtualMachine{Id: "vm-1"},
+					}, nil
+				}),
+			},
+			TargetOfEvaluationID:    targetOfEvaluationID,
+			EvidenceStoreAddress:    testHTTPServer.URL,
+			EvidenceStoreHTTPClient: testHTTPServer.Client(),
+		}),
+	)
 	assert.NoError(t, err)
 	defer func() {
 		assert.NoError(t, svc.Close())
@@ -299,12 +307,14 @@ func TestNewService_ReturnsError_WhenEvidenceForwardingEnabledWithoutTargetOfEva
 		err error
 	)
 
-	svc, err = collection.NewService(collection.Config{
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector("collector", nil),
-		},
-		EvidenceStoreAddress: "http://localhost:8080",
-	})
+	svc, err = collection.NewService(
+		collection.WithConfig(collection.Config{
+			Collectors: []collection.Collector{
+				collectiontest.NewFunctionCollector("collector", nil),
+			},
+			EvidenceStoreAddress: "http://localhost:8080",
+		}),
+	)
 
 	assert.Nil(t, svc)
 	assert.ErrorContains(t, err, "target of evaluation id must be set")
