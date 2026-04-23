@@ -91,19 +91,14 @@ func RunConnectServer(opts ...Option) (err error) {
 		return
 	}
 
-	slog.Info("Starting Connect server",
-		slog.String("address", svr.Addr),
-		slog.String("path", svr.cfg.Path),
-	)
-
-	err = svr.ListenAndServe()
+	err = srv.ListenAndServe()
 
 	return err
 }
 
 // NewConnectServer creates a new Connect server with the given options.
 // It uses [http.Protocols] to serve HTTP/2 without TLS (h2c).
-func NewConnectServer(opts []Option) (svr *Server, err error) {
+func NewConnectServer(opts []Option) (srv *Server, err error) {
 	var (
 		vs         []*vanguard.Service
 		transcoder http.Handler
@@ -147,7 +142,7 @@ func NewConnectServer(opts []Option) (svr *Server, err error) {
 	for path, handler := range srv.httpHandlers {
 		mux.Handle(path, handler)
 	}
-	mux.Handle("/", svr.handleCORS(transcoder))
+	mux.Handle("/", srv.handleCORS(transcoder))
 
 	// Configure h2c support using standard library
 	p = new(http.Protocols)

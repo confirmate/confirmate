@@ -99,6 +99,8 @@ var ConfirmateCommand = &cli.Command{
 			apiPort             uint16
 			credentials         *clientcredentials.Config
 			authorizer          api.Authorizer
+			collectionSvc       *collection.Service
+			collectionResults   <-chan collection.CollectionResult
 			serverOpts          []server.Option
 		)
 
@@ -174,6 +176,10 @@ var ConfirmateCommand = &cli.Command{
 			Interval:   cmd.Duration("collection-interval"),
 			Collectors: []collection.Collector{newNoOpCollector("confirmate-no-op-collector")},
 		})
+		if err != nil {
+			return err
+		}
+
 		// EvidenceStore service configuration
 		evidenceOpts = append([]service.Option[evidence.Service]{
 			evidence.WithConfig(evidence.Config{
@@ -257,5 +263,6 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
+		collectionFlags,
 	),
 }
