@@ -340,11 +340,11 @@ func (svc *Service) Start(cmd *cli.Command) (err error) {
 	}
 
 	for _, v := range svc.collectors {
-		log.Info("Scheduling collector", "name", v.Name(), "interval_min", svc.cloudConfig.collectorInterval.Minutes())
+		log.Info("Scheduling collector", "name", v.Name(), "id", v.ID(), "interval_min", svc.cloudConfig.collectorInterval.Minutes())
 
 		_, err = svc.scheduler.
 			Every(svc.cloudConfig.collectorInterval).
-			Tag(v.Name()).
+			Tag(v.ID()).
 			Do(svc.StartCollector, v)
 		if err != nil {
 			newError := fmt.Errorf("could not schedule job for {%s}: %v", v.Name(), err)
@@ -372,7 +372,7 @@ func (svc *Service) StartCollector(collector cloud.Collector) {
 		}
 	}()
 
-	list, err = collector.List()
+	list, err = collector.Collect()
 
 	if err != nil {
 		log.Error("Could not retrieve resources from collector", "collector", collector.Name(), tint.Err(err))

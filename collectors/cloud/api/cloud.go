@@ -11,6 +11,8 @@ import (
 // ontology objects.
 type Collector interface {
 	Name() string
+	ID() string
+	Collect() ([]ontology.IsResource, error)
 	List() ([]ontology.IsResource, error)
 	TargetOfEvaluationID() string
 }
