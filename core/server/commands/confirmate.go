@@ -186,6 +186,7 @@ var ConfirmateCommand = &cli.Command{
 		evidenceOpts = append([]service.Option[evidence.Service]{
 			evidence.WithConfig(evidence.Config{
 				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
 				PersistenceConfig: persistence.Config{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
