@@ -119,7 +119,7 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	}
 
 	if cfg.TargetOfEvaluationID != "" {
-		if _, err = uuid.Parse(cfg.TargetOfEvaluationID); err != nil {
+		if err = uuid.Validate(cfg.TargetOfEvaluationID); err != nil {
 			return nil, fmt.Errorf("invalid target of evaluation id: %w", err)
 		}
 	}
