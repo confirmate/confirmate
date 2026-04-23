@@ -26,7 +26,7 @@ import (
 
 func TestNewService(t *testing.T) {
 	type args struct {
-		opts []service.Option[*Service]
+		opts []service.Option[Service]
 	}
 	tests := []struct {
 		name string
@@ -36,7 +36,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithEvidenceStoreAddress'",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithEvidenceStoreAddress("localhost:9091", http.DefaultClient),
 				},
 			},
@@ -48,7 +48,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithTargetOfEvaluationID'",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1),
 				},
 			},
@@ -59,7 +59,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithEvidenceCollectorToolID'",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithCollectorToolID(testdata.MockEvidenceToolID1),
 				},
 			},
@@ -70,7 +70,7 @@ func TestNewService(t *testing.T) {
 		// {
 		// 	name: "Create service with option 'WithAuthorizationStrategy'",
 		// 	args: args{
-		// 		opts: []service.Option[*Service]{
+		// 		opts: []service.Option[Service]{
 		// 			WithAuthorizationStrategy(&service.AuthorizationStrategyJWT{AllowAllKey: "test"}),
 		// 		},
 		// 	},
@@ -81,7 +81,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithProviders' and one provider given",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithProviders([]string{"azure"}),
 				},
 			},
@@ -92,7 +92,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithProviders' and no provider given",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithProviders([]string{}),
 				},
 			},
@@ -103,7 +103,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithAdditionalCollectors'",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithAdditionalCollectors([]cloud.Collector{&collectortest.TestCollector{ServiceId: config.DefaultTargetOfEvaluationID}}),
 				},
 			},
@@ -114,7 +114,7 @@ func TestNewService(t *testing.T) {
 		{
 			name: "Create service with option 'WithCollectorInterval'",
 			args: args{
-				opts: []service.Option[*Service]{
+				opts: []service.Option[Service]{
 					WithCollectorInterval(time.Duration(8)),
 				},
 			},
@@ -781,7 +781,7 @@ func TestService_GetTargetOfEvaluationId(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for receiver constructor.
-		opts service.Option[*Service]
+		opts service.Option[Service]
 		want assert.Want[string]
 	}{
 		{

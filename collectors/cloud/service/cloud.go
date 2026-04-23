@@ -150,7 +150,7 @@ func init() {
 }
 
 // WithEvidenceStoreAddress is an option to configure the evidence store service gRPC address.
-func WithEvidenceStoreAddress(target string, client *http.Client) service.Option[*Service] {
+func WithEvidenceStoreAddress(target string, client *http.Client) service.Option[Service] {
 
 	return func(s *Service) {
 		log.Info("Evidence Store URL is set", slog.String("target", target))
@@ -161,7 +161,7 @@ func WithEvidenceStoreAddress(target string, client *http.Client) service.Option
 }
 
 // WithTargetOfEvaluationID is an option to configure the target of evaluation ID for which resources will be collected.
-func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
+func WithTargetOfEvaluationID(ID string) service.Option[Service] {
 	return func(svc *Service) {
 		log.Info("Target of Evaluation ID is set", "targetOfEvaluationID", ID)
 
@@ -170,7 +170,7 @@ func WithTargetOfEvaluationID(ID string) service.Option[*Service] {
 }
 
 // WithCollectorToolID is an option to configure the collector tool ID that is used to collect resources.
-func WithCollectorToolID(ID string) service.Option[*Service] {
+func WithCollectorToolID(ID string) service.Option[Service] {
 	return func(svc *Service) {
 		log.Info("Evidence Collector Tool ID is set", "collectorToolID", ID)
 
@@ -180,14 +180,14 @@ func WithCollectorToolID(ID string) service.Option[*Service] {
 
 // TODO(all): Do we need that anymore?
 // // WithOAuth2Authorizer is an option to use an OAuth 2.0 authorizer
-// func WithOAuth2Authorizer(config *clientcredentials.Config) service.Option[*Service] {
+// func WithOAuth2Authorizer(config *clientcredentials.Config) service.Option[Service] {
 // 	return func(svc *Service) {
 // 		svc.evidenceStore.SetAuthorizer(api.NewOAuthAuthorizerFromClientCredentials(config))
 // 	}
 // }
 
 // WithProviders is an option to set providers for collecting
-func WithProviders(providersList []string) service.Option[*Service] {
+func WithProviders(providersList []string) service.Option[Service] {
 	if len(providersList) == 0 {
 		log.Error("no providers given")
 	}
@@ -199,20 +199,20 @@ func WithProviders(providersList []string) service.Option[*Service] {
 
 // WithAdditionalCollectors is an option to add additional collectors for collecting. Note: These are added in
 // addition to the ones created by [WithProviders].
-func WithAdditionalCollectors(collectors []cloud.Collector) service.Option[*Service] {
+func WithAdditionalCollectors(collectors []cloud.Collector) service.Option[Service] {
 	return func(s *Service) {
 		s.collectors = append(s.collectors, collectors...)
 	}
 }
 
 // WithCollectorInterval is an option to set the collector interval. If not set, the collector is set to 5 minutes.
-func WithCollectorInterval(interval time.Duration) service.Option[*Service] {
+func WithCollectorInterval(interval time.Duration) service.Option[Service] {
 	return func(svc *Service) {
 		svc.cloudConfig.collectorInterval = interval
 	}
 }
 
-func NewService(opts ...service.Option[*Service]) *Service {
+func NewService(opts ...service.Option[Service]) *Service {
 	s := &Service{
 		// TODO(anatheka): Add evidence store stream
 		// evidenceStoreStreams: api.NewStreamsOf(api.WithLogger[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest](log)),

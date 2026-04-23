@@ -73,7 +73,7 @@ var CloudCollectorCommand = &cli.Command{
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		var (
 			svc  *cloud.Service
-			opts []service.Option[*cloud.Service]
+			opts []service.Option[cloud.Service]
 		)
 
 		if len(cmd.StringSlice("collector-provider")) > 0 {
