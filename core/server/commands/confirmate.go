@@ -23,12 +23,14 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
 	"confirmate.io/core/service/collection"
+	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
@@ -42,28 +44,64 @@ const (
 	DefaultServiceClientSecret = "confirmate"
 )
 
-// ConfirmateCommand starts the full framework: orchestrator and assessment services on one server.
+// oauthServerFlags contains the flags for configuring the embedded OAuth 2.0 server.
+var oauthServerFlags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:    "oauth2-embedded",
+		Usage:   "Enable embedded OAuth 2.0 server",
+		Value:   true,
+		Sources: envVarSources("oauth2-embedded"),
+	},
+	&cli.StringFlag{
+		Name:    "oauth2-public-url",
+		Usage:   "Public base URL for the embedded OAuth 2.0 server",
+		Value:   "",
+		Sources: envVarSources("oauth2-public-url"),
+	},
+	&cli.StringFlag{
+		Name:    "oauth2-key-path",
+		Usage:   "Path to the OAuth 2.0 signing key",
+		Value:   server.DefaultOAuth2KeyPath,
+		Sources: envVarSources("oauth2-key-path"),
+	},
+	&cli.StringFlag{
+		Name:    "oauth2-key-password",
+		Usage:   "Password for the OAuth 2.0 signing key",
+		Value:   server.DefaultOAuth2KeyPassword,
+		Sources: envVarSources("oauth2-key-password"),
+	},
+	&cli.BoolFlag{
+		Name:    "oauth2-key-save-on-create",
+		Usage:   "Persist generated OAuth 2.0 signing keys",
+		Value:   server.DefaultOAuth2KeySaveOnCreate,
+		Sources: envVarSources("oauth2-key-save-on-create"),
+	},
+}
+
+// ConfirmateCommand starts the full framework: orchestrator,  assessment, evidence store, and collector services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store, and collector services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
-			interceptors       []connect.Interceptor
-			svcOptions         []service.Option[orchestrator.Service]
-			assessmentOptions  []service.Option[assessment.Service]
-			jwksURL            string
-			svcOpts            []service.Option[orchestrator.Service]
-			assessmentOpts     []service.Option[assessment.Service]
-			svc                orchestratorconnect.OrchestratorHandler
-			assessmentSvc      assessmentconnect.AssessmentHandler
-			collectionSvc      *collection.Service
-			collectionResults  <-chan collection.CollectionResult
-			orchestratorClient *http.Client
-			apiPort            uint16
-			orchestratorURL    string
-			credentials        *clientcredentials.Config
-			authorizer         api.Authorizer
-			serverOpts         []server.Option
+			interceptors        []connect.Interceptor
+			orchestratorOptions []service.Option[orchestrator.Service]
+			assessmentOptions   []service.Option[assessment.Service]
+			evidenceOptions     []service.Option[evidence.Service]
+			jwksURL             string
+			orchestratorOpts    []service.Option[orchestrator.Service]
+			assessmentOpts      []service.Option[assessment.Service]
+			evidenceOpts        []service.Option[evidence.Service]
+			orchestratorSvc     orchestratorconnect.OrchestratorHandler
+			assessmentSvc       assessmentconnect.AssessmentHandler
+			evidenceSvc         evidenceconnect.EvidenceStoreHandler
+			orchestratorClient  *http.Client
+			apiPort             uint16
+			credentials         *clientcredentials.Config
+			authorizer          api.Authorizer
+			collectionSvc       *collection.Service
+			collectionResults   <-chan collection.CollectionResult
+			serverOpts          []server.Option
 		)
 
 		if cmd.Bool("auth-enabled") {
@@ -72,22 +110,18 @@ var ConfirmateCommand = &cli.Command{
 				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
 			}
 
+			// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
 			interceptors = append(interceptors, server.NewAuthInterceptor(
 				server.WithJWKS(jwksURL),
 			))
-			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
-				service.DefaultAllowAllClaim,
-			))
-			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
-				service.DefaultAllowAllClaim,
-			))
+			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
+			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
 		}
 
 		interceptors = append(interceptors, &server.LoggingInterceptor{})
 
-		svcOpts = append([]service.Option[orchestrator.Service]{
+		// Orchestrator service configuration
+		orchestratorOpts = append([]service.Option[orchestrator.Service]{
 			orchestrator.WithConfig(orchestrator.Config{
 				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
 				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
@@ -98,37 +132,36 @@ var ConfirmateCommand = &cli.Command{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
 					DBName:     cmd.String("db-name"),
-					User:       cmd.String("db-user"),
+					User:       cmd.String("db-user-name"),
 					Password:   cmd.String("db-password"),
-					SSLMode:    cmd.String("db-sslmode"),
+					SSLMode:    cmd.String("db-ssl-mode"),
 					InMemoryDB: cmd.Bool("db-in-memory"),
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
 			}),
-		}, svcOptions...)
+		}, orchestratorOptions...)
 
-		svc, err = orchestrator.NewService(svcOpts...)
+		orchestratorSvc, err = orchestrator.NewService(orchestratorOpts...)
 		if err != nil {
 			return err
 		}
-
 		apiPort = cmd.Uint16("api-port")
-		orchestratorURL = fmt.Sprintf("http://localhost:%d", apiPort)
 
-		orchestratorClient = http.DefaultClient
+		orchestratorClient = service.NewHTTPClient()
 		if cmd.Bool("auth-enabled") {
 			credentials = &clientcredentials.Config{
-				ClientID:     cmd.String("service-oauth-client-id"),
-				ClientSecret: cmd.String("service-oauth-client-secret"),
-				TokenURL:     cmd.String("service-oauth-token-url"),
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
 			}
 			authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
 			orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
 		}
 
+		// Assessment service configuration
 		assessmentOpts = append([]service.Option[assessment.Service]{
 			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: orchestratorURL,
+				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
 				OrchestratorClient:  orchestratorClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
@@ -139,10 +172,40 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
-		collectionSvc, err = collection.NewService(collection.Config{
-			Interval:   cmd.Duration("collection-interval"),
-			Collectors: []collection.Collector{},
-		})
+		collectionSvc, err = collection.NewService(
+			collection.WithConfig(collection.Config{
+				Interval:   cmd.Duration("collection-interval"),
+				Collectors: []collection.Collector{newNoOpCollector("confirmate-no-op-collector")},
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
+		// EvidenceStore service configuration
+		evidenceOpts = append([]service.Option[evidence.Service]{
+			evidence.WithConfig(evidence.Config{
+				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user-name"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-ssl-mode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
+				AssessmentHTTPClient: func() *http.Client {
+					c := service.NewHTTPClient()
+					c.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+					return c
+				}(),
+			}),
+		}, evidenceOptions...)
+
+		evidenceSvc, err = evidence.NewService(evidenceOpts...)
 		if err != nil {
 			return err
 		}
@@ -154,6 +217,7 @@ var ConfirmateCommand = &cli.Command{
 			}
 		}()
 
+		// Server options configuration including CORS, logging, handler and gRPC reflection
 		serverOpts = []server.Option{
 			server.WithConfig(server.Config{
 				Port:     apiPort,
@@ -166,13 +230,18 @@ var ConfirmateCommand = &cli.Command{
 				},
 			}),
 			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
-				svc,
+				orchestratorSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
 				assessmentSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
+				evidenceSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithReflection(),
 		}
 
 		if cmd.Bool("oauth2-embedded") {
@@ -187,156 +256,16 @@ var ConfirmateCommand = &cli.Command{
 		err = server.RunConnectServer(serverOpts...)
 		return err
 	},
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "auth-enabled",
-			Usage: "Enable JWT authentication for RPC requests",
-			Value: false,
-		},
-		&cli.StringFlag{
-			Name:  "auth-jwks-url",
-			Usage: "JWKS URL for JWT validation",
-			Value: server.DefaultJWKSURL,
-		},
-		&cli.BoolFlag{
-			Name:  "oauth2-embedded",
-			Usage: "Enable embedded OAuth 2.0 server",
-			Value: true,
-		},
-		&cli.StringFlag{
-			Name:  "oauth2-public-url",
-			Usage: "Public base URL for the embedded OAuth 2.0 server",
-			Value: "",
-		},
-		&cli.StringFlag{
-			Name:  "oauth2-key-path",
-			Usage: "Path to the OAuth 2.0 signing key",
-			Value: server.DefaultOAuth2KeyPath,
-		},
-		&cli.StringFlag{
-			Name:  "oauth2-key-password",
-			Usage: "Password for the OAuth 2.0 signing key",
-			Value: server.DefaultOAuth2KeyPassword,
-		},
-		&cli.BoolFlag{
-			Name:  "oauth2-key-save-on-create",
-			Usage: "Persist generated OAuth 2.0 signing keys",
-			Value: server.DefaultOAuth2KeySaveOnCreate,
-		},
-		&cli.StringFlag{
-			Name:  "service-oauth-token-url",
-			Usage: "OAuth 2.0 token URL for service-to-service auth",
-			Value: DefaultServiceTokenURL,
-		},
-		&cli.StringFlag{
-			Name:  "service-oauth-client-id",
-			Usage: "OAuth 2.0 client ID for service-to-service auth",
-			Value: DefaultServiceClientID,
-		},
-		&cli.StringFlag{
-			Name:  "service-oauth-client-secret",
-			Usage: "OAuth 2.0 client secret for service-to-service auth",
-			Value: DefaultServiceClientSecret,
-		},
-		&cli.Uint16Flag{
-			Name:  "api-port",
-			Usage: "Port to run the API server (Connect, gRPC, REST) on",
-			Value: server.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: server.DefaultConfig.LogLevel,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-origins",
-			Usage: "Specifies the origins allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedOrigins,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-methods",
-			Usage: "Specifies the methods allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedMethods,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-headers",
-			Usage: "Specifies the headers allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedHeaders,
-		},
-		&cli.StringFlag{
-			Name:  "catalogs-default-path",
-			Usage: "The path to the folder containing default catalog definitions",
-			Value: orchestrator.DefaultConfig.DefaultCatalogsPath,
-		},
-		&cli.BoolFlag{
-			Name:  "catalogs-load-default",
-			Usage: "Load default catalogs from the catalogs-default-path",
-			Value: orchestrator.DefaultConfig.LoadDefaultCatalogs,
-		},
-		&cli.StringFlag{
-			Name:  "metrics-default-path",
-			Usage: "The path to the folder containing default metrics (e.g., security-metrics repository)",
-			Value: orchestrator.DefaultConfig.DefaultMetricsPath,
-		},
-		&cli.BoolFlag{
-			Name:  "metrics-load-default",
-			Usage: "Load default metrics from the metrics-default-path",
-			Value: orchestrator.DefaultConfig.LoadDefaultMetrics,
-		},
-		&cli.BoolFlag{
-			Name:  "create-default-target-of-evaluation",
-			Usage: "Creates a default target of evaluation if none exists",
-			Value: orchestrator.DefaultConfig.CreateDefaultTargetOfEvaluation,
-		},
-		&cli.StringFlag{
-			Name:  "db-host",
-			Usage: "Specifies the server hostname",
-			Value: persistence.DefaultConfig.Host,
-		},
-		&cli.IntFlag{
-			Name:  "db-port",
-			Usage: "Specifies the server port",
-			Value: persistence.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "db-name",
-			Usage: "Specifies the database name",
-			Value: persistence.DefaultConfig.DBName,
-		},
-		&cli.StringFlag{
-			Name:  "db-user",
-			Usage: "Specifies the database user",
-			Value: persistence.DefaultConfig.User,
-		},
-		&cli.StringFlag{
-			Name:  "db-password",
-			Usage: "Specifies the database password",
-			Value: persistence.DefaultConfig.Password,
-		},
-		&cli.StringFlag{
-			Name:  "db-sslmode",
-			Usage: "Specifies the database SSL mode (disable, require, verify-ca, verify-full)",
-			Value: persistence.DefaultConfig.SSLMode,
-		},
-		&cli.BoolFlag{
-			Name:  "db-in-memory",
-			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
-			Value: persistence.DefaultConfig.InMemoryDB,
-		},
-		&cli.IntFlag{
-			Name:  "db-max-connections",
-			Usage: "Specifies the maximum number of database connections",
-			Value: persistence.DefaultConfig.MaxConn,
-		},
-		&cli.StringFlag{
-			Name:  "assessment-rego-package",
-			Usage: "Rego package to use for assessments",
-			Value: assessment.DefaultConfig.RegoPackage,
-		},
-		&cli.DurationFlag{
-			Name:  "collection-interval",
-			Usage: "Interval between collection runs",
-			Value: collection.DefaultConfig.Interval,
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		apiFlags,
+		authFlags,
+		serviceAuthFlags,
+		newDBFlags(true),
+		assessmentFlags,
+		evidenceFlags,
+		oauthServerFlags,
+		orchestratorFlags,
+		collectionFlags,
+	),
 }

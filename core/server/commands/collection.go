@@ -26,15 +26,70 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/service/collection"
 
+<<<<<<< HEAD
 	"github.com/urfave/cli/v3"
 )
 
 type noOpCollector struct{}
+=======
+	"github.com/google/uuid"
+	"github.com/urfave/cli/v3"
+)
+
+type noOpCollector struct {
+	id   string
+	name string
+}
+
+func newNoOpCollector(name string) noOpCollector {
+	if name == "" {
+		name = "no-op-collector"
+	}
+
+	return noOpCollector{
+		id:   uuid.NewString(),
+		name: name,
+	}
+}
+
+func (c noOpCollector) ID() string {
+	return c.id
+}
+
+func (c noOpCollector) Name() string {
+	return c.name
+}
+>>>>>>> oxisto/collection-service
 
 func (noOpCollector) Collect() (list []ontology.IsResource, err error) {
 	return nil, nil
 }
 
+<<<<<<< HEAD
+=======
+// collectionFlags contains the flags that are specific to configuring the collection service.
+var collectionFlags = []cli.Flag{
+	&cli.DurationFlag{
+		Name:    "collection-interval",
+		Usage:   "Interval between collection runs",
+		Value:   collection.DefaultConfig.Interval,
+		Sources: envVarSources("collection-interval"),
+	},
+	&cli.StringFlag{
+		Name:    "evidence-store-address",
+		Usage:   "Evidence store base URL for forwarding collected resources (empty disables forwarding)",
+		Value:   collection.DefaultConfig.EvidenceStoreAddress,
+		Sources: envVarSources("evidence-store-address"),
+	},
+	&cli.StringFlag{
+		Name:    "target-of-evaluation-id",
+		Usage:   "Target of evaluation UUID used when creating evidence records",
+		Value:   "",
+		Sources: envVarSources("target-of-evaluation-id"),
+	},
+}
+
+>>>>>>> oxisto/collection-service
 // CollectionCommand is the command to start the collection service.
 var CollectionCommand = &cli.Command{
 	Name:  "collection",
@@ -54,12 +109,25 @@ var CollectionCommand = &cli.Command{
 			return err
 		}
 
+<<<<<<< HEAD
 		svc, err = collection.NewService(collection.Config{
 			Interval: cmd.Duration("collection-interval"),
 			Collectors: []collection.Collector{
 				noOpCollector{},
 			},
 		})
+=======
+		svc, err = collection.NewService(
+			collection.WithConfig(collection.Config{
+				Interval:             cmd.Duration("collection-interval"),
+				EvidenceStoreAddress: cmd.String("evidence-store-address"),
+				TargetOfEvaluationID: cmd.String("target-of-evaluation-id"),
+				Collectors: []collection.Collector{
+					newNoOpCollector("cli-no-op-collector"),
+				},
+			}),
+		)
+>>>>>>> oxisto/collection-service
 		if err != nil {
 			return err
 		}
@@ -71,6 +139,7 @@ var CollectionCommand = &cli.Command{
 
 		return nil
 	},
+<<<<<<< HEAD
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "log-level",
@@ -83,4 +152,10 @@ var CollectionCommand = &cli.Command{
 			Value: collection.DefaultConfig.Interval,
 		},
 	},
+=======
+	Flags: joinFlagSlices(
+		logFlags,
+		collectionFlags,
+	),
+>>>>>>> oxisto/collection-service
 }

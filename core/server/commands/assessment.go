@@ -17,15 +17,31 @@ package commands
 
 import (
 	"context"
-	"net/http"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
 )
+
+// assessmentFlags contains the flags that are specific to configuring the assessment service.
+var assessmentFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "assessment-orchestrator-address",
+		Usage:   "Address of the orchestrator service the assessment service connects to",
+		Value:   assessment.DefaultOrchestratorURL,
+		Sources: envVarSources("assessment-orchestrator-address"),
+	},
+	&cli.StringFlag{
+		Name:    "assessment-rego-package",
+		Usage:   "Rego package to use for assessments",
+		Value:   assessment.DefaultConfig.RegoPackage,
+		Sources: envVarSources("assessment-rego-package"),
+	},
+}
 
 // AssessmentCommand is the command to start the assessment server.
 var AssessmentCommand = &cli.Command{
@@ -35,7 +51,7 @@ var AssessmentCommand = &cli.Command{
 		svc, err := assessment.NewService(
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-				OrchestratorClient:  http.DefaultClient,
+				OrchestratorClient:  service.DefaultHTTPClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
 		)
@@ -58,41 +74,14 @@ var AssessmentCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
+			server.WithReflection(),
 		)
 	},
-	Flags: []cli.Flag{
-		&cli.Uint16Flag{
-			Name:  "api-port",
-			Usage: "Port to run the API server (Connect, gRPC, REST) on",
-			Value: server.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: server.DefaultConfig.LogLevel,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-origins",
-			Usage: "Specifies the origins allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedOrigins,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-methods",
-			Usage: "Specifies the methods allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedMethods,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-headers",
-			Usage: "Specifies the headers allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedHeaders,
-		},
-		&cli.StringFlag{
-			Name:  "assessment-orchestrator-address",
-			Usage: "Address of the orchestrator service the assessment service connects to",
-		},
-		&cli.StringFlag{
-			Name:  "assessment-rego-package",
-			Usage: "Rego package to use for assessments",
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		apiFlags,
+		authFlags,
+		serviceAuthFlags,
+		assessmentFlags,
+	),
 }

@@ -25,6 +25,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
@@ -38,6 +39,7 @@ func (svc *Service) CreateCatalog(
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
 		catalog *orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -45,8 +47,25 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
 
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 	// Persist the new catalog in the database
 	err = svc.db.Create(catalog)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -57,7 +76,8 @@ func (svc *Service) CreateCatalog(
 	return
 }
 
-// GetCatalog retrieves a catalog by ID.
+// GetCatalog retrieves a specific catalog by it's ID. The catalog includes a list of all
+// of it categories as well as the first level of controls in each category.
 func (svc *Service) GetCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCatalogRequest],
@@ -71,7 +91,11 @@ func (svc *Service) GetCatalog(
 		return nil, err
 	}
 
-	err = svc.db.Get(&catalog, "id = ?", req.Msg.CatalogId)
+	err = svc.db.Get(&catalog,
+		// Preload fills in associated entities, in this case controls. We want to only select those controls which do
+		// not have a parent, e.g., the top-level
+		persistence.WithPreload("Categories.Controls", "parent_control_id IS NULL"),
+		"id = ?", req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
 		return nil, err
 	}
@@ -80,7 +104,8 @@ func (svc *Service) GetCatalog(
 	return
 }
 
-// ListCatalogs lists all catalogs.
+// ListCatalogs lists all security controls catalogs. Each catalog includes a list of its
+// categories but no additional sub-resources.
 func (svc *Service) ListCatalogs(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCatalogsRequest],
@@ -118,14 +143,35 @@ func (svc *Service) UpdateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
-	var catalog *orchestrator.Catalog
+	var (
+		catalog *orchestrator.Catalog
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the catalog
 	err = svc.db.Update(catalog, "id = ?", catalog.Id)
@@ -144,11 +190,21 @@ func (svc *Service) RemoveCatalog(
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
 		catalog orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Delete the catalog
@@ -161,7 +217,9 @@ func (svc *Service) RemoveCatalog(
 	return
 }
 
-// GetCategory retrieves a category by name and catalog ID.
+// GetCategory retrieves a category of a catalog specified by the catalog ID and the
+// category name. It includes the first level of controls within each
+// category.
 func (svc *Service) GetCategory(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCategoryRequest],
@@ -175,7 +233,11 @@ func (svc *Service) GetCategory(
 		return nil, err
 	}
 
-	err = svc.db.Get(&category, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
+	err = svc.db.Get(&category,
+		// Preload fills in associated entities, in this case controls. We want to only select those controls which do
+		// not have a parent, e.g., the top-level
+		persistence.WithPreload("Controls", "parent_control_id IS NULL"),
+		"name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("category")); err != nil {
 		return nil, err
 	}
@@ -228,7 +290,10 @@ func (svc *Service) ListControls(
 	return
 }
 
-// GetControl retrieves a control by ID, category name, and catalog ID.
+// GetControl retrieves a control specified by the catalog ID, the control's category
+// name and the control ID. If present, it also includes a list of
+// sub-controls if present or a list of metrics if no sub-controls but metrics
+// are present.
 func (svc *Service) GetControl(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetControlRequest],

@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -67,7 +66,7 @@ func TestRelated(t *testing.T) {
 				r: &VirtualMachine{
 					Id:              "some-id",
 					Name:            "some-name",
-					ParentId:        util.Ref("some-parent-id"),
+					ParentId:        new("some-parent-id"),
 					BlockStorageIds: []string{"some-storage-id"},
 				},
 			},

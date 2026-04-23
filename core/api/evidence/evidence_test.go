@@ -23,7 +23,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
 )
@@ -171,7 +170,7 @@ func TestToEvidenceResource(t *testing.T) {
 					Backups: []*ontology.Backup{
 						{
 							Enabled:   true,
-							StorageId: util.Ref("my-offsite-backup-id"),
+							StorageId: new("my-offsite-backup-id"),
 						},
 					},
 				},
@@ -189,7 +188,7 @@ func TestToEvidenceResource(t *testing.T) {
 					Backups: []*ontology.Backup{
 						{
 							Enabled:   true,
-							StorageId: util.Ref("my-offsite-backup-id"),
+							StorageId: new("my-offsite-backup-id"),
 						},
 					},
 				}),
