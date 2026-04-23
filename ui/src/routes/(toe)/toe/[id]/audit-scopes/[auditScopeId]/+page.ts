@@ -27,10 +27,28 @@ export const load = (async ({ params, fetch }) => {
 		)
 	);
 
+	const allControls = controlResults.flatMap((r) => r.data?.controls ?? []);
+
+	// Build hierarchy: nest sub-controls under their parents
+	const controlsMap: Record<string, SchemaControl> = {};
+	const topLevelControls: SchemaControl[] = [];
+
+	for (const ctrl of allControls) {
+		controlsMap[ctrl.id!] = { ...ctrl, controls: ctrl.controls ?? [] };
+	}
+
+	for (const ctrl of Object.values(controlsMap)) {
+		if (ctrl.parentControlId && controlsMap[ctrl.parentControlId]) {
+			controlsMap[ctrl.parentControlId].controls!.push(ctrl);
+		} else if (!ctrl.parentControlId) {
+			topLevelControls.push(ctrl);
+		}
+	}
+
 	const controlsByCategory: Record<string, SchemaControl[]> = Object.fromEntries(
-		categories.map((cat, i) => [
+		categories.map((cat) => [
 			cat.name,
-			(controlResults[i].data?.controls ?? []).filter((c) => !c.parentControlId)
+			topLevelControls.filter((c) => c.categoryName === cat.name)
 		])
 	);
 

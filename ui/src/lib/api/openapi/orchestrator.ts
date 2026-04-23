@@ -1120,6 +1120,17 @@ export interface components {
              */
             updatedAt?: string;
         };
+        /** @description PostalAddress holds the physical address of the organisation. */
+        Organisation_PostalAddress: {
+            /** @description Street name and number. */
+            street?: string;
+            /** @description City. */
+            city?: string;
+            /** @description Postal / ZIP code. */
+            zip?: string;
+            /** @description Country. */
+            country?: string;
+        };
         Record: {
             evidenceId: string;
             /** Format: date-time */
@@ -1219,27 +1230,18 @@ export interface components {
             /** @description an icon for the target of evaluation used by the UI */
             icon?: string;
         };
+        /** @description Organisation contains details about the organisation responsible for this target of evaluation. */
         TargetOfEvaluation_Organisation: {
             /** @description Name of the company or organisation. */
             name?: string;
             /** @description Postal address of the organisation. */
-            address?: components["schemas"]["TargetOfEvaluation_Organisation_PostalAddress"];
+            address?: components["schemas"]["Organisation_PostalAddress"];
             /** @description Optional name of the primary contact person. */
             contactPerson?: string;
             /** @description Contact e-mail address. */
             contactEmail?: string;
             /** @description Website URL of the organisation. */
             website?: string;
-        };
-        TargetOfEvaluation_Organisation_PostalAddress: {
-            /** @description Street name and number. */
-            street?: string;
-            /** @description City. */
-            city?: string;
-            /** @description Postal / ZIP code. */
-            zip?: string;
-            /** @description Country. */
-            country?: string;
         };
         UpsertUserPermissionResponse: {
             userPermission?: components["schemas"]["UserPermission"];
@@ -1326,6 +1328,7 @@ export type SchemaListUsersResponse = components['schemas']['ListUsersResponse']
 export type SchemaMetric = components['schemas']['Metric'];
 export type SchemaMetricConfiguration = components['schemas']['MetricConfiguration'];
 export type SchemaMetricImplementation = components['schemas']['MetricImplementation'];
+export type SchemaOrganisationPostalAddress = components['schemas']['Organisation_PostalAddress'];
 export type SchemaRecord = components['schemas']['Record'];
 export type SchemaRuntime = components['schemas']['Runtime'];
 export type SchemaState = components['schemas']['State'];
@@ -1334,7 +1337,6 @@ export type SchemaStoreAssessmentResultResponse = components['schemas']['StoreAs
 export type SchemaTargetOfEvaluation = components['schemas']['TargetOfEvaluation'];
 export type SchemaTargetOfEvaluationMetadata = components['schemas']['TargetOfEvaluation_Metadata'];
 export type SchemaTargetOfEvaluationOrganisation = components['schemas']['TargetOfEvaluation_Organisation'];
-export type SchemaTargetOfEvaluationOrganisationPostalAddress = components['schemas']['TargetOfEvaluation_Organisation_PostalAddress'];
 export type SchemaUpsertUserPermissionResponse = components['schemas']['UpsertUserPermissionResponse'];
 export type SchemaUser = components['schemas']['User'];
 export type SchemaUserPermission = components['schemas']['UserPermission'];

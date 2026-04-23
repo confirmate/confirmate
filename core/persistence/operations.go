@@ -189,17 +189,34 @@ func applyWhere(db *gorm.DB, conds ...any) *gorm.DB {
 // applyPreload checks for any preload options and prepends them to the DB query. If no extra option
 // is specified, [clause.Associations] is used as the default preload.
 func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
-	if len(conds) > 0 {
-		if preload, ok := conds[0].(*preload); ok {
-			if preload.query != "" {
-				return db.Preload(preload.query, preload.args...), conds[1:]
-			} else {
-				return db, conds[1:]
+	type preloadSpec struct {
+		query string
+		args  []any
+	}
+	var preloads []preloadSpec
+	remaining := make([]any, 0, len(conds))
+
+	for _, c := range conds {
+		if p, ok := c.(*preload); ok {
+			if p.query != "" {
+				preloads = append(preloads, preloadSpec{query: p.query, args: p.args})
 			}
+		} else {
+			remaining = append(remaining, c)
 		}
 	}
 
-	return db.Preload(clause.Associations), conds
+	// Apply preloads in order
+	for _, p := range preloads {
+		db = db.Preload(p.query, p.args...)
+	}
+
+	// If no preloads found, use default
+	if len(preloads) == 0 {
+		db = db.Preload(clause.Associations)
+	}
+
+	return db, remaining
 }
 
 // ================================================================================================
