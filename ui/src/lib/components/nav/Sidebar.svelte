@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { ClipboardDocumentCheck, Cog6Tooth, ChartBar, Users, CommandLine, Beaker, ServerStack } from '@steeze-ui/heroicons';
+	import { ClipboardDocumentCheck, Cog6Tooth, ChartBar, Users, CommandLine, Beaker, ServerStack, ClipboardDocumentList, CheckCircle } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import type { SchemaTargetOfEvaluation } from '$lib/api/openapi/orchestrator';
 
@@ -13,12 +13,14 @@
 		{ name: 'Audit Scopes', href: `/toe/${toeId}/audit-scopes/`, icon: ClipboardDocumentCheck },
 		{ name: 'Resources', href: `/toe/${toeId}/resources/`, icon: ServerStack },
 		{ name: 'Access', href: `/toe/${toeId}/access/`, icon: Users },
+		{ name: 'Document Generator', href: `/toe/${toeId}/document/`, icon: ClipboardDocumentList },
 		{ name: 'Settings', href: `/toe/${toeId}/settings/`, icon: Cog6Tooth }
 	]);
 
 	const expertItems = $derived([
 		{ name: 'Evidences', href: `/toe/${toeId}/evidences/`, icon: ChartBar },
-		{ name: 'Assessment Results', href: `/toe/${toeId}/assessment-results/`, icon: Beaker }
+		{ name: 'Assessment Results', href: `/toe/${toeId}/assessment-results/`, icon: Beaker },
+		{ name: 'Evaluation Results', href: `/toe/${toeId}/evaluation-results/`, icon: CheckCircle }
 	]);
 
 	const integrationItems = $derived([

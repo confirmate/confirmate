@@ -210,6 +210,41 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	return
 }
 
+// GetEvaluationStatus returns the current evaluation status for the given audit scope.
+func (svc *Service) GetEvaluationStatus(ctx context.Context, req *connect.Request[evaluation.GetEvaluationStatusRequest]) (res *connect.Response[evaluation.GetEvaluationStatusResponse], err error) {
+	var (
+		auditScopeId string
+	)
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	auditScopeId = req.Msg.GetAuditScopeId()
+
+	// Check if any jobs are running for this audit scope
+	jobs, err := svc.scheduler.FindJobsByTag(auditScopeId)
+	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
+		slog.Error("could not find scheduler jobs", log.Err(err))
+		return nil, connect.NewError(connect.CodeInternal, errors.New("could not check evaluation status"))
+	}
+
+	isRunning := len(jobs) > 0
+
+	var status evaluation.EvaluationRunningStatus
+	if isRunning {
+		status = evaluation.EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_RUNNING
+	} else {
+		status = evaluation.EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_STOPPED
+	}
+
+	res = connect.NewResponse(&evaluation.GetEvaluationStatusResponse{
+		Status: status,
+	})
+
+	return res, nil
+}
+
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
 // interval. It returns an buf connect error that can be used directly by the caller
 func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) (err error) {

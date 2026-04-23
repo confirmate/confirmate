@@ -25,6 +25,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type EvaluationRunningStatus int32
+
+const (
+	EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_UNSPECIFIED EvaluationRunningStatus = 0
+	EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_STOPPED     EvaluationRunningStatus = 1
+	EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_RUNNING     EvaluationRunningStatus = 2
+)
+
+// Enum value maps for EvaluationRunningStatus.
+var (
+	EvaluationRunningStatus_name = map[int32]string{
+		0: "EVALUATION_RUNNING_STATUS_UNSPECIFIED",
+		1: "EVALUATION_RUNNING_STATUS_STOPPED",
+		2: "EVALUATION_RUNNING_STATUS_RUNNING",
+	}
+	EvaluationRunningStatus_value = map[string]int32{
+		"EVALUATION_RUNNING_STATUS_UNSPECIFIED": 0,
+		"EVALUATION_RUNNING_STATUS_STOPPED":     1,
+		"EVALUATION_RUNNING_STATUS_RUNNING":     2,
+	}
+)
+
+func (x EvaluationRunningStatus) Enum() *EvaluationRunningStatus {
+	p := new(EvaluationRunningStatus)
+	*p = x
+	return p
+}
+
+func (x EvaluationRunningStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EvaluationRunningStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_evaluation_evaluation_proto_enumTypes[0].Descriptor()
+}
+
+func (EvaluationRunningStatus) Type() protoreflect.EnumType {
+	return &file_api_evaluation_evaluation_proto_enumTypes[0]
+}
+
+func (x EvaluationRunningStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EvaluationRunningStatus.Descriptor instead.
+func (EvaluationRunningStatus) EnumDescriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{0}
+}
+
 type EvaluationStatus int32
 
 const (
@@ -67,11 +116,11 @@ func (x EvaluationStatus) String() string {
 }
 
 func (EvaluationStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_evaluation_evaluation_proto_enumTypes[0].Descriptor()
+	return file_api_evaluation_evaluation_proto_enumTypes[1].Descriptor()
 }
 
 func (EvaluationStatus) Type() protoreflect.EnumType {
-	return &file_api_evaluation_evaluation_proto_enumTypes[0]
+	return &file_api_evaluation_evaluation_proto_enumTypes[1]
 }
 
 func (x EvaluationStatus) Number() protoreflect.EnumNumber {
@@ -80,7 +129,7 @@ func (x EvaluationStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EvaluationStatus.Descriptor instead.
 func (EvaluationStatus) EnumDescriptor() ([]byte, []int) {
-	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{0}
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{1}
 }
 
 type StartEvaluationRequest struct {
@@ -261,6 +310,94 @@ func (*StopEvaluationResponse) Descriptor() ([]byte, []int) {
 	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{3}
 }
 
+type GetEvaluationStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId  string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEvaluationStatusRequest) Reset() {
+	*x = GetEvaluationStatusRequest{}
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEvaluationStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEvaluationStatusRequest) ProtoMessage() {}
+
+func (x *GetEvaluationStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEvaluationStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetEvaluationStatusRequest) Descriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetEvaluationStatusRequest) GetAuditScopeId() string {
+	if x != nil {
+		return x.AuditScopeId
+	}
+	return ""
+}
+
+type GetEvaluationStatusResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Status        EvaluationRunningStatus `protobuf:"varint,1,opt,name=status,proto3,enum=confirmate.evaluation.v1.EvaluationRunningStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEvaluationStatusResponse) Reset() {
+	*x = GetEvaluationStatusResponse{}
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEvaluationStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEvaluationStatusResponse) ProtoMessage() {}
+
+func (x *GetEvaluationStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEvaluationStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetEvaluationStatusResponse) Descriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetEvaluationStatusResponse) GetStatus() EvaluationRunningStatus {
+	if x != nil {
+		return x.Status
+	}
+	return EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_UNSPECIFIED
+}
+
 // A evaluation result resource, representing the result after evaluating the
 // target of evaluation with a specific control target_of_evaluation_id, category_name and
 // catalog_id are necessary to get the corresponding AuditScope
@@ -300,7 +437,7 @@ type EvaluationResult struct {
 
 func (x *EvaluationResult) Reset() {
 	*x = EvaluationResult{}
-	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -312,7 +449,7 @@ func (x *EvaluationResult) String() string {
 func (*EvaluationResult) ProtoMessage() {}
 
 func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
-	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -325,7 +462,7 @@ func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluationResult.ProtoReflect.Descriptor instead.
 func (*EvaluationResult) Descriptor() ([]byte, []int) {
-	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{4}
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *EvaluationResult) GetId() string {
@@ -434,7 +571,11 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"successful\"J\n" +
 	"\x15StopEvaluationRequest\x121\n" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x18\n" +
-	"\x16StopEvaluationResponse\"\x8e\a\n" +
+	"\x16StopEvaluationResponse\"O\n" +
+	"\x1aGetEvaluationStatusRequest\x121\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"h\n" +
+	"\x1bGetEvaluationStatusResponse\x12I\n" +
+	"\x06status\x18\x01 \x01(\x0e21.confirmate.evaluation.v1.EvaluationRunningStatusR\x06status\"\x8e\a\n" +
 	"\x10EvaluationResult\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12?\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12.\n" +
@@ -456,7 +597,11 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\n" +
 	"\b_commentB\x0e\n" +
 	"\f_valid_untilB\a\n" +
-	"\x05_data*\xf2\x01\n" +
+	"\x05_data*\x92\x01\n" +
+	"\x17EvaluationRunningStatus\x12)\n" +
+	"%EVALUATION_RUNNING_STATUS_UNSPECIFIED\x10\x00\x12%\n" +
+	"!EVALUATION_RUNNING_STATUS_STOPPED\x10\x01\x12%\n" +
+	"!EVALUATION_RUNNING_STATUS_RUNNING\x10\x02*\xf2\x01\n" +
 	"\x10EvaluationStatus\x12!\n" +
 	"\x1dEVALUATION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bEVALUATION_STATUS_COMPLIANT\x10\x01\x12(\n" +
@@ -464,11 +609,12 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\x1fEVALUATION_STATUS_NOT_COMPLIANT\x10\x03\x12,\n" +
 	"(EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY\x10\x04\x12\x1d\n" +
 	"\x19EVALUATION_STATUS_PENDING\x10\n" +
-	"2\xea\x02\n" +
+	"2\xa8\x04\n" +
 	"\n" +
 	"Evaluation\x12\xae\x01\n" +
 	"\x0fStartEvaluation\x120.confirmate.evaluation.v1.StartEvaluationRequest\x1a1.confirmate.evaluation.v1.StartEvaluationResponse\"6\x82\xd3\xe4\x93\x020\"./v1/evaluation/evaluate/{audit_scope_id}/start\x12\xaa\x01\n" +
-	"\x0eStopEvaluation\x12/.confirmate.evaluation.v1.StopEvaluationRequest\x1a0.confirmate.evaluation.v1.StopEvaluationResponse\"5\x82\xd3\xe4\x93\x02/\"-/v1/evaluation/evaluate/{audit_scope_id}/stopB#Z!confirmate.io/core/api/evaluationb\x06proto3"
+	"\x0eStopEvaluation\x12/.confirmate.evaluation.v1.StopEvaluationRequest\x1a0.confirmate.evaluation.v1.StopEvaluationResponse\"5\x82\xd3\xe4\x93\x02/\"-/v1/evaluation/evaluate/{audit_scope_id}/stop\x12\xbb\x01\n" +
+	"\x13GetEvaluationStatus\x124.confirmate.evaluation.v1.GetEvaluationStatusRequest\x1a5.confirmate.evaluation.v1.GetEvaluationStatusResponse\"7\x82\xd3\xe4\x93\x021\x12//v1/evaluation/evaluate/{audit_scope_id}/statusB#Z!confirmate.io/core/api/evaluationb\x06proto3"
 
 var (
 	file_api_evaluation_evaluation_proto_rawDescOnce sync.Once
@@ -482,30 +628,36 @@ func file_api_evaluation_evaluation_proto_rawDescGZIP() []byte {
 	return file_api_evaluation_evaluation_proto_rawDescData
 }
 
-var file_api_evaluation_evaluation_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_evaluation_evaluation_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_api_evaluation_evaluation_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_api_evaluation_evaluation_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_evaluation_evaluation_proto_goTypes = []any{
-	(EvaluationStatus)(0),           // 0: confirmate.evaluation.v1.EvaluationStatus
-	(*StartEvaluationRequest)(nil),  // 1: confirmate.evaluation.v1.StartEvaluationRequest
-	(*StartEvaluationResponse)(nil), // 2: confirmate.evaluation.v1.StartEvaluationResponse
-	(*StopEvaluationRequest)(nil),   // 3: confirmate.evaluation.v1.StopEvaluationRequest
-	(*StopEvaluationResponse)(nil),  // 4: confirmate.evaluation.v1.StopEvaluationResponse
-	(*EvaluationResult)(nil),        // 5: confirmate.evaluation.v1.EvaluationResult
-	(*timestamppb.Timestamp)(nil),   // 6: google.protobuf.Timestamp
+	(EvaluationRunningStatus)(0),        // 0: confirmate.evaluation.v1.EvaluationRunningStatus
+	(EvaluationStatus)(0),               // 1: confirmate.evaluation.v1.EvaluationStatus
+	(*StartEvaluationRequest)(nil),      // 2: confirmate.evaluation.v1.StartEvaluationRequest
+	(*StartEvaluationResponse)(nil),     // 3: confirmate.evaluation.v1.StartEvaluationResponse
+	(*StopEvaluationRequest)(nil),       // 4: confirmate.evaluation.v1.StopEvaluationRequest
+	(*StopEvaluationResponse)(nil),      // 5: confirmate.evaluation.v1.StopEvaluationResponse
+	(*GetEvaluationStatusRequest)(nil),  // 6: confirmate.evaluation.v1.GetEvaluationStatusRequest
+	(*GetEvaluationStatusResponse)(nil), // 7: confirmate.evaluation.v1.GetEvaluationStatusResponse
+	(*EvaluationResult)(nil),            // 8: confirmate.evaluation.v1.EvaluationResult
+	(*timestamppb.Timestamp)(nil),       // 9: google.protobuf.Timestamp
 }
 var file_api_evaluation_evaluation_proto_depIdxs = []int32{
-	0, // 0: confirmate.evaluation.v1.EvaluationResult.status:type_name -> confirmate.evaluation.v1.EvaluationStatus
-	6, // 1: confirmate.evaluation.v1.EvaluationResult.timestamp:type_name -> google.protobuf.Timestamp
-	6, // 2: confirmate.evaluation.v1.EvaluationResult.valid_until:type_name -> google.protobuf.Timestamp
-	1, // 3: confirmate.evaluation.v1.Evaluation.StartEvaluation:input_type -> confirmate.evaluation.v1.StartEvaluationRequest
-	3, // 4: confirmate.evaluation.v1.Evaluation.StopEvaluation:input_type -> confirmate.evaluation.v1.StopEvaluationRequest
-	2, // 5: confirmate.evaluation.v1.Evaluation.StartEvaluation:output_type -> confirmate.evaluation.v1.StartEvaluationResponse
-	4, // 6: confirmate.evaluation.v1.Evaluation.StopEvaluation:output_type -> confirmate.evaluation.v1.StopEvaluationResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // 0: confirmate.evaluation.v1.GetEvaluationStatusResponse.status:type_name -> confirmate.evaluation.v1.EvaluationRunningStatus
+	1, // 1: confirmate.evaluation.v1.EvaluationResult.status:type_name -> confirmate.evaluation.v1.EvaluationStatus
+	9, // 2: confirmate.evaluation.v1.EvaluationResult.timestamp:type_name -> google.protobuf.Timestamp
+	9, // 3: confirmate.evaluation.v1.EvaluationResult.valid_until:type_name -> google.protobuf.Timestamp
+	2, // 4: confirmate.evaluation.v1.Evaluation.StartEvaluation:input_type -> confirmate.evaluation.v1.StartEvaluationRequest
+	4, // 5: confirmate.evaluation.v1.Evaluation.StopEvaluation:input_type -> confirmate.evaluation.v1.StopEvaluationRequest
+	6, // 6: confirmate.evaluation.v1.Evaluation.GetEvaluationStatus:input_type -> confirmate.evaluation.v1.GetEvaluationStatusRequest
+	3, // 7: confirmate.evaluation.v1.Evaluation.StartEvaluation:output_type -> confirmate.evaluation.v1.StartEvaluationResponse
+	5, // 8: confirmate.evaluation.v1.Evaluation.StopEvaluation:output_type -> confirmate.evaluation.v1.StopEvaluationResponse
+	7, // 9: confirmate.evaluation.v1.Evaluation.GetEvaluationStatus:output_type -> confirmate.evaluation.v1.GetEvaluationStatusResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_evaluation_evaluation_proto_init() }
@@ -514,14 +666,14 @@ func file_api_evaluation_evaluation_proto_init() {
 		return
 	}
 	file_api_evaluation_evaluation_proto_msgTypes[0].OneofWrappers = []any{}
-	file_api_evaluation_evaluation_proto_msgTypes[4].OneofWrappers = []any{}
+	file_api_evaluation_evaluation_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_evaluation_evaluation_proto_rawDesc), len(file_api_evaluation_evaluation_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   5,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

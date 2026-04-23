@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/v1/assessment/evidences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Assesses the evidence sent by the discovery. Part of the public API, also
+         *      exposed as REST.
+         */
+        post: operations["Assessment_AssessEvidence"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/evaluation/evaluate/{auditScopeId}/start": {
         parameters: {
             query?: never;
@@ -15,6 +35,26 @@ export interface paths {
         put?: never;
         /** @description StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST. */
         post: operations["Evaluation_StartEvaluation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evaluation/evaluate/{auditScopeId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GetEvaluationStatus returns the current evaluation status for the given audit scope.
+         *      Part of the public API, also exposed as REST.
+         */
+        get: operations["Evaluation_GetEvaluationStatus"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -41,16 +81,4514 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/evaluation/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List all evaluation results that the user can access. It can further be
+         *      restricted by various filtering options. Part of the public API, also
+         *      exposed as REST.
+         */
+        get: operations["Orchestrator_ListEvaluationResults"];
+        put?: never;
+        /** @description Store the evaluation result provided by the evaluation component.″ */
+        post: operations["Orchestrator_StoreEvaluationResult"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Stores an evidence to the evidence storage. Part of the public API, also
+         *      exposed as REST.
+         */
+        post: operations["EvidenceStore_StoreEvidence"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/evidences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns all stored evidences. Part of the public API, also exposed as REST. */
+        get: operations["EvidenceStore_ListEvidences"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/evidences/{evidenceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Returns a particular stored evidence. Part of the public API, also exposed
+         *      as REST.
+         */
+        get: operations["EvidenceStore_GetEvidence"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists all resources collected in the last run, exposed as REST. */
+        get: operations["EvidenceStore_ListResources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/resources/edges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description ListGraphEdges returns the edges (relationship) between resources in our
+         *      resource graph.
+         */
+        get: operations["Resources_ListGraphEdges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/resources/{resource.id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description UpdateResource updates a resource (or creates it, if it does not exist).
+         *      This is used to give third-party tools the possibility to add something to
+         *      the resource graph.
+         */
+        post: operations["Resources_UpdateResource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/supported_resource_types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns the resource types that are supported by the EvidenceStore. */
+        get: operations["EvidenceStore_ListSupportedResourceTypes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence_store/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Returns the IDs of all evidence collecting tools that have provided
+         *      evidence so far. Part of the public API, also exposed as REST.
+         */
+        get: operations["EvidenceStore_ListTools"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/assessment_results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List all assessment results. Part of the public API, also exposed as REST. */
+        get: operations["Orchestrator_ListAssessmentResults"];
+        put?: never;
+        /** @description Stores the assessment result provided by an assessment tool */
+        post: operations["Orchestrator_StoreAssessmentResult"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/assessment_results/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get an assessment result by ID */
+        get: operations["Orchestrator_GetAssessmentResult"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/assessment_tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Lists all assessment tools assessing evidences for the metric given by the
+         *      passed metric id
+         */
+        get: operations["Orchestrator_ListAssessmentTools"];
+        put?: never;
+        /** @description Registers the passed assessment tool */
+        post: operations["Orchestrator_RegisterAssessmentTool"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/assessment_tools/{tool.id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Updates the assessment tool given by the passed id */
+        put: operations["Orchestrator_UpdateAssessmentTool"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/assessment_tools/{toolId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns assessment tool given by the passed tool id */
+        get: operations["Orchestrator_GetAssessmentTool"];
+        put?: never;
+        post?: never;
+        /**
+         * @description Remove assessment tool with passed id from the list of active assessment
+         *      tools
+         */
+        delete: operations["Orchestrator_DeregisterAssessmentTool"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/audit_scopes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists all Audit Scopes */
+        get: operations["Orchestrator_ListAuditScopes"];
+        put?: never;
+        /** @description Creates a new Audit Scope */
+        post: operations["Orchestrator_CreateAuditScope"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/audit_scopes/{auditScopeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieves an Audit Scope */
+        get: operations["Orchestrator_GetAuditScope"];
+        put?: never;
+        post?: never;
+        /** @description Removes an Audit Scope */
+        delete: operations["Orchestrator_RemoveAuditScope"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Lists all security controls catalogs. Each catalog includes a list of its
+         *      categories but no additional sub-resources.
+         */
+        get: operations["Orchestrator_ListCatalogs"];
+        put?: never;
+        /** @description Creates a new security controls catalog */
+        post: operations["Orchestrator_CreateCatalog"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs/{catalog.id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Updates an existing certificate */
+        put: operations["Orchestrator_UpdateCatalog"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs/{catalogId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Retrieves a specific catalog by it's ID. The catalog includes a list of all
+         *      of it categories as well as the first level of controls in each category.
+         */
+        get: operations["Orchestrator_GetCatalog"];
+        put?: never;
+        post?: never;
+        /** @description Removes a catalog */
+        delete: operations["Orchestrator_RemoveCatalog"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs/{catalogId}/categories/{categoryName}/controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description If no additional parameters are specified, this lists all controls. If a
+         *      catalog ID and a category name is specified, then only controls containing
+         *      in this category are returned.
+         */
+        get: operations["Orchestrator_ListControls"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs/{catalogId}/categories/{categoryName}/controls/{controlId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Retrieves a control specified by the catalog ID, the control's category
+         *      name and the control ID. If present, it also includes a list of
+         *      sub-controls if present or a list of metrics if no sub-controls but metrics
+         *      are present.
+         */
+        get: operations["Orchestrator_GetControl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs/{catalogId}/category/{categoryName}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Retrieves a category of a catalog specified by the catalog ID and the
+         *      category name. It includes the first level of controls within each
+         *      category.
+         */
+        get: operations["Orchestrator_GetCategory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/catalogs/{catalogId}/controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description If no additional parameters are specified, this lists all controls. If a
+         *      catalog ID and a category name is specified, then only controls containing
+         *      in this category are returned.
+         */
+        get: operations["Orchestrator_ListControls"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/certificates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists all target certificates */
+        get: operations["Orchestrator_ListCertificates"];
+        put?: never;
+        /** @description Creates a new certificate */
+        post: operations["Orchestrator_CreateCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/certificates/{certificate.id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Updates an existing certificate */
+        put: operations["Orchestrator_UpdateCertificate"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/certificates/{certificateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieves a certificate */
+        get: operations["Orchestrator_GetCertificate"];
+        put?: never;
+        post?: never;
+        /** @description Removes a certificate */
+        delete: operations["Orchestrator_RemoveCertificate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description If no additional parameters are specified, this lists all controls. If a
+         *      catalog ID and a category name is specified, then only controls containing
+         *      in this category are returned.
+         */
+        get: operations["Orchestrator_ListControls"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List all metrics provided by the metric catalog */
+        get: operations["Orchestrator_ListMetrics"];
+        put?: never;
+        /** @description Creates a new metric */
+        post: operations["Orchestrator_CreateMetric"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/metrics/{implementation.metric_id}/implementation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Updates an existing metric implementation */
+        put: operations["Orchestrator_UpdateMetricImplementation"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/metrics/{metric.id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Updates an existing metric */
+        put: operations["Orchestrator_UpdateMetric"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/metrics/{metricId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns the metric with the passed metric id */
+        get: operations["Orchestrator_GetMetric"];
+        put?: never;
+        post?: never;
+        /** @description Removes a new metric */
+        delete: operations["Orchestrator_RemoveMetric"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/metrics/{metricId}/implementation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns the metric implementation of the passed metric id */
+        get: operations["Orchestrator_GetMetricImplementation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/public/certificates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists all target certificates without state history */
+        get: operations["Orchestrator_ListPublicCertificates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/runtime_info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Get Runtime Information */
+        get: operations["Orchestrator_GetRuntimeInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists all targets of evaluations */
+        get: operations["Orchestrator_ListTargetsOfEvaluation"];
+        put?: never;
+        /** @description Registers a new target of evaluation */
+        post: operations["Orchestrator_CreateTargetOfEvaluation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieves target of evaluation statistics */
+        get: operations["Orchestrator_GetTargetOfEvaluationStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/{audit_scope.target_of_evaluation_id}/audit_scopes/{audit_scope.catalog_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Updates an existing Audit Scope */
+        put: operations["Orchestrator_UpdateAuditScope"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/{configuration.target_of_evaluation_id}/metric_configurations/{configuration.metric_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * @description Updates a metric configuration (target value and operator) for a specific
+         *      target of evaluation and metric ID
+         */
+        put: operations["Orchestrator_UpdateMetricConfiguration"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/{targetOfEvaluationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieves a target of evaluation */
+        get: operations["Orchestrator_GetTargetOfEvaluation"];
+        put?: never;
+        post?: never;
+        /** @description Removes a target of evaluation */
+        delete: operations["Orchestrator_RemoveTargetOfEvaluation"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/{targetOfEvaluationId}/metric_configurations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Lists all metric configurations (target value and operator) for a
+         *      specific target of evaluation ID
+         */
+        get: operations["Orchestrator_ListMetricConfigurations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/{targetOfEvaluationId}/metric_configurations/{metricId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Retrieves a metric configuration (target value and operator) for a specific
+         *      target of evaluation and metric ID.
+         */
+        get: operations["Orchestrator_GetMetricConfiguration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Registers a new target of evaluation */
+        put: operations["Orchestrator_UpdateTargetOfEvaluation"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists users with optional filtering */
+        get: operations["Orchestrator_ListUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns information about the currently authenticated user */
+        get: operations["Orchestrator_GetCurrentUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists user permission. */
+        get: operations["Orchestrator_ListUserPermissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists all predefined roles in the system. */
+        get: operations["Orchestrator_ListUserRoles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/user_permission": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary. */
+        post: operations["Orchestrator_UpsertUserPermission"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin. */
+        get: operations["Orchestrator_GetUser"];
+        put?: never;
+        post?: never;
+        /** @description Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes. */
+        delete: operations["Orchestrator_RemoveUser"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description ABAC is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ABAC: Record<string, never>;
+        /** @description AccessRestriction is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        AccessRestriction: {
+            l3Firewall?: components["schemas"]["L3Firewall"];
+            webApplicationFirewall?: components["schemas"]["WebApplicationFirewall"];
+            rateLimiting?: components["schemas"]["RateLimiting"];
+        };
+        /**
+         * @description Account is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      This represents the cloud account as a whole, e.g., an Azure subscription.
+         */
+        Account: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ActivityLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ActivityLogging: {
+            enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
+            monitoringLogDataEnabled?: boolean;
+            retentionPeriod?: string;
+            securityAlertsEnabled?: boolean;
+            loggingServiceIds?: string[];
+        };
+        /**
+         * @description Agnostic is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an agnostic architecture, which is not tied to a specific operating system.
+         */
+        Agnostic: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            parentId?: string;
+        };
+        /** @description Allocate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Allocate: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            memoryId?: string;
+        };
+        /**
+         * @description AndRule is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a rule that combines two other rules using a logical AND operation. This means that both rules must be satisfied for the combined rule to be satisfied.
+         */
+        AndRule: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description AnomalyDetection is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Analyzes the activity of a NetworkService (which includes DatabaseServices).
+         *      Scope contains the resource ID of the protected resource.
+         */
+        AnomalyDetection: {
+            enabled?: boolean;
+            scope?: string;
+            applicationLogging?: components["schemas"]["ApplicationLogging"];
+        };
+        /**
+         * @description Application is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      This encapsulates the whole (source) code of an application.
+         */
+        Application: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            programmingLanguage?: string;
+            programmingVersion?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            translationUnits?: string[];
+            automaticUpdates?: components["schemas"]["AutomaticUpdates"];
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            computeId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            libraryIds?: string[];
+            parentId?: string;
+        };
+        /** @description ApplicationLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ApplicationLogging: {
+            enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
+            monitoringLogDataEnabled?: boolean;
+            retentionPeriod?: string;
+            securityAlertsEnabled?: boolean;
+            loggingServiceIds?: string[];
+        };
+        /**
+         * @description AssessEvidenceResponse belongs to AssessEvidence, which uses a custom unary
+         *      RPC and therefore requires a response message according to the style
+         *      convention. Since no return values are required, this is empty.
+         */
+        AssessEvidenceResponse: {
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            status?: "ASSESSMENT_STATUS_UNSPECIFIED" | "ASSESSMENT_STATUS_WAITING_FOR_RELATED" | "ASSESSMENT_STATUS_ASSESSED" | "ASSESSMENT_STATUS_FAILED";
+        };
+        /**
+         * @description A result resource, representing the result after assessing the cloud resource
+         *      with id resource_id.
+         */
+        AssessmentResult: {
+            /** @description Assessment result id */
+            id: string;
+            /**
+             * Format: date-time
+             * @description Time of assessment
+             */
+            createdAt: string;
+            /** @description Reference to the metric the assessment was based on */
+            metricId: string;
+            /** @description Data corresponding to the metric by the given metric id */
+            metricConfiguration: components["schemas"]["MetricConfiguration"];
+            /** @description Compliant case: true or false */
+            compliant?: boolean;
+            /** @description Reference to the last assessed evidence */
+            evidenceId: string;
+            /** @description Reference to the resource of the assessed evidence */
+            resourceId: string;
+            /** @description Resource types */
+            resourceTypes: string[];
+            /** @description ComplianceComment contains a human readable description on the reason for (non)-compliance. */
+            complianceComment: string;
+            /** @description ComplianceDetails contains machine-readable details about which comparisons lead to a (non)-compliance. */
+            complianceDetails?: components["schemas"]["ComparisonResult"][];
+            /** @description The target of evaluation which this assessment result belongs to */
+            targetOfEvaluationId: string;
+            /** @description Reference to the tool which provided the assessment result */
+            toolId: string;
+            /**
+             * Format: date-time
+             * @description The time of the last update of the assessment result history field
+             */
+            historyUpdatedAt: string;
+            /** @description Stores the history of evidence IDs and timestamps for evidence that have the same content as the evidence used for this assessment result. */
+            history: components["schemas"]["Record"][];
+        };
+        /**
+         * @description Represents an external tool or service that offers assessments according to
+         *      certain metrics.
+         */
+        AssessmentTool: {
+            id?: string;
+            name: string;
+            description?: string;
+            /** @description a list of metrics that this tool can assess, referred by their ids */
+            availableMetrics: string[];
+        };
+        /** @description AsymmetricCipher is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        AsymmetricCipher: {
+            /**
+             * Format: int32
+             * @description Block size of a cipher.
+             */
+            blockSize?: number;
+            /** @description Name of a cryptographic cipher. */
+            cipherName?: string;
+            /**
+             * Format: int32
+             * @description Key size refers to the length of a key used in an enryption.
+             */
+            keySize?: number;
+            padding?: components["schemas"]["Padding"];
+        };
+        /** @description AtRestEncryption is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        AtRestEncryption: {
+            customerKeyEncryption?: components["schemas"]["CustomerKeyEncryption"];
+            diskEncryption?: components["schemas"]["DiskEncryption"];
+            managedKeyEncryption?: components["schemas"]["ManagedKeyEncryption"];
+        };
+        /**
+         * @description A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
+         *      evaluated regarding this catalog's controls
+         */
+        AuditScope: {
+            /** @description Audit Scope ID */
+            id: string;
+            name: string;
+            targetOfEvaluationId: string;
+            catalogId: string;
+            /**
+             * @description an assurance level is not offered by every catalog, therefore it is
+             *      optional
+             */
+            assuranceLevel?: string;
+            /**
+             * @description List of user IDs with explicit permission to view this target (Read-only).
+             *      If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+             */
+            readers?: components["schemas"]["User"][];
+            /**
+             * @description List of user IDs responsible for the content and maintenance of this target.
+             *      These users can modify settings and data but cannot manage other users' access.
+             */
+            contributors?: components["schemas"]["User"][];
+            /**
+             * @description List of user IDs with administrative control over this target.
+             *      These users can manage permissions for others and perform destructive actions like deletion.
+             */
+            admins?: components["schemas"]["User"][];
+        };
+        /**
+         * @description Authenticate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an authentication operation.
+         */
+        Authenticate: {
+            authenticity?: components["schemas"]["Authenticity"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+            credentialId?: string;
+        };
+        /** @description Authenticity is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Authenticity: {
+            certificateBasedAuthentication?: components["schemas"]["CertificateBasedAuthentication"];
+            jwtAuthentication?: components["schemas"]["JwtAuthentication"];
+            multiFactorAuthentiation?: components["schemas"]["MultiFactorAuthentiation"];
+            noAuthentication?: components["schemas"]["NoAuthentication"];
+            otpBasedAuthentication?: components["schemas"]["OTPBasedAuthentication"];
+            passwordBasedAuthentication?: components["schemas"]["PasswordBasedAuthentication"];
+            singleSignOn?: components["schemas"]["SingleSignOn"];
+        };
+        /** @description Authorization is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Authorization: {
+            abac?: components["schemas"]["ABAC"];
+            l3Firewall?: components["schemas"]["L3Firewall"];
+            webApplicationFirewall?: components["schemas"]["WebApplicationFirewall"];
+            rateLimiting?: components["schemas"]["RateLimiting"];
+            rbac?: components["schemas"]["RBAC"];
+        };
+        /**
+         * @description AuthorizeJwt is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an authorization operation based on JWT tokens.
+         */
+        AuthorizeJwt: {
+            authenticity?: components["schemas"]["Authenticity"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+        };
+        /**
+         * @description AutomaticUpdates is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      This feature is, e.g., available on some VM services to automatically update their software. It ensures that a resource is protected from tampering with its state.
+         */
+        AutomaticUpdates: {
+            enabled?: boolean;
+            /** @description The interval refers to the update interval in days. */
+            interval?: string;
+            securityOnly?: boolean;
+        };
+        /** @description AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        AwarenessTraining: {
+            annualUpdateCompleted?: boolean;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            successfullyCompletedPercentage?: boolean;
+            parentId?: string;
+        };
+        /**
+         * @description Backup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      RetentionPeriod in hours
+         */
+        Backup: {
+            enabled?: boolean;
+            /** @description The interval refers to the update interval in days. */
+            interval?: string;
+            retentionPeriod?: string;
+            storageId?: string;
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+        };
+        /** @description BlockStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        BlockStorage: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            atRestEncryption?: components["schemas"]["AtRestEncryption"];
+            backups?: components["schemas"]["Backup"][];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            immutability?: components["schemas"]["Immutability"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description BlockStorageOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        BlockStorageOperation: {
+            blockStorageId?: string;
+            codeRegion?: components["schemas"]["CodeRegion"];
+        };
+        /** @description BootLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        BootLogging: {
+            enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
+            monitoringLogDataEnabled?: boolean;
+            retentionPeriod?: string;
+            securityAlertsEnabled?: boolean;
+            loggingServiceIds?: string[];
+        };
+        /**
+         * @description Boundary is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a boundary in data processing, which can be used to define the scope of a policy or the separation between different policies. For example, a boundary could be defined around an [HttpEndpoint], so that the policy applies once data either comes in or goes out of the HTTP endpoint.
+         */
+        Boundary: Record<string, never>;
+        Catalog: {
+            id: string;
+            name: string;
+            description?: string;
+            categories: components["schemas"]["Category"][];
+            /**
+             * @description Certain security catalogs do not allow to select the scope of the controls,
+             *      but all controls are automatically "in scope", however they can be set to a
+             *      DELEGATED status.
+             */
+            allInScope?: boolean;
+            /**
+             * @description A list of the assurance levels, e.g., basic, substantial and high for the
+             *      EUCS catalog.
+             */
+            assuranceLevels?: string[];
+            /** @description Catalogs short name, e.g. EUCS */
+            shortName: string;
+            /** @description metadata of the catalog */
+            metadata?: components["schemas"]["Catalog_Metadata"];
+        };
+        Catalog_Metadata: {
+            /** @description a color for the target of evaluation used by the UI */
+            color?: string;
+        };
+        Category: {
+            name: string;
+            /** @description Reference to the catalog this category belongs to. */
+            catalogId: string;
+            description?: string;
+            controls: components["schemas"]["Control"][];
+        };
+        /** @description Certificate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Certificate: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            enabled?: boolean;
+            /** Format: date-time */
+            expirationDate?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            isManaged?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** Format: date-time */
+            notBeforeDate?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            usedByMultiple?: components["schemas"]["Infrastructure"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description CertificateBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CertificateBasedAuthentication: {
+            contextIsChecked?: boolean;
+            enabled?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+        };
+        /**
+         * @description CheckAccess is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation that checks whether a user or principal has access to a protected
+         */
+        CheckAccess: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            protectedAsset?: components["schemas"]["ProtectedAsset"];
+        };
+        /**
+         * @description Cipher is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      Represents a cipher suite. E.g. `AES-XTS-plain64`.
+         *      enum:cipherName=coolCipher,unCoolCipher
+         */
+        Cipher: {
+            asymmetricCipher?: components["schemas"]["AsymmetricCipher"];
+            hybridCipher?: components["schemas"]["HybridCipher"];
+            symmetricCipher?: components["schemas"]["SymmetricCipher"];
+        };
+        /** @description CipherSuite is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CipherSuite: {
+            /** @description for example: RSA, ECDSA */
+            authenticationMechanism?: string;
+            keyExchangeAlgorithm?: string;
+            /** @description naming schema: SHA-256 */
+            macAlgorithm?: string;
+            /** @description naming schema: AES-128-GCM */
+            sessionCipher?: string;
+            ciphers?: components["schemas"]["Cipher"][];
+        };
+        /** @description CodeRegion is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CodeRegion: {
+            code?: string;
+            /** Format: int32 */
+            endColumn?: number;
+            /** Format: int32 */
+            endLine?: number;
+            file?: string;
+            /** Format: int32 */
+            startColumn?: number;
+            /** Format: int32 */
+            startLine?: number;
+        };
+        /** @description CodeRepository is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CodeRepository: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeSignoff?: components["schemas"]["CodeSignoff"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
+         */
+        CodeSignoff: {
+            enforced?: boolean;
+        };
+        /** @description An optional structure containing more details how a comparison inside an assessment result was done and if it was successful. */
+        ComparisonResult: {
+            /** @description Property is the property that was compared */
+            property: string;
+            /** @description Value is the value in the property */
+            value: components["schemas"]["GoogleProtobufValue"];
+            /** @description Operator is the operator used in the comparison */
+            operator: string;
+            /** @description TargetValue is the target value used in the comparison */
+            targetValue: components["schemas"]["GoogleProtobufValue"];
+            /** @description Success is true, if the comparison was successful */
+            success: boolean;
+        };
+        /**
+         * @description Configuration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents the abstract concept of a "configuration". This is a common pattern in many programming languages, where a data structure in code represents an aggregation of configuration values. For example, in Python, the [`configparser`](https://docs.python.org/3/library/configparser.html) module is used to read INI files, and the config values are represented as a dictionary-like object. Often, the configuration is loaded from multiple sources, such as INI files, environment variables, and command-line arguments.
+         */
+        Configuration: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            configurationGroupIds?: string[];
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /** @description ConfigurationDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ConfigurationDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /**
+         * @description ConfigurationGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a group of configuration values within one [conf]. Depending on the type of configuration data structure, there might only be one group (e.g., a "default" one), or there might be several groups. For example, when loading a config from an INI file, each section would be mapped to a [ConfigurationGroup], and each key-value pair would be mapped to an [ConfigurationOption] within this group.
+         */
+        ConfigurationGroup: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            configurationId?: string;
+            configurationOptionIds?: string[];
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description ConfigurationGroupSource is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a possible group source for a configuration group. For example, when loading an INI file with our INI file frontend, each section is presented as a [RecordDeclaration]. This record declaration would be the source of the configuration group.
+         */
+        ConfigurationGroupSource: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description ConfigurationOption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a configuration option within one [group]. Usually there is one option for each entry in a configuration data structure.
+         */
+        ConfigurationOption: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            configurationGroupId?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            keyId?: string;
+            parentId?: string;
+            valueId?: string;
+        };
+        /**
+         * @description ConfigurationOptionSource is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a possible option source for a configuration option. For example, when loading an INI file with our INI file frontend, each key-value pair is presented as a [FieldDeclaration]. This field declaration would be the source to the configuration option.
+         */
+        ConfigurationOptionSource: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description ConfigurationSource is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a possible source for a configuration. For example, when loading an INI file with our INI file frontend, the whole file would be represented as a [TranslationUnitDeclaration]. This translation unit declaration would be the source of the configuration.
+         */
+        ConfigurationSource: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            configurationGroupSourceIds?: string[];
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /** @description ContactPerson is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ContactPerson: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            emailAddress?: string;
+            id?: string;
+            jobTitle?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            phoneNumber?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            parentId?: string;
+        };
+        /** @description Container is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Container: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            encryptionInUse?: components["schemas"]["EncryptionInUse"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            imageId?: string;
+            loggings?: components["schemas"]["Logging"][];
+            networkInterfaceIds?: string[];
+            redundancies?: components["schemas"]["Redundancy"][];
+            remoteAttestation?: components["schemas"]["RemoteAttestation"];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ContainerImage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ContainerImage: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            applicationId?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ContainerOrchestration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ContainerOrchestration: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            managementUrl?: string;
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            containerIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ContainerRegistry is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ContainerRegistry: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description Context is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a context in which a policy is applied. Typically, a context contains information about a user or some other form of identity (e.g. a [Principal]).
+         */
+        Context: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description Control represents a certain Control that needs to be fulfilled. It could be
+         *      a Control in a certification catalog. It follows the OSCAL model. A
+         *      requirement in the EUCS terminology, e.g., is represented as the lowest
+         *      sub-control.
+         */
+        Control: {
+            /**
+             * @description A short name of the control, e.g. OPS-01, as used in OSCAL; it is not a
+             *      unique ID!
+             */
+            id: string;
+            categoryName: string;
+            categoryCatalogId: string;
+            /** @description Human-readable name of the control */
+            name: string;
+            /** @description Description of the control */
+            description?: string;
+            /**
+             * @description List of sub - controls -
+             *          this is in accordance with the OSCAL model.
+             */
+            controls: components["schemas"]["Control"][];
+            /**
+             * @description metrics contains either a list of reference to metrics - in this case only
+             *      the id field of the metric is populated - or a list of populated metric
+             *      meta-data, most likely returned by the database.
+             */
+            metrics: components["schemas"]["Metric"][];
+            /** @description Reference to the parent category this control belongs to. */
+            parentControlId?: string;
+            parentControlCategoryName?: string;
+            parentControlCategoryCatalogId?: string;
+            /**
+             * @description An assurance level is not offered by every catalog, therefore it is
+             *      optional.
+             */
+            assuranceLevel?: string;
+        };
+        /** @description CoordinatedVulnerabilityDisclosurePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CoordinatedVulnerabilityDisclosurePolicy: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            contextId?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            policyRuleIds?: string[];
+            parentId?: string;
+        };
+        /** @description CreateEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CreateEncryptedDisk: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            diskEncryption?: components["schemas"]["DiskEncryption"];
+        };
+        /** @description CreateSecret is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CreateSecret: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            secretId?: string;
+        };
+        /** @description CryptographicHash is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CryptographicHash: {
+            algorithm?: string;
+            errors?: components["schemas"]["Error"][];
+        };
+        /** @description A custom pattern is used for defining custom HTTP verb. */
+        CustomHttpPattern: {
+            /** @description The name of this custom HTTP verb. */
+            kind?: string;
+            /** @description The path matched by this custom verb. */
+            path?: string;
+        };
+        /** @description CustomerKeyEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CustomerKeyEncryption: {
+            algorithm?: string;
+            enabled?: boolean;
+            keyUrl?: string;
+            basedOn?: components["schemas"]["Cipher"];
+            secretId?: string;
+        };
+        /** @description CyberSecurityRiskAssessmentDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        CyberSecurityRiskAssessmentDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /** @description DDoSProtection is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DDoSProtection: Record<string, never>;
+        /**
+         * @description Darwin is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a Darwin architecture, commonly found on macOS systems. macOS is a certified. [UNIX](https://www.opengroup.org/openbrand/register/apple.htm) and is (mostly) POSIX compatible.
+         */
+        Darwin: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            parentId?: string;
+        };
+        /**
+         * @description DataLocation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      path: Describes either local path or path in URL format
+         */
+        DataLocation: {
+            localDataLocation?: components["schemas"]["LocalDataLocation"];
+            remoteDataLocation?: components["schemas"]["RemoteDataLocation"];
+        };
+        /** @description DatabaseConnect is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DatabaseConnect: {
+            calls?: string[];
+            codeRegion?: components["schemas"]["CodeRegion"];
+            databaseServiceIds?: string[];
+            databaseStorageId?: string;
+        };
+        /** @description DatabaseQuery is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DatabaseQuery: {
+            calls?: string[];
+            modify?: boolean;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            databaseServiceIds?: string[];
+            databaseStorageId?: string;
+        };
+        /**
+         * @description DatabaseStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      describes the actual database or a table in a database
+         */
+        DatabaseStorage: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            /** Format: double */
+            ttl?: number;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            atRestEncryption?: components["schemas"]["AtRestEncryption"];
+            backups?: components["schemas"]["Backup"][];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            immutability?: components["schemas"]["Immutability"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description DeAllocate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a memory de-allocation operation. This can be done using `free` in C or `delete` in C++ or by calling a destructor in managed languages.
+         */
+        DeAllocate: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            memoryId?: string;
+        };
+        /** @description Decryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Decryption: {
+            algorithm?: string;
+            cipher?: components["schemas"]["Cipher"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+            secretId?: string;
+        };
+        Dependency: {
+            path?: string;
+            version?: string;
+        };
+        /** @description DeviceProvisioningService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DeviceProvisioningService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description DiskEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DiskEncryption: {
+            algorithm?: string;
+            enabled?: boolean;
+            keyUrl?: string;
+            usedBy?: components["schemas"]["BlockStorage"];
+            basedOn?: components["schemas"]["Cipher"];
+            secretId?: string;
+        };
+        /** @description DistributionOfUpdatesDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DistributionOfUpdatesDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /** @description DocumentDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DocumentDatabaseService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            anomalyDetections?: components["schemas"]["AnomalyDetection"][];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            loggings?: components["schemas"]["Logging"][];
+            malwareProtection?: components["schemas"]["MalwareProtection"];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description DocumentSignature is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        DocumentSignature: {
+            algorithm?: string;
+            errors?: components["schemas"]["Error"][];
+        };
+        /**
+         * @description DynamicLoading is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an entity that loads a piece of code dynamically during runtime. Examples include a class loader in Java, loading shared library code in C++. Interpreters, such as Python can also load code dynamically during runtime.
+         */
+        DynamicLoading: Record<string, never>;
+        /** @description EUDeclarationOfConformity is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        EUDeclarationOfConformity: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /**
+         * @description Encryption is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      This represents an encryption.
+         */
+        Encryption: {
+            customerKeyEncryption?: components["schemas"]["CustomerKeyEncryption"];
+            diskEncryption?: components["schemas"]["DiskEncryption"];
+            managedKeyEncryption?: components["schemas"]["ManagedKeyEncryption"];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+        };
+        /** @description EncryptionInUse is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        EncryptionInUse: {
+            enabled?: boolean;
+        };
+        /** @description EncryptionOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        EncryptionOperation: {
+            algorithm?: string;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            encryption?: components["schemas"]["Encryption"];
+            secretId?: string;
+        };
+        /**
+         * @description EntryPoint is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      Represents an entry point into the execution of the program. This can be a "local" entry point, such as a main function, a library initialization function or a "remote" entry point, such as a network endpoint.
+         */
+        EntryPoint: {
+            libraryEntryPoint?: components["schemas"]["LibraryEntryPoint"];
+            main?: components["schemas"]["Main"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+        };
+        /**
+         * @description EqualityCheck is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation that checks whether two principals are equal.
+         */
+        EqualityCheck: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            policyId?: string;
+            leftPrincipal?: components["schemas"]["Principal"];
+            rightPrincipal?: components["schemas"]["Principal"];
+        };
+        /** @description Error is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Error: {
+            message?: string;
+        };
+        /**
+         * @description A evaluation result resource, representing the result after evaluating the
+         *      target of evaluation with a specific control target_of_evaluation_id, category_name and
+         *      catalog_id are necessary to get the corresponding AuditScope
+         */
+        EvaluationResult: {
+            /** @description Evaluation result id */
+            id: string;
+            /** @description The Target of Evaluation ID the evaluation belongs to */
+            targetOfEvaluationId?: string;
+            /** @description The Audit Scope ID the evaluation belongs to */
+            auditScopeId?: string;
+            /** @description The control id the evaluation was based on */
+            controlId?: string;
+            /** @description The category the evaluated control belongs to */
+            controlCategoryName?: string;
+            /** @description The catalog the evaluated control belongs to */
+            controlCatalogId?: string;
+            /** @description Optionally, specifies the parent control ID, if this is a sub-control */
+            parentControlId?: string;
+            /**
+             * Format: enum
+             * @description Evaluation status
+             * @enum {string}
+             */
+            status: "EVALUATION_STATUS_UNSPECIFIED" | "EVALUATION_STATUS_COMPLIANT" | "EVALUATION_STATUS_COMPLIANT_MANUALLY" | "EVALUATION_STATUS_NOT_COMPLIANT" | "EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY" | "EVALUATION_STATUS_PENDING";
+            /**
+             * Format: date-time
+             * @description Time of evaluation
+             */
+            timestamp: string;
+            /** @description List of assessment results because of which the evaluation status is compliant or not compliant */
+            assessmentResultIds: string[];
+            comment?: string;
+            /**
+             * Format: date-time
+             * @description Optional, but required if the status is one of the "manually" ones. This
+             *      denotes how long the (manual) created evaluation result is valid. During
+             *      this time, no automatic results are generated for the specific control.
+             */
+            validUntil?: string;
+            /**
+             * Format: bytes
+             * @description Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+             *      creation, such as a large file like a policy in PDF format.
+             */
+            data?: string;
+        };
+        /** @description An evidence resource */
+        Evidence: {
+            /** @description the ID in a uuid format */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description time of evidence creation
+             */
+            timestamp?: string;
+            /** @description Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from */
+            targetOfEvaluationId?: string;
+            /** @description Reference to the tool which provided the evidence */
+            toolId?: string;
+            /** @description Semantic representation of the Cloud resource according to our defined ontology */
+            resource?: components["schemas"]["Resource"];
+            /**
+             * @description Very experimental property. Use at own risk. This property will be deleted again.
+             *
+             *      Related resource IDs. The assessment will wait until all evidences for related resource have arrived in the
+             *      assessment and are recent enough. In the future, this will be replaced with information in the "related" edges in
+             *      the resource. For now, this needs to be set manually in the evidence.
+             */
+            experimentalRelatedResourceIds?: string[];
+        };
+        /**
+         * @description ExitBoundaryOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an exit operation that is part of a [Boundary]. This operation is used to define the point at which data leaves the boundary.
+         */
+        ExitBoundaryOperation: {
+            boundary?: components["schemas"]["Boundary"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+        };
+        /** @description ExplainableResults is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ExplainableResults: Record<string, never>;
+        /** @description File is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        File: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description FileHandle is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      This class represents a file handle.
+         */
+        FileHandle: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /** @description FileOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        FileOperation: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            fileId?: string;
+        };
+        /** @description FileStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        FileStorage: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            publicAccess?: boolean;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            atRestEncryption?: components["schemas"]["AtRestEncryption"];
+            backups?: components["schemas"]["Backup"][];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            immutability?: components["schemas"]["Immutability"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description FileStorageService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      An file storage service represents the network service that is used to access a list of file storage shares. The storage itself is modelled as a FileStorage. The service has an http endpoint.
+         */
+        FileStorageService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description Function is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Function: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            runtimeLanguage?: string;
+            runtimeVersion?: string;
+            encryptionInUse?: components["schemas"]["EncryptionInUse"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            networkInterfaceIds?: string[];
+            redundancies?: components["schemas"]["Redundancy"][];
+            remoteAttestation?: components["schemas"]["RemoteAttestation"];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description FunctionService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        FunctionService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            functionIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description Functionality is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Functionality: {
+            boundary?: components["schemas"]["Boundary"];
+            asymmetricCipher?: components["schemas"]["AsymmetricCipher"];
+            hybridCipher?: components["schemas"]["HybridCipher"];
+            symmetricCipher?: components["schemas"]["SymmetricCipher"];
+            cipherSuite?: components["schemas"]["CipherSuite"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+            localDataLocation?: components["schemas"]["LocalDataLocation"];
+            remoteDataLocation?: components["schemas"]["RemoteDataLocation"];
+            dynamicLoading?: components["schemas"]["DynamicLoading"];
+            libraryEntryPoint?: components["schemas"]["LibraryEntryPoint"];
+            main?: components["schemas"]["Main"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            error?: components["schemas"]["Error"];
+            httpClient?: components["schemas"]["HttpClient"];
+            httpRequestContext?: components["schemas"]["HttpRequestContext"];
+            httpRequestHandler?: components["schemas"]["HttpRequestHandler"];
+            initializationVector?: components["schemas"]["InitializationVector"];
+            input?: components["schemas"]["Input"];
+            keyDerivationFunction?: components["schemas"]["KeyDerivationFunction"];
+            messageAuthenticationCode?: components["schemas"]["MessageAuthenticationCode"];
+            authenticate?: components["schemas"]["Authenticate"];
+            authorizeJwt?: components["schemas"]["AuthorizeJwt"];
+            issueJwt?: components["schemas"]["IssueJwt"];
+            validateJwt?: components["schemas"]["ValidateJwt"];
+            blockStorageOperation?: components["schemas"]["BlockStorageOperation"];
+            decryption?: components["schemas"]["Decryption"];
+            loadConfiguration?: components["schemas"]["LoadConfiguration"];
+            provideConfiguration?: components["schemas"]["ProvideConfiguration"];
+            provideConfigurationGroup?: components["schemas"]["ProvideConfigurationGroup"];
+            provideConfigurationOption?: components["schemas"]["ProvideConfigurationOption"];
+            readConfigurationGroup?: components["schemas"]["ReadConfigurationGroup"];
+            readConfigurationOption?: components["schemas"]["ReadConfigurationOption"];
+            registerConfigurationGroup?: components["schemas"]["RegisterConfigurationGroup"];
+            registerConfigurationOption?: components["schemas"]["RegisterConfigurationOption"];
+            hashOperation?: components["schemas"]["HashOperation"];
+            databaseConnect?: components["schemas"]["DatabaseConnect"];
+            databaseQuery?: components["schemas"]["DatabaseQuery"];
+            createEncryptedDisk?: components["schemas"]["CreateEncryptedDisk"];
+            unlockEncryptedDisk?: components["schemas"]["UnlockEncryptedDisk"];
+            encryptionOperation?: components["schemas"]["EncryptionOperation"];
+            exitBoundaryOperation?: components["schemas"]["ExitBoundaryOperation"];
+            fileOperation?: components["schemas"]["FileOperation"];
+            getCurrentTimeOperation?: components["schemas"]["GetCurrentTimeOperation"];
+            httpRequest?: components["schemas"]["HttpRequest"];
+            httpEndpointOperation?: components["schemas"]["HttpEndpointOperation"];
+            registerHttpEndpoint?: components["schemas"]["RegisterHttpEndpoint"];
+            inputValidationOperation?: components["schemas"]["InputValidationOperation"];
+            installUpdateOperation?: components["schemas"]["InstallUpdateOperation"];
+            logGet?: components["schemas"]["LogGet"];
+            logWrite?: components["schemas"]["LogWrite"];
+            logOutput?: components["schemas"]["LogOutput"];
+            allocate?: components["schemas"]["Allocate"];
+            deAllocate?: components["schemas"]["DeAllocate"];
+            loadLibrary?: components["schemas"]["LoadLibrary"];
+            loadSymbol?: components["schemas"]["LoadSymbol"];
+            objectStorageRequest?: components["schemas"]["ObjectStorageRequest"];
+            equalityCheck?: components["schemas"]["EqualityCheck"];
+            checkAccess?: components["schemas"]["CheckAccess"];
+            createSecret?: components["schemas"]["CreateSecret"];
+            getSecret?: components["schemas"]["GetSecret"];
+            output?: components["schemas"]["Output"];
+            padding?: components["schemas"]["Padding"];
+            principal?: components["schemas"]["Principal"];
+            protectedAsset?: components["schemas"]["ProtectedAsset"];
+            schemaValidation?: components["schemas"]["SchemaValidation"];
+            securityAdvisoryFeed?: components["schemas"]["SecurityAdvisoryFeed"];
+            time?: components["schemas"]["Time"];
+            vulnerability?: components["schemas"]["Vulnerability"];
+        };
+        /**
+         * @description GenericNetworkService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A generic network service.
+         */
+        GenericNetworkService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description GeoLocation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        GeoLocation: {
+            region?: string;
+        };
+        /** @description GeoRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        GeoRedundancy: {
+            geoLocations?: components["schemas"]["GeoLocation"][];
+        };
+        /** @description GetCurrentTimeOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        GetCurrentTimeOperation: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            time?: components["schemas"]["Time"];
+        };
+        GetEvaluationStatusResponse: {
+            /**
+             * Format: enum
+             * @enum {string}
+             */
+            status?: "EVALUATION_RUNNING_STATUS_UNSPECIFIED" | "EVALUATION_RUNNING_STATUS_STOPPED" | "EVALUATION_RUNNING_STATUS_RUNNING";
+        };
+        /**
+         * @description GetSecret is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      An operation that retrieves a secret from a (remote) location. This can be a local keystore, a remote key server or a hardware device such as a TPM or HSM.
+         */
+        GetSecret: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            secretId?: string;
+        };
+        GetTargetOfEvaluationStatisticsResponse: {
+            /** @description number of discovered resources per target of evaluation */
+            numberOfDiscoveredResources?: string;
+            /** @description number of assessment results per target of evaluation */
+            numberOfAssessmentResults?: string;
+            /** @description number of evidences per target of evaluation */
+            numberOfEvidences?: string;
+            /** @description number of selected catalogs per target of evaluation */
+            numberOfSelectedCatalogs?: string;
+        };
         /** @description Contains an arbitrary serialized message along with a @type that describes the type of the serialized message. */
         GoogleProtobufAny: {
             /** @description The type of the serialized message. */
             "@type"?: string;
         } & {
             [key: string]: unknown;
+        };
+        /** @description Represents a dynamically typed value which can be either null, a number, a string, a boolean, a recursive struct value, or a list of values. */
+        GoogleProtobufValue: unknown;
+        GraphEdge: {
+            id: string;
+            source: string;
+            target: string;
+            type: string;
+        };
+        /** @description HashOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        HashOperation: {
+            algorithm?: string;
+            usesSalt?: boolean;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            securityFeature?: components["schemas"]["SecurityFeature"];
+        };
+        /**
+         * @description Defines the HTTP configuration for an API service. It contains a list of
+         *      [HttpRule][google.api.HttpRule], each specifying the mapping of an RPC method
+         *      to one or more HTTP REST API methods.
+         */
+        Http: {
+            /**
+             * @description A list of HTTP configuration rules that apply to individual API methods.
+             *
+             *      **NOTE:** All service configuration rules follow "last one wins" order.
+             */
+            rules?: components["schemas"]["HttpRule"][];
+            /**
+             * @description When set to true, URL path parameters will be fully URI-decoded except in
+             *      cases of single segment matches in reserved expansion, where "%2F" will be
+             *      left encoded.
+             *
+             *      The default behavior is to not decode RFC 6570 reserved characters in multi
+             *      segment matches.
+             */
+            fullyDecodeReservedExpansion?: boolean;
+        };
+        /**
+         * @description HttpClient is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      HTTP Client.
+         */
+        HttpClient: {
+            isTls?: boolean;
+            authenticity?: components["schemas"]["Authenticity"];
+            uses?: components["schemas"]["TransportEncryption"];
+        };
+        /**
+         * @description HttpEndpoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      An HTTP endpoint can set the "proxyTarget" property, in case that is routed through a (reverse) proxy, e.g. a load balancer.
+         *      Via the Authenticity relationship, the access type can be specified, e.g. public access (no authentication), password-based, etc.
+         */
+        HttpEndpoint: {
+            handler?: string;
+            /** Format: int32 */
+            inputSize?: number;
+            method?: string;
+            path?: string;
+            url?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            authorization?: components["schemas"]["Authorization"];
+            httpRequestContext?: components["schemas"]["HttpRequestContext"];
+            rateLimiting?: components["schemas"]["RateLimiting"];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+        };
+        /**
+         * @description HttpEndpointOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Base class for operations on an [HttpEndpoint].
+         */
+        HttpEndpointOperation: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            http?: components["schemas"]["Http"];
+        };
+        /**
+         * @description HttpRequest is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      enum:method=GET,POST,PUT,HEAD,PATCH,OPTIONS,CONNECT,TRACE,DELETE,UNKNOWN
+         */
+        HttpRequest: {
+            call?: string;
+            method?: string;
+            reqBody?: string;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            httpClient?: components["schemas"]["HttpClient"];
+            httpEndpoints?: components["schemas"]["HttpEndpoint"][];
+        };
+        /**
+         * @description HttpRequestContext is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an abstract concept of request context. This usually holds the contextual information of a specific HTTP request.
+         */
+        HttpRequestContext: Record<string, never>;
+        /** @description HttpRequestHandler is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        HttpRequestHandler: {
+            path?: string;
+            applicationId?: string;
+            httpEndpoints?: components["schemas"]["HttpEndpoint"][];
+        };
+        /**
+         * @description gRPC Transcoding
+         *
+         *      gRPC Transcoding is a feature for mapping between a gRPC method and one or
+         *      more HTTP REST endpoints. It allows developers to build a single API service
+         *      that supports both gRPC APIs and REST APIs. Many systems, including [Google
+         *      APIs](https://github.com/googleapis/googleapis),
+         *      [Cloud Endpoints](https://cloud.google.com/endpoints), [gRPC
+         *      Gateway](https://github.com/grpc-ecosystem/grpc-gateway),
+         *      and [Envoy](https://github.com/envoyproxy/envoy) proxy support this feature
+         *      and use it for large scale production services.
+         *
+         *      `HttpRule` defines the schema of the gRPC/REST mapping. The mapping specifies
+         *      how different portions of the gRPC request message are mapped to the URL
+         *      path, URL query parameters, and HTTP request body. It also controls how the
+         *      gRPC response message is mapped to the HTTP response body. `HttpRule` is
+         *      typically specified as an `google.api.http` annotation on the gRPC method.
+         *
+         *      Each mapping specifies a URL path template and an HTTP method. The path
+         *      template may refer to one or more fields in the gRPC request message, as long
+         *      as each field is a non-repeated field with a primitive (non-message) type.
+         *      The path template controls how fields of the request message are mapped to
+         *      the URL path.
+         *
+         *      Example:
+         *
+         *          service Messaging {
+         *            rpc GetMessage(GetMessageRequest) returns (Message) {
+         *              option (google.api.http) = {
+         *                  get: "/v1/{name=messages/*}"
+         *              };
+         *            }
+         *          }
+         *          message GetMessageRequest {
+         *            string name = 1; // Mapped to URL path.
+         *          }
+         *          message Message {
+         *            string text = 1; // The resource content.
+         *          }
+         *
+         *      This enables an HTTP REST to gRPC mapping as below:
+         *
+         *      - HTTP: `GET /v1/messages/123456`
+         *      - gRPC: `GetMessage(name: "messages/123456")`
+         *
+         *      Any fields in the request message which are not bound by the path template
+         *      automatically become HTTP query parameters if there is no HTTP request body.
+         *      For example:
+         *
+         *          service Messaging {
+         *            rpc GetMessage(GetMessageRequest) returns (Message) {
+         *              option (google.api.http) = {
+         *                  get:"/v1/messages/{message_id}"
+         *              };
+         *            }
+         *          }
+         *          message GetMessageRequest {
+         *            message SubMessage {
+         *              string subfield = 1;
+         *            }
+         *            string message_id = 1; // Mapped to URL path.
+         *            int64 revision = 2;    // Mapped to URL query parameter `revision`.
+         *            SubMessage sub = 3;    // Mapped to URL query parameter `sub.subfield`.
+         *          }
+         *
+         *      This enables a HTTP JSON to RPC mapping as below:
+         *
+         *      - HTTP: `GET /v1/messages/123456?revision=2&sub.subfield=foo`
+         *      - gRPC: `GetMessage(message_id: "123456" revision: 2 sub:
+         *      SubMessage(subfield: "foo"))`
+         *
+         *      Note that fields which are mapped to URL query parameters must have a
+         *      primitive type or a repeated primitive type or a non-repeated message type.
+         *      In the case of a repeated type, the parameter can be repeated in the URL
+         *      as `...?param=A&param=B`. In the case of a message type, each field of the
+         *      message is mapped to a separate parameter, such as
+         *      `...?foo.a=A&foo.b=B&foo.c=C`.
+         *
+         *      For HTTP methods that allow a request body, the `body` field
+         *      specifies the mapping. Consider a REST update method on the
+         *      message resource collection:
+         *
+         *          service Messaging {
+         *            rpc UpdateMessage(UpdateMessageRequest) returns (Message) {
+         *              option (google.api.http) = {
+         *                patch: "/v1/messages/{message_id}"
+         *                body: "message"
+         *              };
+         *            }
+         *          }
+         *          message UpdateMessageRequest {
+         *            string message_id = 1; // mapped to the URL
+         *            Message message = 2;   // mapped to the body
+         *          }
+         *
+         *      The following HTTP JSON to RPC mapping is enabled, where the
+         *      representation of the JSON in the request body is determined by
+         *      protos JSON encoding:
+         *
+         *      - HTTP: `PATCH /v1/messages/123456 { "text": "Hi!" }`
+         *      - gRPC: `UpdateMessage(message_id: "123456" message { text: "Hi!" })`
+         *
+         *      The special name `*` can be used in the body mapping to define that
+         *      every field not bound by the path template should be mapped to the
+         *      request body.  This enables the following alternative definition of
+         *      the update method:
+         *
+         *          service Messaging {
+         *            rpc UpdateMessage(Message) returns (Message) {
+         *              option (google.api.http) = {
+         *                patch: "/v1/messages/{message_id}"
+         *                body: "*"
+         *              };
+         *            }
+         *          }
+         *          message Message {
+         *            string message_id = 1;
+         *            string text = 2;
+         *          }
+         *
+         *
+         *      The following HTTP JSON to RPC mapping is enabled:
+         *
+         *      - HTTP: `PATCH /v1/messages/123456 { "text": "Hi!" }`
+         *      - gRPC: `UpdateMessage(message_id: "123456" text: "Hi!")`
+         *
+         *      Note that when using `*` in the body mapping, it is not possible to
+         *      have HTTP parameters, as all fields not bound by the path end in
+         *      the body. This makes this option more rarely used in practice when
+         *      defining REST APIs. The common usage of `*` is in custom methods
+         *      which don't use the URL at all for transferring data.
+         *
+         *      It is possible to define multiple HTTP methods for one RPC by using
+         *      the `additional_bindings` option. Example:
+         *
+         *          service Messaging {
+         *            rpc GetMessage(GetMessageRequest) returns (Message) {
+         *              option (google.api.http) = {
+         *                get: "/v1/messages/{message_id}"
+         *                additional_bindings {
+         *                  get: "/v1/users/{user_id}/messages/{message_id}"
+         *                }
+         *              };
+         *            }
+         *          }
+         *          message GetMessageRequest {
+         *            string message_id = 1;
+         *            string user_id = 2;
+         *          }
+         *
+         *      This enables the following two alternative HTTP JSON to RPC mappings:
+         *
+         *      - HTTP: `GET /v1/messages/123456`
+         *      - gRPC: `GetMessage(message_id: "123456")`
+         *
+         *      - HTTP: `GET /v1/users/me/messages/123456`
+         *      - gRPC: `GetMessage(user_id: "me" message_id: "123456")`
+         *
+         *      Rules for HTTP mapping
+         *
+         *      1. Leaf request fields (recursive expansion nested messages in the request
+         *         message) are classified into three categories:
+         *         - Fields referred by the path template. They are passed via the URL path.
+         *         - Fields referred by the [HttpRule.body][google.api.HttpRule.body]. They
+         *         are passed via the HTTP
+         *           request body.
+         *         - All other fields are passed via the URL query parameters, and the
+         *           parameter name is the field path in the request message. A repeated
+         *           field can be represented as multiple query parameters under the same
+         *           name.
+         *       2. If [HttpRule.body][google.api.HttpRule.body] is "*", there is no URL
+         *       query parameter, all fields
+         *          are passed via URL path and HTTP request body.
+         *       3. If [HttpRule.body][google.api.HttpRule.body] is omitted, there is no HTTP
+         *       request body, all
+         *          fields are passed via URL path and URL query parameters.
+         *
+         *      Path template syntax
+         *
+         *          Template = "/" Segments [ Verb ] ;
+         *          Segments = Segment { "/" Segment } ;
+         *          Segment  = "*" | "**" | LITERAL | Variable ;
+         *          Variable = "{" FieldPath [ "=" Segments ] "}" ;
+         *          FieldPath = IDENT { "." IDENT } ;
+         *          Verb     = ":" LITERAL ;
+         *
+         *      The syntax `*` matches a single URL path segment. The syntax `**` matches
+         *      zero or more URL path segments, which must be the last part of the URL path
+         *      except the `Verb`.
+         *
+         *      The syntax `Variable` matches part of the URL path as specified by its
+         *      template. A variable template must not contain other variables. If a variable
+         *      matches a single path segment, its template may be omitted, e.g. `{var}`
+         *      is equivalent to `{var=*}`.
+         *
+         *      The syntax `LITERAL` matches literal text in the URL path. If the `LITERAL`
+         *      contains any reserved character, such characters should be percent-encoded
+         *      before the matching.
+         *
+         *      If a variable contains exactly one path segment, such as `"{var}"` or
+         *      `"{var=*}"`, when such a variable is expanded into a URL path on the client
+         *      side, all characters except `[-_.~0-9a-zA-Z]` are percent-encoded. The
+         *      server side does the reverse decoding. Such variables show up in the
+         *      [Discovery
+         *      Document](https://developers.google.com/discovery/v1/reference/apis) as
+         *      `{var}`.
+         *
+         *      If a variable contains multiple path segments, such as `"{var=foo/*}"`
+         *      or `"{var=**}"`, when such a variable is expanded into a URL path on the
+         *      client side, all characters except `[-_.~/0-9a-zA-Z]` are percent-encoded.
+         *      The server side does the reverse decoding, except "%2F" and "%2f" are left
+         *      unchanged. Such variables show up in the
+         *      [Discovery
+         *      Document](https://developers.google.com/discovery/v1/reference/apis) as
+         *      `{+var}`.
+         *
+         *      Using gRPC API Service Configuration
+         *
+         *      gRPC API Service Configuration (service config) is a configuration language
+         *      for configuring a gRPC service to become a user-facing product. The
+         *      service config is simply the YAML representation of the `google.api.Service`
+         *      proto message.
+         *
+         *      As an alternative to annotating your proto file, you can configure gRPC
+         *      transcoding in your service config YAML files. You do this by specifying a
+         *      `HttpRule` that maps the gRPC method to a REST endpoint, achieving the same
+         *      effect as the proto annotation. This can be particularly useful if you
+         *      have a proto that is reused in multiple services. Note that any transcoding
+         *      specified in the service config will override any matching transcoding
+         *      configuration in the proto.
+         *
+         *      The following example selects a gRPC method and applies an `HttpRule` to it:
+         *
+         *          http:
+         *            rules:
+         *              - selector: example.v1.Messaging.GetMessage
+         *                get: /v1/messages/{message_id}/{sub.subfield}
+         *
+         *      Special notes
+         *
+         *      When gRPC Transcoding is used to map a gRPC to JSON REST endpoints, the
+         *      proto to JSON conversion must follow the [proto3
+         *      specification](https://developers.google.com/protocol-buffers/docs/proto3#json).
+         *
+         *      While the single segment variable follows the semantics of
+         *      [RFC 6570](https://tools.ietf.org/html/rfc6570) Section 3.2.2 Simple String
+         *      Expansion, the multi segment variable **does not** follow RFC 6570 Section
+         *      3.2.3 Reserved Expansion. The reason is that the Reserved Expansion
+         *      does not expand special characters like `?` and `#`, which would lead
+         *      to invalid URLs. As the result, gRPC Transcoding uses a custom encoding
+         *      for multi segment variables.
+         *
+         *      The path variables **must not** refer to any repeated or mapped field,
+         *      because client libraries are not capable of handling such variable expansion.
+         *
+         *      The path variables **must not** capture the leading "/" character. The reason
+         *      is that the most common use case "{var}" does not capture the leading "/"
+         *      character. For consistency, all path variables must share the same behavior.
+         *
+         *      Repeated message fields must not be mapped to URL query parameters, because
+         *      no client library can support such complicated mapping.
+         *
+         *      If an API needs to use a JSON array for request or response body, it can map
+         *      the request or response body to a repeated field. However, some gRPC
+         *      Transcoding implementations may not support this feature.
+         */
+        HttpRule: {
+            /**
+             * @description Selects a method to which this rule applies.
+             *
+             *      Refer to [selector][google.api.DocumentationRule.selector] for syntax
+             *      details.
+             */
+            selector?: string;
+            /**
+             * @description Maps to HTTP GET. Used for listing and getting information about
+             *      resources.
+             */
+            get?: string;
+            /** @description Maps to HTTP PUT. Used for replacing a resource. */
+            put?: string;
+            /** @description Maps to HTTP POST. Used for creating a resource or performing an action. */
+            post?: string;
+            /** @description Maps to HTTP DELETE. Used for deleting a resource. */
+            delete?: string;
+            /** @description Maps to HTTP PATCH. Used for updating a resource. */
+            patch?: string;
+            /**
+             * @description The custom pattern is used for specifying an HTTP method that is not
+             *      included in the `pattern` field, such as HEAD, or "*" to leave the
+             *      HTTP method unspecified for this rule. The wild-card rule is useful
+             *      for services that provide content to Web (HTML) clients.
+             */
+            custom?: components["schemas"]["CustomHttpPattern"];
+            /**
+             * @description The name of the request field whose value is mapped to the HTTP request
+             *      body, or `*` for mapping all request fields not captured by the path
+             *      pattern to the HTTP body, or omitted for not having any HTTP request body.
+             *
+             *      NOTE: the referred field must be present at the top-level of the request
+             *      message type.
+             */
+            body?: string;
+            /**
+             * @description Optional. The name of the response field whose value is mapped to the HTTP
+             *      response body. When omitted, the entire response message will be used
+             *      as the HTTP response body.
+             *
+             *      NOTE: The referred field must be present at the top-level of the response
+             *      message type.
+             */
+            responseBody?: string;
+            /**
+             * @description Additional HTTP bindings for the selector. Nested bindings must
+             *      not contain an `additional_bindings` field themselves (that is,
+             *      the nesting may only be one level deep).
+             */
+            additionalBindings?: components["schemas"]["HttpRule"][];
+        };
+        /** @description HybridCipher is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        HybridCipher: {
+            /**
+             * Format: int32
+             * @description Block size of a cipher.
+             */
+            blockSize?: number;
+            /** @description Name of a cryptographic cipher. */
+            cipherName?: string;
+            /**
+             * Format: int32
+             * @description Key size refers to the length of a key used in an enryption.
+             */
+            keySize?: number;
+            uses?: components["schemas"]["AsymmetricCipher"];
+            keyDerivationFunction?: components["schemas"]["KeyDerivationFunction"];
+            messageAuthenticationCode?: components["schemas"]["MessageAuthenticationCode"];
+            padding?: components["schemas"]["Padding"];
+            symmetricCipher?: components["schemas"]["SymmetricCipher"];
+        };
+        /** @description Identity is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Identity: {
+            activated?: boolean;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            disablePasswordPolicy?: boolean;
+            enforceMfa?: boolean;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            lastActivity?: string;
+            loginDefenderEnabled?: boolean;
+            name?: string;
+            privileged?: boolean;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            authorization?: components["schemas"]["Authorization"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description Immutability is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Immutability: {
+            enabled?: boolean;
+        };
+        /** @description Infrastructure is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Infrastructure: {
+            account?: components["schemas"]["Account"];
+            job?: components["schemas"]["Job"];
+            workflow?: components["schemas"]["Workflow"];
+            codeRepository?: components["schemas"]["CodeRepository"];
+            container?: components["schemas"]["Container"];
+            function?: components["schemas"]["Function"];
+            qpu?: components["schemas"]["QPU"];
+            virtualMachine?: components["schemas"]["VirtualMachine"];
+            containerOrchestration?: components["schemas"]["ContainerOrchestration"];
+            containerRegistry?: components["schemas"]["ContainerRegistry"];
+            certificate?: components["schemas"]["Certificate"];
+            key?: components["schemas"]["Key"];
+            secret?: components["schemas"]["Secret"];
+            identity?: components["schemas"]["Identity"];
+            roleAssignment?: components["schemas"]["RoleAssignment"];
+            containerImage?: components["schemas"]["ContainerImage"];
+            vmImage?: components["schemas"]["VMImage"];
+            deviceProvisioningService?: components["schemas"]["DeviceProvisioningService"];
+            messagingHub?: components["schemas"]["MessagingHub"];
+            keyVault?: components["schemas"]["KeyVault"];
+            networkInterface?: components["schemas"]["NetworkInterface"];
+            networkSecurityGroup?: components["schemas"]["NetworkSecurityGroup"];
+            functionService?: components["schemas"]["FunctionService"];
+            genericNetworkService?: components["schemas"]["GenericNetworkService"];
+            loadBalancer?: components["schemas"]["LoadBalancer"];
+            loggingService?: components["schemas"]["LoggingService"];
+            machineLearningService?: components["schemas"]["MachineLearningService"];
+            securityAdvisoryService?: components["schemas"]["SecurityAdvisoryService"];
+            documentDatabaseService?: components["schemas"]["DocumentDatabaseService"];
+            keyValueDatabaseService?: components["schemas"]["KeyValueDatabaseService"];
+            multiModalDatabaseService?: components["schemas"]["MultiModalDatabaseService"];
+            relationalDatabaseService?: components["schemas"]["RelationalDatabaseService"];
+            fileStorageService?: components["schemas"]["FileStorageService"];
+            objectStorageService?: components["schemas"]["ObjectStorageService"];
+            virtualNetwork?: components["schemas"]["VirtualNetwork"];
+            virtualSubNetwork?: components["schemas"]["VirtualSubNetwork"];
+            passwordPolicy?: components["schemas"]["PasswordPolicy"];
+            resourceGroup?: components["schemas"]["ResourceGroup"];
+            blockStorage?: components["schemas"]["BlockStorage"];
+            databaseStorage?: components["schemas"]["DatabaseStorage"];
+            fileStorage?: components["schemas"]["FileStorage"];
+            objectStorage?: components["schemas"]["ObjectStorage"];
+        };
+        /**
+         * @description InitializationVector is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an Initialization Vector of a cipher.
+         */
+        InitializationVector: Record<string, never>;
+        /**
+         * @description Input is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A certain Input for e.g. a function.
+         */
+        Input: Record<string, never>;
+        /** @description InputValidationOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        InputValidationOperation: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            input?: components["schemas"]["Input"];
+            output?: components["schemas"]["Output"];
+        };
+        /** @description InstallUpdateOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        InstallUpdateOperation: {
+            automaticUpdates?: components["schemas"]["AutomaticUpdates"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+        };
+        /**
+         * @description IssueJwt is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to issue a new JWT token.
+         */
+        IssueJwt: {
+            authenticity?: components["schemas"]["Authenticity"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+        };
+        /** @description Job is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Job: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description JwtAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a JWT-based authentication, which extends the [TokenBasedAuth].
+         */
+        JwtAuthentication: {
+            contextIsChecked?: boolean;
+            enabled?: boolean;
+            enforced?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+            tokenId?: string;
+        };
+        /**
+         * @description Key is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A key used for encryption algorithms.
+         *      The node that represents the "key" of this option. For example, in an INI file, this would be the [FieldDeclaration] node that represents the key.
+         */
+        Key: {
+            algorithm?: string;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            enabled?: boolean;
+            /** Format: date-time */
+            expirationDate?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            isManaged?: boolean;
+            /**
+             * Format: int32
+             * @description Key size refers to the length of a key used in an enryption.
+             */
+            keySize?: number;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** Format: date-time */
+            notBeforeDate?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            usedByMultiple?: components["schemas"]["Infrastructure"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description KeyDerivationFunction is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        KeyDerivationFunction: {
+            type?: string;
+            input?: components["schemas"]["Input"];
+        };
+        /** @description KeyValueDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        KeyValueDatabaseService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            anomalyDetections?: components["schemas"]["AnomalyDetection"][];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            loggings?: components["schemas"]["Logging"][];
+            malwareProtection?: components["schemas"]["MalwareProtection"];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description KeyVault is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        KeyVault: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            credentialIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description L3Firewall is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        L3Firewall: {
+            enabled?: boolean;
+            inbound?: boolean;
+            restrictedPorts?: string;
+        };
+        /** @description Library is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Library: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            libraryIds?: string[];
+            parentId?: string;
+            vulnerabilities?: components["schemas"]["Vulnerability"][];
+        };
+        /**
+         * @description LibraryEntryPoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an entry point that is triggered if the code is loaded as a (dynamic) library.
+         */
+        LibraryEntryPoint: {
+            usedBy?: components["schemas"]["OperatingSystemArchitecture"];
+        };
+        ListAssessmentResultsResponse: {
+            results?: components["schemas"]["AssessmentResult"][];
+            nextPageToken?: string;
+        };
+        ListAssessmentToolsResponse: {
+            tools?: components["schemas"]["AssessmentTool"][];
+            nextPageToken?: string;
+        };
+        ListAuditScopesResponse: {
+            auditScopes?: components["schemas"]["AuditScope"][];
+            nextPageToken?: string;
+        };
+        ListCatalogsResponse: {
+            catalogs?: components["schemas"]["Catalog"][];
+            nextPageToken?: string;
+        };
+        ListCertificatesResponse: {
+            certificates?: components["schemas"]["Certificate"][];
+            nextPageToken?: string;
+        };
+        ListControlsResponse: {
+            controls?: components["schemas"]["Control"][];
+            nextPageToken?: string;
+        };
+        ListEvaluationResultsResponse: {
+            results?: components["schemas"]["EvaluationResult"][];
+            nextPageToken?: string;
+        };
+        ListEvidencesResponse: {
+            evidences?: components["schemas"]["Evidence"][];
+            nextPageToken?: string;
+        };
+        ListGraphEdgesResponse: {
+            edges: components["schemas"]["GraphEdge"][];
+            nextPageToken?: string;
+        };
+        ListMetricConfigurationResponse: {
+            /** @description A map of metric configurations associated by their metric ID */
+            configurations?: {
+                [key: string]: components["schemas"]["MetricConfiguration"];
+            };
+            nextPageToken?: string;
+        };
+        ListMetricsResponse: {
+            metrics: components["schemas"]["Metric"][];
+            nextPageToken?: string;
+        };
+        ListPublicCertificatesResponse: {
+            certificates?: components["schemas"]["Certificate"][];
+            nextPageToken?: string;
+        };
+        ListResourcesResponse: {
+            results: components["schemas"]["ResourceSnapshot"][];
+            nextPageToken?: string;
+        };
+        ListSupportedResourceTypesResponse: {
+            resourceType?: string[];
+        };
+        ListTargetsOfEvaluationResponse: {
+            targetsOfEvaluation: components["schemas"]["TargetOfEvaluation"][];
+            nextPageToken?: string;
+        };
+        ListToolsResponse: {
+            toolIds?: string[];
+        };
+        ListUserPermissionsResponse: {
+            userPermissions?: components["schemas"]["UserPermission"][];
+            nextPageToken?: string;
+        };
+        ListUserRolesResponse: {
+            roles?: ("ROLE_UNSPECIFIED" | "ROLE_ADMIN" | "ROLE_COMPLIANCE_MANAGER" | "ROLE_EXPERT_COMPLIANCE_MANAGER" | "ROLE_INTERNAL_CONTROL_OWNER" | "ROLE_TECHNICAL_IMPLEMENTER" | "ROLE_AUDITOR" | "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER")[];
+        };
+        ListUsersResponse: {
+            users?: components["schemas"]["User"][];
+            nextPageToken?: string;
+        };
+        /**
+         * @description LoadBalancer is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A Load Balancer may have multiple access restriction features, e.g. a L3 firewall and a WAF
+         */
+        LoadBalancer: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            url?: string;
+            accessRestriction?: components["schemas"]["AccessRestriction"];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoints?: components["schemas"]["HttpEndpoint"][];
+            loggings?: components["schemas"]["Logging"][];
+            networkServiceIds?: string[];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description LoadConfiguration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to load a configuration from a source, such as a file.
+         */
+        LoadConfiguration: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+        };
+        /**
+         * @description LoadLibrary is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation that loads a shared library during runtime. A common example would be a call to `dlopen` in C/C++.
+         */
+        LoadLibrary: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            entryPoints?: components["schemas"]["EntryPoint"][];
+            memoryId?: string;
+            operatingSystemArchitectureId?: string;
+        };
+        /**
+         * @description LoadSymbol is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation that loads a symbol during runtime. A common example would be a call to`dlsym` in C/C++.
+         */
+        LoadSymbol: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            memoryId?: string;
+            operatingSystemArchitectureId?: string;
+        };
+        /** @description LocalAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        LocalAttestation: {
+            enabled?: boolean;
+        };
+        /** @description LocalDataLocation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        LocalDataLocation: {
+            path?: string;
+            atRestEncryption?: components["schemas"]["AtRestEncryption"];
+            storageId?: string;
+        };
+        /** @description LocalRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        LocalRedundancy: {
+            geoLocations?: components["schemas"]["GeoLocation"][];
+        };
+        /** @description LogDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        LogDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /**
+         * @description LogGet is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A log get operation e.g. `logging.getLogger("...")`.
+         */
+        LogGet: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            logging?: components["schemas"]["Logging"];
+        };
+        /**
+         * @description LogOutput is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A generic Logoutput.
+         */
+        LogOutput: {
+            call?: string;
+            value?: string;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            logging?: components["schemas"]["Logging"];
+        };
+        /**
+         * @description LogWrite is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A log write operation e.g. `loggint.warn("...")`.
+         */
+        LogWrite: {
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            logging?: components["schemas"]["Logging"];
+        };
+        /**
+         * @description Logging is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      enum:logLevel=DEBUG,INFO,WARN,ERROR
+         */
+        Logging: {
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            applicationLogging?: components["schemas"]["ApplicationLogging"];
+            bootLogging?: components["schemas"]["BootLogging"];
+            osLogging?: components["schemas"]["OSLogging"];
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+        };
+        /**
+         * @description LoggingService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A logging-as-a-service offering, e.g. for analyzing logs; has a Storage resource that stores the logs
+         */
+        LoggingService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description MachineLearningDataset is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        MachineLearningDataset: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            /** Format: int32 */
+            size?: number;
+            type?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /** @description MachineLearningModel is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        MachineLearningModel: {
+            /** Format: float */
+            adversarialRobustnessScore?: number;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            /** Format: float */
+            evasionEfficacyLevel?: number;
+            /** Format: float */
+            explainability?: number;
+            explainabilityEnabled?: boolean;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            /** Format: float */
+            membershipInferenceResilience?: number;
+            /** Format: float */
+            modelStealResilience?: number;
+            name?: string;
+            /** Format: float */
+            poisonedDataLevel?: number;
+            /** Format: float */
+            poisoningResilienceLevel?: number;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+            vulnerabilities?: components["schemas"]["Vulnerability"][];
+        };
+        /** @description MachineLearningService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        MachineLearningService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            machineLearningIds?: string[];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description Main is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      The main function of a program.
+         */
+        Main: {
+            usedBy?: components["schemas"]["OperatingSystemArchitecture"];
+        };
+        /**
+         * @description MalwareProtection is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      analyzes the activity within a Compute resource
+         */
+        MalwareProtection: {
+            durationSinceActive?: string;
+            enabled?: boolean;
+            /** Format: int32 */
+            numberOfThreatsFound?: number;
+            applicationLogging?: components["schemas"]["ApplicationLogging"];
+        };
+        /** @description ManagedKeyEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ManagedKeyEncryption: {
+            algorithm?: string;
+            enabled?: boolean;
+            keyUrl?: string;
+            basedOn?: components["schemas"]["Cipher"];
+            secretId?: string;
+        };
+        /**
+         * @description Memory is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A generic concept to describe memory operations with a program. This includes allocation and de-allocation of memory as well as copying memory regions.
+         */
+        Memory: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            mode?: string;
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            parentId?: string;
+        };
+        /** @description MessageAuthenticationCode is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        MessageAuthenticationCode: {
+            type?: string;
+            input?: components["schemas"]["Input"];
+            keyId?: string;
+        };
+        /** @description MessagingHub is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        MessagingHub: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description A metric resource */
+        Metric: {
+            /** @description Required. The unique identifier of the metric. */
+            id: string;
+            /** @description Required. The name of the metric. */
+            name: string;
+            /** @description The description of the metric */
+            description: string;
+            /** @description The version of this metric */
+            version: string;
+            /** @description Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful. */
+            comments?: string;
+            /** @description Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository */
+            category: string;
+            /**
+             * @description The implementation of this metric. This ensures that we are modelling an
+             *      association between a Metric and its MetricImplementation.
+             */
+            implementation?: components["schemas"]["MetricImplementation"];
+            /**
+             * Format: date-time
+             * @description Optional, but required if the metric is removed. The metric is not deleted
+             *      for backward compatibility and the timestamp is set to the time of removal.
+             */
+            deprecatedSince?: string;
+        };
+        /** @description Defines the operator and a target value for an individual metric */
+        MetricConfiguration: {
+            /** @description The operator to compare the metric, such as == or > */
+            operator: string;
+            /** @description The target value */
+            targetValue: components["schemas"]["GoogleProtobufValue"];
+            /** @description Whether this configuration is a default configuration */
+            isDefault: boolean;
+            /**
+             * Format: date-time
+             * @description The last time of update
+             */
+            updatedAt?: string;
+            /** @description The metric this configuration belongs to */
+            metricId: string;
+            /** @description The target of evaluation this configuration belongs to */
+            targetOfEvaluationId: string;
+        };
+        /** @description MetricImplementation defines the implementation of an individual metric. */
+        MetricImplementation: {
+            /** @description The metric which is implemented */
+            metricId: string;
+            /**
+             * Format: enum
+             * @description The language this metric is implemented in
+             * @enum {string}
+             */
+            lang?: "LANGUAGE_UNSPECIFIED" | "LANGUAGE_REGO";
+            /** @description The actual implementation */
+            code: string;
+            /**
+             * Format: date-time
+             * @description The last time of update
+             */
+            updatedAt?: string;
+        };
+        /**
+         * @description MonitoringProcedure is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      intervalMonths: Review frequency (in months) for reviewing monitoring procedures
+         */
+        MonitoringProcedure: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            /**
+             * Format: int32
+             * @description The interval refers to the interval in months.
+             */
+            intervalMonths?: number;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            parentId?: string;
+        };
+        /** @description MultiFactorAuthentiation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        MultiFactorAuthentiation: {
+            contextIsChecked?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+            authenticities?: components["schemas"]["Authenticity"][];
+        };
+        /**
+         * @description MultiModalDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      This class represents a database service that identifies itself as "multi-model", e.g., offers document storage as well as relational features.
+         */
+        MultiModalDatabaseService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            anomalyDetections?: components["schemas"]["AnomalyDetection"][];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            loggings?: components["schemas"]["Logging"][];
+            malwareProtection?: components["schemas"]["MalwareProtection"];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description NetworkInterface is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        NetworkInterface: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            accessRestriction?: components["schemas"]["AccessRestriction"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            networkServiceId?: string;
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description NetworkSecurityGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        NetworkSecurityGroup: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description NoAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        NoAuthentication: {
+            contextIsChecked?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+        };
+        /** @description OSLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        OSLogging: {
+            enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
+            monitoringLogDataEnabled?: boolean;
+            retentionPeriod?: string;
+            securityAlertsEnabled?: boolean;
+            loggingServiceIds?: string[];
+        };
+        /** @description OTPBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        OTPBasedAuthentication: {
+            activated?: boolean;
+            contextIsChecked?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+        };
+        /** @description ObjectStorage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ObjectStorage: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            publicAccess?: boolean;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            atRestEncryption?: components["schemas"]["AtRestEncryption"];
+            backups?: components["schemas"]["Backup"][];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            immutability?: components["schemas"]["Immutability"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ObjectStorageRequest is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ObjectStorageRequest: {
+            source?: string;
+            codeRegion?: components["schemas"]["CodeRegion"];
+            objectStorageIds?: string[];
+            storageId?: string;
+        };
+        /**
+         * @description ObjectStorageService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      An object storage service represents the network service that is used to access a list of object storage containers. The storage itself is modelled as a ObjectStorage. The service has an http endpoint.
+         */
+        ObjectStorageService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description OperatingSystemArchitecture is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+         *      Represents an architecture of an operating system.
+         */
+        OperatingSystemArchitecture: {
+            agnostic?: components["schemas"]["Agnostic"];
+            darwin?: components["schemas"]["Darwin"];
+            posix?: components["schemas"]["POSIX"];
+            win32?: components["schemas"]["Win32"];
+        };
+        /** @description Output is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Output: Record<string, never>;
+        /**
+         * @description POSIX is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a POSIX architecture, commonly found on Linux systems.
+         */
+        POSIX: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            parentId?: string;
+        };
+        /**
+         * @description Package is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a grouping of (source) code into logical unit, for example a package for a namespace.
+         */
+        Package: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            parentId?: string;
+        };
+        /**
+         * @description Padding is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A padding for a cipher.
+         */
+        Padding: {
+            /** @description Describes a certain scheme e.g. a padding scheme. */
+            scheme?: string;
+        };
+        /** @description PasswordBasedAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        PasswordBasedAuthentication: {
+            activated?: boolean;
+            contextIsChecked?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+        };
+        /** @description PasswordPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        PasswordPolicy: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        PolicyDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            governanceId?: string;
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /**
+         * @description Principal is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a principal that is allowed to access a resource. This can for example be a (structure representing) a user or a group of users.
+         */
+        Principal: Record<string, never>;
+        /** @description Product is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Product: {
+            contextOfUse?: string;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            programmingVersion?: string;
+            purpose?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            /**
+             * Format: date-time
+             * @description Support ends date for a certain resource.
+             */
+            supportEnds?: string;
+            type?: string;
+            codeIds?: string[];
+            contactPersonId?: string;
+            dataIds?: string[];
+            governanceIds?: string[];
+            hardwareIds?: string[];
+            infrastructureIds?: string[];
+            parentId?: string;
+        };
+        /** @description ProductionAndMonitoringProcessDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ProductionAndMonitoringProcessDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /**
+         * @description ProtectedAsset is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an asset that is protected by a policy. This can be an in-memory data structure, a file, a database, or any other resource that requires access control.
+         */
+        ProtectedAsset: {
+            policyIds?: string[];
+            protects?: components["schemas"]["Resource"];
+        };
+        /**
+         * @description ProvideConfiguration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to provide a [Configuration], e.g., in the form of a configuration file (through a [ConfigurationSource]). When the configuration file is loaded, a [LoadConfiguration] operation would be found in the code component (matching the configuration file's name in [LoadConfiguration.fileExpression]) and the [ProvideConfiguration] operation would be found in the configuration component. But also other sources of configuration could be represented by a [ProvideConfiguration] operation, such as environment variables or command-line arguments. Note: The [ProvideConfiguration] operation is part of the [ConfigurationSource.ops] and not of the [Configuration.ops] as it's an operation of the source, not the target.
+         */
+        ProvideConfiguration: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationSourceId?: string;
+        };
+        /** @description ProvideConfigurationGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ProvideConfigurationGroup: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationGroupId?: string;
+            configurationGroupSourceId?: string;
+        };
+        /**
+         * @description ProvideConfigurationOption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to provide a [ConfigurationOption]. It connects a [ConfigurationOptionSource] with a [ConfigurationOption].
+         */
+        ProvideConfigurationOption: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationOptionId?: string;
+            configurationOptionSourceId?: string;
+        };
+        /** @description QPU is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        QPU: {
+            /** Format: float */
+            oneQubitErrorRate?: number;
+            /** Format: float */
+            spamErrorRate?: number;
+            /**
+             * Format: float
+             * @description Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy relaxation time (in seconds).
+             */
+            t1CoherenceTime?: number;
+            /**
+             * Format: float
+             * @description Coherence times are a standard measure for the reliability of executing quantum circuits. T1 is the qubits's energy dephasing time (in seconds).
+             */
+            t2CoherenceTime?: number;
+            /** Format: float */
+            twoQubitErrorRate?: number;
+            /** @description The physical operations shall include a finite set of gates capable of approximating any unitary operation on qubits. This is typically achieved through combinations of one-qubit gates and a two-qubit entangling gate, such as CNOT, enabling the execution of a broad range of quantum algorithms. */
+            universalGateSetEnabled?: boolean;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            errorCorrectionEnabled?: boolean;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            encryptionInUse?: components["schemas"]["EncryptionInUse"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            networkInterfaceIds?: string[];
+            redundancies?: components["schemas"]["Redundancy"][];
+            remoteAttestation?: components["schemas"]["RemoteAttestation"];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description RBAC is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RBAC: {
+            /**
+             * Format: float
+             * @description see Privacy Smells: Detecting Privacy Problems in Cloud Architectures (2020)
+             */
+            broadAssignments?: number;
+            /**
+             * Format: float
+             * @description see Privacy Smells: Detecting Privacy Problems in Cloud Architectures (2020)
+             */
+            mixedDuties?: number;
+        };
+        /**
+         * @description RateLimiting is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Rate limiting is used to control the frequency of incoming requests to prevent system overload
+         */
+        RateLimiting: {
+            enabled?: boolean;
+            /** Format: int32 */
+            maxRequests?: number;
+            /** Format: int32 */
+            timeWindowSeconds?: number;
+        };
+        /**
+         * @description ReadConfigurationGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to read a specific configuration group. Often this is done with a member access or a subscript operation on the configuration object, such as`conf.GROUP` or`conf["GROUP"]`.
+         */
+        ReadConfigurationGroup: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationGroupId?: string;
+        };
+        /**
+         * @description ReadConfigurationOption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to read a specific configuration option. Often this is done with a member access such as `group.option` or a subscript operation such as `group["option"]`.
+         */
+        ReadConfigurationOption: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationOptionId?: string;
+        };
+        Record: {
+            evidenceId: string;
+            /** Format: date-time */
+            evidenceRecordedAt: string;
+        };
+        /** @description Redundancy is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Redundancy: {
+            geoRedundancy?: components["schemas"]["GeoRedundancy"];
+            localRedundancy?: components["schemas"]["LocalRedundancy"];
+            zoneRedundancy?: components["schemas"]["ZoneRedundancy"];
+        };
+        /**
+         * @description RegisterConfigurationGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to register a new [ConfigurationGroup]. This is often done with a call, such as `conf.registerGroup("group")`. This might not be necessary for all configuration frameworks, some might allow to directly read the group (via [ReadConfigurationGroup]) without registering it first, or it is done implicitly. When code and configuration is interacting, we expect that the configuration file (such as an INI file) contains the [ConfigurationGroup] node and the code contains the [RegisterConfigurationGroup] and [ReadConfigurationGroup] nodes.
+         */
+        RegisterConfigurationGroup: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationGroupId?: string;
+        };
+        /**
+         * @description RegisterConfigurationOption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to register a new [ConfigurationOption]. This is often done with a call, such as `conf.registerOption("option", "defaultValue")`. This might not be necessary for all configuration frameworks, some might allow to directly read the group (via  [RegisterConfigurationOption]) without registering it first, or it is done implicitly. When code and configuration is interacting, we expect that the configuration file (such as an INI file) contains the [ConfigurationOption] node and the code contains the [RegisterConfigurationOption] and [ReadConfigurationOption] nodes.
+         */
+        RegisterConfigurationOption: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            configurationId?: string;
+            configurationOptionId?: string;
+        };
+        /** @description RegisterHttpEndpoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RegisterHttpEndpoint: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            httpRequestHandler?: components["schemas"]["HttpRequestHandler"];
+        };
+        /** @description RelationalDatabaseService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RelationalDatabaseService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            anomalyDetections?: components["schemas"]["AnomalyDetection"][];
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            httpEndpoint?: components["schemas"]["HttpEndpoint"];
+            loggings?: components["schemas"]["Logging"][];
+            malwareProtection?: components["schemas"]["MalwareProtection"];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            serviceMetadataDocumentId?: string;
+            storageIds?: string[];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description RemoteAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RemoteAttestation: {
+            /** Format: date-time */
+            creationTime?: string;
+            enabled?: boolean;
+            status?: boolean;
+        };
+        /** @description RemoteDataLocation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RemoteDataLocation: {
+            path?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            storageId?: string;
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+        };
+        /** @description ReportDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ReportDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /** @description Resource is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Resource: {
+            account?: components["schemas"]["Account"];
+            job?: components["schemas"]["Job"];
+            workflow?: components["schemas"]["Workflow"];
+            codeRepository?: components["schemas"]["CodeRepository"];
+            container?: components["schemas"]["Container"];
+            function?: components["schemas"]["Function"];
+            qpu?: components["schemas"]["QPU"];
+            virtualMachine?: components["schemas"]["VirtualMachine"];
+            containerOrchestration?: components["schemas"]["ContainerOrchestration"];
+            containerRegistry?: components["schemas"]["ContainerRegistry"];
+            certificate?: components["schemas"]["Certificate"];
+            key?: components["schemas"]["Key"];
+            secret?: components["schemas"]["Secret"];
+            identity?: components["schemas"]["Identity"];
+            roleAssignment?: components["schemas"]["RoleAssignment"];
+            containerImage?: components["schemas"]["ContainerImage"];
+            vmImage?: components["schemas"]["VMImage"];
+            deviceProvisioningService?: components["schemas"]["DeviceProvisioningService"];
+            messagingHub?: components["schemas"]["MessagingHub"];
+            keyVault?: components["schemas"]["KeyVault"];
+            networkInterface?: components["schemas"]["NetworkInterface"];
+            networkSecurityGroup?: components["schemas"]["NetworkSecurityGroup"];
+            functionService?: components["schemas"]["FunctionService"];
+            genericNetworkService?: components["schemas"]["GenericNetworkService"];
+            loadBalancer?: components["schemas"]["LoadBalancer"];
+            loggingService?: components["schemas"]["LoggingService"];
+            machineLearningService?: components["schemas"]["MachineLearningService"];
+            securityAdvisoryService?: components["schemas"]["SecurityAdvisoryService"];
+            documentDatabaseService?: components["schemas"]["DocumentDatabaseService"];
+            keyValueDatabaseService?: components["schemas"]["KeyValueDatabaseService"];
+            multiModalDatabaseService?: components["schemas"]["MultiModalDatabaseService"];
+            relationalDatabaseService?: components["schemas"]["RelationalDatabaseService"];
+            fileStorageService?: components["schemas"]["FileStorageService"];
+            objectStorageService?: components["schemas"]["ObjectStorageService"];
+            virtualNetwork?: components["schemas"]["VirtualNetwork"];
+            virtualSubNetwork?: components["schemas"]["VirtualSubNetwork"];
+            passwordPolicy?: components["schemas"]["PasswordPolicy"];
+            resourceGroup?: components["schemas"]["ResourceGroup"];
+            blockStorage?: components["schemas"]["BlockStorage"];
+            databaseStorage?: components["schemas"]["DatabaseStorage"];
+            fileStorage?: components["schemas"]["FileStorage"];
+            objectStorage?: components["schemas"]["ObjectStorage"];
+            configuration?: components["schemas"]["Configuration"];
+            configurationGroup?: components["schemas"]["ConfigurationGroup"];
+            configurationGroupSource?: components["schemas"]["ConfigurationGroupSource"];
+            configurationOption?: components["schemas"]["ConfigurationOption"];
+            configurationOptionSource?: components["schemas"]["ConfigurationOptionSource"];
+            configurationSource?: components["schemas"]["ConfigurationSource"];
+            context?: components["schemas"]["Context"];
+            configurationDocument?: components["schemas"]["ConfigurationDocument"];
+            cyberSecurityRiskAssessmentDocument?: components["schemas"]["CyberSecurityRiskAssessmentDocument"];
+            distributionOfUpdatesDocument?: components["schemas"]["DistributionOfUpdatesDocument"];
+            euDeclarationOfConformity?: components["schemas"]["EUDeclarationOfConformity"];
+            reportDocument?: components["schemas"]["ReportDocument"];
+            logDocument?: components["schemas"]["LogDocument"];
+            policyDocument?: components["schemas"]["PolicyDocument"];
+            productionAndMonitoringProcessDocument?: components["schemas"]["ProductionAndMonitoringProcessDocument"];
+            sbomDocument?: components["schemas"]["SBOMDocument"];
+            securityAdvisoryDocument?: components["schemas"]["SecurityAdvisoryDocument"];
+            serviceMetadataDocument?: components["schemas"]["ServiceMetadataDocument"];
+            userInformationAndIntructionDocument?: components["schemas"]["UserInformationAndIntructionDocument"];
+            file?: components["schemas"]["File"];
+            fileHandle?: components["schemas"]["FileHandle"];
+            machineLearningDataset?: components["schemas"]["MachineLearningDataset"];
+            machineLearningModel?: components["schemas"]["MachineLearningModel"];
+            coordinatedVulnerabilityDisclosurePolicy?: components["schemas"]["CoordinatedVulnerabilityDisclosurePolicy"];
+            andRule?: components["schemas"]["AndRule"];
+            token?: components["schemas"]["Token"];
+            value?: components["schemas"]["Value"];
+            contactPerson?: components["schemas"]["ContactPerson"];
+            monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
+            awarenessTraining?: components["schemas"]["AwarenessTraining"];
+            securityTraining?: components["schemas"]["SecurityTraining"];
+            memory?: components["schemas"]["Memory"];
+            product?: components["schemas"]["Product"];
+            application?: components["schemas"]["Application"];
+            library?: components["schemas"]["Library"];
+            package?: components["schemas"]["Package"];
+            sourceCodeFile?: components["schemas"]["SourceCodeFile"];
+            agnostic?: components["schemas"]["Agnostic"];
+            darwin?: components["schemas"]["Darwin"];
+            posix?: components["schemas"]["POSIX"];
+            win32?: components["schemas"]["Win32"];
+        };
+        /** @description ResourceGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ResourceGroup: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ResourceLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ResourceLogging: {
+            enabled?: boolean;
+            /** @description enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN */
+            logLevel?: string;
+            monitoringLogDataEnabled?: boolean;
+            retentionPeriod?: string;
+            securityAlertsEnabled?: boolean;
+            loggingServiceIds?: string[];
+        };
+        /**
+         * @description ResourceSnapshot is the persisted representation of a cloud resource.
+         *      It is distinct from confirmate.ontology.v1.Resource, which is the semantic
+         *      discriminated union of all concrete ontology types. ResourceSnapshot carries
+         *      metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
+         *      serialised ontology properties.
+         */
+        ResourceSnapshot: {
+            /**
+             * @description Id contains a unique ID for each resource. This is specific for the cloud
+             *      provider this resource was gathered for and can for example be a resource
+             *      URL.
+             */
+            id: string;
+            /**
+             * @description TargetOfEvaluationId is the UUID for the target of evaluation to which this resource
+             *      belongs to.
+             */
+            targetOfEvaluationId: string;
+            /**
+             * @description ResourceType contains a comma separated string of resource types according
+             *      to our ontology.
+             */
+            resourceType: string;
+            /** @description Reference to the tool which provided the resource */
+            toolId: string;
+            /** @description Semantic representation of the Cloud resource according to our defined ontology */
+            resource?: components["schemas"]["Resource"];
+        };
+        /** @description RobustnessScore is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RobustnessScore: Record<string, never>;
+        /** @description RoleAssignment is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        RoleAssignment: {
+            activated?: boolean;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            authorization?: components["schemas"]["Authorization"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        Runtime: {
+            /** @description release_version is the latest Confirmate release version for this commit */
+            releaseVersion?: string;
+            /** @description vcs is the used version control system */
+            vcs?: string;
+            /** @description commit_hash is the current Confirmate commit hash */
+            commitHash?: string;
+            /**
+             * Format: date-time
+             * @description commit_time is the time of the Confirmate commit
+             */
+            commitTime?: string;
+            /** @description golang_version is the used golang version */
+            golangVersion?: string;
+            /** @description dependency is a list of used runtime dependencies */
+            dependencies?: components["schemas"]["Dependency"][];
+        };
+        /** @description SBOMDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SBOMDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /** @description SchemaValidation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SchemaValidation: {
+            format?: string;
+            schemaUrl?: string;
+            errors?: components["schemas"]["Error"][];
+        };
+        /** @description Secret is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Secret: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            enabled?: boolean;
+            /** Format: date-time */
+            expirationDate?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            isManaged?: boolean;
+            /**
+             * Format: int32
+             * @description Key size refers to the length of a key used in an enryption.
+             */
+            keySize?: number;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** Format: date-time */
+            notBeforeDate?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            basedOn?: components["schemas"]["Cipher"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            usedByMultiple?: components["schemas"]["Infrastructure"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description SecurityAdvisoryDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SecurityAdvisoryDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+            vulnerabilities?: components["schemas"]["Vulnerability"][];
+        };
+        /** @description SecurityAdvisoryFeed is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SecurityAdvisoryFeed: {
+            securityAdvisoryDocumentIds?: string[];
+        };
+        /**
+         * @description SecurityAdvisoryService is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      This service discloses security advisories, e.g. according to the CSAF standard. It has one or more feeds that contain the actual advisories as well as multiple (public) keys that are used to sign the advisory documents.
+         */
+        SecurityAdvisoryService: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            ips?: string[];
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            ports?: number[];
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            authenticity?: components["schemas"]["Authenticity"];
+            computeIds?: string[];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            keyIds?: string[];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            securityAdvisoryFeeds?: components["schemas"]["SecurityAdvisoryFeed"][];
+            serviceMetadataDocumentId?: string;
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description SecurityFeature is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        SecurityFeature: {
+            anomalyDetection?: components["schemas"]["AnomalyDetection"];
+            codeSignoff?: components["schemas"]["CodeSignoff"];
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            applicationLogging?: components["schemas"]["ApplicationLogging"];
+            bootLogging?: components["schemas"]["BootLogging"];
+            osLogging?: components["schemas"]["OSLogging"];
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            malwareProtection?: components["schemas"]["MalwareProtection"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+            certificateBasedAuthentication?: components["schemas"]["CertificateBasedAuthentication"];
+            jwtAuthentication?: components["schemas"]["JwtAuthentication"];
+            multiFactorAuthentiation?: components["schemas"]["MultiFactorAuthentiation"];
+            noAuthentication?: components["schemas"]["NoAuthentication"];
+            otpBasedAuthentication?: components["schemas"]["OTPBasedAuthentication"];
+            passwordBasedAuthentication?: components["schemas"]["PasswordBasedAuthentication"];
+            singleSignOn?: components["schemas"]["SingleSignOn"];
+            abac?: components["schemas"]["ABAC"];
+            l3Firewall?: components["schemas"]["L3Firewall"];
+            webApplicationFirewall?: components["schemas"]["WebApplicationFirewall"];
+            rateLimiting?: components["schemas"]["RateLimiting"];
+            rbac?: components["schemas"]["RBAC"];
+            backup?: components["schemas"]["Backup"];
+            dDoSProtection?: components["schemas"]["DDoSProtection"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            geoRedundancy?: components["schemas"]["GeoRedundancy"];
+            localRedundancy?: components["schemas"]["LocalRedundancy"];
+            zoneRedundancy?: components["schemas"]["ZoneRedundancy"];
+            customerKeyEncryption?: components["schemas"]["CustomerKeyEncryption"];
+            diskEncryption?: components["schemas"]["DiskEncryption"];
+            managedKeyEncryption?: components["schemas"]["ManagedKeyEncryption"];
+            transportEncryption?: components["schemas"]["TransportEncryption"];
+            encryptionInUse?: components["schemas"]["EncryptionInUse"];
+            localAttestation?: components["schemas"]["LocalAttestation"];
+            remoteAttestation?: components["schemas"]["RemoteAttestation"];
+            automaticUpdates?: components["schemas"]["AutomaticUpdates"];
+            cryptographicHash?: components["schemas"]["CryptographicHash"];
+            immutability?: components["schemas"]["Immutability"];
+            documentSignature?: components["schemas"]["DocumentSignature"];
+            explainableResults?: components["schemas"]["ExplainableResults"];
+            robustnessScore?: components["schemas"]["RobustnessScore"];
+        };
+        /** @description SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SecurityTraining: {
+            annualUpdateCompleted?: boolean;
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            successfullyCompletedPercentage?: boolean;
+            parentId?: string;
+        };
+        /** @description ServiceMetadataDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ServiceMetadataDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        /** @description SingleSignOn is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SingleSignOn: {
+            contextIsChecked?: boolean;
+            enabled?: boolean;
+            /**
+             * Format: int32
+             * @description Maximum password rotation interval in months
+             */
+            rotationInterval?: number;
+        };
+        /** @description SourceCodeFile is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SourceCodeFile: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            parentId?: string;
         };
         StartEvaluationResponse: {
             successful?: boolean;
@@ -68,6 +4606,382 @@ export interface components {
             details?: components["schemas"]["GoogleProtobufAny"][];
         };
         StopEvaluationResponse: Record<string, never>;
+        /**
+         * @description StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a
+         *      custom unary RPC and therefore requires a response message according to the
+         *      style convention. Since no return values are required, this is empty.
+         */
+        StoreAssessmentResultResponse: Record<string, never>;
+        /** @description StoreEvidenceResponse belongs to StoreEvidence, which uses a custom unary RPC and therefore requires a response message according to the style convention. Since no return values are required, this is empty. */
+        StoreEvidenceResponse: Record<string, never>;
+        /**
+         * @description SymmetricCipher is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a symmetric cipher.
+         */
+        SymmetricCipher: {
+            /**
+             * Format: int32
+             * @description AuthTagSize of a symmetric cipher
+             */
+            authTagSize?: number;
+            /**
+             * Format: int32
+             * @description Block size of a cipher.
+             */
+            blockSize?: number;
+            /** @description Name of a cryptographic cipher. */
+            cipherName?: string;
+            /**
+             * Format: int32
+             * @description Key size refers to the length of a key used in an enryption.
+             */
+            keySize?: number;
+            /** @description Describes a modus of something being executed. (e.g. used by an Encryption) */
+            modus?: string;
+            initializationVector?: components["schemas"]["InitializationVector"];
+            padding?: components["schemas"]["Padding"];
+        };
+        TargetOfEvaluation: {
+            id: string;
+            name: string;
+            description?: string;
+            configuredMetrics: components["schemas"]["Metric"][];
+            /**
+             * Format: date-time
+             * @description creation time of the target_of_evaluation
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description last update time of the target_of_evaluation
+             */
+            updatedAt?: string;
+            /** @description additional metadata of the target of evaluation, mostly used for the UI */
+            metadata?: components["schemas"]["TargetOfEvaluation_Metadata"];
+            /**
+             * Format: enum
+             * @description type of the target to be evaluated: cloud, product or organization
+             * @enum {string}
+             */
+            targetType: "TARGET_TYPE_UNSPECIFIED" | "TARGET_TYPE_CLOUD" | "TARGET_TYPE_PRODUCT" | "TARGET_TYPE_ORGANIZATION";
+            /**
+             * @description List of user IDs with explicit permission to view this target (Read-only).
+             *      If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+             */
+            readers?: components["schemas"]["User"][];
+            /**
+             * @description List of user IDs responsible for the content and maintenance of this target.
+             *      These users can modify settings and data but cannot manage other users' access.
+             */
+            contributors?: components["schemas"]["User"][];
+            /**
+             * @description List of user IDs with administrative control over this target.
+             *      These users can manage permissions for others and perform destructive actions like deletion.
+             */
+            admins?: components["schemas"]["User"][];
+        };
+        TargetOfEvaluation_Metadata: {
+            /** @description a map of key/value pairs, e.g., env:prod */
+            labels?: {
+                [key: string]: string;
+            };
+            /** @description an icon for the target of evaluation used by the UI */
+            icon?: string;
+        };
+        /** @description Time is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Time: Record<string, never>;
+        /**
+         * @description Token is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A Token used for TokenBasedAuthentication.
+         */
+        Token: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /**
+         * @description TransportEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      enabled means the resource _can_ be reached via https, while enforced means it _can only_ be reached via https (or http traffic is redirected)
+         */
+        TransportEncryption: {
+            enabled?: boolean;
+            enforced?: boolean;
+            protocol?: string;
+            /** Format: float */
+            protocolVersion?: number;
+            /** @description tlsSignatureAlgorithm: e.g., rsa_pss_rsae_sha256/384/512, ecdsa_secp256r1_sha256, ed25519 */
+            tlsSignatureAlgorithm?: string;
+            basedOn?: components["schemas"]["Cipher"];
+            cipherSuites?: components["schemas"]["CipherSuite"][];
+            secretId?: string;
+        };
+        /** @description UnlockEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        UnlockEncryptedDisk: {
+            codeRegion?: components["schemas"]["CodeRegion"];
+            diskEncryption?: components["schemas"]["DiskEncryption"];
+        };
+        UpdateResourceRequest: {
+            resource: components["schemas"]["ResourceSnapshot"];
+        };
+        UpsertUserPermissionResponse: {
+            userPermission?: components["schemas"]["UserPermission"];
+        };
+        /** @description UsageStatistics is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        UsageStatistics: {
+            /** Format: int32 */
+            apiHitsPerMonth?: number;
+        };
+        /** @description Represents a user from the IdP */
+        User: {
+            /** @description ID is the unique identifier of the user */
+            id: string;
+            /** @description Username is the name used to be displayed */
+            username?: string;
+            /** @description Email is the email address of the user, if available. */
+            email?: string;
+            /** @description FirstName is the first name of the user, if available. */
+            firstName?: string;
+            /** @description LastName is the last name of the user, if available. */
+            lastName?: string;
+            /** @description Roles represent the roles assigned to the user in the system, which determine their permissions and access levels. */
+            roles?: ("ROLE_UNSPECIFIED" | "ROLE_ADMIN" | "ROLE_COMPLIANCE_MANAGER" | "ROLE_EXPERT_COMPLIANCE_MANAGER" | "ROLE_INTERNAL_CONTROL_OWNER" | "ROLE_TECHNICAL_IMPLEMENTER" | "ROLE_AUDITOR" | "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER")[];
+            /** @description Enabled indicates whether the user is active/enabled in the system */
+            enabled?: boolean;
+            /** @description Attributes contains additional key-value pairs associated with the user, such as department or team. */
+            attributes?: {
+                [key: string]: string;
+            };
+            /**
+             * Format: date-time
+             * @description LastAccess indicates the last time the user accessed the system.
+             */
+            lastAccess?: string;
+        };
+        /** @description UserInformationAndIntructionDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        UserInformationAndIntructionDocument: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            filetype?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            cryptographicHashs?: components["schemas"]["CryptographicHash"][];
+            dataLocation?: components["schemas"]["DataLocation"];
+            documentSignatures?: components["schemas"]["DocumentSignature"][];
+            parentId?: string;
+            validatedBy?: components["schemas"]["SchemaValidation"];
+            securityFeatures?: components["schemas"]["SecurityFeature"][];
+        };
+        UserPermission: {
+            /** @description User ID is required to identify the user for whom the perission is being upserted. */
+            userId: string;
+            /** @description Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope. */
+            resourceId: string;
+            /**
+             * Format: enum
+             * @description Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+             * @enum {string}
+             */
+            resourceType: "OBJECT_TYPE_UNSPECIFIED" | "OBJECT_TYPE_METRIC" | "OBJECT_TYPE_METRIC_CONFIGURATION" | "OBJECT_TYPE_METRIC_IMPLEMENTATION" | "OBJECT_TYPE_TARGET_OF_EVALUATION" | "OBJECT_TYPE_AUDIT_SCOPE" | "OBJECT_TYPE_ASSESSMENT_RESULT" | "OBJECT_TYPE_ASSESSMENT_TOOL" | "OBJECT_TYPE_USER" | "OBJECT_TYPE_USER_PERMISSION" | "OBJECT_TYPE_CERTIFICATE" | "OBJECT_TYPE_CATALOG" | "OBJECT_TYPE_CATEGORY" | "OBJECT_TYPE_CONTROL" | "OBJECT_TYPE_EVALUATION_RESULT" | "OBJECT_TYPE_EVIDENCE";
+            /**
+             * Format: enum
+             * @description Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+             * @enum {string}
+             */
+            permission: "PERMISSION_UNSPECIFIED" | "PERMISSION_READER" | "PERMISSION_CONTRIBUTOR" | "PERMISSION_ADMIN";
+        };
+        /** @description VMImage is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        VMImage: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            applicationId?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description ValidateJwt is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents an operation to check the validity of a JWT token.
+         */
+        ValidateJwt: {
+            authenticity?: components["schemas"]["Authenticity"];
+            codeRegion?: components["schemas"]["CodeRegion"];
+        };
+        /**
+         * @description Value is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      The node that represents the "value" of this option. For example, in an INI file, this would be the [FieldDeclaration.initializer] node that represents the value.
+         */
+        Value: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            dataLocation?: components["schemas"]["DataLocation"];
+            parentId?: string;
+        };
+        /** @description VirtualMachine is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        VirtualMachine: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            activityLogging?: components["schemas"]["ActivityLogging"];
+            automaticUpdates?: components["schemas"]["AutomaticUpdates"];
+            blockStorageIds?: string[];
+            bootLogging?: components["schemas"]["BootLogging"];
+            encryptionInUse?: components["schemas"]["EncryptionInUse"];
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            malwareProtection?: components["schemas"]["MalwareProtection"];
+            networkInterfaceIds?: string[];
+            osLogging?: components["schemas"]["OSLogging"];
+            redundancies?: components["schemas"]["Redundancy"][];
+            remoteAttestation?: components["schemas"]["RemoteAttestation"];
+            parentId?: string;
+            resourceLogging?: components["schemas"]["ResourceLogging"];
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description VirtualNetwork is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        VirtualNetwork: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description VirtualSubNetwork is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        VirtualSubNetwork: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description Vulnerability is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      cve: Common Vulnerabilities and Exposures
+         *      cwe: Common Weakness Enumeration
+         */
+        Vulnerability: {
+            /** @description criticality: Contains the criticality of a vulnerability, e.g., low, medium, high, critical */
+            criticality?: string;
+            cve?: string;
+            cwe?: string[];
+            description?: string;
+            /** @description exploitable: Indicates whether a vulnerability is exploitable for the given target of evaluation (TOE) */
+            exploitable?: boolean;
+            url?: string;
+        };
+        /**
+         * @description WebApplicationFirewall is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      A WAF is a L7 firewall that includes L3 capabilities
+         */
+        WebApplicationFirewall: {
+            enabled?: boolean;
+        };
+        /**
+         * @description Win32 is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a Win32 architecture, commonly found on Windows systems.
+         */
+        Win32: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            codeModuleIds?: string[];
+            codeRepositoryId?: string;
+            functionalities?: components["schemas"]["Functionality"][];
+            parentId?: string;
+        };
+        /** @description Workflow is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        Workflow: {
+            /** Format: date-time */
+            creationTime?: string;
+            description?: string;
+            id?: string;
+            internetAccessibleEndpoint?: boolean;
+            labels?: {
+                [key: string]: string;
+            };
+            name?: string;
+            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
+            raw?: string;
+            geoLocation?: components["schemas"]["GeoLocation"];
+            loggings?: components["schemas"]["Logging"][];
+            redundancies?: components["schemas"]["Redundancy"][];
+            parentId?: string;
+            usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /** @description ZoneRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ZoneRedundancy: {
+            geoLocations?: components["schemas"]["GeoLocation"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -75,12 +4989,303 @@ export interface components {
     headers: never;
     pathItems: never;
 }
+export type SchemaAbac = components['schemas']['ABAC'];
+export type SchemaAccessRestriction = components['schemas']['AccessRestriction'];
+export type SchemaAccount = components['schemas']['Account'];
+export type SchemaActivityLogging = components['schemas']['ActivityLogging'];
+export type SchemaAgnostic = components['schemas']['Agnostic'];
+export type SchemaAllocate = components['schemas']['Allocate'];
+export type SchemaAndRule = components['schemas']['AndRule'];
+export type SchemaAnomalyDetection = components['schemas']['AnomalyDetection'];
+export type SchemaApplication = components['schemas']['Application'];
+export type SchemaApplicationLogging = components['schemas']['ApplicationLogging'];
+export type SchemaAssessEvidenceResponse = components['schemas']['AssessEvidenceResponse'];
+export type SchemaAssessmentResult = components['schemas']['AssessmentResult'];
+export type SchemaAssessmentTool = components['schemas']['AssessmentTool'];
+export type SchemaAsymmetricCipher = components['schemas']['AsymmetricCipher'];
+export type SchemaAtRestEncryption = components['schemas']['AtRestEncryption'];
+export type SchemaAuditScope = components['schemas']['AuditScope'];
+export type SchemaAuthenticate = components['schemas']['Authenticate'];
+export type SchemaAuthenticity = components['schemas']['Authenticity'];
+export type SchemaAuthorization = components['schemas']['Authorization'];
+export type SchemaAuthorizeJwt = components['schemas']['AuthorizeJwt'];
+export type SchemaAutomaticUpdates = components['schemas']['AutomaticUpdates'];
+export type SchemaAwarenessTraining = components['schemas']['AwarenessTraining'];
+export type SchemaBackup = components['schemas']['Backup'];
+export type SchemaBlockStorage = components['schemas']['BlockStorage'];
+export type SchemaBlockStorageOperation = components['schemas']['BlockStorageOperation'];
+export type SchemaBootLogging = components['schemas']['BootLogging'];
+export type SchemaBoundary = components['schemas']['Boundary'];
+export type SchemaCatalog = components['schemas']['Catalog'];
+export type SchemaCatalogMetadata = components['schemas']['Catalog_Metadata'];
+export type SchemaCategory = components['schemas']['Category'];
+export type SchemaCertificate = components['schemas']['Certificate'];
+export type SchemaCertificateBasedAuthentication = components['schemas']['CertificateBasedAuthentication'];
+export type SchemaCheckAccess = components['schemas']['CheckAccess'];
+export type SchemaCipher = components['schemas']['Cipher'];
+export type SchemaCipherSuite = components['schemas']['CipherSuite'];
+export type SchemaCodeRegion = components['schemas']['CodeRegion'];
+export type SchemaCodeRepository = components['schemas']['CodeRepository'];
+export type SchemaCodeSignoff = components['schemas']['CodeSignoff'];
+export type SchemaComparisonResult = components['schemas']['ComparisonResult'];
+export type SchemaConfiguration = components['schemas']['Configuration'];
+export type SchemaConfigurationDocument = components['schemas']['ConfigurationDocument'];
+export type SchemaConfigurationGroup = components['schemas']['ConfigurationGroup'];
+export type SchemaConfigurationGroupSource = components['schemas']['ConfigurationGroupSource'];
+export type SchemaConfigurationOption = components['schemas']['ConfigurationOption'];
+export type SchemaConfigurationOptionSource = components['schemas']['ConfigurationOptionSource'];
+export type SchemaConfigurationSource = components['schemas']['ConfigurationSource'];
+export type SchemaContactPerson = components['schemas']['ContactPerson'];
+export type SchemaContainer = components['schemas']['Container'];
+export type SchemaContainerImage = components['schemas']['ContainerImage'];
+export type SchemaContainerOrchestration = components['schemas']['ContainerOrchestration'];
+export type SchemaContainerRegistry = components['schemas']['ContainerRegistry'];
+export type SchemaContext = components['schemas']['Context'];
+export type SchemaControl = components['schemas']['Control'];
+export type SchemaCoordinatedVulnerabilityDisclosurePolicy = components['schemas']['CoordinatedVulnerabilityDisclosurePolicy'];
+export type SchemaCreateEncryptedDisk = components['schemas']['CreateEncryptedDisk'];
+export type SchemaCreateSecret = components['schemas']['CreateSecret'];
+export type SchemaCryptographicHash = components['schemas']['CryptographicHash'];
+export type SchemaCustomHttpPattern = components['schemas']['CustomHttpPattern'];
+export type SchemaCustomerKeyEncryption = components['schemas']['CustomerKeyEncryption'];
+export type SchemaCyberSecurityRiskAssessmentDocument = components['schemas']['CyberSecurityRiskAssessmentDocument'];
+export type SchemaDDoSProtection = components['schemas']['DDoSProtection'];
+export type SchemaDarwin = components['schemas']['Darwin'];
+export type SchemaDataLocation = components['schemas']['DataLocation'];
+export type SchemaDatabaseConnect = components['schemas']['DatabaseConnect'];
+export type SchemaDatabaseQuery = components['schemas']['DatabaseQuery'];
+export type SchemaDatabaseStorage = components['schemas']['DatabaseStorage'];
+export type SchemaDeAllocate = components['schemas']['DeAllocate'];
+export type SchemaDecryption = components['schemas']['Decryption'];
+export type SchemaDependency = components['schemas']['Dependency'];
+export type SchemaDeviceProvisioningService = components['schemas']['DeviceProvisioningService'];
+export type SchemaDiskEncryption = components['schemas']['DiskEncryption'];
+export type SchemaDistributionOfUpdatesDocument = components['schemas']['DistributionOfUpdatesDocument'];
+export type SchemaDocumentDatabaseService = components['schemas']['DocumentDatabaseService'];
+export type SchemaDocumentSignature = components['schemas']['DocumentSignature'];
+export type SchemaDynamicLoading = components['schemas']['DynamicLoading'];
+export type SchemaEuDeclarationOfConformity = components['schemas']['EUDeclarationOfConformity'];
+export type SchemaEncryption = components['schemas']['Encryption'];
+export type SchemaEncryptionInUse = components['schemas']['EncryptionInUse'];
+export type SchemaEncryptionOperation = components['schemas']['EncryptionOperation'];
+export type SchemaEntryPoint = components['schemas']['EntryPoint'];
+export type SchemaEqualityCheck = components['schemas']['EqualityCheck'];
+export type SchemaError = components['schemas']['Error'];
+export type SchemaEvaluationResult = components['schemas']['EvaluationResult'];
+export type SchemaEvidence = components['schemas']['Evidence'];
+export type SchemaExitBoundaryOperation = components['schemas']['ExitBoundaryOperation'];
+export type SchemaExplainableResults = components['schemas']['ExplainableResults'];
+export type SchemaFile = components['schemas']['File'];
+export type SchemaFileHandle = components['schemas']['FileHandle'];
+export type SchemaFileOperation = components['schemas']['FileOperation'];
+export type SchemaFileStorage = components['schemas']['FileStorage'];
+export type SchemaFileStorageService = components['schemas']['FileStorageService'];
+export type SchemaFunction = components['schemas']['Function'];
+export type SchemaFunctionService = components['schemas']['FunctionService'];
+export type SchemaFunctionality = components['schemas']['Functionality'];
+export type SchemaGenericNetworkService = components['schemas']['GenericNetworkService'];
+export type SchemaGeoLocation = components['schemas']['GeoLocation'];
+export type SchemaGeoRedundancy = components['schemas']['GeoRedundancy'];
+export type SchemaGetCurrentTimeOperation = components['schemas']['GetCurrentTimeOperation'];
+export type SchemaGetEvaluationStatusResponse = components['schemas']['GetEvaluationStatusResponse'];
+export type SchemaGetSecret = components['schemas']['GetSecret'];
+export type SchemaGetTargetOfEvaluationStatisticsResponse = components['schemas']['GetTargetOfEvaluationStatisticsResponse'];
 export type SchemaGoogleProtobufAny = components['schemas']['GoogleProtobufAny'];
+export type SchemaGoogleProtobufValue = components['schemas']['GoogleProtobufValue'];
+export type SchemaGraphEdge = components['schemas']['GraphEdge'];
+export type SchemaHashOperation = components['schemas']['HashOperation'];
+export type SchemaHttp = components['schemas']['Http'];
+export type SchemaHttpClient = components['schemas']['HttpClient'];
+export type SchemaHttpEndpoint = components['schemas']['HttpEndpoint'];
+export type SchemaHttpEndpointOperation = components['schemas']['HttpEndpointOperation'];
+export type SchemaHttpRequest = components['schemas']['HttpRequest'];
+export type SchemaHttpRequestContext = components['schemas']['HttpRequestContext'];
+export type SchemaHttpRequestHandler = components['schemas']['HttpRequestHandler'];
+export type SchemaHttpRule = components['schemas']['HttpRule'];
+export type SchemaHybridCipher = components['schemas']['HybridCipher'];
+export type SchemaIdentity = components['schemas']['Identity'];
+export type SchemaImmutability = components['schemas']['Immutability'];
+export type SchemaInfrastructure = components['schemas']['Infrastructure'];
+export type SchemaInitializationVector = components['schemas']['InitializationVector'];
+export type SchemaInput = components['schemas']['Input'];
+export type SchemaInputValidationOperation = components['schemas']['InputValidationOperation'];
+export type SchemaInstallUpdateOperation = components['schemas']['InstallUpdateOperation'];
+export type SchemaIssueJwt = components['schemas']['IssueJwt'];
+export type SchemaJob = components['schemas']['Job'];
+export type SchemaJwtAuthentication = components['schemas']['JwtAuthentication'];
+export type SchemaKey = components['schemas']['Key'];
+export type SchemaKeyDerivationFunction = components['schemas']['KeyDerivationFunction'];
+export type SchemaKeyValueDatabaseService = components['schemas']['KeyValueDatabaseService'];
+export type SchemaKeyVault = components['schemas']['KeyVault'];
+export type SchemaL3Firewall = components['schemas']['L3Firewall'];
+export type SchemaLibrary = components['schemas']['Library'];
+export type SchemaLibraryEntryPoint = components['schemas']['LibraryEntryPoint'];
+export type SchemaListAssessmentResultsResponse = components['schemas']['ListAssessmentResultsResponse'];
+export type SchemaListAssessmentToolsResponse = components['schemas']['ListAssessmentToolsResponse'];
+export type SchemaListAuditScopesResponse = components['schemas']['ListAuditScopesResponse'];
+export type SchemaListCatalogsResponse = components['schemas']['ListCatalogsResponse'];
+export type SchemaListCertificatesResponse = components['schemas']['ListCertificatesResponse'];
+export type SchemaListControlsResponse = components['schemas']['ListControlsResponse'];
+export type SchemaListEvaluationResultsResponse = components['schemas']['ListEvaluationResultsResponse'];
+export type SchemaListEvidencesResponse = components['schemas']['ListEvidencesResponse'];
+export type SchemaListGraphEdgesResponse = components['schemas']['ListGraphEdgesResponse'];
+export type SchemaListMetricConfigurationResponse = components['schemas']['ListMetricConfigurationResponse'];
+export type SchemaListMetricsResponse = components['schemas']['ListMetricsResponse'];
+export type SchemaListPublicCertificatesResponse = components['schemas']['ListPublicCertificatesResponse'];
+export type SchemaListResourcesResponse = components['schemas']['ListResourcesResponse'];
+export type SchemaListSupportedResourceTypesResponse = components['schemas']['ListSupportedResourceTypesResponse'];
+export type SchemaListTargetsOfEvaluationResponse = components['schemas']['ListTargetsOfEvaluationResponse'];
+export type SchemaListToolsResponse = components['schemas']['ListToolsResponse'];
+export type SchemaListUserPermissionsResponse = components['schemas']['ListUserPermissionsResponse'];
+export type SchemaListUserRolesResponse = components['schemas']['ListUserRolesResponse'];
+export type SchemaListUsersResponse = components['schemas']['ListUsersResponse'];
+export type SchemaLoadBalancer = components['schemas']['LoadBalancer'];
+export type SchemaLoadConfiguration = components['schemas']['LoadConfiguration'];
+export type SchemaLoadLibrary = components['schemas']['LoadLibrary'];
+export type SchemaLoadSymbol = components['schemas']['LoadSymbol'];
+export type SchemaLocalAttestation = components['schemas']['LocalAttestation'];
+export type SchemaLocalDataLocation = components['schemas']['LocalDataLocation'];
+export type SchemaLocalRedundancy = components['schemas']['LocalRedundancy'];
+export type SchemaLogDocument = components['schemas']['LogDocument'];
+export type SchemaLogGet = components['schemas']['LogGet'];
+export type SchemaLogOutput = components['schemas']['LogOutput'];
+export type SchemaLogWrite = components['schemas']['LogWrite'];
+export type SchemaLogging = components['schemas']['Logging'];
+export type SchemaLoggingService = components['schemas']['LoggingService'];
+export type SchemaMachineLearningDataset = components['schemas']['MachineLearningDataset'];
+export type SchemaMachineLearningModel = components['schemas']['MachineLearningModel'];
+export type SchemaMachineLearningService = components['schemas']['MachineLearningService'];
+export type SchemaMain = components['schemas']['Main'];
+export type SchemaMalwareProtection = components['schemas']['MalwareProtection'];
+export type SchemaManagedKeyEncryption = components['schemas']['ManagedKeyEncryption'];
+export type SchemaMemory = components['schemas']['Memory'];
+export type SchemaMessageAuthenticationCode = components['schemas']['MessageAuthenticationCode'];
+export type SchemaMessagingHub = components['schemas']['MessagingHub'];
+export type SchemaMetric = components['schemas']['Metric'];
+export type SchemaMetricConfiguration = components['schemas']['MetricConfiguration'];
+export type SchemaMetricImplementation = components['schemas']['MetricImplementation'];
+export type SchemaMonitoringProcedure = components['schemas']['MonitoringProcedure'];
+export type SchemaMultiFactorAuthentiation = components['schemas']['MultiFactorAuthentiation'];
+export type SchemaMultiModalDatabaseService = components['schemas']['MultiModalDatabaseService'];
+export type SchemaNetworkInterface = components['schemas']['NetworkInterface'];
+export type SchemaNetworkSecurityGroup = components['schemas']['NetworkSecurityGroup'];
+export type SchemaNoAuthentication = components['schemas']['NoAuthentication'];
+export type SchemaOsLogging = components['schemas']['OSLogging'];
+export type SchemaOtpBasedAuthentication = components['schemas']['OTPBasedAuthentication'];
+export type SchemaObjectStorage = components['schemas']['ObjectStorage'];
+export type SchemaObjectStorageRequest = components['schemas']['ObjectStorageRequest'];
+export type SchemaObjectStorageService = components['schemas']['ObjectStorageService'];
+export type SchemaOperatingSystemArchitecture = components['schemas']['OperatingSystemArchitecture'];
+export type SchemaOutput = components['schemas']['Output'];
+export type SchemaPosix = components['schemas']['POSIX'];
+export type SchemaPackage = components['schemas']['Package'];
+export type SchemaPadding = components['schemas']['Padding'];
+export type SchemaPasswordBasedAuthentication = components['schemas']['PasswordBasedAuthentication'];
+export type SchemaPasswordPolicy = components['schemas']['PasswordPolicy'];
+export type SchemaPolicyDocument = components['schemas']['PolicyDocument'];
+export type SchemaPrincipal = components['schemas']['Principal'];
+export type SchemaProduct = components['schemas']['Product'];
+export type SchemaProductionAndMonitoringProcessDocument = components['schemas']['ProductionAndMonitoringProcessDocument'];
+export type SchemaProtectedAsset = components['schemas']['ProtectedAsset'];
+export type SchemaProvideConfiguration = components['schemas']['ProvideConfiguration'];
+export type SchemaProvideConfigurationGroup = components['schemas']['ProvideConfigurationGroup'];
+export type SchemaProvideConfigurationOption = components['schemas']['ProvideConfigurationOption'];
+export type SchemaQpu = components['schemas']['QPU'];
+export type SchemaRbac = components['schemas']['RBAC'];
+export type SchemaRateLimiting = components['schemas']['RateLimiting'];
+export type SchemaReadConfigurationGroup = components['schemas']['ReadConfigurationGroup'];
+export type SchemaReadConfigurationOption = components['schemas']['ReadConfigurationOption'];
+export type SchemaRecord = components['schemas']['Record'];
+export type SchemaRedundancy = components['schemas']['Redundancy'];
+export type SchemaRegisterConfigurationGroup = components['schemas']['RegisterConfigurationGroup'];
+export type SchemaRegisterConfigurationOption = components['schemas']['RegisterConfigurationOption'];
+export type SchemaRegisterHttpEndpoint = components['schemas']['RegisterHttpEndpoint'];
+export type SchemaRelationalDatabaseService = components['schemas']['RelationalDatabaseService'];
+export type SchemaRemoteAttestation = components['schemas']['RemoteAttestation'];
+export type SchemaRemoteDataLocation = components['schemas']['RemoteDataLocation'];
+export type SchemaReportDocument = components['schemas']['ReportDocument'];
+export type SchemaResource = components['schemas']['Resource'];
+export type SchemaResourceGroup = components['schemas']['ResourceGroup'];
+export type SchemaResourceLogging = components['schemas']['ResourceLogging'];
+export type SchemaResourceSnapshot = components['schemas']['ResourceSnapshot'];
+export type SchemaRobustnessScore = components['schemas']['RobustnessScore'];
+export type SchemaRoleAssignment = components['schemas']['RoleAssignment'];
+export type SchemaRuntime = components['schemas']['Runtime'];
+export type SchemaSbomDocument = components['schemas']['SBOMDocument'];
+export type SchemaSchemaValidation = components['schemas']['SchemaValidation'];
+export type SchemaSecret = components['schemas']['Secret'];
+export type SchemaSecurityAdvisoryDocument = components['schemas']['SecurityAdvisoryDocument'];
+export type SchemaSecurityAdvisoryFeed = components['schemas']['SecurityAdvisoryFeed'];
+export type SchemaSecurityAdvisoryService = components['schemas']['SecurityAdvisoryService'];
+export type SchemaSecurityFeature = components['schemas']['SecurityFeature'];
+export type SchemaSecurityTraining = components['schemas']['SecurityTraining'];
+export type SchemaServiceMetadataDocument = components['schemas']['ServiceMetadataDocument'];
+export type SchemaSingleSignOn = components['schemas']['SingleSignOn'];
+export type SchemaSourceCodeFile = components['schemas']['SourceCodeFile'];
 export type SchemaStartEvaluationResponse = components['schemas']['StartEvaluationResponse'];
 export type SchemaStatus = components['schemas']['Status'];
 export type SchemaStopEvaluationResponse = components['schemas']['StopEvaluationResponse'];
+export type SchemaStoreAssessmentResultResponse = components['schemas']['StoreAssessmentResultResponse'];
+export type SchemaStoreEvidenceResponse = components['schemas']['StoreEvidenceResponse'];
+export type SchemaSymmetricCipher = components['schemas']['SymmetricCipher'];
+export type SchemaTargetOfEvaluation = components['schemas']['TargetOfEvaluation'];
+export type SchemaTargetOfEvaluationMetadata = components['schemas']['TargetOfEvaluation_Metadata'];
+export type SchemaTime = components['schemas']['Time'];
+export type SchemaToken = components['schemas']['Token'];
+export type SchemaTransportEncryption = components['schemas']['TransportEncryption'];
+export type SchemaUnlockEncryptedDisk = components['schemas']['UnlockEncryptedDisk'];
+export type SchemaUpdateResourceRequest = components['schemas']['UpdateResourceRequest'];
+export type SchemaUpsertUserPermissionResponse = components['schemas']['UpsertUserPermissionResponse'];
+export type SchemaUsageStatistics = components['schemas']['UsageStatistics'];
+export type SchemaUser = components['schemas']['User'];
+export type SchemaUserInformationAndIntructionDocument = components['schemas']['UserInformationAndIntructionDocument'];
+export type SchemaUserPermission = components['schemas']['UserPermission'];
+export type SchemaVmImage = components['schemas']['VMImage'];
+export type SchemaValidateJwt = components['schemas']['ValidateJwt'];
+export type SchemaValue = components['schemas']['Value'];
+export type SchemaVirtualMachine = components['schemas']['VirtualMachine'];
+export type SchemaVirtualNetwork = components['schemas']['VirtualNetwork'];
+export type SchemaVirtualSubNetwork = components['schemas']['VirtualSubNetwork'];
+export type SchemaVulnerability = components['schemas']['Vulnerability'];
+export type SchemaWebApplicationFirewall = components['schemas']['WebApplicationFirewall'];
+export type SchemaWin32 = components['schemas']['Win32'];
+export type SchemaWorkflow = components['schemas']['Workflow'];
+export type SchemaZoneRedundancy = components['schemas']['ZoneRedundancy'];
 export type $defs = Record<string, never>;
 export interface operations {
+    Assessment_AssessEvidence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Evidence"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessEvidenceResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
     Evaluation_StartEvaluation: {
         parameters: {
             query?: {
@@ -118,6 +5323,37 @@ export interface operations {
             };
         };
     };
+    Evaluation_GetEvaluationStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auditScopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetEvaluationStatusResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
     Evaluation_StopEvaluation: {
         parameters: {
             query?: never;
@@ -137,6 +5373,2127 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["StopEvaluationResponse"];
                 };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListEvaluationResults: {
+        parameters: {
+            query?: {
+                /** @description Optional. Lists only evaluation results for a specific target of evaluation. */
+                "filter.targetOfEvaluationId"?: string;
+                /** @description Optional. Lists only evaluation results for a specific catalog. */
+                "filter.catalogId"?: string;
+                /** @description Optional. Lists only evaluation results for a specific control id. */
+                "filter.controlId"?: string;
+                /**
+                 * @description Optional. Lists all evaluation results for the given initial control id
+                 *      substring, e.g., if the substring 'CMK-01.' is given it returns the
+                 *      controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+                 */
+                "filter.subControls"?: string;
+                /** @description Optional. Lists only results for parent controls */
+                "filter.parentsOnly"?: boolean;
+                /** @description Optional. Lists only manual results in their validity period */
+                "filter.validManualOnly"?: boolean;
+                /** @description Optional. Lists only evaluation results for a specific audit scope. */
+                "filter.auditScopeId"?: string;
+                /** @description Optional. Latest results grouped by control_id. */
+                latestByControlId?: boolean;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListEvaluationResultsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_StoreEvaluationResult: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvaluationResult"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationResult"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    EvidenceStore_StoreEvidence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Evidence"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreEvidenceResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    EvidenceStore_ListEvidences: {
+        parameters: {
+            query?: {
+                "filter.targetOfEvaluationId"?: string;
+                "filter.toolId"?: string;
+                /** @description page_size: 0 = default (50 is default value), > 0 = set value (i.e. page_size = 5 -> SQL-Limit = 5) */
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListEvidencesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    EvidenceStore_GetEvidence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidenceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Evidence"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    EvidenceStore_ListResources: {
+        parameters: {
+            query?: {
+                "filter.type"?: string;
+                "filter.targetOfEvaluationId"?: string;
+                "filter.toolId"?: string;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListResourcesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Resources_ListGraphEdges: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListGraphEdgesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Resources_UpdateResource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "resource.id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateResourceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceSnapshot"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    EvidenceStore_ListSupportedResourceTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListSupportedResourceTypesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    EvidenceStore_ListTools: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListToolsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListAssessmentResults: {
+        parameters: {
+            query?: {
+                /** @description Optional. List only assessment results of a specific target of evaluation. */
+                "filter.targetOfEvaluationId"?: string;
+                /** @description Optional. List only compliant assessment results. */
+                "filter.compliant"?: boolean;
+                /** @description Optional. List only assessment results of a specific metric id. */
+                "filter.metricIds"?: string[];
+                "filter.metricId"?: string;
+                /** @description Optional. List only assessment result from a specific assessment tool. */
+                "filter.toolId"?: string;
+                /** @description Optional. List only assessment result from a specific list of IDs. */
+                "filter.assessmentResultIds"?: string[];
+                /** @description Optional. Latest results grouped by resource_id and metric_id. */
+                latestByResourceId?: boolean;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAssessmentResultsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_StoreAssessmentResult: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssessmentResult"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreAssessmentResultResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetAssessmentResult: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentResult"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListAssessmentTools: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAssessmentToolsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RegisterAssessmentTool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssessmentTool"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentTool"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateAssessmentTool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "tool.id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssessmentTool"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentTool"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetAssessmentTool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentTool"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_DeregisterAssessmentTool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                toolId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListAuditScopes: {
+        parameters: {
+            query?: {
+                /** @description Optional. List only audit scopes of a specific target of evaluation */
+                "filter.targetOfEvaluationId"?: string;
+                /** @description Optional. List only audit scopes that evaluate the given catalog for any target of evaluation */
+                "filter.catalogId"?: string;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAuditScopesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_CreateAuditScope: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuditScope"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditScope"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetAuditScope: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auditScopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditScope"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveAuditScope: {
+        parameters: {
+            query?: {
+                removeEvaluationResults?: boolean;
+            };
+            header?: never;
+            path: {
+                auditScopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListCatalogs: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListCatalogsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_CreateCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "catalog.id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Catalog"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalogId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Catalog"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalogId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListControls: {
+        parameters: {
+            query?: {
+                /** @description Optional. Lists only controls with the specified assurance levels. */
+                "filter.assuranceLevels"?: string[];
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description return either all controls or only the controls of the specified category */
+                catalogId: string;
+                categoryName: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListControlsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetControl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalogId: string;
+                categoryName: string;
+                controlId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Control"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalogId: string;
+                categoryName: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Category"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListControls: {
+        parameters: {
+            query?: {
+                categoryName?: string;
+                /** @description Optional. Lists only controls with the specified assurance levels. */
+                "filter.assuranceLevels"?: string[];
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description return either all controls or only the controls of the specified category */
+                catalogId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListControlsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListCertificates: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListCertificatesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_CreateCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Certificate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Certificate"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "certificate.id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Certificate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Certificate"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                certificateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Certificate"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                certificateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListControls: {
+        parameters: {
+            query?: {
+                /** @description return either all controls or only the controls of the specified category */
+                catalogId?: string;
+                categoryName?: string;
+                /** @description Optional. Lists only controls with the specified assurance levels. */
+                "filter.assuranceLevels"?: string[];
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListControlsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListMetrics: {
+        parameters: {
+            query?: {
+                "filter.includeDeprecated"?: boolean;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListMetricsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_CreateMetric: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Metric"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Metric"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateMetricImplementation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "implementation.metric_id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MetricImplementation"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricImplementation"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateMetric: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "metric.id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Metric"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Metric"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetMetric: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                metricId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Metric"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveMetric: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                metricId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetMetricImplementation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                metricId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricImplementation"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListPublicCertificates: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListPublicCertificatesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetRuntimeInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Runtime"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListTargetsOfEvaluation: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListTargetsOfEvaluationResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_CreateTargetOfEvaluation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TargetOfEvaluation"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetOfEvaluation"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetTargetOfEvaluationStatistics: {
+        parameters: {
+            query?: {
+                targetOfEvaluationId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetTargetOfEvaluationStatisticsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateAuditScope: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "audit_scope.target_of_evaluation_id": string;
+                "audit_scope.catalog_id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuditScope"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditScope"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateMetricConfiguration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "configuration.target_of_evaluation_id": string;
+                "configuration.metric_id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MetricConfiguration"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricConfiguration"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetTargetOfEvaluation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                targetOfEvaluationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetOfEvaluation"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveTargetOfEvaluation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                targetOfEvaluationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListMetricConfigurations: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path: {
+                targetOfEvaluationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListMetricConfigurationResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetMetricConfiguration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                targetOfEvaluationId: string;
+                metricId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricConfiguration"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpdateTargetOfEvaluation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                "target_of_evaluation.id": string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TargetOfEvaluation"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetOfEvaluation"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListUsers: {
+        parameters: {
+            query?: {
+                /** @description Optional. Filter by role (e.g., "compliance_manager") */
+                "filter.role"?: "ROLE_UNSPECIFIED" | "ROLE_ADMIN" | "ROLE_COMPLIANCE_MANAGER" | "ROLE_EXPERT_COMPLIANCE_MANAGER" | "ROLE_INTERNAL_CONTROL_OWNER" | "ROLE_TECHNICAL_IMPLEMENTER" | "ROLE_AUDITOR" | "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER";
+                /** @description Optional. Filter by enabled/disabled status */
+                "filter.enabled"?: boolean;
+                /** @description Optional. Search query for username, email, first name, or last name */
+                "filter.search"?: string;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListUsersResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListUserPermissions: {
+        parameters: {
+            query?: {
+                userId?: string;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListUserPermissionsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ListUserRoles: {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                pageToken?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListUserRolesResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_UpsertUserPermission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserPermission"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpsertUserPermissionResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_GetUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_RemoveUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Default error response */
             default: {

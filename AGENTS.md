@@ -16,6 +16,25 @@ Confirmate repository.
   [core/docs/authentication-and-authorization.md](core/docs/authentication-and-authorization.md)
   in the same PR.
 
+## Code Generation
+
+When modifying proto files or adding new API services, run the following in `core/`:
+
+```bash
+cd core
+go generate ./...
+buf generate
+```
+
+Then regenerate frontend types in `ui/`:
+
+```bash
+cd ui
+npm run generate:types
+```
+
+**Important:** After running `go generate`, you must rebuild and restart the demo for changes to take effect.
+
 ## UI Development Guidelines
 
 Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they receive data via props and pass it to reusable components. Business logic, display logic, and UI patterns live in `$lib/components/`.

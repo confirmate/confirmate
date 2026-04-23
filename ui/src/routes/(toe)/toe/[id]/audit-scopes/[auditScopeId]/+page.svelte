@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -8,11 +9,24 @@
 
 	let { data }: PageProps = $props();
 
-	// Client-side tracking of evaluation running state.
-	// The backend doesn't expose this as persistent state, so we initialise to
-	// false and flip it optimistically on start/stop.
 	let evaluationRunning = $state(false);
 	let evaluationBusy = $state(false);
+
+	$effect(() => {
+		if (!browser) return;
+		evaluationClient()
+			.GET('/v1/evaluation/evaluate/{auditScopeId}/status', {
+				params: { path: { auditScopeId: data.auditScope.id } }
+			})
+			.then((res) => {
+				if (res.response.ok) {
+					evaluationRunning = res.data?.status === 'EVALUATION_RUNNING_STATUS_RUNNING';
+				}
+			})
+			.catch(() => {
+				// Default to false on error
+			});
+	});
 
 	async function startEvaluation() {
 		evaluationBusy = true;
@@ -64,14 +78,14 @@
 				{#if evaluationRunning}
 					<span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
 						<span class="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>
-						Evaluation running
+						Automatic evaluation enabled
 					</span>
 					<Button variant="danger" size="sm" onclick={stopEvaluation} disabled={evaluationBusy}>
-						Stop Evaluation
+						Disable Automatic Evaluation
 					</Button>
 				{:else}
 					<Button variant="secondary" size="sm" onclick={startEvaluation} disabled={evaluationBusy}>
-						Start Evaluation
+						Enable Automatic Evaluation
 					</Button>
 				{/if}
 			{/snippet}
