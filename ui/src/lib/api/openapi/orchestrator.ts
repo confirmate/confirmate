@@ -1208,6 +1208,8 @@ export interface components {
              *      These users can manage permissions for others and perform destructive actions like deletion.
              */
             admins?: components["schemas"]["User"][];
+            /** @description Organisation details for this target of evaluation. */
+            organisation?: components["schemas"]["TargetOfEvaluation_Organisation"];
         };
         TargetOfEvaluation_Metadata: {
             /** @description a map of key/value pairs, e.g., env:prod */
@@ -1216,6 +1218,28 @@ export interface components {
             };
             /** @description an icon for the target of evaluation used by the UI */
             icon?: string;
+        };
+        TargetOfEvaluation_Organisation: {
+            /** @description Name of the company or organisation. */
+            name?: string;
+            /** @description Postal address of the organisation. */
+            address?: components["schemas"]["TargetOfEvaluation_Organisation_PostalAddress"];
+            /** @description Optional name of the primary contact person. */
+            contactPerson?: string;
+            /** @description Contact e-mail address. */
+            contactEmail?: string;
+            /** @description Website URL of the organisation. */
+            website?: string;
+        };
+        TargetOfEvaluation_Organisation_PostalAddress: {
+            /** @description Street name and number. */
+            street?: string;
+            /** @description City. */
+            city?: string;
+            /** @description Postal / ZIP code. */
+            zip?: string;
+            /** @description Country. */
+            country?: string;
         };
         UpsertUserPermissionResponse: {
             userPermission?: components["schemas"]["UserPermission"];
@@ -1309,6 +1333,8 @@ export type SchemaStatus = components['schemas']['Status'];
 export type SchemaStoreAssessmentResultResponse = components['schemas']['StoreAssessmentResultResponse'];
 export type SchemaTargetOfEvaluation = components['schemas']['TargetOfEvaluation'];
 export type SchemaTargetOfEvaluationMetadata = components['schemas']['TargetOfEvaluation_Metadata'];
+export type SchemaTargetOfEvaluationOrganisation = components['schemas']['TargetOfEvaluation_Organisation'];
+export type SchemaTargetOfEvaluationOrganisationPostalAddress = components['schemas']['TargetOfEvaluation_Organisation_PostalAddress'];
 export type SchemaUpsertUserPermissionResponse = components['schemas']['UpsertUserPermissionResponse'];
 export type SchemaUser = components['schemas']['User'];
 export type SchemaUserPermission = components['schemas']['UserPermission'];

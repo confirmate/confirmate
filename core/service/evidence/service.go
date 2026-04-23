@@ -46,9 +46,10 @@ const (
 
 // DefaultConfig is the default configuration for the evidence store [Service].
 var DefaultConfig = Config{
-	AssessmentAddress: DefaultAssessmentURL,
-	PersistenceConfig: persistence.DefaultConfig,
-	EvidenceQueueSize: defaultEvidenceQueueSize,
+	AssessmentAddress:    DefaultAssessmentURL,
+	AssessmentHTTPClient: service.DefaultHTTPClient,
+	PersistenceConfig:    persistence.DefaultConfig,
+	EvidenceQueueSize:    defaultEvidenceQueueSize,
 }
 
 // Config represents the configuration for the evidence store [Service].
@@ -57,7 +58,6 @@ type Config struct {
 	AssessmentAddress string
 
 	// AssessmentHTTPClient is the HTTP client used for assessment service communication.
-	// If nil, http.DefaultClient will be used.
 	AssessmentHTTPClient *http.Client
 
 	// PersistenceConfig is the configuration for the persistence layer.
@@ -113,13 +113,8 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		o(svc)
 	}
 
-	// Initialize assessment httpClient using config
-	httpClient := svc.cfg.AssessmentHTTPClient
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
 	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-		httpClient, svc.cfg.AssessmentAddress)
+		svc.cfg.AssessmentHTTPClient, svc.cfg.AssessmentAddress)
 	// Initialize the restartable stream for assessment service
 	err = svc.initAssessmentStream()
 	if err != nil {

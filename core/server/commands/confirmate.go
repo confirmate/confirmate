@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"confirmate.io/core/api"
@@ -29,6 +30,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+"confirmate.io/core/service/collection"
 	"confirmate.io/core/service/evaluation"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
@@ -78,10 +80,10 @@ var oauthServerFlags = []cli.Flag{
 	},
 }
 
-// ConfirmateCommand starts the full framework: orchestrator,  assessment and evidence store services on one server.
+// ConfirmateCommand starts the full framework: orchestrator,  assessment, evidence store, and collector services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store, and collector services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
 			interceptors        []connect.Interceptor
@@ -100,6 +102,8 @@ var ConfirmateCommand = &cli.Command{
 			apiPort             uint16
 			credentials         *clientcredentials.Config
 			authorizer          api.Authorizer
+			collectionSvc       *collection.Service
+			collectionResults   <-chan collection.CollectionResult
 			serverOpts          []server.Option
 		)
 
@@ -146,7 +150,7 @@ var ConfirmateCommand = &cli.Command{
 		}
 		apiPort = cmd.Uint16("api-port")
 
-		orchestratorClient = http.DefaultClient
+		orchestratorClient = service.NewHTTPClient()
 		if cmd.Bool("auth-enabled") {
 			credentials = &clientcredentials.Config{
 				ClientID:     cmd.String("service-oauth2-client-id"),
@@ -171,10 +175,21 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
+		collectionSvc, err = collection.NewService(
+			collection.WithConfig(collection.Config{
+				Interval:   cmd.Duration("collection-interval"),
+				Collectors: []collection.Collector{newNoOpCollector("confirmate-no-op-collector")},
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
 		// EvidenceStore service configuration
 		evidenceOpts = append([]service.Option[evidence.Service]{
 			evidence.WithConfig(evidence.Config{
 				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
 				PersistenceConfig: persistence.Config{
 					Host:       cmd.String("db-host"),
 					Port:       cmd.Int("db-port"),
@@ -185,9 +200,11 @@ var ConfirmateCommand = &cli.Command{
 					InMemoryDB: cmd.Bool("db-in-memory"),
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
-				AssessmentHTTPClient: &http.Client{
-					Timeout: cmd.Duration("evidence-assessment-http-timeout"),
-				},
+				AssessmentHTTPClient: func() *http.Client {
+					c := service.NewHTTPClient()
+					c.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+					return c
+				}(),
 			}),
 		}, evidenceOptions...)
 
@@ -206,6 +223,14 @@ var ConfirmateCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		// Start collection service
+		collectionResults = collectionSvc.Start(ctx)
+		go func() {
+			for range collectionResults {
+				slog.Debug("Collection cycle finished")
+			}
+		}()
 
 		// Server options configuration including CORS, logging, handler and gRPC reflection
 		serverOpts = []server.Option{
@@ -264,5 +289,6 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
+		collectionFlags,
 	),
 }
