@@ -1,7 +1,6 @@
 package csaf
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -46,8 +45,6 @@ func Test_csafCollector_handleAdvisory(t *testing.T) {
 				keyring: goodProvider.Keyring,
 			},
 			wantDoc: func(t *testing.T, got *ontology.SecurityAdvisoryDocument, msgAndArgs ...any) bool {
-				// Some debugging output, that can easily be used in Rego
-				fmt.Println(ontology.ToPrettyJSON(got))
 				return assert.Equal(t, "some-id", got.Id)
 			},
 		},
