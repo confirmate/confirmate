@@ -18,42 +18,28 @@ package collectiontest
 import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service/collection"
-<<<<<<< HEAD
-=======
 
 	"github.com/google/uuid"
->>>>>>> oxisto/collection-service
 )
 
 // functionCollector is a simple implementation of the [collection.Collector] interface that allows
 // defining the [collection.Collector.Collect] function as a field. This is useful for testing to
 // create collectors with custom behavior without needing to define new types for each case.
 type functionCollector struct {
-<<<<<<< HEAD
-=======
 	id      string
 	name    string
->>>>>>> oxisto/collection-service
 	collect func() ([]ontology.IsResource, error)
 }
 
 // NewFunctionCollector creates a new [functionCollector] with the provided collect function.
-<<<<<<< HEAD
-func NewFunctionCollector(collect func() ([]ontology.IsResource, error)) collection.Collector {
-	return &functionCollector{
-=======
 func NewFunctionCollector(name string, collect func() ([]ontology.IsResource, error)) collection.Collector {
 	return &functionCollector{
 		id:      uuid.NewString(),
 		name:    name,
->>>>>>> oxisto/collection-service
 		collect: collect,
 	}
 }
 
-<<<<<<< HEAD
-func (c functionCollector) Collect() (list []ontology.IsResource, err error) {
-=======
 func (c *functionCollector) ID() string {
 	return c.id
 }
@@ -63,7 +49,6 @@ func (c *functionCollector) Name() string {
 }
 
 func (c *functionCollector) Collect() (list []ontology.IsResource, err error) {
->>>>>>> oxisto/collection-service
 	if c.collect == nil {
 		return nil, nil
 	}
