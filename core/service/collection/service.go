@@ -18,16 +18,6 @@ package collection
 import (
 	"context"
 	"fmt"
-<<<<<<< HEAD
-	"time"
-
-	"confirmate.io/core/api/ontology"
-)
-
-// Collector is the interface that all collectors must implement. A collector is responsible for
-// collecting evidence and translating them to ontology resources.
-type Collector interface {
-=======
 	"io"
 	"net/http"
 	"time"
@@ -54,25 +44,12 @@ type Collector interface {
 	// ID returns a stable collector identifier.
 	ID() string
 
->>>>>>> oxisto/collection-service
 	// Collect executes the collection process and returns a list of collected resources or an error
 	// if the collection failed.
 	Collect() (list []ontology.IsResource, err error)
 }
 
 // Service is the service implementation for the collection service. It has one or more collectors,
-<<<<<<< HEAD
-// which do the actual work or collecting evidence. The service itself is responsible for
-// orchestrating the extractors and
-type Service struct {
-	interval   time.Duration
-	collectors []Collector
-}
-
-// DefaultConfig is the default configuration for the discovery service.
-var DefaultConfig = Config{
-	Interval: 5 * time.Minute,
-=======
 // which do the actual work of collecting evidence. The service itself is responsible for
 // orchestrating the collectors, including scheduling their execution at the configured interval.
 type Service struct {
@@ -86,7 +63,6 @@ var DefaultConfig = Config{
 	Interval:                5 * time.Minute,
 	EvidenceStoreAddress:    DefaultEvidenceStoreAddress,
 	EvidenceStoreHTTPClient: service.DefaultHTTPClient,
->>>>>>> oxisto/collection-service
 }
 
 // Config is the configuration for the collection service.
@@ -97,12 +73,6 @@ type Config struct {
 	// Collectors is a list of collectors to use for collecting evidence. At least one collector
 	// must be provided.
 	Collectors []Collector
-<<<<<<< HEAD
-}
-
-// NewService creates a new collection service with the given configuration.
-func NewService(cfg Config) (svc *Service, err error) {
-=======
 
 	// EvidenceStoreAddress defines the evidence store base URL. If empty, forwarding collected
 	// evidence is disabled.
@@ -140,7 +110,6 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 	cfg = svc.cfg
 
->>>>>>> oxisto/collection-service
 	if cfg.Interval <= 0 {
 		cfg.Interval = DefaultConfig.Interval
 	}
@@ -149,11 +118,6 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		return nil, fmt.Errorf("at least one collector must be provided")
 	}
 
-<<<<<<< HEAD
-	svc = &Service{
-		interval:   cfg.Interval,
-		collectors: cfg.Collectors,
-=======
 	if cfg.TargetOfEvaluationID != "" {
 		if _, err = uuid.Parse(cfg.TargetOfEvaluationID); err != nil {
 			return nil, fmt.Errorf("invalid target of evaluation id: %w", err)
@@ -182,14 +146,11 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		if err != nil {
 			return nil, err
 		}
->>>>>>> oxisto/collection-service
 	}
 
 	return svc, nil
 }
 
-<<<<<<< HEAD
-=======
 func (svc *Service) initEvidenceStoreStream() (err error) {
 	if svc.evidenceStoreClient == nil {
 		return nil
@@ -277,7 +238,6 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 	return nil
 }
 
->>>>>>> oxisto/collection-service
 // Start runs all collectors immediately and then repeatedly at the configured interval.
 // The returned channel is closed when ctx is canceled.
 func (svc *Service) Start(ctx context.Context) (resultCh <-chan CollectionResult) {

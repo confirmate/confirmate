@@ -18,24 +18,13 @@ package collection_test
 import (
 	"context"
 	"errors"
-<<<<<<< HEAD
-=======
 	"io"
 	"net/http/httptest"
->>>>>>> oxisto/collection-service
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
-<<<<<<< HEAD
-	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/service/collection"
-	"confirmate.io/core/service/collection/collectiontest"
-	"confirmate.io/core/util/assert"
-)
-
-=======
 	"confirmate.io/core/api/evidence"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
@@ -101,7 +90,6 @@ func (h *mockEvidenceStoreHandler) Requests() (requests []*evidence.StoreEvidenc
 	return requests
 }
 
->>>>>>> oxisto/collection-service
 func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 	var (
 		errBoom error
@@ -112,17 +100,6 @@ func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 
 	errBoom = errors.New("boom")
 
-<<<<<<< HEAD
-	svc, err = collection.NewService(collection.Config{
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector(nil),
-			collectiontest.NewFunctionCollector(func() ([]ontology.IsResource, error) {
-				return nil, errBoom
-			}),
-		},
-	})
-	assert.NoError(t, err)
-=======
 	svc, err = collection.NewService(
 		collection.WithConfig(collection.Config{
 			Collectors: []collection.Collector{
@@ -137,13 +114,10 @@ func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 	defer func() {
 		assert.NoError(t, svc.Close())
 	}()
->>>>>>> oxisto/collection-service
 
 	res = svc.RunOnce()
 
 	assert.Equal(t, 2, len(res.Collectors))
-<<<<<<< HEAD
-=======
 	assert.Equal(t, "collector-ok", res.Collectors[0].CollectorName)
 	assert.Equal(t, "collector-fail", res.Collectors[1].CollectorName)
 	assert.NotEqual(t, "", res.Collectors[0].CollectorID)
@@ -151,7 +125,6 @@ func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 	assert.NotEqual(t, res.Collectors[0].CollectorID, res.Collectors[1].CollectorID)
 	assert.Nil(t, res.Collectors[0].Err)
 	assert.ErrorIs(t, res.Collectors[1].Err, errBoom)
->>>>>>> oxisto/collection-service
 
 	var (
 		foundError bool
@@ -184,23 +157,6 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 	ctx, cancel = context.WithCancel(context.Background())
 	defer cancel()
 
-<<<<<<< HEAD
-	svc, err = collection.NewService(collection.Config{
-		Interval: 20 * time.Millisecond,
-		Collectors: []collection.Collector{
-			collectiontest.NewFunctionCollector(func() ([]ontology.IsResource, error) {
-				successCalls.Add(1)
-				return nil, nil
-			}),
-			collectiontest.NewFunctionCollector(func() ([]ontology.IsResource, error) {
-				mu.Lock()
-				failingCalledOnce = true
-				mu.Unlock()
-				return nil, errors.New("expected failure")
-			}),
-		},
-	})
-=======
 	svc, err = collection.NewService(
 		collection.WithConfig(collection.Config{
 			Interval: 20 * time.Millisecond,
@@ -218,7 +174,6 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 			},
 		}),
 	)
->>>>>>> oxisto/collection-service
 	assert.NoError(t, err)
 
 	resultCh = svc.Start(ctx)
@@ -244,8 +199,6 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 	assert.True(t, failingCalledOnce)
 	mu.Unlock()
 }
-<<<<<<< HEAD
-=======
 
 func TestRunOnce_ForwardsCollectedResourcesToEvidenceStore(t *testing.T) {
 	var (
@@ -366,4 +319,3 @@ func TestNewService_ReturnsError_WhenEvidenceForwardingEnabledWithoutTargetOfEva
 	assert.Nil(t, svc)
 	assert.ErrorContains(t, err, "target of evaluation id must be set")
 }
->>>>>>> oxisto/collection-service

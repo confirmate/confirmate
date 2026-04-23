@@ -17,33 +17,20 @@ package collection
 
 import (
 	"context"
-<<<<<<< HEAD
-=======
 	"errors"
->>>>>>> oxisto/collection-service
 	"log/slog"
 	"sync"
 	"time"
 
 	"confirmate.io/core/api/ontology"
-<<<<<<< HEAD
-	"golang.org/x/sync/errgroup"
-=======
->>>>>>> oxisto/collection-service
 )
 
 // CollectorResult captures the outcome of a single collector execution.
 type CollectorResult struct {
-<<<<<<< HEAD
-	CollectorIndex int
-	Resources      []ontology.IsResource
-	Err            error
-=======
 	CollectorID   string
 	CollectorName string
 	Resources     []ontology.IsResource
 	Err           error
->>>>>>> oxisto/collection-service
 }
 
 // CollectionResult captures the outcome of one full collection cycle.
@@ -57,15 +44,6 @@ type CollectionResult struct {
 // interval. It sends results to the provided channel and exits when the context is canceled.
 func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResult) {
 	var (
-<<<<<<< HEAD
-		ticker    *time.Ticker
-		runResult CollectionResult
-	)
-
-	slog.Info("Starting collection loop",
-		slog.Duration("interval", svc.interval),
-		slog.Int("num_collectors", len(svc.collectors)),
-=======
 		ticker         *time.Ticker
 		runResult      CollectionResult
 		collectorNames []string
@@ -79,22 +57,14 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 	slog.Info("Starting collection loop",
 		slog.Duration("interval", svc.cfg.Interval),
 		slog.Any("collector_names", collectorNames),
->>>>>>> oxisto/collection-service
 	)
 
 	defer close(resultCh)
 
-<<<<<<< HEAD
-	ticker = time.NewTicker(svc.interval)
-	defer ticker.Stop()
-
-	runResult = svc.RunOnce()
-=======
 	ticker = time.NewTicker(svc.cfg.Interval)
 	defer ticker.Stop()
 
 	runResult = svc.runOnce(ctx)
->>>>>>> oxisto/collection-service
 
 	select {
 	case <-ctx.Done():
@@ -107,11 +77,7 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-<<<<<<< HEAD
-			runResult = svc.RunOnce()
-=======
 			runResult = svc.runOnce(ctx)
->>>>>>> oxisto/collection-service
 
 			select {
 			case <-ctx.Done():
@@ -124,52 +90,16 @@ func (svc *Service) runLoop(ctx context.Context, resultCh chan<- CollectionResul
 
 // RunOnce executes one full collection cycle concurrently for all configured collectors.
 func (svc *Service) RunOnce() (res CollectionResult) {
-<<<<<<< HEAD
-	var (
-		group   errgroup.Group
-		mu      sync.Mutex
-=======
 	return svc.runOnce(context.Background())
 }
 
 func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 	var (
 		wait    sync.WaitGroup
->>>>>>> oxisto/collection-service
 		results []CollectorResult
 	)
 
 	res.StartedAt = time.Now()
-<<<<<<< HEAD
-	results = make([]CollectorResult, 0, len(svc.collectors))
-
-	for i := range svc.collectors {
-		collectorIndex := i
-		collector := svc.collectors[collectorIndex]
-
-		group.Go(func() error {
-			var (
-				resources []ontology.IsResource
-				err       error
-			)
-
-			resources, err = collector.Collect()
-
-			mu.Lock()
-			results = append(results, CollectorResult{
-				CollectorIndex: collectorIndex,
-				Resources:      resources,
-				Err:            err,
-			})
-			mu.Unlock()
-
-			// We intentionally return nil to avoid one collector failure affecting the others.
-			return nil
-		})
-	}
-
-	_ = group.Wait()
-=======
 	results = make([]CollectorResult, len(svc.cfg.Collectors))
 
 	for i := range svc.cfg.Collectors {
@@ -203,7 +133,6 @@ func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 	}
 
 	wait.Wait()
->>>>>>> oxisto/collection-service
 
 	res.FinishedAt = time.Now()
 	res.Collectors = results
