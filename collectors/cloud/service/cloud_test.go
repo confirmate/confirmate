@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/http"
 	"sync"
 	"testing"
 	"time"
@@ -37,11 +36,15 @@ func TestNewService(t *testing.T) {
 			name: "Create service with option 'WithEvidenceStoreAddress'",
 			args: args{
 				opts: []service.Option[Service]{
-					WithEvidenceStoreAddress("localhost:9091", http.DefaultClient),
+					WithEvidenceStoreAddress("localhost:9091", service.DefaultHTTPClient),
 				},
 			},
 			want: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				assert.Equal(t, http.DefaultClient, got.cloudConfig.evStreamConfig.client)
+				if got.cloudConfig.evStreamConfig.client != service.DefaultHTTPClient {
+					t.Errorf("expected shared default HTTP client to be used")
+					return false
+				}
+
 				return assert.Equal(t, "localhost:9091", got.cloudConfig.evStreamConfig.targetAddress)
 			},
 		},

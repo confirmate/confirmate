@@ -225,7 +225,7 @@ func NewService(opts ...service.Option[Service]) *Service {
 			provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
 			evStreamConfig: EvidenceStoreStreamConfig{
 				targetAddress: DefaultEvidenceStoreURL,
-				client:        http.DefaultClient,
+				client:        service.DefaultHTTPClient,
 			},
 			collectorInterval: 5 * time.Minute, // Default collector interval is 5 minutes
 		},

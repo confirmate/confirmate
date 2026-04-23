@@ -2,7 +2,6 @@ package commands
 
 import (
 	"context"
-	"net/http"
 	"os/signal"
 	"syscall"
 
@@ -93,7 +92,7 @@ var CloudCollectorCommand = &cli.Command{
 			opts = append(opts, cloud.WithCollectorInterval(cmd.Duration("collector-interval")))
 		}
 		if cmd.String("collector-evidence-store-address") != "" {
-			opts = append(opts, cloud.WithEvidenceStoreAddress(cmd.String("collector-evidence-store-address"), http.DefaultClient))
+			opts = append(opts, cloud.WithEvidenceStoreAddress(cmd.String("collector-evidence-store-address"), service.DefaultHTTPClient))
 		}
 
 		svc = cloud.NewService(opts...)
