@@ -79,6 +79,57 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: with organisation details",
+			args: args{
+				req: &orchestrator.CreateTargetOfEvaluationRequest{
+					TargetOfEvaluation: orchestratortest.MockTargetOfEvaluationWithOrganisation,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+				expectedOrg := orchestratortest.MockTargetOfEvaluationWithOrganisation.GetOrganisation()
+				gotOrg := got.Msg.GetOrganisation()
+				expectedAddress := expectedOrg.GetAddress()
+				gotAddress := gotOrg.GetAddress()
+
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganisation, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
+					assert.NotEmpty(t, got.Msg.Id) &&
+					assert.NotNil(t, gotOrg) &&
+					assert.Equal(t, expectedOrg.GetName(), gotOrg.GetName()) &&
+					assert.Equal(t, expectedOrg.GetContactEmail(), gotOrg.GetContactEmail()) &&
+					assert.NotNil(t, gotAddress) &&
+					assert.Equal(t, expectedAddress.GetStreet(), gotAddress.GetStreet()) &&
+					assert.Equal(t, expectedAddress.GetCity(), gotAddress.GetCity()) &&
+					assert.Equal(t, expectedAddress.GetZip(), gotAddress.GetZip()) &&
+					assert.Equal(t, expectedAddress.GetCountry(), gotAddress.GetCountry())
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				wantOrg := orchestratortest.MockTargetOfEvaluationWithOrganisation.GetOrganisation()
+				org := toe.GetOrganisation()
+
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganisation, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
+					assert.NotNil(t, org) &&
+					assert.NotNil(t, org.GetAddress()) &&
+					assert.Equal(t, orchestratortest.MockOrgName1, org.GetName()) &&
+					assert.Equal(t, orchestratortest.MockOrgContactEmail1, org.GetContactEmail()) &&
+					assert.Equal(t, wantOrg.GetContactPerson(), org.GetContactPerson()) &&
+					assert.Equal(t, wantOrg.GetAddress().GetStreet(), org.GetAddress().GetStreet()) &&
+					assert.Equal(t, wantOrg.GetAddress().GetCity(), org.GetAddress().GetCity()) &&
+					assert.Equal(t, wantOrg.GetAddress().GetZip(), org.GetAddress().GetZip()) &&
+					assert.Equal(t, wantOrg.GetAddress().GetCountry(), org.GetAddress().GetCountry())
+			},
+		},
+		{
 			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.CreateTargetOfEvaluationRequest{
