@@ -5,6 +5,31 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UI_PORT=5173
 API_PORT=8080
 
+# ── Parameters ────────────────────────────────────────────────────────────────
+CODE_ANALYSIS_DIR="${REPO_ROOT}/collectors/code-analysis"
+GRADLE_PROJECT="example-project"
+
+usage() {
+  echo "Usage: $0 [--code-analysis-dir <path>] [--gradle-project <name>]"
+  echo ""
+  echo "  --code-analysis-dir <path>   Path to the code-analysis repo (default: collectors/code-analysis)"
+  echo "  --gradle-project <name>      Gradle sub-project to run (default: example-project)"
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --code-analysis-dir)
+      CODE_ANALYSIS_DIR="$2"; shift 2 ;;
+    --gradle-project)
+      GRADLE_PROJECT="$2"; shift 2 ;;
+    -h|--help)
+      usage ;;
+    *)
+      echo "Unknown argument: $1"; usage ;;
+  esac
+done
+
 cleanup() {
   echo ""
   echo "Shutting down demo..."
@@ -39,7 +64,11 @@ EOF
 echo "[1/5] Syncing submodules..."
 cd "${REPO_ROOT}"
 git submodule sync --quiet
-git submodule update --init --remote collectors/code-analysis
+if [[ "${CODE_ANALYSIS_DIR}" == "${REPO_ROOT}/collectors/code-analysis" ]]; then
+  git submodule update --init --remote collectors/code-analysis
+else
+  echo "      Using custom code-analysis dir: ${CODE_ANALYSIS_DIR} (skipping submodule update)"
+fi
 
 # ── 2. Build & start the confirmate all-in-one binary ─────────────────────────
 echo "[2/5] Building confirmate..."
@@ -89,9 +118,10 @@ export CPG_PYTHON_VIRTUALENV="${VENV_NAME}"
 
 # ── 5. Start the code-analysis collector ──────────────────────────────────────
 echo "[5/5] Starting code-analysis collector..."
-cd "${REPO_ROOT}/collectors/code-analysis"
+echo "      dir: ${CODE_ANALYSIS_DIR}, project: ${GRADLE_PROJECT}"
+cd "${CODE_ANALYSIS_DIR}"
 
-./gradlew --no-daemon :example-project:run &>"${REPO_ROOT}/logs/code-analysis.log" &
+./gradlew --no-daemon ":${GRADLE_PROJECT}:run" &>"${REPO_ROOT}/logs/code-analysis.log" &
 PID_COLLECTOR=$!
 echo "      PID ${PID_COLLECTOR} — logs: logs/code-analysis.log"
 
