@@ -2,6 +2,7 @@ import createClient from 'openapi-fetch';
 import type { paths as OrchestratorPaths } from './openapi/orchestrator';
 import type { paths as AssessmentPaths } from './openapi/assessment';
 import type { paths as EvidencePaths } from './openapi/evidence';
+import type { paths as EvaluationPaths } from './openapi/evaluation';
 
 function authHeaders(): HeadersInit {
 	if (typeof globalThis.localStorage === 'undefined') return {};
@@ -19,4 +20,8 @@ export function assessmentClient(fetch?: typeof globalThis.fetch) {
 
 export function evidenceClient(fetch?: typeof globalThis.fetch) {
 	return createClient<EvidencePaths>({ headers: authHeaders(), fetch });
+}
+
+export function evaluationClient(fetch?: typeof globalThis.fetch) {
+	return createClient<EvaluationPaths>({ headers: authHeaders(), fetch });
 }

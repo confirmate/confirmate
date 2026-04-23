@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"generate:types": "mkdir -p src/lib/api/openapi && openapi-typescript ../core/api/orchestrator/openapi.yaml -o src/lib/api/openapi/orchestrator.ts --root-types && openapi-typescript ../core/api/assessment/openapi.yaml -o src/lib/api/openapi/assessment.ts --root-types && openapi-typescript ../core/api/evidence/openapi.yaml -o src/lib/api/openapi/evidence.ts --root-types",
+		"generate:types": "mkdir -p src/lib/api/openapi && openapi-typescript ../core/api/orchestrator/openapi.yaml -o src/lib/api/openapi/orchestrator.ts --root-types && openapi-typescript ../core/api/assessment/openapi.yaml -o src/lib/api/openapi/assessment.ts --root-types && openapi-typescript ../core/api/evidence/openapi.yaml -o src/lib/api/openapi/evidence.ts --root-types && openapi-typescript ../core/api/evaluation/openapi.yaml -o src/lib/api/openapi/evaluation.ts --root-types",
 		"predev": "npm run generate:types",
 		"dev": "vite dev",
 		"build": "vite build",

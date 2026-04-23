@@ -359,18 +359,7 @@ export interface components {
         /** @description AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         AwarenessTraining: {
             annualUpdateCompleted?: boolean;
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
             successfullyCompletedPercentage?: boolean;
-            parentId?: string;
         };
         /**
          * @description Backup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -670,20 +659,9 @@ export interface components {
         };
         /** @description ContactPerson is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ContactPerson: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
             emailAddress?: string;
-            id?: string;
             jobTitle?: string;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
             phoneNumber?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            parentId?: string;
         };
         /** @description Container is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Container: {
@@ -1290,6 +1268,10 @@ export interface components {
             main?: components["schemas"]["Main"];
             httpEndpoint?: components["schemas"]["HttpEndpoint"];
             error?: components["schemas"]["Error"];
+            contactPerson?: components["schemas"]["ContactPerson"];
+            monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
+            awarenessTraining?: components["schemas"]["AwarenessTraining"];
+            securityTraining?: components["schemas"]["SecurityTraining"];
             httpClient?: components["schemas"]["HttpClient"];
             httpRequestContext?: components["schemas"]["HttpRequestContext"];
             httpRequestHandler?: components["schemas"]["HttpRequestHandler"];
@@ -1401,6 +1383,13 @@ export interface components {
             "@type"?: string;
         } & {
             [key: string]: unknown;
+        };
+        /** @description Governance is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
+        Governance: {
+            contactPerson?: components["schemas"]["ContactPerson"];
+            monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
+            awarenessTraining?: components["schemas"]["AwarenessTraining"];
+            securityTraining?: components["schemas"]["SecurityTraining"];
         };
         GraphEdge: {
             id: string;
@@ -2426,22 +2415,11 @@ export interface components {
          *      intervalMonths: Review frequency (in months) for reviewing monitoring procedures
          */
         MonitoringProcedure: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
             /**
              * Format: int32
              * @description The interval refers to the interval in months.
              */
             intervalMonths?: number;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            parentId?: string;
         };
         /** @description MultiFactorAuthentiation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         MultiFactorAuthentiation: {
@@ -2723,7 +2701,7 @@ export interface components {
             cryptographicHashs?: components["schemas"]["CryptographicHash"][];
             dataLocation?: components["schemas"]["DataLocation"];
             documentSignatures?: components["schemas"]["DocumentSignature"][];
-            governanceId?: string;
+            governances?: components["schemas"]["Governance"][];
             parentId?: string;
             validatedBy?: components["schemas"]["SchemaValidation"];
             securityFeatures?: components["schemas"]["SecurityFeature"][];
@@ -2755,9 +2733,9 @@ export interface components {
             supportEnds?: string;
             type?: string;
             codeIds?: string[];
-            contactPersonId?: string;
+            contactPerson?: components["schemas"]["ContactPerson"];
             dataIds?: string[];
-            governanceIds?: string[];
+            governances?: components["schemas"]["Governance"][];
             hardwareIds?: string[];
             infrastructureIds?: string[];
             parentId?: string;
@@ -3065,10 +3043,6 @@ export interface components {
             andRule?: components["schemas"]["AndRule"];
             token?: components["schemas"]["Token"];
             value?: components["schemas"]["Value"];
-            contactPerson?: components["schemas"]["ContactPerson"];
-            monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
-            awarenessTraining?: components["schemas"]["AwarenessTraining"];
-            securityTraining?: components["schemas"]["SecurityTraining"];
             memory?: components["schemas"]["Memory"];
             product?: components["schemas"]["Product"];
             application?: components["schemas"]["Application"];
@@ -3321,18 +3295,7 @@ export interface components {
         /** @description SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityTraining: {
             annualUpdateCompleted?: boolean;
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
             successfullyCompletedPercentage?: boolean;
-            parentId?: string;
         };
         /** @description ServiceMetadataDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ServiceMetadataDocument: {
@@ -3765,6 +3728,7 @@ export type SchemaGeoRedundancy = components['schemas']['GeoRedundancy'];
 export type SchemaGetCurrentTimeOperation = components['schemas']['GetCurrentTimeOperation'];
 export type SchemaGetSecret = components['schemas']['GetSecret'];
 export type SchemaGoogleProtobufAny = components['schemas']['GoogleProtobufAny'];
+export type SchemaGovernance = components['schemas']['Governance'];
 export type SchemaGraphEdge = components['schemas']['GraphEdge'];
 export type SchemaHashOperation = components['schemas']['HashOperation'];
 export type SchemaHttp = components['schemas']['Http'];

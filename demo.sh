@@ -9,12 +9,38 @@ API_PORT=8080
 CODE_ANALYSIS_DIR="${REPO_ROOT}/collectors/code-analysis"
 GRADLE_PROJECT="example-project"
 
+DAEMON_MODE=false
+
 usage() {
-  echo "Usage: $0 [--code-analysis-dir <path>] [--gradle-project <name>]"
+  echo "Usage: $0 [options]"
   echo ""
   echo "  --code-analysis-dir <path>   Path to the code-analysis repo (default: collectors/code-analysis)"
   echo "  --gradle-project <name>      Gradle sub-project to run (default: example-project)"
+  echo "  --daemon                     Run in background (don't open browser, don't wait)"
+  echo "  --stop                       Stop a running demo"
+  echo "  -h, --help                   Show this help"
   exit 1
+}
+
+stop_demo() {
+  PID_FILE="${REPO_ROOT}/logs/demo.pids"
+  if [[ ! -f "${PID_FILE}" ]]; then
+    echo "No running demo found (no PID file: ${PID_FILE})"
+    exit 1
+  fi
+
+  PIDs=$(cat "${PID_FILE}")
+  echo "Stopping demo processes..."
+  for pid in ${PIDs}; do
+    if kill -0 "${pid}" 2>/dev/null; then
+      kill "${pid}" 2>/dev/null && echo "  Killed PID ${pid}" || echo "  Failed to kill PID ${pid}"
+    else
+      echo "  Process ${pid} not running"
+    fi
+  done
+  rm -f "${PID_FILE}"
+  echo "Done."
+  exit 0
 }
 
 while [[ $# -gt 0 ]]; do
@@ -23,6 +49,10 @@ while [[ $# -gt 0 ]]; do
       CODE_ANALYSIS_DIR="$2"; shift 2 ;;
     --gradle-project)
       GRADLE_PROJECT="$2"; shift 2 ;;
+    --daemon)
+      DAEMON_MODE=true; shift ;;
+    --stop)
+      stop_demo ;;
     -h|--help)
       usage ;;
     *)
@@ -33,8 +63,11 @@ done
 cleanup() {
   echo ""
   echo "Shutting down demo..."
-  kill "${PID_CONFIRMATE:-}" "${PID_UI:-}" "${PID_COLLECTOR:-}" 2>/dev/null || true
+  kill "${PID_CONFIRMATE:-}" 2>/dev/null || true
+  kill "${PID_UI:-}" 2>/dev/null || true
+  kill "${PID_COLLECTOR:-}" 2>/dev/null || true
   wait 2>/dev/null || true
+  rm -f "${REPO_ROOT}/logs/demo.pids"
   echo "Done."
 }
 trap cleanup EXIT INT TERM
@@ -138,6 +171,25 @@ for i in $(seq 1 30); do
 done
 
 echo ""
+echo "All services are running."
+echo ""
+
+if [[ "${DAEMON_MODE}" == "true" ]]; then
+  echo "Running in daemon mode — exiting."
+  echo "PID file: ${REPO_ROOT}/logs/demo.pids"
+  echo "Logs:"
+  echo "  - confirmate: logs/confirmate.log"
+  echo "  - UI: logs/ui.log"
+  echo "  - code-analysis: logs/code-analysis.log"
+  echo ""
+  echo "To stop: kill \$(cat logs/demo.pids)"
+  echo "${PID_CONFIRMATE}
+${PID_UI}
+${PID_COLLECTOR}" > "${REPO_ROOT}/logs/demo.pids"
+  trap - EXIT
+  exit 0
+fi
+
 echo "Opening http://localhost:${UI_PORT} in your browser..."
 if command -v open &>/dev/null; then
   open "http://localhost:${UI_PORT}"

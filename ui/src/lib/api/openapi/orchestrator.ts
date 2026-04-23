@@ -4,6 +4,28 @@
  */
 
 export interface paths {
+    "/v1/evaluation/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description List all evaluation results that the user can access. It can further be
+         *      restricted by various filtering options. Part of the public API, also
+         *      exposed as REST.
+         */
+        get: operations["Orchestrator_ListEvaluationResults"];
+        put?: never;
+        /** @description Store the evaluation result provided by the evaluation component.″ */
+        post: operations["Orchestrator_StoreEvaluationResult"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orchestrator/assessment_results": {
         parameters: {
             query?: never;
@@ -911,6 +933,54 @@ export interface components {
             path?: string;
             version?: string;
         };
+        /**
+         * @description A evaluation result resource, representing the result after evaluating the
+         *      target of evaluation with a specific control target_of_evaluation_id, category_name and
+         *      catalog_id are necessary to get the corresponding AuditScope
+         */
+        EvaluationResult: {
+            /** @description Evaluation result id */
+            id: string;
+            /** @description The Target of Evaluation ID the evaluation belongs to */
+            targetOfEvaluationId?: string;
+            /** @description The Audit Scope ID the evaluation belongs to */
+            auditScopeId?: string;
+            /** @description The control id the evaluation was based on */
+            controlId?: string;
+            /** @description The category the evaluated control belongs to */
+            controlCategoryName?: string;
+            /** @description The catalog the evaluated control belongs to */
+            controlCatalogId?: string;
+            /** @description Optionally, specifies the parent control ID, if this is a sub-control */
+            parentControlId?: string;
+            /**
+             * Format: enum
+             * @description Evaluation status
+             * @enum {string}
+             */
+            status: "EVALUATION_STATUS_UNSPECIFIED" | "EVALUATION_STATUS_COMPLIANT" | "EVALUATION_STATUS_COMPLIANT_MANUALLY" | "EVALUATION_STATUS_NOT_COMPLIANT" | "EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY" | "EVALUATION_STATUS_PENDING";
+            /**
+             * Format: date-time
+             * @description Time of evaluation
+             */
+            timestamp: string;
+            /** @description List of assessment results because of which the evaluation status is compliant or not compliant */
+            assessmentResultIds: string[];
+            comment?: string;
+            /**
+             * Format: date-time
+             * @description Optional, but required if the status is one of the "manually" ones. This
+             *      denotes how long the (manual) created evaluation result is valid. During
+             *      this time, no automatic results are generated for the specific control.
+             */
+            validUntil?: string;
+            /**
+             * Format: bytes
+             * @description Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+             *      creation, such as a large file like a policy in PDF format.
+             */
+            data?: string;
+        };
         GetTargetOfEvaluationStatisticsResponse: {
             /** @description number of discovered resources per target of evaluation */
             numberOfDiscoveredResources?: string;
@@ -954,6 +1024,10 @@ export interface components {
             controls?: components["schemas"]["Control"][];
             nextPageToken?: string;
         };
+        ListEvaluationResultsResponse: {
+            results?: components["schemas"]["EvaluationResult"][];
+            nextPageToken?: string;
+        };
         ListMetricConfigurationResponse: {
             /** @description A map of metric configurations associated by their metric ID */
             configurations?: {
@@ -994,7 +1068,7 @@ export interface components {
             description: string;
             /** @description The version of this metric */
             version: string;
-            /** @description Optional comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful. */
+            /** @description Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful. */
             comments?: string;
             /** @description Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository */
             category: string;
@@ -1207,6 +1281,7 @@ export type SchemaCertificate = components['schemas']['Certificate'];
 export type SchemaComparisonResult = components['schemas']['ComparisonResult'];
 export type SchemaControl = components['schemas']['Control'];
 export type SchemaDependency = components['schemas']['Dependency'];
+export type SchemaEvaluationResult = components['schemas']['EvaluationResult'];
 export type SchemaGetTargetOfEvaluationStatisticsResponse = components['schemas']['GetTargetOfEvaluationStatisticsResponse'];
 export type SchemaGoogleProtobufAny = components['schemas']['GoogleProtobufAny'];
 export type SchemaGoogleProtobufValue = components['schemas']['GoogleProtobufValue'];
@@ -1216,6 +1291,7 @@ export type SchemaListAuditScopesResponse = components['schemas']['ListAuditScop
 export type SchemaListCatalogsResponse = components['schemas']['ListCatalogsResponse'];
 export type SchemaListCertificatesResponse = components['schemas']['ListCertificatesResponse'];
 export type SchemaListControlsResponse = components['schemas']['ListControlsResponse'];
+export type SchemaListEvaluationResultsResponse = components['schemas']['ListEvaluationResultsResponse'];
 export type SchemaListMetricConfigurationResponse = components['schemas']['ListMetricConfigurationResponse'];
 export type SchemaListMetricsResponse = components['schemas']['ListMetricsResponse'];
 export type SchemaListPublicCertificatesResponse = components['schemas']['ListPublicCertificatesResponse'];
@@ -1238,6 +1314,93 @@ export type SchemaUser = components['schemas']['User'];
 export type SchemaUserPermission = components['schemas']['UserPermission'];
 export type $defs = Record<string, never>;
 export interface operations {
+    Orchestrator_ListEvaluationResults: {
+        parameters: {
+            query?: {
+                /** @description Optional. Lists only evaluation results for a specific target of evaluation. */
+                "filter.targetOfEvaluationId"?: string;
+                /** @description Optional. Lists only evaluation results for a specific catalog. */
+                "filter.catalogId"?: string;
+                /** @description Optional. Lists only evaluation results for a specific control id. */
+                "filter.controlId"?: string;
+                /**
+                 * @description Optional. Lists all evaluation results for the given initial control id
+                 *      substring, e.g., if the substring 'CMK-01.' is given it returns the
+                 *      controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+                 */
+                "filter.subControls"?: string;
+                /** @description Optional. Lists only results for parent controls */
+                "filter.parentsOnly"?: boolean;
+                /** @description Optional. Lists only manual results in their validity period */
+                "filter.validManualOnly"?: boolean;
+                /** @description Optional. Lists only evaluation results for a specific audit scope. */
+                "filter.auditScopeId"?: string;
+                /** @description Optional. Latest results grouped by control_id. */
+                latestByControlId?: boolean;
+                pageSize?: number;
+                pageToken?: string;
+                orderBy?: string;
+                asc?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListEvaluationResultsResponse"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_StoreEvaluationResult: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvaluationResult"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationResult"];
+                };
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
     Orchestrator_ListAssessmentResults: {
         parameters: {
             query?: {
