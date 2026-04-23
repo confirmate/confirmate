@@ -7,11 +7,13 @@
 	let {
 		category,
 		controls,
-		evaluationByControl = {}
+		evaluationByControl = {},
+		assessmentCountByMetric = {}
 	}: {
 		category: SchemaCategory;
 		controls: SchemaControl[];
 		evaluationByControl?: Record<string, SchemaEvaluationResult>;
+		assessmentCountByMetric?: Record<string, number>;
 	} = $props();
 
 	let open = $state(true);
@@ -38,7 +40,7 @@
 	{#if open}
 		<div class="divide-y divide-gray-100 border-t border-gray-100 px-4">
 			{#each controls as control}
-				<ControlRow {control} evaluation={evaluationByControl[control.id ?? '']} {evaluationByControl} />
+				<ControlRow {control} evaluation={evaluationByControl[control.id ?? '']} {evaluationByControl} {assessmentCountByMetric} />
 			{/each}
 		</div>
 	{/if}

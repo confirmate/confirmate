@@ -56,7 +56,7 @@ export const load = (async ({ params, fetch }) => {
 	const evalRes = await client.GET('/v1/evaluation/results', {
 		params: {
 			query: {
-				'filter.auditScopeId': params.auditScopeId,
+				'filter.targetOfEvaluationId': params.id,
 				latestByControlId: true,
 				pageSize: 1000
 			}
@@ -74,5 +74,33 @@ export const load = (async ({ params, fetch }) => {
 		}
 	}
 
-	return { auditScope, catalog, controlsByCategory, evaluationResults, evaluationByControl };
+	// Fetch assessment results and count by metric ID
+	const assessmentRes = await client.GET('/v1/orchestrator/assessment_results', {
+		params: {
+			query: {
+				'filter.targetOfEvaluationId': params.id,
+				pageSize: 1000
+			}
+		}
+	});
+
+	const assessmentResults = assessmentRes.data?.results ?? [];
+
+	// Count assessment results by metric name - separate passing and failing
+	const assessmentCountByMetric: Record<string, { passing: number; failing: number }> = {};
+	for (const ar of assessmentResults) {
+		const metricName = ar.metricId;
+		if (metricName) {
+			if (!assessmentCountByMetric[metricName]) {
+				assessmentCountByMetric[metricName] = { passing: 0, failing: 0 };
+			}
+			if (ar.compliant) {
+				assessmentCountByMetric[metricName].passing++;
+			} else {
+				assessmentCountByMetric[metricName].failing++;
+			}
+		}
+	}
+
+	return { auditScope, catalog, controlsByCategory, evaluationResults, evaluationByControl, assessmentCountByMetric };
 }) satisfies PageLoad;

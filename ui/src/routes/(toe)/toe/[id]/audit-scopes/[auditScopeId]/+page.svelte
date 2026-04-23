@@ -103,6 +103,7 @@
 					{category}
 					controls={data.controlsByCategory[category.name] ?? []}
 					evaluationByControl={data.evaluationByControl}
+					assessmentCountByMetric={data.assessmentCountByMetric}
 				/>
 			{/each}
 		{:else}

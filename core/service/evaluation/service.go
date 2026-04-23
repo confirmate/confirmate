@@ -702,12 +702,19 @@ func (svc *Service) cacheControls(catalogId string) error {
 		return fmt.Errorf("no controls for catalog '%s' available", catalogId)
 	}
 
-	// Store controls in map
+	// Store controls in map (flatten nested structure)
 	svc.catalogsMutex.Lock()
 	svc.catalogControls[catalogId] = make(map[string]*orchestrator.Control)
+	var flatten func(ctrl *orchestrator.Control)
+	flatten = func(ctrl *orchestrator.Control) {
+		tag = fmt.Sprintf("%s-%s", ctrl.GetCategoryName(), ctrl.GetId())
+		svc.catalogControls[catalogId][tag] = ctrl
+		for _, sub := range ctrl.Controls {
+			flatten(sub)
+		}
+	}
 	for _, control := range controls {
-		tag = fmt.Sprintf("%s-%s", control.GetCategoryName(), control.GetId())
-		svc.catalogControls[catalogId][tag] = control
+		flatten(control)
 	}
 	svc.catalogsMutex.Unlock()
 
@@ -770,12 +777,12 @@ func handleCompliant(er *evaluation.EvaluationResult) evaluation.EvaluationStatu
 	return evalStatus
 }
 
-// getMetricIds returns the metric Ids for the given metrics
+// getMetricIds returns the metric names for the given metrics (not UUIDs, as that's what's stored in assessment results)
 func getMetricIds(metrics []*assessment.Metric) []string {
 	var metricIds []string
 
 	for m := range slices.Values(metrics) {
-		metricIds = append(metricIds, m.GetId())
+		metricIds = append(metricIds, m.GetName())
 	}
 
 	return metricIds

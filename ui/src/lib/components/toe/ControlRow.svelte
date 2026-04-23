@@ -7,11 +7,13 @@
 		control,
 		evaluation,
 		evaluationByControl = {},
+		assessmentCountByMetric = {},
 		depth = 0
 	}: {
 		control: SchemaControl;
 		evaluation?: SchemaEvaluationResult;
 		evaluationByControl?: Record<string, SchemaEvaluationResult>;
+		assessmentCountByMetric?: Record<string, number>;
 		depth?: number;
 	} = $props();
 
@@ -72,11 +74,6 @@
 		<span class="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium {statusColor}">
 			{statusLabel}
 		</span>
-		{#if evaluation?.assessmentResultIds && evaluation.assessmentResultIds.length > 0}
-			<span class="mt-0.5 shrink-0 rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600" title="Assessment results involved in evaluation">
-				{evaluation.assessmentResultIds.length} assessment{evaluation.assessmentResultIds.length === 1 ? '' : 's'}
-			</span>
-		{/if}
 		{#if hasMetrics}
 			<button
 				type="button"
@@ -111,6 +108,7 @@
 					control={sub}
 					evaluation={evaluationByControl[sub.id ?? '']}
 					{evaluationByControl}
+					{assessmentCountByMetric}
 					depth={depth + 1}
 				/>
 			{/each}
@@ -120,11 +118,22 @@
 	{#if hasMetrics && open}
 		<div class="ml-8 mt-1 space-y-1 border-l-2 border-gray-100 pl-3">
 			{#each metrics as metric}
+				{@const counts = assessmentCountByMetric[metric.name ?? ''] ?? { passing: 0, failing: 0 }}
 				<div class="flex items-center gap-2 text-xs">
 					<span class="shrink-0 rounded bg-purple-50 px-1.5 py-0.5 font-mono text-purple-600">
 						{metric.id}
 					</span>
 					<span class="text-gray-600">{metric.name ?? ''}</span>
+					{#if counts.passing > 0}
+						<span class="rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-600">
+							{counts.passing} pass
+						</span>
+					{/if}
+					{#if counts.failing > 0}
+						<span class="rounded bg-red-50 px-1.5 py-0.5 text-xs text-red-600">
+							{counts.failing} fail
+						</span>
+					{/if}
 				</div>
 			{/each}
 		</div>
