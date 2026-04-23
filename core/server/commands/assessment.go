@@ -17,10 +17,10 @@ package commands
 
 import (
 	"context"
-	"net/http"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
 
 	"connectrpc.com/connect"
@@ -32,6 +32,7 @@ var assessmentFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "assessment-orchestrator-address",
 		Usage:   "Address of the orchestrator service the assessment service connects to",
+		Value:   assessment.DefaultOrchestratorURL,
 		Sources: envVarSources("assessment-orchestrator-address"),
 	},
 	&cli.StringFlag{
@@ -50,7 +51,7 @@ var AssessmentCommand = &cli.Command{
 		svc, err := assessment.NewService(
 			assessment.WithConfig(assessment.Config{
 				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-				OrchestratorClient:  http.DefaultClient,
+				OrchestratorClient:  service.DefaultHTTPClient,
 				RegoPackage:         cmd.String("assessment-rego-package"),
 			}),
 		)
@@ -73,6 +74,7 @@ var AssessmentCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
+			server.WithReflection(),
 		)
 	},
 	Flags: joinFlagSlices(

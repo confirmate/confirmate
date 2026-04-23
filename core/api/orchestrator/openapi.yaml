@@ -7,6 +7,113 @@ info:
     description: Manages the orchestration of components within the confirmate architecture
     version: 0.0.1
 paths:
+    /v1/evaluation/results:
+        get:
+            tags:
+                - Orchestrator
+            description: |-
+                List all evaluation results that the user can access. It can further be
+                 restricted by various filtering options. Part of the public API, also
+                 exposed as REST.
+            operationId: Orchestrator_ListEvaluationResults
+            parameters:
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific target of evaluation.
+                  schema:
+                    type: string
+                - name: filter.catalogId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific catalog.
+                  schema:
+                    type: string
+                - name: filter.controlId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific control id.
+                  schema:
+                    type: string
+                - name: filter.subControls
+                  in: query
+                  description: |-
+                    Optional. Lists all evaluation results for the given initial control id
+                     substring, e.g., if the substring 'CMK-01.' is given it returns the
+                     controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+                  schema:
+                    type: string
+                - name: filter.parentsOnly
+                  in: query
+                  description: Optional. Lists only results for parent controls
+                  schema:
+                    type: boolean
+                - name: filter.validManualOnly
+                  in: query
+                  description: Optional. Lists only manual results in their validity period
+                  schema:
+                    type: boolean
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific audit scope.
+                  schema:
+                    type: string
+                - name: latestByControlId
+                  in: query
+                  description: Optional. Latest results grouped by control_id.
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEvaluationResultsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: Store the evaluation result provided by the evaluation component.″
+            operationId: Orchestrator_StoreEvaluationResult
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EvaluationResult'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EvaluationResult'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/assessment_results:
         get:
             tags:
@@ -1483,6 +1590,232 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists users with optional filtering
+            operationId: Orchestrator_ListUsers
+            parameters:
+                - name: filter.role
+                  in: query
+                  description: Optional. Filter by role (e.g., "compliance_manager")
+                  schema:
+                    enum:
+                        - ROLE_UNSPECIFIED
+                        - ROLE_ADMIN
+                        - ROLE_COMPLIANCE_MANAGER
+                        - ROLE_EXPERT_COMPLIANCE_MANAGER
+                        - ROLE_INTERNAL_CONTROL_OWNER
+                        - ROLE_TECHNICAL_IMPLEMENTER
+                        - ROLE_AUDITOR
+                        - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                    type: string
+                    format: enum
+                - name: filter.enabled
+                  in: query
+                  description: Optional. Filter by enabled/disabled status
+                  schema:
+                    type: boolean
+                - name: filter.search
+                  in: query
+                  description: Optional. Search query for username, email, first name, or last name
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUsersResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/me:
+        get:
+            tags:
+                - Orchestrator
+            description: Returns information about the currently authenticated user
+            operationId: Orchestrator_GetCurrentUser
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permission.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/roles:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists all predefined roles in the system.
+            operationId: Orchestrator_ListUserRoles
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserRolesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/user_permission:
+        post:
+            tags:
+                - Orchestrator
+            description: Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+            operationId: Orchestrator_UpsertUserPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPermission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/{userId}:
+        get:
+            tags:
+                - Orchestrator
+            description: Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+            operationId: Orchestrator_GetUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+            operationId: Orchestrator_RemoveUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         AssessmentResult:
@@ -1578,6 +1911,7 @@ components:
         AuditScope:
             required:
                 - id
+                - name
                 - targetOfEvaluationId
                 - catalogId
             type: object
@@ -1585,6 +1919,8 @@ components:
                 id:
                     type: string
                     description: Audit Scope ID
+                name:
+                    type: string
                 targetOfEvaluationId:
                     type: string
                 catalogId:
@@ -1594,6 +1930,27 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
+                readers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs with explicit permission to view this target (Read-only).
+                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+                contributors:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs responsible for the content and maintenance of this target.
+                         These users can modify settings and data but cannot manage other users' access.
+                admins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs with administrative control over this target.
+                         These users can manage permissions for others and perform destructive actions like deletion.
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
@@ -1781,6 +2138,74 @@ components:
                     type: string
                 version:
                     type: string
+        EvaluationResult:
+            required:
+                - id
+                - status
+                - timestamp
+                - assessmentResultIds
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Evaluation result id
+                targetOfEvaluationId:
+                    type: string
+                    description: The Target of Evaluation ID the evaluation belongs to
+                auditScopeId:
+                    type: string
+                    description: The Audit Scope ID the evaluation belongs to
+                controlId:
+                    type: string
+                    description: The control id the evaluation was based on
+                controlCategoryName:
+                    type: string
+                    description: The category the evaluated control belongs to
+                controlCatalogId:
+                    type: string
+                    description: The catalog the evaluated control belongs to
+                parentControlId:
+                    type: string
+                    description: Optionally, specifies the parent control ID, if this is a sub-control
+                status:
+                    enum:
+                        - EVALUATION_STATUS_UNSPECIFIED
+                        - EVALUATION_STATUS_COMPLIANT
+                        - EVALUATION_STATUS_COMPLIANT_MANUALLY
+                        - EVALUATION_STATUS_NOT_COMPLIANT
+                        - EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY
+                        - EVALUATION_STATUS_PENDING
+                    type: string
+                    description: Evaluation status
+                    format: enum
+                timestamp:
+                    type: string
+                    description: Time of evaluation
+                    format: date-time
+                assessmentResultIds:
+                    type: array
+                    items:
+                        type: string
+                    description: List of assessment results because of which the evaluation status is compliant or not compliant
+                comment:
+                    type: string
+                validUntil:
+                    type: string
+                    description: |-
+                        Optional, but required if the status is one of the "manually" ones. This
+                         denotes how long the (manual) created evaluation result is valid. During
+                         this time, no automatic results are generated for the specific control.
+                    format: date-time
+                data:
+                    type: string
+                    description: |-
+                        Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+                         creation, such as a large file like a policy in PDF format.
+                    format: bytes
+            description: |-
+                A evaluation result resource, representing the result after evaluating the
+                 target of evaluation with a specific control target_of_evaluation_id, category_name and
+                 catalog_id are necessary to get the corresponding AuditScope
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
@@ -1860,6 +2285,15 @@ components:
                         $ref: '#/components/schemas/Control'
                 nextPageToken:
                     type: string
+        ListEvaluationResultsResponse:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EvaluationResult'
+                nextPageToken:
+                    type: string
         ListMetricConfigurationResponse:
             type: object
             properties:
@@ -1902,6 +2336,41 @@ components:
                         $ref: '#/components/schemas/TargetOfEvaluation'
                 nextPageToken:
                     type: string
+        ListUserPermissionsResponse:
+            type: object
+            properties:
+                userPermissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserPermission'
+                nextPageToken:
+                    type: string
+        ListUserRolesResponse:
+            type: object
+            properties:
+                roles:
+                    type: array
+                    items:
+                        enum:
+                            - ROLE_UNSPECIFIED
+                            - ROLE_ADMIN
+                            - ROLE_COMPLIANCE_MANAGER
+                            - ROLE_EXPERT_COMPLIANCE_MANAGER
+                            - ROLE_INTERNAL_CONTROL_OWNER
+                            - ROLE_TECHNICAL_IMPLEMENTER
+                            - ROLE_AUDITOR
+                            - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        type: string
+                        format: enum
+        ListUsersResponse:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                nextPageToken:
+                    type: string
         Metric:
             required:
                 - id
@@ -1925,7 +2394,7 @@ components:
                     description: The version of this metric
                 comments:
                     type: string
-                    description: Optional comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
+                    description: Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
                 category:
                     type: string
                     description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
@@ -2109,6 +2578,27 @@ components:
                     type: string
                     description: 'type of the target to be evaluated: cloud, product or organization'
                     format: enum
+                readers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs with explicit permission to view this target (Read-only).
+                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
+                contributors:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs responsible for the content and maintenance of this target.
+                         These users can modify settings and data but cannot manage other users' access.
+                admins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: |-
+                        List of user IDs with administrative control over this target.
+                         These users can manage permissions for others and perform destructive actions like deletion.
         TargetOfEvaluation_Metadata:
             type: object
             properties:
@@ -2120,5 +2610,102 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
+        UpsertUserPermissionResponse:
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
+        User:
+            required:
+                - id
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ID is the unique identifier of the user
+                username:
+                    type: string
+                    description: Username is the name used to be displayed
+                email:
+                    type: string
+                    description: Email is the email address of the user, if available.
+                firstName:
+                    type: string
+                    description: FirstName is the first name of the user, if available.
+                lastName:
+                    type: string
+                    description: LastName is the last name of the user, if available.
+                roles:
+                    type: array
+                    items:
+                        enum:
+                            - ROLE_UNSPECIFIED
+                            - ROLE_ADMIN
+                            - ROLE_COMPLIANCE_MANAGER
+                            - ROLE_EXPERT_COMPLIANCE_MANAGER
+                            - ROLE_INTERNAL_CONTROL_OWNER
+                            - ROLE_TECHNICAL_IMPLEMENTER
+                            - ROLE_AUDITOR
+                            - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        type: string
+                        format: enum
+                    description: Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
+                enabled:
+                    type: boolean
+                    description: Enabled indicates whether the user is active/enabled in the system
+                attributes:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Attributes contains additional key-value pairs associated with the user, such as department or team.
+                lastAccess:
+                    type: string
+                    description: LastAccess indicates the last time the user accessed the system.
+                    format: date-time
+            description: Represents a user from the IdP
+        UserPermission:
+            required:
+                - userId
+                - resourceId
+                - resourceType
+                - permission
+            type: object
+            properties:
+                userId:
+                    type: string
+                    description: User ID is required to identify the user for whom the perission is being upserted.
+                resourceId:
+                    type: string
+                    description: Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
+                resourceType:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                    type: string
+                    description: Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+                    format: enum
+                permission:
+                    enum:
+                        - PERMISSION_UNSPECIFIED
+                        - PERMISSION_READER
+                        - PERMISSION_CONTRIBUTOR
+                        - PERMISSION_ADMIN
+                    type: string
+                    description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+                    format: enum
 tags:
     - name: Orchestrator

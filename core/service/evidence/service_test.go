@@ -19,7 +19,6 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence/evidencetest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -367,6 +366,7 @@ func TestService_StoreEvidence(t *testing.T) {
 			svc = &Service{
 				db:              tt.fields.db,
 				channelEvidence: make(chan *evidence.Evidence, defaultEvidenceQueueSize),
+				toolIds:         make(map[string]struct{}),
 			}
 
 			res, err = svc.StoreEvidence(tt.args.ctx, tt.args.req)
@@ -465,8 +465,9 @@ func TestService_StoreEvidences(t *testing.T) {
 
 			// Initialize service directly with DB from test fields
 			svc = &Service{
-				db:  tt.fields.db,
-				cfg: DefaultConfig,
+				db:      tt.fields.db,
+				cfg:     DefaultConfig,
+				toolIds: make(map[string]struct{}),
 			}
 			svc.cfg.AssessmentAddress = assessmentSrv.URL
 			svc.cfg.AssessmentHTTPClient = assessmentSrv.Client()
@@ -595,6 +596,7 @@ func TestService_StoreEvidences_SendErrors(t *testing.T) {
 			svc := &Service{
 				db:              tt.fields.db,
 				channelEvidence: make(chan *evidence.Evidence, 1),
+				toolIds:         make(map[string]struct{}),
 			}
 
 			stream := &fakeEvidenceStream{
@@ -677,7 +679,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{TargetOfEvaluationId: util.Ref(ev1.TargetOfEvaluationId)},
+				Filter: &evidence.Filter{TargetOfEvaluationId: new(ev1.TargetOfEvaluationId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -702,7 +704,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{ToolId: util.Ref(ev1.ToolId)},
+				Filter: &evidence.Filter{ToolId: new(ev1.ToolId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -895,6 +897,87 @@ func TestService_ListSupportedResourceTypes(t *testing.T) {
 	}
 }
 
+// TestService_ListTools covers the empty-cache case and population via StoreEvidence.
+func TestService_ListTools(t *testing.T) {
+	tests := []struct {
+		name      string
+		evidences []*evidence.Evidence
+		req       *connect.Request[evidence.ListToolsRequest]
+		want      assert.Want[*connect.Response[evidence.ListToolsResponse]]
+		wantErr   assert.WantErr
+	}{
+		{
+			name:      "error - nil request",
+			evidences: nil,
+			req:       nil,
+			want:      assert.Nil[*connect.Response[evidence.ListToolsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name:      "happy path - empty cache returns empty list",
+			evidences: nil,
+			req:       &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, 0, len(got.Msg.ToolIds))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - deduplicates same tool across multiple evidences",
+			evidences: []*evidence.Evidence{
+				evidencetest.MockEvidenceListA, // tool-a
+				evidencetest.MockEvidenceListB, // tool-a (same tool, different ToE)
+			},
+			req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, 1, len(got.Msg.ToolIds))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - returns all distinct tool ids",
+			evidences: []*evidence.Evidence{
+				evidencetest.MockEvidenceListA, // tool-a
+				evidencetest.MockEvidenceListB, // tool-a
+				evidencetest.MockEvidenceListC, // tool-b
+			},
+			req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 2, len(got.Msg.ToolIds)) {
+					return false
+				}
+				assert.Contains(t, got.Msg.ToolIds, evidencetest.MockEvidenceListA.ToolId)
+				assert.Contains(t, got.Msg.ToolIds, evidencetest.MockEvidenceListC.ToolId)
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				toolIds: make(map[string]struct{}),
+			}
+
+			for _, ev := range tt.evidences {
+				svc.toolIdsMu.Lock()
+				svc.toolIds[ev.ToolId] = struct{}{}
+				svc.toolIdsMu.Unlock()
+			}
+
+			res, err := svc.ListTools(context.Background(), tt.req)
+			tt.wantErr(t, err)
+			tt.want(t, res)
+		})
+	}
+}
+
 // TestService_ListResources uses table tests to cover filters, pagination, and error handling.
 func TestService_ListResources(t *testing.T) {
 	res1 := evidencetest.MockResourceListA
@@ -969,7 +1052,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: util.Ref(res1.TargetOfEvaluationId)},
+					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: new(res1.TargetOfEvaluationId)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
@@ -994,7 +1077,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{ToolId: util.Ref(res1.ToolId)},
+					Filter: &evidence.ListResourcesRequest_Filter{ToolId: new(res1.ToolId)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
@@ -1019,7 +1102,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
+					Filter: &evidence.ListResourcesRequest_Filter{Type: new(res1.ResourceType)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {

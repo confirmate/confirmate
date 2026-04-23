@@ -79,14 +79,19 @@ type AuthInterceptor struct {
 
 // NewAuthInterceptor creates a new auth interceptor.
 func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
-	var cfg *AuthConfig
+	var (
+		cfg *AuthConfig
+	)
 
 	cfg = &AuthConfig{}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 
-	interceptor = &AuthInterceptor{cfg: cfg}
+	interceptor = &AuthInterceptor{
+		cfg: cfg,
+	}
+
 	return interceptor
 }
 
@@ -109,9 +114,10 @@ func (ai *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
+		// Store claims in ctx
 		ctx = auth.WithClaims(ctx, claims)
-		res, err = next(ctx, req)
-		return res, err
+
+		return next(ctx, req)
 	}
 }
 
@@ -139,7 +145,9 @@ func (ai *AuthInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFun
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid auth token"))
 		}
 
+		// Store claims in ctx
 		ctx = auth.WithClaims(ctx, claims)
+
 		return next(ctx, conn)
 	}
 }
@@ -156,7 +164,7 @@ func (ai *AuthInterceptor) isPublic(procedure string) (ok bool) {
 	return ok
 }
 
-func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err error) {
+func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, err error) {
 	var (
 		jwks     *keyfunc.JWKS
 		keyFunc  jwt.Keyfunc
@@ -187,12 +195,14 @@ func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err e
 		}
 	}
 
-	parsed, err = jwt.ParseWithClaims(token, jwt.MapClaims{}, keyFunc)
+	// Parse JWT token and extract claims
+	parsed, err = jwt.ParseWithClaims(token, &auth.OAuthClaims{}, keyFunc)
 	if err != nil {
 		return nil, err
 	}
 
-	claims, claimsOK = parsed.Claims.(jwt.MapClaims)
+	// Convert claims to expected type
+	claims, claimsOK = parsed.Claims.(*auth.OAuthClaims)
 	if !claimsOK {
 		return nil, errors.New("invalid token claims")
 	}
@@ -200,6 +210,9 @@ func (ai *AuthInterceptor) parseToken(token string) (claims jwt.MapClaims, err e
 	return claims, nil
 }
 
+// bearerToken extracts the token from the Authorization header. It expects the header to be in the
+// format "Bearer <token>". If the header is missing, malformed, or the token is empty, it returns
+// an error.
 func bearerToken(header string) (token string, err error) {
 	var parts []string
 
