@@ -197,6 +197,10 @@ func (svc *Service) initOrchestratorStream() (err error) {
 		restartableStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	)
 
+	if svc.orchestratorStream != nil {
+		return nil
+	}
+
 	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)
 	}
