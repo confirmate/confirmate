@@ -50,7 +50,7 @@ const DefaultOrchestratorURL = "http://localhost:8080"
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  http.DefaultClient,
+	OrchestratorClient:  service.DefaultHTTPClient,
 	RegoPackage:         policies.DefaultRegoPackage,
 }
 
@@ -196,6 +196,10 @@ func (svc *Service) initOrchestratorStream() (err error) {
 		factory           stream.StreamFactory[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 		restartableStream *stream.RestartableBidiStream[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse]
 	)
+
+	if svc.orchestratorStream != nil {
+		return nil
+	}
 
 	factory = func(ctx context.Context) *connect.BidiStreamForClient[orchestrator.StoreAssessmentResultRequest, orchestrator.StoreAssessmentResultsResponse] {
 		return svc.orchestratorClient.StoreAssessmentResults(ctx)

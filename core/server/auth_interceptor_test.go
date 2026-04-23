@@ -103,6 +103,7 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 	var (
 		privateKey, publicKey = mustECDSAKeyPair(t)
 		validToken            = mustSignES256Token(t, privateKey, "kid-1", jwt.MapClaims{"sub": "user-1", "cfadmin": true})
+		validTokenViaRoles    = mustSignES256Token(t, privateKey, "kid-1", jwt.MapClaims{"sub": "user-role-admin", "roles": []string{"ROLE_ADMIN"}})
 		invalidToken          = mustSignES256Token(t, mustECDSAKeyPairPrivateOnly(t), "kid-1", jwt.MapClaims{"sub": "user-1"})
 	)
 
@@ -156,6 +157,17 @@ func TestAuthInterceptorWrapUnary(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name:   "valid token with ROLE_ADMIN sets admin claims",
+			args:   args{authHeader: "Bearer " + validTokenViaRoles},
+			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
+			want: func(t *testing.T, got gotData, _ ...any) bool {
+				assert.True(t, got.claims.IsAdmin())
+				assert.Equal(t, "user-role-admin", got.claims.Subject)
+				return assert.True(t, got.nextCalled)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
@@ -201,6 +213,7 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 		validJWKSToken        = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "jwks-user"})
 		invalidJWKSToken      = mustSignES256Token(t, mustECDSAKeyPairPrivateOnly(t), kid, jwt.MapClaims{"sub": "other"})
 		validPublicKeyToken   = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "pk-user"})
+		roleAdminToken        = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "pk-role-admin", "roles": []string{"ROLE_ADMIN"}})
 	)
 
 	tests := []struct {
@@ -234,6 +247,16 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
 			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
 				return assert.Equal(t, "pk-user", got.Subject)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name:   "public key sets admin from ROLE_ADMIN role",
+			args:   args{token: roleAdminToken},
+			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "pk-role-admin", got.Subject) &&
+					assert.True(t, got.IsAdmin())
 			},
 			wantErr: assert.NoError,
 		},
