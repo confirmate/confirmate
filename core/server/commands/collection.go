@@ -26,12 +26,6 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/service/collection"
 
-<<<<<<< HEAD
-	"github.com/urfave/cli/v3"
-)
-
-type noOpCollector struct{}
-=======
 	"github.com/google/uuid"
 	"github.com/urfave/cli/v3"
 )
@@ -59,14 +53,11 @@ func (c noOpCollector) ID() string {
 func (c noOpCollector) Name() string {
 	return c.name
 }
->>>>>>> oxisto/collection-service
 
 func (noOpCollector) Collect() (list []ontology.IsResource, err error) {
 	return nil, nil
 }
 
-<<<<<<< HEAD
-=======
 // collectionFlags contains the flags that are specific to configuring the collection service.
 var collectionFlags = []cli.Flag{
 	&cli.DurationFlag{
@@ -89,7 +80,6 @@ var collectionFlags = []cli.Flag{
 	},
 }
 
->>>>>>> oxisto/collection-service
 // CollectionCommand is the command to start the collection service.
 var CollectionCommand = &cli.Command{
 	Name:  "collection",
@@ -109,14 +99,6 @@ var CollectionCommand = &cli.Command{
 			return err
 		}
 
-<<<<<<< HEAD
-		svc, err = collection.NewService(collection.Config{
-			Interval: cmd.Duration("collection-interval"),
-			Collectors: []collection.Collector{
-				noOpCollector{},
-			},
-		})
-=======
 		svc, err = collection.NewService(
 			collection.WithConfig(collection.Config{
 				Interval:             cmd.Duration("collection-interval"),
@@ -127,7 +109,6 @@ var CollectionCommand = &cli.Command{
 				},
 			}),
 		)
->>>>>>> oxisto/collection-service
 		if err != nil {
 			return err
 		}
@@ -139,23 +120,8 @@ var CollectionCommand = &cli.Command{
 
 		return nil
 	},
-<<<<<<< HEAD
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: "INFO",
-		},
-		&cli.DurationFlag{
-			Name:  "collection-interval",
-			Usage: "Interval between collection runs",
-			Value: collection.DefaultConfig.Interval,
-		},
-	},
-=======
 	Flags: joinFlagSlices(
 		logFlags,
 		collectionFlags,
 	),
->>>>>>> oxisto/collection-service
 }
