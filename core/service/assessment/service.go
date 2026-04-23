@@ -46,7 +46,7 @@ const DefaultOrchestratorURL = "http://localhost:8080"
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  http.DefaultClient,
+	OrchestratorClient:  service.DefaultHTTPClient,
 	RegoPackage:         policies.DefaultRegoPackage,
 }
 
