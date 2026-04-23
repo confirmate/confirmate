@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"confirmate.io/core/util"
-
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 	"github.com/lmittmann/tint"
 )

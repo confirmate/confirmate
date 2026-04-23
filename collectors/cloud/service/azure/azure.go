@@ -30,6 +30,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
+	"github.com/google/uuid"
 	"github.com/lmittmann/tint"
 )
 
@@ -108,6 +109,7 @@ type azureCollector struct {
 	clientOptions      arm.ClientOptions
 	clients            clients
 	ctID               string
+	id                 string
 	backupMap          map[string]*backup
 	defenderProperties map[string]*defenderProperties
 }
@@ -179,6 +181,9 @@ func NewAzureCollector(opts ...CollectorOption) cloud.Collector {
 	for _, opt := range opts {
 		opt(d)
 	}
+
+	seed := "azure::" + d.ctID
+	d.id = uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
 
 	return d
 }
@@ -299,6 +304,16 @@ func (d *azureCollector) List() (list []ontology.IsResource, err error) {
 	list = append(list, mlWorkspaces...)
 
 	return list, nil
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *azureCollector) Collect() (list []ontology.IsResource, err error) {
+	return d.List()
+}
+
+// ID returns a stable collector ID derived from collector type and target of evaluation.
+func (d *azureCollector) ID() string {
+	return d.id
 }
 
 func (d *azureCollector) TargetOfEvaluationID() string {

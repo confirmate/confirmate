@@ -25,6 +25,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/security/armsecurity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -1256,9 +1257,43 @@ func TestNewAzureCollector(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewAzureCollector(tt.args.opts...)
-			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
+
+			collector, ok := got.(*azureCollector)
+			assert.True(t, ok)
+			if !ok {
+				return
+			}
+
+			expected, ok := tt.want.(*azureCollector)
+			assert.True(t, ok)
+			if !ok {
+				return
+			}
+
+			assert.Equal(t, expected.ctID, collector.ctID)
+			assert.Equal(t, expected.rg, collector.rg)
+			assert.Equal(t, expected.cred, collector.cred)
+			assert.Equal(t, expected.clientOptions, collector.clientOptions, assert.CompareAllUnexported())
+			assert.NotNil(t, collector.backupMap)
+			assert.NotNil(t, collector.defenderProperties)
+			assert.NotEqual(t, "", collector.id)
 		})
 	}
+}
+
+func Test_azureCollector_ID(t *testing.T) {
+	d := NewAzureCollector(WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID1))
+
+	collector, ok := d.(*azureCollector)
+	assert.True(t, ok)
+	if !ok {
+		return
+	}
+
+	seed := "azure::" + testdata.MockTargetOfEvaluationID1
+	expectedID := uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
+
+	assert.Equal(t, expectedID, collector.ID())
 }
 
 func Test_azureCollector_List(t *testing.T) {
@@ -1347,6 +1382,18 @@ func Test_azureCollector_TargetOfEvaluationID(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_azureCollector_Collect(t *testing.T) {
+	t.Run("Authorize error: no credentials configured", func(t *testing.T) {
+		d := &azureCollector{}
+
+		gotList, err := d.Collect()
+
+		assert.Empty(t, gotList)
+		assert.ErrorContains(t, err, ErrNoCredentialsConfigured.Error())
+		assert.ErrorContains(t, err, ErrCouldNotAuthenticate.Error())
+	})
 }
 
 func Test_azureCollector_authorize(t *testing.T) {
@@ -1839,6 +1886,9 @@ func NewMockAzureCollector(transport policy.Transporter, opts ...CollectorOption
 	for _, opt := range opts {
 		opt(d)
 	}
+
+	seed := "azure::" + d.ctID
+	d.id = uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
 
 	return d
 }
