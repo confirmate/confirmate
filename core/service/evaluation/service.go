@@ -43,6 +43,10 @@ type Service struct {
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
 
+	// orchestratorCtx is a long running context that is used for all calls to the orchestrator,
+	// e.g., to retrieve controls or store evaluation results.
+	orchestratorCtx context.Context
+
 	scheduler *gocron.Scheduler
 
 	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint
@@ -88,6 +92,8 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 
 	// Initialize the Orchestrator client
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+	// TODO: supply authentication tokens to orchestrator
+	svc.orchestratorCtx = context.Background()
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
@@ -118,7 +124,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	}
 
 	// Get Audit Scope
-	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(svc.orchestratorCtx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
@@ -145,7 +151,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	}
 
 	// Retrieve the catalog
-	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
+	catalogRes, err = svc.orchestratorClient.GetCatalog(svc.orchestratorCtx, connect.NewRequest(&orchestrator.GetCatalogRequest{
 		CatalogId: auditScope.GetCatalogId(),
 	}))
 	if err != nil {
@@ -167,7 +173,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	slog.Info("Starting evaluation ...")
 
 	// Add job to scheduler
-	err = svc.addJobToScheduler(ctx, auditScope, catalog, interval)
+	err = svc.addJobToScheduler(svc.orchestratorCtx, auditScope, catalog, interval)
 	// We can return the error as it is
 	if err != nil {
 		return nil, err
@@ -208,6 +214,41 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	res = &connect.Response[evaluation.StopEvaluationResponse]{}
 
 	return
+}
+
+// GetEvaluationStatus returns the current evaluation status for the given audit scope.
+func (svc *Service) GetEvaluationStatus(ctx context.Context, req *connect.Request[evaluation.GetEvaluationStatusRequest]) (res *connect.Response[evaluation.GetEvaluationStatusResponse], err error) {
+	var (
+		auditScopeId string
+	)
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	auditScopeId = req.Msg.GetAuditScopeId()
+
+	// Check if any jobs are running for this audit scope
+	jobs, err := svc.scheduler.FindJobsByTag(auditScopeId)
+	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
+		slog.Error("could not find scheduler jobs", log.Err(err))
+		return nil, connect.NewError(connect.CodeInternal, errors.New("could not check evaluation status"))
+	}
+
+	isRunning := len(jobs) > 0
+
+	var status evaluation.EvaluationRunningStatus
+	if isRunning {
+		status = evaluation.EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_RUNNING
+	} else {
+		status = evaluation.EvaluationRunningStatus_EVALUATION_RUNNING_STATUS_STOPPED
+	}
+
+	res = connect.NewResponse(&evaluation.GetEvaluationStatusResponse{
+		Status: status,
+	})
+
+	return res, nil
 }
 
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
@@ -278,6 +319,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 			return res.Results
 		})
 	if err != nil {
+		slog.Error("Could not retrieve existing manual evaluation results", log.Err(err))
 		err = fmt.Errorf("could not retrieve existing manual evaluation results: %w", err)
 		return err
 	}
@@ -660,12 +702,19 @@ func (svc *Service) cacheControls(catalogId string) error {
 		return fmt.Errorf("no controls for catalog '%s' available", catalogId)
 	}
 
-	// Store controls in map
+	// Store controls in map (flatten nested structure)
 	svc.catalogsMutex.Lock()
 	svc.catalogControls[catalogId] = make(map[string]*orchestrator.Control)
+	var flatten func(ctrl *orchestrator.Control)
+	flatten = func(ctrl *orchestrator.Control) {
+		tag = fmt.Sprintf("%s-%s", ctrl.GetCategoryName(), ctrl.GetId())
+		svc.catalogControls[catalogId][tag] = ctrl
+		for _, sub := range ctrl.Controls {
+			flatten(sub)
+		}
+	}
 	for _, control := range controls {
-		tag = fmt.Sprintf("%s-%s", control.GetCategoryName(), control.GetId())
-		svc.catalogControls[catalogId][tag] = control
+		flatten(control)
 	}
 	svc.catalogsMutex.Unlock()
 
@@ -728,12 +777,12 @@ func handleCompliant(er *evaluation.EvaluationResult) evaluation.EvaluationStatu
 	return evalStatus
 }
 
-// getMetricIds returns the metric Ids for the given metrics
+// getMetricIds returns the metric names for the given metrics (not UUIDs, as that's what's stored in assessment results)
 func getMetricIds(metrics []*assessment.Metric) []string {
 	var metricIds []string
 
 	for m := range slices.Values(metrics) {
-		metricIds = append(metricIds, m.GetId())
+		metricIds = append(metricIds, m.GetName())
 	}
 
 	return metricIds

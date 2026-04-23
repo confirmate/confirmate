@@ -152,6 +152,16 @@ func (svc *Service) ListAssessmentResults(
 			whereClauses = append(whereClauses, "metric_id = ?")
 			args = append(args, req.Msg.Filter.GetMetricId())
 		}
+		if len(req.Msg.Filter.MetricIds) > 0 {
+			// Build IN clause dynamically to support ramsql (doesn't support array binding)
+			var placeholders string
+			placeholders = strings.Repeat("?,", len(req.Msg.Filter.MetricIds))
+			placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+			whereClauses = append(whereClauses, "metric_id IN ("+placeholders+")")
+			for _, id := range req.Msg.Filter.MetricIds {
+				args = append(args, id)
+			}
+		}
 		if req.Msg.Filter.ToolId != nil {
 			whereClauses = append(whereClauses, "tool_id = ?")
 			args = append(args, req.Msg.Filter.GetToolId())

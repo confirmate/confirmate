@@ -6,45 +6,6 @@ info:
     title: ""
     version: 0.0.1
 paths:
-    /v1/evidence/graph/edges:
-        get:
-            tags:
-                - Resources
-            description: |-
-                ListGraphEdges returns the edges (relationship) between resources in our
-                 resource graph.
-            operationId: Resources_ListGraphEdges
-            parameters:
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListGraphEdgesResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/evidence_store/evidence:
         post:
             tags:
@@ -194,6 +155,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/evidence_store/resources/edges:
+        get:
+            tags:
+                - Resources
+            description: |-
+                ListGraphEdges returns the edges (relationship) between resources in our
+                 resource graph.
+            operationId: Resources_ListGraphEdges
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGraphEdgesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/evidence_store/resources/{resource.id}:
         post:
             tags:
@@ -221,7 +221,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Resource'
+                                $ref: '#/components/schemas/ResourceSnapshot'
                 default:
                     description: Default error response
                     content:
@@ -593,8 +593,26 @@ components:
             properties:
                 annualUpdateCompleted:
                     type: boolean
+                creationTime:
+                    type: string
+                    format: date-time
+                description:
+                    type: string
+                id:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                name:
+                    type: string
+                raw:
+                    type: string
+                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
                 successfullyCompletedPercentage:
                     type: boolean
+                parentId:
+                    type: string
             description: AwarenessTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Backup:
             type: object
@@ -1084,11 +1102,29 @@ components:
         ContactPerson:
             type: object
             properties:
+                creationTime:
+                    type: string
+                    format: date-time
+                description:
+                    type: string
                 emailAddress:
+                    type: string
+                id:
                     type: string
                 jobTitle:
                     type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                name:
+                    type: string
                 phoneNumber:
+                    type: string
+                raw:
+                    type: string
+                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                parentId:
                     type: string
             description: ContactPerson is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Container:
@@ -2197,14 +2233,6 @@ components:
                     $ref: '#/components/schemas/HttpEndpoint'
                 error:
                     $ref: '#/components/schemas/Error'
-                contactPerson:
-                    $ref: '#/components/schemas/ContactPerson'
-                monitoringProcedure:
-                    $ref: '#/components/schemas/MonitoringProcedure'
-                awarenessTraining:
-                    $ref: '#/components/schemas/AwarenessTraining'
-                securityTraining:
-                    $ref: '#/components/schemas/SecurityTraining'
                 httpClient:
                     $ref: '#/components/schemas/HttpClient'
                 httpRequestContext:
@@ -2413,18 +2441,6 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        Governance:
-            type: object
-            properties:
-                contactPerson:
-                    $ref: '#/components/schemas/ContactPerson'
-                monitoringProcedure:
-                    $ref: '#/components/schemas/MonitoringProcedure'
-                awarenessTraining:
-                    $ref: '#/components/schemas/AwarenessTraining'
-                securityTraining:
-                    $ref: '#/components/schemas/SecurityTraining'
-            description: Governance is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
         GraphEdge:
             required:
                 - id
@@ -3417,7 +3433,7 @@ components:
                 results:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Resource'
+                        $ref: '#/components/schemas/ResourceSnapshot'
                 nextPageToken:
                     type: string
         ListSupportedResourceTypesResponse:
@@ -3975,10 +3991,28 @@ components:
         MonitoringProcedure:
             type: object
             properties:
+                creationTime:
+                    type: string
+                    format: date-time
+                description:
+                    type: string
+                id:
+                    type: string
                 intervalMonths:
                     type: integer
                     description: The interval refers to the interval in months.
                     format: int32
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                name:
+                    type: string
+                raw:
+                    type: string
+                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                parentId:
+                    type: string
             description: |-
                 MonitoringProcedure is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  intervalMonths: Review frequency (in months) for reviewing monitoring procedures
@@ -4488,10 +4522,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/DocumentSignature'
-                governances:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Governance'
+                governanceId:
+                    type: string
                 parentId:
                     type: string
                 validatedBy:
@@ -4542,16 +4574,16 @@ components:
                     type: array
                     items:
                         type: string
-                contactPerson:
-                    $ref: '#/components/schemas/ContactPerson'
+                contactPersonId:
+                    type: string
                 dataIds:
                     type: array
                     items:
                         type: string
-                governances:
+                governanceIds:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Governance'
+                        type: string
                 hardwareIds:
                     type: array
                     items:
@@ -5088,6 +5120,14 @@ components:
                     $ref: '#/components/schemas/Token'
                 value:
                     $ref: '#/components/schemas/Value'
+                contactPerson:
+                    $ref: '#/components/schemas/ContactPerson'
+                monitoringProcedure:
+                    $ref: '#/components/schemas/MonitoringProcedure'
+                awarenessTraining:
+                    $ref: '#/components/schemas/AwarenessTraining'
+                securityTraining:
+                    $ref: '#/components/schemas/SecurityTraining'
                 memory:
                     $ref: '#/components/schemas/Memory'
                 product:
@@ -5165,6 +5205,43 @@ components:
                     items:
                         type: string
             description: ResourceLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        ResourceSnapshot:
+            required:
+                - id
+                - targetOfEvaluationId
+                - resourceType
+                - toolId
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: |-
+                        Id contains a unique ID for each resource. This is specific for the cloud
+                         provider this resource was gathered for and can for example be a resource
+                         URL.
+                targetOfEvaluationId:
+                    type: string
+                    description: |-
+                        TargetOfEvaluationId is the UUID for the target of evaluation to which this resource
+                         belongs to.
+                resourceType:
+                    type: string
+                    description: |-
+                        ResourceType contains a comma separated string of resource types according
+                         to our ontology.
+                toolId:
+                    type: string
+                    description: Reference to the tool which provided the resource
+                resource:
+                    allOf:
+                        - $ref: '#/components/schemas/Resource'
+                    description: Semantic representation of the Cloud resource according to our defined ontology
+            description: |-
+                ResourceSnapshot is the persisted representation of a cloud resource.
+                 It is distinct from confirmate.ontology.v1.Resource, which is the semantic
+                 discriminated union of all concrete ontology types. ResourceSnapshot carries
+                 metadata (id, resourceType, targetOfEvaluationId, toolId) plus the
+                 serialised ontology properties.
         RobustnessScore:
             type: object
             properties: {}
@@ -5523,8 +5600,26 @@ components:
             properties:
                 annualUpdateCompleted:
                     type: boolean
+                creationTime:
+                    type: string
+                    format: date-time
+                description:
+                    type: string
+                id:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                name:
+                    type: string
+                raw:
+                    type: string
+                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
                 successfullyCompletedPercentage:
                     type: boolean
+                parentId:
+                    type: string
             description: SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         ServiceMetadataDocument:
             type: object
@@ -5728,7 +5823,7 @@ components:
             type: object
             properties:
                 resource:
-                    $ref: '#/components/schemas/Resource'
+                    $ref: '#/components/schemas/ResourceSnapshot'
         UsageStatistics:
             type: object
             properties:

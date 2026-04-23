@@ -23,13 +23,15 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
-	"confirmate.io/core/service/collection"
+"confirmate.io/core/service/collection"
+	"confirmate.io/core/service/evaluation"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
@@ -94,7 +96,8 @@ var ConfirmateCommand = &cli.Command{
 			evidenceOpts        []service.Option[evidence.Service]
 			orchestratorSvc     orchestratorconnect.OrchestratorHandler
 			assessmentSvc       assessmentconnect.AssessmentHandler
-			evidenceSvc         evidenceconnect.EvidenceStoreHandler
+			evidenceSvc         *evidence.Service
+			evaluationSvc       evaluationconnect.EvaluationHandler
 			orchestratorClient  *http.Client
 			apiPort             uint16
 			credentials         *clientcredentials.Config
@@ -210,6 +213,18 @@ var ConfirmateCommand = &cli.Command{
 			return err
 		}
 
+		// Evaluation service configuration — connects back to the orchestrator on the same port
+		evaluationSvc, err = evaluation.NewService(
+			evaluation.WithConfig(evaluation.Config{
+				OrchestratorAddress: fmt.Sprintf("http://localhost:%d", apiPort),
+				OrchestratorClient:  orchestratorClient,
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Start collection service
 		collectionResults = collectionSvc.Start(ctx)
 		go func() {
 			for range collectionResults {
@@ -239,6 +254,14 @@ var ConfirmateCommand = &cli.Command{
 			)),
 			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
 				evidenceSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(evidenceconnect.NewResourcesHandler(
+				evidenceSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(evaluationconnect.NewEvaluationHandler(
+				evaluationSvc,
 				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithReflection(),

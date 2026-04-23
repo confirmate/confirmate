@@ -17,6 +17,22 @@
                 "--auth-enabled"
             ]
         },
+		{
+            "name": "Launch confirmate (demo)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/core/cmd/confirmate",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--db-in-memory",
+                "--log-level", "debug",
+                "--catalogs-default-path=./example-data/catalogs",
+  				"--catalogs-load-default",
+  				"--metrics-default-path=./example-data/metrics",
+  				"--metrics-load-default",
+            ]
+        },
         {
             "name": "Launch orchestrator",
             "type": "go",

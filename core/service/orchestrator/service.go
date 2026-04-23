@@ -59,8 +59,8 @@ type subscriber struct {
 
 // DefaultConfig is the default configuration for the orchestrator [Service].
 var DefaultConfig = Config{
-	DefaultCatalogsPath:             "./policies/security-metrics/catalogs",
-	DefaultMetricsPath:              "./policies/security-metrics/metrics",
+	DefaultCatalogsPath:             "./core/policies/security-metrics/catalogs",
+	DefaultMetricsPath:              "./core/policies/security-metrics/metrics",
 	CreateDefaultTargetOfEvaluation: true,
 	LoadDefaultCatalogs:             true,
 	LoadDefaultMetrics:              true,

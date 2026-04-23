@@ -107,6 +107,10 @@ var EvidenceCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(&server.LoggingInterceptor{}),
 			)),
+			server.WithHandler(evidenceconnect.NewResourcesHandler(
+				svc,
+				connect.WithInterceptors(&server.LoggingInterceptor{}),
+			)),
 			server.WithReflection(),
 		)
 	},
