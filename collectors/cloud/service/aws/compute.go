@@ -7,7 +7,6 @@ import (
 
 	cloud "confirmate.io/collectors/cloud/api"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -15,6 +14,7 @@ import (
 	typesEC2 "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/lambda"
 	typesLambda "github.com/aws/aws-sdk-go-v2/service/lambda/types"
+	"github.com/google/uuid"
 )
 
 // computeCollector handles the AWS API requests regarding the computing services (EC2 and Lambda)
@@ -24,6 +24,7 @@ type computeCollector struct {
 	isCollecting      bool
 	awsConfig         *Client
 	ctID              string
+	id                string
 }
 
 // EC2API describes the EC2 api interface which is implemented by the official AWS client and mock clients in tests
@@ -55,18 +56,26 @@ var newFromConfigLambda = lambda.NewFromConfig
 
 // NewAwsComputeCollector constructs a new awsS3Collector initializing the s3-virtualMachineAPI and isCollecting with true
 func NewAwsComputeCollector(client *Client, TargetOfEvaluationID string) cloud.Collector {
+	seed := "aws-compute::" + TargetOfEvaluationID
+
 	return &computeCollector{
 		virtualMachineAPI: newFromConfigEC2(client.cfg),
 		functionAPI:       newFromConfigLambda(client.cfg),
 		isCollecting:      true,
 		awsConfig:         client,
 		ctID:              TargetOfEvaluationID,
+		id:                uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String(),
 	}
 }
 
 // Name is the method implementation defined in the cloud.Collector interface
 func (*computeCollector) Name() string {
 	return "AWS Compute"
+}
+
+// ID returns a stable collector ID derived from collector type and target of evaluation.
+func (d *computeCollector) ID() string {
+	return d.id
 }
 
 // List is the method implementation defined in the cloud.Collector interface
@@ -110,6 +119,11 @@ func (d *computeCollector) List() (resources []ontology.IsResource, err error) {
 	return
 }
 
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *computeCollector) Collect() (resources []ontology.IsResource, err error) {
+	return d.List()
+}
+
 func (d *computeCollector) TargetOfEvaluationID() string {
 	return d.ctID
 }
@@ -124,9 +138,11 @@ func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 	var blocks []*ontology.BlockStorage
 	for i := range res.Volumes {
 		volume := &res.Volumes[i]
+		encrypted := aws.ToBool(volume.Encrypted)
+		createTime := aws.ToTime(volume.CreateTime)
 
 		atRest := &ontology.ManagedKeyEncryption{
-			Enabled: util.Deref(volume.Encrypted),
+			Enabled: encrypted,
 		}
 
 		// AWS uses a fixed algorithm, if enabled
@@ -137,7 +153,7 @@ func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 		blocks = append(blocks, &ontology.BlockStorage{
 			Id:           d.arnify("volume", volume.VolumeId),
 			Name:         d.nameOrID(volume.Tags, volume.VolumeId),
-			CreationTime: timestamppb.New(util.Deref(volume.CreateTime)),
+			CreationTime: timestamppb.New(createTime),
 			GeoLocation: &ontology.GeoLocation{
 				Region: d.awsConfig.cfg.Region,
 			},

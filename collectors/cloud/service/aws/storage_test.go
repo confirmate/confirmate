@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"slices"
 	"testing"
 	"time"
 
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -69,7 +69,7 @@ func (mockS3APINew) GetBucketEncryption(_ context.Context,
 						ApplyServerSideEncryptionByDefault: &types.ServerSideEncryptionByDefault{
 							SSEAlgorithm: "AES256",
 						},
-						BucketKeyEnabled: util.Ref(false),
+						BucketKeyEnabled: aws.Bool(false),
 					},
 				},
 			},
@@ -84,7 +84,7 @@ func (mockS3APINew) GetBucketEncryption(_ context.Context,
 							SSEAlgorithm:   "aws:kms",
 							KMSMasterKeyID: aws.String(mockBucket2KeyId),
 						},
-						BucketKeyEnabled: util.Ref(false),
+						BucketKeyEnabled: aws.Bool(false),
 					},
 				},
 			},
@@ -475,7 +475,7 @@ func TestAwsS3Collector_List(t *testing.T) {
 	log.Info("Testing name for resource (bucket)", slog.Int("resource element", 1))
 	assert.Equal(t, expectedResourceNames[0], resources[0].GetName())
 	log.Info("Testing type of resource", slog.Int("resource element", 1))
-	assert.True(t, ontology.HasType(resources[0], "ObjectStorage"))
+	assert.True(t, slices.Contains(ontology.ResourceTypes(resources[0]), "ObjectStorage"))
 	expectedRaw := "{\"**s3.GetBucketEncryptionOutput\":[{\"ServerSideEncryptionConfiguration\":{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\",\"KMSMasterKeyID\":null},\"BucketKeyEnabled\":false}]},\"ResultMetadata\":{}}],\"**s3.GetBucketPolicyOutput\":[{\"Policy\":\"{\\\"id\\\":\\\"Mock BucketPolicy ID 1234\\\",\\\"Version\\\":\\\"2012-10-17\\\",\\\"Statement\\\":[{\\\"Action\\\":\\\"s3:*\\\",\\\"Effect\\\":\\\"Deny\\\",\\\"Resource\\\":\\\"*\\\",\\\"Condition\\\":{\\\"aws:SecureTransport\\\":false}}]}\",\"ResultMetadata\":{}}],\"*[]interface {}\":[[{\"BucketArn\":null,\"BucketRegion\":null,\"CreationDate\":\"2012-11-01T22:08:41Z\",\"Name\":\"mockbucket1\"},{\"LocationConstraint\":\"eu-central-1\",\"ResultMetadata\":{}}]],\"*aws.bucket\":[{}]}"
 	assert.Equal(t, expectedRaw, resources[0].GetRaw())
 
@@ -483,7 +483,7 @@ func TestAwsS3Collector_List(t *testing.T) {
 	log.Info("Testing name for resource (bucket)", slog.Int("resource element", 2))
 	assert.Equal(t, expectedResourceNames[0], resources[1].GetName())
 	log.Info("Testing type of resource", slog.Int("resource element", 2))
-	assert.True(t, ontology.HasType(resources[1], "ObjectStorageService"))
+	assert.True(t, slices.Contains(ontology.ResourceTypes(resources[1]), "ObjectStorageService"))
 }
 
 func Test_awsS3Collector_TargetOfEvaluationID(t *testing.T) {

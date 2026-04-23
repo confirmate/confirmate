@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/smithy-go"
+	"github.com/google/uuid"
 )
 
 // awsS3Collector handles the AWS API requests regarding the S3 service
@@ -24,6 +25,7 @@ type awsS3Collector struct {
 	isCollecting bool
 	awsConfig    *Client
 	ctID         string
+	id           string
 }
 
 // bucket contains metadata about a S3 bucket
@@ -85,6 +87,11 @@ func (*awsS3Collector) Name() string {
 	return "AWS Blob Storage"
 }
 
+// ID returns a stable collector ID derived from collector type and target of evaluation.
+func (d *awsS3Collector) ID() string {
+	return d.id
+}
+
 // List is the method implementation defined in the cloud.Collector interface
 func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 	var (
@@ -142,6 +149,11 @@ func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 	return
 }
 
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *awsS3Collector) Collect() (resources []ontology.IsResource, err error) {
+	return d.List()
+}
+
 func (d *awsS3Collector) TargetOfEvaluationID() string {
 	return d.ctID
 }
@@ -152,11 +164,14 @@ func (b *bucket) String() string {
 
 // NewAwsStorageCollector constructs a new awsS3Collector initializing the s3-api and isCollecting with true
 func NewAwsStorageCollector(client *Client, TargetOfEvaluationID string) cloud.Collector {
+	seed := "aws-storage::" + TargetOfEvaluationID
+
 	return &awsS3Collector{
 		storageAPI:   s3.NewFromConfig(client.cfg),
 		isCollecting: true,
 		awsConfig:    client,
 		ctID:         TargetOfEvaluationID,
+		id:           uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String(),
 	}
 }
 

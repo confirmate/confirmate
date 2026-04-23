@@ -474,7 +474,25 @@ func TestComputeCollector_NewComputeCollector(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewAwsComputeCollector(tt.args.client, tt.args.ctID)
-			assert.Equal(t, tt.want, got, assert.CompareAllUnexported())
+
+			collector, ok := got.(*computeCollector)
+			assert.True(t, ok)
+			if !ok {
+				return
+			}
+
+			expected, ok := tt.want.(*computeCollector)
+			assert.True(t, ok)
+			if !ok {
+				return
+			}
+
+			assert.Equal(t, expected.virtualMachineAPI, collector.virtualMachineAPI, assert.CompareAllUnexported())
+			assert.Equal(t, expected.functionAPI, collector.functionAPI, assert.CompareAllUnexported())
+			assert.Equal(t, expected.isCollecting, collector.isCollecting)
+			assert.Same(t, expected.awsConfig, collector.awsConfig)
+			assert.Equal(t, expected.ctID, collector.ctID)
+			assert.NotEqual(t, "", collector.id)
 		})
 	}
 }
