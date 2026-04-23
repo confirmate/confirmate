@@ -32,7 +32,7 @@ func TestNewKubernetesStorageCollector(t *testing.T) {
 		{
 			name: "empty input",
 			want: &k8sStorageCollector{
-				k8sCollector: k8sCollector{},
+				k8sCollector: k8sCollector{id: collectorID("k8s-storage", "")},
 			},
 		},
 		{
@@ -45,6 +45,7 @@ func TestNewKubernetesStorageCollector(t *testing.T) {
 				k8sCollector: k8sCollector{
 					intf: &fake.Clientset{},
 					ctID: testdata.MockTargetOfEvaluationID1,
+					id:   collectorID("k8s-storage", testdata.MockTargetOfEvaluationID1),
 				},
 			},
 		},

@@ -8,6 +8,8 @@ import (
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
+
+	"github.com/google/uuid"
 )
 
 var log *slog.Logger
@@ -19,6 +21,7 @@ func init() {
 type csafCollector struct {
 	domain string
 	ctID   string
+	id     string
 	client *http.Client
 }
 
@@ -48,6 +51,9 @@ func NewTrustedProviderCollector(opts ...CollectorOption) cloud.Collector {
 		opt(d)
 	}
 
+	seed := "csaf::" + d.ctID + "::" + d.domain
+	d.id = uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
+
 	return d
 }
 
@@ -63,8 +69,17 @@ func (d *csafCollector) TargetOfEvaluationID() string {
 	return d.ctID
 }
 
+func (d *csafCollector) ID() string {
+	return d.id
+}
+
 func (d *csafCollector) List() (list []ontology.IsResource, err error) {
 	log.Info("fetching CSAF documents from domain", slog.String("domain", d.domain))
 
 	return d.collectProviders()
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *csafCollector) Collect() (list []ontology.IsResource, err error) {
+	return d.List()
 }

@@ -16,7 +16,11 @@ import (
 type k8sStorageCollector struct{ k8sCollector }
 
 func NewKubernetesStorageCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
-	return &k8sStorageCollector{k8sCollector{intf, TargetOfEvaluationID}}
+	return &k8sStorageCollector{k8sCollector{
+		intf: intf,
+		ctID: TargetOfEvaluationID,
+		id:   collectorID("k8s-storage", TargetOfEvaluationID),
+	}}
 }
 
 func (*k8sStorageCollector) Name() string {
@@ -50,6 +54,11 @@ func (d *k8sStorageCollector) List() ([]ontology.IsResource, error) {
 	}
 
 	return list, nil
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *k8sStorageCollector) Collect() ([]ontology.IsResource, error) {
+	return d.List()
 }
 
 // handlePVC returns all PersistentVolumes

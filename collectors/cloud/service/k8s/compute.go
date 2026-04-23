@@ -18,7 +18,11 @@ import (
 type k8sComputeCollector struct{ k8sCollector }
 
 func NewKubernetesComputeCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
-	return &k8sComputeCollector{k8sCollector{intf, TargetOfEvaluationID}}
+	return &k8sComputeCollector{k8sCollector{
+		intf: intf,
+		ctID: TargetOfEvaluationID,
+		id:   collectorID("k8s-compute", TargetOfEvaluationID),
+	}}
 }
 
 func (*k8sComputeCollector) Name() string {
@@ -54,6 +58,11 @@ func (d *k8sComputeCollector) List() ([]ontology.IsResource, error) {
 	}
 
 	return list, nil
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *k8sComputeCollector) Collect() ([]ontology.IsResource, error) {
+	return d.List()
 }
 
 // handlePod returns all existing pods

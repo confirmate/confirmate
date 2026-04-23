@@ -14,6 +14,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
+	"github.com/google/uuid"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/pagination"
@@ -34,6 +35,7 @@ var (
 
 type openstackCollector struct {
 	ctID     string
+	id       string
 	clients  clients
 	authOpts *gophercloud.AuthOptions
 	region   string
@@ -100,7 +102,7 @@ func NewOpenstackCollector(opts ...CollectorOption) cloud.Collector {
 
 	d := &openstackCollector{
 		ctID:   config.DefaultTargetOfEvaluationID,
-		region: os.Getenv(RegionName),
+		region: region,
 		domain: &domain{
 			domainID:   os.Getenv(DomainID),
 			domainName: os.Getenv(DomainName),
@@ -113,6 +115,9 @@ func NewOpenstackCollector(opts ...CollectorOption) cloud.Collector {
 	for _, opt := range opts {
 		opt(d)
 	}
+
+	seed := "openstack::" + d.ctID
+	d.id = uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
 
 	// WithAuthorizer is mandatory, since it cannot be checked directly whether WithAuthorizer was passed, we check if authOpts is set before returning the collector
 	if d.authOpts == nil {
@@ -263,6 +268,16 @@ func (d *openstackCollector) List() (list []ontology.IsResource, err error) {
 	list = append(list, domains...)
 
 	return list, nil
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *openstackCollector) Collect() (list []ontology.IsResource, err error) {
+	return d.List()
+}
+
+// ID returns a stable collector ID derived from collector type and target of evaluation.
+func (d *openstackCollector) ID() string {
+	return d.id
 }
 
 type ClientFunc func() (*gophercloud.ServiceClient, error)

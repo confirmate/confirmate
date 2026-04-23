@@ -17,7 +17,11 @@ import (
 type k8sNetworkCollector struct{ k8sCollector }
 
 func NewKubernetesNetworkCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
-	return &k8sNetworkCollector{k8sCollector{intf, TargetOfEvaluationID}}
+	return &k8sNetworkCollector{k8sCollector{
+		intf: intf,
+		ctID: TargetOfEvaluationID,
+		id:   collectorID("k8s-network", TargetOfEvaluationID),
+	}}
 }
 
 func (*k8sNetworkCollector) Name() string {
@@ -59,6 +63,11 @@ func (d *k8sNetworkCollector) List() ([]ontology.IsResource, error) {
 	}
 
 	return list, nil
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *k8sNetworkCollector) Collect() ([]ontology.IsResource, error) {
+	return d.List()
 }
 
 func (d *k8sNetworkCollector) handleService(service *corev1.Service) ontology.IsResource {

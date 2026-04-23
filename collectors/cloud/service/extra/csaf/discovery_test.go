@@ -13,6 +13,7 @@ import (
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gocsaf/csaf/v3/csaf"
+	"github.com/google/uuid"
 )
 
 // validAdvisory contains the structure of a valid CSAF Advisory that validates against the JSON schema
@@ -102,6 +103,7 @@ func TestNewTrustedProviderCollector(t *testing.T) {
 			want: &csafCollector{
 				ctID:   config.DefaultTargetOfEvaluationID,
 				domain: "confirmate.io",
+				id:     uuid.NewSHA1(uuid.NameSpaceOID, []byte("csaf::"+config.DefaultTargetOfEvaluationID+"::confirmate.io")).String(),
 				client: http.DefaultClient,
 			},
 		},
@@ -113,6 +115,7 @@ func TestNewTrustedProviderCollector(t *testing.T) {
 			want: &csafCollector{
 				ctID:   testdata.MockTargetOfEvaluationID1,
 				domain: "confirmate.io",
+				id:     uuid.NewSHA1(uuid.NameSpaceOID, []byte("csaf::"+testdata.MockTargetOfEvaluationID1+"::confirmate.io")).String(),
 				client: http.DefaultClient,
 			},
 		},
@@ -125,6 +128,7 @@ func TestNewTrustedProviderCollector(t *testing.T) {
 				ctID:   config.DefaultTargetOfEvaluationID,
 				client: http.DefaultClient,
 				domain: "mock",
+				id:     uuid.NewSHA1(uuid.NameSpaceOID, []byte("csaf::"+config.DefaultTargetOfEvaluationID+"::mock")).String(),
 			},
 		},
 	}
@@ -218,6 +222,57 @@ func Test_csafCollector_TargetOfEvaluationID(t *testing.T) {
 			if got := d.TargetOfEvaluationID(); got != tt.want {
 				t.Errorf("csafCollector.TargetOfEvaluationID() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_csafCollector_ID(t *testing.T) {
+	tests := []struct {
+		name string
+		id   string
+		want string
+	}{
+		{
+			name: "Happy path",
+			id:   "csaf-collector-id",
+			want: "csaf-collector-id",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &csafCollector{id: tt.id}
+			assert.Equal(t, tt.want, d.ID())
+		})
+	}
+}
+
+func Test_csafCollector_Collect(t *testing.T) {
+	tests := []struct {
+		name      string
+		collector *csafCollector
+		wantErr   assert.WantErr
+		wantList  assert.Want[[]ontology.IsResource]
+	}{
+		{
+			name: "fail",
+			collector: &csafCollector{
+				domain: "localhost:1234",
+				client: http.DefaultClient,
+				ctID:   config.DefaultTargetOfEvaluationID,
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "could not load provider-metadata.json")
+			},
+			wantList: assert.Empty[[]ontology.IsResource],
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotList, err := tt.collector.Collect()
+			tt.wantErr(t, err)
+			tt.wantList(t, gotList)
 		})
 	}
 }

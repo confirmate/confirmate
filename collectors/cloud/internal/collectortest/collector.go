@@ -19,6 +19,8 @@ type TestCollector struct {
 
 func (TestCollector) Name() string { return "just mocking" }
 
+func (TestCollector) ID() string { return "test-collector" }
+
 func (m *TestCollector) List() ([]ontology.IsResource, error) {
 	// random number is used to get different resource IDs if more than one collector is used in the tests
 	// the number should be a 2 digit number, so it is easier to cut it off if needed
@@ -51,6 +53,10 @@ func (m *TestCollector) List() ([]ontology.IsResource, error) {
 	default:
 		return nil, nil
 	}
+}
+
+func (m *TestCollector) Collect() ([]ontology.IsResource, error) {
+	return m.List()
 }
 
 func (TestCollector) TargetOfEvaluationID() string {

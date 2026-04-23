@@ -13,6 +13,7 @@ import (
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
+	"github.com/google/uuid"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
@@ -87,6 +88,31 @@ func TestNewOpenstackCollector(t *testing.T) {
 				return assert.NotNil(t, got)
 			},
 		},
+		{
+			name: "Happy path: deterministic id",
+			args: args{
+				opts: []CollectorOption{
+					WithAuthorizer(gophercloud.AuthOptions{
+						IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+						Username:         testdata.MockOpenstackUsername,
+						Password:         testdata.MockOpenstackPassword,
+						TenantName:       testdata.MockOpenstackTenantName,
+						AllowReauth:      true,
+					}),
+					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
+				},
+			},
+			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
+				collector, ok := got.(*openstackCollector)
+				if !assert.True(t, ok) {
+					return false
+				}
+
+				seed := "openstack::" + testdata.MockTargetOfEvaluationID2
+				want := uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
+				return assert.Equal(t, want, collector.ID())
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -94,6 +120,38 @@ func TestNewOpenstackCollector(t *testing.T) {
 			tt.want(t, got)
 		})
 	}
+}
+
+func Test_openstackCollector_ID(t *testing.T) {
+	tests := []struct {
+		name string
+		id   string
+		want string
+	}{
+		{
+			name: "happy path",
+			id:   "openstack-collector-id",
+			want: "openstack-collector-id",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{id: tt.id}
+			assert.Equal(t, tt.want, d.ID())
+		})
+	}
+}
+
+func Test_openstackCollector_Collect(t *testing.T) {
+	d := &openstackCollector{}
+
+	wantList, wantErr := d.List()
+	gotList, gotErr := d.Collect()
+
+	assert.Equal(t, wantList, gotList)
+	assert.Equal(t, wantErr.Error(), gotErr.Error())
+	assert.ErrorContains(t, gotErr, "could not authorize openstack")
 }
 
 func Test_openstackCollector_authorize(t *testing.T) {

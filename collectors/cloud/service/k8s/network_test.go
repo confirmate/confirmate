@@ -29,7 +29,7 @@ func TestNewKubernetesNetworkCollector(t *testing.T) {
 		{
 			name: "empty input",
 			want: &k8sNetworkCollector{
-				k8sCollector: k8sCollector{},
+				k8sCollector: k8sCollector{id: collectorID("k8s-network", "")},
 			},
 		},
 		{
@@ -42,6 +42,7 @@ func TestNewKubernetesNetworkCollector(t *testing.T) {
 				k8sCollector: k8sCollector{
 					intf: &fake.Clientset{},
 					ctID: testdata.MockTargetOfEvaluationID1,
+					id:   collectorID("k8s-network", testdata.MockTargetOfEvaluationID1),
 				},
 			},
 		},

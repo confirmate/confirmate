@@ -8,6 +8,7 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/logconfig"
 
+	"github.com/google/uuid"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -22,10 +23,20 @@ func init() {
 type k8sCollector struct {
 	intf kubernetes.Interface
 	ctID string
+	id   string
 }
 
 func (d *k8sCollector) TargetOfEvaluationID() string {
 	return d.ctID
+}
+
+func (d *k8sCollector) ID() string {
+	return d.id
+}
+
+func collectorID(kind, ctID string) string {
+	seed := kind + "::" + ctID
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String()
 }
 
 func AuthFromKubeConfig() (intf kubernetes.Interface, err error) {
