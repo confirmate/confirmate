@@ -78,10 +78,10 @@ var oauthServerFlags = []cli.Flag{
 	},
 }
 
-// ConfirmateCommand starts the full framework: orchestrator,  assessment and evidence store services on one server.
+// ConfirmateCommand starts the full framework: orchestrator,  assessment, evidence store, and collector services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator, assessment and evidence store services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store, and collector services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		var (
 			interceptors        []connect.Interceptor
