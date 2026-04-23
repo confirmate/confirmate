@@ -38,8 +38,8 @@ func TestCatalogsCommands(t *testing.T) {
 	})
 
 	t.Run("remove", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "catalogs", "remove", orchestratortest.MockCatalogId3)
+		output, err := commandstest.RunCLI(t, "catalogs", "remove", orchestratortest.MockCatalogId1)
 		assert.NoError(t, err)
-		assert.Contains(t, output, "Catalog catalog-3 deleted successfully")
+		assert.Contains(t, output, "Catalog catalog-1 deleted successfully")
 	})
 }

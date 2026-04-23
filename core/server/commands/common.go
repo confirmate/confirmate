@@ -105,9 +105,40 @@ var (
 		},
 	}
 
-	// dbFlags contains the flags for configuring the database connection for services that require
-	// persistence.
-	dbFlags = []cli.Flag{
+	// dbFlags contains the default database flags used by services that require persistence.
+	dbFlags = newDBFlags(persistence.DefaultConfig.InMemoryDB)
+)
+
+// envVarSources constructs a [cli.ValueSourceChain] that looks up the given flag name in
+// environment variables with the prefix "CONFIRMATE_" and "CLOUDITOR_".
+func envVarSources(flagName string) cli.ValueSourceChain {
+	keys := []string{
+		"CONFIRMATE_" + envVarSuffix(flagName),
+		"CLOUDITOR_" + envVarSuffix(flagName),
+	}
+
+	return cli.EnvVars(keys...)
+}
+
+// envVarSuffix converts a flag name to an environment variable suffix by replacing dashes with
+// underscores and converting to uppercase.
+func envVarSuffix(flagName string) string {
+	return strings.ToUpper(strings.ReplaceAll(flagName, "-", "_"))
+}
+
+// joinFlagSlices joins multiple cli.Flag slices into one slice while preserving order.
+func joinFlagSlices(flagSlices ...[]cli.Flag) (flags []cli.Flag) {
+	for _, flagSlice := range flagSlices {
+		flags = append(flags, flagSlice...)
+	}
+
+	return flags
+}
+
+// newDBFlags constructs database flags and allows callers to choose a default
+// for db-in-memory while reusing the shared flag definitions.
+func newDBFlags(defaultInMemory bool) (flags []cli.Flag) {
+	flags = []cli.Flag{
 		&cli.StringFlag{
 			Name:    "db-host",
 			Usage:   "Specifies the server hostname",
@@ -147,7 +178,7 @@ var (
 		&cli.BoolFlag{
 			Name:    "db-in-memory",
 			Usage:   "Use in-memory database instead of PostgreSQL (useful for testing)",
-			Value:   persistence.DefaultConfig.InMemoryDB,
+			Value:   defaultInMemory,
 			Sources: envVarSources("db-in-memory"),
 		},
 		&cli.IntFlag{
@@ -156,30 +187,6 @@ var (
 			Value:   persistence.DefaultConfig.MaxConn,
 			Sources: envVarSources("db-max-connections"),
 		},
-	}
-)
-
-// envVarSources constructs a [cli.ValueSourceChain] that looks up the given flag name in
-// environment variables with the prefix "CONFIRMATE_" and "CLOUDITOR_".
-func envVarSources(flagName string) cli.ValueSourceChain {
-	keys := []string{
-		"CONFIRMATE_" + envVarSuffix(flagName),
-		"CLOUDITOR_" + envVarSuffix(flagName),
-	}
-
-	return cli.EnvVars(keys...)
-}
-
-// envVarSuffix converts a flag name to an environment variable suffix by replacing dashes with
-// underscores and converting to uppercase.
-func envVarSuffix(flagName string) string {
-	return strings.ToUpper(strings.ReplaceAll(flagName, "-", "_"))
-}
-
-// joinFlagSlices joins multiple cli.Flag slices into one slice while preserving order.
-func joinFlagSlices(flagSlices ...[]cli.Flag) (flags []cli.Flag) {
-	for _, flagSlice := range flagSlices {
-		flags = append(flags, flagSlice...)
 	}
 
 	return flags

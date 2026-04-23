@@ -75,15 +75,13 @@ Authorization is strategy-based:
 
 ### Strategy behavior
 
-`AuthorizationStrategyJWT` reads two claim keys:
+`AuthorizationStrategyJWT` reads own claim key:
 
-- `TargetOfEvaluationsKey` (default: `TargetOfEvaluationid`)
-- `AllowAllKey` (default: `cladmin`)
+- `IsAdminToken` as bool (default: `cfadmin`)
 
 The strategy returns:
 
 - **allow all** if `AllowAllKey == true`
-- otherwise, a list of allowed TOE IDs from `TargetOfEvaluationsKey`
 
 ## Where authorization is enforced
 

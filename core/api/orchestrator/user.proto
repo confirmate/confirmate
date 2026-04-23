@@ -1,0 +1,128 @@
+// Copyright 2026 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package confirmate.orchestrator.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "tagger/tagger.proto";
+
+option go_package = "confirmate.io/core/api/orchestrator";
+
+// Represents a user from the IdP
+message User {
+  // ID is the unique identifier of the user
+  string id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Username is the name used to be displayed
+  optional string username = 2;
+
+  // Email is the email address of the user, if available.
+  optional string email = 3;
+
+  // FirstName is the first name of the user, if available.
+  optional string first_name = 4;
+
+  // LastName is the last name of the user, if available.
+  optional string last_name = 5;
+
+  // Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
+  repeated Role roles = 6 [
+    (buf.validate.field).repeated.items.enum.defined_only = true,
+    (tagger.tags) = "gorm:\"serializer:json\""
+  ];
+
+  // Enabled indicates whether the user is active/enabled in the system
+  bool enabled = 7;
+
+  // Attributes contains additional key-value pairs associated with the user, such as department or team.
+  map<string, string> attributes = 8 [(tagger.tags) = "gorm:\"serializer:json\""];
+
+  // LastAccess indicates the last time the user accessed the system.
+  google.protobuf.Timestamp last_access = 10 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+}
+
+// Predefined roles in the system. These should align with the roles defined in the IdP
+enum Role {
+  ROLE_UNSPECIFIED                        = 0;
+  ROLE_ADMIN                              = 1;
+  ROLE_COMPLIANCE_MANAGER                 = 2;
+  ROLE_EXPERT_COMPLIANCE_MANAGER          = 3;
+  ROLE_INTERNAL_CONTROL_OWNER             = 4;
+  ROLE_TECHNICAL_IMPLEMENTER              = 5;
+  ROLE_AUDITOR                            = 6;
+  ROLE_CHIEF_INFORMATION_SECURITY_OFFICER = 7;
+}
+
+message UserPermission {
+  // User ID is required to identify the user for whom the perission is being upserted.
+  string user_id = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:user_id;primaryKey\""
+  ];
+
+  // Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
+  string resource_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:resource_id;primaryKey;index\""
+  ];
+
+  // Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+  ObjectType resource_type = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:resource_type;primaryKey\""
+  ];
+
+  // Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+  Permission permission = 4 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"column:permission;type:integer;not null\""
+  ];
+
+  enum Permission {
+    PERMISSION_UNSPECIFIED = 0;
+    PERMISSION_READER      = 1;
+    PERMISSION_CONTRIBUTOR = 2;
+    PERMISSION_ADMIN       = 3;
+  }
+}
+
+// ObjectType represents the type of the entity that changed in the orchestrator.
+enum ObjectType {
+  OBJECT_TYPE_UNSPECIFIED           = 0;
+  OBJECT_TYPE_METRIC                = 1;
+  OBJECT_TYPE_METRIC_CONFIGURATION  = 2;
+  OBJECT_TYPE_METRIC_IMPLEMENTATION = 3;
+  OBJECT_TYPE_TARGET_OF_EVALUATION  = 4;
+  OBJECT_TYPE_AUDIT_SCOPE           = 5;
+  OBJECT_TYPE_ASSESSMENT_RESULT     = 6;
+  OBJECT_TYPE_ASSESSMENT_TOOL       = 7;
+  OBJECT_TYPE_USER                  = 8;
+  OBJECT_TYPE_USER_PERMISSION       = 9;
+  OBJECT_TYPE_CERTIFICATE           = 10;
+  OBJECT_TYPE_CATALOG               = 11;
+  OBJECT_TYPE_CATEGORY              = 12;
+  OBJECT_TYPE_CONTROL               = 13;
+  OBJECT_TYPE_EVALUATION_RESULT     = 14;
+  OBJECT_TYPE_EVIDENCE              = 15;
+}

@@ -35,7 +35,6 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
-	"confirmate.io/core/util"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -46,12 +45,12 @@ var (
 	logger *slog.Logger
 )
 
-const DefaultOrchestratorURL = "http://localhost:9090"
+const DefaultOrchestratorURL = "http://localhost:8080"
 
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  http.DefaultClient,
+	OrchestratorClient:  service.DefaultHTTPClient,
 	RegoPackage:         policies.DefaultRegoPackage,
 }
 
@@ -144,13 +143,10 @@ func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Opti
 	}
 }
 
-// WithAuthorizationStrategyJWT configures JWT-based authorization using claim keys.
-func WithAuthorizationStrategyJWT(targetKey string, allowAllKey string) service.Option[Service] {
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization.
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 	return func(svc *Service) {
-		svc.authz = &service.AuthorizationStrategyJWT{
-			TargetOfEvaluationsKey: targetKey,
-			AllowAllKey:            allowAllKey,
-		}
+		svc.authz = &service.AuthorizationStrategyPermissionStore{}
 	}
 }
 
@@ -275,12 +271,6 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 	}
 
 	ev = req.Msg.Evidence
-
-	// Check if target_of_evaluation_id in the service is within allowed or one can access *all* the target of evaluations
-	if ev == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
-		slog.Error("AssessEvidence: ", log.Err(service.ErrPermissionDenied))
-		return nil, service.ErrPermissionDenied
-	}
 
 	// Retrieve the ontology resource
 	resource = ev.GetOntologyResource()
@@ -428,7 +418,7 @@ func (svc *Service) handleEvidence(
 			ResourceTypes:        types,
 			ComplianceComment:    data.Message,
 			ComplianceDetails:    data.ComparisonResult,
-			ToolId:               util.Ref(assessment.AssessmentToolId),
+			ToolId:               new(assessment.AssessmentToolId),
 			HistoryUpdatedAt:     timestamppb.Now(),
 			History: []*assessment.Record{{ // TODO(all): Update history in another PR, see Issue #1724
 				EvidenceId:         ev.GetId(),
@@ -543,11 +533,11 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 		})
 
 		resp, err = svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
-		config = resp.Msg
-
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric configuration for %s: %w", metric.Id, err)
 		}
+
+		config = resp.Msg
 
 		cache = cachedConfiguration{
 			cachedAt:            time.Now(),

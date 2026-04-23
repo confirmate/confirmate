@@ -21,7 +21,6 @@ import (
 	"buf.build/go/protovalidate"
 
 	"confirmate.io/core/service/evidence/evidencetest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -58,7 +57,7 @@ func Test_ValidateAssessmentResult(t *testing.T) {
 					ResourceId:           "myResource",
 					ResourceTypes:        []string{"Resource"},
 					TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
-					ToolId:               util.Ref(AssessmentToolId),
+					ToolId:               new(AssessmentToolId),
 					HistoryUpdatedAt:     timestamp,
 					History: []*Record{
 						{
