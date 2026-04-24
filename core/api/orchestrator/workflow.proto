@@ -41,47 +41,56 @@ message ControlImplementation {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The audit scope this implementation belongs to.
+  // AuditScopeId describes the audit scope this implementation belongs to.
   string audit_scope_id = 2 [
     (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
   ];
 
-  // Denormalized from the audit scope for efficient authorization checks.
+  // TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
   string target_of_evaluation_id = 3 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
   // Control composite key — mirrors Control's primary key.
-  string control_id = 4 [
+  string control_id = 5 [
     (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
   ];
-  string control_category_name = 5 [
+  string control_category_name = 6 [
     (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
   ];
-  string control_category_catalog_id = 6 [
+  string control_category_catalog_id = 7 [
     (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
   ];
 
   // Current implementation state.
-  ControlImplementationState state = 7;
+  ControlImplementationState state = 9;
 
-  // The user (identified by User.id) responsible for implementing this control.
-  optional string assignee_id = 8;
+  // ImplementationDetails contains details about the technical and organisation measures taken to
+  // implement the control. This is a free-form field that can be used to capture any relevant
+  // information about the implementation.
+  optional string implementation_details = 10;
 
-  google.protobuf.Timestamp created_at = 9 [
+  // AssigneeId is the user (identified by User.id) responsible for implementing this control.
+  optional string assignee_id = 11;
+
+  google.protobuf.Timestamp created_at = 12 [
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
-  google.protobuf.Timestamp updated_at = 10 [
+  google.protobuf.Timestamp updated_at = 13 [
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
 
   // Full history of state transitions (populated on read).
-  repeated ControlImplementationTransition transitions = 11 [
+  repeated ControlImplementationTransition transitions = 14 [
     (tagger.tags) = "gorm:\"foreignKey:ControlImplementationId;constraint:OnDelete:CASCADE\""
   ];
 }
@@ -156,10 +165,12 @@ message ListControlImplementationsResponse {
 }
 
 message UpdateControlImplementationRequest {
-  ControlImplementation control_implementation = 1 [
-    (buf.validate.field).required = true,
+  string id = 1 [
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  optional string assignee_id = 2;
 }
 
 message TransitionControlImplementationStateRequest {

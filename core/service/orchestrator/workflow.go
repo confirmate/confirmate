@@ -227,7 +227,7 @@ func (svc *Service) UpdateControlImplementation(
 		return nil, err
 	}
 
-	err = svc.db.Get(&existing, persistence.WithoutPreload(), "id = ?", req.Msg.GetControlImplementation().GetId())
+	err = svc.db.Get(&existing, persistence.WithoutPreload(), "id = ?", req.Msg.GetId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control implementation")); err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func (svc *Service) UpdateControlImplementation(
 	}
 
 	// Only allow updating the assignee; preserve all other fields.
-	existing.AssigneeId = req.Msg.GetControlImplementation().AssigneeId
+	existing.AssigneeId = req.Msg.AssigneeId
 	existing.UpdatedAt = timestamppb.Now()
 
 	err = svc.db.Update(&existing, "id = ?", existing.Id)
@@ -302,25 +302,31 @@ func (svc *Service) TransitionControlImplementationState(
 		userId = auth.GetConfirmateUserIDFromClaims(claims)
 	}
 
-	transition := &orchestrator.ControlImplementationTransition{
-		Id:                      uuid.NewString(),
-		ControlImplementationId: impl.Id,
-		FromState:               impl.State,
-		ToState:                 toState,
-		PerformedBy:             userId,
-		Time:                   timestamppb.Now(),
-	}
+	// Use a transaction to ensure atomicity of the transition record creation and state update.
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		transition := &orchestrator.ControlImplementationTransition{
+			Id:                      uuid.NewString(),
+			ControlImplementationId: impl.Id,
+			FromState:               impl.State,
+			ToState:                 toState,
+			PerformedBy:             userId,
+			Time:                    timestamppb.Now(),
+		}
 
-	err = svc.db.Create(transition)
+		if err = tx.Create(transition); err != nil {
+			return err
+		}
+
+		impl.State = toState
+		impl.UpdatedAt = timestamppb.Now()
+
+		if err = tx.Update(&impl, "id = ?", impl.Id); err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	impl.State = toState
-	impl.UpdatedAt = timestamppb.Now()
-
-	err = svc.db.Update(&impl, "id = ?", impl.Id)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("control implementation")); err != nil {
 		return nil, err
 	}
 

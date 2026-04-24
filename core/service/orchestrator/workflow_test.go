@@ -414,15 +414,8 @@ func TestService_UpdateControlImplementation(t *testing.T) {
 			name: "happy path: update assignee",
 			args: args{
 				req: &orchestrator.UpdateControlImplementationRequest{
-					ControlImplementation: &orchestrator.ControlImplementation{
-						Id:                       orchestratortest.MockControlImplementation1.Id,
-						AuditScopeId:             orchestratortest.MockControlImplementation1.AuditScopeId,
-						TargetOfEvaluationId:     orchestratortest.MockControlImplementation1.TargetOfEvaluationId,
-						ControlId:                orchestratortest.MockControlImplementation1.ControlId,
-						ControlCategoryName:      orchestratortest.MockControlImplementation1.ControlCategoryName,
-						ControlCategoryCatalogId: orchestratortest.MockControlImplementation1.ControlCategoryCatalogId,
-						AssigneeId:               &assigneeId,
-					},
+					Id:         orchestratortest.MockControlImplementation1.Id,
+					AssigneeId: &assigneeId,
 				},
 			},
 			fields: fields{
@@ -445,14 +438,7 @@ func TestService_UpdateControlImplementation(t *testing.T) {
 			name: "authorization failure",
 			args: args{
 				req: &orchestrator.UpdateControlImplementationRequest{
-					ControlImplementation: &orchestrator.ControlImplementation{
-						Id:                       orchestratortest.MockControlImplementation1.Id,
-						AuditScopeId:             orchestratortest.MockControlImplementation1.AuditScopeId,
-						TargetOfEvaluationId:     orchestratortest.MockControlImplementation1.TargetOfEvaluationId,
-						ControlId:                orchestratortest.MockControlImplementation1.ControlId,
-						ControlCategoryName:      orchestratortest.MockControlImplementation1.ControlCategoryName,
-						ControlCategoryCatalogId: orchestratortest.MockControlImplementation1.ControlCategoryCatalogId,
-					},
+					Id: orchestratortest.MockControlImplementation1.Id,
 				},
 			},
 			fields: fields{
@@ -471,14 +457,7 @@ func TestService_UpdateControlImplementation(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.UpdateControlImplementationRequest{
-					ControlImplementation: &orchestrator.ControlImplementation{
-						Id:                       orchestratortest.MockNonExistentId,
-						AuditScopeId:             orchestratortest.MockControlImplementation1.AuditScopeId,
-						TargetOfEvaluationId:     orchestratortest.MockControlImplementation1.TargetOfEvaluationId,
-						ControlId:                orchestratortest.MockControlImplementation1.ControlId,
-						ControlCategoryName:      orchestratortest.MockControlImplementation1.ControlCategoryName,
-						ControlCategoryCatalogId: orchestratortest.MockControlImplementation1.ControlCategoryCatalogId,
-					},
+					Id: orchestratortest.MockNonExistentId,
 				},
 			},
 			fields: fields{
