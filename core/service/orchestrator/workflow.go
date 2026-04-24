@@ -22,6 +22,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -34,15 +35,19 @@ import (
 // validTransitions defines the allowed state machine transitions for a ControlImplementation.
 // Any transition not listed here will be rejected by TransitionControlImplementationState.
 var validTransitions = map[orchestrator.ControlImplementationState][]orchestrator.ControlImplementationState{
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_TODO: {
+	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN: {
 		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
 	},
 	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_TODO,
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_TO_BE_REVIEWED,
+		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED,
 	},
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_TO_BE_REVIEWED: {
+	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED: {
 		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW,
+	},
+	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW: {
+		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED,
 		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED,
 	},
 	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED: {
@@ -99,7 +104,7 @@ func (svc *Service) CreateControlImplementation(
 		ControlId:                req.Msg.GetControlImplementation().GetControlId(),
 		ControlCategoryName:      req.Msg.GetControlImplementation().GetControlCategoryName(),
 		ControlCategoryCatalogId: req.Msg.GetControlImplementation().GetControlCategoryCatalogId(),
-		State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_TODO,
+		State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
 		AssigneeId:               req.Msg.GetControlImplementation().AssigneeId,
 		CreatedAt:                now,
 		UpdatedAt:                now,
@@ -222,7 +227,7 @@ func (svc *Service) UpdateControlImplementation(
 		return nil, err
 	}
 
-	err = svc.db.Get(&existing, "id = ?", req.Msg.GetControlImplementation().GetId())
+	err = svc.db.Get(&existing, persistence.WithoutPreload(), "id = ?", req.Msg.GetControlImplementation().GetId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control implementation")); err != nil {
 		return nil, err
 	}
@@ -293,8 +298,8 @@ func (svc *Service) TransitionControlImplementationState(
 
 	// Determine the performing user from the authorization context.
 	var userId string
-	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims != nil {
-		userId = claims.Issuer + "|" + claims.Subject
+	if claims, ok := auth.ClaimsFromContext(ctx); ok {
+		userId = auth.GetConfirmateUserIDFromClaims(claims)
 	}
 
 	transition := &orchestrator.ControlImplementationTransition{

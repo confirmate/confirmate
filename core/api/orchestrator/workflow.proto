@@ -25,10 +25,11 @@ option go_package = "confirmate.io/core/api/orchestrator";
 // ControlImplementationState represents the lifecycle state of a control implementation.
 enum ControlImplementationState {
   CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED    = 0;
-  CONTROL_IMPLEMENTATION_STATE_TODO           = 1;
+  CONTROL_IMPLEMENTATION_STATE_OPEN           = 1;
   CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS    = 2;
-  CONTROL_IMPLEMENTATION_STATE_TO_BE_REVIEWED = 3;
-  CONTROL_IMPLEMENTATION_STATE_ACCEPTED       = 4;
+  CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED    = 3;
+  CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW = 4;
+  CONTROL_IMPLEMENTATION_STATE_ACCEPTED       = 5;
 }
 
 // ControlImplementation tracks the implementation status of a specific control within an audit
@@ -73,10 +74,10 @@ message ControlImplementation {
   optional string assignee_id = 8;
 
   google.protobuf.Timestamp created_at = 9 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb\""
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
   google.protobuf.Timestamp updated_at = 10 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb\""
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
 
   // Full history of state transitions (populated on read).
@@ -109,7 +110,7 @@ message ControlImplementationTransition {
   string performed_by = 5;
 
   google.protobuf.Timestamp time = 6 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb\""
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
 }
 

@@ -105,7 +105,8 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		orchestrator.ObjectType_OBJECT_TYPE_EVIDENCE,
 		orchestrator.ObjectType_OBJECT_TYPE_ASSESSMENT_RESULT,
 		orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION,
-		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
+		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE,
+		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
 	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
 		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT:
