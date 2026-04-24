@@ -1,7 +1,7 @@
 package azure
 
 import (
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -18,7 +18,7 @@ func (d *azureCollector) handleLoadBalancer(lb *armnetwork.LoadBalancer) ontolog
 		},
 		Labels:   labels(lb.Tags),
 		ParentId: resourceGroupID(lb.ID),
-		Raw:      cloud.Raw(lb),
+		Raw:      collector.Raw(lb),
 		Ips:      publicIPAddressFromLoadBalancer(lb),
 		Ports:    loadBalancerPorts(lb), // TODO(oxisto): ports should be uint16, not 32
 	}
@@ -42,7 +42,7 @@ func (d *azureCollector) handleApplicationGateway(ag *armnetwork.ApplicationGate
 		},
 		Labels:   labels(ag.Tags),
 		ParentId: resourceGroupID(ag.ID),
-		Raw:      cloud.Raw(ag),
+		Raw:      collector.Raw(ag),
 		AccessRestriction: &ontology.AccessRestriction{
 			Type: &ontology.AccessRestriction_WebApplicationFirewall{
 				WebApplicationFirewall: &ontology.WebApplicationFirewall{
@@ -63,7 +63,7 @@ func (d *azureCollector) handleNetworkInterfaces(ni *armnetwork.Interface) ontol
 		},
 		Labels:   labels(ni.Tags),
 		ParentId: resourceGroupID(ni.ID),
-		Raw:      cloud.Raw(ni),
+		Raw:      collector.Raw(ni),
 		AccessRestriction: &ontology.AccessRestriction{
 			Type: &ontology.AccessRestriction_L3Firewall{
 				L3Firewall: &ontology.L3Firewall{

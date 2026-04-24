@@ -3,7 +3,7 @@ package openstack
 import (
 	"fmt"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
@@ -27,7 +27,7 @@ func (d *openstackCollector) collectDomains() (list []ontology.IsResource, err e
 		r := &ontology.Account{
 			Id:   d.domain.domainID,
 			Name: d.domain.domainName,
-			Raw:  cloud.Raw("Domain information manually added."),
+			Raw:  collector.Raw("Domain information manually added."),
 		}
 
 		list = append(list, r)
@@ -54,7 +54,7 @@ func (d *openstackCollector) collectProjects() (list []ontology.IsResource, err 
 			Id:       d.project.projectID,
 			Name:     d.project.projectName,
 			ParentId: &d.domain.domainID,
-			Raw:      cloud.Raw("Project/Tenant information manually added."),
+			Raw:      collector.Raw("Project/Tenant information manually added."),
 		}
 
 		list = append(list, r)

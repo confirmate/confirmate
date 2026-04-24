@@ -3,7 +3,7 @@ package openstack
 import (
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -21,7 +21,7 @@ func (d *openstackCollector) handleDomain(domain *domains.Domain) (ontology.IsRe
 		GeoLocation:  nil, // domain is global
 		Labels:       nil, // domain does not have labels,
 		ParentId:     nil, // domain is the top-most item and have no parent,
-		Raw:          cloud.Raw(domain),
+		Raw:          collector.Raw(domain),
 	}
 
 	log.Info("Adding domain", slog.String("name", domain.Name))
@@ -42,7 +42,7 @@ func (d *openstackCollector) handleProject(project *projects.Project) (ontology.
 		},
 		Labels:   labels(util.Ref(project.Tags)),
 		ParentId: util.Ref(project.ParentID),
-		Raw:      cloud.Raw(project),
+		Raw:      collector.Raw(project),
 	}
 
 	log.Info("Adding project", slog.String("name", project.Name))

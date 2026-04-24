@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"strings"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -62,7 +62,7 @@ func (d *azureCollector) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 		GeoLocation:  location(account.Location),
 		Labels:       labels(account.Tags),
 		ParentId:     resourceGroupID(account.ID),
-		Raw:          cloud.Raw(account),
+		Raw:          collector.Raw(account),
 	}
 
 	// Add Mongo DB database service
@@ -103,7 +103,7 @@ func (d *azureCollector) handleSqlServer(server *armsql.Server) ([]ontology.IsRe
 		GeoLocation:  location(server.Location),
 		Labels:       labels(server.Tags),
 		ParentId:     resourceGroupID(server.ID),
-		Raw:          cloud.Raw(server),
+		Raw:          collector.Raw(server),
 		// TODO(all): HttpEndpoint
 		TransportEncryption: &ontology.TransportEncryption{
 			Enabled:         true,
@@ -154,7 +154,7 @@ func (d *azureCollector) handleStorageAccount(account *armstorage.Account, stora
 		GeoLocation:         location(account.Location),
 		Labels:              labels(account.Tags),
 		ParentId:            resourceGroupID(account.ID),
-		Raw:                 cloud.Raw(account, rawActivityLogging),
+		Raw:                 collector.Raw(account, rawActivityLogging),
 		TransportEncryption: te,
 		HttpEndpoint: &ontology.HttpEndpoint{
 			Url:                 generalizeURL(util.Deref(account.Properties.PrimaryEndpoints.Blob)),
@@ -200,7 +200,7 @@ func (d *azureCollector) handleFileStorage(account *armstorage.Account, fileshar
 		GeoLocation:  location(account.Location),                    // The location is the same as the storage account
 		Labels:       labels(account.Tags),                          // The storage account labels the file storage belongs to
 		ParentId:     resourceIDPointer(account.ID),                 // the storage account is our parent
-		Raw:          cloud.Raw(account, fileshare),
+		Raw:          collector.Raw(account, fileshare),
 		ResourceLogging: &ontology.ResourceLogging{
 			MonitoringLogDataEnabled: monitoringLogDataEnabled,
 			SecurityAlertsEnabled:    securityAlertsEnabled,
@@ -248,7 +248,7 @@ func (d *azureCollector) handleObjectStorage(account *armstorage.Account, contai
 		GeoLocation:      location(account.Location),                    // The location is the same as the storage account
 		Labels:           labels(account.Tags),                          // The storage account labels the file storage belongs to
 		ParentId:         resourceIDPointer(account.ID),                 // the storage account is our parent
-		Raw:              cloud.Raw(account, container),
+		Raw:              collector.Raw(account, container),
 		AtRestEncryption: enc,
 		Immutability: &ontology.Immutability{
 			Enabled: util.Deref(container.Properties.HasImmutabilityPolicy),

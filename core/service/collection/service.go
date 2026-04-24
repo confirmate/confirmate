@@ -84,6 +84,10 @@ type Config struct {
 
 	// TargetOfEvaluationID is used when creating evidence records from collected resources.
 	TargetOfEvaluationID string
+
+	// ToolID overrides the collector ID when creating evidence records. If empty, the collector's
+	// own ID is used.
+	ToolID string
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -189,10 +193,16 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 		storeErr error
 		res      *evidence.StoreEvidencesResponse
 		req      *evidence.StoreEvidenceRequest
+		toolID   string
 	)
 
 	if svc.evidenceStoreStream == nil {
 		return nil
+	}
+
+	toolID = collector.ID()
+	if svc.cfg.ToolID != "" {
+		toolID = svc.cfg.ToolID
 	}
 
 	for _, resource := range resources {
@@ -207,7 +217,7 @@ func (svc *Service) sendResourcesToEvidenceStore(ctx context.Context, collector 
 				Id:                   uuid.NewString(),
 				Timestamp:            timestamppb.Now(),
 				TargetOfEvaluationId: svc.cfg.TargetOfEvaluationID,
-				ToolId:               collector.ID(),
+				ToolId:               toolID,
 				Resource:             ontology.ProtoResource(resource),
 			},
 		}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -45,7 +45,7 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 		},
 		Labels:            labels(server.Tags),
 		ParentId:          util.Ref(server.TenantID),
-		Raw:               cloud.Raw(server),
+		Raw:               collector.Raw(server),
 		MalwareProtection: &ontology.MalwareProtection{},
 		BootLogging:       bootLogging,
 		AutomaticUpdates:  &ontology.AutomaticUpdates{},

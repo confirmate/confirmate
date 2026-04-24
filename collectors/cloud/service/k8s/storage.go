@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	v1 "k8s.io/api/core/v1"
@@ -15,7 +15,7 @@ import (
 
 type k8sStorageCollector struct{ k8sCollector }
 
-func NewKubernetesStorageCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
+func NewKubernetesStorageCollector(intf kubernetes.Interface, TargetOfEvaluationID string) collector.Collector {
 	return &k8sStorageCollector{k8sCollector{
 		intf: intf,
 		ctID: TargetOfEvaluationID,
@@ -91,7 +91,7 @@ func (d *k8sStorageCollector) handlePV(pv *v1.PersistentVolume) ontology.IsResou
 			CreationTime:     timestamppb.New(pv.CreationTimestamp.Time),
 			Labels:           pv.Labels,
 			AtRestEncryption: &ontology.AtRestEncryption{},
-			Raw:              cloud.Raw(pv),
+			Raw:              collector.Raw(pv),
 		}
 
 		return v
@@ -103,7 +103,7 @@ func (d *k8sStorageCollector) handlePV(pv *v1.PersistentVolume) ontology.IsResou
 			CreationTime:     timestamppb.New(pv.CreationTimestamp.Time),
 			Labels:           pv.Labels,
 			AtRestEncryption: &ontology.AtRestEncryption{},
-			Raw:              cloud.Raw(pv),
+			Raw:              collector.Raw(pv),
 		}
 
 		return v

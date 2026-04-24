@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/collectortest/csaf/providertest"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
@@ -95,7 +95,7 @@ func TestNewTrustedProviderCollector(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want cloud.Collector
+		want collector.Collector
 	}{
 		{
 			name: "Happy path",

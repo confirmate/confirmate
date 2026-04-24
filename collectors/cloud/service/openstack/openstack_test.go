@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
@@ -26,12 +26,12 @@ func TestNewOpenstackCollector(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want assert.Want[cloud.Collector]
+		want assert.Want[collector.Collector]
 	}{
 		{
 			name: "error: oauthOpts not set",
 			args: args{},
-			want: assert.Nil[cloud.Collector],
+			want: assert.Nil[collector.Collector],
 		},
 		{
 			name: "Happy path: Name",
@@ -47,7 +47,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
+			want: func(t *testing.T, got collector.Collector, msgAndArgs ...any) bool {
 				return assert.Equal(t, "OpenStack", got.Name())
 			},
 		},
@@ -65,7 +65,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
+			want: func(t *testing.T, got collector.Collector, msgAndArgs ...any) bool {
 				assert.Equal(t, testdata.MockTargetOfEvaluationID2, got.TargetOfEvaluationID())
 				return assert.NotNil(t, got)
 			},
@@ -83,7 +83,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					}),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
+			want: func(t *testing.T, got collector.Collector, msgAndArgs ...any) bool {
 				assert.Equal(t, config.DefaultTargetOfEvaluationID, got.TargetOfEvaluationID())
 				return assert.NotNil(t, got)
 			},
@@ -102,7 +102,7 @@ func TestNewOpenstackCollector(t *testing.T) {
 					WithTargetOfEvaluationID(testdata.MockTargetOfEvaluationID2),
 				},
 			},
-			want: func(t *testing.T, got cloud.Collector, msgAndArgs ...any) bool {
+			want: func(t *testing.T, got collector.Collector, msgAndArgs ...any) bool {
 				collector, ok := got.(*openstackCollector)
 				if !assert.True(t, ok) {
 					return false

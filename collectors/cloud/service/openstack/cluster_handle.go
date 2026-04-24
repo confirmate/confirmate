@@ -3,7 +3,7 @@ package openstack
 import (
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -22,7 +22,7 @@ func (d *openstackCollector) handleCluster(cluster *clusters.Cluster) (ontology.
 		},
 		Labels:   cluster.Labels,
 		ParentId: util.Ref(cluster.ProjectID),
-		Raw:      cloud.Raw(cluster),
+		Raw:      collector.Raw(cluster),
 	}
 
 	log.Info("Adding cluster", slog.String("name", cluster.Name))

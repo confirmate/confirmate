@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util/assert"
@@ -24,7 +24,7 @@ func TestNewKubernetesComputeCollector(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want cloud.Collector
+		want collector.Collector
 	}{
 		{
 			name: "empty input",
@@ -95,7 +95,7 @@ func Test_k8sComputeCollector_List(t *testing.T) {
 	}
 
 	type fields struct {
-		collector cloud.Collector
+		collector collector.Collector
 	}
 	tests := []struct {
 		name    string

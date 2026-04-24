@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -55,7 +55,7 @@ var newFromConfigEC2 = ec2.NewFromConfig
 var newFromConfigLambda = lambda.NewFromConfig
 
 // NewAwsComputeCollector constructs a new awsS3Collector initializing the s3-virtualMachineAPI and isCollecting with true
-func NewAwsComputeCollector(client *Client, TargetOfEvaluationID string) cloud.Collector {
+func NewAwsComputeCollector(client *Client, TargetOfEvaluationID string) collector.Collector {
 	seed := "aws-compute::" + TargetOfEvaluationID
 
 	return &computeCollector{
@@ -68,7 +68,7 @@ func NewAwsComputeCollector(client *Client, TargetOfEvaluationID string) cloud.C
 	}
 }
 
-// Name is the method implementation defined in the cloud.Collector interface
+// Name is the method implementation defined in the collector.Collector interface
 func (*computeCollector) Name() string {
 	return "AWS Compute"
 }
@@ -78,7 +78,7 @@ func (d *computeCollector) ID() string {
 	return d.id
 }
 
-// List is the method implementation defined in the cloud.Collector interface
+// List is the method implementation defined in the collector.Collector interface
 func (d *computeCollector) List() (resources []ontology.IsResource, err error) {
 	log.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
 
@@ -163,7 +163,7 @@ func (d *computeCollector) collectVolumes() ([]*ontology.BlockStorage, error) {
 					ManagedKeyEncryption: atRest,
 				},
 			},
-			Raw: cloud.Raw(&res.Volumes[i]),
+			Raw: collector.Raw(&res.Volumes[i]),
 		})
 	}
 
@@ -188,7 +188,7 @@ func (d *computeCollector) collectNetworkInterfaces() ([]*ontology.NetworkInterf
 				Region: d.awsConfig.cfg.Region,
 			},
 			Labels: d.labels(ifc.TagSet),
-			Raw:    cloud.Raw(&res.NetworkInterfaces[i]),
+			Raw:    collector.Raw(&res.NetworkInterfaces[i]),
 		})
 	}
 
@@ -217,7 +217,7 @@ func (d *computeCollector) collectVirtualMachines() ([]*ontology.VirtualMachine,
 				BlockStorageIds:     d.mapBlockStorageIDsOfVM(vm),
 				BootLogging:         d.getBootLog(vm),
 				OsLogging:           d.getOSLog(vm),
-				Raw:                 cloud.Raw(&reservation),
+				Raw:                 collector.Raw(&reservation),
 			})
 		}
 	}
@@ -259,7 +259,7 @@ func (d *computeCollector) mapFunctionResources(functions []typesLambda.Function
 			GeoLocation: &ontology.GeoLocation{
 				Region: d.awsConfig.cfg.Region,
 			},
-			Raw: cloud.Raw(&functions[i]),
+			Raw: collector.Raw(&functions[i]),
 		})
 	}
 	return

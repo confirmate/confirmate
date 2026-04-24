@@ -1,7 +1,7 @@
 package azure
 
 import (
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -17,7 +17,7 @@ func (d *azureCollector) handleMLWorkspace(value *armmachinelearning.Workspace, 
 		GeoLocation:                location(value.Location),
 		Labels:                     labels(value.Tags),
 		ParentId:                   resourceGroupID(resourceIDPointer(value.ID)),
-		Raw:                        cloud.Raw(value),
+		Raw:                        collector.Raw(value),
 		InternetAccessibleEndpoint: getInternetAccessibleEndpoint(value.Properties.PublicNetworkAccess),
 		StorageIds:                 []string{util.Deref(value.Properties.StorageAccount)},
 		ComputeIds:                 computeList,
@@ -56,7 +56,7 @@ func (d *azureCollector) handleMLCompute(value *armmachinelearning.ComputeResour
 			GeoLocation:         location(value.Location),
 			Labels:              labels(value.Tags),
 			ParentId:            resourceIDPointer(workspaceID),
-			Raw:                 cloud.Raw(value, c.ComputeLocation),
+			Raw:                 collector.Raw(value, c.ComputeLocation),
 			NetworkInterfaceIds: []string{},
 		}
 		return container, nil
@@ -69,7 +69,7 @@ func (d *azureCollector) handleMLCompute(value *armmachinelearning.ComputeResour
 			GeoLocation:         location(value.Location),
 			Labels:              labels(value.Tags),
 			ParentId:            resourceIDPointer(workspaceID),
-			Raw:                 cloud.Raw(value, c.ComputeLocation),
+			Raw:                 collector.Raw(value, c.ComputeLocation),
 			NetworkInterfaceIds: []string{},
 			BlockStorageIds:     []string{},
 			MalwareProtection:   &ontology.MalwareProtection{},

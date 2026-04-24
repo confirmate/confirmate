@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -284,7 +284,7 @@ func (d *azureCollector) collectDiagnosticSettings(resourceURI string) (*ontolog
 			workspaceIDs = append(workspaceIDs, util.Deref(value.Properties.WorkspaceID))
 		}
 
-		raw = cloud.Raw(pageResponse)
+		raw = collector.Raw(pageResponse)
 	}
 
 	if len(workspaceIDs) > 0 {

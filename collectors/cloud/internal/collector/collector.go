@@ -1,4 +1,4 @@
-package cloud
+package collector
 
 import (
 	"encoding/json"
@@ -7,8 +7,7 @@ import (
 	"confirmate.io/core/api/ontology"
 )
 
-// Collector is a part of the collector service that takes care of the actual collecting and translation into
-// ontology objects.
+// Collector takes care of collecting provider resources and translating them into ontology objects.
 type Collector interface {
 	Name() string
 	ID() string
@@ -17,6 +16,7 @@ type Collector interface {
 	TargetOfEvaluationID() string
 }
 
+// Raw serializes provider-native objects into the ontology raw payload field.
 func Raw(raws ...any) string {
 	var rawMap = make(map[string][]any)
 

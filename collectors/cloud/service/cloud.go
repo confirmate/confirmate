@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/collectors/cloud/service/aws"
@@ -23,6 +23,7 @@ import (
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/service"
+	"confirmate.io/core/service/collection"
 	"connectrpc.com/connect"
 
 	"github.com/go-co-op/gocron"
@@ -58,8 +59,8 @@ var (
 
 // CloudCollectorConfig holds the configuration for the cloud collector.
 type CloudCollectorConfig struct {
-	// provider is the list of cloud service providers to use for collecting resources.
-	provider []string
+	// provider is the cloud service provider to use for collecting resources.
+	provider string
 
 	// targetOfEvaluationID is the target of evaluation ID for which we are gathering resources.
 	targetOfEvaluationID string
@@ -79,30 +80,6 @@ type EvidenceStoreStreamConfig struct {
 	targetAddress string
 	client        *http.Client
 }
-
-// TODO(anatheka): Delete!?!
-// // DefaultServiceSpec returns a [launcher.ServiceSpec] for this [Service] with all necessary options retrieved from the
-// // config system.
-// func DefaultServiceSpec() launcher.ServiceSpec {
-// 	var providers []string
-
-// 	// If no CSPs for collecting are given, take all implemented collectors
-// 	if len(CollectorProviderFlag) == 0 {
-// 		providers = []string{ProviderAWS, ProviderAzure, ProviderK8S}
-// 	} else {
-// 		providers = CollectorProviderFlag
-// 	}
-
-// 	return launcher.NewServiceSpec(
-// 		NewService,
-// 		nil,
-// 		nil,
-// 		// WithOAuth2Authorizer(config.ClientCredentials()),
-// 		WithTargetOfEvaluationID(TargetOfEvaluationID),
-// 		WithProviders(providers),
-// 		WithEvidenceStoreAddress(EvidenceStoreURL),
-// 	)
-// }
 
 // CollectorEventType defines the event types for [CollectorEvent].
 type CollectorEventType int
@@ -136,7 +113,7 @@ type Service struct {
 	scheduler *gocron.Scheduler
 
 	// collectors is the list of collectors to use for collecting resources.
-	collectors []cloud.Collector
+	collectors []collector.Collector
 
 	// Events is a channel that emits collector events.
 	Events chan *CollectorEvent
@@ -178,28 +155,16 @@ func WithCollectorToolID(ID string) service.Option[Service] {
 	}
 }
 
-// TODO(all): Do we need that anymore?
-// // WithOAuth2Authorizer is an option to use an OAuth 2.0 authorizer
-// func WithOAuth2Authorizer(config *clientcredentials.Config) service.Option[Service] {
-// 	return func(svc *Service) {
-// 		svc.evidenceStore.SetAuthorizer(api.NewOAuthAuthorizerFromClientCredentials(config))
-// 	}
-// }
-
-// WithProviders is an option to set providers for collecting
-func WithProviders(providersList []string) service.Option[Service] {
-	if len(providersList) == 0 {
-		log.Error("no providers given")
-	}
-
+// WithProvider is an option to set the provider for collecting.
+func WithProvider(provider string) service.Option[Service] {
 	return func(svc *Service) {
-		svc.cloudConfig.provider = providersList
+		svc.cloudConfig.provider = provider
 	}
 }
 
 // WithAdditionalCollectors is an option to add additional collectors for collecting. Note: These are added in
-// addition to the ones created by [WithProviders].
-func WithAdditionalCollectors(collectors []cloud.Collector) service.Option[Service] {
+// addition to the one created by [WithProvider].
+func WithAdditionalCollectors(collectors []collector.Collector) service.Option[Service] {
 	return func(s *Service) {
 		s.collectors = append(s.collectors, collectors...)
 	}
@@ -213,16 +178,26 @@ func WithCollectorInterval(interval time.Duration) service.Option[Service] {
 }
 
 func NewService(opts ...service.Option[Service]) *Service {
-	s := &Service{
-		// TODO(anatheka): Add evidence store stream
-		// evidenceStoreStreams: api.NewStreamsOf(api.WithLogger[evidence.EvidenceStore_StoreEvidencesClient, *evidence.StoreEvidenceRequest](log)),
-		// evidenceStore:        api.NewRPCConnection(EvidenceStoreURL), evidence.NewEvidenceStoreClient),
+	var s *Service
+
+	s = newService(opts...)
+
+	// Set evidence store client and stream
+	s.GetStream()
+
+	return s
+}
+
+func newService(opts ...service.Option[Service]) *Service {
+	var s *Service
+
+	s = &Service{
 		scheduler: gocron.NewScheduler(time.UTC),
 		Events:    make(chan *CollectorEvent),
 		cloudConfig: CloudCollectorConfig{
 			targetOfEvaluationID: config.DefaultTargetOfEvaluationID,
 			collectorToolID:      config.DefaultEvidenceCollectorToolID,
-			provider:             []string{ProviderAWS, ProviderAzure, ProviderK8S},
+			provider:             "",
 			evStreamConfig: EvidenceStoreStreamConfig{
 				targetAddress: DefaultEvidenceStoreURL,
 				client:        service.DefaultHTTPClient,
@@ -236,10 +211,28 @@ func NewService(opts ...service.Option[Service]) *Service {
 		o(s)
 	}
 
-	// Set evidence store client and stream
-	s.GetStream()
-
 	return s
+}
+
+// buildCollectors creates the configured collectors without starting the standalone cloud scheduler.
+func buildCollectors(cmd *cli.Command, opts ...service.Option[Service]) (collectors []collection.Collector, err error) {
+	var (
+		svc             *Service
+		cloudCollectors []collector.Collector
+	)
+
+	svc = newService(opts...)
+	cloudCollectors, err = svc.buildCollectors(cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	collectors = make([]collection.Collector, 0, len(cloudCollectors))
+	for _, collector := range cloudCollectors {
+		collectors = append(collectors, collector)
+	}
+
+	return collectors, nil
 }
 
 func (svc *Service) Init(ctx context.Context, cmd *cli.Command) {
@@ -248,8 +241,6 @@ func (svc *Service) Init(ctx context.Context, cmd *cli.Command) {
 	// Automatically start the collector, if we have this flag enabled
 	if cmd.Bool("collector-auto-start") {
 		go func() {
-			// TODO(all): Do we need that anymore?
-			// <-rest.GetReadyChannel()
 			err = svc.Start(cmd)
 			if err != nil {
 				log.Error("Could not automatically start collector", tint.Err(err))
@@ -263,80 +254,92 @@ func (svc *Service) Shutdown() {
 	svc.scheduler.Stop()
 }
 
-// Start starts collector
-func (svc *Service) Start(cmd *cli.Command) (err error) {
+func (svc *Service) buildCollectors(cmd *cli.Command) (collectors []collector.Collector, err error) {
 	var (
+		provider      string
 		optsAzure     = []azure.CollectorOption{}
 		optsOpenstack = []openstack.CollectorOption{}
 	)
 
+	collectors = append(collectors, svc.collectors...)
+	provider = svc.cloudConfig.provider
+	if provider == "" {
+		return collectors, nil
+	}
+
+	switch {
+	case provider == ProviderAzure:
+		authorizer, authErr := azure.NewAuthorizer()
+		if authErr != nil {
+			err = fmt.Errorf("%v: %v", ErrAzureAuth, authErr)
+			log.Error("authorization error", tint.Err(err))
+			return nil, err
+		}
+
+		optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
+		if rg := cmd.String("collector-resource-group"); rg != "" {
+			optsAzure = append(optsAzure, azure.WithResourceGroup(rg))
+		}
+		collectors = append(collectors, azure.NewAzureCollector(optsAzure...))
+	case provider == ProviderK8S:
+		k8sClient, authErr := k8s.AuthFromKubeConfig()
+		if authErr != nil {
+			err = fmt.Errorf("%v: %v", ErrK8sAuth, authErr)
+			log.Error("authorization error", tint.Err(err))
+			return nil, err
+		}
+		collectors = append(collectors,
+			k8s.NewKubernetesComputeCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID),
+			k8s.NewKubernetesNetworkCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID),
+			k8s.NewKubernetesStorageCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID))
+	case provider == ProviderAWS:
+		awsClient, authErr := aws.NewClient()
+		if authErr != nil {
+			err = fmt.Errorf("%v: %v", ErrAWSAuth, authErr)
+			log.Error("authorization error", tint.Err(err))
+			return nil, err
+		}
+		collectors = append(collectors,
+			aws.NewAwsStorageCollector(awsClient, svc.cloudConfig.targetOfEvaluationID),
+			aws.NewAwsComputeCollector(awsClient, svc.cloudConfig.targetOfEvaluationID))
+	case provider == ProviderOpenstack:
+		authorizer, authErr := openstack.NewAuthorizer()
+		if authErr != nil {
+			err = fmt.Errorf("%v: %v", ErrOpenstackAuth, authErr)
+			log.Error("authorization error", tint.Err(err))
+			return nil, err
+		}
+
+		optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
+		collectors = append(collectors, openstack.NewOpenstackCollector(optsOpenstack...))
+	case provider == ProviderCSAF:
+		var (
+			domain string
+			opts   []csaf.CollectorOption
+		)
+
+		domain = cmd.String("collector-csaf-domain")
+		if domain != "" {
+			opts = append(opts, csaf.WithProviderDomain(domain))
+		}
+		collectors = append(collectors, csaf.NewTrustedProviderCollector(opts...))
+	default:
+		err = fmt.Errorf("provider '%s' not known", provider)
+		log.Error("provider not known", "provider", provider, "error", err)
+		return nil, err
+	}
+
+	return collectors, nil
+}
+
+// Start collector
+func (svc *Service) Start(cmd *cli.Command) (err error) {
 	log.Info("Starting collector")
 	svc.scheduler.TagsUnique()
 
-	// Configure collectors for given providers
-	for _, provider := range svc.cloudConfig.provider {
-		switch {
-		case provider == ProviderAzure:
-			authorizer, err := azure.NewAuthorizer()
-			if err != nil {
-				err := fmt.Errorf("%v: %v", ErrAzureAuth, err)
-				log.Error("authorization error", tint.Err(err))
-				return err
-			}
-			// Add authorizer and TargetOfEvaluationID
-			optsAzure = append(optsAzure, azure.WithAuthorizer(authorizer), azure.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
-			// Check if resource group is given and append to collector
-			rg := cmd.String("collector-resource-group")
-			if rg != "" {
-				optsAzure = append(optsAzure, azure.WithResourceGroup(cmd.String("collector-resource-group")))
-			}
-			svc.collectors = append(svc.collectors, azure.NewAzureCollector(optsAzure...))
-		case provider == ProviderK8S:
-			k8sClient, err := k8s.AuthFromKubeConfig()
-			if err != nil {
-				err := fmt.Errorf("%v: %v", ErrK8sAuth, err)
-				log.Error("authorization error", tint.Err(err))
-				return err
-			}
-			svc.collectors = append(svc.collectors,
-				k8s.NewKubernetesComputeCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID),
-				k8s.NewKubernetesNetworkCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID),
-				k8s.NewKubernetesStorageCollector(k8sClient, svc.cloudConfig.targetOfEvaluationID))
-		case provider == ProviderAWS:
-			awsClient, err := aws.NewClient()
-			if err != nil {
-				err = fmt.Errorf("%v: %v", ErrAWSAuth, err)
-				log.Error("authorization error", tint.Err(err))
-				return err
-			}
-			svc.collectors = append(svc.collectors,
-				aws.NewAwsStorageCollector(awsClient, svc.cloudConfig.targetOfEvaluationID),
-				aws.NewAwsComputeCollector(awsClient, svc.cloudConfig.targetOfEvaluationID))
-		case provider == ProviderOpenstack:
-			authorizer, err := openstack.NewAuthorizer()
-			if err != nil {
-				err = fmt.Errorf("%v: %v", ErrOpenstackAuth, err)
-				log.Error("authorization error", tint.Err(err))
-				return err
-			}
-			// Add authorizer and TargetOfEvaluationID
-			optsOpenstack = append(optsOpenstack, openstack.WithAuthorizer(authorizer), openstack.WithTargetOfEvaluationID(svc.cloudConfig.targetOfEvaluationID))
-			svc.collectors = append(svc.collectors, openstack.NewOpenstackCollector(optsOpenstack...))
-		case provider == ProviderCSAF:
-			var (
-				domain string
-				opts   []csaf.CollectorOption
-			)
-			domain = cmd.String("collector-csaf-domain")
-			if domain != "" {
-				opts = append(opts, csaf.WithProviderDomain(domain))
-			}
-			svc.collectors = append(svc.collectors, csaf.NewTrustedProviderCollector(opts...))
-		default:
-			newError := fmt.Errorf("provider '%s' not known", provider)
-			log.Error("provider not known", "provider", provider, "error", newError)
-			return fmt.Errorf("%s", newError)
-		}
+	svc.collectors, err = svc.buildCollectors(cmd)
+	if err != nil {
+		return err
 	}
 
 	for _, v := range svc.collectors {
@@ -358,10 +361,11 @@ func (svc *Service) Start(cmd *cli.Command) (err error) {
 	return nil
 }
 
-func (svc *Service) StartCollector(collector cloud.Collector) {
+func (svc *Service) StartCollector(collector collector.Collector) {
 	var (
-		err  error
+		err error
 		list []ontology.IsResource
+		ev   *evidence.Evidence
 	)
 
 	go func() {
@@ -390,7 +394,7 @@ func (svc *Service) StartCollector(collector cloud.Collector) {
 	}()
 
 	for _, resource := range list {
-		e := &evidence.Evidence{
+		ev = &evidence.Evidence{
 			Id:                   uuid.New().String(),
 			TargetOfEvaluationId: svc.GetTargetOfEvaluationId(),
 			Timestamp:            timestamppb.Now(),
@@ -402,20 +406,45 @@ func (svc *Service) StartCollector(collector cloud.Collector) {
 		if slices.Contains(ontology.ResourceTypes(resource), "SecurityAdvisoryService") {
 			edges := ontology.Related(resource)
 			for _, edge := range edges {
-				e.ExperimentalRelatedResourceIds = append(e.ExperimentalRelatedResourceIds, edge.Value)
+				ev.ExperimentalRelatedResourceIds = append(ev.ExperimentalRelatedResourceIds, edge.Value)
 			}
 		}
 
-		// Get or create evidence store stream
-		svc.evidenceStoreStream = svc.GetStream()
-		err := svc.evidenceStoreStream.Send(&evidence.StoreEvidenceRequest{Evidence: e})
+		err = svc.storeEvidence(&evidence.StoreEvidenceRequest{Evidence: ev})
 		if err != nil {
-			err = fmt.Errorf("could not send evidence to evidence store service (%s): %w", svc.cloudConfig.evStreamConfig.targetAddress, err)
-			log.Error("send evidence error", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
-			svc.checkStreamError(err)
 			continue
 		}
 	}
+}
+
+func (svc *Service) storeEvidence(req *evidence.StoreEvidenceRequest) (err error) {
+	var res *evidence.StoreEvidencesResponse
+
+	svc.evidenceStoreStream = svc.GetStream()
+	err = svc.evidenceStoreStream.Send(req)
+	if err != nil {
+		err = fmt.Errorf("could not send evidence to evidence store service (%s): %w", svc.cloudConfig.evStreamConfig.targetAddress, err)
+		log.Error("send evidence error", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
+		svc.checkStreamError(err)
+		return err
+	}
+
+	res, err = svc.evidenceStoreStream.Receive()
+	if err != nil {
+		err = fmt.Errorf("could not receive evidence-store response from (%s): %w", svc.cloudConfig.evStreamConfig.targetAddress, err)
+		log.Error("receive evidence-store response error", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
+		svc.checkStreamError(err)
+		return err
+	}
+
+	if res.GetStatus() != evidence.EvidenceStatus_EVIDENCE_STATUS_OK {
+		err = fmt.Errorf("evidence store rejected evidence (%s): %s", svc.cloudConfig.evStreamConfig.targetAddress, res.GetStatusMessage())
+		log.Error("evidence-store rejected evidence", "address", svc.cloudConfig.evStreamConfig.targetAddress, "status", res.GetStatus().String(), "message", res.GetStatusMessage())
+		svc.checkStreamError(err)
+		return err
+	}
+
+	return nil
 }
 
 // GetTargetOfEvaluationId implements TargetOfEvaluationRequest for this service. This is a little trick, so that we can call
@@ -449,17 +478,19 @@ func (svc *Service) GetStream() *connect.BidiStreamForClient[evidence.StoreEvide
 	return svc.evidenceStoreStream
 }
 
-// checkStreamError checks if there was an streaming error in the evidence store stream. If there was an error, it marks the stream as dead.
+// checkStreamError checks whether the current evidence store stream can no longer be reused. If so, it marks the stream as dead.
 func (svc *Service) checkStreamError(err error) {
 	if err != nil {
 		if errors.Is(err, io.EOF) {
 			log.Info("Stream to Evidence Store closed with EOF", "address", svc.cloudConfig.evStreamConfig.targetAddress)
 		} else {
 			// Some other error than EOF occurred
-			log.Error("Error when sending message to Evidence Store", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
+			log.Error("Error in Evidence Store stream", "address", svc.cloudConfig.evStreamConfig.targetAddress, tint.Err(err))
 
 			// Close the stream gracefully. We can ignore any error resulting from the close here
-			_ = svc.evidenceStoreStream.CloseRequest()
+			if svc.evidenceStoreStream != nil {
+				_ = svc.evidenceStoreStream.CloseRequest()
+			}
 		}
 		svc.dead = true
 	}

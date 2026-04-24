@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"os"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
@@ -94,7 +94,7 @@ func init() {
 	log = logconfig.GetLogger().With("component", "openstack-collector")
 }
 
-func NewOpenstackCollector(opts ...CollectorOption) cloud.Collector {
+func NewOpenstackCollector(opts ...CollectorOption) collector.Collector {
 	region := os.Getenv(RegionName)
 	if region == "" {
 		region = "unknown"

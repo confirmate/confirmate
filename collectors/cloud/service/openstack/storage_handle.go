@@ -3,7 +3,7 @@ package openstack
 import (
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -29,7 +29,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		},
 		ParentId: util.Ref(getParentID(volume)),
 		Labels:   map[string]string{}, // Not available
-		Raw:      cloud.Raw(volume),
+		Raw:      collector.Raw(volume),
 	}
 
 	log.Info("Adding block storage", slog.String("name", volume.Name))

@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
@@ -39,7 +39,7 @@ func WithTargetOfEvaluationID(ctID string) CollectorOption {
 	}
 }
 
-func NewTrustedProviderCollector(opts ...CollectorOption) cloud.Collector {
+func NewTrustedProviderCollector(opts ...CollectorOption) collector.Collector {
 	d := &csafCollector{
 		ctID:   config.DefaultTargetOfEvaluationID,
 		domain: "confirmate.io",

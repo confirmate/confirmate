@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -59,7 +59,7 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 		},
 		Labels:              labels(vm.Tags),
 		ParentId:            resourceGroupID(vm.ID),
-		Raw:                 cloud.Raw(vm),
+		Raw:                 collector.Raw(vm),
 		NetworkInterfaceIds: []string{}, // TODO(all): Collect network interface IDs
 		BlockStorageIds:     []string{},
 		MalwareProtection:   &ontology.MalwareProtection{},
@@ -135,7 +135,7 @@ func (d *azureCollector) handleBlockStorage(disk *armcompute.Disk) (*ontology.Bl
 		GeoLocation:      location(disk.Location),
 		Labels:           labels(disk.Tags),
 		ParentId:         resourceGroupID(disk.ManagedBy),
-		Raw:              cloud.Raw(disk, rawKeyUrl),
+		Raw:              collector.Raw(disk, rawKeyUrl),
 		AtRestEncryption: enc,
 		Backups:          backups,
 	}, nil
@@ -190,7 +190,7 @@ func (d *azureCollector) handleFunction(function *armappservice.Site, config arm
 		},
 		Labels:              labels(function.Tags),
 		ParentId:            resourceGroupID(function.ID),
-		Raw:                 cloud.Raw(function, config),
+		Raw:                 collector.Raw(function, config),
 		NetworkInterfaceIds: getVirtualNetworkSubnetId(function), // Add the Virtual Network Subnet ID
 		ResourceLogging:     d.getResourceLoggingWebApps(function),
 		RuntimeLanguage:     runtimeLanguage,
@@ -219,7 +219,7 @@ func (d *azureCollector) handleWebApp(webApp *armappservice.Site, config armapps
 		},
 		Labels:              labels(webApp.Tags),
 		ParentId:            resourceGroupID(webApp.ID),
-		Raw:                 cloud.Raw(webApp, config),
+		Raw:                 collector.Raw(webApp, config),
 		NetworkInterfaceIds: getVirtualNetworkSubnetId(webApp), // Add the Virtual Network Subnet ID
 		ResourceLogging:     d.getResourceLoggingWebApps(webApp),
 		// TODO(oxisto): This is missing in the ontology

@@ -3,7 +3,7 @@ package openstack
 import (
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -23,7 +23,7 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 		},
 		Labels:   labels(util.Ref(network.Tags)),
 		ParentId: util.Ref(network.ProjectID),
-		Raw:      cloud.Raw(network),
+		Raw:      collector.Raw(network),
 	}
 
 	log.Info("Adding network interface", slog.String("name", network.Name))

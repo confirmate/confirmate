@@ -1,7 +1,7 @@
 package azure
 
 import (
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/dataprotection/armdataprotection"
@@ -18,7 +18,7 @@ func (d *azureCollector) handleInstances(vault *armdataprotection.BackupVaultRes
 			Name:        util.Deref(instance.Name),
 			GeoLocation: location(vault.Location),
 			ParentId:    resourceGroupID(instance.ID),
-			Raw:         cloud.Raw(instance, vault),
+			Raw:         collector.Raw(instance, vault),
 		}
 	} else if *instance.Properties.DataSourceInfo.DatasourceType == "Microsoft.Compute/disks" {
 		resource = &ontology.BlockStorage{
@@ -26,7 +26,7 @@ func (d *azureCollector) handleInstances(vault *armdataprotection.BackupVaultRes
 			Name:        util.Deref(instance.Name),
 			GeoLocation: location(vault.Location),
 			ParentId:    resourceGroupID(instance.ID),
-			Raw:         cloud.Raw(instance, vault),
+			Raw:         collector.Raw(instance, vault),
 		}
 	}
 

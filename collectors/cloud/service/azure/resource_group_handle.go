@@ -1,7 +1,7 @@
 package azure
 
 import (
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 
@@ -17,7 +17,7 @@ func (d *azureCollector) handleResourceGroup(rg *armresources.ResourceGroup) ont
 		GeoLocation: location(rg.Location),
 		Labels:      labels(rg.Tags),
 		ParentId:    d.sub.ID,
-		Raw:         cloud.Raw(rg),
+		Raw:         collector.Raw(rg),
 	}
 }
 
@@ -30,6 +30,6 @@ func (d *azureCollector) handleSubscription(s *armsubscription.Subscription) *on
 		GeoLocation:  nil, // subscriptions are global
 		Labels:       nil, // subscriptions do not have labels,
 		ParentId:     nil, // subscriptions are the top-most item and have no parent,
-		Raw:          cloud.Raw(s),
+		Raw:          collector.Raw(s),
 	}
 }

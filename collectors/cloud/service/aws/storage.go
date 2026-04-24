@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -82,7 +82,7 @@ type Bool struct {
 	AwsSecureTransport bool `json:"aws:SecureTransport"`
 }
 
-// Name is the method implementation defined in the cloud.Collector interface
+// Name is the method implementation defined in the collector.Collector interface
 func (*awsS3Collector) Name() string {
 	return "AWS Blob Storage"
 }
@@ -92,7 +92,7 @@ func (d *awsS3Collector) ID() string {
 	return d.id
 }
 
-// List is the method implementation defined in the cloud.Collector interface
+// List is the method implementation defined in the collector.Collector interface
 func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 	var (
 		rawBucketEncOutput  *s3.GetBucketEncryptionOutput
@@ -128,7 +128,7 @@ func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 					Region: b.region,
 				},
 				AtRestEncryption: encryptionAtRest,
-				Raw:              cloud.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
+				Raw:              collector.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
 			},
 			// Add ObjectStorageService
 			&ontology.ObjectStorageService{
@@ -143,7 +143,7 @@ func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
 					Url:                 b.endpoint,
 					TransportEncryption: encryptionAtTransit,
 				},
-				Raw: cloud.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
+				Raw: collector.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
 			})
 	}
 	return
@@ -163,7 +163,7 @@ func (b *bucket) String() string {
 }
 
 // NewAwsStorageCollector constructs a new awsS3Collector initializing the s3-api and isCollecting with true
-func NewAwsStorageCollector(client *Client, TargetOfEvaluationID string) cloud.Collector {
+func NewAwsStorageCollector(client *Client, TargetOfEvaluationID string) collector.Collector {
 	seed := "aws-storage::" + TargetOfEvaluationID
 
 	return &awsS3Collector{

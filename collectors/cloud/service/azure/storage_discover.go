@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
@@ -91,7 +91,7 @@ func (d *azureCollector) collectMongoDBDatabases(account *armcosmos.DatabaseAcco
 				GeoLocation:      location(value.Location),
 				Labels:           labels(value.Tags),
 				ParentId:         resourceIDPointer(account.ID),
-				Raw:              cloud.Raw(account, value),
+				Raw:              collector.Raw(account, value),
 				AtRestEncryption: atRestEnc,
 			}
 			list = append(list, mongoDB)
@@ -185,7 +185,7 @@ func (d *azureCollector) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 				GeoLocation:  location(value.Location),
 				Labels:       labels(value.Tags),
 				ParentId:     resourceIDPointer(server.ID),
-				Raw:          cloud.Raw(value),
+				Raw:          collector.Raw(value),
 				AtRestEncryption: &ontology.AtRestEncryption{
 					Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
 						ManagedKeyEncryption: &ontology.ManagedKeyEncryption{

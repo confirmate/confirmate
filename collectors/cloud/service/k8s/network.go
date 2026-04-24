@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	corev1 "k8s.io/api/core/v1"
@@ -16,7 +16,7 @@ import (
 
 type k8sNetworkCollector struct{ k8sCollector }
 
-func NewKubernetesNetworkCollector(intf kubernetes.Interface, TargetOfEvaluationID string) cloud.Collector {
+func NewKubernetesNetworkCollector(intf kubernetes.Interface, TargetOfEvaluationID string) collector.Collector {
 	return &k8sNetworkCollector{k8sCollector{
 		intf: intf,
 		ctID: TargetOfEvaluationID,
@@ -84,7 +84,7 @@ func (d *k8sNetworkCollector) handleService(service *corev1.Service) ontology.Is
 		Name:         service.Name,
 		CreationTime: timestamppb.New(service.CreationTimestamp.Time),
 		Labels:       service.Labels,
-		Raw:          cloud.Raw(service),
+		Raw:          collector.Raw(service),
 		Ips:          service.Spec.ClusterIPs,
 		Ports:        ports,
 	}
@@ -100,7 +100,7 @@ func (d *k8sNetworkCollector) handleIngress(ingress *v1.Ingress) ontology.IsReso
 		Name:         ingress.Name,
 		CreationTime: timestamppb.New(ingress.CreationTimestamp.Time),
 		Labels:       ingress.Labels,
-		Raw:          cloud.Raw(ingress),
+		Raw:          collector.Raw(ingress),
 		Ports:        []uint32{80, 443},
 	}
 

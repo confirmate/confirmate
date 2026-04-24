@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	cloud "confirmate.io/collectors/cloud/api"
+	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
 	"confirmate.io/core/api/ontology"
@@ -170,7 +170,7 @@ type clients struct {
 	rgClient *armresources.ResourceGroupsClient
 }
 
-func NewAzureCollector(opts ...CollectorOption) cloud.Collector {
+func NewAzureCollector(opts ...CollectorOption) collector.Collector {
 	d := &azureCollector{
 		ctID:               config.DefaultTargetOfEvaluationID,
 		backupMap:          make(map[string]*backup),
