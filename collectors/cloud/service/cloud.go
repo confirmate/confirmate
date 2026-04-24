@@ -363,7 +363,7 @@ func (svc *Service) Start(cmd *cli.Command) (err error) {
 
 func (svc *Service) StartCollector(collector collector.Collector) {
 	var (
-		err error
+		err  error
 		list []ontology.IsResource
 		ev   *evidence.Evidence
 	)
