@@ -35,9 +35,9 @@ type CollectorResult struct {
 
 // CollectionResult captures the outcome of one full collection cycle.
 type CollectionResult struct {
-	StartedAt  time.Time
-	FinishedAt time.Time
-	Collectors []CollectorResult
+	StartedAt        time.Time
+	FinishedAt       time.Time
+	CollectorResults []CollectorResult
 }
 
 // runLoop runs the collection loop, executing collectors immediately and then at the configured
@@ -135,7 +135,7 @@ func (svc *Service) runOnce(ctx context.Context) (res CollectionResult) {
 	wait.Wait()
 
 	res.FinishedAt = time.Now()
-	res.Collectors = results
+	res.CollectorResults = results
 
 	return res
 }

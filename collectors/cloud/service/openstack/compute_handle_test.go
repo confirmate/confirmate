@@ -1,0 +1,163 @@
+package openstack
+
+import (
+	"errors"
+	"testing"
+	"time"
+
+	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
+	"confirmate.io/collectors/cloud/internal/testdata"
+	"confirmate.io/core/api/ontology"
+	"confirmate.io/core/util"
+	"confirmate.io/core/util/assert"
+	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/v2/testhelper"
+	"github.com/gophercloud/gophercloud/v2/testhelper/client"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func Test_openstackCollector_handleServer(t *testing.T) {
+	const ConsoleOutputBody = `{
+		"output": "output test"
+	}`
+
+	testhelper.SetupHTTP()
+	defer testhelper.TeardownHTTP()
+	openstacktest.HandleServerListSuccessfully(t)
+	openstacktest.HandleInterfaceListSuccessfully(t)
+	openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
+
+	t1, err := time.Parse(time.RFC3339, "2014-09-25T13:10:02Z")
+	assert.NoError(t, err)
+
+	type fields struct {
+		ctID     string
+		clients  clients
+		authOpts *gophercloud.AuthOptions
+		region   string
+	}
+	type args struct {
+		server *servers.Server
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    assert.Want[ontology.IsResource]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error getting network interfaces",
+			fields: fields{
+				authOpts: &gophercloud.AuthOptions{
+					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+					Username:         testdata.MockOpenstackUsername,
+					Password:         testdata.MockOpenstackPassword,
+					TenantName:       testdata.MockOpenstackTenantName,
+				},
+				clients: clients{
+					provider: &gophercloud.ProviderClient{
+						TokenID: client.TokenID,
+						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+							return "", errors.New("test error")
+						},
+					},
+					computeClient: client.ServiceClient(),
+				},
+			},
+			args: args{
+				server: &servers.Server{
+					ID:       "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
+					Name:     "herp",
+					TenantID: "fcad67a6189847c4aecfa3c81a05783b",
+					AttachedVolumes: []servers.AttachedVolume{
+						{
+							ID: "2bdbc40f-a277-45d4-94ac-d9881c777d33",
+						},
+					},
+					Created: t1,
+				},
+			},
+			want: assert.Nil[ontology.IsResource],
+			wantErr: func(tt *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "could not collect attached network interfaces:")
+			},
+		},
+		{
+			name: "Happy path",
+			fields: fields{
+				authOpts: &gophercloud.AuthOptions{
+					IdentityEndpoint: testdata.MockOpenstackIdentityEndpoint,
+					Username:         testdata.MockOpenstackUsername,
+					Password:         testdata.MockOpenstackPassword,
+					TenantName:       testdata.MockOpenstackTenantName,
+				},
+				clients: clients{
+					provider: &gophercloud.ProviderClient{
+						TokenID: client.TokenID,
+						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+							return testhelper.Endpoint(), nil
+						},
+					},
+					computeClient: client.ServiceClient(),
+				},
+				region: "test region",
+			},
+			args: args{
+				server: &servers.Server{
+					ID:       "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
+					Name:     "herp",
+					TenantID: "fcad67a6189847c4aecfa3c81a05783b",
+					AttachedVolumes: []servers.AttachedVolume{
+						{
+							ID: "2bdbc40f-a277-45d4-94ac-d9881c777d33",
+						},
+					},
+					Created: t1,
+				},
+			},
+			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
+				assert.NotEmpty(t, got)
+
+				want := &ontology.VirtualMachine{
+					Id:           "ef079b0c-e610-4dfb-b1aa-b49f07ac48e5",
+					Name:         "herp",
+					CreationTime: timestamppb.New(t1),
+					GeoLocation: &ontology.GeoLocation{
+						Region: "test region",
+					},
+					Labels:              map[string]string{},
+					ParentId:            util.Ref("fcad67a6189847c4aecfa3c81a05783b"),
+					BlockStorageIds:     []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
+					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
+					MalwareProtection:   &ontology.MalwareProtection{},
+					AutomaticUpdates:    &ontology.AutomaticUpdates{},
+					BootLogging:         &ontology.BootLogging{Enabled: true},
+				}
+
+				gotNew := got.(*ontology.VirtualMachine)
+
+				assert.NotEmpty(t, gotNew.GetRaw())
+				gotNew.Raw = ""
+				return assert.Equal(t, want, gotNew)
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &openstackCollector{
+				ctID:     tt.fields.ctID,
+				clients:  tt.fields.clients,
+				authOpts: tt.fields.authOpts,
+				region:   tt.fields.region,
+			}
+
+			got, err := d.handleServer(tt.args.server)
+
+			tt.want(t, got)
+			tt.wantErr(t, err)
+		})
+	}
+}
