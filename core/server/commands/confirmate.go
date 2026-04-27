@@ -18,7 +18,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -31,7 +30,6 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
-	"confirmate.io/core/service/collection"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
@@ -41,10 +39,9 @@ import (
 )
 
 const (
-	DefaultServiceTokenURL              = "http://localhost:8080/v1/auth/token"
-	DefaultServiceClientID              = "confirmate"
-	DefaultServiceClientSecret          = "confirmate"
-	defaultEmbeddedTargetOfEvaluationID = "00000000-0000-0000-0000-000000000000"
+	DefaultServiceTokenURL     = "http://localhost:8080/v1/auth/token"
+	DefaultServiceClientID     = "confirmate"
+	DefaultServiceClientSecret = "confirmate"
 )
 
 // oauthServerFlags contains the flags for configuring the embedded OAuth 2.0 server.
@@ -81,12 +78,12 @@ var oauthServerFlags = []cli.Flag{
 	},
 }
 
-// ConfirmateCommand starts the full framework: orchestrator,  assessment, evidence store, and collector services on one server.
+// ConfirmateCommand starts the full framework: orchestrator, assessment, and evidence store services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store, and collector services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, and evidence store services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
-		return runConfirmate(ctx, cmd, []collection.Collector{newNoOpCollector("confirmate-no-op-collector")}, "")
+		return runConfirmate(ctx, cmd)
 	},
 	Flags: joinFlagSlices(
 		logFlags,
@@ -98,36 +95,30 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
-		collectionFlags,
 	),
 }
 
-// runConfirmate starts the embedded Confirmate stack with the provided collectors.
-func runConfirmate(ctx context.Context, cmd *cli.Command, collectors []collection.Collector, collectionToolID string) (err error) {
+// runConfirmate starts the embedded Confirmate framework stack.
+func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 	var (
-		interceptors         []connect.Interceptor
-		orchestratorOptions  []service.Option[orchestrator.Service]
-		assessmentOptions    []service.Option[assessment.Service]
-		evidenceOptions      []service.Option[evidence.Service]
-		jwksURL              string
-		orchestratorOpts     []service.Option[orchestrator.Service]
-		assessmentOpts       []service.Option[assessment.Service]
-		evidenceOpts         []service.Option[evidence.Service]
-		orchestratorSvc      orchestratorconnect.OrchestratorHandler
-		assessmentSvc        assessmentconnect.AssessmentHandler
-		evidenceSvc          evidenceconnect.EvidenceStoreHandler
-		orchestratorClient   *http.Client
-		collectionHTTPClient *http.Client
-		apiPort              uint16
-		credentials          *clientcredentials.Config
-		authorizer           api.Authorizer
-		collectionSvc        *collection.Service
-		collectionResults    <-chan collection.CollectionResult
-		serverOpts           []server.Option
-		srv                  *server.Server
-		serverErrCh          chan error
-		targetOfEvaluationID string
-		evidenceStoreAddress string
+		interceptors        []connect.Interceptor
+		orchestratorOptions []service.Option[orchestrator.Service]
+		assessmentOptions   []service.Option[assessment.Service]
+		evidenceOptions     []service.Option[evidence.Service]
+		jwksURL             string
+		orchestratorOpts    []service.Option[orchestrator.Service]
+		assessmentOpts      []service.Option[assessment.Service]
+		evidenceOpts        []service.Option[evidence.Service]
+		orchestratorSvc     orchestratorconnect.OrchestratorHandler
+		assessmentSvc       assessmentconnect.AssessmentHandler
+		evidenceSvc         evidenceconnect.EvidenceStoreHandler
+		orchestratorClient  *http.Client
+		apiPort             uint16
+		credentials         *clientcredentials.Config
+		authorizer          api.Authorizer
+		serverOpts          []server.Option
+		srv                 *server.Server
+		serverErrCh         chan error
 	)
 
 	if cmd.Bool("auth-enabled") {
@@ -174,7 +165,6 @@ func runConfirmate(ctx context.Context, cmd *cli.Command, collectors []collectio
 	apiPort = cmd.Uint16("api-port")
 
 	orchestratorClient = service.NewHTTPClient()
-	collectionHTTPClient = service.NewHTTPClient()
 	if cmd.Bool("auth-enabled") {
 		credentials = &clientcredentials.Config{
 			ClientID:     cmd.String("service-oauth2-client-id"),
@@ -183,7 +173,6 @@ func runConfirmate(ctx context.Context, cmd *cli.Command, collectors []collectio
 		}
 		authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
 		orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
-		collectionHTTPClient = api.NewOAuthHTTPClient(collectionHTTPClient, authorizer)
 	}
 
 	// Assessment service configuration
@@ -227,32 +216,6 @@ func runConfirmate(ctx context.Context, cmd *cli.Command, collectors []collectio
 	if err != nil {
 		return err
 	}
-
-	targetOfEvaluationID = cmd.String("target-of-evaluation-id")
-	if targetOfEvaluationID == "" {
-		targetOfEvaluationID = defaultEmbeddedTargetOfEvaluationID
-	}
-
-	evidenceStoreAddress = fmt.Sprintf("http://localhost:%d", apiPort)
-	collectionSvc, err = collection.NewService(
-		collection.WithConfig(collection.Config{
-			Interval:                cmd.Duration("collection-interval"),
-			Collectors:              collectors,
-			EvidenceStoreAddress:    evidenceStoreAddress,
-			EvidenceStoreHTTPClient: collectionHTTPClient,
-			TargetOfEvaluationID:    targetOfEvaluationID,
-			ToolID:                  collectionToolID,
-		}),
-	)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		closeErr := collectionSvc.Close()
-		if err == nil && closeErr != nil {
-			err = closeErr
-		}
-	}()
 
 	// Server options configuration including CORS, logging, handler and gRPC reflection
 	serverOpts = []server.Option{
@@ -304,13 +267,6 @@ func runConfirmate(ctx context.Context, cmd *cli.Command, collectors []collectio
 	if err != nil {
 		return err
 	}
-
-	collectionResults = collectionSvc.Start(ctx)
-	go func() {
-		for range collectionResults {
-			slog.Debug("Collection cycle finished")
-		}
-	}()
 
 	err = <-serverErrCh
 	return err

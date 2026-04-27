@@ -68,11 +68,11 @@ func (d *k8sComputeCollector) Collect() ([]ontology.IsResource, error) {
 // handlePod returns all existing pods
 func (d *k8sComputeCollector) handlePod(pod *v1.Pod) *ontology.Container {
 	r := &ontology.Container{
-		Id:           getContainerResourceID(pod),
-		Name:         pod.Name,
-		CreationTime: timestamppb.New(pod.CreationTimestamp.Time),
-		Labels:       pod.Labels,
-		Raw:          collector.Raw(pod),
+		Id:                  getContainerResourceID(pod),
+		Name:                pod.Name,
+		CreationTime:        timestamppb.New(pod.CreationTimestamp.Time),
+		Labels:              pod.Labels,
+		Raw:                 collector.Raw(pod),
 		NetworkInterfaceIds: []string{},
 	}
 
