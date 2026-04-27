@@ -285,11 +285,6 @@ func (d *azureCollector) collectStorageAccounts() ([]ontology.IsResource, error)
 		return nil, err
 	}
 
-	// Add backup storage account objects
-	if d.backupMap[DataSourceTypeStorageAccountObject] != nil && d.backupMap[DataSourceTypeStorageAccountObject].backupStorages != nil {
-		storageResourcesList = append(storageResourcesList, d.backupMap[DataSourceTypeStorageAccountObject].backupStorages...)
-	}
-
 	return storageResourcesList, nil
 }
 

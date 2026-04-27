@@ -75,7 +75,7 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 			RetentionPeriod:          durationpb.New(0),
 			LoggingServiceIds:        []string{}, // TODO(all): TBD
 			MonitoringLogDataEnabled: monitoringLogDataEnabled,
-			SecurityAlertsEnabled:    monitoringLogDataEnabled,
+			SecurityAlertsEnabled:    securityAlertsEnabled,
 		},
 		ActivityLogging: &ontology.ActivityLogging{
 			Enabled:           true, // is always enabled

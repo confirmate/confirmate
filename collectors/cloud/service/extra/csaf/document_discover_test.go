@@ -2,6 +2,7 @@ package csaf
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"confirmate.io/collectors/cloud/internal/config"
@@ -45,7 +46,9 @@ func Test_csafCollector_handleAdvisory(t *testing.T) {
 				keyring: goodProvider.Keyring,
 			},
 			wantDoc: func(t *testing.T, got *ontology.SecurityAdvisoryDocument, msgAndArgs ...any) bool {
-				return assert.Equal(t, "some-id", got.Id)
+				return assert.Equal(t, "some-id", got.Id) &&
+					assert.NotEmpty(t, got.Raw) &&
+					assert.False(t, strings.Contains(got.Raw, "security_advisory_document"))
 			},
 		},
 	}

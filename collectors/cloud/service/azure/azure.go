@@ -122,8 +122,6 @@ type defenderProperties struct {
 type backup struct {
 	// backup is a list of all ontology.Backup objects
 	backup map[string][]*ontology.Backup
-	// backupStorages is a list of all backed up ontology.Storage (ObjectStorage, BlockStorage) objects
-	backupStorages []ontology.IsResource
 }
 
 type clients struct {
@@ -251,11 +249,6 @@ func (d *azureCollector) List() (list []ontology.IsResource, err error) {
 		return nil, fmt.Errorf("could not collect block storage: %w", err)
 	}
 	list = append(list, storage...)
-
-	// Add backup block storages
-	if d.backupMap[DataSourceTypeDisc] != nil && d.backupMap[DataSourceTypeDisc].backupStorages != nil {
-		list = append(list, d.backupMap[DataSourceTypeDisc].backupStorages...)
-	}
 
 	// Collect virtual machines
 	virtualMachines, err := d.collectVirtualMachines()

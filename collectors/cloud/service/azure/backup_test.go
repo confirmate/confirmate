@@ -5,15 +5,11 @@ import (
 	"time"
 
 	"confirmate.io/collectors/cloud/internal/constants"
-	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/dataprotection/armdataprotection"
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -33,8 +29,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 				azureCollector: &azureCollector{
 					backupMap: map[string]*backup{
 						"testBackup": {
-							backup:         make(map[string][]*ontology.Backup),
-							backupStorages: []ontology.IsResource{},
+							backup: make(map[string][]*ontology.Backup),
 						},
 					},
 				},
@@ -52,7 +47,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 					{
 						RetentionPeriod: durationpb.New(Duration7Days),
 						Enabled:         true,
-						StorageId:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/account1-account1-22222222-2222-2222-2222-222222222222"),
+						StorageId:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
 						TransportEncryption: &ontology.TransportEncryption{
 							Enforced:        true,
 							Enabled:         true,
@@ -76,7 +71,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 					{
 						RetentionPeriod: durationpb.New(Duration30Days),
 						Enabled:         true,
-						StorageId:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/disk1-disk1-22222222-2222-2222-2222-222222222222"),
+						StorageId:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
 						TransportEncryption: &ontology.TransportEncryption{
 							Enforced:        true,
 							Enabled:         true,
@@ -194,123 +189,6 @@ func Test_azureCollector_collectBackupInstances(t *testing.T) {
 
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func Test_azureCollector_handleInstances(t *testing.T) {
-	type fields struct {
-		isAuthorized  bool
-		sub           *armsubscription.Subscription
-		cred          azcore.TokenCredential
-		rg            *string
-		clientOptions arm.ClientOptions
-		clients       clients
-		ctID          string
-		backupMap     map[string]*backup
-	}
-	type args struct {
-		vault    *armdataprotection.BackupVaultResource
-		instance *armdataprotection.BackupInstanceResource
-	}
-	tests := []struct {
-		name         string
-		fields       fields
-		args         args
-		wantResource ontology.IsResource
-		wantErr      assert.WantErr
-	}{
-		{
-			name: "Empty input",
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, ErrVaultInstanceIsEmpty.Error())
-			},
-		},
-		{
-			name: "Happy path: ObjectStorage",
-			fields: fields{
-				ctID: testdata.MockTargetOfEvaluationID1,
-			},
-			args: args{
-				vault: &armdataprotection.BackupVaultResource{
-					ID:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
-					Name:     util.Ref("backupAccount1"),
-					Location: util.Ref("westeurope"),
-				},
-				instance: &armdataprotection.BackupInstanceResource{
-					ID:   util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/account1-account1-22222222-2222-2222-2222-222222222222"),
-					Name: util.Ref("account1-account1-22222222-2222-2222-2222-222222222222"),
-					Properties: &armdataprotection.BackupInstance{
-						DataSourceInfo: &armdataprotection.Datasource{
-							DatasourceType: util.Ref("Microsoft.Storage/storageAccounts/blobServices"),
-						},
-					},
-				},
-			},
-			wantResource: &ontology.ObjectStorage{
-				Id:   "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.dataprotection/backupvaults/backupaccount1/backupinstances/account1-account1-22222222-2222-2222-2222-222222222222",
-				Name: "account1-account1-22222222-2222-2222-2222-222222222222",
-				GeoLocation: &ontology.GeoLocation{
-					Region: "westeurope",
-				},
-				CreationTime: nil,
-				Labels:       nil,
-				ParentId:     util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1"),
-				Raw:          "{\"*armdataprotection.BackupInstanceResource\":[{\"properties\":{\"dataSourceInfo\":{\"datasourceType\":\"Microsoft.Storage/storageAccounts/blobServices\"}},\"id\":\"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/account1-account1-22222222-2222-2222-2222-222222222222\",\"name\":\"account1-account1-22222222-2222-2222-2222-222222222222\"}],\"*armdataprotection.BackupVaultResource\":[{\"id\":\"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1\",\"location\":\"westeurope\",\"name\":\"backupAccount1\"}]}",
-			},
-			wantErr: assert.NoError,
-		},
-		{
-			name: "Happy path: BlockStorage",
-			fields: fields{
-				ctID: testdata.MockTargetOfEvaluationID1,
-			},
-			args: args{
-				vault: &armdataprotection.BackupVaultResource{
-					ID:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
-					Name:     util.Ref("backupAccount1"),
-					Location: util.Ref("westeurope"),
-				},
-				instance: &armdataprotection.BackupInstanceResource{
-					ID:   util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/disk1-disk1-22222222-2222-2222-2222-222222222222"),
-					Name: util.Ref("disk1-disk1-22222222-2222-2222-2222-222222222222"),
-					Properties: &armdataprotection.BackupInstance{
-						DataSourceInfo: &armdataprotection.Datasource{
-							DatasourceType: util.Ref("Microsoft.Compute/disks"),
-						},
-					},
-				},
-			},
-			wantResource: &ontology.BlockStorage{
-				Id:   "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1/providers/microsoft.dataprotection/backupvaults/backupaccount1/backupinstances/disk1-disk1-22222222-2222-2222-2222-222222222222",
-				Name: "disk1-disk1-22222222-2222-2222-2222-222222222222",
-				GeoLocation: &ontology.GeoLocation{
-					Region: "westeurope",
-				},
-				CreationTime: nil,
-				Labels:       nil,
-				ParentId:     util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1"),
-				Raw:          "{\"*armdataprotection.BackupInstanceResource\":[{\"properties\":{\"dataSourceInfo\":{\"datasourceType\":\"Microsoft.Compute/disks\"}},\"id\":\"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/disk1-disk1-22222222-2222-2222-2222-222222222222\",\"name\":\"disk1-disk1-22222222-2222-2222-2222-222222222222\"}],\"*armdataprotection.BackupVaultResource\":[{\"id\":\"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1\",\"location\":\"westeurope\",\"name\":\"backupAccount1\"}]}",
-			},
-			wantErr: assert.NoError,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			d := &azureCollector{
-				isAuthorized:  tt.fields.isAuthorized,
-				sub:           tt.fields.sub,
-				cred:          tt.fields.cred,
-				rg:            tt.fields.rg,
-				clientOptions: tt.fields.clientOptions,
-				clients:       tt.fields.clients,
-				ctID:          tt.fields.ctID,
-				backupMap:     tt.fields.backupMap,
-			}
-			gotResource, err := d.handleInstances(tt.args.vault, tt.args.instance)
-			tt.wantErr(t, err)
-
-			assert.Equal(t, tt.wantResource, gotResource)
 		})
 	}
 }

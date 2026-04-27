@@ -189,8 +189,8 @@ func (d *azureCollector) handleFileStorage(account *armstorage.Account, fileshar
 
 	// Get monitoringLogDataEnabled and securityAlertsEnabled
 	if d.defenderProperties[DefenderStorageType] != nil {
-		monitoringLogDataEnabled = d.defenderProperties[DefenderVirtualMachineType].monitoringLogDataEnabled
-		securityAlertsEnabled = d.defenderProperties[DefenderVirtualMachineType].securityAlertsEnabled
+		monitoringLogDataEnabled = d.defenderProperties[DefenderStorageType].monitoringLogDataEnabled
+		securityAlertsEnabled = d.defenderProperties[DefenderStorageType].securityAlertsEnabled
 	}
 
 	return &ontology.FileStorage{
@@ -237,8 +237,8 @@ func (d *azureCollector) handleObjectStorage(account *armstorage.Account, contai
 	backups = backupsEmptyCheck(backups)
 
 	if d.defenderProperties[DefenderStorageType] != nil {
-		monitoringLogDataEnabled = d.defenderProperties[DefenderVirtualMachineType].monitoringLogDataEnabled
-		securityAlertsEnabled = d.defenderProperties[DefenderVirtualMachineType].securityAlertsEnabled
+		monitoringLogDataEnabled = d.defenderProperties[DefenderStorageType].monitoringLogDataEnabled
+		securityAlertsEnabled = d.defenderProperties[DefenderStorageType].securityAlertsEnabled
 	}
 
 	return &ontology.ObjectStorage{

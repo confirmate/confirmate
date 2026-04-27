@@ -73,9 +73,8 @@ func (d *k8sComputeCollector) handlePod(pod *v1.Pod) *ontology.Container {
 		CreationTime: timestamppb.New(pod.CreationTimestamp.Time),
 		Labels:       pod.Labels,
 		Raw:          collector.Raw(pod),
+		NetworkInterfaceIds: []string{},
 	}
-
-	r.NetworkInterfaceIds = append(r.NetworkInterfaceIds, pod.Namespace)
 
 	return r
 }
@@ -88,7 +87,6 @@ func getContainerResourceID(pod *v1.Pod) string {
 func (d *k8sComputeCollector) handlePodVolume(pod *v1.Pod) []ontology.IsResource {
 	var (
 		volumes []ontology.IsResource
-		v       ontology.IsResource
 	)
 
 	// TODO(all): Do we have to differentiate between between persisted volume claim,persistent volumes and storage
@@ -96,6 +94,8 @@ func (d *k8sComputeCollector) handlePodVolume(pod *v1.Pod) []ontology.IsResource
 	// TODO(all): The ID, region, label and atRestEncryption information we have to get directly from the related
 	// storage, but I think we do not have credentials for the other providers in Confirmate?
 	for _, vol := range pod.Spec.Volumes {
+		var v ontology.IsResource
+
 		vs := vol.VolumeSource
 
 		// TODO(all): Define all volume types

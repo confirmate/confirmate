@@ -82,6 +82,29 @@ type Bool struct {
 	AwsSecureTransport bool `json:"aws:SecureTransport"`
 }
 
+func policyActions(action any) (actions []string) {
+	var (
+		item string
+		ok   bool
+	)
+
+	switch value := action.(type) {
+	case string:
+		actions = append(actions, value)
+	case []string:
+		actions = append(actions, value...)
+	case []any:
+		for _, raw := range value {
+			item, ok = raw.(string)
+			if ok {
+				actions = append(actions, item)
+			}
+		}
+	}
+
+	return actions
+}
+
 // Name is the method implementation defined in the collector.Collector interface
 func (*awsS3Collector) Name() string {
 	return "AWS Blob Storage"
@@ -301,26 +324,14 @@ func (d *awsS3Collector) getTransportEncryption(bucket string) (*ontology.Transp
 	}
 	// one statement has set https only -> default encryption is set
 	for _, statement := range policy.Statement {
-		if a, ok := statement.Action.(string); ok {
-			if statement.Effect == "Deny" && !statement.Condition.AwsSecureTransport && a == "s3:*" {
+		for _, action := range policyActions(statement.Action) {
+			if statement.Effect == "Deny" && !statement.Condition.AwsSecureTransport && action == "s3:*" {
 				return &ontology.TransportEncryption{
 					Enforced:        true,
 					Enabled:         true,
 					Protocol:        "TLS",
 					ProtocolVersion: 1.2,
 				}, resp, nil
-			}
-		}
-		if actions, ok := statement.Action.([]string); ok {
-			for _, a := range actions {
-				if statement.Effect == "Deny" && !statement.Condition.AwsSecureTransport && a == "s3:*" {
-					return &ontology.TransportEncryption{
-						Enforced:        true,
-						Enabled:         true,
-						Protocol:        "TLS",
-						ProtocolVersion: 1.2,
-					}, resp, nil
-				}
 			}
 		}
 	}

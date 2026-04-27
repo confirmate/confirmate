@@ -147,6 +147,10 @@ func (mockS3APINew) GetBucketPolicy(_ context.Context,
 		output = &s3.GetBucketPolicyOutput{
 			Policy: aws.String(string(policyJson)),
 		}
+	case "mockbucket4": // action is unmarshaled as []interface{}
+		output = &s3.GetBucketPolicyOutput{
+			Policy: aws.String(`{"id":"Mock BucketPolicy ID 1234","Version":"2012-10-17","Statement":[{"Action":["s3:*"],"Effect":"Deny","Resource":"*","Condition":{"aws:SecureTransport":false}}]}`),
+		}
 	default:
 		output = nil
 		err = &smithy.GenericAPIError{
@@ -409,6 +413,14 @@ func TestAwsS3Collector_getTransportEncryption(t *testing.T) {
 	assert.Equal(t, float32(1.2), encryptionAtTransit.ProtocolVersion)
 	assert.False(t, encryptionAtTransit.Enforced)
 	assert.Empty(t, rawBucketPolicy)
+
+	// Case 6: Enforced when action list unmarshals as []interface{}
+	encryptionAtTransit, rawBucketPolicy, err = d.getTransportEncryption("mockbucket4")
+	assert.NoError(t, err)
+	assert.True(t, encryptionAtTransit.Enabled)
+	assert.Equal(t, float32(1.2), encryptionAtTransit.ProtocolVersion)
+	assert.True(t, encryptionAtTransit.Enforced)
+	assert.NotEmpty(t, rawBucketPolicy)
 }
 
 // TestGetRegion tests the getRegion method

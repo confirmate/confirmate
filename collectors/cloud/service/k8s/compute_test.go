@@ -115,12 +115,10 @@ func Test_k8sComputeCollector_List(t *testing.T) {
 				}
 				// Create expected ontology.Container
 				expectedContainer := &ontology.Container{
-					Id:     podID,
-					Name:   podName,
-					Labels: podLabel,
-					NetworkInterfaceIds: []string{
-						podNamespace,
-					},
+					Id:                  podID,
+					Name:                podName,
+					Labels:              podLabel,
+					NetworkInterfaceIds: []string{},
 				}
 
 				// We need to ignore creation_time in the comparison because it is random and raw because it includes the creation_time
@@ -200,6 +198,37 @@ func Test_k8sComputeCollector_handlePodVolume(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   "ignores unsupported volume after supported one",
+			fields: fields{},
+			args: args{
+				pod: &corev1.Pod{
+					Spec: corev1.PodSpec{
+						Volumes: []corev1.Volume{
+							{
+								Name: "block",
+								VolumeSource: corev1.VolumeSource{
+									AzureDisk: &corev1.AzureDiskVolumeSource{DiskName: "disk1"},
+								},
+							},
+							{
+								Name: "unsupported",
+								VolumeSource: corev1.VolumeSource{
+									PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "claim1"},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: []ontology.IsResource{
+				&ontology.BlockStorage{
+					Id:               "block",
+					Name:             "block",
+					AtRestEncryption: &ontology.AtRestEncryption{},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -213,6 +242,9 @@ func Test_k8sComputeCollector_handlePodVolume(t *testing.T) {
 			for _, res := range got {
 				switch r := res.(type) {
 				case *ontology.FileStorage:
+					assert.NotEmpty(t, r.Raw)
+					r.Raw = ""
+				case *ontology.BlockStorage:
 					assert.NotEmpty(t, r.Raw)
 					r.Raw = ""
 				}

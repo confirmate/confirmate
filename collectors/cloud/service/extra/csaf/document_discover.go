@@ -54,6 +54,7 @@ func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 		raw      any
 		advisory csaf.Advisory
 		body     []byte
+		rawDoc   string
 	)
 
 	body, err = io.ReadAll(res.Body)
@@ -79,6 +80,8 @@ func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 	if err != nil {
 		return nil, err
 	}
+
+	rawDoc = collector.Raw(raw)
 
 	t, err := time.Parse(time.RFC3339, util.Deref(advisory.Document.Tracking.InitialReleaseDate))
 	if err != nil {
@@ -113,7 +116,7 @@ func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 		DocumentSignatures: []*ontology.DocumentSignature{
 			d.documentPGPSignature(file.SignURL(), body, keyring),
 		},
-		Raw:      collector.Raw(doc),
+		Raw:      rawDoc,
 		ParentId: &parentId,
 	}
 

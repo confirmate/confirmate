@@ -73,7 +73,12 @@ func Test_azureStorageCollector_collectStorageAccounts(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureCollector: NewMockAzureCollector(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender(), WithDefenderProperties(map[string]*defenderProperties{
+					DefenderStorageType: {
+						monitoringLogDataEnabled: true,
+						securityAlertsEnabled:    true,
+					},
+				})),
 			},
 
 			want:    nil,
@@ -91,7 +96,7 @@ func Test_azureStorageCollector_collectStorageAccounts(t *testing.T) {
 				}
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, 9, len(got))
+				assert.Equal(t, 8, len(got))
 			}
 		})
 	}
@@ -225,7 +230,12 @@ func Test_handleFileStorage(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureCollector: NewMockAzureCollector(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender(), WithDefenderProperties(map[string]*defenderProperties{
+					DefenderStorageType: {
+						monitoringLogDataEnabled: true,
+						securityAlertsEnabled:    true,
+					},
+				})),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -266,8 +276,8 @@ func Test_handleFileStorage(t *testing.T) {
 					},
 					ResourceLogging: &ontology.ResourceLogging{
 						Enabled:                  false,
-						MonitoringLogDataEnabled: false,
-						SecurityAlertsEnabled:    false,
+						MonitoringLogDataEnabled: true,
+						SecurityAlertsEnabled:    true,
 					},
 					ActivityLogging: &ontology.ActivityLogging{
 						Enabled: true,
@@ -358,7 +368,12 @@ func Test_azureStorageCollector_handleStorageAccount(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureCollector: NewMockAzureCollector(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender(), WithDefenderProperties(map[string]*defenderProperties{
+					DefenderStorageType: {
+						monitoringLogDataEnabled: true,
+						securityAlertsEnabled:    true,
+					},
+				})),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -495,7 +510,12 @@ func Test_handleObjectStorage(t *testing.T) {
 		{
 			name: "No error",
 			fields: fields{
-				azureCollector: NewMockAzureCollector(newMockSender()),
+				azureCollector: NewMockAzureCollector(newMockSender(), WithDefenderProperties(map[string]*defenderProperties{
+					DefenderStorageType: {
+						monitoringLogDataEnabled: true,
+						securityAlertsEnabled:    true,
+					},
+				})),
 			},
 			args: args{
 				account: &armstorage.Account{
@@ -540,8 +560,8 @@ func Test_handleObjectStorage(t *testing.T) {
 					},
 					Immutability: &ontology.Immutability{Enabled: false},
 					ResourceLogging: &ontology.ResourceLogging{
-						MonitoringLogDataEnabled: false,
-						SecurityAlertsEnabled:    false,
+						MonitoringLogDataEnabled: true,
+						SecurityAlertsEnabled:    true,
 					},
 					Backups: []*ontology.Backup{
 						{

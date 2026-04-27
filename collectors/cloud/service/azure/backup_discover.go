@@ -68,12 +68,6 @@ func (d *azureCollector) collectBackupVaults() error {
 				// TODO(all):Maybe we should differentiate the backup retention period for different resources, e.g., disk vs blobs (Metrics)
 				retention := policy.BaseBackupPolicyResource.Properties.(*armdataprotection.BackupPolicy).PolicyRules[0].(*armdataprotection.AzureRetentionRule).Lifecycles[0].DeleteAfter.(*armdataprotection.AbsoluteDeleteOption).GetDeleteOption().Duration
 
-				resp, err := d.handleInstances(vault, instance)
-				if err != nil {
-					err := fmt.Errorf("could not handle instance")
-					return err
-				}
-
 				// Check if map entry already exists
 				_, ok := d.backupMap[dataSourceType]
 				if !ok {
@@ -87,7 +81,7 @@ func (d *azureCollector) collectBackupVaults() error {
 					{
 						Enabled:         true,
 						RetentionPeriod: retentionDuration(util.Deref(retention)),
-						StorageId:       instance.ID,
+						StorageId:       vault.ID,
 						TransportEncryption: &ontology.TransportEncryption{
 							Enabled:         true,
 							Enforced:        true,
@@ -96,9 +90,6 @@ func (d *azureCollector) collectBackupVaults() error {
 						},
 					},
 				}
-
-				// Store backed up storage voc objects (ObjectStorage, BlockStorage)
-				d.backupMap[dataSourceType].backupStorages = append(d.backupMap[dataSourceType].backupStorages, resp)
 			}
 			return nil
 		})
