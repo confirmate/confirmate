@@ -26,6 +26,21 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
+// denyAuthorizationStrategy is a test strategy that denies all access.
+type denyAuthorizationStrategy struct{}
+
+func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string) {
+	return false, nil
+}
+
+func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
+func (*denyAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
 func TestNewService(t *testing.T) {
 	type args struct {
 		opts []service.Option[Service]
@@ -80,6 +95,27 @@ func TestNewService(t *testing.T) {
 				assert.NotEmpty(t, orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress), svc.orchestratorClient)
 				assert.Equal(t, make(map[string]map[string]*orchestrator.Control), svc.catalogControls)
 				return assert.NotNil(t, &svc.catalogsMutex)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "WithAuthorizationStrategyPermissionStore wires up orchestrator permission store",
+			args: args{
+				opts: []service.Option[Service]{
+					WithAuthorizationStrategyPermissionStore(),
+				},
+			},
+			want: func(t *testing.T, got evaluationconnect.EvaluationHandler, msgAndArgs ...any) bool {
+				svc, ok := got.(*Service)
+				if !ok {
+					t.Fatalf("expected *Service, got %T", got)
+				}
+				permStrat, ok := svc.authz.(*service.AuthorizationStrategyPermissionStore)
+				if !assert.True(t, ok, "authz should be *AuthorizationStrategyPermissionStore") {
+					return false
+				}
+				_, ok = permStrat.Permissions.(*service.OrchestratorPermissionStore)
+				return assert.True(t, ok, "Permissions should be *OrchestratorPermissionStore")
 			},
 			wantErr: assert.NoError,
 		},
@@ -735,11 +771,13 @@ func Test_getMetricIds(t *testing.T) {
 
 func TestService_StopEvaluation(t *testing.T) {
 	type args struct {
+		ctx context.Context
 		req *connect.Request[evaluation.StopEvaluationRequest]
 	}
 	type fields struct {
 		orchestratorClient orchestratorconnect.OrchestratorClient
 		scheduler          *gocron.Scheduler
+		authz              service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -751,6 +789,7 @@ func TestService_StopEvaluation(t *testing.T) {
 		{
 			name: "error: input empty",
 			args: args{
+				ctx: context.Background(),
 				req: &connect.Request[evaluation.StopEvaluationRequest]{},
 			},
 			fields: fields{},
@@ -758,6 +797,22 @@ func TestService_StopEvaluation(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "invalid_argument: empty request")
+			},
+		},
+		{
+			name: "error: permission denied",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StopEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				authz: &denyAuthorizationStrategy{},
+			},
+			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
 			},
 		},
 		{
@@ -831,11 +886,16 @@ func TestService_StopEvaluation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := tt.args.ctx
+			if ctx == nil {
+				ctx = context.Background()
+			}
 			svc := &Service{
 				orchestratorClient: tt.fields.orchestratorClient,
 				scheduler:          tt.fields.scheduler,
+				authz:              tt.fields.authz,
 			}
-			got, gotErr := svc.StopEvaluation(context.Background(), tt.args.req)
+			got, gotErr := svc.StopEvaluation(ctx, tt.args.req)
 
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)
@@ -1831,6 +1891,7 @@ func TestService_StartEvaluation(t *testing.T) {
 		orchestratorClient orchestratorconnect.OrchestratorClient
 		catalogControls    map[string]map[string]*orchestrator.Control
 		scheduler          *gocron.Scheduler
+		authz              service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -1840,6 +1901,24 @@ func TestService_StartEvaluation(t *testing.T) {
 		wantSvc assert.Want[*Service]
 		wantErr assert.WantErr
 	}{
+		{
+			name: "err: permission denied",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId1,
+				}),
+			},
+			fields: fields{
+				authz:     &denyAuthorizationStrategy{},
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			want:    assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantSvc: assert.NotNil[*Service],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
 		{
 			name: "err: evaluation already started for audit scope",
 			args: args{
@@ -2058,6 +2137,7 @@ func TestService_StartEvaluation(t *testing.T) {
 				orchestratorClient: tt.fields.orchestratorClient,
 				catalogControls:    tt.fields.catalogControls,
 				scheduler:          tt.fields.scheduler,
+				authz:              tt.fields.authz,
 			}
 			got, gotErr := svc.StartEvaluation(tt.args.ctx, tt.args.req)
 

@@ -130,7 +130,7 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 	// If using permission store-based authorization, back it with the orchestrator client so the
 	// evaluation service can check permissions without direct database access.
 	if permStrat, ok := svc.authz.(*service.AuthorizationStrategyPermissionStore); ok {
-		permStrat.Permissions = &orchestratorPermissionStore{client: svc.orchestratorClient}
+		permStrat.Permissions = &service.OrchestratorPermissionStore{Client: svc.orchestratorClient}
 	}
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
