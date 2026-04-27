@@ -23,7 +23,6 @@ import (
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
-	"confirmate.io/core/service/evidence/evidencetest"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
