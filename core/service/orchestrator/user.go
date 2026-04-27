@@ -186,6 +186,11 @@ func (svc *Service) ListUserPermissions(
 		req.Msg.Asc = true
 	}
 
+	// Filter by user_id if provided
+	if userId := req.Msg.GetUserId(); userId != "" {
+		conds = []any{"user_id = ?", userId}
+	}
+
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
