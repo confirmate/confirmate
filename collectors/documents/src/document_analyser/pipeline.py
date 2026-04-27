@@ -71,7 +71,7 @@ class EvidenceExtractor:
             return AnalysisResult(data=data, raw_response="", sources=sources)
 
         result = self.analyser.analyse(documents, focus=focus, max_items=max_items)
-        result.data["resourceEvidence"] = resource_items
+        result.data["resourceEvidence"] = []
         return result
 
 

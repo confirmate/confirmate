@@ -302,9 +302,6 @@ def get_resource_profiles() -> Dict[str, EvidenceResourceProfile]:
     return profiles
 
 
-RESOURCE_PROFILES = get_resource_profiles()
-
-
 @lru_cache(maxsize=1)
 def get_resource_type_aliases() -> Dict[str, str]:
     definitions = load_proto_message_definitions()
@@ -323,13 +320,10 @@ def get_resource_type_aliases() -> Dict[str, str]:
     return aliases
 
 
-RESOURCE_TYPE_ALIASES = get_resource_type_aliases()
-
-
 def normalize_resource_type(value: str | None) -> str | None:
     if not value:
         return None
-    return RESOURCE_TYPE_ALIASES.get(_normalize_token(value))
+    return get_resource_type_aliases().get(_normalize_token(value))
 
 
 def iter_resource_profiles() -> Iterable[EvidenceResourceProfile]:
