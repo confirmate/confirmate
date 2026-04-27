@@ -435,6 +435,35 @@ func TestService_UpdateControlImplementation(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: update implementation details",
+			args: args{
+				req: func() *orchestrator.UpdateControlImplementationRequest {
+					details := "We use TLS 1.3 for all connections."
+					return &orchestrator.UpdateControlImplementationRequest{
+						Id:                    orchestratortest.MockControlImplementation1.Id,
+						ImplementationDetails: &details,
+					}
+				}(),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockControlImplementation1))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ControlImplementation], args ...any) bool {
+				details := "We use TLS 1.3 for all connections."
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, &details, got.Msg.ImplementationDetails)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				details := "We use TLS 1.3 for all connections."
+				got := assert.InDB[orchestrator.ControlImplementation](t, db, orchestratortest.MockControlImplementation1.Id)
+				return assert.Equal(t, &details, got.ImplementationDetails)
+			},
+		},
+		{
 			name: "authorization failure",
 			args: args{
 				req: &orchestrator.UpdateControlImplementationRequest{

@@ -83,10 +83,10 @@ func (svc *Service) CreateControlImplementation(
 		return nil, err
 	}
 
-	// Check access — permissions are scoped to the audit scope's target of evaluation.
+	// Check access — permissions are scoped to the audit scope.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc,
 		orchestrator.RequestType_REQUEST_TYPE_CREATED,
-		scope.TargetOfEvaluationId,
+		req.Msg.GetControlImplementation().GetAuditScopeId(),
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION,
 	)
 	if err != nil {
@@ -141,7 +141,7 @@ func (svc *Service) GetControlImplementation(
 
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc,
 		orchestrator.RequestType_REQUEST_TYPE_GET,
-		impl.TargetOfEvaluationId,
+		impl.AuditScopeId,
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION,
 	)
 	if err != nil {
@@ -234,7 +234,7 @@ func (svc *Service) UpdateControlImplementation(
 
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc,
 		orchestrator.RequestType_REQUEST_TYPE_UPDATED,
-		existing.TargetOfEvaluationId,
+		existing.AuditScopeId,
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION,
 	)
 	if err != nil {
@@ -244,8 +244,9 @@ func (svc *Service) UpdateControlImplementation(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Only allow updating the assignee; preserve all other fields.
+	// Only allow updating assignee_id and implementation_details; preserve all other fields.
 	existing.AssigneeId = req.Msg.AssigneeId
+	existing.ImplementationDetails = req.Msg.ImplementationDetails
 	existing.UpdatedAt = timestamppb.Now()
 
 	err = svc.db.Update(&existing, "id = ?", existing.Id)
@@ -279,7 +280,7 @@ func (svc *Service) TransitionControlImplementationState(
 
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc,
 		orchestrator.RequestType_REQUEST_TYPE_UPDATED,
-		impl.TargetOfEvaluationId,
+		impl.AuditScopeId,
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION,
 	)
 	if err != nil {
@@ -361,7 +362,7 @@ func (svc *Service) RemoveControlImplementation(
 
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc,
 		orchestrator.RequestType_REQUEST_TYPE_DELETED,
-		impl.TargetOfEvaluationId,
+		impl.AuditScopeId,
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION,
 	)
 	if err != nil {

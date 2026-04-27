@@ -171,6 +171,10 @@ message UpdateControlImplementationRequest {
   ];
 
   optional string assignee_id = 2;
+
+  // ImplementationDetails contains details about the technical and organisational measures taken to
+  // implement the control.
+  optional string implementation_details = 3;
 }
 
 message TransitionControlImplementationStateRequest {

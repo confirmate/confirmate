@@ -1920,6 +1920,13 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: implementationDetails
+                  in: query
+                  description: |-
+                    ImplementationDetails contains details about the technical and organisational measures taken to
+                     implement the control.
+                  schema:
+                    type: string
             requestBody:
                 content:
                     application/json: {}

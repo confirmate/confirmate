@@ -545,11 +545,14 @@ func (x *ListControlImplementationsResponse) GetNextPageToken() string {
 }
 
 type UpdateControlImplementationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	AssigneeId    *string                `protobuf:"bytes,2,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AssigneeId *string                `protobuf:"bytes,2,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	// ImplementationDetails contains details about the technical and organisational measures taken to
+	// implement the control.
+	ImplementationDetails *string `protobuf:"bytes,3,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *UpdateControlImplementationRequest) Reset() {
@@ -592,6 +595,13 @@ func (x *UpdateControlImplementationRequest) GetId() string {
 func (x *UpdateControlImplementationRequest) GetAssigneeId() string {
 	if x != nil && x.AssigneeId != nil {
 		return *x.AssigneeId
+	}
+	return ""
+}
+
+func (x *UpdateControlImplementationRequest) GetImplementationDetails() string {
+	if x != nil && x.ImplementationDetails != nil {
+		return *x.ImplementationDetails
 	}
 	return ""
 }
@@ -811,12 +821,14 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\a_filter\"\xb8\x01\n" +
 	"\"ListControlImplementationsResponse\x12j\n" +
 	"\x17control_implementations\x18\x01 \x03(\v21.confirmate.orchestrator.v1.ControlImplementationR\x16controlImplementations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"w\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xce\x01\n" +
 	"\"UpdateControlImplementationRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12$\n" +
 	"\vassignee_id\x18\x02 \x01(\tH\x00R\n" +
-	"assigneeId\x88\x01\x01B\x0e\n" +
-	"\f_assignee_id\"\xac\x01\n" +
+	"assigneeId\x88\x01\x01\x12:\n" +
+	"\x16implementation_details\x18\x03 \x01(\tH\x01R\x15implementationDetails\x88\x01\x01B\x0e\n" +
+	"\f_assignee_idB\x19\n" +
+	"\x17_implementation_details\"\xac\x01\n" +
 	"+TransitionControlImplementationStateRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12`\n" +
 	"\bto_state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\"A\n" +
