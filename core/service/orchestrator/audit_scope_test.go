@@ -153,8 +153,8 @@ func TestService_CreateAuditScope(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						}),
@@ -383,8 +383,8 @@ func TestService_GetAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -529,8 +529,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables),
 					},
 				},
 			},
@@ -601,8 +601,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -788,8 +788,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -1002,8 +1002,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -1069,8 +1069,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),

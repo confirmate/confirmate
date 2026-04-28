@@ -186,6 +186,11 @@ func (svc *Service) ListUserPermissions(
 		req.Msg.Asc = true
 	}
 
+	// Filter by user_id if provided
+	if userId := req.Msg.GetUserId(); userId != "" {
+		conds = []any{"user_id = ?", userId}
+	}
+
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -323,103 +328,3 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	return allowed, resourceIDs, nil
 }
 
-type permissionStore struct {
-	db persistence.DB
-}
-
-// HasPermission checks if the given user has the specified permission for the resource.
-func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
-	var (
-		count          int64
-		err            error
-		userPermission orchestrator.UserPermission
-	)
-
-	// Check if the user has the required permission for the resource by querying the database for matching user permissions.
-	// If a lower permission is requested, also accept higher permissions (ADMIN > CONTRIBUTOR > READER).
-	allowed := []orchestrator.UserPermission_Permission{permission}
-	switch permission {
-	case orchestrator.UserPermission_PERMISSION_READER:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_READER,
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_CONTRIBUTOR:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_ADMIN:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	}
-
-	count, err = ps.db.Count(
-		&userPermission,
-		"user_id = ? AND resource_type = ? AND resource_id = ? AND permission IN (?)",
-		userId, objectType, resourceId, allowed,
-	)
-	if err != nil {
-		return false, fmt.Errorf("failed to check permissions: %w", err)
-	}
-
-	return count > 0, nil
-}
-
-// PermissionForResource returns a list of resource IDs for which the given user has at least the specified permission.
-func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
-	var (
-		conds           []any
-		userPermissions []orchestrator.UserPermission
-		err             error
-	)
-
-	// Define a list of allowed permissions based on the requested permission.
-	// If a lower permission is requested, also accept higher permissions (ADMIN > CONTRIBUTOR > READER).
-	allowed := []orchestrator.UserPermission_Permission{permission}
-	switch permission {
-	case orchestrator.UserPermission_PERMISSION_READER:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_READER,
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_CONTRIBUTOR:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_ADMIN:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	}
-
-	// Get all permissions for the user and object type that match the allowed permissions, then extract the resource IDs from those permissions.
-	conds = []any{
-		"user_id = ? AND resource_type = ? AND permission IN (?)",
-		userID,
-		objectType,
-		allowed,
-	}
-	err = ps.db.List(
-		&userPermissions,
-		"resource_id",
-		true,
-		0,
-		-1,
-		conds...,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
-	}
-
-	resourceIDs := make([]string, len(userPermissions))
-	for i := range userPermissions {
-		resourceIDs[i] = userPermissions[i].ResourceId
-	}
-
-	return resourceIDs, nil
-}

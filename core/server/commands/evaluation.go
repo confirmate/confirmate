@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/server"
@@ -10,19 +11,57 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 )
+
+// evaluationFlags contains the flags that are specific to configuring the evaluation service.
+var evaluationFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "evaluation-orchestrator-address",
+		Usage:   "Address of the orchestrator service the evaluation service connects to",
+		Value:   evaluation.DefaultOrchestratorURL,
+		Sources: envVarSources("evaluation-orchestrator-address"),
+	},
+}
 
 // EvaluationCommand is the command to start the evaluation server.
 var EvaluationCommand = &cli.Command{
 	Name:  "evaluation",
 	Usage: "Launches the evaluation service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := evaluation.NewService(
-			evaluation.WithConfig(evaluation.Config{
-				OrchestratorAddress: cmd.String("evaluation-orchestrator-address"),
-				OrchestratorClient:  service.DefaultHTTPClient,
-			}),
+		var (
+			interceptors []connect.Interceptor
+			svcOptions   []service.Option[evaluation.Service]
+			cfg          evaluation.Config
 		)
+
+		cfg = evaluation.Config{
+			OrchestratorAddress: cmd.String("evaluation-orchestrator-address"),
+			OrchestratorClient:  service.NewHTTPClient(),
+		}
+
+		if cmd.Bool("auth-enabled") {
+			jwksURL := cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+			svcOptions = append(svcOptions, evaluation.WithAuthorizationStrategyPermissionStore())
+
+			cfg.ServiceOAuth2Config = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			}
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+		svcOptions = append(svcOptions, evaluation.WithConfig(cfg))
+
+		svc, err := evaluation.NewService(svcOptions...)
 		if err != nil {
 			return err
 		}
@@ -40,45 +79,15 @@ var EvaluationCommand = &cli.Command{
 			}),
 			server.WithHandler(evaluationconnect.NewEvaluationHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
 		)
 	},
-	Flags: []cli.Flag{
-		&cli.Uint16Flag{
-			Name:  "api-port",
-			Usage: "Port to run the API server (Connect, gRPC, REST) on",
-			Value: server.DefaultConfig.Port,
-		},
-		&cli.StringFlag{
-			Name:  "log-level",
-			Usage: "Log level (TRACE, DEBUG, INFO, WARN, ERROR)",
-			Value: server.DefaultConfig.LogLevel,
-		},
-		&cli.BoolFlag{
-			Name:  "db-in-memory",
-			Usage: "Use in-memory database instead of PostgreSQL (useful for testing)",
-			Value: true,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-origins",
-			Usage: "Specifies the origins allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedOrigins,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-methods",
-			Usage: "Specifies the methods allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedMethods,
-		},
-		&cli.StringSliceFlag{
-			Name:  "api-cors-allowed-headers",
-			Usage: "Specifies the headers allowed in CORS",
-			Value: server.DefaultConfig.CORS.AllowedHeaders,
-		},
-		&cli.StringFlag{
-			Name:  "evaluation-orchestrator-address",
-			Usage: "Address of the orchestrator service the evaluation service connects to",
-			Value: evaluation.DefaultOrchestratorURL,
-		},
-	},
+	Flags: joinFlagSlices(
+		logFlags,
+		apiFlags,
+		authFlags,
+		serviceAuthFlags,
+		evaluationFlags,
+	),
 }
