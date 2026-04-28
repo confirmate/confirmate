@@ -85,8 +85,8 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		objectTypeUsed orchestrator.ObjectType
 	)
 
-	// Check IsAdminToken claim to allow access to all.
-	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+	// Check admin claim to allow access to all.
+	if claims, ok := auth.ClaimsFromContext(ctx); ok && claims.IsAdmin() {
 		return true, nil
 	}
 
@@ -174,8 +174,8 @@ func (a *AuthorizationStrategyPermissionStore) AllowedTargetOfEvaluations(ctx co
 		return false, nil
 	}
 
-	// Check IsAdminToken claim to allow access to all.
-	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+	// Check admin claim to allow access to all.
+	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdmin() {
 		return true, nil
 	}
 
@@ -207,8 +207,8 @@ func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Co
 		return false, nil
 	}
 
-	// Check IsAdminToken claim to allow access to all.
-	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdminToken {
+	// Check admin claim to allow access to all.
+	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdmin() {
 		return true, nil
 	}
 

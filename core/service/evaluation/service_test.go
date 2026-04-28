@@ -12,6 +12,7 @@ import (
 	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/protobuf/testing/protocmp"
 
 	"confirmate.io/core/server"
@@ -73,7 +74,8 @@ func TestNewService(t *testing.T) {
 				if !ok {
 					t.Fatalf("expected *Service, got %T", got)
 				}
-				assert.Equal(t, DefaultConfig, svc.cfg)
+				assert.Equal(t, DefaultConfig, svc.cfg, cmpopts.IgnoreFields(Config{}, "OrchestratorClient"))
+				assert.True(t, svc.cfg.OrchestratorClient == DefaultConfig.OrchestratorClient)
 				assert.NotEmpty(t, svc.scheduler)
 				assert.NotEmpty(t, orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress), svc.orchestratorClient)
 				assert.Equal(t, make(map[string]map[string]*orchestrator.Control), svc.catalogControls)

@@ -54,7 +54,7 @@ type Service struct {
 // DefaultConfig is the default configuration for the evaluation [Service].
 var DefaultConfig = Config{
 	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  http.DefaultClient,
+	OrchestratorClient:  service.DefaultHTTPClient,
 }
 
 // Config represents the configuration for the evaluation [Service].
