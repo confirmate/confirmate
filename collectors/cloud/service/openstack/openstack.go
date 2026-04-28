@@ -101,7 +101,7 @@ func WithTargetOfEvaluationID(ctID string) CollectorOption {
 // WithAuthorizer is an option to set the authentication options
 func WithAuthorizer(o gophercloud.AuthOptions) CollectorOption {
 	return func(d *openstackCollector) {
-		d.authOpts = util.Ref(o)
+		d.authOpts = new(o)
 	}
 }
 

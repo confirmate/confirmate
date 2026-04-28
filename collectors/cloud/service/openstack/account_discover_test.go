@@ -21,7 +21,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/gophercloud/gophercloud/v2"
@@ -84,7 +83,7 @@ func Test_openstackCollector_collectProjects(t *testing.T) {
 						"Red":  "",
 						"Team": "",
 					},
-					ParentId: util.Ref(""),
+					ParentId: new(""),
 				}
 
 				got0 := got[0].(*ontology.ResourceGroup)

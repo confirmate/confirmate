@@ -20,7 +20,6 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/containerinfra/v1/clusters"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -36,7 +35,7 @@ func (d *openstackCollector) handleCluster(cluster *clusters.Cluster) (ontology.
 			Region: d.region,
 		},
 		Labels:   cluster.Labels,
-		ParentId: util.Ref(cluster.ProjectID),
+		ParentId: new(cluster.ProjectID),
 		Raw:      collector.Raw(cluster),
 	}
 

@@ -21,7 +21,6 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/constants"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/dataprotection/armdataprotection"
@@ -62,7 +61,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 					{
 						RetentionPeriod: durationpb.New(Duration7Days),
 						Enabled:         true,
-						StorageId:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
+						StorageId:       new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
 						TransportEncryption: &ontology.TransportEncryption{
 							Enforced:        true,
 							Enabled:         true,
@@ -86,7 +85,7 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 					{
 						RetentionPeriod: durationpb.New(Duration30Days),
 						Enabled:         true,
-						StorageId:       util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
+						StorageId:       new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
 						TransportEncryption: &ontology.TransportEncryption{
 							Enforced:        true,
 							Enabled:         true,
@@ -164,28 +163,28 @@ func Test_azureCollector_collectBackupInstances(t *testing.T) {
 			wantErr: assert.NoError,
 			want: []*armdataprotection.BackupInstanceResource{
 				{
-					ID:   util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/account1-account1-22222222-2222-2222-2222-222222222222"),
-					Name: util.Ref("account1-account1-22222222-2222-2222-2222-222222222222"),
+					ID:   new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/account1-account1-22222222-2222-2222-2222-222222222222"),
+					Name: new("account1-account1-22222222-2222-2222-2222-222222222222"),
 					Properties: &armdataprotection.BackupInstance{
 						DataSourceInfo: &armdataprotection.Datasource{
-							ResourceID:     util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account1"),
-							DatasourceType: util.Ref("Microsoft.Storage/storageAccounts/blobServices"),
+							ResourceID:     new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Storage/storageAccounts/account1"),
+							DatasourceType: new("Microsoft.Storage/storageAccounts/blobServices"),
 						},
 						PolicyInfo: &armdataprotection.PolicyInfo{
-							PolicyID: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupPolicies/backupPolicyContainer"),
+							PolicyID: new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupPolicies/backupPolicyContainer"),
 						},
 					},
 				},
 				{
-					ID:   util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/disk1-disk1-22222222-2222-2222-2222-222222222222"),
-					Name: util.Ref("disk1-disk1-22222222-2222-2222-2222-222222222222"),
+					ID:   new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupInstances/disk1-disk1-22222222-2222-2222-2222-222222222222"),
+					Name: new("disk1-disk1-22222222-2222-2222-2222-222222222222"),
 					Properties: &armdataprotection.BackupInstance{
 						DataSourceInfo: &armdataprotection.Datasource{
-							ResourceID:     util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/disks/disk1"),
-							DatasourceType: util.Ref("Microsoft.Compute/disks"),
+							ResourceID:     new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.Compute/disks/disk1"),
+							DatasourceType: new("Microsoft.Compute/disks"),
 						},
 						PolicyInfo: &armdataprotection.PolicyInfo{
-							PolicyID: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupPolicies/backupPolicyDisk"),
+							PolicyID: new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1/backupPolicies/backupPolicyDisk"),
 						},
 					},
 				},

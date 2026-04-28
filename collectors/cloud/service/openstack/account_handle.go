@@ -20,7 +20,6 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
@@ -55,8 +54,8 @@ func (d *openstackCollector) handleProject(project *projects.Project) (ontology.
 		GeoLocation: &ontology.GeoLocation{
 			Region: d.region,
 		},
-		Labels:   labels(util.Ref(project.Tags)),
-		ParentId: util.Ref(project.ParentID),
+		Labels:   labels(new(project.Tags)),
+		ParentId: new(project.ParentID),
 		Raw:      collector.Raw(project),
 	}
 

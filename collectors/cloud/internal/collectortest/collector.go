@@ -22,7 +22,6 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 )
 
 // TestCollector implements Collector and mocks the API to cloud resources
@@ -48,7 +47,7 @@ func (m *TestCollector) List() ([]ontology.IsResource, error) {
 			&ontology.ObjectStorage{
 				Id:       "some-id-" + rand,
 				Name:     "some-name",
-				ParentId: util.Ref("some-storage-account-id"),
+				ParentId: new("some-storage-account-id"),
 				Raw:      "{}",
 			},
 			&ontology.ObjectStorageService{

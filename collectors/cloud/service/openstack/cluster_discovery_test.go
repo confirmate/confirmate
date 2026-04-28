@@ -22,7 +22,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
@@ -87,7 +86,7 @@ func Test_openstackCollector_collectCluster(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(""),
+					ParentId: new(""),
 				}
 
 				want1 := &ontology.ContainerOrchestration{
@@ -97,7 +96,7 @@ func Test_openstackCollector_collectCluster(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(""),
+					ParentId: new(""),
 				}
 
 				// Check Raw field and skip it for comparison

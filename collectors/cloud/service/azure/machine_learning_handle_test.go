@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
@@ -59,23 +58,23 @@ func Test_handleMLWorkspace(t *testing.T) {
 			},
 			args: args{
 				value: &armmachinelearning.Workspace{
-					Name: util.Ref("mlWorkspace"),
-					ID:   util.Ref(id),
+					Name: new("mlWorkspace"),
+					ID:   new(id),
 					SystemData: &armmachinelearning.SystemData{
-						CreatedAt: util.Ref(creationTime),
+						CreatedAt: new(creationTime),
 					},
-					Tags:     map[string]*string{"tag1": util.Ref("tag1"), "tag2": util.Ref("tag2")},
-					Location: util.Ref("westeurope"),
+					Tags:     map[string]*string{"tag1": new("tag1"), "tag2": new("tag2")},
+					Location: new("westeurope"),
 					Properties: &armmachinelearning.WorkspaceProperties{
-						PublicNetworkAccess: util.Ref(armmachinelearning.PublicNetworkAccessEnabled),
-						ApplicationInsights: util.Ref(applicationInsights),
+						PublicNetworkAccess: new(armmachinelearning.PublicNetworkAccessEnabled),
+						ApplicationInsights: new(applicationInsights),
 						Encryption: &armmachinelearning.EncryptionProperty{
-							Status: util.Ref(armmachinelearning.EncryptionStatusEnabled),
+							Status: new(armmachinelearning.EncryptionStatusEnabled),
 							KeyVaultProperties: &armmachinelearning.KeyVaultProperties{
-								KeyVaultArmID: util.Ref(keyVault),
+								KeyVaultArmID: new(keyVault),
 							},
 						},
-						StorageAccount: util.Ref(storage),
+						StorageAccount: new(storage),
 					},
 				},
 			},
@@ -83,12 +82,12 @@ func Test_handleMLWorkspace(t *testing.T) {
 				got1 := got.(*ontology.MachineLearningService)
 
 				want := &ontology.MachineLearningService{
-					Id:                         resourceID(util.Ref(id)),
+					Id:                         resourceID(new(id)),
 					Name:                       "mlWorkspace",
 					CreationTime:               timestamppb.New(creationTime),
 					GeoLocation:                &ontology.GeoLocation{Region: "westeurope"},
 					Labels:                     map[string]string{"tag1": "tag1", "tag2": "tag2"},
-					ParentId:                   util.Ref(parent),
+					ParentId:                   new(parent),
 					InternetAccessibleEndpoint: true,
 					StorageIds:                 []string{storage},
 					ComputeIds:                 []string{},
@@ -97,7 +96,7 @@ func Test_handleMLWorkspace(t *testing.T) {
 							Type: &ontology.Logging_ResourceLogging{
 								ResourceLogging: &ontology.ResourceLogging{
 									Enabled:           true,
-									LoggingServiceIds: []string{resourceID(util.Ref(applicationInsights))},
+									LoggingServiceIds: []string{resourceID(new(applicationInsights))},
 								},
 							},
 						},
@@ -150,29 +149,29 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 			name: "Happy path: ComputeInstance",
 			args: args{
 				value: &armmachinelearning.ComputeResource{
-					Name: util.Ref("compute1"),
-					ID:   util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1"),
+					Name: new("compute1"),
+					ID:   new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1"),
 					SystemData: &armmachinelearning.SystemData{
-						CreatedAt: util.Ref(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
+						CreatedAt: new(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
 					},
-					Tags:     map[string]*string{"tag1": util.Ref("tag1"), "tag2": util.Ref("tag2")},
-					Location: util.Ref("westeurope"),
+					Tags:     map[string]*string{"tag1": new("tag1"), "tag2": new("tag2")},
+					Location: new("westeurope"),
 					Properties: &armmachinelearning.ComputeInstance{
-						ComputeLocation: util.Ref("westeurope"),
+						ComputeLocation: new("westeurope"),
 					},
 				},
-				workspaceID: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace"),
+				workspaceID: new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace"),
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				got1 := got.(*ontology.Container)
 
 				want := &ontology.Container{
-					Id:                  resourceID(util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1")),
+					Id:                  resourceID(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1")),
 					Name:                "compute1",
 					CreationTime:        timestamppb.New(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
 					GeoLocation:         &ontology.GeoLocation{Region: "westeurope"},
 					Labels:              map[string]string{"tag1": "tag1", "tag2": "tag2"},
-					ParentId:            resourceIDPointer(util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace")),
+					ParentId:            resourceIDPointer(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace")),
 					NetworkInterfaceIds: []string{},
 				}
 
@@ -187,29 +186,29 @@ func Test_azureCollector_handleMLCompute(t *testing.T) {
 			name: "Happy path: VirtualMachine",
 			args: args{
 				value: &armmachinelearning.ComputeResource{
-					Name: util.Ref("compute1"),
-					ID:   util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1"),
+					Name: new("compute1"),
+					ID:   new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1"),
 					SystemData: &armmachinelearning.SystemData{
-						CreatedAt: util.Ref(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
+						CreatedAt: new(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
 					},
-					Tags:     map[string]*string{"tag1": util.Ref("tag1"), "tag2": util.Ref("tag2")},
-					Location: util.Ref("westeurope"),
+					Tags:     map[string]*string{"tag1": new("tag1"), "tag2": new("tag2")},
+					Location: new("westeurope"),
 					Properties: &armmachinelearning.VirtualMachine{
-						ComputeLocation: util.Ref("westeurope"),
+						ComputeLocation: new("westeurope"),
 					},
 				},
-				workspaceID: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace"),
+				workspaceID: new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace"),
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				got1 := got.(*ontology.VirtualMachine)
 
 				want := &ontology.VirtualMachine{
-					Id:                  resourceID(util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1")),
+					Id:                  resourceID(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace/computes/compute1")),
 					Name:                "compute1",
 					CreationTime:        timestamppb.New(time.Date(2017, 05, 24, 13, 28, 53, 4540398, time.UTC)),
 					GeoLocation:         &ontology.GeoLocation{Region: "westeurope"},
 					Labels:              map[string]string{"tag1": "tag1", "tag2": "tag2"},
-					ParentId:            resourceIDPointer(util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace")),
+					ParentId:            resourceIDPointer(new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg1/providers/Microsoft.MachineLearningServices/workspaces/mlWorkspace")),
 					NetworkInterfaceIds: []string{},
 					MalwareProtection:   &ontology.MalwareProtection{},
 				}

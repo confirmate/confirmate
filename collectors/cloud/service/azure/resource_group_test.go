@@ -20,7 +20,6 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
@@ -47,9 +46,9 @@ func Test_azureResourceGroupCollector_handleSubscription(t *testing.T) {
 			},
 			args: args{
 				s: &armsubscription.Subscription{
-					SubscriptionID: util.Ref(testdata.MockSubscriptionID),
-					DisplayName:    util.Ref("Wonderful Subscription"),
-					ID:             util.Ref(testdata.MockSubscriptionResourceID),
+					SubscriptionID: new(testdata.MockSubscriptionID),
+					DisplayName:    new("Wonderful Subscription"),
+					ID:             new(testdata.MockSubscriptionResourceID),
 				},
 			},
 			want: &ontology.Account{
@@ -89,12 +88,12 @@ func Test_azureResourceGroupCollector_handleResourceGroup(t *testing.T) {
 			},
 			args: args{
 				rg: &armresources.ResourceGroup{
-					ID:       util.Ref(testdata.MockResourceGroupID),
-					Name:     util.Ref("res1"),
-					Location: util.Ref("westus"),
+					ID:       new(testdata.MockResourceGroupID),
+					Name:     new("res1"),
+					Location: new("westus"),
 					Tags: map[string]*string{
-						"tag1Key": util.Ref("tag1"),
-						"tag2Key": util.Ref("tag2"),
+						"tag1Key": new("tag1"),
+						"tag2Key": new("tag2"),
 					},
 				},
 			},
@@ -108,7 +107,7 @@ func Test_azureResourceGroupCollector_handleResourceGroup(t *testing.T) {
 					"tag2Key": "tag2",
 					"tag1Key": "tag1",
 				},
-				ParentId: util.Ref(testdata.MockSubscriptionResourceID),
+				ParentId: new(testdata.MockSubscriptionResourceID),
 				Raw:      string(`{"*armresources.ResourceGroup":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/res1","location":"westus","name":"res1","tags":{"tag1Key":"tag1","tag2Key":"tag2"}}]}`),
 			},
 		},
@@ -149,9 +148,9 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 			fields: fields{
 				azureCollector: NewMockAzureCollector(newMockSender(),
 					WithSubscription(&armsubscription.Subscription{
-						DisplayName:    util.Ref("displayName"),
-						ID:             util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000"),
-						SubscriptionID: util.Ref("00000000-0000-0000-0000-000000000000"),
+						DisplayName:    new("displayName"),
+						ID:             new("/subscriptions/00000000-0000-0000-0000-000000000000"),
+						SubscriptionID: new("00000000-0000-0000-0000-000000000000"),
 					})),
 			},
 			wantList: []ontology.IsResource{
@@ -170,7 +169,7 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 						"testKey1": "testTag1",
 						"testKey2": "testTag2",
 					},
-					ParentId: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000"),
+					ParentId: new("/subscriptions/00000000-0000-0000-0000-000000000000"),
 					Raw:      string(`{"*armresources.ResourceGroup":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1","location":"westus","name":"res1","tags":{"testKey1":"testTag1","testKey2":"testTag2"}}]}`),
 				},
 				&ontology.ResourceGroup{
@@ -183,7 +182,7 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 						"testKey1": "testTag1",
 						"testKey2": "testTag2",
 					},
-					ParentId: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000"),
+					ParentId: new("/subscriptions/00000000-0000-0000-0000-000000000000"),
 					Raw:      string(`{"*armresources.ResourceGroup":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res2","location":"eastus","name":"res2","tags":{"testKey1":"testTag1","testKey2":"testTag2"}}]}`),
 				},
 			},
@@ -195,9 +194,9 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 				azureCollector: NewMockAzureCollector(newMockSender(),
 					WithResourceGroup("res1"),
 					WithSubscription(&armsubscription.Subscription{
-						DisplayName:    util.Ref("displayName"),
-						ID:             util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000"),
-						SubscriptionID: util.Ref("00000000-0000-0000-0000-000000000000"),
+						DisplayName:    new("displayName"),
+						ID:             new("/subscriptions/00000000-0000-0000-0000-000000000000"),
+						SubscriptionID: new("00000000-0000-0000-0000-000000000000"),
 					})),
 			},
 			wantList: []ontology.IsResource{
@@ -216,7 +215,7 @@ func Test_azureResourceGroupCollector_collectResourceGroups(t *testing.T) {
 						"testKey1": "testTag1",
 						"testKey2": "testTag2",
 					},
-					ParentId: util.Ref("/subscriptions/00000000-0000-0000-0000-000000000000"),
+					ParentId: new("/subscriptions/00000000-0000-0000-0000-000000000000"),
 					Raw:      string(`{"*armresources.ResourceGroup":[{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1","location":"westus","name":"res1","tags":{"testKey1":"testTag1","testKey2":"testTag2"}}]}`),
 				},
 			},

@@ -1,6 +1,6 @@
 module confirmate.io/collectors/cloud
 
-go 1.25.2
+go 1.26
 
 require confirmate.io/core v0.0.0
 

@@ -55,7 +55,7 @@ func resourceID(id *string) string {
 
 // resourceIDPointer makes sure that the Azure ID we get is lowercase, because Azure sometimes has weird notions that things are uppercase. Their documentation says that comparison of IDs is case-insensitive, so we lowercase everything.
 func resourceIDPointer(id *string) *string {
-	return util.Ref(resourceID(id))
+	return new(resourceID(id))
 }
 
 // accountName return the ID's account name

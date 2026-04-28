@@ -22,7 +22,6 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/lmittmann/tint"
@@ -59,7 +58,7 @@ func (d *openstackCollector) handleServer(server *servers.Server) (ontology.IsRe
 			Region: d.region,
 		},
 		Labels:            labels(server.Tags),
-		ParentId:          util.Ref(server.TenantID),
+		ParentId:          new(server.TenantID),
 		Raw:               collector.Raw(server),
 		MalwareProtection: &ontology.MalwareProtection{},
 		BootLogging:       bootLogging,

@@ -25,7 +25,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gocsaf/csaf/v3/csaf"
 	"github.com/google/uuid"
@@ -34,32 +33,32 @@ import (
 // validAdvisory contains the structure of a valid CSAF Advisory that validates against the JSON schema
 var validAdvisory = &csaf.Advisory{
 	Document: &csaf.Document{
-		Category:    util.Ref(csaf.DocumentCategory("csaf_security_advisory")),
-		CSAFVersion: util.Ref(csaf.CSAFVersion20),
-		Title:       util.Ref("Buffer overflow in Test Product"),
+		Category:    new(csaf.DocumentCategory("csaf_security_advisory")),
+		CSAFVersion: new(csaf.CSAFVersion20),
+		Title:       new("Buffer overflow in Test Product"),
 		Publisher: &csaf.DocumentPublisher{
-			Name:      util.Ref("Test Vendor"),
-			Category:  util.Ref(csaf.CSAFCategoryVendor),
-			Namespace: util.Ref("http://localhost"),
+			Name:      new("Test Vendor"),
+			Category:  new(csaf.CSAFCategoryVendor),
+			Namespace: new("http://localhost"),
 		},
 		Tracking: &csaf.Tracking{
-			ID:                 util.Ref(csaf.TrackingID("some-id")),
-			CurrentReleaseDate: util.Ref("2020-07-01T10:09:07Z"),
-			InitialReleaseDate: util.Ref("2020-07-01T10:09:07Z"),
+			ID:                 new(csaf.TrackingID("some-id")),
+			CurrentReleaseDate: new("2020-07-01T10:09:07Z"),
+			InitialReleaseDate: new("2020-07-01T10:09:07Z"),
 			Generator: &csaf.Generator{
-				Date: util.Ref("2020-07-01T10:09:07Z"),
+				Date: new("2020-07-01T10:09:07Z"),
 				Engine: &csaf.Engine{
-					Name:    util.Ref("test"),
-					Version: util.Ref("1.0"),
+					Name:    new("test"),
+					Version: new("1.0"),
 				},
 			},
-			Status:  util.Ref(csaf.CSAFTrackingStatusFinal),
-			Version: util.Ref(csaf.RevisionNumber("1")),
+			Status:  new(csaf.CSAFTrackingStatusFinal),
+			Version: new(csaf.RevisionNumber("1")),
 			RevisionHistory: csaf.Revisions{
 				&csaf.Revision{
-					Date:    util.Ref("2020-07-01T10:09:07Z"),
-					Number:  util.Ref(csaf.RevisionNumber("1")),
-					Summary: util.Ref("First and final version"),
+					Date:    new("2020-07-01T10:09:07Z"),
+					Number:  new(csaf.RevisionNumber("1")),
+					Summary: new("First and final version"),
 				},
 			},
 		},
@@ -67,11 +66,11 @@ var validAdvisory = &csaf.Advisory{
 	ProductTree: &csaf.ProductTree{
 		Branches: csaf.Branches{
 			&csaf.Branch{
-				Category: util.Ref(csaf.CSAFBranchCategoryVendor),
-				Name:     util.Ref("Test Vendor"),
+				Category: new(csaf.CSAFBranchCategoryVendor),
+				Name:     new("Test Vendor"),
 				Product: &csaf.FullProductName{
-					Name:      util.Ref("Test Product"),
-					ProductID: util.Ref(csaf.ProductID("CSAFPID-0001")),
+					Name:      new("Test Product"),
+					ProductID: new(csaf.ProductID("CSAFPID-0001")),
 				},
 			},
 		},
@@ -92,9 +91,9 @@ func TestMain(m *testing.M) {
 		providertest.NewGoodIndexTxtWriter(),
 		func(pmd *csaf.ProviderMetadata) {
 			pmd.Publisher = &csaf.Publisher{
-				Name:      util.Ref("Test Vendor"),
-				Category:  util.Ref(csaf.CSAFCategoryVendor),
-				Namespace: util.Ref("http://localhost"),
+				Name:      new("Test Vendor"),
+				Category:  new(csaf.CSAFCategoryVendor),
+				Namespace: new("http://localhost"),
 			}
 		})
 	defer goodProvider.Close()

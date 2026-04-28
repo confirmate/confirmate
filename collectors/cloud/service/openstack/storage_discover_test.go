@@ -22,7 +22,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
@@ -86,7 +85,7 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref("83ec2e3b-4321-422b-8706-a84185f52a0a"),
+					ParentId: new("83ec2e3b-4321-422b-8706-a84185f52a0a"),
 					Labels:   map[string]string{},
 				}
 

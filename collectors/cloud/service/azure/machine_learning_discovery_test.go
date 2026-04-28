@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
@@ -93,7 +92,7 @@ func Test_azureCollector_collectMLCompute(t *testing.T) {
 			args: args{
 				rg: "rg",
 				workspace: &armmachinelearning.Workspace{
-					Name: util.Ref("mlWorkspace"),
+					Name: new("mlWorkspace"),
 				},
 			},
 			want: assert.Nil[[]ontology.IsResource],
@@ -109,7 +108,7 @@ func Test_azureCollector_collectMLCompute(t *testing.T) {
 			args: args{
 				rg: "rg1",
 				workspace: &armmachinelearning.Workspace{
-					Name: util.Ref("mlWorkspace"),
+					Name: new("mlWorkspace"),
 				},
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {

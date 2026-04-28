@@ -20,7 +20,6 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -36,8 +35,8 @@ func (d *openstackCollector) handleNetworkInterfaces(network *networks.Network) 
 		GeoLocation: &ontology.GeoLocation{
 			Region: d.region,
 		},
-		Labels:   labels(util.Ref(network.Tags)),
-		ParentId: util.Ref(network.ProjectID),
+		Labels:   labels(new(network.Tags)),
+		ParentId: new(network.ProjectID),
 		Raw:      collector.Raw(network),
 	}
 

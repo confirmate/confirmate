@@ -22,7 +22,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
@@ -95,7 +94,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 						Region: "test region",
 					},
 					Labels:              map[string]string{},
-					ParentId:            util.Ref("fcad67a6189847c4aecfa3c81a05783b"),
+					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
 					BlockStorageIds:     []string{"2bdbc40f-a277-45d4-94ac-d9881c777d33"},
 					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					MalwareProtection:   &ontology.MalwareProtection{},
@@ -111,7 +110,7 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 						Region: "test region",
 					},
 					Labels:              map[string]string{},
-					ParentId:            util.Ref("fcad67a6189847c4aecfa3c81a05783b"),
+					ParentId:            new("fcad67a6189847c4aecfa3c81a05783b"),
 					BlockStorageIds:     []string{},
 					NetworkInterfaceIds: []string{"8a5fe506-7e9f-4091-899b-96336909d93c"},
 					MalwareProtection:   &ontology.MalwareProtection{},

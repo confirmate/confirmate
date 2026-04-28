@@ -105,7 +105,7 @@ func (d *csafCollector) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resou
 				SecurityAdvisoryDocumentIds: getIDsOf(securityAdvisoryDocuments),
 			},
 		},
-		ServiceMetadataDocumentId: util.Ref(serviceMetadata.Id),
+		ServiceMetadataDocumentId: new(serviceMetadata.Id),
 		TransportEncryption:       serviceMetadata.DataLocation.GetRemoteDataLocation().GetTransportEncryption(),
 		KeyIds:                    getIDsOf(keys),
 		Raw:                       collector.Raw(lpmd),

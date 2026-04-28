@@ -22,7 +22,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
@@ -85,7 +84,7 @@ func Test_openstackCollector_collectNetworkInterfaces(t *testing.T) {
 						Region: "test region",
 					},
 					Labels:   map[string]string{},
-					ParentId: util.Ref("4fd44f30292945e481c7b8a0c8908869"),
+					ParentId: new("4fd44f30292945e481c7b8a0c8908869"),
 				}
 
 				got0 := got[0].(*ontology.NetworkInterface)

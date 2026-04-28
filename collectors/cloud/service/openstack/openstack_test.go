@@ -25,7 +25,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/google/uuid"
@@ -560,7 +559,7 @@ func Test_openstackCollector_List(t *testing.T) {
 				want := &ontology.ResourceGroup{
 					Id:       "fcad67a6189847c4aecfa3c81a05783b",
 					Name:     "fcad67a6189847c4aecfa3c81a05783b",
-					ParentId: util.Ref("test domain ID"),
+					ParentId: new("test domain ID"),
 					Raw:      "",
 				}
 

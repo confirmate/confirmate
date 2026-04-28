@@ -17,11 +17,6 @@ package util
 
 import "reflect"
 
-// Ref returns a pointer to the provided value.
-func Ref[T any](value T) *T {
-	return &value
-}
-
 // Deref safely dereferences a pointer and returns the zero value if nil.
 func Deref[T any](value *T) T {
 	var zero T

@@ -22,7 +22,6 @@ import (
 	"confirmate.io/collectors/cloud/internal/collectortest/openstacktest"
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 
 	"github.com/gophercloud/gophercloud/v2"
@@ -104,7 +103,7 @@ func Test_openstackCollector_handleCluster(t *testing.T) {
 						"label1": "value1",
 						"label2": "value2",
 					},
-					ParentId: util.Ref("fcad67a6189847c4aecfa3c81a05783b"),
+					ParentId: new("fcad67a6189847c4aecfa3c81a05783b"),
 				}
 
 				gotNew := got.(*ontology.ContainerOrchestration)

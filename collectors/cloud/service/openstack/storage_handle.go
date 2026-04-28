@@ -20,7 +20,6 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -42,7 +41,7 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 		GeoLocation: &ontology.GeoLocation{
 			Region: d.region,
 		},
-		ParentId: util.Ref(getParentID(volume)),
+		ParentId: new(getParentID(volume)),
 		Labels:   map[string]string{}, // Not available
 		Raw:      collector.Raw(volume),
 	}

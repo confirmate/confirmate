@@ -21,7 +21,6 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
@@ -70,7 +69,7 @@ func Test_openstackCollector_handleNetworkInterfaces(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(testdata.MockOpenstackServerTenantID),
+					ParentId: new(testdata.MockOpenstackServerTenantID),
 				}
 
 				gotNew := got.(*ontology.NetworkInterface)

@@ -20,7 +20,6 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
@@ -68,8 +67,8 @@ func Test_openstackCollector_handleProject(t *testing.T) {
 						Region: "test region",
 					},
 					Description: testdata.MockOpenstackProjectDescription1,
-					Labels:      labels(util.Ref([]string{})),
-					ParentId:    util.Ref(testdata.MockOpenstackProjectParentID1),
+					Labels:      labels(new([]string{})),
+					ParentId:    new(testdata.MockOpenstackProjectParentID1),
 				}
 
 				gotNew := got.(*ontology.ResourceGroup)

@@ -21,7 +21,6 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/testdata"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
@@ -70,7 +69,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(testdata.MockOpenstackVolumeTenantID),
+					ParentId: new(testdata.MockOpenstackVolumeTenantID),
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
@@ -102,7 +101,7 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: "test region",
 					},
-					ParentId: util.Ref(testdata.MockOpenstackVolumeTenantID),
+					ParentId: new(testdata.MockOpenstackVolumeTenantID),
 				}
 
 				gotNew := got.(*ontology.BlockStorage)

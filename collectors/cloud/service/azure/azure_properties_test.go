@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
 )
@@ -129,7 +128,7 @@ func Test_tlsVersion(t *testing.T) {
 		{
 			name: "1_3",
 			args: args{
-				version: util.Ref("1_3"),
+				version: new("1_3"),
 			},
 			want: 1.3,
 		},
