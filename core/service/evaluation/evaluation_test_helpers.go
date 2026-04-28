@@ -59,6 +59,10 @@ type mockOrchestratorHandler struct {
 	listEvalError     error
 	storeEvalError    error
 	mu                sync.Mutex
+
+	// ListUserPermissions support
+	userPermissions         []*orchestrator.UserPermission
+	listUserPermissionsError error
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -204,6 +208,27 @@ func (m *mockOrchestratorHandler) GetAuditScope(
 	return connect.NewResponse(m.auditScope), nil
 }
 
+// ListUserPermissions returns user permissions filtered by the request's UserId.
+func (m *mockOrchestratorHandler) ListUserPermissions(
+	_ context.Context,
+	req *connect.Request[orchestrator.ListUserPermissionsRequest],
+) (*connect.Response[orchestrator.ListUserPermissionsResponse], error) {
+	if m.listUserPermissionsError != nil {
+		return nil, m.listUserPermissionsError
+	}
+
+	var filtered []*orchestrator.UserPermission
+	for _, p := range m.userPermissions {
+		if req.Msg.GetUserId() == "" || p.GetUserId() == req.Msg.GetUserId() {
+			filtered = append(filtered, p)
+		}
+	}
+
+	return connect.NewResponse(&orchestrator.ListUserPermissionsResponse{
+		UserPermissions: filtered,
+	}), nil
+}
+
 // GetCatalog returns catalog or an error if configured
 func (m *mockOrchestratorHandler) GetCatalog(
 	_ context.Context,
@@ -338,6 +363,11 @@ func WithGetCatalogError(err error) func(*mockOrchestratorHandler) {
 // WithGetCatalogNotFoundError configures the error returned when catalog is nil.
 func WithGetCatalogNotFoundError(err error) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.getCatalogNotFoundError = err }
+}
+
+// WithUserPermissions seeds the handler with user permissions returned by ListUserPermissions.
+func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.userPermissions = permissions }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog
