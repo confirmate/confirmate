@@ -40,6 +40,33 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/status:
+        get:
+            tags:
+                - Evaluation
+            description: |-
+                GetEvaluationStatus returns the current evaluation status for the given audit scope.
+                 Part of the public API, also exposed as REST.
+            operationId: Evaluation_GetEvaluationStatus
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetEvaluationStatusResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/evaluation/evaluate/{auditScopeId}/stop:
         post:
             tags:
@@ -69,6 +96,16 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        GetEvaluationStatusResponse:
+            type: object
+            properties:
+                status:
+                    enum:
+                        - EVALUATION_RUNNING_STATUS_UNSPECIFIED
+                        - EVALUATION_RUNNING_STATUS_STOPPED
+                        - EVALUATION_RUNNING_STATUS_RUNNING
+                    type: string
+                    format: enum
         GoogleProtobufAny:
             type: object
             properties:

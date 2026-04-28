@@ -22,6 +22,12 @@ service Evaluation {
   rpc StopEvaluation(StopEvaluationRequest) returns (StopEvaluationResponse) {
     option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/stop"};
   }
+
+  // GetEvaluationStatus returns the current evaluation status for the given audit scope.
+  // Part of the public API, also exposed as REST.
+  rpc GetEvaluationStatus(GetEvaluationStatusRequest) returns (GetEvaluationStatusResponse) {
+    option (google.api.http) = {get: "/v1/evaluation/evaluate/{audit_scope_id}/status"};
+  }
 }
 
 message StartEvaluationRequest {
@@ -48,6 +54,23 @@ message StopEvaluationRequest {
 }
 
 message StopEvaluationResponse {}
+
+message GetEvaluationStatusRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetEvaluationStatusResponse {
+  EvaluationRunningStatus status = 1;
+}
+
+enum EvaluationRunningStatus {
+  EVALUATION_RUNNING_STATUS_UNSPECIFIED = 0;
+  EVALUATION_RUNNING_STATUS_STOPPED = 1;
+  EVALUATION_RUNNING_STATUS_RUNNING = 2;
+}
 
 // A evaluation result resource, representing the result after evaluating the
 // target of evaluation with a specific control target_of_evaluation_id, category_name and

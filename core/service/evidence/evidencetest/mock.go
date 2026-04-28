@@ -92,30 +92,30 @@ var (
 	}
 	// MockResourceListA is a deterministic resource fixture for list/filter tests.
 	// It corresponds to a VM resource for tool "tool-a" and the same ToE as [MockEvidenceListA].
-	MockResourceListA = &evidence.Resource{
+	MockResourceListA = &evidence.ResourceSnapshot{
 		Id:                   "vm-1",
 		ResourceType:         "virtual_machine",
 		TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
-		Properties:           nil,
+		Resource:             nil,
 	}
 	// MockResourceListB is a deterministic resource fixture for list/filter tests.
 	// Compared to [MockResourceListA] represents a different resource type ("application") for tool "tool-a" and a
 	// different ToE.
-	MockResourceListB = &evidence.Resource{
+	MockResourceListB = &evidence.ResourceSnapshot{
 		Id:                   "app-1",
 		ResourceType:         "application",
 		TargetOfEvaluationId: "22222222-2222-2222-2222-222222222222",
 		ToolId:               "tool-a",
-		Properties:           nil,
+		Resource:             nil,
 	}
 	// MockResourceListC is a deterministic resource fixture for list/filter tests.
 	// It represents a VM resource for tool "tool-b" and the same ToE as [MockEvidenceListA]/[MockEvidenceListC].
-	MockResourceListC = &evidence.Resource{
+	MockResourceListC = &evidence.ResourceSnapshot{
 		Id:                   "vm-2",
 		ResourceType:         "virtual_machine",
 		TargetOfEvaluationId: "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-b",
-		Properties:           nil,
+		Resource:             nil,
 	}
 )

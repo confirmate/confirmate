@@ -346,7 +346,11 @@ func TestService_StoreEvidence(t *testing.T) {
 			},
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
 				// Create a resource already such that `save` will update it instead of creating a new entry
-				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidenceWithVMResource.GetOntologyResource(), evidencetest.MockEvidenceWithVMResource.GetTargetOfEvaluationId(), evidencetest.MockEvidenceWithVMResource.GetToolId())
+				r, err := evidence.ToResourceSnapshot(
+					evidencetest.MockEvidenceWithVMResource.GetOntologyResource(),
+					evidencetest.MockEvidenceWithVMResource.GetTargetOfEvaluationId(),
+					evidencetest.MockEvidenceWithVMResource.GetToolId(),
+				)
 				assert.NoError(t, err)
 				err = db.Create(r)
 				assert.NoError(t, err)

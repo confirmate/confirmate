@@ -60,7 +60,7 @@ type ResourcesClient interface {
 	// UpdateResource updates a resource (or creates it, if it does not exist).
 	// This is used to give third-party tools the possibility to add something to
 	// the resource graph.
-	UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.Resource], error)
+	UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error)
 	// ListGraphEdges returns the edges (relationship) between resources in our
 	// resource graph.
 	ListGraphEdges(context.Context, *connect.Request[evidence.ListGraphEdgesRequest]) (*connect.Response[evidence.ListGraphEdgesResponse], error)
@@ -77,7 +77,7 @@ func NewResourcesClient(httpClient connect.HTTPClient, baseURL string, opts ...c
 	baseURL = strings.TrimRight(baseURL, "/")
 	resourcesMethods := evidence.File_api_evidence_evidence_proto.Services().ByName("Resources").Methods()
 	return &resourcesClient{
-		updateResource: connect.NewClient[evidence.UpdateResourceRequest, evidence.Resource](
+		updateResource: connect.NewClient[evidence.UpdateResourceRequest, evidence.ResourceSnapshot](
 			httpClient,
 			baseURL+ResourcesUpdateResourceProcedure,
 			connect.WithSchema(resourcesMethods.ByName("UpdateResource")),
@@ -94,12 +94,12 @@ func NewResourcesClient(httpClient connect.HTTPClient, baseURL string, opts ...c
 
 // resourcesClient implements ResourcesClient.
 type resourcesClient struct {
-	updateResource *connect.Client[evidence.UpdateResourceRequest, evidence.Resource]
+	updateResource *connect.Client[evidence.UpdateResourceRequest, evidence.ResourceSnapshot]
 	listGraphEdges *connect.Client[evidence.ListGraphEdgesRequest, evidence.ListGraphEdgesResponse]
 }
 
 // UpdateResource calls confirmate.evidence.v1.Resources.UpdateResource.
-func (c *resourcesClient) UpdateResource(ctx context.Context, req *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.Resource], error) {
+func (c *resourcesClient) UpdateResource(ctx context.Context, req *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error) {
 	return c.updateResource.CallUnary(ctx, req)
 }
 
@@ -113,7 +113,7 @@ type ResourcesHandler interface {
 	// UpdateResource updates a resource (or creates it, if it does not exist).
 	// This is used to give third-party tools the possibility to add something to
 	// the resource graph.
-	UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.Resource], error)
+	UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error)
 	// ListGraphEdges returns the edges (relationship) between resources in our
 	// resource graph.
 	ListGraphEdges(context.Context, *connect.Request[evidence.ListGraphEdgesRequest]) (*connect.Response[evidence.ListGraphEdgesResponse], error)
@@ -153,7 +153,7 @@ func NewResourcesHandler(svc ResourcesHandler, opts ...connect.HandlerOption) (s
 // UnimplementedResourcesHandler returns CodeUnimplemented from all methods.
 type UnimplementedResourcesHandler struct{}
 
-func (UnimplementedResourcesHandler) UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.Resource], error) {
+func (UnimplementedResourcesHandler) UpdateResource(context.Context, *connect.Request[evidence.UpdateResourceRequest]) (*connect.Response[evidence.ResourceSnapshot], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evidence.v1.Resources.UpdateResource is not implemented"))
 }
 

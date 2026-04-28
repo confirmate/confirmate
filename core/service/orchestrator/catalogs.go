@@ -278,13 +278,38 @@ func (svc *Service) ListControls(
 		conds = append(conds, "category_name = ?", req.Msg.CategoryName)
 	}
 
+	// Preload metrics for each control
+	conds = append(conds, persistence.WithPreload("Metrics"))
+
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
+	// Build hierarchy: nest sub-controls under their parents
+	controlsMap := make(map[string]*orchestrator.Control)
+	topLevel := make([]*orchestrator.Control, 0)
+
+	for i := range controls {
+		ctrl := controls[i]
+		ctrl.Controls = nil // clear any existing nested controls
+		controlsMap[ctrl.GetId()] = ctrl
+	}
+
+	for _, ctrl := range controlsMap {
+		if parentID := ctrl.GetParentControlId(); parentID != "" {
+			if parent, ok := controlsMap[parentID]; ok {
+				parent.Controls = append(parent.Controls, ctrl)
+			} else {
+				topLevel = append(topLevel, ctrl)
+			}
+		} else {
+			topLevel = append(topLevel, ctrl)
+		}
+	}
+
 	res = connect.NewResponse(&orchestrator.ListControlsResponse{
-		Controls:      controls,
+		Controls:      topLevel,
 		NextPageToken: npt,
 	})
 	return
@@ -307,7 +332,7 @@ func (svc *Service) GetControl(
 		return nil, err
 	}
 
-	err = svc.db.Get(&control, "id = ? AND category_name = ? AND category_catalog_id = ?",
+	err = svc.db.Get(&control, persistence.WithPreload("Metrics"), "id = ? AND category_name = ? AND category_catalog_id = ?",
 		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err

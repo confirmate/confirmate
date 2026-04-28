@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-confirmate: #005B99;
+	--color-confirmate-light: #1a7abf;
+}
