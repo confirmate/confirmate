@@ -1,19 +1,19 @@
 # Authentication and Authorization in Confirmate Core
 
-This document explains how request authentication and target-of-evaluation authorization currently work in `core`.
+This document explains how request authentication and authorization currently work in `core`.
 
 ## Overview
 
-The security flow is intentionally split into two layers:
+The security flow is split into two layers:
 
 1. **Authentication (server interceptor layer)**
-   - Verifies bearer JWTs.
+   - Verifies bearer JWTs on incoming requests.
    - Rejects unauthenticated requests early.
-   - Stores verified claims in request context.
+   - Stores verified claims in the request context.
 
 2. **Authorization (service layer)**
-   - Uses a configured authorization strategy.
-   - Evaluates whether the caller can access a specific target of evaluation (TOE).
+   - Uses a configured `AuthorizationStrategy`.
+   - Evaluates whether the caller can access a specific resource.
    - Returns `permission denied` for unauthorized requests.
 
 ## Authentication Flow
@@ -24,6 +24,7 @@ Authentication is handled by `AuthInterceptor`:
 - Registered from server commands when `auth-enabled` is set:
   - `server/commands/orchestrator.go`
   - `server/commands/confirmate.go`
+  - `server/commands/evaluation.go`
 
 ### Sequence diagram
 
@@ -39,8 +40,8 @@ sequenceDiagram
     AI->>AI: Verify JWT signature (JWKS/public key)
     AI->>AI: Extract verified claims
     AI->>H: Forward request with claims in context
-    H->>AZ: CheckAccess(ctx, requestType, request)
-    AZ-->>H: allow/deny based on TOE claim(s)
+    H->>AZ: checkAccess(ctx, reqType, resourceId, objectType)
+    AZ-->>H: allow/deny + list of allowed resource IDs
     H-->>C: Response or PermissionDenied
 ```
 
@@ -64,68 +65,110 @@ If anything fails, it returns `connect.CodeUnauthenticated`.
 Authorization logic no longer re-parses raw tokens. It reads claims from context so downstream code only uses claims from already-verified tokens.
 
 - Context helpers: `auth/context.go`
-- Claims are consumed by authorization strategy in `service/authorization.go`
+- Claims are consumed by `checkAccess` helpers in each service package.
 
 ## Authorization Flow
 
 Authorization is strategy-based:
 
-- Interface: `service.AuthorizationStrategy`
-- Default implementation for JWT claim checks: `service.AuthorizationStrategyJWT`
+- Interface: `service.AuthorizationStrategy` (`service/authorization.go`)
+- Two concrete implementations:
+  - `AuthorizationStrategyAllowAll` — permits everything; used when `auth-enabled` is false.
+  - `AuthorizationStrategyPermissionStore` — checks permissions stored in the orchestrator; used when `auth-enabled` is true.
 
-### Strategy behavior
+### AuthorizationStrategyPermissionStore
 
-`AuthorizationStrategyJWT` reads own claim key:
+This strategy requires a `PermissionStore` implementation that can answer two questions:
 
-- `IsAdminToken` as bool (default: `cfadmin`)
+- `HasPermission(userId, resourceId, permission, objectType)` → bool
+- `PermissionForResources(userId, permission, objectType)` → []resourceId
 
-The strategy returns:
+The orchestrator service uses a database-backed `permissionStore` (`service/orchestrator/user.go`).
 
-- **allow all** if `AllowAllKey == true`
+The evaluation service — which has no database — uses an `orchestratorPermissionStore`
+(`service/evaluation/permission_store.go`) that calls `ListUserPermissions` on the orchestrator over
+the service-to-service connection.
+
+### Admin bypass
+
+Before any permission store lookup, both strategies check the `IsAdmin()` flag on the JWT claims.
+If the caller is an admin, access is unconditionally granted.
+
+## Service-to-Service Authentication
+
+When services call the orchestrator on their own behalf (e.g., for scheduled evaluation jobs or
+permission lookups), they use OAuth 2.0 client credentials flow:
+
+- Client ID/secret: `confirmate` / `confirmate` (defaults, overridable via flags)
+- Token endpoint: the orchestrator's embedded OAuth server at `/v1/auth/token`
+- The resulting token is injected at the **HTTP transport level** (not via the request context),
+  which means scheduled background jobs do not need to inherit a user's token.
+
+This is wired up in `NewService` when `Config.ServiceOAuth2Config` is non-nil.
 
 ## Where authorization is enforced
 
-Authorization is enforced in service handlers by calling:
+Each service defines a package-local `checkAccess` helper that extracts the user ID from context
+claims and delegates to the configured strategy. This helper is called at the top of each
+protected handler, before any business logic.
 
-- `svc.authz.CheckAccess(ctx, requestType, requestLikeObject)`
+Pattern (from `service/orchestrator/user.go`, `service/evaluation/user.go`):
 
-The `requestLikeObject` must implement `api.HasTargetOfEvaluationId`.
+```go
+allowed, resourceIDs, err := checkAccess(ctx, svc.authz, reqType, resourceId, objectType)
+if err != nil {
+    return nil, connect.NewError(connect.CodeInternal, err)
+}
+if !allowed {
+    return nil, service.ErrPermissionDenied
+}
+```
+
+The orchestrator's `checkAccess` also performs **JIT user provisioning**: on every authenticated
+request it creates or updates the user record in the database from the JWT claims.
+The evaluation service's `checkAccess` omits this step (no DB).
 
 ### Current coverage
 
-- Assessment service:
-  - `service/assessment/assessment.go` (`AssessEvidence`)
-- Orchestrator service (TOE-scoped handlers), including:
+- Orchestrator service: most resource handlers in
   - `service/orchestrator/toe.go`
   - `service/orchestrator/audit_scope.go`
   - `service/orchestrator/certificates.go`
   - `service/orchestrator/assessment_results.go`
+  - `service/orchestrator/user.go`
+- Evaluation service:
+  - `service/evaluation/service.go` (`StartEvaluation`, `StopEvaluation`)
 
-List handlers also constrain query results to allowed TOE IDs using `AllowedTargetOfEvaluations(...)`.
+List handlers also constrain query results to allowed resource IDs using
+`authz.AllowedTargetOfEvaluations(ctx)` or `authz.AllowedAuditScopes(ctx)`.
 
 ## Configuration
 
-When auth is enabled in server commands:
+When auth is enabled in server commands, the following options are applied:
 
-- Authentication interceptor is enabled (`AuthInterceptor`).
-- Services are configured with JWT authorization strategy:
-  - `orchestrator.WithAuthorizationStrategyJWT(...)`
-  - `assessment.WithAuthorizationStrategyJWT(...)`
+| Command       | Incoming auth interceptor | Authorization strategy        |
+|---------------|---------------------------|-------------------------------|
+| `orchestrator`| `AuthInterceptor` (JWKS)  | `PermissionStore` (DB-backed) |
+| `confirmate`  | `AuthInterceptor` (JWKS)  | `PermissionStore` (DB-backed) |
+| `evaluation`  | `AuthInterceptor` (JWKS)  | `PermissionStore` (orchestrator-backed) |
 
-Command flags involved include:
+Command flags involved:
 
-- `auth-enabled`
-- `auth-jwks-url`
+- `auth-enabled` — enable JWT validation on incoming requests
+- `auth-jwks-url` — JWKS URL for token verification
+- `service-oauth2-token-endpoint` — token endpoint for service-to-service auth
+- `service-oauth2-client-id` — service client ID (default: `confirmate`)
+- `service-oauth2-client-secret` — service client secret (default: `confirmate`)
 
 ## Error semantics
 
-- Invalid/missing token: `connect.CodeUnauthenticated`
-- Valid token but insufficient TOE permissions: `connect.CodePermissionDenied`
+- Invalid/missing token → `connect.CodeUnauthenticated`
+- Valid token but insufficient permissions → `connect.CodePermissionDenied`
 
 ## Notes for contributors
 
-- Keep authentication in interceptors and authorization in service methods.
-- Prefer `svc.authz.CheckAccess(...)` for TOE-scoped operations.
-- For list endpoints, also scope database queries to allowed TOE IDs.
+- Keep authentication in interceptors; keep authorization in service methods.
+- Use the package-local `checkAccess` helper — do not call `svc.authz.CheckAccess` directly from handlers.
+- For list endpoints, also scope database (or API) queries to allowed resource IDs.
 - Do not parse unverified tokens in service code.
 - If you change authentication/authorization behavior, update this document in the same PR.
