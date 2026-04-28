@@ -102,6 +102,13 @@ const (
 	MockToolDescription2        = "Mock assessment tool"
 	MockToolIdConcurrent        = "tool-concurrent"
 	MockUserIssuer1             = "test-issuer"
+	MockOrgName1                = "Mock Organisation 1"
+	MockOrgStreet1              = "Mock Street 1"
+	MockOrgCity1                = "Mock City 1"
+	MockOrgZip1                 = "12345"
+	MockOrgCountry1             = "DE"
+	MockOrgContactEmail1        = "contact@mock-org.example"
+	MockOrgWebsite1             = "https://mock-org.example"
 )
 
 var (
@@ -201,6 +208,23 @@ var (
 		Id:         MockToeId2,
 		Name:       "Mock TOE 2",
 		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
+	}
+	// MockTargetOfEvaluationWithOrganisation is a target of evaluation that includes organisation details.
+	MockTargetOfEvaluationWithOrganisation = &orchestrator.TargetOfEvaluation{
+		Id:         MockToeId3,
+		Name:       "Mock TOE with Organisation",
+		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_ORGANIZATION,
+		Organisation: &orchestrator.TargetOfEvaluation_Organisation{
+			Name: MockOrgName1,
+			Address: &orchestrator.TargetOfEvaluation_Organisation_PostalAddress{
+				Street:  MockOrgStreet1,
+				City:    MockOrgCity1,
+				Zip:     MockOrgZip1,
+				Country: MockOrgCountry1,
+			},
+			ContactEmail: MockOrgContactEmail1,
+			Website:      MockOrgWebsite1,
+		},
 	}
 
 	// Mock Catalogs

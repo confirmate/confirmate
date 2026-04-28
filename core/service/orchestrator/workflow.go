@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -61,7 +62,7 @@ func isValidTransition(current, next orchestrator.ControlImplementationState) bo
 }
 
 // CreateControlImplementation creates a new ControlImplementation for a control within an audit
-// scope. The implementation starts in the TODO state.
+// scope. The implementation starts in the STATE_OPEN state.
 func (svc *Service) CreateControlImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.CreateControlImplementationRequest],
@@ -108,6 +109,22 @@ func (svc *Service) CreateControlImplementation(
 		AssigneeId:               req.Msg.GetControlImplementation().AssigneeId,
 		CreatedAt:                now,
 		UpdatedAt:                now,
+	}
+
+	// Check that no ControlImplementation already exists for the same (audit scope, control) pair.
+	// The unique index on (audit_scope_id, control_id, control_category_name, control_category_catalog_id)
+	// also enforces this at the DB level, but we check early to return a clear error.
+	var duplicate orchestrator.ControlImplementation
+	err = svc.db.Get(&duplicate, persistence.WithoutPreload(),
+		"audit_scope_id = ? AND control_id = ? AND control_category_name = ? AND control_category_catalog_id = ?",
+		impl.AuditScopeId, impl.ControlId, impl.ControlCategoryName, impl.ControlCategoryCatalogId,
+	)
+	if err == nil {
+		return nil, connect.NewError(connect.CodeAlreadyExists, service.ErrResourceAlreadyExists)
+	} else if !errors.Is(err, persistence.ErrRecordNotFound) {
+		if err = service.HandleDatabaseError(err); err != nil {
+			return nil, err
+		}
 	}
 
 	err = svc.db.Create(impl)

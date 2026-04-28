@@ -364,7 +364,8 @@ type OrchestratorClient interface {
 	GetControlImplementation(context.Context, *connect.Request[orchestrator.GetControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
 	// Lists control implementations with optional filtering by audit scope, state, or assignee.
 	ListControlImplementations(context.Context, *connect.Request[orchestrator.ListControlImplementationsRequest]) (*connect.Response[orchestrator.ListControlImplementationsResponse], error)
-	// Updates a control implementation (e.g., changes the assigned user).
+	// Updates a control implementation. Only assignee_id and implementation_details can be updated;
+	// structural fields (audit scope, control reference, state) use their dedicated RPCs.
 	UpdateControlImplementation(context.Context, *connect.Request[orchestrator.UpdateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
 	// Transitions a control implementation to a new state, enforcing valid state machine transitions
 	// and recording the transition in the history.
@@ -1266,7 +1267,8 @@ type OrchestratorHandler interface {
 	GetControlImplementation(context.Context, *connect.Request[orchestrator.GetControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
 	// Lists control implementations with optional filtering by audit scope, state, or assignee.
 	ListControlImplementations(context.Context, *connect.Request[orchestrator.ListControlImplementationsRequest]) (*connect.Response[orchestrator.ListControlImplementationsResponse], error)
-	// Updates a control implementation (e.g., changes the assigned user).
+	// Updates a control implementation. Only assignee_id and implementation_details can be updated;
+	// structural fields (audit scope, control reference, state) use their dedicated RPCs.
 	UpdateControlImplementation(context.Context, *connect.Request[orchestrator.UpdateControlImplementationRequest]) (*connect.Response[orchestrator.ControlImplementation], error)
 	// Transitions a control implementation to a new state, enforcing valid state machine transitions
 	// and recording the transition in the history.
