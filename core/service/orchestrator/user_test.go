@@ -424,6 +424,36 @@ func TestService_ListUserPermissions(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: userId filter excludes other users' permissions",
+			args: args{
+				ctx:    auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
+				userId: orchestratortest.MockUserId1,
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					}))
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       "other-user",
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
+					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.UserPermissions[0].UserId)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
