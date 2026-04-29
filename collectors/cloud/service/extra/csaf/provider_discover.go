@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	csafutil "github.com/gocsaf/csaf/v3/util"
@@ -98,7 +98,7 @@ func (d *csafCollector) handleProvider(lpmd *csaf.LoadedProviderMetadata) (resou
 	var provider = &ontology.SecurityAdvisoryService{
 		Id:                         serviceId,
 		InternetAccessibleEndpoint: true,
-		Name:                       util.Deref(pmd.Publisher.Name),
+		Name:                       pointer.Deref(pmd.Publisher.Name),
 		// TODO: actually put document in correct feed
 		SecurityAdvisoryFeeds: []*ontology.SecurityAdvisoryFeed{
 			{

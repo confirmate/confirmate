@@ -21,8 +21,8 @@ import (
 	"fmt"
 
 	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/dataprotection/armdataprotection"
 	"github.com/lmittmann/tint"
@@ -63,14 +63,14 @@ func (d *azureCollector) collectBackupVaults() error {
 			return res.Value
 		},
 		func(vault *armdataprotection.BackupVaultResource) error {
-			instances, err := d.collectBackupInstances(resourceGroupName(util.Deref(vault.ID)), util.Deref(vault.Name))
+			instances, err := d.collectBackupInstances(resourceGroupName(pointer.Deref(vault.ID)), pointer.Deref(vault.Name))
 			if err != nil {
 				err := fmt.Errorf("could not collect backup instances: %v", err)
 				return err
 			}
 
 			for _, instance := range instances {
-				dataSourceType := util.Deref(instance.Properties.DataSourceInfo.DatasourceType)
+				dataSourceType := pointer.Deref(instance.Properties.DataSourceInfo.DatasourceType)
 
 				// Get retention from backup policy
 				policy, err := d.clients.backupPoliciesClient.Get(context.Background(), resourceGroupName(*vault.ID), *vault.Name, backupPolicyName(*instance.Properties.PolicyInfo.PolicyID), &armdataprotection.BackupPoliciesClientGetOptions{})
@@ -92,10 +92,10 @@ func (d *azureCollector) collectBackupVaults() error {
 				}
 
 				// Store voc.Backup in backupMap
-				d.backupMap[dataSourceType].backup[util.Deref(instance.Properties.DataSourceInfo.ResourceID)] = []*ontology.Backup{
+				d.backupMap[dataSourceType].backup[pointer.Deref(instance.Properties.DataSourceInfo.ResourceID)] = []*ontology.Backup{
 					{
 						Enabled:         true,
-						RetentionPeriod: retentionDuration(util.Deref(retention)),
+						RetentionPeriod: retentionDuration(pointer.Deref(retention)),
 						StorageId:       vault.ID,
 						TransportEncryption: &ontology.TransportEncryption{
 							Enabled:         true,

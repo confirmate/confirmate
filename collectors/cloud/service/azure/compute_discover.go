@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v3"
@@ -130,13 +130,13 @@ func (d *azureCollector) collectFunctionsWebApps() ([]ontology.IsResource, error
 
 			// Get configuration for detailed properties
 			config, err := d.clients.webAppsClient.GetConfiguration(context.Background(),
-				util.Deref(site.Properties.ResourceGroup),
-				util.Deref(site.Name),
+				pointer.Deref(site.Properties.ResourceGroup),
+				pointer.Deref(site.Name),
 				&armappservice.WebAppsClientGetConfigurationOptions{})
 			if err != nil {
 				log.Error("error getting site config",
-					"resourceGroup", util.Deref(site.Properties.ResourceGroup),
-					"site", util.Deref(site.Name),
+					"resourceGroup", pointer.Deref(site.Properties.ResourceGroup),
+					"site", pointer.Deref(site.Name),
 					"err", err)
 			}
 
@@ -172,7 +172,7 @@ func (d *azureCollector) collectFunctionsWebApps() ([]ontology.IsResource, error
 				// TODO(all): TBD
 				log.Debug("Function Code App on ARC currently not implemented.")
 			default:
-				log.Debug("kind currently not supported.", slog.String("kind", util.Deref(site.Kind)))
+				log.Debug("kind currently not supported.", slog.String("kind", pointer.Deref(site.Kind)))
 			}
 
 			if r != nil {

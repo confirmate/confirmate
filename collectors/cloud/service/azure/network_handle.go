@@ -17,8 +17,8 @@ package azure
 
 import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 )
@@ -26,10 +26,10 @@ import (
 func (d *azureCollector) handleLoadBalancer(lb *armnetwork.LoadBalancer) ontology.IsResource {
 	return &ontology.LoadBalancer{
 		Id:           resourceID(lb.ID),
-		Name:         util.Deref(lb.Name),
+		Name:         pointer.Deref(lb.Name),
 		CreationTime: nil, // No creation time available
 		GeoLocation: &ontology.GeoLocation{
-			Region: util.Deref(lb.Location),
+			Region: pointer.Deref(lb.Location),
 		},
 		Labels:   labels(lb.Tags),
 		ParentId: resourceGroupID(lb.ID),
@@ -45,15 +45,15 @@ func (d *azureCollector) handleApplicationGateway(ag *armnetwork.ApplicationGate
 	firewallStatus := false
 
 	if ag.Properties != nil && ag.Properties.WebApplicationFirewallConfiguration != nil {
-		firewallStatus = util.Deref(ag.Properties.WebApplicationFirewallConfiguration.Enabled)
+		firewallStatus = pointer.Deref(ag.Properties.WebApplicationFirewallConfiguration.Enabled)
 	}
 
 	return &ontology.LoadBalancer{
 		Id:           resourceID(ag.ID),
-		Name:         util.Deref(ag.Name),
+		Name:         pointer.Deref(ag.Name),
 		CreationTime: nil, // No creation time available
 		GeoLocation: &ontology.GeoLocation{
-			Region: util.Deref(ag.Location),
+			Region: pointer.Deref(ag.Location),
 		},
 		Labels:   labels(ag.Tags),
 		ParentId: resourceGroupID(ag.ID),
@@ -71,10 +71,10 @@ func (d *azureCollector) handleApplicationGateway(ag *armnetwork.ApplicationGate
 func (d *azureCollector) handleNetworkInterfaces(ni *armnetwork.Interface) ontology.IsResource {
 	return &ontology.NetworkInterface{
 		Id:           resourceID(ni.ID),
-		Name:         util.Deref(ni.Name),
+		Name:         pointer.Deref(ni.Name),
 		CreationTime: nil, // No creation time available
 		GeoLocation: &ontology.GeoLocation{
-			Region: util.Deref(ni.Location),
+			Region: pointer.Deref(ni.Location),
 		},
 		Labels:   labels(ni.Tags),
 		ParentId: resourceGroupID(ni.ID),

@@ -36,7 +36,7 @@ import (
 	"strings"
 
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
-	"confirmate.io/core/util"
+	"confirmate.io/collectors/cloud/internal/pointer"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	csafutil "github.com/gocsaf/csaf/v3/util"
@@ -171,7 +171,7 @@ func (p *TrustedProvider) handleFeed(w http.ResponseWriter, r *http.Request) {
 
 		// Find the advisory
 		idx := slices.IndexFunc(advisories, func(doc *csaf.Advisory) bool {
-			return strings.ToLower(string(util.Deref(doc.Document.Tracking.ID))) == id
+			return strings.ToLower(string(pointer.Deref(doc.Document.Tracking.ID))) == id
 		})
 		if idx == -1 {
 			w.WriteHeader(http.StatusNotFound)

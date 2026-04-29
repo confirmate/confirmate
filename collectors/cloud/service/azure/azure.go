@@ -25,8 +25,8 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
@@ -366,7 +366,7 @@ func (d *azureCollector) authorize() (err error) {
 	// get first subscription
 	d.sub = subList[0]
 
-	log.Info("Azure collector uses subscription", "subscriptionID", util.Deref(d.sub.SubscriptionID))
+	log.Info("Azure collector uses subscription", "subscriptionID", pointer.Deref(d.sub.SubscriptionID))
 
 	d.isAuthorized = true
 
@@ -407,13 +407,13 @@ func (d *azureCollector) collectDefender() (map[string]*defenderProperties, erro
 	}
 
 	for _, elem := range pricingsList.Value {
-		if util.Deref(elem.Properties.PricingTier) == armsecurity.PricingTierFree {
-			pricings[util.Deref(elem.Name)] = &defenderProperties{
+		if pointer.Deref(elem.Properties.PricingTier) == armsecurity.PricingTierFree {
+			pricings[pointer.Deref(elem.Name)] = &defenderProperties{
 				monitoringLogDataEnabled: false,
 				securityAlertsEnabled:    false,
 			}
 		} else {
-			pricings[util.Deref(elem.Name)] = &defenderProperties{
+			pricings[pointer.Deref(elem.Name)] = &defenderProperties{
 				monitoringLogDataEnabled: true,
 				securityAlertsEnabled:    true,
 			}

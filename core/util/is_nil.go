@@ -17,16 +17,6 @@ package util
 
 import "reflect"
 
-// Deref safely dereferences a pointer and returns the zero value if nil.
-func Deref[T any](value *T) T {
-	var zero T
-	if value == nil {
-		return zero
-	}
-
-	return *value
-}
-
 // IsNil checks if an interface value is nil or if the value nil is assigned to it.
 func IsNil(value any) bool {
 	if value == nil || (reflect.ValueOf(value).Kind() == reflect.Pointer &&

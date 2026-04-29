@@ -22,8 +22,8 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
@@ -51,7 +51,7 @@ func (d *azureCollector) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 					Enabled: true,
 					// Algorithm: algorithm, //TODO(anatheka): How do we get the algorithm? Are we available to do it by
 					// the related resources?
-					KeyUrl: util.Deref(account.Properties.KeyVaultKeyURI),
+					KeyUrl: pointer.Deref(account.Properties.KeyVaultKeyURI),
 				},
 			},
 		}
@@ -72,7 +72,7 @@ func (d *azureCollector) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 	// database.
 	dbService := &ontology.DocumentDatabaseService{
 		Id:           resourceID(account.ID),
-		Name:         util.Deref(account.Name),
+		Name:         pointer.Deref(account.Name),
 		CreationTime: creationTime(account.SystemData.CreatedAt),
 		GeoLocation:  location(account.Location),
 		Labels:       labels(account.Tags),
@@ -84,7 +84,7 @@ func (d *azureCollector) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 	list = append(list, dbService)
 
 	// Check account kind and add Mongo DB databases storages
-	switch util.Deref(account.Kind) {
+	switch pointer.Deref(account.Kind) {
 	case armcosmos.DatabaseAccountKindMongoDB:
 		// Get Mongo databases
 		list = append(list, d.collectMongoDBDatabases(account, atRestEnc)...)
@@ -93,7 +93,7 @@ func (d *azureCollector) handleCosmosDB(account *armcosmos.DatabaseAccountGetRes
 	case armcosmos.DatabaseAccountKindParse:
 		log.Info("account kind not yet implemented", slog.Any("kind", armcosmos.DatabaseAccountKindParse))
 	default:
-		log.Warn("account kind not yet implemented", slog.Any("kind", util.Deref(account.Kind)))
+		log.Warn("account kind not yet implemented", slog.Any("kind", pointer.Deref(account.Kind)))
 	}
 
 	return list, nil
@@ -113,7 +113,7 @@ func (d *azureCollector) handleSqlServer(server *armsql.Server) ([]ontology.IsRe
 	// Create SQL database service voc object for SQL server
 	dbService = &ontology.RelationalDatabaseService{
 		Id:           resourceID(server.ID),
-		Name:         util.Deref(server.Name),
+		Name:         pointer.Deref(server.Name),
 		CreationTime: nil,
 		GeoLocation:  location(server.Location),
 		Labels:       labels(server.Tags),
@@ -149,13 +149,13 @@ func (d *azureCollector) handleStorageAccount(account *armstorage.Account, stora
 
 	// Get all object storage IDs
 	for _, storage := range storagesList {
-		if strings.Contains(string(storage.GetId()), accountName(util.Deref(account.ID))) {
+		if strings.Contains(string(storage.GetId()), accountName(pointer.Deref(account.ID))) {
 			storageResourceIDs = append(storageResourceIDs, storage.GetId())
 		}
 	}
 
 	te := &ontology.TransportEncryption{
-		Enforced:        util.Deref(account.Properties.EnableHTTPSTrafficOnly),
+		Enforced:        pointer.Deref(account.Properties.EnableHTTPSTrafficOnly),
 		Enabled:         true, // cannot be disabled
 		Protocol:        constants.TLS,
 		ProtocolVersion: tlsVersion((*string)(account.Properties.MinimumTLSVersion)),
@@ -163,7 +163,7 @@ func (d *azureCollector) handleStorageAccount(account *armstorage.Account, stora
 
 	storageService := &ontology.ObjectStorageService{
 		Id:                  resourceID(account.ID),
-		Name:                util.Deref(account.Name),
+		Name:                pointer.Deref(account.Name),
 		StorageIds:          storageResourceIDs,
 		CreationTime:        creationTime(account.Properties.CreationTime),
 		GeoLocation:         location(account.Location),
@@ -172,7 +172,7 @@ func (d *azureCollector) handleStorageAccount(account *armstorage.Account, stora
 		Raw:                 collector.Raw(account, rawActivityLogging),
 		TransportEncryption: te,
 		HttpEndpoint: &ontology.HttpEndpoint{
-			Url:                 generalizeURL(util.Deref(account.Properties.PrimaryEndpoints.Blob)),
+			Url:                 generalizeURL(pointer.Deref(account.Properties.PrimaryEndpoints.Blob)),
 			TransportEncryption: te,
 		},
 		ActivityLogging: activityLogging,
@@ -210,7 +210,7 @@ func (d *azureCollector) handleFileStorage(account *armstorage.Account, fileshar
 
 	return &ontology.FileStorage{
 		Id:           resourceID(fileshare.ID),
-		Name:         util.Deref(fileshare.Name),
+		Name:         pointer.Deref(fileshare.Name),
 		CreationTime: creationTime(account.Properties.CreationTime), // We only have the creation time of the storage account the file storage belongs to
 		GeoLocation:  location(account.Location),                    // The location is the same as the storage account
 		Labels:       labels(account.Tags),                          // The storage account labels the file storage belongs to
@@ -246,8 +246,8 @@ func (d *azureCollector) handleObjectStorage(account *armstorage.Account, contai
 		return nil, fmt.Errorf("could not get object storage properties for the atRestEncryption: %w", err)
 	}
 
-	if d.backupMap[DataSourceTypeStorageAccountObject] != nil && d.backupMap[DataSourceTypeStorageAccountObject].backup[util.Deref(account.ID)] != nil {
-		backups = d.backupMap[DataSourceTypeStorageAccountObject].backup[util.Deref(account.ID)]
+	if d.backupMap[DataSourceTypeStorageAccountObject] != nil && d.backupMap[DataSourceTypeStorageAccountObject].backup[pointer.Deref(account.ID)] != nil {
+		backups = d.backupMap[DataSourceTypeStorageAccountObject].backup[pointer.Deref(account.ID)]
 	}
 	backups = backupsEmptyCheck(backups)
 
@@ -258,7 +258,7 @@ func (d *azureCollector) handleObjectStorage(account *armstorage.Account, contai
 
 	return &ontology.ObjectStorage{
 		Id:               resourceID(container.ID),
-		Name:             util.Deref(container.Name),
+		Name:             pointer.Deref(container.Name),
 		CreationTime:     creationTime(account.Properties.CreationTime), // We only have the creation time of the storage account the file storage belongs to
 		GeoLocation:      location(account.Location),                    // The location is the same as the storage account
 		Labels:           labels(account.Tags),                          // The storage account labels the file storage belongs to
@@ -266,7 +266,7 @@ func (d *azureCollector) handleObjectStorage(account *armstorage.Account, contai
 		Raw:              collector.Raw(account, container),
 		AtRestEncryption: enc,
 		Immutability: &ontology.Immutability{
-			Enabled: util.Deref(container.Properties.HasImmutabilityPolicy),
+			Enabled: pointer.Deref(container.Properties.HasImmutabilityPolicy),
 		},
 		ResourceLogging: &ontology.ResourceLogging{
 			MonitoringLogDataEnabled: monitoringLogDataEnabled,
@@ -274,6 +274,6 @@ func (d *azureCollector) handleObjectStorage(account *armstorage.Account, contai
 		},
 		ActivityLogging: activityLogging,
 		Backups:         backups,
-		PublicAccess:    util.Deref(container.Properties.PublicAccess) != armstorage.PublicAccessNone,
+		PublicAccess:    pointer.Deref(container.Properties.PublicAccess) != armstorage.PublicAccessNone,
 	}, nil
 }

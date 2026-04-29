@@ -24,8 +24,8 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	csafutil "github.com/gocsaf/csaf/v3/util"
@@ -98,7 +98,7 @@ func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 
 	rawDoc = collector.Raw(raw)
 
-	t, err := time.Parse(time.RFC3339, util.Deref(advisory.Document.Tracking.InitialReleaseDate))
+	t, err := time.Parse(time.RFC3339, pointer.Deref(advisory.Document.Tracking.InitialReleaseDate))
 	if err != nil {
 		return nil, err
 	}
@@ -106,11 +106,11 @@ func (d *csafCollector) handleAdvisory(label csaf.TLPLabel, file csaf.AdvisoryFi
 	// Create an evidence for the document
 	doc = &ontology.SecurityAdvisoryDocument{
 		Filetype: "JSON",
-		Id:       string(util.Deref(advisory.Document.Tracking.ID)),
+		Id:       string(pointer.Deref(advisory.Document.Tracking.ID)),
 		Labels: map[string]string{
 			"tlp": string(label),
 		},
-		Name: util.Deref(advisory.Document.Title),
+		Name: pointer.Deref(advisory.Document.Title),
 
 		DataLocation: &ontology.DataLocation{
 			Type: &ontology.DataLocation_RemoteDataLocation{

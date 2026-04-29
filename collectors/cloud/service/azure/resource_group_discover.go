@@ -21,8 +21,8 @@ import (
 	"log/slog"
 	"strings"
 
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 )
@@ -50,7 +50,7 @@ func (d *azureCollector) collectResourceGroups() (list []ontology.IsResource, er
 		for _, rg := range page.Value {
 			// If we are scoped to one resource group, we can skip the rest of the groups. Resource group names are
 			// case-insensitive
-			if d.rg != nil && !strings.EqualFold(util.Deref(rg.Name), util.Deref(d.rg)) {
+			if d.rg != nil && !strings.EqualFold(pointer.Deref(rg.Name), pointer.Deref(d.rg)) {
 				continue
 			}
 

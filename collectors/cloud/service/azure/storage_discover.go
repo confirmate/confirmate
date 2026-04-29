@@ -23,8 +23,8 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/cosmos/armcosmos"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
@@ -64,7 +64,7 @@ func (d *azureCollector) collectCosmosDB() ([]ontology.IsResource, error) {
 			if err != nil {
 				return fmt.Errorf("could not cosmos db accounts: %w", err)
 			}
-			log.Info("Adding Cosmos DB account", slog.String("name", util.Deref(dbAccount.Name)))
+			log.Info("Adding Cosmos DB account", slog.String("name", pointer.Deref(dbAccount.Name)))
 			list = append(list, cosmos...)
 
 			return nil
@@ -89,7 +89,7 @@ func (d *azureCollector) collectMongoDBDatabases(account *armcosmos.DatabaseAcco
 	}
 
 	// Collect Mongo DB databases
-	serverlistPager := d.clients.mongoDBResourcesClient.NewListMongoDBDatabasesPager(resourceGroupName(util.Deref(account.ID)), *account.Name, &armcosmos.MongoDBResourcesClientListMongoDBDatabasesOptions{})
+	serverlistPager := d.clients.mongoDBResourcesClient.NewListMongoDBDatabasesPager(resourceGroupName(pointer.Deref(account.ID)), *account.Name, &armcosmos.MongoDBResourcesClientListMongoDBDatabasesOptions{})
 	for serverlistPager.More() {
 		pageResponse, err := serverlistPager.NextPage(context.TODO())
 		if err != nil {
@@ -101,7 +101,7 @@ func (d *azureCollector) collectMongoDBDatabases(account *armcosmos.DatabaseAcco
 			// Create Cosmos DB database storage voc object
 			mongoDB := &ontology.DatabaseStorage{
 				Id:               resourceID(value.ID),
-				Name:             util.Deref(value.Name),
+				Name:             pointer.Deref(value.Name),
 				CreationTime:     nil, // creation time of database not available
 				GeoLocation:      location(value.Location),
 				Labels:           labels(value.Tags),
@@ -143,7 +143,7 @@ func (d *azureCollector) collectSqlServers() ([]ontology.IsResource, error) {
 			if err != nil {
 				return fmt.Errorf("could not handle sql database: %w", err)
 			}
-			log.Info("Adding sql database", slog.String("name", util.Deref(server.Name)))
+			log.Info("Adding sql database", slog.String("name", pointer.Deref(server.Name)))
 			list = append(list, db...)
 
 			return nil
@@ -169,7 +169,7 @@ func (d *azureCollector) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 	}
 
 	// Get databases for given server
-	serverlistPager := d.clients.databasesClient.NewListByServerPager(resourceGroupName(util.Deref(server.ID)), *server.Name, &armsql.DatabasesClientListByServerOptions{})
+	serverlistPager := d.clients.databasesClient.NewListByServerPager(resourceGroupName(pointer.Deref(server.ID)), *server.Name, &armsql.DatabasesClientListByServerOptions{})
 	for serverlistPager.More() {
 		pageResponse, err := serverlistPager.NextPage(context.TODO())
 		if err != nil {
@@ -182,11 +182,11 @@ func (d *azureCollector) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 			// Get anomaly detection status
 			anomalyDetectionEnabled, err := d.anomalyDetectionEnabled(server, value)
 			if err != nil {
-				log.Error("error getting anomaly detection info for database", slog.String("name", util.Deref(value.Name)), tint.Err(err))
+				log.Error("error getting anomaly detection info for database", slog.String("name", pointer.Deref(value.Name)), tint.Err(err))
 			}
 
 			a := &ontology.AnomalyDetection{
-				Scope:   util.Deref(value.ID),
+				Scope:   pointer.Deref(value.ID),
 				Enabled: anomalyDetectionEnabled,
 			}
 
@@ -195,7 +195,7 @@ func (d *azureCollector) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 			// Create database storage voc object
 			sqlDB := &ontology.DatabaseStorage{
 				Id:           resourceID(value.ID),
-				Name:         util.Deref(value.Name),
+				Name:         pointer.Deref(value.Name),
 				CreationTime: creationTime(value.Properties.CreationDate),
 				GeoLocation:  location(value.Location),
 				Labels:       labels(value.Tags),
@@ -307,7 +307,7 @@ func (d *azureCollector) collectFileStorages(account *armstorage.Account, activi
 	var list []ontology.IsResource
 
 	// List all file shares in the specified resource group
-	listPager := d.clients.fileStorageClient.NewListPager(resourceGroupName(util.Deref(account.ID)), util.Deref(account.Name), &armstorage.FileSharesClientListOptions{})
+	listPager := d.clients.fileStorageClient.NewListPager(resourceGroupName(pointer.Deref(account.ID)), pointer.Deref(account.Name), &armstorage.FileSharesClientListOptions{})
 	for listPager.More() {
 		pageResponse, err := listPager.NextPage(context.TODO())
 		if err != nil {
@@ -334,7 +334,7 @@ func (d *azureCollector) collectObjectStorages(account *armstorage.Account, acti
 	var list []ontology.IsResource
 
 	// List all blob containers in the specified resource group
-	listPager := d.clients.blobContainerClient.NewListPager(resourceGroupName(util.Deref(account.ID)), util.Deref(account.Name), &armstorage.BlobContainersClientListOptions{})
+	listPager := d.clients.blobContainerClient.NewListPager(resourceGroupName(pointer.Deref(account.ID)), pointer.Deref(account.Name), &armstorage.BlobContainersClientListOptions{})
 	for listPager.More() {
 		pageResponse, err := listPager.NextPage(context.TODO())
 		if err != nil {

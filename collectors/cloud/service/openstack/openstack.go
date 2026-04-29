@@ -26,8 +26,8 @@ import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/config"
 	"confirmate.io/collectors/cloud/internal/logconfig"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/google/uuid"
 	"github.com/gophercloud/gophercloud/v2"
@@ -149,7 +149,7 @@ func NewOpenstackCollector(opts ...CollectorOption) collector.Collector {
 // * identity client
 func (d *openstackCollector) authorize() (err error) {
 	if d.clients.provider == nil {
-		d.clients.provider, err = openstack.AuthenticatedClient(context.Background(), util.Deref(d.authOpts))
+		d.clients.provider, err = openstack.AuthenticatedClient(context.Background(), pointer.Deref(d.authOpts))
 		if err != nil {
 			return fmt.Errorf("error while authenticating: %w", err)
 		}

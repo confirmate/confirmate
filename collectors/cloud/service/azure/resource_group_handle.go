@@ -17,8 +17,8 @@ package azure
 
 import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
@@ -28,7 +28,7 @@ import (
 func (d *azureCollector) handleResourceGroup(rg *armresources.ResourceGroup) ontology.IsResource {
 	return &ontology.ResourceGroup{
 		Id:          resourceID(rg.ID),
-		Name:        util.Deref(rg.Name),
+		Name:        pointer.Deref(rg.Name),
 		GeoLocation: location(rg.Location),
 		Labels:      labels(rg.Tags),
 		ParentId:    d.sub.ID,
@@ -40,7 +40,7 @@ func (d *azureCollector) handleResourceGroup(rg *armresources.ResourceGroup) ont
 func (d *azureCollector) handleSubscription(s *armsubscription.Subscription) *ontology.Account {
 	return &ontology.Account{
 		Id:           resourceID(s.ID),
-		Name:         util.Deref(s.DisplayName),
+		Name:         pointer.Deref(s.DisplayName),
 		CreationTime: nil, // subscriptions do not have a creation date
 		GeoLocation:  nil, // subscriptions are global
 		Labels:       nil, // subscriptions do not have labels,

@@ -24,8 +24,8 @@ import (
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	"github.com/lmittmann/tint"
@@ -56,13 +56,13 @@ func (d *csafCollector) handleKey(pgpkey csaf.PGPKey, parentId string) (key *ont
 	if err != nil {
 		// If we could not fetch the key we assume that the key exists but is not accessible
 		isAccessible = false
-		log.Warn("Could not fetch key", slog.String("key url", util.Deref(pgpkey.URL)), tint.Err(err))
+		log.Warn("Could not fetch key", slog.String("key url", pointer.Deref(pgpkey.URL)), tint.Err(err))
 	}
 
 	// 2nd: Create the key in the ontology format
 	key = &ontology.Key{
 		Algorithm:                  "PGP",
-		Id:                         util.Deref(pgpkey.URL),
+		Id:                         pointer.Deref(pgpkey.URL),
 		Raw:                        collector.Raw(pgpkey),
 		ParentId:                   &parentId,
 		InternetAccessibleEndpoint: isAccessible,
@@ -76,7 +76,7 @@ func (d *csafCollector) fetchKey(keyinfo csaf.PGPKey) (key *openpgp.Entity, err 
 		keys openpgp.EntityList
 	)
 
-	res, err = d.client.Get(util.Deref(keyinfo.URL))
+	res, err = d.client.Get(pointer.Deref(keyinfo.URL))
 	if err != nil {
 		return nil, err
 	}

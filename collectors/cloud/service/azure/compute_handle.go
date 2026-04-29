@@ -20,8 +20,8 @@ import (
 	"strings"
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
@@ -67,10 +67,10 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 
 	r := &ontology.VirtualMachine{
 		Id:           resourceID(vm.ID),
-		Name:         util.Deref(vm.Name),
+		Name:         pointer.Deref(vm.Name),
 		CreationTime: creationTime(vm.Properties.TimeCreated),
 		GeoLocation: &ontology.GeoLocation{
-			Region: util.Deref(vm.Location),
+			Region: pointer.Deref(vm.Location),
 		},
 		Labels:              labels(vm.Tags),
 		ParentId:            resourceGroupID(vm.ID),
@@ -138,14 +138,14 @@ func (d *azureCollector) handleBlockStorage(disk *armcompute.Disk) (*ontology.Bl
 	}
 
 	// Get voc.Backup
-	if d.backupMap[DataSourceTypeDisc] != nil && d.backupMap[DataSourceTypeDisc].backup[util.Deref(disk.ID)] != nil {
-		backups = d.backupMap[DataSourceTypeDisc].backup[util.Deref(disk.ID)]
+	if d.backupMap[DataSourceTypeDisc] != nil && d.backupMap[DataSourceTypeDisc].backup[pointer.Deref(disk.ID)] != nil {
+		backups = d.backupMap[DataSourceTypeDisc].backup[pointer.Deref(disk.ID)]
 	}
 	backups = backupsEmptyCheck(backups)
 
 	return &ontology.BlockStorage{
 		Id:               resourceID(disk.ID),
-		Name:             util.Deref(disk.Name),
+		Name:             pointer.Deref(disk.Name),
 		CreationTime:     creationTime(disk.Properties.TimeCreated),
 		GeoLocation:      location(disk.Location),
 		Labels:           labels(disk.Tags),
@@ -169,28 +169,28 @@ func (d *azureCollector) handleFunction(function *armappservice.Site, config arm
 	}
 
 	if *function.Kind == "functionapp,linux" { // Linux function
-		runtimeLanguage, runtimeVersion = runtimeInfo(util.Deref(function.Properties.SiteConfig.LinuxFxVersion))
+		runtimeLanguage, runtimeVersion = runtimeInfo(pointer.Deref(function.Properties.SiteConfig.LinuxFxVersion))
 	} else if *function.Kind == "functionapp" { // Windows function, we need to get also the config information
 		// Check all runtime versions to get the used runtime language and runtime version
-		if util.Deref(config.Properties.JavaVersion) != "" {
+		if pointer.Deref(config.Properties.JavaVersion) != "" {
 			runtimeLanguage = "Java"
 			runtimeVersion = *config.Properties.JavaVersion
-		} else if util.Deref(config.Properties.NodeVersion) != "" {
+		} else if pointer.Deref(config.Properties.NodeVersion) != "" {
 			runtimeLanguage = "Node.js"
 			runtimeVersion = *config.Properties.NodeVersion
-		} else if util.Deref(config.Properties.PowerShellVersion) != "" {
+		} else if pointer.Deref(config.Properties.PowerShellVersion) != "" {
 			runtimeLanguage = "PowerShell"
 			runtimeVersion = *config.Properties.PowerShellVersion
-		} else if util.Deref(config.Properties.PhpVersion) != "" {
+		} else if pointer.Deref(config.Properties.PhpVersion) != "" {
 			runtimeLanguage = "PHP"
 			runtimeVersion = *config.Properties.PhpVersion
-		} else if util.Deref(config.Properties.PythonVersion) != "" {
+		} else if pointer.Deref(config.Properties.PythonVersion) != "" {
 			runtimeLanguage = "Python"
 			runtimeVersion = *config.Properties.PythonVersion
-		} else if util.Deref(config.Properties.JavaContainer) != "" {
+		} else if pointer.Deref(config.Properties.JavaContainer) != "" {
 			runtimeLanguage = "JavaContainer"
 			runtimeVersion = *config.Properties.JavaContainer
-		} else if util.Deref(config.Properties.NetFrameworkVersion) != "" {
+		} else if pointer.Deref(config.Properties.NetFrameworkVersion) != "" {
 			runtimeLanguage = ".NET"
 			runtimeVersion = *config.Properties.NetFrameworkVersion
 		}
@@ -198,10 +198,10 @@ func (d *azureCollector) handleFunction(function *armappservice.Site, config arm
 
 	return &ontology.Function{
 		Id:           resourceID(function.ID),
-		Name:         util.Deref(function.Name),
+		Name:         pointer.Deref(function.Name),
 		CreationTime: nil, // No creation time available
 		GeoLocation: &ontology.GeoLocation{
-			Region: util.Deref(function.Location),
+			Region: pointer.Deref(function.Location),
 		},
 		Labels:              labels(function.Tags),
 		ParentId:            resourceGroupID(function.ID),
@@ -227,10 +227,10 @@ func (d *azureCollector) handleWebApp(webApp *armappservice.Site, config armapps
 
 	return &ontology.Function{
 		Id:           resourceID(webApp.ID),
-		Name:         util.Deref(webApp.Name),
+		Name:         pointer.Deref(webApp.Name),
 		CreationTime: nil, // Only the last modified time is available.
 		GeoLocation: &ontology.GeoLocation{
-			Region: util.Deref(webApp.Location),
+			Region: pointer.Deref(webApp.Location),
 		},
 		Labels:              labels(webApp.Tags),
 		ParentId:            resourceGroupID(webApp.ID),

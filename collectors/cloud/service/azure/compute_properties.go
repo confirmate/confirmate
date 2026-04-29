@@ -22,8 +22,8 @@ import (
 	"strings"
 
 	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v3"
@@ -48,7 +48,7 @@ func (d *azureCollector) blockStorageAtRestEncryption(disk *armcompute.Disk) (en
 
 	if disk.Properties.Encryption.Type == nil {
 		return enc, nil, errors.New("error getting atRestEncryption properties of blockStorage")
-	} else if util.Deref(disk.Properties.Encryption.Type) == armcompute.EncryptionTypeEncryptionAtRestWithPlatformKey {
+	} else if pointer.Deref(disk.Properties.Encryption.Type) == armcompute.EncryptionTypeEncryptionAtRestWithPlatformKey {
 		enc = &ontology.AtRestEncryption{
 			Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
 				ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
@@ -57,8 +57,8 @@ func (d *azureCollector) blockStorageAtRestEncryption(disk *armcompute.Disk) (en
 				},
 			},
 		}
-	} else if util.Deref(disk.Properties.Encryption.Type) == armcompute.EncryptionTypeEncryptionAtRestWithCustomerKey {
-		diskEncryptionSetID = util.Deref(disk.Properties.Encryption.DiskEncryptionSetID)
+	} else if pointer.Deref(disk.Properties.Encryption.Type) == armcompute.EncryptionTypeEncryptionAtRestWithCustomerKey {
+		diskEncryptionSetID = pointer.Deref(disk.Properties.Encryption.DiskEncryptionSetID)
 
 		keyUrl, rawKeyUrl, err = d.keyURL(diskEncryptionSetID)
 		if err != nil {
@@ -101,7 +101,7 @@ func (d *azureCollector) keyURL(diskEncryptionSetID string) (string, *armcompute
 		return "", nil, fmt.Errorf("could not get keyURL")
 	}
 
-	return util.Deref(keyURL), &kv.DiskEncryptionSet, nil
+	return pointer.Deref(keyURL), &kv.DiskEncryptionSet, nil
 }
 
 // diskEncryptionSetName return the disk encryption set ID's name
@@ -142,7 +142,7 @@ func (d *azureCollector) getResourceLoggingWebApps(site *armappservice.Site) (rl
 	appSettings, err := d.clients.webAppsClient.ListApplicationSettings(context.Background(),
 		*site.Properties.ResourceGroup, *site.Name, &armappservice.WebAppsClientListApplicationSettingsOptions{})
 	if err != nil {
-		log.Error("could not get application settings", "site", util.Deref(site.Name), "error", err)
+		log.Error("could not get application settings", "site", pointer.Deref(site.Name), "error", err)
 		return
 	}
 	if appSettings.Properties["APPLICATIONINSIGHTS_CONNECTION_STRING"] != nil {
@@ -156,7 +156,7 @@ func (d *azureCollector) getResourceLoggingWebApps(site *armappservice.Site) (rl
 
 // getRedundancies returns the redundancy status
 func getRedundancies(app *armappservice.Site) []*ontology.Redundancy {
-	switch util.Deref(app.Properties.RedundancyMode) {
+	switch pointer.Deref(app.Properties.RedundancyMode) {
 	case armappservice.RedundancyModeNone:
 		break
 	case armappservice.RedundancyModeActiveActive:
@@ -181,15 +181,15 @@ func getTransportEncryption(siteProperties *armappservice.SiteProperties, config
 	// Create transportEncryption voc object
 	if tlsVersion != 0 {
 		enc = &ontology.TransportEncryption{
-			Enforced:        util.Deref(siteProperties.HTTPSOnly),
+			Enforced:        pointer.Deref(siteProperties.HTTPSOnly),
 			Protocol:        constants.TLS,
 			ProtocolVersion: tlsVersion,
-			CipherSuites:    tlsCipherSuites(string(util.Deref(config.Properties.MinTLSCipherSuite))), // MinTLSCipherSuite is a new property and currently not filled from Azure side
+			CipherSuites:    tlsCipherSuites(string(pointer.Deref(config.Properties.MinTLSCipherSuite))), // MinTLSCipherSuite is a new property and currently not filled from Azure side
 			Enabled:         true,
 		}
 	} else {
 		enc = &ontology.TransportEncryption{
-			Enforced: util.Deref(siteProperties.HTTPSOnly),
+			Enforced: pointer.Deref(siteProperties.HTTPSOnly),
 			Enabled:  false,
 		}
 	}
@@ -220,7 +220,7 @@ func automaticUpdates(vm *armcompute.VirtualMachine) (automaticUpdates *ontology
 	// Check if Linux configuration is available
 	if vm.Properties.OSProfile.LinuxConfiguration != nil &&
 		vm.Properties.OSProfile.LinuxConfiguration.PatchSettings != nil {
-		if util.Deref(vm.Properties.OSProfile.LinuxConfiguration.PatchSettings.PatchMode) == armcompute.LinuxVMGuestPatchModeAutomaticByPlatform {
+		if pointer.Deref(vm.Properties.OSProfile.LinuxConfiguration.PatchSettings.PatchMode) == armcompute.LinuxVMGuestPatchModeAutomaticByPlatform {
 			automaticUpdates.Enabled = true
 			automaticUpdates.Interval = durationpb.New(Duration30Days)
 			return
@@ -230,8 +230,8 @@ func automaticUpdates(vm *armcompute.VirtualMachine) (automaticUpdates *ontology
 	// Check if Windows configuration is available
 	if vm.Properties.OSProfile.WindowsConfiguration != nil &&
 		vm.Properties.OSProfile.WindowsConfiguration.PatchSettings != nil {
-		if util.Deref(vm.Properties.OSProfile.WindowsConfiguration.PatchSettings.PatchMode) == armcompute.WindowsVMGuestPatchModeAutomaticByOS && *vm.Properties.OSProfile.WindowsConfiguration.EnableAutomaticUpdates ||
-			util.Deref(vm.Properties.OSProfile.WindowsConfiguration.PatchSettings.PatchMode) == armcompute.WindowsVMGuestPatchModeAutomaticByPlatform && *vm.Properties.OSProfile.WindowsConfiguration.EnableAutomaticUpdates {
+		if pointer.Deref(vm.Properties.OSProfile.WindowsConfiguration.PatchSettings.PatchMode) == armcompute.WindowsVMGuestPatchModeAutomaticByOS && *vm.Properties.OSProfile.WindowsConfiguration.EnableAutomaticUpdates ||
+			pointer.Deref(vm.Properties.OSProfile.WindowsConfiguration.PatchSettings.PatchMode) == armcompute.WindowsVMGuestPatchModeAutomaticByPlatform && *vm.Properties.OSProfile.WindowsConfiguration.EnableAutomaticUpdates {
 			automaticUpdates.Enabled = true
 			automaticUpdates.Interval = durationpb.New(Duration30Days)
 			return
@@ -249,7 +249,7 @@ func isBootDiagnosticEnabled(vm *armcompute.VirtualMachine) bool {
 	if vm == nil || vm.Properties == nil || vm.Properties.DiagnosticsProfile == nil || vm.Properties.DiagnosticsProfile.BootDiagnostics == nil {
 		return false
 	} else {
-		return util.Deref(vm.Properties.DiagnosticsProfile.BootDiagnostics.Enabled)
+		return pointer.Deref(vm.Properties.DiagnosticsProfile.BootDiagnostics.Enabled)
 	}
 }
 
@@ -258,7 +258,7 @@ func bootLogOutput(vm *armcompute.VirtualMachine) string {
 		// If storageUri is not specified while enabling boot diagnostics, managed storage will be used.
 		// TODO(oxisto): The issue here, is that this is an URL but not an ID of the object storage!
 		// if vm.Properties.DiagnosticsProfile.BootDiagnostics.StorageURI != nil {
-		// 	return util.Deref(vm.Properties.DiagnosticsProfile.BootDiagnostics.StorageURI)
+		// 	return pointer.Deref(vm.Properties.DiagnosticsProfile.BootDiagnostics.StorageURI)
 		// }
 
 		return ""

@@ -17,8 +17,8 @@ package azure
 
 import (
 	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -27,14 +27,14 @@ import (
 func (d *azureCollector) handleMLWorkspace(value *armmachinelearning.Workspace, computeList []string) (ontology.IsResource, error) {
 	ml := &ontology.MachineLearningService{
 		Id:                         resourceID(value.ID),
-		Name:                       util.Deref(value.Name),
+		Name:                       pointer.Deref(value.Name),
 		CreationTime:               creationTime(value.SystemData.CreatedAt),
 		GeoLocation:                location(value.Location),
 		Labels:                     labels(value.Tags),
 		ParentId:                   resourceGroupID(resourceIDPointer(value.ID)),
 		Raw:                        collector.Raw(value),
 		InternetAccessibleEndpoint: getInternetAccessibleEndpoint(value.Properties.PublicNetworkAccess),
-		StorageIds:                 []string{util.Deref(value.Properties.StorageAccount)},
+		StorageIds:                 []string{pointer.Deref(value.Properties.StorageAccount)},
 		ComputeIds:                 computeList,
 		Loggings: []*ontology.Logging{
 			{
@@ -66,7 +66,7 @@ func (d *azureCollector) handleMLCompute(value *armmachinelearning.ComputeResour
 	case *armmachinelearning.ComputeInstance:
 		container = &ontology.Container{
 			Id:                  resourceID(value.ID),
-			Name:                util.Deref(value.Name),
+			Name:                pointer.Deref(value.Name),
 			CreationTime:        time,
 			GeoLocation:         location(value.Location),
 			Labels:              labels(value.Tags),
@@ -79,7 +79,7 @@ func (d *azureCollector) handleMLCompute(value *armmachinelearning.ComputeResour
 
 		compute = &ontology.VirtualMachine{
 			Id:                  resourceID(value.ID),
-			Name:                util.Deref(value.Name),
+			Name:                pointer.Deref(value.Name),
 			CreationTime:        time,
 			GeoLocation:         location(value.Location),
 			Labels:              labels(value.Tags),
@@ -94,8 +94,8 @@ func (d *azureCollector) handleMLCompute(value *armmachinelearning.ComputeResour
 	}
 
 	log.Debug("unsupported compute resource type",
-		"name", util.Deref(value.Name),
-		"type", util.Deref(value.Type),
+		"name", pointer.Deref(value.Name),
+		"type", pointer.Deref(value.Type),
 	)
 	return nil, nil
 }

@@ -18,7 +18,7 @@ package azure
 import (
 	"context"
 
-	"confirmate.io/core/util"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 	"github.com/lmittmann/tint"
 )
@@ -51,7 +51,7 @@ func (d *azureCollector) nsgFirewallEnabled(ni *armnetwork.Interface) bool {
 // loadBalancerPorts returns the external endpoint ports
 func loadBalancerPorts(lb *armnetwork.LoadBalancer) (loadBalancerPorts []uint32) {
 	for _, item := range lb.Properties.LoadBalancingRules {
-		loadBalancerPorts = append(loadBalancerPorts, uint32(util.Deref(item.Properties.FrontendPort)))
+		loadBalancerPorts = append(loadBalancerPorts, uint32(pointer.Deref(item.Properties.FrontendPort)))
 	}
 
 	return loadBalancerPorts
@@ -68,9 +68,9 @@ func loadBalancerPorts(lb *armnetwork.LoadBalancer) (loadBalancerPorts []uint32)
 //             return ""
 //     }
 //
-//	nsgID := util.Deref(ni.NetworkSecurityGroup.ID)
+//	nsgID := pointer.Deref(ni.NetworkSecurityGroup.ID)
 //
-//	client := network.NewSecurityGroupsClient(util.Deref(d.sub.SubscriptionID))
+//	client := network.NewSecurityGroupsClient(pointer.Deref(d.sub.SubscriptionID))
 //
 //     // Get the Security Group of the network interface ni
 //     sg, err := client.Get(context.Background(), getResourceGroupName(nsgID), strings.Split(nsgID, "/")[8], "")
@@ -121,7 +121,7 @@ func publicIPAddressFromLoadBalancer(lb *armnetwork.LoadBalancer) []string {
 		}
 
 		// Get public IP address
-		ipAddress := util.Deref(fIpConfig[i].Properties.PublicIPAddress.Properties.IPAddress)
+		ipAddress := pointer.Deref(fIpConfig[i].Properties.PublicIPAddress.Properties.IPAddress)
 		if ipAddress == "" {
 			log.Info("No public IP adress available.")
 			continue

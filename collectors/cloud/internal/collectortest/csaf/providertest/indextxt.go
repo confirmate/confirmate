@@ -32,7 +32,7 @@ import (
 
 	"confirmate.io/collectors/cloud/internal/crypto/openpgp"
 	"confirmate.io/collectors/cloud/internal/logconfig"
-	"confirmate.io/core/util"
+	"confirmate.io/collectors/cloud/internal/pointer"
 
 	"github.com/gocsaf/csaf/v3/csaf"
 	"github.com/lmittmann/tint"
@@ -68,7 +68,7 @@ func (good *goodIndexTxtWriter) handleIndexTxt(_ http.ResponseWriter, _ *http.Re
 
 func (good *goodIndexTxtWriter) handleChangesCsv(w http.ResponseWriter, _ *http.Request, advisories []*csaf.Advisory, _ *TrustedProvider) {
 	for _, advisory := range advisories {
-		line := fmt.Sprintf("\"%s\",\"%s\"\n", DocURL(advisory.Document), util.Deref(advisory.Document.Tracking.CurrentReleaseDate))
+		line := fmt.Sprintf("\"%s\",\"%s\"\n", DocURL(advisory.Document), pointer.Deref(advisory.Document.Tracking.CurrentReleaseDate))
 		// write something, take release from tracking current_release_data
 		_, err := w.Write([]byte(line))
 		// Maybe do better error handling
@@ -113,7 +113,7 @@ func (good *goodIndexTxtWriter) handleHash(w http.ResponseWriter, advisory *csaf
 
 	_, err = w.Write([]byte(fmt.Sprintf("%s %s",
 		hex.EncodeToString(checksum),
-		strings.ToLower(string(util.Deref(advisory.Document.Tracking.ID)))+".json")),
+		strings.ToLower(string(pointer.Deref(advisory.Document.Tracking.ID)))+".json")),
 	)
 	if err != nil {
 		log.Warn("could not write", tint.Err(err))
@@ -140,5 +140,5 @@ func (good *goodIndexTxtWriter) handleSignature(w http.ResponseWriter, _ *http.R
 func DocURL(doc *csaf.Document) string {
 	// Need to parse the date
 	t, _ := time.Parse(time.RFC3339, *doc.Tracking.InitialReleaseDate)
-	return path.Join(strconv.FormatInt(int64(t.Year()), 10), strings.ToLower(string(util.Deref(doc.Tracking.ID)))+".json")
+	return path.Join(strconv.FormatInt(int64(t.Year()), 10), strings.ToLower(string(pointer.Deref(doc.Tracking.ID)))+".json")
 }

@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 )
@@ -47,7 +47,7 @@ func (d *azureCollector) collectMLWorkspaces() ([]ontology.IsResource, error) {
 		// Add storage, atRestEncryption (keyVault), ...?
 		for _, value := range pageResponse.Value {
 			// Add ML compute resources
-			compute, err := d.collectMLCompute(resourceGroupName(util.Deref(value.ID)), value)
+			compute, err := d.collectMLCompute(resourceGroupName(pointer.Deref(value.ID)), value)
 			if err != nil {
 				return nil, fmt.Errorf("could not collect ML compute resources: %w", err)
 			}
@@ -82,7 +82,7 @@ func (d *azureCollector) collectMLCompute(rg string, workspace *armmachinelearni
 	}
 
 	// List all computes nodes in specific ML workspace
-	serverListPager := d.clients.mlComputeClient.NewListPager(rg, util.Deref(workspace.Name), &armmachinelearning.ComputeClientListOptions{})
+	serverListPager := d.clients.mlComputeClient.NewListPager(rg, pointer.Deref(workspace.Name), &armmachinelearning.ComputeClientListOptions{})
 	for serverListPager.More() {
 		pageResponse, err := serverListPager.NextPage(context.TODO())
 		if err != nil {

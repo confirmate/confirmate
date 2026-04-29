@@ -21,8 +21,8 @@ import (
 	"fmt"
 
 	"confirmate.io/collectors/cloud/internal/constants"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/sql/armsql"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
@@ -37,7 +37,7 @@ func storageAtRestEncryption(account *armstorage.Account) (enc *ontology.AtRestE
 
 	if account.Properties == nil || account.Properties.Encryption.KeySource == nil {
 		return enc, errors.New("keySource is empty")
-	} else if util.Deref(account.Properties.Encryption.KeySource) == armstorage.KeySourceMicrosoftStorage {
+	} else if pointer.Deref(account.Properties.Encryption.KeySource) == armstorage.KeySourceMicrosoftStorage {
 		enc = &ontology.AtRestEncryption{
 			Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
 				ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
@@ -46,14 +46,14 @@ func storageAtRestEncryption(account *armstorage.Account) (enc *ontology.AtRestE
 				},
 			},
 		}
-	} else if util.Deref(account.Properties.Encryption.KeySource) == armstorage.KeySourceMicrosoftKeyvault {
+	} else if pointer.Deref(account.Properties.Encryption.KeySource) == armstorage.KeySourceMicrosoftKeyvault {
 		enc = &ontology.AtRestEncryption{
 			Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
 				CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
 					Algorithm: "", // TODO(all): TBD
 					Enabled:   true,
 					// TODO(oxisto): This should also include the key!
-					KeyUrl: util.Deref(account.Properties.Encryption.KeyVaultProperties.KeyVaultURI),
+					KeyUrl: pointer.Deref(account.Properties.Encryption.KeyVaultProperties.KeyVaultURI),
 				},
 			},
 		}
@@ -69,7 +69,7 @@ func (d *azureCollector) anomalyDetectionEnabled(server *armsql.Server, db *arms
 		return false, err
 	}
 
-	listPager := d.clients.threatProtectionClient.NewListByDatabasePager(resourceGroupName(util.Deref(db.ID)), *server.Name, *db.Name, &armsql.DatabaseAdvancedThreatProtectionSettingsClientListByDatabaseOptions{})
+	listPager := d.clients.threatProtectionClient.NewListByDatabasePager(resourceGroupName(pointer.Deref(db.ID)), *server.Name, *db.Name, &armsql.DatabaseAdvancedThreatProtectionSettingsClientListByDatabaseOptions{})
 	for listPager.More() {
 		pageResponse, err := listPager.NextPage(context.TODO())
 		if err != nil {
@@ -92,25 +92,25 @@ func (d *azureCollector) getActivityLogging(account *armstorage.Account) (activi
 	var err error
 
 	// Get ActivityLogging for the storage account
-	activityLoggingAccount, rawAccount, err = d.collectDiagnosticSettings(util.Deref(account.ID))
+	activityLoggingAccount, rawAccount, err = d.collectDiagnosticSettings(pointer.Deref(account.ID))
 	if err != nil {
 		log.Error("could not collect diagnostic settings for the storage account", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the blob service
-	activityLoggingBlob, rawBlob, err = d.collectDiagnosticSettings(util.Deref(account.ID) + "/blobServices/default")
+	activityLoggingBlob, rawBlob, err = d.collectDiagnosticSettings(pointer.Deref(account.ID) + "/blobServices/default")
 	if err != nil {
 		log.Error("could not collect diagnostic settings for the blob service", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the table service
-	activityLoggingTable, rawTable, err = d.collectDiagnosticSettings(util.Deref(account.ID) + "/tableServices/default")
+	activityLoggingTable, rawTable, err = d.collectDiagnosticSettings(pointer.Deref(account.ID) + "/tableServices/default")
 	if err != nil {
 		log.Error("could not collect diagnostic settings for the table service", tint.Err(err))
 	}
 
 	// Get ActivityLogging for the file service
-	activityLoggingFile, rawFile, err = d.collectDiagnosticSettings(util.Deref(account.ID) + "/fileServices/default")
+	activityLoggingFile, rawFile, err = d.collectDiagnosticSettings(pointer.Deref(account.ID) + "/fileServices/default")
 	if err != nil {
 		log.Error("could not collect diagnostic settings for the file service", tint.Err(err))
 	}

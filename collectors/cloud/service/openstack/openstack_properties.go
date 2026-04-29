@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 
-	"confirmate.io/core/util"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
@@ -32,7 +32,7 @@ import (
 func labels(tags *[]string) map[string]string {
 	l := make(map[string]string)
 
-	for _, tag := range util.Deref(tags) {
+	for _, tag := range pointer.Deref(tags) {
 		l[tag] = ""
 	}
 

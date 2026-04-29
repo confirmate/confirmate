@@ -16,8 +16,8 @@
 package azure
 
 import (
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
 )
@@ -39,13 +39,13 @@ func getInternetAccessibleEndpoint(status *armmachinelearning.PublicNetworkAcces
 		return false
 	}
 
-	return util.Deref(status) == armmachinelearning.PublicNetworkAccessEnabled
+	return pointer.Deref(status) == armmachinelearning.PublicNetworkAccessEnabled
 }
 
 // getResourceLogging returns true if application insights contains a string (applicationInsights enabled), otherwise it returns false
 func getResourceLogging(log *string) *ontology.ResourceLogging {
 	// Check if logging service storage is available
-	if util.Deref(log) == "" {
+	if pointer.Deref(log) == "" {
 		return &ontology.ResourceLogging{
 			Enabled: false,
 		}
@@ -71,7 +71,7 @@ func getAtRestEncryption(enc *armmachinelearning.EncryptionProperty) (atRestEnc 
 		}
 	}
 
-	if util.Deref(enc.KeyVaultProperties.KeyVaultArmID) == "" {
+	if pointer.Deref(enc.KeyVaultProperties.KeyVaultArmID) == "" {
 		atRestEnc = &ontology.AtRestEncryption{
 			Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
 				ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
@@ -96,5 +96,5 @@ func getAtRestEncryption(enc *armmachinelearning.EncryptionProperty) (atRestEnc 
 }
 
 func getEncryptionStatus(enc *armmachinelearning.EncryptionStatus) bool {
-	return util.Deref(enc) == armmachinelearning.EncryptionStatusEnabled
+	return pointer.Deref(enc) == armmachinelearning.EncryptionStatusEnabled
 }

@@ -18,7 +18,7 @@ package azure
 import (
 	"fmt"
 
-	"confirmate.io/core/util"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	armappservice "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/appservice/armappservice/v2"
@@ -52,7 +52,7 @@ func initClientWithSubID[T any](existingClient *T, d *azureCollector, fun Client
 
 	var subID string
 	if d.sub != nil {
-		subID = util.Deref(d.sub.SubscriptionID)
+		subID = pointer.Deref(d.sub.SubscriptionID)
 	}
 
 	client, err = fun(subID, d.cred, &d.clientOptions)

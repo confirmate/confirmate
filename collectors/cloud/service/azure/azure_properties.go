@@ -24,8 +24,8 @@ import (
 	"time"
 
 	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/collectors/cloud/internal/pointer"
 	"confirmate.io/core/api/ontology"
-	"confirmate.io/core/util"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
@@ -85,7 +85,7 @@ func tlsVersion(version *string) float32 {
 	case "1.3", "1_3":
 		return 1.3
 	default:
-		log.Warn("unimplemented TLS version", "version", util.Deref(version))
+		log.Warn("unimplemented TLS version", "version", pointer.Deref(version))
 		return 0
 	}
 }
@@ -189,7 +189,7 @@ func resourceGroupID(ID *string) *string {
 	}
 
 	// split according to "/"
-	s := strings.Split(util.Deref(ID), "/")
+	s := strings.Split(pointer.Deref(ID), "/")
 
 	// We cannot really return an error here, so we just return an empty string
 	if len(s) < 5 {
@@ -228,7 +228,7 @@ func labels(tags map[string]*string) map[string]string {
 	l := make(map[string]string)
 
 	for tag, i := range tags {
-		l[tag] = util.Deref(i)
+		l[tag] = pointer.Deref(i)
 	}
 
 	return l
@@ -248,7 +248,7 @@ func location(region *string) *ontology.GeoLocation {
 	}
 
 	return &ontology.GeoLocation{
-		Region: util.Deref(region),
+		Region: pointer.Deref(region),
 	}
 }
 
@@ -260,7 +260,7 @@ func publicNetworkAccessStatus(status *string) bool {
 	}
 
 	// Check if resource is public available
-	if util.Deref(status) == "Enabled" {
+	if pointer.Deref(status) == "Enabled" {
 		return true
 	}
 
@@ -291,12 +291,12 @@ func (d *azureCollector) collectDiagnosticSettings(resourceURI string) (*ontolog
 		for _, value := range pageResponse.Value {
 			// Check if data is sent to a log analytics workspace
 			if value.Properties.WorkspaceID == nil {
-				log.Debug("diagnostic setting does not send data to a Log Analytics Workspace", "name", util.Deref(value.Name))
+				log.Debug("diagnostic setting does not send data to a Log Analytics Workspace", "name", pointer.Deref(value.Name))
 				continue
 			}
 
 			// Add Log Analytics WorkspaceIDs to slice
-			workspaceIDs = append(workspaceIDs, util.Deref(value.Properties.WorkspaceID))
+			workspaceIDs = append(workspaceIDs, pointer.Deref(value.Properties.WorkspaceID))
 		}
 
 		raw = collector.Raw(pageResponse)
