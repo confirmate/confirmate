@@ -108,7 +108,8 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION
 	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
-		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT:
+		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT,
+		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IMPLEMENTATION:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
 	default:
 		slog.Debug("Unsupported object type for permission check", "objectType", objectType)

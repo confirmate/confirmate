@@ -68,6 +68,10 @@ type DB interface {
 	// Raw executes a raw SQL query and scans the result into the provided destination. Returns an error
 	// if the query fails.
 	Raw(r any, query string, args ...any) (err error)
+
+	// Transaction executes fn within a transaction. If fn returns an error, the transaction is
+	// rolled back. Otherwise, the transaction is committed.
+	Transaction(fn func(tx DB) error) error
 }
 
 // gormDB is our main database struct that wraps GORM's DB instance and provides additional
@@ -174,4 +178,10 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 	s = db
 
 	return
+}
+
+func (db *gormDB) Transaction(fn func(tx DB) error) error {
+	return db.DB.Transaction(func(tx *gorm.DB) error {
+		return fn(&gormDB{DB: tx, cfg: db.cfg, gcfg: db.gcfg, pcfg: db.pcfg})
+	})
 }
