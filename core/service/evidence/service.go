@@ -112,11 +112,14 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 
 	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
 		svc.cfg.AssessmentHTTPClient, svc.cfg.AssessmentAddress)
+
 	// Initialize the restartable stream for assessment service
 	err = svc.initAssessmentStream()
 	if err != nil {
 		return nil, err
 	}
+
+	slog.Info("Assessment URL is set", slog.String("url", svc.cfg.AssessmentAddress))
 
 	// Initialize database
 	pcfg := svc.cfg.PersistenceConfig
