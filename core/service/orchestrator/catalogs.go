@@ -388,6 +388,11 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 	// flat relationships with foreign keys. This step sets the CategoryName, CategoryCatalogId,
 	// and parent control references so sub-controls are correctly linked to their parents.
 	for _, catalog := range catalogs {
+		if service.ValidateMsg(catalog) != nil {
+			slog.Warn("Catalog file failed validation, skipping", "catalog", catalog.GetName(), log.Err(err))
+			continue
+		}
+
 		for _, category := range catalog.Categories {
 			for _, control := range category.Controls {
 				for _, sub := range control.Controls {
