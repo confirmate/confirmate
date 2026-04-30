@@ -1,0 +1,378 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
+package aws
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log/slog"
+	"time"
+
+	collector "confirmate.io/collectors/cloud/internal/collector"
+	"confirmate.io/core/api/ontology"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/smithy-go"
+	"github.com/google/uuid"
+)
+
+// awsS3Collector handles the AWS API requests regarding the S3 service
+type awsS3Collector struct {
+	storageAPI   S3API
+	isCollecting bool
+	awsConfig    *Client
+	ctID         string
+	id           string
+}
+
+// bucket contains metadata about a S3 bucket
+type bucket struct {
+	arn          string
+	name         string
+	creationTime time.Time
+	endpoint     string
+	region       string
+	raw          []interface{}
+}
+
+// S3API describes the S3 api interface which is implemented by the official AWS storageAPI and mock clients in tests
+type S3API interface {
+	ListBuckets(ctx context.Context,
+		params *s3.ListBucketsInput,
+		optFns ...func(*s3.Options)) (*s3.ListBucketsOutput, error)
+	GetBucketEncryption(ctx context.Context,
+		params *s3.GetBucketEncryptionInput,
+		optFns ...func(*s3.Options)) (*s3.GetBucketEncryptionOutput, error)
+	GetBucketPolicy(ctx context.Context,
+		params *s3.GetBucketPolicyInput,
+		optFns ...func(*s3.Options)) (*s3.GetBucketPolicyOutput, error)
+	GetBucketLocation(ctx context.Context,
+		params *s3.GetBucketLocationInput,
+		optFns ...func(*s3.Options)) (*s3.GetBucketLocationOutput, error)
+	GetPublicAccessBlock(ctx context.Context,
+		params *s3.GetPublicAccessBlockInput,
+		optFns ...func(*s3.Options)) (*s3.GetPublicAccessBlockOutput, error)
+	GetBucketReplication(ctx context.Context,
+		params *s3.GetBucketReplicationInput,
+		optFns ...func(*s3.Options)) (*s3.GetBucketReplicationOutput, error)
+	GetBucketLifecycleConfiguration(ctx context.Context,
+		params *s3.GetBucketLifecycleConfigurationInput,
+		optFns ...func(*s3.Options)) (*s3.GetBucketLifecycleConfigurationOutput, error)
+}
+
+// BucketPolicy matches the returned bucket policy in JSON from AWS
+type BucketPolicy struct {
+	ID        string      `json:"id"`
+	Version   string      `json:"Version"`
+	Statement []Statement `json:"Statement"`
+}
+type Statement struct {
+	Action    interface{} `json:"Action"`
+	Effect    string      `json:"Effect"`
+	Resource  interface{}
+	Condition `json:"Condition"`
+}
+type Condition struct {
+	Bool
+}
+type Bool struct {
+	AwsSecureTransport bool `json:"aws:SecureTransport"`
+}
+
+func policyActions(action any) (actions []string) {
+	var (
+		item string
+		ok   bool
+	)
+
+	switch value := action.(type) {
+	case string:
+		actions = append(actions, value)
+	case []string:
+		actions = append(actions, value...)
+	case []any:
+		for _, raw := range value {
+			item, ok = raw.(string)
+			if ok {
+				actions = append(actions, item)
+			}
+		}
+	}
+
+	return actions
+}
+
+// Name is the method implementation defined in the collector.Collector interface
+func (*awsS3Collector) Name() string {
+	return "AWS Blob Storage"
+}
+
+// ID returns a stable collector ID derived from collector type and target of evaluation.
+func (d *awsS3Collector) ID() string {
+	return d.id
+}
+
+// List is the method implementation defined in the collector.Collector interface
+func (d *awsS3Collector) List() (resources []ontology.IsResource, err error) {
+	var (
+		rawBucketEncOutput  *s3.GetBucketEncryptionOutput
+		rawBucketTranspEnc  *s3.GetBucketPolicyOutput
+		encryptionAtTransit *ontology.TransportEncryption
+		encryptionAtRest    *ontology.AtRestEncryption
+	)
+
+	log.Info("Collecting evidences", slog.String("cloud collector", d.Name()))
+	var buckets []bucket
+	buckets, err = d.getBuckets()
+	if err != nil {
+		return
+	}
+
+	for _, b := range buckets {
+		encryptionAtRest, rawBucketEncOutput, err = d.getEncryptionAtRest(&b)
+		if err != nil {
+			return
+		}
+		encryptionAtTransit, rawBucketTranspEnc, err = d.getTransportEncryption(b.name)
+		if err != nil {
+			return
+		}
+
+		resources = append(resources,
+			// Add ObjectStorage
+			&ontology.ObjectStorage{
+				Id:           b.arn,
+				Name:         b.name,
+				CreationTime: timestamppb.New(b.creationTime),
+				GeoLocation: &ontology.GeoLocation{
+					Region: b.region,
+				},
+				AtRestEncryption: encryptionAtRest,
+				Raw:              collector.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
+			},
+			// Add ObjectStorageService
+			&ontology.ObjectStorageService{
+				Id:           b.arn,
+				Name:         b.name,
+				CreationTime: timestamppb.New(b.creationTime),
+				GeoLocation: &ontology.GeoLocation{
+					Region: b.region,
+				},
+				TransportEncryption: encryptionAtTransit,
+				HttpEndpoint: &ontology.HttpEndpoint{
+					Url:                 b.endpoint,
+					TransportEncryption: encryptionAtTransit,
+				},
+				Raw: collector.Raw(&b, &rawBucketEncOutput, &rawBucketTranspEnc, &b.raw),
+			})
+	}
+	return
+}
+
+// Collect is the core collection contract and delegates to the existing List implementation.
+func (d *awsS3Collector) Collect() (resources []ontology.IsResource, err error) {
+	return d.List()
+}
+
+func (d *awsS3Collector) TargetOfEvaluationID() string {
+	return d.ctID
+}
+
+func (b *bucket) String() string {
+	return fmt.Sprintf("[ARN: %v, Name: %v, Creation Time: %v]", b.arn, b.name, b.creationTime)
+}
+
+// NewAwsStorageCollector constructs a new awsS3Collector initializing the s3-api and isCollecting with true
+func NewAwsStorageCollector(client *Client, TargetOfEvaluationID string) collector.Collector {
+	seed := "aws-storage::" + TargetOfEvaluationID
+
+	return &awsS3Collector{
+		storageAPI:   s3.NewFromConfig(client.cfg),
+		isCollecting: true,
+		awsConfig:    client,
+		ctID:         TargetOfEvaluationID,
+		id:           uuid.NewSHA1(uuid.NameSpaceOID, []byte(seed)).String(),
+	}
+}
+
+// getBuckets returns all buckets
+func (d *awsS3Collector) getBuckets() (buckets []bucket, err error) {
+	var resp *s3.ListBucketsOutput
+	resp, err = d.storageAPI.ListBuckets(context.TODO(), &s3.ListBucketsInput{})
+	if err != nil {
+		return nil, prettyError(err)
+	}
+	var region string
+	for _, b := range resp.Buckets {
+		var (
+			rawRegion *s3.GetBucketLocationOutput
+		)
+
+		region, rawRegion, err = d.getRegion(aws.ToString(b.Name))
+		if err != nil {
+			return
+		}
+
+		// Currently only buckets are retrieved that are in the region of the users specified region in the config. Since getBucketPolicy throws error if bucket region differs
+		// TODO(lebogg): Retrieve all buckets (just remove if) and fix issues with other methods, e.g. getBucketPolicy
+		if region == d.awsConfig.cfg.Region {
+			buckets = append(buckets, bucket{
+				arn:          "arn:aws:s3:::" + *b.Name,
+				name:         aws.ToString(b.Name),
+				creationTime: aws.ToTime(b.CreationDate),
+				region:       region,
+				endpoint:     "https://" + aws.ToString(b.Name) + ".s3." + region + ".amazonaws.com",
+				raw:          []interface{}{b, rawRegion},
+			})
+		}
+	}
+	return
+}
+
+// getEncryptionAtRest gets the bucket's encryption configuration
+func (d *awsS3Collector) getEncryptionAtRest(bucket *bucket) (e *ontology.AtRestEncryption, resp *s3.GetBucketEncryptionOutput, err error) {
+	input := s3.GetBucketEncryptionInput{
+		Bucket:              aws.String(bucket.name),
+		ExpectedBucketOwner: nil,
+	}
+
+	resp, err = d.storageAPI.GetBucketEncryption(context.TODO(), &input)
+	if err != nil {
+		var ae smithy.APIError
+		if errors.As(err, &ae) {
+			if ae.ErrorCode() == "ServerSideEncryptionConfigurationNotFoundError" {
+				// This error code is equivalent to "encryption not enabled": set err to nil
+				e = nil
+				err = nil
+				return
+			}
+			// Any other error is a connection error with AWS : Format err and return it
+			err = formatError(ae)
+		}
+		// return any error (but according to doc: "All service API response errors implement the smithy.APIError")
+		return
+	}
+
+	if alg := resp.ServerSideEncryptionConfiguration.Rules[0].ApplyServerSideEncryptionByDefault.SSEAlgorithm; alg == types.ServerSideEncryptionAes256 {
+		e = &ontology.AtRestEncryption{
+			Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
+				ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
+					Algorithm: string(alg),
+					Enabled:   true,
+				},
+			},
+		}
+	} else {
+		e = &ontology.AtRestEncryption{
+			Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
+				CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
+					Algorithm: "", // not available
+					Enabled:   true,
+					// TODO(lebogg): Check in console if bucket.region is the actual region of the key arn
+					KeyUrl: "arn:aws:kms:" + bucket.region + ":" + aws.ToString(d.awsConfig.accountID) + ":key/" + aws.ToString(resp.ServerSideEncryptionConfiguration.Rules[0].ApplyServerSideEncryptionByDefault.KMSMasterKeyID),
+				},
+			},
+		}
+	}
+	return
+}
+
+// "confirm that your bucket policies explicitly deny access to HTTP requests"
+// https://aws.amazon.com/premiumsupport/knowledge-center/s3-bucket-policy-for-config-rule/
+// getTransportEncryption loops over all statements in the bucket policy and checks if one statement denies https only == false
+func (d *awsS3Collector) getTransportEncryption(bucket string) (*ontology.TransportEncryption, *s3.GetBucketPolicyOutput, error) {
+	input := s3.GetBucketPolicyInput{
+		Bucket:              aws.String(bucket),
+		ExpectedBucketOwner: nil,
+	}
+	var resp *s3.GetBucketPolicyOutput
+	var err error
+
+	resp, err = d.storageAPI.GetBucketPolicy(context.TODO(), &input)
+
+	// encryption at transit (https) is always enabled and TLS version fixed
+
+	// Case 1: No bucket policy in place or api error -> 'https only' is not set
+	if err != nil {
+		var ae smithy.APIError
+		if errors.As(err, &ae) {
+			if ae.ErrorCode() == "NoSuchBucketPolicy" {
+				// This error code is equivalent to "encryption not enforced": set err to nil
+				return &ontology.TransportEncryption{
+					Enforced:        false,
+					Enabled:         true,
+					Protocol:        "TLS",
+					ProtocolVersion: 1.2,
+				}, resp, nil
+			}
+			// Any other error is a connection error with AWS : Format err and return it
+			err = formatError(ae)
+		}
+		// return any error (but according to doc: "All service API response errors implement the smithy.APIError")
+		return nil, resp, err
+	}
+
+	// Case 2: bucket policy -> check if https only is set
+	// TODO(lebogg): bucket policy json fail still means that https is enabled (it always is). Still return error?
+	var policy BucketPolicy
+	err = json.Unmarshal([]byte(aws.ToString(resp.Policy)), &policy)
+	if err != nil {
+		return nil, resp, fmt.Errorf("error occurred while unmarshalling the bucket policy: %v", err)
+	}
+	// one statement has set https only -> default encryption is set
+	for _, statement := range policy.Statement {
+		for _, action := range policyActions(statement.Action) {
+			if statement.Effect == "Deny" && !statement.Condition.AwsSecureTransport && action == "s3:*" {
+				return &ontology.TransportEncryption{
+					Enforced:        true,
+					Enabled:         true,
+					Protocol:        "TLS",
+					ProtocolVersion: 1.2,
+				}, resp, nil
+			}
+		}
+	}
+
+	return &ontology.TransportEncryption{
+		Enforced:        false,
+		Enabled:         true,
+		Protocol:        "TLS",
+		ProtocolVersion: 1.2,
+	}, resp, nil
+
+}
+
+// getRegion returns the region where the bucket resides
+func (d *awsS3Collector) getRegion(bucket string) (region string, resp *s3.GetBucketLocationOutput, err error) {
+	input := s3.GetBucketLocationInput{
+		Bucket: aws.String(bucket),
+	}
+	resp, err = d.storageAPI.GetBucketLocation(context.TODO(), &input)
+	if err != nil {
+		var oe *smithy.OperationError
+		if errors.As(err, &oe) {
+			err = fmt.Errorf("failed to call service: %s, operation: %s, error: %v", oe.Service(), oe.Operation(), oe.Unwrap())
+		}
+		return
+	}
+	region = string(resp.LocationConstraint)
+	return
+}

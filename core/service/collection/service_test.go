@@ -117,20 +117,20 @@ func TestRunOnce_CollectsIndividualErrors(t *testing.T) {
 
 	res = svc.RunOnce()
 
-	assert.Equal(t, 2, len(res.Collectors))
-	assert.Equal(t, "collector-ok", res.Collectors[0].CollectorName)
-	assert.Equal(t, "collector-fail", res.Collectors[1].CollectorName)
-	assert.NotEqual(t, "", res.Collectors[0].CollectorID)
-	assert.NotEqual(t, "", res.Collectors[1].CollectorID)
-	assert.NotEqual(t, res.Collectors[0].CollectorID, res.Collectors[1].CollectorID)
-	assert.Nil(t, res.Collectors[0].Err)
-	assert.ErrorIs(t, res.Collectors[1].Err, errBoom)
+	assert.Equal(t, 2, len(res.CollectorResults))
+	assert.Equal(t, "collector-ok", res.CollectorResults[0].CollectorName)
+	assert.Equal(t, "collector-fail", res.CollectorResults[1].CollectorName)
+	assert.NotEqual(t, "", res.CollectorResults[0].CollectorID)
+	assert.NotEqual(t, "", res.CollectorResults[1].CollectorID)
+	assert.NotEqual(t, res.CollectorResults[0].CollectorID, res.CollectorResults[1].CollectorID)
+	assert.Nil(t, res.CollectorResults[0].Err)
+	assert.ErrorIs(t, res.CollectorResults[1].Err, errBoom)
 
 	var (
 		foundError bool
 	)
 
-	for _, collectorResult := range res.Collectors {
+	for _, collectorResult := range res.CollectorResults {
 		if collectorResult.Err != nil {
 			foundError = true
 			assert.ErrorIs(t, collectorResult.Err, errBoom)
@@ -187,7 +187,7 @@ func TestStart_RunsPeriodicallyAndDoesNotStopOnCollectorError(t *testing.T) {
 				t.Fatal("result channel closed too early")
 			}
 
-			assert.Equal(t, 2, len(result.Collectors))
+			assert.Equal(t, 2, len(result.CollectorResults))
 			collectedRuns++
 		}
 	}
@@ -240,8 +240,8 @@ func TestRunOnce_ForwardsCollectedResourcesToEvidenceStore(t *testing.T) {
 
 	res = svc.RunOnce()
 
-	assert.Equal(t, 1, len(res.Collectors))
-	assert.Nil(t, res.Collectors[0].Err)
+	assert.Equal(t, 1, len(res.CollectorResults))
+	assert.Nil(t, res.CollectorResults[0].Err)
 
 	storedRequests = handler.Requests()
 	assert.Equal(t, 1, len(storedRequests))
@@ -297,8 +297,8 @@ func TestRunOnce_ReturnsError_WhenEvidenceStoreReturnsErrorStatus(t *testing.T) 
 
 	res = svc.RunOnce()
 
-	assert.Equal(t, 1, len(res.Collectors))
-	assert.ErrorContains(t, res.Collectors[0].Err, "evidence-store rejected evidence")
+	assert.Equal(t, 1, len(res.CollectorResults))
+	assert.ErrorContains(t, res.CollectorResults[0].Err, "evidence-store rejected evidence")
 }
 
 func TestNewService_ReturnsError_WhenEvidenceForwardingEnabledWithoutTargetOfEvaluationID(t *testing.T) {

@@ -1,0 +1,100 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
+package azure
+
+import (
+	"confirmate.io/collectors/cloud/internal/pointer"
+	"confirmate.io/core/api/ontology"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/machinelearning/armmachinelearning"
+)
+
+func getComputeStringList(values []ontology.IsResource) []string {
+	var list []string
+
+	for _, value := range values {
+		list = append(list, value.GetId())
+
+	}
+
+	return list
+}
+
+func getInternetAccessibleEndpoint(status *armmachinelearning.PublicNetworkAccess) bool {
+	// Check if status is empty
+	if status == nil {
+		return false
+	}
+
+	return pointer.Deref(status) == armmachinelearning.PublicNetworkAccessEnabled
+}
+
+// getResourceLogging returns true if application insights contains a string (applicationInsights enabled), otherwise it returns false
+func getResourceLogging(log *string) *ontology.ResourceLogging {
+	// Check if logging service storage is available
+	if pointer.Deref(log) == "" {
+		return &ontology.ResourceLogging{
+			Enabled: false,
+		}
+	}
+
+	return &ontology.ResourceLogging{
+		Enabled:           true,
+		LoggingServiceIds: []string{resourceID(log)},
+	}
+}
+
+func getAtRestEncryption(enc *armmachinelearning.EncryptionProperty) (atRestEnc *ontology.AtRestEncryption) {
+
+	// If the encryption property is nil, the ML workspace has managed key encryption in use
+	if enc == nil {
+		return &ontology.AtRestEncryption{
+			Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
+				ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
+					Enabled:   true,
+					Algorithm: AES256,
+				},
+			},
+		}
+	}
+
+	if pointer.Deref(enc.KeyVaultProperties.KeyVaultArmID) == "" {
+		atRestEnc = &ontology.AtRestEncryption{
+			Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
+				ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
+					Enabled:   getEncryptionStatus(enc.Status),
+					Algorithm: AES256,
+				},
+			},
+		}
+	} else {
+		atRestEnc = &ontology.AtRestEncryption{
+			Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
+				CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
+					Enabled: getEncryptionStatus(enc.Status),
+					KeyUrl:  resourceID(enc.KeyVaultProperties.KeyVaultArmID),
+				},
+			},
+		}
+	}
+
+	return atRestEnc
+
+}
+
+func getEncryptionStatus(enc *armmachinelearning.EncryptionStatus) bool {
+	return pointer.Deref(enc) == armmachinelearning.EncryptionStatusEnabled
+}

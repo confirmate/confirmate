@@ -2465,6 +2465,22 @@ components:
                     description: The last time of update
                     format: date-time
             description: MetricImplementation defines the implementation of an individual metric.
+        Organisation_PostalAddress:
+            type: object
+            properties:
+                street:
+                    type: string
+                    description: Street name and number.
+                city:
+                    type: string
+                    description: City.
+                zip:
+                    type: string
+                    description: Postal / ZIP code.
+                country:
+                    type: string
+                    description: Country.
+            description: PostalAddress holds the physical address of the organisation.
         Record:
             required:
                 - evidenceId
@@ -2622,7 +2638,7 @@ components:
                     description: Name of the company or organisation.
                 address:
                     allOf:
-                        - $ref: '#/components/schemas/TargetOfEvaluation_Organisation_PostalAddress'
+                        - $ref: '#/components/schemas/Organisation_PostalAddress'
                     description: Postal address of the organisation.
                 contactPerson:
                     type: string
@@ -2633,21 +2649,7 @@ components:
                 website:
                     type: string
                     description: Website URL of the organisation.
-        TargetOfEvaluation_Organisation_PostalAddress:
-            type: object
-            properties:
-                street:
-                    type: string
-                    description: Street name and number.
-                city:
-                    type: string
-                    description: City.
-                zip:
-                    type: string
-                    description: Postal / ZIP code.
-                country:
-                    type: string
-                    description: Country.
+            description: Organisation contains details about the organisation responsible for this target of evaluation.
         UpsertUserPermissionResponse:
             type: object
             properties:
