@@ -151,6 +151,25 @@ def parse_bsi_c3a(pdf_path: Path) -> dict:
     if current_category and current_category.get("controls"):
         categories.append(current_category)
     
+    # Post-process: try to find criterion descriptions from the original text
+    # The criterion text typically appears on the line after "SOV-X-XX-CX Criterion"
+    reader = PdfReader(str(pdf_path))
+    full_text = "\n".join(page.extract_text() for page in reader.pages)
+    
+    for category in categories:
+        for control in category.get("controls", []):
+            for sub in control.get("controls", []):
+                criterion_id = sub["id"]
+                # Look for this criterion ID in the full text and extract following text
+                pattern = rf'{criterion_id}\s+(Criterion|Additional)\s+(.{{10,200}})'
+                match = re.search(pattern, full_text, re.DOTALL)
+                if match:
+                    desc = match.group(2).strip()
+                    # Clean up - remove trailing dots and limit length
+                    desc = re.sub(r'\.+$', '', desc).strip()
+                    if len(desc) > 10:  # Only update if we found meaningful text
+                        sub["description"] = desc
+    
     return {
         "id": "BSI_C3A",
         "name": "BSI C3A Cloud Computing Autonomy",
