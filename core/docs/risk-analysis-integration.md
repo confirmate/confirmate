@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-This document outlines the design for integrating risk-based control scoping into Confirmate, inspired by the BSI TR-03183-1 (Cloud Computing Compliance Criteria Catalogue - C5) and the CRA (Cloud Resilience Act) approach. The goal is to allow users to define risk levels for their cloud services and automatically select appropriate controls from a catalog based on those risk levels.
+This document outlines the design for integrating risk-based control scoping into Confirmate, inspired by the BSI TR-03183-1 (Cloud Computing Compliance Criteria Catalogue - C5) and the CRA (Cyber Resilience Act) approach. The goal is to allow users to define risk levels for their cloud services and automatically select appropriate controls from a catalog based on those risk levels.
 
 ## 2. Background
 
@@ -72,7 +72,7 @@ message RiskLevel {
   ];
   string description = 3;
   int32 priority = 4;  // Higher = more severe, used for threshold-based selection
-  string catalog_id = 5;  // Optional: risk level specific to a catalog
+  optional string catalog_id = 5;  // Optional: risk level specific to a catalog
 }
 
 // ControlRiskMapping defines which controls apply to which risk levels
@@ -99,7 +99,7 @@ message ControlRiskMapping {
     (google.api.field_behavior) = REQUIRED
   ];
   // Threshold: if true, this control applies to this risk level AND all higher levels
-  bool threshold = 6 [default = false];
+  bool threshold = 6;
 }
 
 // RiskAssessment ties a risk level to a TargetOfEvaluation
@@ -118,7 +118,7 @@ message RiskAssessment {
     (google.api.field_behavior) = REQUIRED
   ];
   string justification = 4;  // Documentation of risk assessment reasoning
-  google.protobuf.Timestamp assessed_at = 5;
+  google.protobuf.Timestamp assessed_at = 5 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 }
 ```
 
@@ -128,7 +128,7 @@ message RiskAssessment {
 // Extend TargetOfEvaluation with risk assessment reference
 message TargetOfEvaluation {
   // ... existing fields ...
-  optional string current_risk_assessment_id = 15;
+  optional string current_risk_assessment_id = 16;
 }
 
 // Extend AuditScope to track risk-based generation
@@ -144,35 +144,35 @@ message AuditScope {
 ### 5.1 Risk Level Management
 
 ```
-POST   /v1/orchestrator/risk-levels
-GET    /v1/orchestrator/risk-levels
-GET    /v1/orchestrator/risk-levels/{riskLevelId}
-PUT    /v1/orchestrator/risk-levels/{riskLevelId}
-DELETE /v1/orchestrator/risk-levels/{riskLevelId}
+POST   /v1/orchestrator/risk_levels
+GET    /v1/orchestrator/risk_levels
+GET    /v1/orchestrator/risk_levels/{risk_level_id}
+PUT    /v1/orchestrator/risk_levels/{risk_level_id}
+DELETE /v1/orchestrator/risk_levels/{risk_level_id}
 ```
 
 ### 5.2 Control-Risk Mapping Management
 
 ```
-POST   /v1/orchestrator/catalogs/{catalogId}/control-risk-mappings
-GET    /v1/orchestrator/catalogs/{catalogId}/control-risk-mappings
-PUT    /v1/orchestrator/catalogs/{catalogId}/control-risk-mappings/{mappingId}
-DELETE /v1/orchestrator/catalogs/{catalogId}/control-risk-mappings/{mappingId}
+POST   /v1/orchestrator/catalogs/{catalog_id}/control_risk_mappings
+GET    /v1/orchestrator/catalogs/{catalog_id}/control_risk_mappings
+PUT    /v1/orchestrator/catalogs/{catalog_id}/control_risk_mappings/{mapping_id}
+DELETE /v1/orchestrator/catalogs/{catalog_id}/control_risk_mappings/{mapping_id}
 ```
 
 ### 5.3 Risk Assessment Management
 
 ```
-POST   /v1/orchestrator/targets-of-evaluation/{targetOfEvaluationId}/risk-assessment
-GET    /v1/orchestrator/targets-of-evaluation/{targetOfEvaluationId}/risk-assessment
-GET    /v1/orchestrator/targets-of-evaluation/{targetOfEvaluationId}/risk-assessment/history
-PUT    /v1/orchestrator/targets-of-evaluation/{targetOfEvaluationId}/risk-assessment/{assessmentId}
+POST   /v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/risk_assessment
+GET    /v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/risk_assessment
+GET    /v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/risk_assessment/history
+PUT    /v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/risk_assessment/{assessment_id}
 ```
 
 ### 5.4 Audit Scope Generation
 
 ```
-POST   /v1/orchestrator/targets-of-evaluation/{targetOfEvaluationId}/audit-scopes/from-risk
+POST   /v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/audit_scopes/from_risk
 ```
 
 Request body:
