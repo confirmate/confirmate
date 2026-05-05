@@ -45,3 +45,17 @@ This binary is in progress. Build and usage instructions will be added once the 
 
 These binaries are in PR. Build and usage instructions will be added once they land.
 
+### Cloud Collectors
+
+Build the cloud collector binary from the repository root:
+
+`go build -o bin/cloud-collector ./collectors/cloud/cmd`
+
+Run a collector against a local Confirmate instance (default API address: `http://localhost:8080`):
+
+`./bin/cloud-collector --collector-provider azure --collector-auto-start --target-of-evaluation-id <target-of-evaluation-uuid> --collector-evidence-store-address http://localhost:8080`
+
+For full setup instructions (providers, credentials, and examples), see:
+
+`collectors/cloud/README.md`
+
