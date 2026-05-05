@@ -135,10 +135,14 @@ func (s *gormDB) List(r any, orderBy string, asc bool, offset int, limit int, co
 	// Use GORM's clause.OrderByColumn to safely handle column names
 	// This prevents SQL injection by treating the column name as an identifier
 	if orderBy != "" {
-		db = db.Order(clause.OrderByColumn{
-			Column: clause.Column{Name: orderBy},
-			Desc:   !asc,
-		})
+		// Support multiple comma-separated order columns (e.g., "category_name,id")
+		columns := splitOrderBy(orderBy)
+		for _, col := range columns {
+			db = db.Order(clause.OrderByColumn{
+				Column: clause.Column{Name: col},
+				Desc:   !asc,
+			})
+		}
 	}
 
 	// Preload all associations of r if necessary
@@ -241,4 +245,14 @@ func WithPreload(query string, args ...any) QueryOption {
 // are used, otherwise Gorm will throw errors.
 func WithoutPreload() QueryOption {
 	return &preload{query: ""}
+}
+
+// splitOrderBy splits a comma-separated orderBy string into individual column names.
+// This handles cases like "category_name,id" to support multiple ORDER BY columns.
+func splitOrderBy(orderBy string) []string {
+	orderBy = strings.TrimSpace(orderBy)
+	if orderBy == "" {
+		return nil
+	}
+	return strings.Split(orderBy, ",")
 }

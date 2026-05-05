@@ -6,23 +6,21 @@
 	let { results }: Props = $props();
 
 	const counts = $derived(() => {
-		const c = { compliant: 0, notCompliant: 0, pending: 0, manual: 0 };
+		const c = { compliant: 0, notCompliant: 0, pending: 0 };
 		for (const r of results) {
-			if (r.status === 'EVALUATION_STATUS_COMPLIANT') c.compliant++;
-			else if (r.status === 'EVALUATION_STATUS_NOT_COMPLIANT') c.notCompliant++;
+			if (r.status === 'EVALUATION_STATUS_COMPLIANT' || r.status === 'EVALUATION_STATUS_COMPLIANT_MANUALLY') c.compliant++;
+			else if (r.status === 'EVALUATION_STATUS_NOT_COMPLIANT' || r.status === 'EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY') c.notCompliant++;
 			else if (r.status === 'EVALUATION_STATUS_PENDING') c.pending++;
-			else if (r.status.includes('MANUALLY')) c.manual++;
 		}
 		return c;
 	});
 
-	const total = $derived(counts().compliant + counts().notCompliant + counts().pending + counts().manual);
+	const total = $derived(counts().compliant + counts().notCompliant + counts().pending);
 
 	const colors = $derived({
 		compliant: '#10b981',
 		notCompliant: '#ef4444',
-		pending: '#f59e0b',
-		manual: '#6b7280'
+		pending: '#f59e0b'
 	});
 
 	const getPercent = (n: number) => total > 0 ? (n / total) * 100 : 0;
@@ -87,10 +85,6 @@
 			<div class="flex items-center gap-2">
 				<span class="h-3 w-3 rounded-full bg-amber-500"></span>
 				<span class="text-sm text-gray-600">Pending ({counts().pending})</span>
-			</div>
-			<div class="flex items-center gap-2">
-				<span class="h-3 w-3 rounded-full bg-gray-500"></span>
-				<span class="text-sm text-gray-600">Manual ({counts().manual})</span>
 			</div>
 		</div>
 	</div>

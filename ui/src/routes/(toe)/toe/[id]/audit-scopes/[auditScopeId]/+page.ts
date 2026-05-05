@@ -16,18 +16,18 @@ export const load = (async ({ params, fetch }) => {
 	const { data: catalog } = await client.GET('/v1/orchestrator/catalogs/{catalogId}', {
 		params: { path: { catalogId: auditScope.catalogId } }
 	});
-
-	// Fetch controls per category in parallel
 	const categories = catalog?.categories ?? [];
-	const controlResults = await Promise.all(
-		categories.map((cat) =>
-			client.GET('/v1/orchestrator/catalogs/{catalogId}/categories/{categoryName}/controls', {
-				params: { path: { catalogId: auditScope.catalogId, categoryName: cat.name } }
-			})
-		)
-	);
 
-	const allControls = controlResults.flatMap((r) => r.data?.controls ?? []);
+	// Fetch all controls for this catalog (without pagination to preserve hierarchy)
+	const { data: allControlsResp } = await client.GET('/v1/orchestrator/controls', {
+		params: {
+			query: {
+				catalog_id: auditScope.catalogId,
+				pageSize: 1000
+			}
+		}
+	});
+	const allControls = allControlsResp?.controls ?? [];
 
 	// Build hierarchy: nest sub-controls under their parents
 	const controlsMap: Record<string, SchemaControl> = {};
@@ -63,7 +63,18 @@ export const load = (async ({ params, fetch }) => {
 		}
 	});
 
+	// Fetch ALL evaluation results for history
+	const evalResAll = await client.GET('/v1/evaluation/results', {
+		params: {
+			query: {
+				'filter.targetOfEvaluationId': params.id,
+				pageSize: 1000
+			}
+		}
+	});
+
 	const evaluationResults = evalRes.data?.results ?? [];
+	const allEvaluationResults = evalResAll.data?.results ?? [];
 
 	// Index evaluation results by control ID
 	const evaluationByControl: Record<string, SchemaEvaluationResult> = {};
@@ -86,6 +97,14 @@ export const load = (async ({ params, fetch }) => {
 
 	const assessmentResults = assessmentRes.data?.results ?? [];
 
+	// Map assessment results by ID for lookup
+	const assessmentById: Record<string, { metricId?: string; compliant?: boolean; timestamp?: string }> = {};
+	for (const ar of assessmentResults) {
+		if (ar.id) {
+			assessmentById[ar.id] = { metricId: ar.metricId, compliant: ar.compliant, timestamp: ar.timestamp };
+		}
+	}
+
 	// Count assessment results by metric name - separate passing and failing
 	const assessmentCountByMetric: Record<string, { passing: number; failing: number }> = {};
 	for (const ar of assessmentResults) {
@@ -102,5 +121,5 @@ export const load = (async ({ params, fetch }) => {
 		}
 	}
 
-	return { auditScope, catalog, controlsByCategory, evaluationResults, evaluationByControl, assessmentCountByMetric };
+	return { auditScope, catalog, controlsByCategory, evaluationResults, allEvaluationResults, evaluationByControl, assessmentCountByMetric, assessmentById };
 }) satisfies PageLoad;

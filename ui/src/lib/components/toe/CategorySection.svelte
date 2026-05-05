@@ -8,12 +8,20 @@
 		category,
 		controls,
 		evaluationByControl = {},
-		assessmentCountByMetric = {}
+		allEvaluations = [],
+		assessmentCountByMetric = {},
+		assessmentById = {},
+		auditScopeId,
+		targetId
 	}: {
 		category: SchemaCategory;
 		controls: SchemaControl[];
 		evaluationByControl?: Record<string, SchemaEvaluationResult>;
+		allEvaluations?: SchemaEvaluationResult[];
 		assessmentCountByMetric?: Record<string, number>;
+		assessmentById?: Record<string, { metricId?: string; compliant?: boolean; timestamp?: string }>;
+		auditScopeId: string;
+		targetId: string;
 	} = $props();
 
 	let open = $state(true);
@@ -40,7 +48,7 @@
 	{#if open}
 		<div class="divide-y divide-gray-100 border-t border-gray-100 px-4">
 			{#each controls as control}
-				<ControlRow {control} evaluation={evaluationByControl[control.id ?? '']} {evaluationByControl} {assessmentCountByMetric} />
+				<ControlRow {control} evaluation={evaluationByControl[control.id ?? '']} {evaluationByControl} {allEvaluations} {assessmentCountByMetric} {assessmentById} {auditScopeId} {targetId} />
 			{/each}
 		</div>
 	{/if}

@@ -17,12 +17,12 @@
             "controls": [
               {
                 "id": "SOV-1-01-C1",
-                "description": "The cloud service provider MUST operate under EU jurisdiction, with contract governance and dispute \nresolution. \nSOV-1-01-C2 Criterion \nThe cloud service provider MUST operate under German jurisdicti",
+                "description": "The cloud service provider MUST operate under EU jurisdiction, with contract governance and dispute resolution",
                 "metrics": []
               },
               {
                 "id": "SOV-1-01-C2",
-                "description": "The cloud service provider MUST operate under German jurisdiction, with contract governance and dispute \nresolution. \nSOV-1-01-SI Supplementary information \nIf restrictions are imposed by cloud servic",
+                "description": "The cloud service provider MUST operate under German jurisdiction, with contract governance and dispute resolution",
                 "metrics": []
               }
             ]
@@ -34,12 +34,12 @@
             "controls": [
               {
                 "id": "SOV-1-02-C1",
-                "description": "The cloud service provider MUST have a registered head office in the EU. \nSOV-1-02-C2 Criterion \nThe cloud service provider MUST have a registered head office in Germany. \nSOV-1-02-SI Supplementary in",
+                "description": "The cloud service provider MUST have a registered head office in the EU",
                 "metrics": []
               },
               {
                 "id": "SOV-1-02-C2",
-                "description": "The cloud service provider MUST have a registered head office in Germany. \nSOV-1-02-SI Supplementary information \nIf the cloud service provider uses a subcontractor for the provision of services, such",
+                "description": "The cloud service provider MUST have a registered head office in Germany",
                 "metrics": []
               }
             ]
@@ -51,12 +51,12 @@
             "controls": [
               {
                 "id": "SOV-1-03-C1",
-                "description": "The cloud service provider MUST be effectively controlled by one or more EU corporations. The cloud \nservice provider MUST ensure that effective controls are transparent to cloud service customers. \nS",
+                "description": "The cloud service provider MUST be effectively controlled by one or more EU corporations. The cloud service provider MUST ensure that effective controls are transparent to cloud service customers",
                 "metrics": []
               },
               {
                 "id": "SOV-1-03-C2",
-                "description": "The cloud service provider MUST be under the effective control of one or more German undertakings. The \ncloud service provider MUST ensure that effective controls are transparent to cloud service cust",
+                "description": "The cloud service provider MUST be under the effective control of one or more German undertakings. The cloud service provider MUST ensure that effective controls are transparent to cloud service customers",
                 "metrics": []
               }
             ]
@@ -68,7 +68,7 @@
             "controls": [
               {
                 "id": "SOV-1-04-C",
-                "description": "The cloud service provider MUST inform cloud service customers 90 days in advance of any actual changes \naffecting the cloud service provider's control that could undermine or affect the C3A controls",
+                "description": "SOV-1-04-C Criterion",
                 "metrics": []
               }
             ]
@@ -86,7 +86,7 @@
             "controls": [
               {
                 "id": "SOV-2-01-C",
-                "description": "The cloud service provider MUST identify, at least once a year, any non-EU law relating directly to the \nprovided cloud services that have cross-border implications for the availability of cloud servi",
+                "description": "SOV-2-01-C Criterion",
                 "metrics": []
               }
             ]
@@ -98,12 +98,12 @@
             "controls": [
               {
                 "id": "SOV-2-02-C1",
-                "description": "The cloud service provider MUST document procedures that allow the relevant federal or national \ncybersecurity authority to verify compliance with the C3A criteria by an audit. The responsible authori",
+                "description": "The cloud service provider MUST document procedures that allow the relevant federal or national cybersecurity authority to verify compliance with the C3A criteria by an audit. The responsible authority is the one in the country where the data center is located",
                 "metrics": []
               },
               {
                 "id": "SOV-2-02-C2",
-                "description": "The cloud service provider MUST document procedures that allow the German federal administration to \nverify compliance with the C3A criteria by an audit. \nSOV-2-02-SI Supplementary information \nThe au",
+                "description": "The cloud service provider MUST document procedures that allow the German federal administration to verify compliance with the C3A criteria by an audit",
                 "metrics": []
               }
             ]
@@ -115,12 +115,12 @@
             "controls": [
               {
                 "id": "SOV-2-03-C1",
-                "description": "If an EU member state declares a state of defense, the cloud service provider MUST enable the EU member \nstate to take over the capabilities required to operate the cloud, including the necessary phys",
+                "description": "SOV-2-03-C1 Criterion",
                 "metrics": []
               },
               {
                 "id": "SOV-2-03-C2",
-                "description": "If Germany declares a state of defense, the cloud service provider MUST enable the German federal \nadministration to take over the capabilities required to operate the cloud, including the necessary m",
+                "description": "If Germany declares a state of defense, the cloud service provider MUST enable the German federal administration to take over the capabilities required to operate the cloud, including the necessary material assets and personnel, within the framework of legal possibilities",
                 "metrics": []
               }
             ]
@@ -138,27 +138,27 @@
             "controls": [
               {
                 "id": "SOV-3-01-C1",
-                "description": "A cloud service customer MUST be able to check where their cloud service derived data, cloud service \ncustomer data, and account data are stored and processed. \nSOV-3-01-C2 Criterion \nThe cloud servic",
+                "description": "A cloud service customer MUST be able to check where their cloud service derived data, cloud service customer data, and account data are stored and processed",
                 "metrics": []
               },
               {
                 "id": "SOV-3-01-C2",
-                "description": "The cloud service provider MUST provide a service option where cloud service derived data and account \ndata are exclusively stored and processed in the EU. \nSOV-3-01-C3 Criterion \nThe cloud service pr",
+                "description": "The cloud service provider MUST provide a service option where cloud service derived data and account data are exclusively stored and processed in the EU",
                 "metrics": []
               },
               {
                 "id": "SOV-3-01-C3",
-                "description": "The cloud service provider MUST provide a service option where cloud service customer data is exclusively \nstored and processed in the EU. \nSOV-3-01-C4 Criterion \nThe cloud service provider MUST provi",
+                "description": "The cloud service provider MUST provide a service option where cloud service customer data is exclusively stored and processed in the EU",
                 "metrics": []
               },
               {
                 "id": "SOV-3-01-C4",
-                "description": "The cloud service provider MUST provide a service option where cloud service customer data is exclusively \nstored and processed in Germany. \nSOV-3-01-C5 Criterion \nThe cloud service provider MUST prov",
+                "description": "The cloud service provider MUST provide a service option where cloud service customer data is exclusively stored and processed in Germany",
                 "metrics": []
               },
               {
                 "id": "SOV-3-01-C5",
-                "description": "The cloud service provider MUST provide a service option where cloud service provider data is exclusively \nstored and processed in the EU. \nSOV-3-01-SI Supplementary information \nIf a cloud service pr",
+                "description": "The cloud service provider MUST provide a service option where cloud service provider data is exclusively stored and processed in the EU",
                 "metrics": []
               }
             ]
@@ -170,7 +170,7 @@
             "controls": [
               {
                 "id": "SOV-3-02-C",
-                "description": "The cloud service provider MUST allow the integration of external encryption key management system for \ncreating, managing, and storing encryption keys outside of the cloud service provider environmen",
+                "description": "SOV-3-02-C Criterion",
                 "metrics": []
               },
               {
@@ -187,7 +187,7 @@
             "controls": [
               {
                 "id": "SOV-3-03-C",
-                "description": "The cloud service provider MUST support standards-based integration of external identity providers for \nauthentication and access management for the cloud service. \nSOV-3-03-AC1 Additional criterion",
+                "description": "The cloud service provider MUST support standards-based integration of external identity providers for authentication and access management for the cloud service",
                 "metrics": []
               },
               {
@@ -214,7 +214,7 @@
             "controls": [
               {
                 "id": "SOV-3-04-C",
-                "description": "The cloud service provider MUST provide customers with the capability to record, retain, and review logs of \nmanagement and data access activities related to cloud service customer data. These logs MU",
+                "description": "SOV-3-04-C Criterion",
                 "metrics": []
               },
               {
@@ -236,7 +236,7 @@
             "controls": [
               {
                 "id": "SOV-3-05-C",
-                "description": "The cloud service provider MUST enable client-side encryption of cloud service customer data. Whenever \nthe cloud service customer data is transmitted, processed or stored inside the cloud environment",
+                "description": "SOV-3-05-C Criterion",
                 "metrics": []
               }
             ]
@@ -254,17 +254,17 @@
             "controls": [
               {
                 "id": "SOV-4-01-C1",
-                "description": "All personnel who have logical or physical access to infrastructure used to operate the cloud service, as well \nas those who are responsible for customer support, and all persons who have management c",
+                "description": "All personnel who have logical or physical access to infrastructure used to operate the cloud service, as well as those who are responsible for customer support, and all persons who have management control of the cloud service provider MUST be EU citizens with EU as main residency",
                 "metrics": []
               },
               {
                 "id": "SOV-4-01-C2",
-                "description": "All personnel who have logical or physical access to infrastructure used to operate the cloud service, as well \nas those who are responsible for customer support, and all persons who have management c",
+                "description": "All personnel who have logical or physical access to infrastructure used to operate the cloud service, as well as those who are responsible for customer support, and all persons who have management control of the cloud service provider MUST be EU citizens with Germany as main residency",
                 "metrics": []
               },
               {
                 "id": "SOV-4-01-C3",
-                "description": "criterion \nThe operating personnel is part of an organization that MUST be a standalone European organization. \n2.4.2  SOV-4 Remote Work \nSOV-4-02-C1 Criterion \nThe cloud service provider MUST impleme",
+                "description": "criterion The operating personnel is part of an organization that MUST be a standalone European organization. 2.4.2 SOV-4 Remote Work",
                 "metrics": []
               }
             ]
@@ -276,12 +276,12 @@
             "controls": [
               {
                 "id": "SOV-4-02-C1",
-                "description": "The cloud service provider MUST implement organizational and technical measures ensuring that \nadministrative access to systems used to operate the cloud service is performed through access paths loca",
+                "description": "SOV-4-02-C1 Criterion",
                 "metrics": []
               },
               {
                 "id": "SOV-4-02-C2",
-                "description": "The cloud service provider MUST implement organizational and technical measures ensuring that \nadministrative access to systems used to operate the cloud service is performed through access paths loca",
+                "description": "SOV-4-02-C2 Criterion",
                 "metrics": []
               }
             ]
@@ -293,7 +293,7 @@
             "controls": [
               {
                 "id": "SOV-4-03-C",
-                "description": "The cloud service provider MUST ensure redundant and independent connectivity for the delivery of the \nsovereign cloud service. In the event of a disruption of one connectivity provider, alternative c",
+                "description": "SOV-4-03-C Criterion",
                 "metrics": []
               },
               {
@@ -310,12 +310,12 @@
             "controls": [
               {
                 "id": "SOV-4-04-C1",
-                "description": "The cloud service provider MUST ensure that Security Operations Center (SOC) capabilities for the offered \ncloud services are established and operated within the EU. In the case of a disconnect (SOV-4",
+                "description": "The cloud service provider MUST ensure that Security Operations Center (SOC) capabilities for the offered cloud services are established and operated within the EU. In the case of a disconnect (SOV-4-10), a stand- alone and equivalent SOC MUST be provided in the EU",
                 "metrics": []
               },
               {
                 "id": "SOV-4-04-C2",
-                "description": "The cloud service provider MUST ensure that Security Operations Center (SOC) capabilities for the offered \ncloud services are established and operated within Germany. In the case of a disconnect (SOV-",
+                "description": "SOV-4-04-C2 Criterion",
                 "metrics": []
               }
             ]
@@ -327,7 +327,7 @@
             "controls": [
               {
                 "id": "SOV-4-05-C",
-                "description": "All software updates and operational data affecting the cloud service MUST be received, authorized and \nvalidated in a secured network area managed and controlled by the cloud service provider.  \nThe",
+                "description": "SOV-4-05-C Criterion",
                 "metrics": []
               },
               {
@@ -349,7 +349,7 @@
             "controls": [
               {
                 "id": "SOV-4-06-C",
-                "description": "When using third-party software under the cloud service provider\u2019s responsibility, the cloud service \nprovider MUST implement risk-based security analysis prior to deployment, including measures to de",
+                "description": "SOV-4-06-C Criterion",
                 "metrics": []
               }
             ]
@@ -361,7 +361,7 @@
             "controls": [
               {
                 "id": "SOV-4-07-C",
-                "description": "Any cloud service derived data, cloud service customer data and account data exchanged between the cloud \nservice provider and third parties MUST always be monitored, controlled and logged. In order t",
+                "description": "SOV-4-07-C Criterion",
                 "metrics": []
               }
             ]
@@ -373,7 +373,7 @@
             "controls": [
               {
                 "id": "SOV-4-08-C",
-                "description": "The cloud service provider MUST document, define, and visualize (via a Data Flow Diagram) all data \nexchanges between the cloud service provider and third parties of cloud service derived data, cloud",
+                "description": "SOV-4-08-C Criterion",
                 "metrics": []
               },
               {
@@ -390,7 +390,7 @@
             "controls": [
               {
                 "id": "SOV-4-09-C",
-                "description": "The cloud service provider MUST be able to disconnect all non-EU network-connections to the cloud \nwithout an impairment of the availability, integrity, authenticity and confidentiality of the cloud s",
+                "description": "SOV-4-09-C Criterion",
                 "metrics": []
               },
               {
@@ -407,7 +407,7 @@
             "controls": [
               {
                 "id": "SOV-4-10-C",
-                "description": "The cloud service provider MUST be able to reestablish all non-EU-connections after a disconnect in \naccordance of criterion SOV-4-9-C (\"Disconnect\") has been performed and has a process to install up",
+                "description": "SOV-4-10-C Criterion",
                 "metrics": []
               }
             ]
@@ -425,7 +425,7 @@
             "controls": [
               {
                 "id": "SOV-5-01-C",
-                "description": "The cloud service provider MUST identify, for each cloud service, the software components used and their \nrespective countries of origin. A list of the relevant software suppliers and their country or",
+                "description": "SOV-5-01-C Criterion",
                 "metrics": []
               },
               {
@@ -442,7 +442,7 @@
             "controls": [
               {
                 "id": "SOV-5-02-C",
-                "description": "The cloud service provider MUST maintain a documented inventory of the hardware components used to \nprovide cloud services. A list of the relevant hardware suppliers and their country or countries MUS",
+                "description": "The cloud service provider MUST maintain a documented inventory of the hardware components used to provide cloud services. A list of the relevant hardware suppliers and their country or countries MUST be compiled and available on demand to cloud service customers",
                 "metrics": []
               },
               {
@@ -459,7 +459,7 @@
             "controls": [
               {
                 "id": "SOV-5-03-C",
-                "description": "The cloud service provider MUST maintain a documented inventory of used external cloud services that are \nnecessary for the delivery of the cloud service. The list of information regarding the relevan",
+                "description": "SOV-5-03-C Criterion",
                 "metrics": []
               },
               {
@@ -476,7 +476,7 @@
             "controls": [
               {
                 "id": "SOV-5-04-C",
-                "description": "The cloud service provider MUST maintain documented processes for identifying and mitigating risks \nrelated to export restrictions or supply chain disruptions affecting software, external services, an",
+                "description": "SOV-5-04-C Criterion",
                 "metrics": []
               }
             ]
@@ -488,12 +488,12 @@
             "controls": [
               {
                 "id": "SOV-5-05-C1",
-                "description": "Capacity management MUST be performed in the EU in accordance with C5. \nSOV-5-05-C2 Criterion \nCapacity management MUST be performed in Germany in accordance with C5. \n2.6  SOV-6 Technology Sovereignt",
+                "description": "Capacity management MUST be performed in the EU in accordance with C5",
                 "metrics": []
               },
               {
                 "id": "SOV-5-05-C2",
-                "description": "Capacity management MUST be performed in Germany in accordance with C5. \n2.6  SOV-6 Technology Sovereignty \n2.6.1  SOV-6 Source Code Availability  \nSOV-6-01-C Criterion \nThe cloud service provider MUS",
+                "description": "Capacity management MUST be performed in Germany in accordance with C5. 2.6 SOV-6 Technology Sovereignty 2.6.1 SOV-6 Source Code Availability",
                 "metrics": []
               }
             ]
@@ -511,7 +511,7 @@
             "controls": [
               {
                 "id": "SOV-6-01-C",
-                "description": "The cloud service provider MUST have a backup of the source code in the EU that is not older than 24 hours \nand contains at minimum 5 versions of the cloud services so that the operation of the cloud",
+                "description": "SOV-6-01-C Criterion",
                 "metrics": []
               }
             ]
@@ -523,7 +523,7 @@
             "controls": [
               {
                 "id": "SOV-6-02-C",
-                "description": "In the event of disconnection of third parties, the cloud service provider MUST maintain documented \ncontingency strategies ensuring continued secure delivery of the cloud services. These strategies m",
+                "description": "SOV-6-02-C Criterion",
                 "metrics": []
               },
               {
@@ -540,7 +540,7 @@
             "controls": [
               {
                 "id": "SOV-6-03-C",
-                "description": "The cloud service provider MUST ensure that authorised personnel have access to the software \ndevelopment tools and environments necessary to maintain and update the cloud services. \nThe cloud service",
+                "description": "SOV-6-03-C Criterion",
                 "metrics": []
               }
             ]

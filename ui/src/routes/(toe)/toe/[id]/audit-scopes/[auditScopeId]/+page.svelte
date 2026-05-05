@@ -103,7 +103,11 @@
 					{category}
 					controls={data.controlsByCategory[category.name] ?? []}
 					evaluationByControl={data.evaluationByControl}
+					allEvaluations={data.allEvaluationResults}
 					assessmentCountByMetric={data.assessmentCountByMetric}
+					assessmentById={data.assessmentById}
+					auditScopeId={data.auditScope.id}
+					targetId={data.auditScope.targetOfEvaluationId}
 				/>
 			{/each}
 		{:else}

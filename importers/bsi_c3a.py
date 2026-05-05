@@ -173,12 +173,16 @@ def parse_bsi_c3a(pdf_path: Path) -> dict:
             for sub in control.get("controls", []):
                 criterion_id = sub["id"]
                 # Look for this criterion ID in the full text and extract following text
-                pattern = rf'{criterion_id}\s+(Criterion|Additional)\s+(.{{10,200}})'
+                # Stop at next criterion ID or SI marker - match up to the next SOV-X-XX pattern
+                # Require at least 30 chars to avoid capturing just "Criterion" alone
+                pattern = rf'{criterion_id}\s+(Criterion|Additional)\s+(.{{30,300}}?)(?=\n\SOV-|$)'
                 match = re.search(pattern, full_text, re.DOTALL)
                 if match:
                     desc = match.group(2).strip()
-                    # Clean up - remove trailing dots and limit length
+                    # Clean up - remove trailing dots and extra whitespace
                     desc = re.sub(r'\.+$', '', desc).strip()
+                    desc = re.sub(r'\n+', ' ', desc)  # Replace newlines with spaces
+                    desc = re.sub(r'\s+', ' ', desc)  # Collapse multiple spaces
                     if len(desc) > 10:  # Only update if we found meaningful text
                         sub["description"] = desc
     

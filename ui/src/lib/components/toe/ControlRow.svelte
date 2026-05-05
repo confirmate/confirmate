@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { SchemaControl, SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
+	import ManualEvaluationDialog from '$lib/components/ui/ManualEvaluationDialog.svelte';
+	import EvaluationDetailDialog from '$lib/components/ui/EvaluationDetailDialog.svelte';
 	import { ChevronDown } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
@@ -7,13 +9,21 @@
 		control,
 		evaluation,
 		evaluationByControl = {},
+		allEvaluations = [],
 		assessmentCountByMetric = {},
+		assessmentById = {},
+		auditScopeId,
+		targetId,
 		depth = 0
 	}: {
 		control: SchemaControl;
 		evaluation?: SchemaEvaluationResult;
 		evaluationByControl?: Record<string, SchemaEvaluationResult>;
+		allEvaluations?: SchemaEvaluationResult[];
 		assessmentCountByMetric?: Record<string, number>;
+		assessmentById?: Record<string, { metricId?: string; compliant?: boolean; timestamp?: string }>;
+		auditScopeId: string;
+		targetId: string;
 		depth?: number;
 	} = $props();
 
@@ -22,18 +32,17 @@
 	const hasMetrics = $derived(metrics.length > 0);
 
 	let open = $state(false);
+	let showDetailDialog = $state(false);
 
 	const statusColor = $derived.by(() => {
 		if (!evaluation) return 'bg-gray-100 text-gray-400';
 		switch (evaluation.status) {
 			case 'EVALUATION_STATUS_COMPLIANT':
+			case 'EVALUATION_STATUS_COMPLIANT_MANUALLY':
 				return 'bg-emerald-100 text-emerald-700';
 			case 'EVALUATION_STATUS_NOT_COMPLIANT':
-				return 'bg-red-100 text-red-700';
-			case 'EVALUATION_STATUS_COMPLIANT_MANUALLY':
-				return 'bg-gray-100 text-gray-700';
 			case 'EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY':
-				return 'bg-gray-100 text-gray-700';
+				return 'bg-red-100 text-red-700';
 			case 'EVALUATION_STATUS_PENDING':
 				return 'bg-amber-100 text-amber-700';
 			default:
@@ -58,7 +67,8 @@
 				return 'Unknown';
 		}
 	});
-</script>
+
+	</script>
 
 <div class="{depth > 0 ? 'ml-5 border-l border-gray-100 pl-4' : ''}">
 	<div class="flex items-start gap-3 py-2.5">
@@ -68,12 +78,17 @@
 		<div class="min-w-0 flex-1">
 			<div class="text-sm font-medium text-gray-900">{control.name}</div>
 			{#if control.description}
-				<div class="mt-0.5 text-sm text-gray-500">{control.description}</div>
+				<div class="mt-0.5 whitespace-pre-wrap text-sm text-gray-500">{control.description}</div>
 			{/if}
 		</div>
-		<span class="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium {statusColor}">
+		<button
+			type="button"
+			class="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-medium {statusColor} hover:opacity-80"
+			title="Click for details"
+			onclick={() => showDetailDialog = true}
+		>
 			{statusLabel}
-		</span>
+		</button>
 		{#if hasMetrics}
 			<button
 				type="button"
@@ -108,7 +123,11 @@
 					control={sub}
 					evaluation={evaluationByControl[sub.id ?? '']}
 					{evaluationByControl}
+					{allEvaluations}
 					{assessmentCountByMetric}
+					{assessmentById}
+					{auditScopeId}
+					{targetId}
 					depth={depth + 1}
 				/>
 			{/each}
@@ -139,3 +158,13 @@
 		</div>
 	{/if}
 </div>
+
+<EvaluationDetailDialog 
+		bind:open={showDetailDialog} 
+		{control} 
+		evaluation={evaluation}
+		{allEvaluations}
+		{assessmentById}
+		{auditScopeId} 
+		{targetId}
+	/>
