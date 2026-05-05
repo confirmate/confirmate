@@ -25,7 +25,7 @@ DEFAULT_RESOURCE_TYPES = (
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate PDF fixtures from evidence objects in test_evidence.json."
+        description="Generate PDF fixtures from evidence objects in example-data/test_evidence.json."
     )
     parser.add_argument(
         "--input",
@@ -47,7 +47,7 @@ def get_repo_root() -> Path:
 
 
 def get_default_input_path() -> Path:
-    return get_repo_root() / "test_evidence.json"
+    return get_repo_root() / "example-data" / "test_evidence.json"
 
 
 def get_default_output_dir() -> Path:

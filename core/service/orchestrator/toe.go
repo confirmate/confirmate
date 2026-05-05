@@ -19,10 +19,11 @@ import (
 	"context"
 	"fmt"
 
-	"buf.build/go/protovalidate"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+
+	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"

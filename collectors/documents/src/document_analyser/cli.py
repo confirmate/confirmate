@@ -101,7 +101,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--push-evidence-file",
         dest="push_evidence_file",
         help=(
-            "Send prebuilt evidence payload(s) from a JSON file (e.g. test_evidence.json), "
+            "Send prebuilt evidence payload(s) from a JSON file (e.g. example-data/test_evidence.json), "
             "then exit."
         ),
     )
