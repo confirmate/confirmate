@@ -122,7 +122,8 @@ enum ObjectType {
   OBJECT_TYPE_CERTIFICATE           = 10;
   OBJECT_TYPE_CATALOG               = 11;
   OBJECT_TYPE_CATEGORY              = 12;
-  OBJECT_TYPE_CONTROL               = 13;
-  OBJECT_TYPE_EVALUATION_RESULT     = 14;
-  OBJECT_TYPE_EVIDENCE              = 15;
+  OBJECT_TYPE_CONTROL                    = 13;
+  OBJECT_TYPE_EVALUATION_RESULT          = 14;
+  OBJECT_TYPE_EVIDENCE                   = 15;
+  OBJECT_TYPE_CONTROL_IMPLEMENTATION     = 16;
 }
