@@ -285,43 +285,6 @@ func (svc *Service) CreateDefaultTargetOfEvaluation() (target *orchestrator.Targ
 			Description: "This is the default target of evaluation",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-			ConfiguredMetrics: []*assessment.Metric{
-				{
-					Id:          evidencetest.MockMetricID1,
-					Name:        evidencetest.MockMetricName1,
-					Category:    evidencetest.MockMetricCategory1,
-					Description: evidencetest.MockMetricDescription1,
-					Version:     evidencetest.MockMetricVersion1,
-					Comments:    evidencetest.MockMetricComments1,
-				},
-			},
-			TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
-		}
-
-		// Save it in the database
-		err = svc.db.Create(target)
-		if err != nil {
-			return nil, fmt.Errorf("storage error: %w", err)
-		}
-
-		// Create a default target of evaluation
-		target = &orchestrator.TargetOfEvaluation{
-			Id:          "22222222-2222-2222-2222-222222222222",
-			Name:        "Default Target of Evaluation2",
-			Description: "This is the default target of evaluation",
-			CreatedAt:   now,
-			UpdatedAt:   now,
-			ConfiguredMetrics: []*assessment.Metric{
-				{
-					Id:          evidencetest.MockMetricID1,
-					Name:        evidencetest.MockMetricName1,
-					Category:    evidencetest.MockMetricCategory1,
-					Description: evidencetest.MockMetricDescription1,
-					Version:     evidencetest.MockMetricVersion1,
-					Comments:    evidencetest.MockMetricComments1,
-				},
-			},
-			TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
 		}
 
 		// Save it in the database

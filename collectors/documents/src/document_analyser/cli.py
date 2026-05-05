@@ -120,6 +120,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Extract across all ontology-backed resource types instead of the default CRA-focused set.",
     )
     parser.add_argument(
+        "--ontology-proto-path",
+        dest="ontology_proto_path",
+        help=(
+            "Path to the ontology.proto file used for resource type profiles "
+            "(defaults to ONTOLOGY_PROTO_PATH env var or the bundled repo path)."
+        ),
+    )
+    parser.add_argument(
         "--mode",
         choices=["requirements", "resources"],
         default="requirements",
@@ -187,6 +195,8 @@ def build_evidence_config(args: argparse.Namespace) -> EvidenceStoreConfig:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
+    if args.ontology_proto_path:
+        os.environ["ONTOLOGY_PROTO_PATH"] = args.ontology_proto_path
     if not args.test_evidence and not args.push_evidence_file and not args.files:
         sys.stderr.write(
             "No files provided. Specify one or more files, or use --test-evidence or --push-evidence-file.\n"

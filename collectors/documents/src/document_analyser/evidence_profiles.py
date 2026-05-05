@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from functools import lru_cache
@@ -194,6 +195,9 @@ def _get_repo_root() -> Path:
 
 
 def get_ontology_proto_path() -> Path:
+    env_path = os.environ.get("ONTOLOGY_PROTO_PATH")
+    if env_path:
+        return Path(env_path)
     return _get_repo_root() / "core" / "policies" / "security-metrics" / "ontology" / "v1" / "ontology.proto"
 
 

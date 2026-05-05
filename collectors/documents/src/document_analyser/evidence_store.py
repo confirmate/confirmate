@@ -102,7 +102,8 @@ def build_evidence_payloads(
         if citation:
             raw = f"{snippet}\nCitation: {citation}" if snippet else f"Citation: {citation}"
         raw_lines = [line for line in [raw] if line]
-        raw_lines.append(f"{response_field}: {fulfilled}")
+        if isinstance(fulfilled, bool):
+            raw_lines.append(f"{response_field}: {fulfilled}")
         if item.get("requirementId"):
             raw_lines.append(f"Requirement ID: {item['requirementId']}")
         raw = "\n".join(raw_lines)
