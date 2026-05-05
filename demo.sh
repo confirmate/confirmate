@@ -10,12 +10,14 @@ CODE_ANALYSIS_DIR="${REPO_ROOT}/collectors/code-analysis"
 GRADLE_PROJECT="example-project"
 
 DAEMON_MODE=false
+IMPORT_BSI_C3A=false
 
 usage() {
   echo "Usage: $0 [options]"
   echo ""
   echo "  --code-analysis-dir <path>   Path to the code-analysis repo (default: collectors/code-analysis)"
   echo "  --gradle-project <name>      Gradle sub-project to run (default: example-project)"
+  echo "  --import-bsi-c3a             Run BSI C3A catalog importer before starting demo"
   echo "  --daemon                     Run in background (don't open browser, don't wait)"
   echo "  --stop                       Stop a running demo"
   echo "  -h, --help                   Show this help"
@@ -49,6 +51,8 @@ while [[ $# -gt 0 ]]; do
       CODE_ANALYSIS_DIR="$2"; shift 2 ;;
     --gradle-project)
       GRADLE_PROJECT="$2"; shift 2 ;;
+    --import-bsi-c3a)
+      IMPORT_BSI_C3A=true; shift ;;
     --daemon)
       DAEMON_MODE=true; shift ;;
     --stop)
@@ -103,12 +107,27 @@ else
   echo "      Using custom code-analysis dir: ${CODE_ANALYSIS_DIR} (skipping submodule update)"
 fi
 
-# ── 2. Build & start the confirmate all-in-one binary ─────────────────────────
-echo "[2/5] Building confirmate..."
+# ── 2. Optionally import BSI C3A catalog ──────────────────────────────────────
+if [[ "${IMPORT_BSI_C3A}" == "true" ]]; then
+  echo "[2/5] Importing BSI C3A catalog..."
+  cd "${REPO_ROOT}"
+  if [[ ! -f "importers/bsi_c3a.py" ]]; then
+    echo "      Importer not found, skipping..."
+  else
+    python3 importers/bsi_c3a.py --output example-data/catalogs/bsi-c3a-catalog.json
+    echo "      Imported BSI C3A catalog"
+  fi
+  STEP_OFFSET=1
+else
+  STEP_OFFSET=0
+fi
+
+# ── $((2 + STEP_OFFSET)). Build & start the confirmate all-in-one binary ───────
+echo "[$((2 + STEP_OFFSET))/5] Building confirmate..."
 cd "${REPO_ROOT}"
 go build -o bin/confirmate ./core/cmd/confirmate
 
-echo "[2/5] Starting confirmate (API on :${API_PORT})..."
+echo "[$((3 + STEP_OFFSET))/5] Starting confirmate (API on :${API_PORT})..."
 ./bin/confirmate \
   --db-in-memory \
   --api-port "${API_PORT}" \
@@ -120,8 +139,8 @@ echo "[2/5] Starting confirmate (API on :${API_PORT})..."
 PID_CONFIRMATE=$!
 echo "      PID ${PID_CONFIRMATE} — logs: logs/confirmate.log"
 
-# ── 3. Start the UI ───────────────────────────────────────────────────────────
-echo "[3/5] Starting UI (http://localhost:${UI_PORT})..."
+# ── $((3 + STEP_OFFSET)). Start the UI ───────────────────────────────────────
+echo "[$((4 + STEP_OFFSET))/5] Starting UI (http://localhost:${UI_PORT})..."
 mkdir -p "${REPO_ROOT}/logs"
 cd "${REPO_ROOT}/ui"
 npm install --silent
@@ -129,8 +148,8 @@ npm run dev -- --port "${UI_PORT}" &>"${REPO_ROOT}/logs/ui.log" &
 PID_UI=$!
 echo "      PID ${PID_UI} — logs: logs/ui.log"
 
-# ── 4. Set up jep virtualenv for Python frontend ─────────────────────────────
-echo "[4/5] Setting up Python virtualenv with jep..."
+# ── $((4 + STEP_OFFSET)). Set up jep virtualenv for Python frontend ─────────
+echo "[$((5 + STEP_OFFSET))/5] Setting up Python virtualenv with jep..."
 VENV_NAME="confirmate-demo"
 VENV_DIR="${HOME}/.virtualenvs/${VENV_NAME}"
 # Recreate the venv if the interpreter it was built with is gone
@@ -149,8 +168,8 @@ deactivate
 # Tell CPG's JepSingleton which virtualenv to use
 export CPG_PYTHON_VIRTUALENV="${VENV_NAME}"
 
-# ── 5. Start the code-analysis collector ──────────────────────────────────────
-echo "[5/5] Starting code-analysis collector..."
+# ── $((5 + STEP_OFFSET)). Start the code-analysis collector ─────────────────
+echo "[$((6 + STEP_OFFSET))/5] Starting code-analysis collector..."
 echo "      dir: ${CODE_ANALYSIS_DIR}, project: ${GRADLE_PROJECT}"
 cd "${CODE_ANALYSIS_DIR}"
 
