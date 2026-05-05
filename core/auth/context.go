@@ -17,8 +17,6 @@ package auth
 
 import (
 	"context"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type contextKey string
@@ -28,7 +26,7 @@ const (
 )
 
 // WithClaims stores verified JWT claims in the context.
-func WithClaims(ctx context.Context, claims jwt.MapClaims) (out context.Context) {
+func WithClaims(ctx context.Context, claims *OAuthClaims) (out context.Context) {
 	if ctx == nil || claims == nil {
 		return ctx
 	}
@@ -38,11 +36,11 @@ func WithClaims(ctx context.Context, claims jwt.MapClaims) (out context.Context)
 }
 
 // ClaimsFromContext returns verified JWT claims from the context, if present.
-func ClaimsFromContext(ctx context.Context) (claims jwt.MapClaims, ok bool) {
+func ClaimsFromContext(ctx context.Context) (claims *OAuthClaims, ok bool) {
 	if ctx == nil {
 		return nil, false
 	}
 
-	claims, ok = ctx.Value(claimsContextKey).(jwt.MapClaims)
+	claims, ok = ctx.Value(claimsContextKey).(*OAuthClaims)
 	return claims, ok
 }

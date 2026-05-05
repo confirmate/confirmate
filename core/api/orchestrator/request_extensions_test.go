@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/assessment"
+	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/util/assert"
 
 	"google.golang.org/protobuf/proto"
@@ -245,6 +246,20 @@ func TestGetPayload(t *testing.T) {
 				return assert.Equal(t, want, got)
 			},
 		},
+		{
+			name: "store evaluation result",
+			args: args{
+				get: func() proto.Message {
+					result := &evaluation.EvaluationResult{Id: "eval-1"}
+					return (&StoreEvaluationResultRequest{Result: result}).GetPayload()
+				},
+				want: &evaluation.EvaluationResult{Id: "eval-1"},
+			},
+			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
+				want := assert.Is[proto.Message](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -267,10 +282,23 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 		want assert.Want[string]
 	}{
 		{
+			name: "list evaluation results",
+			args: args{
+				get: func() string {
+					return (&ListEvaluationResultsRequest{Filter: &ListEvaluationResultsRequest_Filter{TargetOfEvaluationId: new("toe-7")}}).GetTargetOfEvaluationId()
+				},
+				want: "toe-7",
+			},
+			want: func(t *testing.T, got string, msgAndArgs ...any) bool {
+				want := assert.Is[string](t, msgAndArgs[0])
+				return assert.Equal(t, want, got)
+			},
+		},
+		{
 			name: "list assessment results",
 			args: args{
 				get: func() string {
-					return (&ListAssessmentResultsRequest{Filter: &ListAssessmentResultsRequest_Filter{TargetOfEvaluationId: ref("toe-7")}}).GetTargetOfEvaluationId()
+					return (&ListAssessmentResultsRequest{Filter: &ListAssessmentResultsRequest_Filter{TargetOfEvaluationId: new("toe-7")}}).GetTargetOfEvaluationId()
 				},
 				want: "toe-7",
 			},
@@ -283,7 +311,7 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			name: "list audit scopes",
 			args: args{
 				get: func() string {
-					return (&ListAuditScopesRequest{Filter: &ListAuditScopesRequest_Filter{TargetOfEvaluationId: ref("toe-8")}}).GetTargetOfEvaluationId()
+					return (&ListAuditScopesRequest{Filter: &ListAuditScopesRequest_Filter{TargetOfEvaluationId: new("toe-8")}}).GetTargetOfEvaluationId()
 				},
 				want: "toe-8",
 			},
@@ -313,8 +341,4 @@ func TestGetTargetOfEvaluationId(t *testing.T) {
 			tt.want(t, tt.args.want, got)
 		})
 	}
-}
-
-func ref(v string) *string {
-	return &v
 }

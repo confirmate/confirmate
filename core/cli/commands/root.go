@@ -138,6 +138,16 @@ func NewRootCommand() *cli.Command {
 					CertificatesRemoveCommand(),
 				},
 			},
+			{
+				Name:    "evaluation",
+				Aliases: []string{"eval"},
+				Usage:   "Evaluation service operations",
+				Commands: []*cli.Command{
+					EvaluationResultsListCommand(),
+					EvaluationStartCommand(),
+					EvaluationStopCommand(),
+				},
+			},
 		},
 	}
 }

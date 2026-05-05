@@ -1,4 +1,4 @@
-// Copyright 2016-2025 Fraunhofer AISEC
+// Copyright 2016-2026 Fraunhofer AISEC
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,31 +13,18 @@
 //
 // This file is part of Confirmate Core.
 
-package util
+package openstack
 
-import "reflect"
+import (
+	"confirmate.io/core/api/ontology"
 
-// Deref dereferences pointer values
-func Deref[T any](p *T) T {
-	var result T
-	if p != nil {
-		return *p
-	}
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
+)
 
-	return result
-}
+// collectNetworkInterfaces collects network interfaces
+func (d *openstackCollector) collectNetworkInterfaces() (list []ontology.IsResource, err error) {
+	var opts networks.ListOptsBuilder = &networks.ListOpts{}
+	list, err = genericList(d, d.networkClient, networks.List, d.handleNetworkInterfaces, networks.ExtractNetworks, opts)
 
-// Ref references pointer values
-func Ref[T any](p T) *T {
-	return &p
-}
-
-// IsNil checks if an interface value is nil or if the value nil is assigned to it.
-func IsNil(value any) bool {
-	if value == nil || (reflect.ValueOf(value).Kind() == reflect.Pointer &&
-		reflect.ValueOf(value).IsNil()) {
-		return true
-	}
-
-	return false
+	return
 }

@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package evidence
 
 import (
@@ -19,7 +34,6 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence/evidencetest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -680,7 +694,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{TargetOfEvaluationId: util.Ref(ev1.TargetOfEvaluationId)},
+				Filter: &evidence.Filter{TargetOfEvaluationId: new(ev1.TargetOfEvaluationId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -705,7 +719,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{ToolId: util.Ref(ev1.ToolId)},
+				Filter: &evidence.Filter{ToolId: new(ev1.ToolId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -1053,7 +1067,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: util.Ref(res1.TargetOfEvaluationId)},
+					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: new(res1.TargetOfEvaluationId)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
@@ -1078,7 +1092,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{ToolId: util.Ref(res1.ToolId)},
+					Filter: &evidence.ListResourcesRequest_Filter{ToolId: new(res1.ToolId)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
@@ -1103,7 +1117,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
+					Filter: &evidence.ListResourcesRequest_Filter{Type: new(res1.ResourceType)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {

@@ -98,7 +98,7 @@ type Metric struct {
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// The version of this metric
 	Version string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
-	// Optional comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
+	// Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
 	Comments string `protobuf:"bytes,5,opt,name=comments,proto3" json:"comments,omitempty"`
 	// Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
 	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`

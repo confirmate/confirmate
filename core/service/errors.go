@@ -16,6 +16,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 
@@ -88,6 +89,18 @@ func Validate[T any](req *connect.Request[T], opts ...protovalidate.ValidationOp
 	msg, ok := any(req.Msg).(proto.Message)
 	if !ok {
 		return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("request message does not implement proto.Message"))
+	}
+	// If present, ensure page_token is a valid base64 string (raw or padded).
+	if fd := msg.ProtoReflect().Descriptor().Fields().ByName("page_token"); fd != nil {
+		v := msg.ProtoReflect().Get(fd)
+
+		// Only validate when the client actually set a non-empty token.
+		if s := v.String(); s != "" {
+			// Validate base64 (raw or padded).
+			if err := validatePageTokenBase64(s); err != nil {
+				return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid request: invalid page_token: %w", err))
+			}
+		}
 	}
 
 	if err := validator.Validate(msg, opts...); err != nil {
@@ -182,4 +195,20 @@ func ValidateEvent(ce *orchestrator.ChangeEvent) error {
 	}
 
 	return nil
+}
+
+func validatePageTokenBase64(s string) error {
+	if s == "" {
+		return nil
+	}
+
+	// Try raw base64 first (no padding), then standard (with padding).
+	if _, err := base64.RawStdEncoding.DecodeString(s); err == nil {
+		return nil
+	}
+	if _, err := base64.StdEncoding.DecodeString(s); err == nil {
+		return nil
+	}
+
+	return fmt.Errorf("not valid base64")
 }

@@ -20,6 +20,7 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/service"
+	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -31,7 +32,8 @@ func (svc *Service) CreateCertificate(
 	req *connect.Request[orchestrator.CreateCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
 	var (
-		cert *orchestrator.Certificate
+		cert    *orchestrator.Certificate
+		allowed bool
 	)
 
 	// Validate the request
@@ -39,8 +41,24 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	cert = req.Msg.Certificate
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
+	cert = &orchestrator.Certificate{
+		Id:                   uuid.NewString(),
+		Name:                 req.Msg.GetCertificate().GetName(),
+		Description:          req.Msg.GetCertificate().GetDescription(),
+		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
+		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
+		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
+		Standard:             req.Msg.GetCertificate().GetStandard(),
+		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
+		Cab:                  req.Msg.GetCertificate().GetCab(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -60,7 +78,8 @@ func (svc *Service) GetCertificate(
 	req *connect.Request[orchestrator.GetCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
 	var (
-		cert orchestrator.Certificate
+		cert    orchestrator.Certificate
+		allowed bool
 	)
 
 	// Validate the request
@@ -73,7 +92,12 @@ func (svc *Service) GetCertificate(
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&cert)) {
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, cert.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -88,7 +112,10 @@ func (svc *Service) ListCertificates(
 ) (res *connect.Response[orchestrator.ListCertificatesResponse], err error) {
 	var (
 		certificates []*orchestrator.Certificate
+		conds        []any
 		npt          string
+		all          bool
+		toeIds       []string
 	)
 
 	// Validate the request
@@ -102,12 +129,23 @@ func (svc *Service) ListCertificates(
 		req.Msg.Asc = true
 	}
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "target_of_evaluation_id IN ?", allowed)
-	} else {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
+	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
+	if !all && len(toeIds) == 0 {
+		// User has no access to any ToE, return empty result
+		return connect.NewResponse(&orchestrator.ListCertificatesResponse{
+			Certificates:  []*orchestrator.Certificate{},
+			NextPageToken: "",
+		}), nil
 	}
+
+	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	if !all {
+		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
+	}
+
+	// Query the database with pagination and the constructed conditions
+	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -140,12 +178,8 @@ func (svc *Service) ListPublicCertificates(
 		req.Msg.Asc = true
 	}
 
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, "target_of_evaluation_id IN ?", allowed)
-	} else {
-		certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
-	}
+	// Query the database with pagination
+	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -167,15 +201,34 @@ func (svc *Service) UpdateCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
-	var cert *orchestrator.Certificate
+	var (
+		cert    *orchestrator.Certificate
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	cert = req.Msg.Certificate
-	if cert == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	cert = &orchestrator.Certificate{
+		Id:                   req.Msg.GetCertificate().GetId(),
+		Name:                 req.Msg.GetCertificate().GetName(),
+		Description:          req.Msg.GetCertificate().GetDescription(),
+		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
+		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
+		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
+		Standard:             req.Msg.GetCertificate().GetStandard(),
+		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
+		Cab:                  req.Msg.GetCertificate().GetCab(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -194,19 +247,26 @@ func (svc *Service) RemoveCertificate(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveCertificateRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		cert    orchestrator.Certificate
+		allowed bool
+	)
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
-
-	var cert orchestrator.Certificate
 
 	err = svc.db.Get(&cert, "id = ?", req.Msg.CertificateId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
 		return nil, err
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&cert)) {
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, cert.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 

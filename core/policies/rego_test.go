@@ -16,6 +16,7 @@
 package policies
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -33,7 +34,60 @@ import (
 	"confirmate.io/core/service/evidence/evidencetest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/prototest"
+	"connectrpc.com/connect"
 )
+
+type metricsErrorSource struct{}
+
+func (m *metricsErrorSource) Metrics() (metrics []*assessment.Metric, err error) {
+	return nil, errors.New("boom")
+}
+
+func (m *metricsErrorSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+	return nil, errors.New("not implemented")
+}
+
+func (m *metricsErrorSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+	return nil, errors.New("not implemented")
+}
+
+type missingConfigSource struct{}
+
+func (m *missingConfigSource) Metrics() (metrics []*assessment.Metric, err error) {
+	return []*assessment.Metric{{
+		Id:       "metric-1",
+		Name:     "MetricOne",
+		Category: "Category",
+	}}, nil
+}
+
+func (m *missingConfigSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+	err = connect.NewError(connect.CodeNotFound, errors.New("metric configuration not found for target"))
+	return nil, err
+}
+
+func (m *missingConfigSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+	return nil, errors.New("not implemented")
+}
+
+type metricConfigErrorSource struct{}
+
+func (m *metricConfigErrorSource) Metrics() (metrics []*assessment.Metric, err error) {
+	return []*assessment.Metric{{
+		Id:       "metric-1",
+		Name:     "MetricOne",
+		Category: "Category",
+	}}, nil
+}
+
+func (m *metricConfigErrorSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+	err = connect.NewError(connect.CodeInternal, errors.New("database unavailable"))
+	return nil, err
+}
+
+func (m *metricConfigErrorSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+	return nil, errors.New("not implemented")
+}
 
 func Test_regoEval_Eval(t *testing.T) {
 
@@ -66,6 +120,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				"AtRestEncryptionAlgorithm":         true,
 				"AtRestEncryptionEnabled":           true,
 				"ObjectStoragePublicAccessDisabled": true,
+				"VulnerabilitiesNotExploitable":     true,
 			},
 			args: args{
 				resource: &ontology.ObjectStorage{
@@ -115,6 +170,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
 				"ObjectStoragePublicAccessDisabled": false,
+				"VulnerabilitiesNotExploitable":     true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -147,6 +203,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
 				"ObjectStoragePublicAccessDisabled": false,
+				"VulnerabilitiesNotExploitable":     true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -190,16 +247,17 @@ func Test_regoEval_Eval(t *testing.T) {
 				evidenceID: mockVM1EvidenceID,
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":  true,
-				"AutomaticUpdatesInterval": true,
-				"BootLoggingEnabled":       true,
-				"BootLoggingOutput":        true,
-				"BootLoggingRetention":     true,
-				"MalwareProtectionEnabled": true,
-				"MalwareProtectionOutput":  true,
-				"OSLoggingRetention":       true,
-				"OSLoggingOutput":          true,
-				"OSLoggingEnabled":         true,
+				"AutomaticUpdatesEnabled":       true,
+				"AutomaticUpdatesInterval":      true,
+				"BootLoggingEnabled":            true,
+				"BootLoggingOutput":             true,
+				"BootLoggingRetention":          true,
+				"MalwareProtectionEnabled":      true,
+				"MalwareProtectionOutput":       true,
+				"OSLoggingRetention":            true,
+				"OSLoggingOutput":               true,
+				"OSLoggingEnabled":              true,
+				"VulnerabilitiesNotExploitable": true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -228,15 +286,16 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":  false,
-				"AutomaticUpdatesInterval": false,
-				"BootLoggingEnabled":       false,
-				"BootLoggingOutput":        false,
-				"BootLoggingRetention":     false,
-				"MalwareProtectionEnabled": false,
-				"OSLoggingEnabled":         false,
-				"OSLoggingOutput":          true,
-				"OSLoggingRetention":       false,
+				"AutomaticUpdatesEnabled":       false,
+				"AutomaticUpdatesInterval":      false,
+				"BootLoggingEnabled":            false,
+				"BootLoggingOutput":             false,
+				"BootLoggingRetention":          false,
+				"MalwareProtectionEnabled":      false,
+				"OSLoggingEnabled":              false,
+				"OSLoggingOutput":               true,
+				"OSLoggingRetention":            false,
+				"VulnerabilitiesNotExploitable": true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -279,6 +338,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				"OSLoggingOutput":                     false,
 				"OSLoggingRetention":                  false,
 				"VirtualMachineDiskEncryptionEnabled": false,
+				"VulnerabilitiesNotExploitable":       true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -321,6 +381,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				"OSLoggingOutput":                     false,
 				"OSLoggingRetention":                  false,
 				"VirtualMachineDiskEncryptionEnabled": true,
+				"VulnerabilitiesNotExploitable":       true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -334,24 +395,14 @@ func Test_regoEval_Eval(t *testing.T) {
 			args: args{
 				resource: &ontology.Application{
 					Id: "app",
-					// TODO: why is the hash metric evaluated to true without any functionalities?
-					// Functionalities: []*ontology.Functionality{
-					// 	{
-					// 		Type: &ontology.Functionality_CipherSuite{
-					// 			CipherSuite: &ontology.CipherSuite{
-					// 				SessionCipher: "AES",
-					// 			},
-					// 		},
-					// 	},
-					// },
 				},
 				evidenceID: mockVM1EvidenceID,
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":  false,
-				"AutomaticUpdatesInterval": false,
-				"StrongCryptographicHash":  true,
+				"AutomaticUpdatesEnabled":       false,
+				"AutomaticUpdatesInterval":      false,
+				"VulnerabilitiesNotExploitable": true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -384,6 +435,94 @@ func Test_regoEval_Eval(t *testing.T) {
 			assert.Equal(t, tt.compliant, compliants)
 		})
 	}
+}
+
+func Test_regoEval_Eval_MetricsError(t *testing.T) {
+	var (
+		pe      *regoEval
+		source  MetricsSource
+		results []*CombinedResult
+		err     error
+	)
+
+	pe = &regoEval{
+		qc:   newQueryCache(),
+		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+		pkg:  DefaultRegoPackage,
+	}
+	source = &metricsErrorSource{}
+
+	results, err = pe.Eval(&evidence.Evidence{
+		Id:                   "11111111-1111-1111-1111-111111111111",
+		ToolId:               "tool-a",
+		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, source)
+
+	assert.Nil(t, results)
+	assert.ErrorContains(t, err, "could not retrieve metric definitions")
+}
+
+func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
+	var (
+		pe      *regoEval
+		source  MetricsSource
+		results []*CombinedResult
+		err     error
+	)
+
+	pe = &regoEval{
+		qc:   newQueryCache(),
+		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+		pkg:  DefaultRegoPackage,
+	}
+	source = &missingConfigSource{}
+
+	results, err = pe.Eval(&evidence.Evidence{
+		Id:                   "11111111-1111-1111-1111-111111111111",
+		ToolId:               "tool-a",
+		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, source)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(results))
+}
+
+func Test_regoEval_Eval_ReturnsNonSkippableMetricConfigurationError(t *testing.T) {
+	var (
+		pe      *regoEval
+		source  MetricsSource
+		results []*CombinedResult
+		err     error
+	)
+
+	pe = &regoEval{
+		qc:   newQueryCache(),
+		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
+		pkg:  DefaultRegoPackage,
+	}
+	source = &metricConfigErrorSource{}
+
+	results, err = pe.Eval(&evidence.Evidence{
+		Id:                   "11111111-1111-1111-1111-111111111111",
+		ToolId:               "tool-a",
+		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, source)
+
+	assert.Nil(t, results)
+	assert.ErrorContains(t, err, "database unavailable")
+}
+
+func TestWithPackageName(t *testing.T) {
+	var (
+		re  *regoEval
+		opt RegoEvalOption
+	)
+
+	re = &regoEval{pkg: DefaultRegoPackage}
+	opt = WithPackageName("custom.package")
+	opt(re)
+
+	assert.Equal(t, "custom.package", re.pkg)
 }
 
 func Test_regoEval_evalMap(t *testing.T) {

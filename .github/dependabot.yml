@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/core" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/collectors/cloud" # Location of package manifests
+    schedule:
+      interval: "weekly"

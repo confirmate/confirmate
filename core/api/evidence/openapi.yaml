@@ -858,6 +858,8 @@ components:
                 raw:
                     type: string
                     description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                codeSignoff:
+                    $ref: '#/components/schemas/CodeSignoff'
                 geoLocation:
                     $ref: '#/components/schemas/GeoLocation'
                 loggings:
@@ -873,6 +875,14 @@ components:
                 usageStatistics:
                     $ref: '#/components/schemas/UsageStatistics'
             description: CodeRepository is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        CodeSignoff:
+            type: object
+            properties:
+                enforced:
+                    type: boolean
+            description: |-
+                CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
         Configuration:
             type: object
             properties:
@@ -5469,6 +5479,8 @@ components:
             properties:
                 anomalyDetection:
                     $ref: '#/components/schemas/AnomalyDetection'
+                codeSignoff:
+                    $ref: '#/components/schemas/CodeSignoff'
                 activityLogging:
                     $ref: '#/components/schemas/ActivityLogging'
                 applicationLogging:

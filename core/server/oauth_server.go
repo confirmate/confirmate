@@ -75,6 +75,18 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 				return storage.LoadSigningKeys(expandedKeyPath, keyPassword, saveOnCreate)
 			}),
 			oauth2.WithPublicURL(oauthPublicURL),
+			oauth2.WithTokenClaimsFunc(func(clientID string, userID string) map[string]any {
+				if clientID == DefaultOAuth2CLIClientID || userID == DefaultOAuth2LoginUser {
+					// For now we assign the "admin" role to any user authenticated via the CLI
+					// client or the default login user. In a real implementation, you would want to
+					// have a more robust way of assigning roles and permissions.
+					return map[string]any{
+						"roles": []string{"ROLE_ADMIN"},
+					}
+				}
+
+				return map[string]any{}
+			}),
 		)
 
 		authSrv = oauth2.NewServer("", opts...)

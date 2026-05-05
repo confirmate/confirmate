@@ -3,9 +3,117 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: Orchestrator API
+    description: Manages the orchestration of components within the confirmate architecture
     version: 0.0.1
 paths:
+    /v1/evaluation/results:
+        get:
+            tags:
+                - Orchestrator
+            description: |-
+                List all evaluation results that the user can access. It can further be
+                 restricted by various filtering options. Part of the public API, also
+                 exposed as REST.
+            operationId: Orchestrator_ListEvaluationResults
+            parameters:
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific target of evaluation.
+                  schema:
+                    type: string
+                - name: filter.catalogId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific catalog.
+                  schema:
+                    type: string
+                - name: filter.controlId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific control id.
+                  schema:
+                    type: string
+                - name: filter.subControls
+                  in: query
+                  description: |-
+                    Optional. Lists all evaluation results for the given initial control id
+                     substring, e.g., if the substring 'CMK-01.' is given it returns the
+                     controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+                  schema:
+                    type: string
+                - name: filter.parentsOnly
+                  in: query
+                  description: Optional. Lists only results for parent controls
+                  schema:
+                    type: boolean
+                - name: filter.validManualOnly
+                  in: query
+                  description: Optional. Lists only manual results in their validity period
+                  schema:
+                    type: boolean
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific audit scope.
+                  schema:
+                    type: string
+                - name: latestByControlId
+                  in: query
+                  description: Optional. Latest results grouped by control_id.
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEvaluationResultsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: Store the evaluation result provided by the evaluation component.″
+            operationId: Orchestrator_StoreEvaluationResult
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EvaluationResult'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EvaluationResult'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/assessment_results:
         get:
             tags:
@@ -1485,9 +1593,9 @@ paths:
     /v1/users:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Lists users with optional filtering
-            operationId: UserManagement_ListUsers
+            operationId: Orchestrator_ListUsers
             parameters:
                 - name: filter.role
                   in: query
@@ -1547,9 +1655,9 @@ paths:
     /v1/users/me:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Returns information about the currently authenticated user
-            operationId: UserManagement_GetCurrentUser
+            operationId: Orchestrator_GetCurrentUser
             responses:
                 "200":
                     description: OK
@@ -1563,12 +1671,53 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/permissions:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permission.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/roles:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Lists all predefined roles in the system.
-            operationId: UserManagement_ListUserRoles
+            operationId: Orchestrator_ListUserRoles
             parameters:
                 - name: pageSize
                   in: query
@@ -1596,12 +1745,37 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/user_permission:
+        post:
+            tags:
+                - Orchestrator
+            description: Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+            operationId: Orchestrator_UpsertUserPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPermission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/{userId}:
         get:
             tags:
-                - UserManagement
+                - Orchestrator
             description: Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
-            operationId: UserManagement_GetUser
+            operationId: Orchestrator_GetUser
             parameters:
                 - name: userId
                   in: path
@@ -1615,6 +1789,234 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+            operationId: Orchestrator_RemoveUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/workflows/control_implementations:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists control implementations with optional filtering by audit scope, state, or assignee.
+            operationId: Orchestrator_ListControlImplementations
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Filter by audit scope.
+                  schema:
+                    type: string
+                - name: filter.state
+                  in: query
+                  description: Optional. Filter by current state.
+                  schema:
+                    enum:
+                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+                        - CONTROL_IMPLEMENTATION_STATE_OPEN
+                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
+                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
+                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
+                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
+                    type: string
+                    format: enum
+                - name: filter.assigneeId
+                  in: query
+                  description: Optional. Filter by assignee.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListControlImplementationsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: Creates a new control implementation to track a control's compliance status within an audit scope.
+            operationId: Orchestrator_CreateControlImplementation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ControlImplementation'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlImplementation'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/workflows/control_implementations/{control_implementation.id}:
+        put:
+            tags:
+                - Orchestrator
+            description: Updates a control implementation (e.g., changes the assigned user).
+            operationId: Orchestrator_UpdateControlImplementation
+            parameters:
+                - name: control_implementation.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+                - name: assigneeId
+                  in: query
+                  schema:
+                    type: string
+                - name: implementationDetails
+                  in: query
+                  description: |-
+                    ImplementationDetails contains details about the technical and organisational measures taken to
+                     implement the control.
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json: {}
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlImplementation'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/workflows/control_implementations/{id}:
+        get:
+            tags:
+                - Orchestrator
+            description: Retrieves a control implementation by ID, including its full transition history.
+            operationId: Orchestrator_GetControlImplementation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlImplementation'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Removes a control implementation.
+            operationId: Orchestrator_RemoveControlImplementation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/workflows/control_implementations/{id}/transition:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Transitions a control implementation to a new state, enforcing valid state machine transitions
+                 and recording the transition in the history.
+            operationId: Orchestrator_TransitionControlImplementationState
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TransitionControlImplementationStateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlImplementation'
                 default:
                     description: Default error response
                     content:
@@ -1936,6 +2338,105 @@ components:
                  a Control in a certification catalog. It follows the OSCAL model. A
                  requirement in the EUCS terminology, e.g., is represented as the lowest
                  sub-control.
+        ControlImplementation:
+            required:
+                - id
+                - auditScopeId
+                - targetOfEvaluationId
+                - controlId
+                - controlCategoryName
+                - controlCategoryCatalogId
+            type: object
+            properties:
+                id:
+                    type: string
+                auditScopeId:
+                    type: string
+                    description: AuditScopeId describes the audit scope this implementation belongs to.
+                targetOfEvaluationId:
+                    type: string
+                    description: TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
+                controlId:
+                    type: string
+                    description: Control composite key — mirrors Control's primary key.
+                controlCategoryName:
+                    type: string
+                controlCategoryCatalogId:
+                    type: string
+                state:
+                    enum:
+                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+                        - CONTROL_IMPLEMENTATION_STATE_OPEN
+                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
+                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
+                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
+                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
+                    type: string
+                    description: Current implementation state.
+                    format: enum
+                implementationDetails:
+                    type: string
+                    description: |-
+                        ImplementationDetails contains details about the technical and organisation measures taken to
+                         implement the control. This is a free-form field that can be used to capture any relevant
+                         information about the implementation.
+                assigneeId:
+                    type: string
+                    description: AssigneeId is the user (identified by User.id) responsible for implementing this control.
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                transitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlImplementationTransition'
+                    description: Full history of state transitions (populated on read).
+            description: |-
+                ControlImplementation tracks the implementation status of a specific control within an audit
+                 scope. There is exactly one ControlImplementation per (audit scope, control) pair.
+        ControlImplementationTransition:
+            required:
+                - id
+                - controlImplementationId
+                - toState
+            type: object
+            properties:
+                id:
+                    type: string
+                controlImplementationId:
+                    type: string
+                fromState:
+                    enum:
+                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+                        - CONTROL_IMPLEMENTATION_STATE_OPEN
+                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
+                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
+                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
+                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
+                    type: string
+                    format: enum
+                toState:
+                    enum:
+                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+                        - CONTROL_IMPLEMENTATION_STATE_OPEN
+                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
+                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
+                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
+                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
+                    type: string
+                    format: enum
+                performedBy:
+                    type: string
+                    description: User.id of the person who triggered this transition.
+                time:
+                    type: string
+                    format: date-time
+            description: |-
+                ControlImplementationTransition records a single state change in a ControlImplementation's
+                 lifecycle, capturing who made the change and when.
         Dependency:
             type: object
             properties:
@@ -1943,6 +2444,74 @@ components:
                     type: string
                 version:
                     type: string
+        EvaluationResult:
+            required:
+                - id
+                - status
+                - timestamp
+                - assessmentResultIds
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Evaluation result id
+                targetOfEvaluationId:
+                    type: string
+                    description: The Target of Evaluation ID the evaluation belongs to
+                auditScopeId:
+                    type: string
+                    description: The Audit Scope ID the evaluation belongs to
+                controlId:
+                    type: string
+                    description: The control id the evaluation was based on
+                controlCategoryName:
+                    type: string
+                    description: The category the evaluated control belongs to
+                controlCatalogId:
+                    type: string
+                    description: The catalog the evaluated control belongs to
+                parentControlId:
+                    type: string
+                    description: Optionally, specifies the parent control ID, if this is a sub-control
+                status:
+                    enum:
+                        - EVALUATION_STATUS_UNSPECIFIED
+                        - EVALUATION_STATUS_COMPLIANT
+                        - EVALUATION_STATUS_COMPLIANT_MANUALLY
+                        - EVALUATION_STATUS_NOT_COMPLIANT
+                        - EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY
+                        - EVALUATION_STATUS_PENDING
+                    type: string
+                    description: Evaluation status
+                    format: enum
+                timestamp:
+                    type: string
+                    description: Time of evaluation
+                    format: date-time
+                assessmentResultIds:
+                    type: array
+                    items:
+                        type: string
+                    description: List of assessment results because of which the evaluation status is compliant or not compliant
+                comment:
+                    type: string
+                validUntil:
+                    type: string
+                    description: |-
+                        Optional, but required if the status is one of the "manually" ones. This
+                         denotes how long the (manual) created evaluation result is valid. During
+                         this time, no automatic results are generated for the specific control.
+                    format: date-time
+                data:
+                    type: string
+                    description: |-
+                        Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+                         creation, such as a large file like a policy in PDF format.
+                    format: bytes
+            description: |-
+                A evaluation result resource, representing the result after evaluating the
+                 target of evaluation with a specific control target_of_evaluation_id, category_name and
+                 catalog_id are necessary to get the corresponding AuditScope
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
@@ -2013,6 +2582,15 @@ components:
                         $ref: '#/components/schemas/Certificate'
                 nextPageToken:
                     type: string
+        ListControlImplementationsResponse:
+            type: object
+            properties:
+                controlImplementations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlImplementation'
+                nextPageToken:
+                    type: string
         ListControlsResponse:
             type: object
             properties:
@@ -2020,6 +2598,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Control'
+                nextPageToken:
+                    type: string
+        ListEvaluationResultsResponse:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EvaluationResult'
                 nextPageToken:
                     type: string
         ListMetricConfigurationResponse:
@@ -2062,6 +2649,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/TargetOfEvaluation'
+                nextPageToken:
+                    type: string
+        ListUserPermissionsResponse:
+            type: object
+            properties:
+                userPermissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserPermission'
                 nextPageToken:
                     type: string
         ListUserRolesResponse:
@@ -2113,7 +2709,7 @@ components:
                     description: The version of this metric
                 comments:
                     type: string
-                    description: Optional comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
+                    description: Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
                 category:
                     type: string
                     description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
@@ -2184,6 +2780,22 @@ components:
                     description: The last time of update
                     format: date-time
             description: MetricImplementation defines the implementation of an individual metric.
+        Organisation_PostalAddress:
+            type: object
+            properties:
+                street:
+                    type: string
+                    description: Street name and number.
+                city:
+                    type: string
+                    description: City.
+                zip:
+                    type: string
+                    description: Postal / ZIP code.
+                country:
+                    type: string
+                    description: Country.
+            description: PostalAddress holds the physical address of the organisation.
         Record:
             required:
                 - evidenceId
@@ -2329,10 +2941,51 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
+        TransitionControlImplementationStateRequest:
+            required:
+                - id
+                - toState
+            type: object
+            properties:
+                id:
+                    type: string
+                toState:
+                    enum:
+                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+                        - CONTROL_IMPLEMENTATION_STATE_OPEN
+                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
+                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
+                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
+                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
+                    type: string
+                    format: enum
+        Organisation:
+            type: object
+            properties:
+                name:
+                    description: Name of the company or organisation.
+                address:
+                    allOf:
+                        - $ref: '#/components/schemas/Organisation_PostalAddress'
+                    description: Postal address of the organisation.
+                contactPerson:
+                    type: string
+                    description: Optional name of the primary contact person.
+                contactEmail:
+                    type: string
+                    description: Contact e-mail address.
+                website:
+                    type: string
+                    description: Website URL of the organisation.
+            description: Organisation contains details about the organisation responsible for this target of evaluation.
+        UpsertUserPermissionResponse:
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
         User:
             required:
                 - id
-                - username
             type: object
             properties:
                 id:
@@ -2373,8 +3026,55 @@ components:
                     additionalProperties:
                         type: string
                     description: Attributes contains additional key-value pairs associated with the user, such as department or team.
+                lastAccess:
+                    type: string
+                    description: LastAccess indicates the last time the user accessed the system.
+                    format: date-time
             description: Represents a user from the IdP
+        UserPermission:
+            required:
+                - userId
+                - resourceId
+                - resourceType
+                - permission
+            type: object
+            properties:
+                userId:
+                    type: string
+                    description: User ID is required to identify the user for whom the perission is being upserted.
+                resourceId:
+                    type: string
+                    description: Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
+                resourceType:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                    type: string
+                    description: Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+                    format: enum
+                permission:
+                    enum:
+                        - PERMISSION_UNSPECIFIED
+                        - PERMISSION_READER
+                        - PERMISSION_CONTRIBUTOR
+                        - PERMISSION_ADMIN
+                    type: string
+                    description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+                    format: enum
 tags:
     - name: Orchestrator
-      description: Manages the orchestration of components within the confirmate architecture
-    - name: UserManagement

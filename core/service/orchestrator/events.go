@@ -32,6 +32,25 @@ func (svc *Service) Subscribe(
 	req *connect.Request[orchestrator.SubscribeRequest],
 	stream *connect.ServerStream[orchestrator.ChangeEvent],
 ) error {
+	var (
+		allowed bool
+		err     error
+	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return err
+	}
+
+	// Only admins may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	if err != nil {
+		return connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return service.ErrPermissionDenied
+	}
+
 	ch, id := svc.RegisterSubscriber(req.Msg.Filter)
 
 	// Ensure cleanup on return
