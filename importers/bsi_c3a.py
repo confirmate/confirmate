@@ -151,13 +151,25 @@ def parse_bsi_c3a(pdf_path: Path) -> dict:
     if current_category and current_category.get("controls"):
         categories.append(current_category)
     
-    # Post-process: try to find criterion descriptions from the original text
-    # The criterion text typically appears on the line after "SOV-X-XX-CX Criterion"
+    # Post-process: try to find supplementary information for controls and criterion descriptions
     reader = PdfReader(str(pdf_path))
     full_text = "\n".join(page.extract_text() for page in reader.pages)
     
+    # First, find supplementary information (SI) for controls
+    si_pattern = r'(SOV-\d+-\d+)-SI\s+Supplementary information\s*(.{10,800}?)(?=\n\SOV-|SOV-\d+\s+|\Z)'
+    si_matches = re.findall(si_pattern, full_text, re.DOTALL)
+    si_map = {m[0]: m[1].strip().replace('\n', ' ') for m in si_matches}
+    
     for category in categories:
         for control in category.get("controls", []):
+            control_id = control["id"]
+            # Use SI as description if available
+            if control_id in si_map:
+                si_text = si_map[control_id]
+                si_text = re.sub(r'\.+$', '', si_text).strip()
+                control["description"] = si_text
+            
+            # Find criterion descriptions
             for sub in control.get("controls", []):
                 criterion_id = sub["id"]
                 # Look for this criterion ID in the full text and extract following text

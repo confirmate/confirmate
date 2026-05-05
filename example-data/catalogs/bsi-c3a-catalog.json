@@ -13,7 +13,7 @@
           {
             "id": "SOV-1-01",
             "name": "Jurisdiction",
-            "description": "BSI C3A: SOV-1-01 - Jurisdiction",
+            "description": "If restrictions are imposed by cloud service customers for Germany, they should be justified, and it should  be ensured that their implementation, for example, in procurement procedures, is legally permissible on the  basis of reasons such as public safety.  2.1.2",
             "controls": [
               {
                 "id": "SOV-1-01-C1",
@@ -30,7 +30,7 @@
           {
             "id": "SOV-1-02",
             "name": "Registered Office",
-            "description": "BSI C3A: SOV-1-02 - Registered Office",
+            "description": "If the cloud service provider uses a subcontractor for the provision of services, such as operations, that  subcontractor MUST also meet the criteria.  If restrictions are imposed by cloud service customers for EU or Germany, they should be justified, and it  should be ensured that their implementation, for example, in procurement procedures, is legally  permissible on the basis of reasons such as public safety.  2.1.3",
             "controls": [
               {
                 "id": "SOV-1-02-C1",
@@ -47,7 +47,7 @@
           {
             "id": "SOV-1-03",
             "name": "CSP Effective Control",
-            "description": "BSI C3A: SOV-1-03 - CSP Effective Control",
+            "description": "Effective control in this context means the possibility to exert direct or indirect influence, or determine the  key strategic, financial, or operational decisions from non-EU undertakings.  Criteria, Additional Criteria and Supplementary Information  Federal Office for Information Security 8  If restrictions are imposed by cloud service customers for EU or Germany, they should be justified, and it  should be ensured that their implementation, for example, in procurement procedures, is legally  permissible on the basis of reasons such as public safety.  2.1.4",
             "controls": [
               {
                 "id": "SOV-1-03-C1",
@@ -94,7 +94,7 @@
           {
             "id": "SOV-2-02",
             "name": "Audit Rights",
-            "description": "BSI C3A: SOV-2-02 - Audit Rights",
+            "description": "The audit rights may be derived from a contract or law that explicitly reserves the right for the federal or  national authority to conduct audits. If possible, the authority tries to make use of existing audits (e.g., BSI  C5, SOC 2 Type 2) before carrying out an audit.  Any audit shall be conducted in accordance with the cloud service provider's strict security and  confidentiality protocols, including defined notice periods, to protect the data of other tenants and the  integrity of the data centre. While costs are a commercial matter, the right to audit is a regulatory mandate.  Fees shall not be so high as to effectively deny this right.  2.2.3",
             "controls": [
               {
                 "id": "SOV-2-02-C1",
@@ -111,7 +111,7 @@
           {
             "id": "SOV-2-03",
             "name": "State of Defense Takeover",
-            "description": "BSI C3A: SOV-2-03 - State of Defense Takeover",
+            "description": "This usually means that the cloud service provider has the documentation, source code and administration  tools in a portable format so that a federal administration can use them.  2.3",
             "controls": [
               {
                 "id": "SOV-2-03-C1",
@@ -134,7 +134,7 @@
           {
             "id": "SOV-3-01",
             "name": "Data Residence",
-            "description": "BSI C3A: SOV-3-01 - Data Residence",
+            "description": "If a cloud service provider operates in other locations/regions in addition to the EU or Germany, the  location/region of processing and storing MUST be clearly identifiable for the cloud service customer.  2.3.2",
             "controls": [
               {
                 "id": "SOV-3-01-C1",
@@ -166,7 +166,7 @@
           {
             "id": "SOV-3-02",
             "name": "External Key Management",
-            "description": "BSI C3A: SOV-3-02 - External Key Management",
+            "description": "The integration of external key management systems for IaaS and PaaS is widely implemented and  commonly standardized. For SaaS solutions, external encryption key management systems are less  common; therefore, cloud service providers should support external encryption key management  capabilities for SaaS where technically feasible and appropriate to the service architecture. If this criterion is  only fulfilled for some SaaS, the cloud service provider MUST provide a list of these services to the cloud  services customer.  2.3.3",
             "controls": [
               {
                 "id": "SOV-3-02-C",
@@ -232,7 +232,7 @@
           {
             "id": "SOV-3-05",
             "name": "Client-Side Encryption",
-            "description": "BSI C3A: SOV-3-05 - Client-Side Encryption",
+            "description": "If this criterion is only fulfilled for some cloud services, the cloud service provider MUST provide a list of  these services to the cloud services customer.  2.4",
             "controls": [
               {
                 "id": "SOV-3-05-C",
@@ -323,7 +323,7 @@
           {
             "id": "SOV-4-05",
             "name": "Ingress Data Control",
-            "description": "BSI C3A: SOV-4-05 - Ingress Data Control",
+            "description": "A vulnerability is regarded as known, when it is listed in the European Union Vulnerability Database (EUVD)  or in the Common Vulnerabilities and Exposures (CVE) Program from the National Institute of Standards  and Technology (NIST).  2.4.6",
             "controls": [
               {
                 "id": "SOV-4-05-C",
@@ -357,7 +357,7 @@
           {
             "id": "SOV-4-07",
             "name": "Data exchange monitoring",
-            "description": "BSI C3A: SOV-4-07 - Data exchange monitoring",
+            "description": "In the context of this requirement, a cloud service customer is not considered a third party. An associated  company within the same group of companies is classified as a third party.  2.4.8",
             "controls": [
               {
                 "id": "SOV-4-07-C",
@@ -369,7 +369,7 @@
           {
             "id": "SOV-4-08",
             "name": "Data exchange gateways",
-            "description": "BSI C3A: SOV-4-08 - Data exchange gateways",
+            "description": "In the context of this requirement, a cloud service customer is not considered a third party. An associated  company within the same group of companies is classified as a third party.  2.4.9",
             "controls": [
               {
                 "id": "SOV-4-08-C",
@@ -386,7 +386,7 @@
           {
             "id": "SOV-4-09",
             "name": "Disconnect",
-            "description": "BSI C3A: SOV-4-09 - Disconnect",
+            "description": "In the context of the disconnect requirement, network connections between the cloud service provider and  cloud service customers are excluded from the scope of the disconnection capability.  2.4.10",
             "controls": [
               {
                 "id": "SOV-4-09-C",
@@ -438,7 +438,7 @@
           {
             "id": "SOV-5-02",
             "name": "Hardware Dependencies",
-            "description": "BSI C3A: SOV-5-02 - Hardware Dependencies",
+            "description": "It is acceptable that this is only made available to the customer if he has agreed to keep the information  confidential and not publicly disclose it.  2.5.3",
             "controls": [
               {
                 "id": "SOV-5-02-C",
@@ -455,7 +455,7 @@
           {
             "id": "SOV-5-03",
             "name": "External Service Dependencies",
-            "description": "BSI C3A: SOV-5-03 - External Service Dependencies",
+            "description": "External services refer exclusively to services that are functionally required for the provision of the cloud  service itself. In this context, external cloud services refer to services provided by third-party cloud  providers that are integrated into the delivery of the primary cloud service but are operated and maintained  by separate providers.  It is acceptable that this is only made available to the customer if he has agreed to keep the information  confidential and not publicly disclose it.  2.5.4",
             "controls": [
               {
                 "id": "SOV-5-03-C",
