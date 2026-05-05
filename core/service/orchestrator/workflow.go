@@ -48,7 +48,7 @@ var validTransitions = map[orchestrator.ControlImplementationState][]orchestrato
 		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW,
 	},
 	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED,
+		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
 		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED,
 	},
 	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED: {
@@ -101,7 +101,7 @@ func (svc *Service) CreateControlImplementation(
 	impl = &orchestrator.ControlImplementation{
 		Id:                       uuid.NewString(),
 		AuditScopeId:             req.Msg.GetControlImplementation().GetAuditScopeId(),
-		TargetOfEvaluationId:     scope.TargetOfEvaluationId,
+		TargetOfEvaluationId:     scope.GetTargetOfEvaluationId(),
 		ControlId:                req.Msg.GetControlImplementation().GetControlId(),
 		ControlCategoryName:      req.Msg.GetControlImplementation().GetControlCategoryName(),
 		ControlCategoryCatalogId: req.Msg.GetControlImplementation().GetControlCategoryCatalogId(),
@@ -229,8 +229,8 @@ func (svc *Service) ListControlImplementations(
 }
 
 // UpdateControlImplementation updates mutable fields of an existing control implementation.
-// Only assignee_id can be updated; structural fields (audit scope, control reference, state) must
-// use their dedicated RPCs.
+// Only assignee_id and implementation_details can be updated; structural fields (audit scope,
+// control reference, state) must use their dedicated RPCs.
 func (svc *Service) UpdateControlImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateControlImplementationRequest],

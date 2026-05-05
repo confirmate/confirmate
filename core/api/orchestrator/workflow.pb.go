@@ -789,12 +789,12 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tupdatedAt\x12\xa9\x01\n" +
 	"\vtransitions\x18\x0e \x03(\v2;.confirmate.orchestrator.v1.ControlImplementationTransitionBJ\x9a\x84\x9e\x03Egorm:\"foreignKey:ControlImplementationId;constraint:OnDelete:CASCADE\"R\vtransitionsB\x19\n" +
 	"\x17_implementation_detailsB\x0e\n" +
-	"\f_assignee_id\"\xd2\x03\n" +
+	"\f_assignee_id\"\xd7\x03\n" +
 	"\x1fControlImplementationTransition\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12G\n" +
-	"\x19control_implementation_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x17controlImplementationId\x12U\n" +
+	"\x19control_implementation_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x17controlImplementationId\x12Z\n" +
 	"\n" +
-	"from_state\x18\x03 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateR\tfromState\x12V\n" +
+	"from_state\x18\x03 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\x03\xe0A\x02R\tfromState\x12V\n" +
 	"\bto_state\x18\x04 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\x03\xe0A\x02R\atoState\x12!\n" +
 	"\fperformed_by\x18\x05 \x01(\tR\vperformedBy\x12a\n" +
 	"\x04time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x04time\"\x99\x01\n" +

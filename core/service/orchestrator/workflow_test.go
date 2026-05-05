@@ -114,8 +114,10 @@ func TestService_CreateControlImplementation(t *testing.T) {
 					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							assert.NoError(t, d.Create(orchestratortest.MockUserPermissionsToEContributor))
+						}),
 					},
 				},
 			},

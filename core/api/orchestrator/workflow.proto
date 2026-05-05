@@ -54,7 +54,7 @@ message ControlImplementation {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Control composite key — mirrors Control's primary key.
+  // Control foreign key — references the control being implemented.
   string control_id = 5 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED,
@@ -109,7 +109,9 @@ message ControlImplementationTransition {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  ControlImplementationState from_state = 3;
+  ControlImplementationState from_state = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
 
   ControlImplementationState to_state = 4 [
     (google.api.field_behavior) = REQUIRED
