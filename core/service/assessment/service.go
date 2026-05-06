@@ -25,6 +25,7 @@ import (
 	"sync"
 	"time"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -35,14 +36,11 @@ import (
 	"confirmate.io/core/policies"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
-)
-
-var (
-	logger *slog.Logger
 )
 
 const DefaultOrchestratorURL = "http://localhost:8080"
@@ -62,6 +60,10 @@ type Config struct {
 	OrchestratorClient *http.Client
 	// RegoPackage is the package name to use for Rego policy evaluation.
 	RegoPackage string
+	// ServiceOAuth2Config is the OAuth2 client credentials configuration used for
+	// service-to-service authentication with the orchestrator. When set, all outgoing
+	// orchestrator calls use this token.
+	ServiceOAuth2Config *clientcredentials.Config
 }
 
 const (
@@ -173,7 +175,14 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		svc.authz = &service.AuthorizationStrategyAllowAll{}
 	}
 
-	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
+	// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing orchestrator calls authenticate using the client credentials flow. Auth is handled at the transport level rather than via the original request context.
+	orchestratorHTTPClient := svc.cfg.OrchestratorClient
+	if svc.cfg.ServiceOAuth2Config != nil {
+		orchestratorHTTPClient = api.NewOAuthHTTPClient(
+			orchestratorHTTPClient,
+			api.NewOAuthAuthorizerFromClientCredentials(svc.cfg.ServiceOAuth2Config),
+		)
+	}
 
 	// Initialize the policy evaluator with event subscription
 	svc.pe = policies.NewRegoEval(
@@ -181,11 +190,16 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		policies.WithEventSubscriber(svc),
 	)
 
+	// Initialize orchestrator service client
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+
+	// Initialize the restartable stream for the orchestrator service
 	err = svc.initOrchestratorStream()
 	if err != nil {
 		return nil, err
 	}
+
+	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
 	handler = svc
 	return
