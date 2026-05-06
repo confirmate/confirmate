@@ -20,6 +20,7 @@ import "api/assessment/result.proto";
 import "api/evaluation/evaluation.proto";
 import "api/common/runtime.proto";
 import "api/orchestrator/user.proto";
+import "api/orchestrator/workflow.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -388,6 +389,47 @@ service Orchestrator {
   // Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
   rpc RemoveUser(RemoveUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/users/{user_id}"};
+  }
+
+  // Creates a new control implementation to track a control's compliance status within an audit scope.
+  rpc CreateControlImplementation(CreateControlImplementationRequest) returns (ControlImplementation) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/control_implementations"
+      body: "control_implementation"
+    };
+  }
+
+  // Retrieves a control implementation by ID, including its full transition history.
+  rpc GetControlImplementation(GetControlImplementationRequest) returns (ControlImplementation) {
+    option (google.api.http) = {get: "/v1/orchestrator/control_implementations/{id}"};
+  }
+
+  // Lists control implementations with optional filtering by audit scope, state, or assignee.
+  rpc ListControlImplementations(ListControlImplementationsRequest) returns (ListControlImplementationsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/control_implementations"};
+  }
+
+  // Updates a control implementation. Only assignee_id and implementation_details can be updated;
+  // structural fields (audit scope, control reference, state) use their dedicated RPCs.
+  rpc UpdateControlImplementation(UpdateControlImplementationRequest) returns (ControlImplementation) {
+    option (google.api.http) = {
+      put: "/v1/orchestrator/control_implementations/{id}"
+      body: "*"
+    };
+  }
+
+  // Transitions a control implementation to a new state, enforcing valid state machine transitions
+  // and recording the transition in the history.
+  rpc TransitionControlImplementationState(TransitionControlImplementationStateRequest) returns (ControlImplementation) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/control_implementations/{id}/transition"
+      body: "*"
+    };
+  }
+
+  // Removes a control implementation.
+  rpc RemoveControlImplementation(RemoveControlImplementationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/orchestrator/control_implementations/{id}"};
   }
 }
 

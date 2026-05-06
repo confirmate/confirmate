@@ -27,24 +27,26 @@ import (
 
 // Mock UUIDs for consistent testing
 const (
-	MockEmptyUuid     = "00000000-0000-0000-0000-000000000000"
-	MockNonExistentId = "00000000-0000-0000-ffff-ffffffffffff"
-	MockEvidenceId1   = "00000000-0000-0000-0003-000000000001"
-	MockEvidenceId2   = "00000000-0000-0000-0003-000000000002"
-	MockMetricId1     = "00000000-0000-0000-0000-000000000001"
-	MockMetricId2     = "00000000-0000-0000-0000-000000000002"
-	MockMetricId3     = "00000000-0000-0000-0000-000000000003"
-	MockMetricId4     = "00000000-0000-0000-0000-000000000004"
-	MockResultId1     = "00000000-0000-0000-0002-000000000001"
-	MockResultId2     = "00000000-0000-0000-0002-000000000002"
-	MockResultId3     = "00000000-0000-0000-0002-000000000003"
-	MockScopeId1      = "00000000-0000-0000-0001-000000000001"
-	MockScopeId2      = "00000000-0000-0000-0001-000000000002"
-	MockToeId1        = "00000000-0000-0000-0000-000000000001"
-	MockToeId2        = "00000000-0000-0000-0000-000000000002"
-	MockToeId3        = "00000000-0000-0000-0000-000000000003"
-	MockUserId1       = "00000000-0000-0000-0000-000000000001"
-	MockUserId2       = "00000000-0000-0000-0000-000000000002"
+	MockEmptyUuid                = "00000000-0000-0000-0000-000000000000"
+	MockNonExistentId            = "00000000-0000-0000-ffff-ffffffffffff"
+	MockEvidenceId1              = "00000000-0000-0000-0003-000000000001"
+	MockEvidenceId2              = "00000000-0000-0000-0003-000000000002"
+	MockMetricId1                = "00000000-0000-0000-0000-000000000001"
+	MockMetricId2                = "00000000-0000-0000-0000-000000000002"
+	MockMetricId3                = "00000000-0000-0000-0000-000000000003"
+	MockMetricId4                = "00000000-0000-0000-0000-000000000004"
+	MockResultId1                = "00000000-0000-0000-0002-000000000001"
+	MockResultId2                = "00000000-0000-0000-0002-000000000002"
+	MockResultId3                = "00000000-0000-0000-0002-000000000003"
+	MockScopeId1                 = "00000000-0000-0000-0001-000000000001"
+	MockScopeId2                 = "00000000-0000-0000-0001-000000000002"
+	MockToeId1                   = "00000000-0000-0000-0000-000000000001"
+	MockToeId2                   = "00000000-0000-0000-0000-000000000002"
+	MockToeId3                   = "00000000-0000-0000-0000-000000000003"
+	MockUserId1                  = "00000000-0000-0000-0000-000000000001"
+	MockUserId2                  = "00000000-0000-0000-0000-000000000002"
+	MockControlImplementationId1 = "00000000-0000-0000-0004-000000000001"
+	MockControlImplementationId2 = "00000000-0000-0000-0004-000000000002"
 )
 
 // Mock strings for consistent testing
@@ -207,7 +209,6 @@ var (
 		Name:       "Mock TOE 2",
 		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
 	}
-
 	// MockTargetOfEvaluationWithOrganisation is a target of evaluation that includes organisation details.
 	MockTargetOfEvaluationWithOrganisation = &orchestrator.TargetOfEvaluation{
 		Id:         MockToeId3,
@@ -605,11 +606,38 @@ var (
 		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 
+	MockUserPermissionsToEContributor = &orchestrator.UserPermission{
+		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		ResourceId:   MockToeId1,
+		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		Permission:   orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+	}
+
 	MockUserPermissionsAuditScopeAdmin = &orchestrator.UserPermission{
 		UserId:       MockUserIssuer1 + "|" + MockUserId1,
 		ResourceId:   MockScopeId1,
 		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
 		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+	}
+
+	// Mock ControlImplementations
+	MockControlImplementation1 = &orchestrator.ControlImplementation{
+		Id:                       MockControlImplementationId1,
+		AuditScopeId:             MockScopeId1,
+		TargetOfEvaluationId:     MockToeId1,
+		ControlId:                MockControlId1,
+		ControlCategoryName:      MockCategoryName1,
+		ControlCategoryCatalogId: MockCatalogId1,
+		State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+	}
+	MockControlImplementation2 = &orchestrator.ControlImplementation{
+		Id:                       MockControlImplementationId2,
+		AuditScopeId:             MockScopeId2,
+		TargetOfEvaluationId:     MockToeId2,
+		ControlId:                MockControlId2,
+		ControlCategoryName:      MockCategoryName2,
+		ControlCategoryCatalogId: MockCatalogId2,
+		State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
 	}
 )
 

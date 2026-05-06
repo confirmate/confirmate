@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Sequence
 from uuid import uuid4
 
 import httpx
 
+from .evidence_profiles import normalize_resource_type
 from .extractor import AnalysisResult
 from .loaders import Document
+from .proto_schema import enrich_resource_body
 
 
 class EvidenceStoreError(RuntimeError):
@@ -22,6 +26,7 @@ class EvidenceStoreConfig:
     token_endpoint: str
     client_id: str
     client_secret: str
+    bearer_token: str
     tool_id: str
     target_of_evaluation_id: str
     evidence_path: str = "/v1/evidence_store/evidence"
@@ -36,6 +41,7 @@ class EvidenceStoreConfig:
         )
         client_id = os.getenv("AUTH_CLIENT_ID", "clouditor")
         client_secret = os.getenv("AUTH_CLIENT_SECRET", "clouditor")
+        bearer_token = os.getenv("EVIDENCE_BEARER_TOKEN") or os.getenv("TOKEN", "")
         tool_id = os.getenv("EVIDENCE_TOOL_ID", "document-analyser")
         target_of_evaluation_id = os.getenv(
             "TARGET_OF_EVALUATION_ID", "00000000-0000-0000-0000-000000000000"
@@ -47,6 +53,7 @@ class EvidenceStoreConfig:
             token_endpoint=token_endpoint,
             client_id=client_id,
             client_secret=client_secret,
+            bearer_token=bearer_token,
             tool_id=tool_id,
             target_of_evaluation_id=target_of_evaluation_id,
             evidence_path=evidence_path,
@@ -74,9 +81,10 @@ def build_evidence_payloads(
     """Convert analysis output into evidence store payloads."""
     evidence_items = result.data.get("evidence") or []
     if not isinstance(evidence_items, list):
-        return []
+        evidence_items = []
 
     payloads: List[Dict[str, Any]] = []
+    document_map = {str(doc.path): doc for doc in documents}
 
     for idx, item in enumerate(evidence_items):
         doc = documents[idx % len(documents)]
@@ -93,13 +101,19 @@ def build_evidence_payloads(
         raw = snippet
         if citation:
             raw = f"{snippet}\nCitation: {citation}" if snippet else f"Citation: {citation}"
+        raw_lines = [line for line in [raw] if line]
+        if isinstance(fulfilled, bool):
+            raw_lines.append(f"{response_field}: {fulfilled}")
+        if item.get("requirementId"):
+            raw_lines.append(f"Requirement ID: {item['requirementId']}")
+        raw = "\n".join(raw_lines)
         evidence_body: Dict[str, Any] = {
             "id": str(uuid4()),
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "targetOfEvaluationId": config.target_of_evaluation_id,
             "toolId": config.tool_id,
             "resource": {
-                "genericDocument": {
+                "reportDocument": {
                     "id": f"{config.tool_id}:document:{idx}",
                     "name": doc.name,
                     "description": item.get("title") or "Document evidence",
@@ -107,14 +121,63 @@ def build_evidence_payloads(
                     "dataLocation": {
                         "localDataLocation": {"path": str(doc.path)}
                     },
-                    response_field: fulfilled,
-                    # Store the proving snippet in raw to align with proto genericDocument.
+                    # Store the proving snippet and requirement outcome in raw to stay within the ontology schema.
                     "raw": raw,
                 }
             },
             "experimentalRelatedResourceIds": [],
         }
         payloads.append(_strip_none(evidence_body))
+
+    resource_items = result.data.get("resourceEvidence") or []
+    if isinstance(resource_items, list):
+        for idx, item in enumerate(resource_items):
+            if not isinstance(item, dict):
+                continue
+
+            source_path = item.get("sourcePath")
+            doc = document_map.get(str(source_path)) if source_path else None
+            if doc is None:
+                doc = documents[idx % len(documents)]
+            resource_type = normalize_resource_type(item.get("resourceType"))
+            resource_wrapper = item.get("resource")
+            if not resource_type and isinstance(resource_wrapper, dict) and len(resource_wrapper) == 1:
+                resource_type = normalize_resource_type(next(iter(resource_wrapper)))
+            if not resource_type:
+                continue
+
+            if (
+                isinstance(resource_wrapper, dict)
+                and resource_type in resource_wrapper
+                and isinstance(resource_wrapper[resource_type], dict)
+            ):
+                resource_body = dict(resource_wrapper[resource_type])
+            elif isinstance(item.get("resourceBody"), dict):
+                resource_body = dict(item["resourceBody"])
+            elif isinstance(resource_wrapper, dict):
+                resource_body = dict(resource_wrapper)
+            else:
+                continue
+
+            resource_body = enrich_resource_body(
+                resource_type,
+                resource_body,
+                source_path=doc.path,
+                snippet=item.get("snippet") or "",
+                citation=item.get("citation") or "",
+            )
+            payloads.append(
+                _strip_none(
+                    {
+                        "id": str(uuid4()),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "targetOfEvaluationId": config.target_of_evaluation_id,
+                        "toolId": config.tool_id,
+                        "resource": {resource_type: resource_body},
+                        "experimentalRelatedResourceIds": [],
+                    }
+                )
+            )
 
     return payloads
 
@@ -150,6 +213,11 @@ class EvidenceStoreClient:
 
     def _get_token(self) -> str:
         if self._token:
+            return self._token
+
+        # If a bearer token is provided explicitly, use it directly and skip OAuth.
+        if self.config.bearer_token:
+            self._token = self.config.bearer_token
             return self._token
 
         try:
@@ -210,3 +278,57 @@ class EvidenceStoreClient:
 
     def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
+
+
+def load_prebuilt_evidence_payloads(path: str | Path) -> List[Dict[str, Any]]:
+    """Load prebuilt evidence payloads from a JSON file.
+
+    Supported formats:
+    - {"evidence": {...}}
+    - {"evidences": [{"evidence": {...}}, ...]}
+    - {"evidences": [{...}, ...]}  # where each item is already an evidence body
+    """
+    payload_path = Path(path)
+    try:
+        data = json.loads(payload_path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise EvidenceStoreError(f"Prebuilt evidence file not found: {payload_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise EvidenceStoreError(f"Invalid JSON in prebuilt evidence file: {payload_path}") from exc
+
+    if not isinstance(data, dict):
+        raise EvidenceStoreError("Prebuilt evidence file must contain a JSON object at top level.")
+
+    if "evidence" in data:
+        evidence = data.get("evidence")
+        if not isinstance(evidence, dict):
+            raise EvidenceStoreError("Top-level 'evidence' must be a JSON object.")
+        return [evidence]
+
+    if "evidences" in data:
+        evidences_raw = data.get("evidences")
+        if not isinstance(evidences_raw, list):
+            raise EvidenceStoreError("Top-level 'evidences' must be a JSON array.")
+
+        payloads: List[Dict[str, Any]] = []
+        for idx, item in enumerate(evidences_raw):
+            if not isinstance(item, dict):
+                raise EvidenceStoreError(f"evidences[{idx}] must be a JSON object.")
+
+            if "evidence" in item:
+                evidence = item.get("evidence")
+                if not isinstance(evidence, dict):
+                    raise EvidenceStoreError(
+                        f"evidences[{idx}].evidence must be a JSON object."
+                    )
+                payloads.append(evidence)
+                continue
+
+            # Also accept arrays where items are directly evidence objects.
+            payloads.append(item)
+
+        return payloads
+
+    raise EvidenceStoreError(
+        "Prebuilt evidence file must contain either top-level 'evidence' or 'evidences'."
+    )
