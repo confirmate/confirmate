@@ -55,7 +55,7 @@ const (
 // [evaluationconnect.EvaluationHandler]).
 type Service struct {
 	evaluationconnect.UnimplementedEvaluationHandler
-	cfg  Config
+	cfg   Config
 	authz service.AuthorizationStrategy
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
@@ -139,7 +139,7 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 		)
 	}
 
-	// Initialize the Orchestrator client
+	// Initialize the orchestrator service client
 	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(orchestratorHTTPClient, svc.cfg.OrchestratorAddress)
 
 	// If using permission store-based authorization, back it with the orchestrator client so the
