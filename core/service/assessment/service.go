@@ -245,6 +245,11 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 			slog.Error("cannot receive stream request", log.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
+
+		slog.Debug("Received evidence for assessment via stream",
+			slog.String("evidence_id", req.Evidence.GetId()),
+			slog.String("tool_id", req.Evidence.GetToolId()))
+
 		assessmentReq = connect.NewRequest(&assessment.AssessEvidenceRequest{
 			Evidence: req.Evidence,
 		})

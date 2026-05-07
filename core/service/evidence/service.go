@@ -186,6 +186,11 @@ func (svc *Service) initEvidenceChannel() {
 					slog.String("tool_id", e.GetToolId()),
 					tint.Err(err),
 				)
+			} else {
+				slog.Debug("evidence sent to assessment service",
+					slog.String("evidence_id", e.GetId()),
+					slog.String("tool_id", e.GetToolId()),
+				)
 			}
 		}
 	}()
