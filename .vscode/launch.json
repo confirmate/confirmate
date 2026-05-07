@@ -13,8 +13,9 @@
             "cwd": "${workspaceFolder}/core",
             "args": [
                 "--db-in-memory",
-                "--log-level", "debug",
-                "--auth-enabled"
+                "--log-level",
+                "debug",
+                // "--auth-enabled"
             ]
         },
         {
@@ -26,7 +27,9 @@
             "cwd": "${workspaceFolder}/core",
             "args": [
                 "--db-in-memory",
-                "--log-level", "debug"
+                "--log-level",
+                "debug"
             ]
-        }]
+        }
+    ]
 }

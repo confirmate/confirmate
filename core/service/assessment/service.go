@@ -403,7 +403,7 @@ func (svc *Service) handleEvidence(
 		slog.Any("Timestamp", ev.Timestamp.AsTime()),
 	)
 
-	evaluations, err = svc.pe.Eval(ev, resource, related, svc)
+	evaluations, err = svc.pe.Eval(ctx, ev, resource, related, svc)
 	if err != nil {
 		newError = fmt.Errorf("could not evaluate evidence: %w", err)
 
@@ -495,9 +495,9 @@ func (svc *Service) RegisterAssessmentResultHook(assessmentResultsHook func(ctx 
 }
 
 // Metrics implements MetricsSource by retrieving the metric list from the orchestrator.
-func (svc *Service) Metrics() (metrics []*assessment.Metric, err error) {
+func (svc *Service) Metrics(ctx context.Context) (metrics []*assessment.Metric, err error) {
 	res, err := svc.orchestratorClient.ListMetrics(
-		context.Background(),
+		ctx,
 		connect.NewRequest(
 			&orchestrator.ListMetricsRequest{}),
 	)

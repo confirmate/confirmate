@@ -16,6 +16,7 @@
 package policies
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 	"sync"
@@ -42,7 +43,7 @@ type PolicyEval interface {
 	// Eval evaluates a given evidence against a metric coming from the metrics source. In order to avoid unnecessary
 	// unwrapping, the callee of this function needs to supply the unwrapped ontology resource, since they most likely
 	// unwrapped the resource already, e.g. to check for validation.
-	Eval(evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error)
+	Eval(ctx context.Context, evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error)
 }
 
 type CombinedResult struct {
@@ -62,7 +63,7 @@ type CombinedResult struct {
 // MetricsSource is used to retrieve a list of metrics and to retrieve a metric
 // configuration as well as implementation for a particular metric (and target of evaluation)
 type MetricsSource interface {
-	Metrics() ([]*assessment.Metric, error)
+	Metrics(ctx context.Context) ([]*assessment.Metric, error)
 	MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error)
 	MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error)
 }

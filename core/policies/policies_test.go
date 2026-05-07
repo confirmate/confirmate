@@ -17,6 +17,7 @@ package policies
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -69,7 +70,7 @@ type mockMetricsSource struct {
 var _ MetricsSource = (*mockMetricsSource)(nil)
 
 // Metrics returns all metrics loaded from the metrics directory
-func (m *mockMetricsSource) Metrics() ([]*assessment.Metric, error) {
+func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
 	metricsPath := "./policies/security-metrics/metrics"
 	fmt.Println(os.Executable())
 	metrics := make([]*assessment.Metric, 0)
@@ -178,7 +179,7 @@ type mockPolicyEval struct {
 var _ PolicyEval = (*mockPolicyEval)(nil)
 
 // Eval returns pre-configured results
-func (m *mockPolicyEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) ([]*CombinedResult, error) {
+func (m *mockPolicyEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) ([]*CombinedResult, error) {
 	return m.results, m.err
 }
 
@@ -284,7 +285,7 @@ func TestMetricsCache(t *testing.T) {
 func TestMockMetricsSource_Metrics(t *testing.T) {
 	mock := &mockMetricsSource{t: t}
 
-	metrics, err := mock.Metrics()
+	metrics, err := mock.Metrics(context.Background())
 	assert.NoError(t, err)
 	assert.NotEmpty(t, metrics)
 }
@@ -293,7 +294,7 @@ func TestMockMetricsSource_MetricConfiguration(t *testing.T) {
 	mock := &mockMetricsSource{t: t}
 
 	// Get metrics first
-	metrics, err := mock.Metrics()
+	metrics, err := mock.Metrics(context.Background())
 	assert.NoError(t, err)
 	assert.NotEmpty(t, metrics)
 
@@ -330,7 +331,7 @@ func TestMockPolicyEval_Eval(t *testing.T) {
 		results: expectedResults,
 	}
 
-	results, err := mock.Eval(nil, nil, nil, nil)
+	results, err := mock.Eval(context.Background(), nil, nil, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedResults, results)
 }

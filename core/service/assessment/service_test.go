@@ -1080,7 +1080,7 @@ func TestService_Metrics(t *testing.T) {
 
 			// Test
 			assessmentSvc := assessmentHandler.(*Service)
-			metrics, err := assessmentSvc.Metrics()
+			metrics, err := assessmentSvc.Metrics(context.Background())
 			tt.want(t, metrics)
 			tt.wantErr(t, err)
 		})

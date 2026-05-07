@@ -16,6 +16,7 @@
 package policies
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -39,7 +40,7 @@ import (
 
 type metricsErrorSource struct{}
 
-func (m *metricsErrorSource) Metrics() (metrics []*assessment.Metric, err error) {
+func (m *metricsErrorSource) Metrics(_ context.Context) (metrics []*assessment.Metric, err error) {
 	return nil, errors.New("boom")
 }
 
@@ -53,7 +54,7 @@ func (m *metricsErrorSource) MetricImplementation(lang assessment.MetricImplemen
 
 type missingConfigSource struct{}
 
-func (m *missingConfigSource) Metrics() (metrics []*assessment.Metric, err error) {
+func (m *missingConfigSource) Metrics(_ context.Context) (metrics []*assessment.Metric, err error) {
 	return []*assessment.Metric{{
 		Id:       "metric-1",
 		Name:     "MetricOne",
@@ -72,7 +73,7 @@ func (m *missingConfigSource) MetricImplementation(lang assessment.MetricImpleme
 
 type metricConfigErrorSource struct{}
 
-func (m *metricConfigErrorSource) Metrics() (metrics []*assessment.Metric, err error) {
+func (m *metricConfigErrorSource) Metrics(_ context.Context) (metrics []*assessment.Metric, err error) {
 	return []*assessment.Metric{{
 		Id:       "metric-1",
 		Name:     "MetricOne",
@@ -415,7 +416,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				mrtc: tt.fields.mrtc,
 				pkg:  tt.fields.pkg,
 			}
-			results, err := pe.Eval(&evidence.Evidence{
+			results, err := pe.Eval(context.Background(), &evidence.Evidence{
 				Id:       tt.args.evidenceID,
 				Resource: prototest.NewProtobufResource(t, tt.args.resource),
 			}, tt.args.resource, tt.args.related, tt.args.src)
@@ -452,7 +453,7 @@ func Test_regoEval_Eval_MetricsError(t *testing.T) {
 	}
 	source = &metricsErrorSource{}
 
-	results, err = pe.Eval(&evidence.Evidence{
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
@@ -477,7 +478,7 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 	}
 	source = &missingConfigSource{}
 
-	results, err = pe.Eval(&evidence.Evidence{
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
@@ -502,7 +503,7 @@ func Test_regoEval_Eval_ReturnsNonSkippableMetricConfigurationError(t *testing.T
 	}
 	source = &metricConfigErrorSource{}
 
-	results, err = pe.Eval(&evidence.Evidence{
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
@@ -532,6 +533,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 		pkg  string
 	}
 	type args struct {
+		ctx      context.Context
 		baseDir  string
 		targetID string
 		metric   *assessment.Metric
@@ -641,7 +643,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				mrtc: tt.fields.mrtc,
 				pkg:  tt.fields.pkg,
 			}
-			gotResult, err := re.evalMap(tt.args.baseDir, tt.args.targetID, tt.args.metric, tt.args.m, tt.args.src)
+			gotResult, err := re.evalMap(tt.args.ctx, tt.args.baseDir, tt.args.targetID, tt.args.metric, tt.args.m, tt.args.src)
 
 			tt.wantErr(t, err)
 			tt.want(t, gotResult)

@@ -163,7 +163,7 @@ func (re *regoEval) Close() error {
 // Eval evaluates a given evidence against all available Rego policies and returns the result of all policies that were
 // considered to be applicable. In order to avoid multiple unwrapping, the callee will already supply an unwrapped
 // ontology resource in r.
-func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error) {
+func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error) {
 	var (
 		baseDir string
 		m       map[string]any
@@ -200,7 +200,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 
 	// TODO(lebogg): Try to optimize duplicated code
 	if cached == nil {
-		metrics, err := src.Metrics()
+		metrics, err := src.Metrics(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric definitions: %w", err)
 		}
@@ -220,7 +220,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 			// we need to know that the metric exists, e.g., because it is evaluated by an external
 			// tool. In this case, we can just pretend that the metric is not applicable for us and
 			// continue.
-			runMap, err := re.evalMap(baseDir, evidence.TargetOfEvaluationId, metric, m, src)
+			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {
 				// Try to check if the metric implementation just does not exist.
 				if connect.CodeOf(err) == connect.CodeNotFound &&
@@ -252,7 +252,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		re.mrtc.Unlock()
 	} else {
 		for _, metric := range cached {
-			runMap, err := re.evalMap(baseDir, evidence.TargetOfEvaluationId, metric, m, src)
+			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {
 				return nil, err
 			}
@@ -286,7 +286,7 @@ func (re *regoEval) HandleMetricEvent(event *orchestrator.ChangeEvent) (err erro
 	return nil
 }
 
-func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.Metric, m map[string]interface{}, src MetricsSource) (result *CombinedResult, err error) {
+func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string, metric *assessment.Metric, m map[string]interface{}, src MetricsSource) (result *CombinedResult, err error) {
 	var (
 		query  *rego.PreparedEvalQuery
 		key    string
@@ -388,7 +388,7 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 		return nil, fmt.Errorf("could not fetch cached query for metric %s: %w", metric.Name, err)
 	}
 
-	results, err := query.Eval(context.Background(), rego.EvalInput(m))
+	results, err := query.Eval(ctx, rego.EvalInput(m))
 	if err != nil {
 		return nil, fmt.Errorf("could not evaluate rego policy: %w", err)
 	}
