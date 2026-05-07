@@ -100,7 +100,7 @@ var AssessmentCommand = &cli.Command{
 			}),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithReflection(),
 		)
