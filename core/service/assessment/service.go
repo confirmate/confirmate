@@ -191,7 +191,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	)
 
 	// Initialize orchestrator service client
-	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(orchestratorHTTPClient, svc.cfg.OrchestratorAddress)
 
 	// Initialize the restartable stream for the orchestrator service
 	err = svc.initOrchestratorStream()
