@@ -17,11 +17,13 @@ package commands
 
 import (
 	"context"
+	"fmt"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
@@ -48,13 +50,39 @@ var AssessmentCommand = &cli.Command{
 	Name:  "assessment",
 	Usage: "Launches the assessment service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := assessment.NewService(
-			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-				OrchestratorClient:  service.DefaultHTTPClient,
-				RegoPackage:         cmd.String("assessment-rego-package"),
-			}),
+		var (
+			interceptors []connect.Interceptor
+			svcOptions   []service.Option[assessment.Service]
+			cfg          assessment.Config
 		)
+
+		cfg = assessment.Config{
+			OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
+			OrchestratorClient:  service.NewHTTPClient(),
+			RegoPackage:         cmd.String("assessment-rego-package"),
+		}
+
+		if cmd.Bool("auth-enabled") {
+			jwksURL := cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+			svcOptions = append(svcOptions, assessment.WithAuthorizationStrategyPermissionStore())
+
+			cfg.ServiceOAuth2Config = &clientcredentials.Config{
+				ClientID:     cmd.String("service-auth-client-id"),
+				ClientSecret: cmd.String("service-auth-client-secret"),
+				TokenURL:     cmd.String("service-auth-token-endpoint"),
+			}
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+		svcOptions = append(svcOptions, assessment.WithConfig(cfg))
+
+		svc, err := assessment.NewService(svcOptions...)
 		if err != nil {
 			return err
 		}
