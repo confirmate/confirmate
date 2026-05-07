@@ -175,6 +175,7 @@ func (svc *Service) initEvidenceChannel() {
 	// NOTE: This simple approach has a few limitations: a full queue will block StoreEvidence, the worker
 	// has no shutdown signal, errors are only logged (no retry), and throughput is limited to a single goroutine.
 	go func() {
+		slog.Debug("Evidence worker thread started, waiting for evidence to process...")
 		for e := range svc.channelEvidence { // exits when channel is closed
 			if e == nil {
 				continue
