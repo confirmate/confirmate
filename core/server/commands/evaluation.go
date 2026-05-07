@@ -96,6 +96,7 @@ var EvaluationCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithReflection(),
 		)
 	},
 	Flags: joinFlagSlices(
