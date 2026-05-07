@@ -85,7 +85,7 @@ service Orchestrator {
   // Store the evaluation result provided by the evaluation component.″
   rpc StoreEvaluationResult(StoreEvaluationResultRequest) returns (confirmate.evaluation.v1.EvaluationResult) {
     option (google.api.http) = {
-      post: "/v1/evaluation/results"
+      post: "/v1/orchestrator/evaluation_results"
       body: "result"
     };
   }
@@ -100,7 +100,7 @@ service Orchestrator {
   // restricted by various filtering options. Part of the public API, also
   // exposed as REST.
   rpc ListEvaluationResults(ListEvaluationResultsRequest) returns (ListEvaluationResultsResponse) {
-    option (google.api.http) = {get: "/v1/evaluation/results"};
+    option (google.api.http) = {get: "/v1/orchestrator/evaluation_results"};
   }
 
   // Creates a new metric
