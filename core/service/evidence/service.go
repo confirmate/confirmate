@@ -169,6 +169,8 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	// Create a channel to send evidence to the worker thread
 	svc.initEvidenceChannel()
 
+	slog.Info("Assessment URL is set", slog.String("assessment_url", svc.cfg.AssessmentAddress))
+
 	return svc, nil
 }
 

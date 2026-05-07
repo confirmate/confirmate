@@ -47,17 +47,17 @@ const DefaultOrchestratorURL = "http://localhost:8080"
 
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{
-	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  service.DefaultHTTPClient,
-	RegoPackage:         policies.DefaultRegoPackage,
+	OrchestratorAddress:    DefaultOrchestratorURL,
+	OrchestratorHTTPClient: service.DefaultHTTPClient,
+	RegoPackage:            policies.DefaultRegoPackage,
 }
 
 // Config represents the configuration for the assessment [Service].
 type Config struct {
 	// OrchestratorAddress is the address of the orchestrator service.
 	OrchestratorAddress string
-	// OrchestratorClient is the HTTP client to use for orchestrator communication.
-	OrchestratorClient *http.Client
+	// OrchestratorHTTPClient is the HTTP client to use for orchestrator communication.
+	OrchestratorHTTPClient *http.Client
 	// RegoPackage is the package name to use for Rego policy evaluation.
 	RegoPackage string
 	// ServiceOAuth2Config is the OAuth2 client credentials configuration used for
@@ -176,7 +176,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	}
 
 	// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing orchestrator calls authenticate using the client credentials flow. Auth is handled at the transport level rather than via the original request context.
-	orchestratorHTTPClient := svc.cfg.OrchestratorClient
+	orchestratorHTTPClient := svc.cfg.OrchestratorHTTPClient
 	if svc.cfg.ServiceOAuth2Config != nil {
 		orchestratorHTTPClient = api.NewOAuthHTTPClient(
 			orchestratorHTTPClient,
@@ -199,7 +199,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		return nil, err
 	}
 
-	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
+	slog.Info("Orchestrator URL is set", slog.String("orchestrator_url", svc.cfg.OrchestratorAddress))
 
 	handler = svc
 	return

@@ -81,9 +81,9 @@ func TestNewService(t *testing.T) {
 			args: args{
 				opts: []service.Option[Service]{
 					WithConfig(Config{
-						OrchestratorAddress: DefaultOrchestratorURL,
-						OrchestratorClient:  http.DefaultClient,
-						RegoPackage:         "testPkg",
+						OrchestratorAddress:    DefaultOrchestratorURL,
+						OrchestratorHTTPClient: http.DefaultClient,
+						RegoPackage:            "testPkg",
 					}),
 				},
 			},
@@ -96,9 +96,9 @@ func TestNewService(t *testing.T) {
 			args: args{
 				opts: []service.Option[Service]{
 					WithConfig(Config{
-						OrchestratorAddress: "localhost:9092",
-						OrchestratorClient:  http.DefaultClient,
-						RegoPackage:         policies.DefaultRegoPackage,
+						OrchestratorAddress:    "localhost:9092",
+						OrchestratorHTTPClient: http.DefaultClient,
+						RegoPackage:            policies.DefaultRegoPackage,
 					}),
 				},
 			},
@@ -370,9 +370,9 @@ func TestService_AssessEvidence(t *testing.T) {
 				_, client, url := setupOrchestratorForTesting(t)
 				aHandler, err := NewService(
 					WithConfig(Config{
-						OrchestratorAddress: url,
-						OrchestratorClient:  client,
-						RegoPackage:         policies.DefaultRegoPackage,
+						OrchestratorAddress:    url,
+						OrchestratorHTTPClient: client,
+						RegoPackage:            policies.DefaultRegoPackage,
 					}),
 				)
 				assert.NoError(t, err)
@@ -504,9 +504,9 @@ func TestService_AssessEvidences(t *testing.T) {
 
 			aHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  client,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: client,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -718,9 +718,9 @@ func TestService_handleEvidence(t *testing.T) {
 
 			aHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  client,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: client,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -774,9 +774,9 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 
 	aHandler, err := NewService(
 		WithConfig(Config{
-			OrchestratorAddress: url,
-			OrchestratorClient:  client,
-			RegoPackage:         policies.DefaultRegoPackage,
+			OrchestratorAddress:    url,
+			OrchestratorHTTPClient: client,
+			RegoPackage:            policies.DefaultRegoPackage,
 		}),
 	)
 	assert.NoError(t, err)
@@ -952,9 +952,9 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 
 			aHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  client,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: client,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -1071,9 +1071,9 @@ func TestService_Metrics(t *testing.T) {
 			// Create assessment service
 			assessmentHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: testSrv.URL,
-					OrchestratorClient:  testSrv.Client(),
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    testSrv.URL,
+					OrchestratorHTTPClient: testSrv.Client(),
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -1171,9 +1171,9 @@ func TestService_MetricImplementation(t *testing.T) {
 			// Create assessment service
 			assessmentHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: testSrv.URL,
-					OrchestratorClient:  testSrv.Client(),
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    testSrv.URL,
+					OrchestratorHTTPClient: testSrv.Client(),
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -1304,9 +1304,9 @@ func TestService_MetricConfiguration(t *testing.T) {
 			// Create assessment service
 			handler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  testClient,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: testClient,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -1356,14 +1356,14 @@ func TestService_initOrchestratorStream(t *testing.T) {
 			// Create service
 			assSvc := &Service{
 				cfg: Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  testClient,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: testClient,
+					RegoPackage:            policies.DefaultRegoPackage,
 				},
 			}
 
 			assSvc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(
-				assSvc.cfg.OrchestratorClient,
+				assSvc.cfg.OrchestratorHTTPClient,
 				assSvc.cfg.OrchestratorAddress,
 			)
 

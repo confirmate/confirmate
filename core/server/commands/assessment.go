@@ -57,9 +57,9 @@ var AssessmentCommand = &cli.Command{
 		)
 
 		cfg = assessment.Config{
-			OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-			OrchestratorClient:  service.NewHTTPClient(),
-			RegoPackage:         cmd.String("assessment-rego-package"),
+			OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
+			OrchestratorHTTPClient: service.NewHTTPClient(),
+			RegoPackage:            cmd.String("assessment-rego-package"),
 		}
 
 		if cmd.Bool("auth-enabled") {
