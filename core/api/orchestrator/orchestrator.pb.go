@@ -6324,7 +6324,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x17REQUEST_TYPE_REGISTERED\x10\x04\x12\x17\n" +
 	"\x13REQUEST_TYPE_STORED\x10\x05\x12\x14\n" +
 	"\x10REQUEST_TYPE_GET\x10\x06\x12\x15\n" +
-	"\x11REQUEST_TYPE_LIST\x10\a2\xc1U\n" +
+	"\x11REQUEST_TYPE_LIST\x10\a2\xdbU\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -6333,10 +6333,10 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x18DeregisterAssessmentTool\x12;.confirmate.orchestrator.v1.DeregisterAssessmentToolRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-*+/v1/orchestrator/assessment_tools/{tool_id}\x12\xc1\x01\n" +
 	"\x15StoreAssessmentResult\x128.confirmate.orchestrator.v1.StoreAssessmentResultRequest\x1a9.confirmate.orchestrator.v1.StoreAssessmentResultResponse\"3\x82\xd3\xe4\x93\x02-:\x06result\"#/v1/orchestrator/assessment_results\x12\x92\x01\n" +
 	"\x16StoreAssessmentResults\x128.confirmate.orchestrator.v1.StoreAssessmentResultRequest\x1a:.confirmate.orchestrator.v1.StoreAssessmentResultsResponse(\x010\x01\x12\xab\x01\n" +
-	"\x13GetAssessmentResult\x126.confirmate.orchestrator.v1.GetAssessmentResultRequest\x1a*.confirmate.assessment.v1.AssessmentResult\"0\x82\xd3\xe4\x93\x02*\x12(/v1/orchestrator/assessment_results/{id}\x12\xa5\x01\n" +
-	"\x15StoreEvaluationResult\x128.confirmate.orchestrator.v1.StoreEvaluationResultRequest\x1a*.confirmate.evaluation.v1.EvaluationResult\"&\x82\xd3\xe4\x93\x02 :\x06result\"\x16/v1/evaluation/results\x12\xb9\x01\n" +
-	"\x15ListAssessmentResults\x128.confirmate.orchestrator.v1.ListAssessmentResultsRequest\x1a9.confirmate.orchestrator.v1.ListAssessmentResultsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/orchestrator/assessment_results\x12\xac\x01\n" +
-	"\x15ListEvaluationResults\x128.confirmate.orchestrator.v1.ListEvaluationResultsRequest\x1a9.confirmate.orchestrator.v1.ListEvaluationResultsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/evaluation/results\x12\x8b\x01\n" +
+	"\x13GetAssessmentResult\x126.confirmate.orchestrator.v1.GetAssessmentResultRequest\x1a*.confirmate.assessment.v1.AssessmentResult\"0\x82\xd3\xe4\x93\x02*\x12(/v1/orchestrator/assessment_results/{id}\x12\xb2\x01\n" +
+	"\x15StoreEvaluationResult\x128.confirmate.orchestrator.v1.StoreEvaluationResultRequest\x1a*.confirmate.evaluation.v1.EvaluationResult\"3\x82\xd3\xe4\x93\x02-:\x06result\"#/v1/orchestrator/evaluation_results\x12\xb9\x01\n" +
+	"\x15ListAssessmentResults\x128.confirmate.orchestrator.v1.ListAssessmentResultsRequest\x1a9.confirmate.orchestrator.v1.ListAssessmentResultsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/orchestrator/assessment_results\x12\xb9\x01\n" +
+	"\x15ListEvaluationResults\x128.confirmate.orchestrator.v1.ListEvaluationResultsRequest\x1a9.confirmate.orchestrator.v1.ListEvaluationResultsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/orchestrator/evaluation_results\x12\x8b\x01\n" +
 	"\fCreateMetric\x12/.confirmate.orchestrator.v1.CreateMetricRequest\x1a .confirmate.assessment.v1.Metric\"(\x82\xd3\xe4\x93\x02\":\x06metric\"\x18/v1/orchestrator/metrics\x12\x97\x01\n" +
 	"\fUpdateMetric\x12/.confirmate.orchestrator.v1.UpdateMetricRequest\x1a .confirmate.assessment.v1.Metric\"4\x82\xd3\xe4\x93\x02.:\x06metric\x1a$/v1/orchestrator/metrics/{metric.id}\x12\x89\x01\n" +
 	"\tGetMetric\x12,.confirmate.orchestrator.v1.GetMetricRequest\x1a .confirmate.assessment.v1.Metric\",\x82\xd3\xe4\x93\x02&\x12$/v1/orchestrator/metrics/{metric_id}\x12\x90\x01\n" +

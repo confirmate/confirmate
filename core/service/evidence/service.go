@@ -110,8 +110,10 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		o(svc)
 	}
 
+	// Initialize the assessment service client
 	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
 		svc.cfg.AssessmentHTTPClient, svc.cfg.AssessmentAddress)
+
 	// Initialize the restartable stream for assessment service
 	err = svc.initAssessmentStream()
 	if err != nil {

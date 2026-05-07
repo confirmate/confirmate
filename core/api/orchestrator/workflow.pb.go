@@ -107,7 +107,7 @@ type ControlImplementation struct {
 	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"uniqueIndex:idx_control_impl_audit_scope_control"`
 	// TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
 	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
-	// Control composite key — mirrors Control's primary key.
+	// Control foreign key — references the control being implemented.
 	ControlId                string `protobuf:"bytes,5,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty" gorm:"uniqueIndex:idx_control_impl_audit_scope_control"`
 	ControlCategoryName      string `protobuf:"bytes,6,opt,name=control_category_name,json=controlCategoryName,proto3" json:"control_category_name,omitempty" gorm:"uniqueIndex:idx_control_impl_audit_scope_control"`
 	ControlCategoryCatalogId string `protobuf:"bytes,7,opt,name=control_category_catalog_id,json=controlCategoryCatalogId,proto3" json:"control_category_catalog_id,omitempty" gorm:"uniqueIndex:idx_control_impl_audit_scope_control"`
