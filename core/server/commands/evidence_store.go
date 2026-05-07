@@ -16,6 +16,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"time"
@@ -25,6 +26,7 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
@@ -51,6 +53,12 @@ var EvidenceCommand = &cli.Command{
 	Name:  "evidence",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
+		var (
+			interceptors        []connect.Interceptor
+			svcOptions          []service.Option[evidence.Service]
+			serviceOAuth2Config *clientcredentials.Config
+		)
+
 		slog.Info("Starting Evidence Store",
 			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
 			slog.String("log_level", cmd.String("log-level")),
@@ -71,6 +79,25 @@ var EvidenceCommand = &cli.Command{
 		assessmentClient := service.NewHTTPClient()
 		assessmentClient.Timeout = cmd.Duration("evidence-assessment-http-timeout")
 
+		if cmd.Bool("auth-enabled") {
+			jwksURL := cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+			interceptors = append(interceptors, &server.LoggingInterceptor{})
+
+			svcOptions = append(svcOptions, evidence.WithAuthorizationStrategyPermissionStore())
+
+			serviceOAuth2Config = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			}
+		}
+
 		svc, err := evidence.NewService(
 			evidence.WithConfig(evidence.Config{
 				AssessmentAddress:    cmd.String("evidence-assessment-address"),
@@ -85,7 +112,8 @@ var EvidenceCommand = &cli.Command{
 					InMemoryDB: cmd.Bool("db-in-memory"),
 					MaxConn:    cmd.Int("db-max-connections"),
 				},
-				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
+				ServiceOAuth2Config: serviceOAuth2Config,
+				EvidenceQueueSize:   evidence.DefaultConfig.EvidenceQueueSize,
 			}),
 		)
 		if err != nil {
@@ -105,7 +133,7 @@ var EvidenceCommand = &cli.Command{
 			}),
 			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithReflection(),
 		)

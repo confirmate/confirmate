@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/api/evidence"
@@ -32,6 +33,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"confirmate.io/core/stream"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
@@ -63,10 +65,17 @@ type Config struct {
 
 	// EvidenceQueueSize is the size of the evidence processing queue.
 	EvidenceQueueSize int
+
+	// ServiceOAuth2Config is the OAuth2 client credentials configuration used for
+	// service-to-service authentication with the orchestrator. When set, all outgoing
+	// orchestrator calls use this token.
+	ServiceOAuth2Config *clientcredentials.Config
 }
 
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
+	evidenceconnect.UnimplementedEvidenceStoreHandler
+
 	db  persistence.DB
 	cfg Config
 
@@ -89,13 +98,28 @@ type Service struct {
 	toolIds   map[string]struct{}
 	toolIdsMu sync.RWMutex
 
-	evidenceconnect.UnimplementedEvidenceStoreHandler
+	// authz defines our authorization strategy for target-of-evaluation scoped access.
+	authz service.AuthorizationStrategy
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
 func WithConfig(cfg Config) service.Option[Service] {
 	return func(svc *Service) {
 		svc.cfg = cfg
+	}
+}
+
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization.
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyPermissionStore{}
 	}
 }
 
@@ -110,9 +134,23 @@ func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 		o(svc)
 	}
 
+	// Set authz strategy to default allow-all
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
+	}
+
+	// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing assessment calls authenticate using the client credentials flow. Auth is handled at the transport level rather than via the original request context.
+	assessmentHTTPClient := svc.cfg.AssessmentHTTPClient
+	if svc.cfg.ServiceOAuth2Config != nil {
+		assessmentHTTPClient = api.NewOAuthHTTPClient(
+			assessmentHTTPClient,
+			api.NewOAuthAuthorizerFromClientCredentials(svc.cfg.ServiceOAuth2Config),
+		)
+	}
+
 	// Initialize the assessment service client
 	svc.assessmentClient = assessmentconnect.NewAssessmentClient(
-		svc.cfg.AssessmentHTTPClient, svc.cfg.AssessmentAddress)
+		assessmentHTTPClient, svc.cfg.AssessmentAddress)
 
 	// Initialize the restartable stream for assessment service
 	err = svc.initAssessmentStream()
