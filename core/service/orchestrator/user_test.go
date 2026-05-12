@@ -652,21 +652,23 @@ func TestService_GetUser(t *testing.T) {
 			},
 		},
 		{
-			name: "err: permission denied - deny strategy",
+			name: "happy path: get user does not require authorization check",
 			args: args{
-
 				req: connect.NewRequest(&orchestrator.GetUserRequest{
-					UserId: orchestratortest.MockUserId1,
+					UserId: orchestratortest.MockUser1.GetId(),
 				}),
 			},
 			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.User]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockUser1, got.Msg)
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "err: database error getting user",

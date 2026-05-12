@@ -96,22 +96,12 @@ func (svc *Service) GetUser(
 	req *connect.Request[orchestrator.GetUserRequest],
 ) (res *connect.Response[orchestrator.User], err error) {
 	var (
-		user    orchestrator.User
-		allowed bool
+		user orchestrator.User
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
-	}
-
-	// Only admins may get users.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
