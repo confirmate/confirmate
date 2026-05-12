@@ -535,6 +535,35 @@ func TestService_TransitionControlImplementationState(t *testing.T) {
 		wantDB  assert.Want[persistence.DB]
 	}{
 		{
+			name: "happy path: OPEN -> IN_PROGRESS with comment",
+			args: args{
+				req: func() *orchestrator.TransitionControlImplementationStateRequest {
+					comment := "Starting implementation work."
+					return &orchestrator.TransitionControlImplementationStateRequest{
+						Id:      orchestratortest.MockControlImplementation1.Id,
+						ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+						Comment: &comment,
+					}
+				}(),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockControlImplementation1))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ControlImplementation], args ...any) bool {
+				comment := "Starting implementation work."
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.Transitions)) &&
+					assert.Equal(t, &comment, got.Msg.Transitions[0].Comment)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				return assert.NotNil(t, db)
+			},
+		},
+		{
 			name: "happy path: OPEN -> IN_PROGRESS",
 			args: args{
 				req: &orchestrator.TransitionControlImplementationStateRequest{

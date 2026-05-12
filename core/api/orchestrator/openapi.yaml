@@ -2423,6 +2423,9 @@ components:
                 time:
                     type: string
                     format: date-time
+                comment:
+                    type: string
+                    description: Optional comment explaining the reason for the transition.
             description: |-
                 ControlImplementationTransition records a single state change in a ControlImplementation's
                  lifecycle, capturing who made the change and when.
@@ -2972,6 +2975,9 @@ components:
                         - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
                     type: string
                     format: enum
+                comment:
+                    type: string
+                    description: Optional comment explaining the reason for this transition.
         UpdateControlImplementationRequest:
             required:
                 - id
