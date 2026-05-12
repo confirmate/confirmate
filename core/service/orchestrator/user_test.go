@@ -254,18 +254,22 @@ func TestService_ListUsers(t *testing.T) {
 			},
 		},
 		{
-			name: "authorization error",
+			name: "happy path: list users does not require authorization check",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
 			},
 			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.ListUsersResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.Users)) &&
+					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: with allow-all authorization strategy",

@@ -129,10 +129,9 @@ func (svc *Service) ListUsers(
 	req *connect.Request[orchestrator.ListUsersRequest],
 ) (res *connect.Response[orchestrator.ListUsersResponse], err error) {
 	var (
-		users   []*orchestrator.User
-		conds   []any
-		npt     string
-		allowed bool
+		users []*orchestrator.User
+		conds []any
+		npt   string
 	)
 
 	// Validate request
@@ -145,15 +144,6 @@ func (svc *Service) ListUsers(
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "id"
 		req.Msg.Asc = true
-	}
-
-	// Only admins may list users.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
