@@ -2778,7 +2778,6 @@ type AuditScope struct {
 	// These users can manage permissions for others and perform destructive actions like deletion.
 	Admins []*User `protobuf:"bytes,8,rep,name=admins,proto3" json:"admins,omitempty" gorm:"many2many:audit_scope_admins;constraint:OnDelete:CASCADE"`
 	// Status represents the current lifecycle status of the audit scope.
-	// Defaults to AUDIT_SCOPE_STATUS_SETUP when not specified.
 	Status        AuditScopeStatus `protobuf:"varint,9,opt,name=status,proto3,enum=confirmate.orchestrator.v1.AuditScopeStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

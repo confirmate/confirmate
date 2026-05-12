@@ -2155,9 +2155,7 @@ components:
                         - AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT
                         - AUDIT_SCOPE_STATUS_FIXED
                     type: string
-                    description: |-
-                        Status represents the current lifecycle status of the audit scope.
-                         Defaults to AUDIT_SCOPE_STATUS_SETUP when not specified.
+                    description: Status represents the current lifecycle status of the audit scope.
                     format: enum
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
