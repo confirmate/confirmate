@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -34,8 +35,11 @@ func (svc *Service) CreateAuditScope(
 	req *connect.Request[orchestrator.CreateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope   *orchestrator.AuditScope
-		allowed bool
+		scope                  *orchestrator.AuditScope
+		controls               []*orchestrator.Control
+		controlImplementations []*orchestrator.ControlImplementation
+		now                    *timestamppb.Timestamp
+		allowed                bool
 	)
 
 	// Validate the request, ignoring ID field which will be auto-generated
@@ -63,8 +67,44 @@ func (svc *Service) CreateAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the new audit scope in the database
-	err = svc.db.Create(scope)
+	// Persist the new audit scope and auto-create control implementations for all controls in the
+	// selected catalog.
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		err = tx.Create(scope)
+		if err != nil {
+			return err
+		}
+
+		err = tx.List(&controls, "id", true, 0, -1, persistence.WithoutPreload(),
+			"category_catalog_id = ?", scope.CatalogId)
+		if err != nil {
+			return err
+		}
+
+		now = timestamppb.Now()
+		for _, control := range controls {
+			controlImplementations = append(controlImplementations, &orchestrator.ControlImplementation{
+				Id:                       uuid.NewString(),
+				AuditScopeId:             scope.Id,
+				TargetOfEvaluationId:     scope.TargetOfEvaluationId,
+				ControlId:                control.Id,
+				ControlCategoryName:      control.CategoryName,
+				ControlCategoryCatalogId: control.CategoryCatalogId,
+				State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+				CreatedAt:                now,
+				UpdatedAt:                now,
+			})
+		}
+
+		if len(controlImplementations) > 0 {
+			err = tx.Create(controlImplementations)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}

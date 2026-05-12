@@ -34,6 +34,15 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+type transactionErrorDB struct {
+	persistence.DB
+	err error
+}
+
+func (db *transactionErrorDB) Transaction(fn func(tx persistence.DB) error) error {
+	return db.err
+}
+
 func TestService_CreateAuditScope(t *testing.T) {
 	type args struct {
 		req     *orchestrator.CreateAuditScopeRequest
@@ -130,6 +139,64 @@ func TestService_CreateAuditScope(t *testing.T) {
 				return assert.Equal(t, want, got, cmp.Options{
 					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
 				})
+			},
+		},
+		{
+			name: "happy path: creates control implementations from catalog controls",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						TargetOfEvaluationId: orchestratortest.MockAuditScope2.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope2.CatalogId,
+						Name:                 orchestratortest.MockScopeName2,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.NotEmpty(t, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				var (
+					impls []*orchestrator.ControlImplementation
+				)
+
+				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				err := db.List(&impls, "id", true, 0, -1, persistence.WithoutPreload(),
+					"audit_scope_id = ?", res.Msg.Id)
+				assert.NoError(t, err)
+				assert.Equal(t, 2, len(impls))
+
+				expected := map[string]bool{
+					orchestratortest.MockControlId2 + "|" +
+						orchestratortest.MockCategoryName2 + "|" +
+						orchestratortest.MockCatalogId2: true,
+					orchestratortest.MockSubControlId1 + "|" +
+						orchestratortest.MockCategoryName2 + "|" +
+						orchestratortest.MockCatalogId2: true,
+				}
+
+				for _, impl := range impls {
+					key := impl.ControlId + "|" + impl.ControlCategoryName + "|" + impl.ControlCategoryCatalogId
+
+					assert.Equal(t, res.Msg.Id, impl.AuditScopeId)
+					assert.Equal(t, orchestratortest.MockAuditScope2.TargetOfEvaluationId, impl.TargetOfEvaluationId)
+					assert.Equal(t, orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN, impl.State)
+					assert.True(t, expected[key])
+					delete(expected, key)
+				}
+
+				return assert.Empty(t, expected)
 			},
 		},
 		{
@@ -248,7 +315,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "db error - unique constraint",
+			name: "db error - listing controls",
 			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
@@ -259,12 +326,15 @@ func TestService_CreateAuditScope(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				db: &transactionErrorDB{
+					DB:  persistencetest.NewInMemoryDB(t, types, joinTables),
+					err: persistence.ErrConstraintFailed,
+				},
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
