@@ -83,7 +83,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 
 		return nil
 	})
-	if err != nil {
+	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 

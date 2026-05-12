@@ -76,7 +76,7 @@ func (svc *Service) CreateAuditScope(
 
 		return nil
 	})
-	if err != nil {
+	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
