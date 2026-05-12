@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -63,9 +64,19 @@ func (svc *Service) CreateAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the new audit scope in the database
-	err = svc.db.Create(scope)
-	if err = service.HandleDatabaseError(err); err != nil {
+	// Persist the new audit scope in the database and grant the creator admin access.
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		if err = tx.Create(scope); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+
+		if err = grantCreatorAdminPermission(ctx, tx, scope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 

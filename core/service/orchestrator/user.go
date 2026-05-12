@@ -343,3 +343,36 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	return allowed, resourceIDs, nil
 }
 
+func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourceId string, objectType orchestrator.ObjectType) (err error) {
+	var (
+		claims *auth.OAuthClaims
+		ok     bool
+		userId string
+	)
+
+	if db == nil {
+		return fmt.Errorf("database is not initialized")
+	}
+
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
+	if userId == "" {
+		return nil
+	}
+
+	err = db.Create(&orchestrator.UserPermission{
+		UserId:       userId,
+		ResourceId:   resourceId,
+		ResourceType: objectType,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+	})
+	if err = service.HandleDatabaseError(err); err != nil {
+		return err
+	}
+
+	return nil
+}
