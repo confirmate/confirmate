@@ -648,6 +648,30 @@ func TestService_GetUser(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: get current user when user id is me",
+			args: args{
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: "user-1",
+						Issuer:  "test",
+					},
+				}),
+				req: connect.NewRequest(&orchestrator.GetUserRequest{
+					UserId: "me",
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.User{Id: "test|user-1", Enabled: true}))
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, "test|user-1", got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "err: permission denied - deny strategy",
 			args: args{
 

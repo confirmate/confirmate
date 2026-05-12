@@ -105,6 +105,13 @@ func (svc *Service) GetUser(
 		return nil, err
 	}
 
+	// NOTE:
+	// HTTP transcoding can route /v1/users/me to this method because it overlaps with
+	// /v1/users/{user_id}. Handle "me" explicitly to preserve the intended behavior.
+	if req.Msg.GetUserId() == "me" {
+		return svc.GetCurrentUser(ctx, connect.NewRequest(&orchestrator.GetCurrentUserRequest{}))
+	}
+
 	// Only admins may get users.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
 	if err != nil {
@@ -342,4 +349,3 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 
 	return allowed, resourceIDs, nil
 }
-
