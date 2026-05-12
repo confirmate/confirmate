@@ -45,6 +45,16 @@ export const load = (async ({ params, fetch }) => {
 		}
 	}
 
+	// Sort top-level controls by ID
+	topLevelControls.sort((a, b) => (a.id ?? '').localeCompare(b.id ?? ''));
+
+	// Sort children by ID
+	for (const ctrl of Object.values(controlsMap)) {
+		if (ctrl.controls && ctrl.controls.length > 0) {
+			ctrl.controls.sort((a, b) => (a.id ?? '').localeCompare(b.id ?? ''));
+		}
+	}
+
 	const controlsByCategory: Record<string, SchemaControl[]> = Object.fromEntries(
 		categories.map((cat) => [
 			cat.name,
