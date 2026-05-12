@@ -7,6 +7,28 @@
 
 This is work in progress. We are currently in the process of preparing the open-source release for Confirmate Core. In the mean-time you can have a sneak peak at our [UI](http://github.com/confirmate/ui) or look at the [Clouditor](http://github.com/clouditor/clouditor) project, which is the technological basis for Confirmate.
 
+## Prerequisites (git submodules)
+
+This repository uses `security-metrics` as a git submodule. You must initialize/update submodules before building or running any binaries; otherwise the build/start commands will fail.
+
+Clone including submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/confirmate/confirmate.git
+```
+
+If you already cloned the repo, initialize/update submodules from the repository root:
+
+```bash
+git submodule update --init --recursive
+```
+
+To update submodules later on:
+
+```bash
+git submodule update --recursive --remote
+```
+
 ## Build and usage
 
 ### Orchestrator (core service)
@@ -58,4 +80,3 @@ Run a collector against a local Confirmate instance (default API address: `http:
 For full setup instructions (providers, credentials, and examples), see:
 
 `collectors/cloud/README.md`
-
