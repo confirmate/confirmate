@@ -343,6 +343,14 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	return allowed, resourceIDs, nil
 }
 
+// grantCreatorAdminPermission persists an ADMIN [orchestrator.UserPermission] for the user who is
+// making the current request (derived from JWT claims in ctx). It is called after a new resource
+// has been created so that the creator immediately has full administrative access to that resource
+// without requiring a separate permission update call.
+//
+// If no authenticated user can be determined from ctx (e.g. the context carries no claims, or the
+// claims lack issuer/subject), the function is a no-op and returns nil. This preserves the
+// existing allow-all behavior when authentication is disabled.
 func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourceId string, objectType orchestrator.ObjectType) (err error) {
 	var (
 		claims *auth.OAuthClaims
