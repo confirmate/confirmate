@@ -81,6 +81,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				// Check if ID is generated and not empty
@@ -123,6 +124,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				// Check if ID is generated and not empty
@@ -167,6 +169,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.Equal(t, want, got.Msg, cmp.Options{
 					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
@@ -183,6 +186,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				// Check if ID is generated and not empty
@@ -720,6 +724,39 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+				}
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: update status field",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_INTERNAL_REVIEW,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					Id:                   orchestratortest.MockAuditScope1.Id,
+					Name:                 orchestratortest.MockAuditScope1.Name,
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_INTERNAL_REVIEW,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)

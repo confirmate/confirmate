@@ -52,6 +52,7 @@ func (svc *Service) CreateAuditScope(
 		Readers:              req.Msg.GetAuditScope().GetReaders(),
 		Contributors:         req.Msg.GetAuditScope().GetContributors(),
 		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+		Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 	}
 
 	// Check access via the configured auth strategy
@@ -203,6 +204,7 @@ func (svc *Service) UpdateAuditScope(
 		Readers:              req.Msg.GetAuditScope().GetReaders(),
 		Contributors:         req.Msg.GetAuditScope().GetContributors(),
 		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+		Status:               req.Msg.GetAuditScope().GetStatus(),
 	}
 
 	// Check access via the configured auth strategy
