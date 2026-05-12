@@ -343,3 +343,44 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	return allowed, resourceIDs, nil
 }
 
+// grantCreatorAdminPermission persists an ADMIN [orchestrator.UserPermission] for the user who is
+// making the current request (derived from JWT claims in ctx). It is called after a new resource
+// has been created so that the creator immediately has full administrative access to that resource
+// without requiring a separate permission update call.
+//
+// If no authenticated user can be determined from ctx (e.g. the context carries no claims, or the
+// claims lack issuer/subject), the function is a no-op and returns nil. This preserves the
+// existing allow-all behavior when authentication is disabled.
+func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourceId string, objectType orchestrator.ObjectType) (err error) {
+	var (
+		claims *auth.OAuthClaims
+		ok     bool
+		userId string
+	)
+
+	if db == nil {
+		return fmt.Errorf("database is not initialized")
+	}
+
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
+	if userId == "" {
+		return nil
+	}
+
+	err = db.Create(&orchestrator.UserPermission{
+		UserId:       userId,
+		ResourceId:   resourceId,
+		ResourceType: objectType,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+	})
+	if err = service.HandleDatabaseError(err); err != nil {
+		return err
+	}
+
+	return nil
+}

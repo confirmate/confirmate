@@ -128,6 +128,11 @@ The orchestrator's `checkAccess` also performs **JIT user provisioning**: on eve
 request it creates or updates the user record in the database from the JWT claims.
 The evaluation service's `checkAccess` omits this step (no DB).
 
+For authenticated create requests in the orchestrator, the creator is also granted an
+`ADMIN` `UserPermission` for each newly created target of evaluation or audit scope. This makes
+the new resource immediately manageable by the creating user without requiring a separate
+permission update call.
+
 ### Current coverage
 
 - Orchestrator service: most resource handlers in
