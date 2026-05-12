@@ -96,22 +96,12 @@ func (svc *Service) GetUser(
 	req *connect.Request[orchestrator.GetUserRequest],
 ) (res *connect.Response[orchestrator.User], err error) {
 	var (
-		user    orchestrator.User
-		allowed bool
+		user orchestrator.User
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
-	}
-
-	// Only admins may get users.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
@@ -129,10 +119,9 @@ func (svc *Service) ListUsers(
 	req *connect.Request[orchestrator.ListUsersRequest],
 ) (res *connect.Response[orchestrator.ListUsersResponse], err error) {
 	var (
-		users   []*orchestrator.User
-		conds   []any
-		npt     string
-		allowed bool
+		users []*orchestrator.User
+		conds []any
+		npt   string
 	)
 
 	// Validate request
@@ -141,19 +130,15 @@ func (svc *Service) ListUsers(
 		return nil, err
 	}
 
+	// JIT-provision the caller without enforcing authorization.
+	if _, err = provisionCurrentUser(ctx, svc); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "id"
 		req.Msg.Asc = true
-	}
-
-	// Only admins may list users.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -276,69 +261,88 @@ func (svc *Service) RemoveUser(
 	return
 }
 
+// provisionCurrentUser extracts JWT claims from ctx and JIT-provisions the user in the database,
+// returning the user ID. Returns an empty string when no claims are present.
+func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
+	var (
+		claims *auth.OAuthClaims
+		user   *orchestrator.User
+		userId string
+		ok     bool
+		err    error
+	)
+
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok || claims == nil || claims.Issuer == "" || claims.Subject == "" {
+		return "", nil
+	}
+
+	if svc == nil {
+		return "", fmt.Errorf("service is nil")
+	}
+	if svc.db == nil {
+		return "", fmt.Errorf("database is not initialized")
+	}
+
+	// JIT-provision the user using a read-then-update approach to avoid overwriting existing
+	// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
+	// by the OIDC specification, ensuring uniqueness across identity providers.
+	userId = claims.Issuer + "|" + claims.Subject
+	user = &orchestrator.User{}
+	err = svc.db.Get(user, "id = ?", userId)
+
+	if errors.Is(err, persistence.ErrRecordNotFound) {
+		// User not found: create them with all identity fields.
+		user = &orchestrator.User{
+			Id:         userId,
+			Username:   new(claims.PreferredUsername),
+			FirstName:  new(claims.GivenName),
+			LastName:   new(claims.FamilyName),
+			Enabled:    true,
+			Email:      new(claims.Email),
+			LastAccess: timestamppb.Now(),
+		}
+		err = svc.db.Create(user)
+		if err != nil {
+			return "", fmt.Errorf("failed to create user: %w", err)
+		}
+	} else if err != nil {
+		return "", fmt.Errorf("failed to look up user: %w", err)
+	} else {
+		// User exists: update only identity fields and last_access to preserve other persisted
+		// fields such as enabled status.
+		user.Username = new(claims.PreferredUsername)
+		user.FirstName = new(claims.GivenName)
+		user.LastName = new(claims.FamilyName)
+		user.Email = new(claims.Email)
+		user.LastAccess = timestamppb.Now()
+		err = svc.db.Save(user)
+		if err != nil {
+			return "", fmt.Errorf("failed to update user: %w", err)
+		}
+	}
+
+	return userId, nil
+}
+
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
 func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceId string, objectType orchestrator.ObjectType) (bool, []string, error) {
 	var (
-		user   *orchestrator.User
-		claims *auth.OAuthClaims
-		ok     bool
-		err    error
-		userId string
+		userId      string
+		err         error
+		allowed     bool
+		resourceIDs []string
 	)
 
 	// If JWT claims are present, provision the user in the DB (JIT provisioning) and use their ID.
 	// If no claims are present, use an empty user ID — strategies like AuthorizationStrategyAllowAll
 	// don't require a user ID, while AuthorizationStrategyPermissionStore will deny empty IDs.
-	claims, ok = auth.ClaimsFromContext(ctx)
-	if ok && claims != nil && claims.Issuer != "" && claims.Subject != "" {
-		if svc == nil {
-			return false, nil, fmt.Errorf("service is nil")
-		}
-
-		if svc.db == nil {
-			return false, nil, fmt.Errorf("database is not initialized")
-		}
-
-		// JIT-provision the user using a read-then-update approach to avoid overwriting existing
-		// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
-		// by the OIDC specification, ensuring uniqueness across identity providers.
-		userId = claims.Issuer + "|" + claims.Subject
-		user = &orchestrator.User{}
-		err = svc.db.Get(user, "id = ?", userId)
-
-		if errors.Is(err, persistence.ErrRecordNotFound) {
-			// User not found: create them with all identity fields.
-			user = &orchestrator.User{
-				Id:         userId,
-				Username:   new(claims.PreferredUsername),
-				FirstName:  new(claims.GivenName),
-				LastName:   new(claims.FamilyName),
-				Enabled:    true,
-				Email:      new(claims.Email),
-				LastAccess: timestamppb.Now(),
-			}
-			err = svc.db.Create(user)
-			if err != nil {
-				return false, nil, fmt.Errorf("failed to create user: %w", err)
-			}
-		} else if err != nil {
-			return false, nil, fmt.Errorf("failed to look up user: %w", err)
-		} else {
-			// User exists: update only identity fields and last_access to preserve other persisted
-			// fields such as enabled status.
-			user.Username = new(claims.PreferredUsername)
-			user.FirstName = new(claims.GivenName)
-			user.LastName = new(claims.FamilyName)
-			user.Email = new(claims.Email)
-			user.LastAccess = timestamppb.Now()
-			err = svc.db.Save(user)
-			if err != nil {
-				return false, nil, fmt.Errorf("failed to update user: %w", err)
-			}
-		}
+	userId, err = provisionCurrentUser(ctx, svc)
+	if err != nil {
+		return false, nil, err
 	}
 
-	allowed, resourceIDs := authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
+	allowed, resourceIDs = authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
 
 	return allowed, resourceIDs, nil
 }

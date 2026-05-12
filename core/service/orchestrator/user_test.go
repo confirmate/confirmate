@@ -254,18 +254,45 @@ func TestService_ListUsers(t *testing.T) {
 			},
 		},
 		{
-			name: "authorization error",
+			name: "happy path: list users does not require authorization check",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.Users)) &&
+					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: authenticated caller is JIT-provisioned even without authz",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Issuer:  orchestratortest.MockUserIssuer1,
+						Subject: "new-caller-id",
+					},
+					PreferredUsername: "newcaller",
+				}),
 			},
 			fields: fields{
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.ListUsersResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.Users)) &&
+					assert.Equal(t, orchestratortest.MockUserIssuer1+"|new-caller-id", got.Msg.Users[0].Id)
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: with allow-all authorization strategy",
@@ -648,21 +675,23 @@ func TestService_GetUser(t *testing.T) {
 			},
 		},
 		{
-			name: "err: permission denied - deny strategy",
+			name: "happy path: get user does not require authorization check",
 			args: args{
-
 				req: connect.NewRequest(&orchestrator.GetUserRequest{
-					UserId: orchestratortest.MockUserId1,
+					UserId: orchestratortest.MockUser1.GetId(),
 				}),
 			},
 			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockUser1))
+				}),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.User]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockUser1, got.Msg)
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "err: database error getting user",
