@@ -195,6 +195,11 @@ func (svc *Service) UpdateAuditScope(
 		return nil, err
 	}
 
+	status := req.Msg.GetAuditScope().GetStatus()
+	if status == orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_UNSPECIFIED {
+		status = orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP
+	}
+
 	scope = &orchestrator.AuditScope{
 		Id:                   req.Msg.GetAuditScope().GetId(),
 		Name:                 req.Msg.GetAuditScope().GetName(),
@@ -204,7 +209,7 @@ func (svc *Service) UpdateAuditScope(
 		Readers:              req.Msg.GetAuditScope().GetReaders(),
 		Contributors:         req.Msg.GetAuditScope().GetContributors(),
 		Admins:               req.Msg.GetAuditScope().GetAdmins(),
-		Status:               req.Msg.GetAuditScope().GetStatus(),
+		Status:               status,
 	}
 
 	// Check access via the configured auth strategy

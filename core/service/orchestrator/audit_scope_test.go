@@ -724,6 +724,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)
@@ -745,7 +746,13 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockAuditScope1)
+					err := d.Create(&orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+					})
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
@@ -762,48 +769,41 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
-},
-{
-name: "happy path: status is preserved when omitted from update",
-args: args{
-req: &orchestrator.UpdateAuditScopeRequest{
-AuditScope: &orchestrator.AuditScope{
-Id:                   orchestratortest.MockScopeId1,
-Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
-TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
-CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
-// Status intentionally omitted — should preserve the seeded SETUP value
-},
-},
-},
-fields: fields{
-db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-err := d.Create(&orchestrator.AuditScope{
-Id:                   orchestratortest.MockScopeId1,
-Name:                 orchestratortest.MockScopeName1,
-TargetOfEvaluationId: orchestratortest.MockToeId1,
-CatalogId:            orchestratortest.MockCatalogId1,
-Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
-})
-assert.NoError(t, err)
-}),
-authz: &service.AuthorizationStrategyAllowAll{},
-},
-want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
-want := &orchestrator.AuditScope{
-Id:                   orchestratortest.MockScopeId1,
-Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
-TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
-CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
-Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
-}
-return assert.NotNil(t, got.Msg) &&
-assert.Equal(t, want, got.Msg)
-},
-wantErr: assert.NoError,
-},
-{
-name: "happy path: with authorization strategy with permission store and admin token",
+		},
+		{
+			name: "happy path: update without status defaults to SETUP",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					Id:                   orchestratortest.MockAuditScope1.Id,
+					Name:                 orchestratortest.MockAuditScope1.Name,
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+				}
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
@@ -830,6 +830,7 @@ name: "happy path: with authorization strategy with permission store and admin t
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)
@@ -878,6 +879,7 @@ name: "happy path: with authorization strategy with permission store and admin t
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)
