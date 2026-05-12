@@ -272,6 +272,29 @@ func TestService_ListUsers(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "happy path: authenticated caller is JIT-provisioned even without authz",
+			args: args{
+				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Issuer:  orchestratortest.MockUserIssuer1,
+						Subject: "new-caller-id",
+					},
+					PreferredUsername: "newcaller",
+				}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.Users)) &&
+					assert.Equal(t, orchestratortest.MockUserIssuer1+"|new-caller-id", got.Msg.Users[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListUsersRequest{PageSize: -1}),
