@@ -141,7 +141,8 @@ permission update call.
   - `service/orchestrator/certificates.go`
   - `service/orchestrator/assessment_results.go`
   - `service/orchestrator/user.go`
-- Temporary exception: `ListUsers` (`/users`) is accessible to all authenticated users.
+- Temporary exception: `ListUsers` (`/users`) is accessible to all authenticated users
+  as a stopgap until fine-grained user access control is implemented.
 - Evaluation service:
   - `service/evaluation/service.go` (`StartEvaluation`, `StopEvaluation`)
 
