@@ -1940,6 +1940,28 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/user_permission:
+        delete:
+            tags:
+                - Orchestrator
+            description: Removes a specific user permission.
+            operationId: Orchestrator_RemoveUserPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPermission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/{userId}:
         get:
             tags:
@@ -1986,43 +2008,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/users/{userId}/permissions/{resourceType}/{resourceId}:
+    /v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}:
         put:
             tags:
                 - Orchestrator
             description: Upserts a specific user permission identified by user and resource.
             operationId: Orchestrator_UpsertUserPermission
             parameters:
-                - name: userId
+                - name: user_permission.user_id
                   in: path
                   required: true
                   schema:
                     type: string
-                - name: resourceType
+                - name: user_permission.resource_type
                   in: path
                   required: true
                   schema:
-                    enum:
-                        - OBJECT_TYPE_UNSPECIFIED
-                        - OBJECT_TYPE_METRIC
-                        - OBJECT_TYPE_METRIC_CONFIGURATION
-                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
-                        - OBJECT_TYPE_TARGET_OF_EVALUATION
-                        - OBJECT_TYPE_AUDIT_SCOPE
-                        - OBJECT_TYPE_ASSESSMENT_RESULT
-                        - OBJECT_TYPE_ASSESSMENT_TOOL
-                        - OBJECT_TYPE_USER
-                        - OBJECT_TYPE_USER_PERMISSION
-                        - OBJECT_TYPE_CERTIFICATE
-                        - OBJECT_TYPE_CATALOG
-                        - OBJECT_TYPE_CATEGORY
-                        - OBJECT_TYPE_CONTROL
-                        - OBJECT_TYPE_EVALUATION_RESULT
-                        - OBJECT_TYPE_EVIDENCE
-                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
                     type: string
-                    format: enum
-                - name: resourceId
+                - name: user_permission.resource_id
                   in: path
                   required: true
                   schema:
@@ -2031,7 +2034,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UpsertUserPermissionRequest'
+                            $ref: '#/components/schemas/UserPermission'
                 required: true
             responses:
                 "200":
@@ -2040,56 +2043,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/UpsertUserPermissionResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        delete:
-            tags:
-                - Orchestrator
-            description: Removes a specific user permission.
-            operationId: Orchestrator_RemoveUserPermission
-            parameters:
-                - name: userId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: resourceType
-                  in: path
-                  required: true
-                  schema:
-                    enum:
-                        - OBJECT_TYPE_UNSPECIFIED
-                        - OBJECT_TYPE_METRIC
-                        - OBJECT_TYPE_METRIC_CONFIGURATION
-                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
-                        - OBJECT_TYPE_TARGET_OF_EVALUATION
-                        - OBJECT_TYPE_AUDIT_SCOPE
-                        - OBJECT_TYPE_ASSESSMENT_RESULT
-                        - OBJECT_TYPE_ASSESSMENT_TOOL
-                        - OBJECT_TYPE_USER
-                        - OBJECT_TYPE_USER_PERMISSION
-                        - OBJECT_TYPE_CERTIFICATE
-                        - OBJECT_TYPE_CATALOG
-                        - OBJECT_TYPE_CATEGORY
-                        - OBJECT_TYPE_CONTROL
-                        - OBJECT_TYPE_EVALUATION_RESULT
-                        - OBJECT_TYPE_EVIDENCE
-                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
-                    type: string
-                    format: enum
-                - name: resourceId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
                 default:
                     description: Default error response
                     content:
@@ -3071,47 +3024,6 @@ components:
                     description: |-
                         ImplementationDetails contains details about the technical and organisational measures taken to
                          implement the control.
-        UpsertUserPermissionRequest:
-            required:
-                - userId
-                - resourceId
-                - resourceType
-                - permission
-            type: object
-            properties:
-                userId:
-                    type: string
-                resourceId:
-                    type: string
-                resourceType:
-                    enum:
-                        - OBJECT_TYPE_UNSPECIFIED
-                        - OBJECT_TYPE_METRIC
-                        - OBJECT_TYPE_METRIC_CONFIGURATION
-                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
-                        - OBJECT_TYPE_TARGET_OF_EVALUATION
-                        - OBJECT_TYPE_AUDIT_SCOPE
-                        - OBJECT_TYPE_ASSESSMENT_RESULT
-                        - OBJECT_TYPE_ASSESSMENT_TOOL
-                        - OBJECT_TYPE_USER
-                        - OBJECT_TYPE_USER_PERMISSION
-                        - OBJECT_TYPE_CERTIFICATE
-                        - OBJECT_TYPE_CATALOG
-                        - OBJECT_TYPE_CATEGORY
-                        - OBJECT_TYPE_CONTROL
-                        - OBJECT_TYPE_EVALUATION_RESULT
-                        - OBJECT_TYPE_EVIDENCE
-                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
-                    type: string
-                    format: enum
-                permission:
-                    enum:
-                        - PERMISSION_UNSPECIFIED
-                        - PERMISSION_READER
-                        - PERMISSION_CONTRIBUTOR
-                        - PERMISSION_ADMIN
-                    type: string
-                    format: enum
         UpsertUserPermissionResponse:
             type: object
             properties:

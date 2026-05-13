@@ -91,9 +91,9 @@ func (svc *Service) RemoveUserPermission(
 	err = svc.db.Delete(
 		&permission,
 		"user_id = ? AND resource_id = ? AND resource_type = ?",
-		req.Msg.UserId,
-		req.Msg.ResourceId,
-		req.Msg.ResourceType,
+		req.Msg.GetUserPermission().GetUserId(),
+		req.Msg.GetUserPermission().GetResourceId(),
+		req.Msg.GetUserPermission().GetResourceType(),
 	)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
 		return nil, err

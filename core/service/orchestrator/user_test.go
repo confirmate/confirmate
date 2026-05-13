@@ -240,9 +240,11 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					},
 				}),
 			},
 			fields: fields{
@@ -258,9 +260,11 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			name: "err: not found",
 			args: args{
 				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					},
 				}),
 			},
 			fields: fields{
@@ -277,9 +281,11 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			name: "err: database error",
 			args: args{
 				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					},
 				}),
 			},
 			fields: fields{
@@ -303,9 +309,11 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					},
 				}),
 			},
 			fields: fields{
@@ -352,9 +360,11 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			args: args{
 				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
 				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					UserPermission: &orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					},
 				}),
 			},
 			fields: fields{
