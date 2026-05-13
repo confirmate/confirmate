@@ -540,8 +540,9 @@ func TestService_ListUsers(t *testing.T) {
 
 func TestService_ListUserPermissions(t *testing.T) {
 	type args struct {
-		ctx    context.Context
-		userId string
+		ctx        context.Context
+		userId     string
+		resourceId string
 	}
 	type fields struct {
 		db    persistence.DB
@@ -554,16 +555,6 @@ func TestService_ListUserPermissions(t *testing.T) {
 		want    assert.Want[*connect.Response[orchestrator.ListUserPermissionsResponse]]
 		wantErr assert.WantErr
 	}{
-		{
-			name: "err: invalid request - missing user id",
-			args: args{ctx: context.Background()},
-			want: assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.ErrorContains(t, err, "invalid request: ") &&
-					assert.ErrorContains(t, err, "id")
-			},
-		},
 		{
 			name: "err: database error",
 			args: args{
@@ -670,13 +661,74 @@ func TestService_ListUserPermissions(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: resourceId filter returns only permissions for that resource",
+			args: args{
+				ctx:        auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
+				resourceId: orchestratortest.MockTargetOfEvaluation1.Id,
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					}))
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockAuditScope1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission:   orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+					}))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
+					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.UserPermissions[0].ResourceId)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: no filters returns all permissions",
+			args: args{
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{IsAdminToken: true}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       orchestratortest.MockUserId1,
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					}))
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:       "other-user",
+						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, 2, len(got.Msg.UserPermissions))
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
 
-			res, err := svc.ListUserPermissions(tt.args.ctx, connect.NewRequest(&orchestrator.ListUserPermissionsRequest{UserId: tt.args.userId}))
+			res, err := svc.ListUserPermissions(tt.args.ctx, connect.NewRequest(&orchestrator.ListUserPermissionsRequest{
+				UserId:     tt.args.userId,
+				ResourceId: tt.args.resourceId,
+			}))
 			assert.True(t, tt.wantErr(t, err))
 			assert.True(t, tt.want(t, res))
 		})

@@ -2310,15 +2310,10 @@ type TargetOfEvaluation struct {
 	Metadata *TargetOfEvaluation_Metadata `protobuf:"bytes,10,opt,name=metadata,proto3,oneof" json:"metadata,omitempty" gorm:"serializer:json"`
 	// type of the target to be evaluated: cloud, product or organization
 	TargetType TargetOfEvaluation_TargetType `protobuf:"varint,11,opt,name=target_type,json=targetType,proto3,enum=confirmate.orchestrator.v1.TargetOfEvaluation_TargetType" json:"target_type,omitempty"`
-	// List of user IDs with explicit permission to view this target (Read-only).
-	// If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-	Readers []*User `protobuf:"bytes,12,rep,name=readers,proto3" json:"readers,omitempty" gorm:"many2many:toe_readers;constraint:OnDelete:CASCADE"`
-	// List of user IDs responsible for the content and maintenance of this target.
-	// These users can modify settings and data but cannot manage other users' access.
-	Contributors []*User `protobuf:"bytes,13,rep,name=contributors,proto3" json:"contributors,omitempty" gorm:"many2many:toe_contributors;constraint:OnDelete:CASCADE"`
-	// List of user IDs with administrative control over this target.
-	// These users can manage permissions for others and perform destructive actions like deletion.
-	Admins []*User `protobuf:"bytes,14,rep,name=admins,proto3" json:"admins,omitempty" gorm:"many2many:toe_admins;constraint:OnDelete:CASCADE"`
+	// Deprecated: Use UserPermission instead. These fields are no longer populated.
+	Readers      []*User `protobuf:"bytes,12,rep,name=readers,proto3" json:"readers,omitempty" gorm:"-"`
+	Contributors []*User `protobuf:"bytes,13,rep,name=contributors,proto3" json:"contributors,omitempty" gorm:"-"`
+	Admins       []*User `protobuf:"bytes,14,rep,name=admins,proto3" json:"admins,omitempty" gorm:"-"`
 	// Organisation details for this target of evaluation.
 	Organisation  *TargetOfEvaluation_Organisation `protobuf:"bytes,15,opt,name=organisation,proto3,oneof" json:"organisation,omitempty" gorm:"serializer:json"`
 	unknownFields protoimpl.UnknownFields
@@ -2411,6 +2406,7 @@ func (x *TargetOfEvaluation) GetTargetType() TargetOfEvaluation_TargetType {
 	return TargetOfEvaluation_TARGET_TYPE_UNSPECIFIED
 }
 
+// Deprecated: Use UserPermission to manage access control instead.
 func (x *TargetOfEvaluation) GetReaders() []*User {
 	if x != nil {
 		return x.Readers
@@ -2418,6 +2414,7 @@ func (x *TargetOfEvaluation) GetReaders() []*User {
 	return nil
 }
 
+// Deprecated: Use UserPermission to manage access control instead.
 func (x *TargetOfEvaluation) GetContributors() []*User {
 	if x != nil {
 		return x.Contributors
@@ -2425,6 +2422,7 @@ func (x *TargetOfEvaluation) GetContributors() []*User {
 	return nil
 }
 
+// Deprecated: Use UserPermission to manage access control instead.
 func (x *TargetOfEvaluation) GetAdmins() []*User {
 	if x != nil {
 		return x.Admins
@@ -2768,15 +2766,10 @@ type AuditScope struct {
 	// an assurance level is not offered by every catalog, therefore it is
 	// optional
 	AssuranceLevel *string `protobuf:"bytes,3,opt,name=assurance_level,json=assuranceLevel,proto3,oneof" json:"assurance_level,omitempty"`
-	// List of user IDs with explicit permission to view this target (Read-only).
-	// If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-	Readers []*User `protobuf:"bytes,6,rep,name=readers,proto3" json:"readers,omitempty" gorm:"many2many:audit_scope_readers;constraint:OnDelete:CASCADE"`
-	// List of user IDs responsible for the content and maintenance of this target.
-	// These users can modify settings and data but cannot manage other users' access.
-	Contributors []*User `protobuf:"bytes,7,rep,name=contributors,proto3" json:"contributors,omitempty" gorm:"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE"`
-	// List of user IDs with administrative control over this target.
-	// These users can manage permissions for others and perform destructive actions like deletion.
-	Admins []*User `protobuf:"bytes,8,rep,name=admins,proto3" json:"admins,omitempty" gorm:"many2many:audit_scope_admins;constraint:OnDelete:CASCADE"`
+	// Deprecated: Use UserPermission instead. These fields are no longer populated.
+	Readers      []*User `protobuf:"bytes,6,rep,name=readers,proto3" json:"readers,omitempty" gorm:"-"`
+	Contributors []*User `protobuf:"bytes,7,rep,name=contributors,proto3" json:"contributors,omitempty" gorm:"-"`
+	Admins       []*User `protobuf:"bytes,8,rep,name=admins,proto3" json:"admins,omitempty" gorm:"-"`
 	// Status represents the current lifecycle status of the audit scope.
 	Status        AuditScopeStatus `protobuf:"varint,9,opt,name=status,proto3,enum=confirmate.orchestrator.v1.AuditScopeStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2848,6 +2841,7 @@ func (x *AuditScope) GetAssuranceLevel() string {
 	return ""
 }
 
+// Deprecated: Use UserPermission to manage access control instead.
 func (x *AuditScope) GetReaders() []*User {
 	if x != nil {
 		return x.Readers
@@ -2855,6 +2849,7 @@ func (x *AuditScope) GetReaders() []*User {
 	return nil
 }
 
+// Deprecated: Use UserPermission to manage access control instead.
 func (x *AuditScope) GetContributors() []*User {
 	if x != nil {
 		return x.Contributors
@@ -2862,6 +2857,7 @@ func (x *AuditScope) GetContributors() []*User {
 	return nil
 }
 
+// Deprecated: Use UserPermission to manage access control instead.
 func (x *AuditScope) GetAdmins() []*User {
 	if x != nil {
 		return x.Admins
@@ -4878,6 +4874,7 @@ func (x *ListUsersResponse) GetNextPageToken() string {
 type ListUserPermissionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	OrderBy       string                 `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
@@ -4949,6 +4946,13 @@ func (x *ListUserPermissionsRequest) GetAsc() bool {
 		return x.Asc
 	}
 	return false
+}
+
+func (x *ListUserPermissionsRequest) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
 }
 
 type ListUserPermissionsResponse struct {

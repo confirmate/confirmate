@@ -25,7 +25,9 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
+	protovalidate "buf.build/go/protovalidate"
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -192,7 +194,7 @@ func (svc *Service) ListUsers(
 	return
 }
 
-// ListUserPermissions lists all user permissions for a given userID.
+// ListUserPermissions lists all user permissions, optionally filtered by user ID and/or resource ID.
 func (svc *Service) ListUserPermissions(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserPermissionsRequest],
@@ -202,10 +204,18 @@ func (svc *Service) ListUserPermissions(
 		conds       []any
 		npt         string
 		allowed     bool
+		query       []string
+		args        []any
 	)
 
-	// Validate request
-	err = service.Validate(req)
+	// Validate request - user_id is optional, so we skip its validation constraint from the descriptor
+	err = service.Validate(req, protovalidate.WithFilter(protovalidate.FilterFunc(
+		func(_ protoreflect.Message, desc protoreflect.Descriptor) bool {
+			if fd, ok := desc.(protoreflect.FieldDescriptor); ok {
+				return fd.Name() != "user_id"
+			}
+			return true
+		})))
 	if err != nil {
 		return nil, err
 	}
@@ -225,9 +235,17 @@ func (svc *Service) ListUserPermissions(
 		req.Msg.Asc = true
 	}
 
-	// Filter by user_id if provided
+	// Build filter conditions for user_id and/or resource_id
 	if userId := req.Msg.GetUserId(); userId != "" {
-		conds = []any{"user_id = ?", userId}
+		query = append(query, "user_id = ?")
+		args = append(args, userId)
+	}
+	if resourceId := req.Msg.GetResourceId(); resourceId != "" {
+		query = append(query, "resource_id = ?")
+		args = append(args, resourceId)
+	}
+	if len(query) > 0 {
+		conds = persistence.BuildConds(query, args)
 	}
 
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)

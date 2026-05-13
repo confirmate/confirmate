@@ -208,7 +208,7 @@ func (m *mockOrchestratorHandler) GetAuditScope(
 	return connect.NewResponse(m.auditScope), nil
 }
 
-// ListUserPermissions returns user permissions filtered by the request's UserId.
+// ListUserPermissions returns user permissions filtered by the request's UserId and/or ResourceId.
 func (m *mockOrchestratorHandler) ListUserPermissions(
 	_ context.Context,
 	req *connect.Request[orchestrator.ListUserPermissionsRequest],
@@ -219,9 +219,13 @@ func (m *mockOrchestratorHandler) ListUserPermissions(
 
 	var filtered []*orchestrator.UserPermission
 	for _, p := range m.userPermissions {
-		if req.Msg.GetUserId() == "" || p.GetUserId() == req.Msg.GetUserId() {
-			filtered = append(filtered, p)
+		if req.Msg.GetUserId() != "" && p.GetUserId() != req.Msg.GetUserId() {
+			continue
 		}
+		if req.Msg.GetResourceId() != "" && p.GetResourceId() != req.Msg.GetResourceId() {
+			continue
+		}
+		filtered = append(filtered, p)
 	}
 
 	return connect.NewResponse(&orchestrator.ListUserPermissionsResponse{

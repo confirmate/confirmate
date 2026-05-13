@@ -50,9 +50,6 @@ func (svc *Service) CreateAuditScope(
 		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
 		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
 		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
-		Readers:              req.Msg.GetAuditScope().GetReaders(),
-		Contributors:         req.Msg.GetAuditScope().GetContributors(),
-		Admins:               req.Msg.GetAuditScope().GetAdmins(),
 		Status:               req.Msg.GetAuditScope().GetStatus(),
 	}
 
@@ -212,9 +209,6 @@ func (svc *Service) UpdateAuditScope(
 		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
 		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
 		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
-		Readers:              req.Msg.GetAuditScope().GetReaders(),
-		Contributors:         req.Msg.GetAuditScope().GetContributors(),
-		Admins:               req.Msg.GetAuditScope().GetAdmins(),
 		Status:               req.Msg.GetAuditScope().GetStatus(),
 	}
 
