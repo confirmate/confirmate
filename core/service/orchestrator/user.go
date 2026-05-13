@@ -36,8 +36,7 @@ func (svc *Service) UpsertUserPermission(
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
 ) (res *connect.Response[orchestrator.UpsertUserPermissionResponse], err error) {
 	var (
-		allowed    bool
-		permission *orchestrator.UserPermission
+		allowed bool
 	)
 
 	// Validate the request
@@ -54,20 +53,13 @@ func (svc *Service) UpsertUserPermission(
 		return nil, service.ErrPermissionDenied
 	}
 
-	permission = &orchestrator.UserPermission{
-		UserId:       req.Msg.UserId,
-		ResourceId:   req.Msg.ResourceId,
-		ResourceType: req.Msg.ResourceType,
-		Permission:   req.Msg.Permission,
-	}
-
-	err = svc.db.Save(permission)
+	err = svc.db.Save(req.Msg.UserPermission)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{
-		UserPermission: permission,
+		UserPermission: req.Msg.UserPermission,
 	})
 	return
 }

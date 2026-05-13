@@ -356,8 +356,8 @@ service Orchestrator {
   // Upserts a specific user permission identified by user and resource.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      put: "/v1/users/{user_id}/permissions/{resource_type}/{resource_id}"
-      body: "*"
+      put: "/v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}"
+      body: "user_permission"
     };
   }
 
@@ -1348,20 +1348,8 @@ message State {
 }
 
 message UpsertUserPermissionRequest {
-  string user_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string resource_id = 2 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  ObjectType resource_type = 3 [
-    (buf.validate.field).enum.defined_only = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  UserPermission.Permission permission = 4 [
-    (buf.validate.field).enum.defined_only = true,
+  UserPermission user_permission = 1 [
+    (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 }
