@@ -76,7 +76,7 @@ func (svc *Service) CreateAuditScope(
 			return err
 		}
 
-		if err = autoCreateControlsInScope(tx, scope); err != nil {
+		if err = autoCreateControlsInScope(ctx, tx, scope); err != nil {
 			return err
 		}
 
@@ -303,7 +303,7 @@ func (svc *Service) RemoveAuditScope(
 // autoCreateControlsInScope loads all controls for the catalog associated with scope and creates
 // a ControlInScope record for each matching control. A control matches if the scope has no
 // assurance level, the control has no assurance level, or both levels match exactly.
-func autoCreateControlsInScope(tx persistence.DB, scope *orchestrator.AuditScope) error {
+func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *orchestrator.AuditScope) error {
 	var controls []*orchestrator.Control
 
 	// Controls belong to categories which belong to catalogs. Join through category_controls to
@@ -340,6 +340,15 @@ func autoCreateControlsInScope(tx persistence.DB, scope *orchestrator.AuditScope
 		}
 		if err := tx.Create(cis); err != nil {
 			return service.HandleDatabaseError(err)
+		}
+		if err := createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, "",
+			&orchestrator.ControlScopingEvent{
+				ControlInScopeId: cis.Id,
+				ControlId:        cis.ControlId,
+				AuditScopeId:     cis.AuditScopeId,
+				InScope:          true,
+			}); err != nil {
+			return err
 		}
 	}
 

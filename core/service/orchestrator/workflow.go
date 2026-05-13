@@ -209,11 +209,11 @@ func (svc *Service) ListControlsInScope(
 	req *connect.Request[orchestrator.ListControlsInScopeRequest],
 ) (res *connect.Response[orchestrator.ListControlsInScopeResponse], err error) {
 	var (
-		records []*orchestrator.ControlInScope
-		conds   []any
-		npt     string
-		all     bool
-		toeIds  []string
+		records  []*orchestrator.ControlInScope
+		conds    []any
+		npt      string
+		all      bool
+		scopeIds []string
 	)
 
 	if err = service.Validate(req); err != nil {
@@ -225,14 +225,14 @@ func (svc *Service) ListControlsInScope(
 		req.Msg.Asc = true
 	}
 
-	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
-	if !all && len(toeIds) == 0 {
+	all, scopeIds = svc.authz.AllowedAuditScopes(ctx)
+	if !all && len(scopeIds) == 0 {
 		return connect.NewResponse(&orchestrator.ListControlsInScopeResponse{
 			ControlsInScope: []*orchestrator.ControlInScope{},
 		}), nil
 	}
 	if !all {
-		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
+		conds = append(conds, "audit_scope_id IN ?", scopeIds)
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
@@ -430,11 +430,11 @@ func (svc *Service) ListAuditTrailEvents(
 	req *connect.Request[orchestrator.ListAuditTrailEventsRequest],
 ) (res *connect.Response[orchestrator.ListAuditTrailEventsResponse], err error) {
 	var (
-		events []*orchestrator.AuditTrailEvent
-		conds  []any
-		npt    string
-		all    bool
-		toeIds []string
+		events   []*orchestrator.AuditTrailEvent
+		conds    []any
+		npt      string
+		all      bool
+		scopeIds []string
 	)
 
 	if err = service.Validate(req); err != nil {
@@ -446,21 +446,15 @@ func (svc *Service) ListAuditTrailEvents(
 		req.Msg.Asc = false
 	}
 
-	// Authorization: the audit trail is access-controlled via the ToE that owns the audit scope.
-	// We join through audit_scope to get target_of_evaluation_id.
-	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
-	if !all && len(toeIds) == 0 {
+	all, scopeIds = svc.authz.AllowedAuditScopes(ctx)
+	if !all && len(scopeIds) == 0 {
 		return connect.NewResponse(&orchestrator.ListAuditTrailEventsResponse{
 			AuditTrailEvents: []*orchestrator.AuditTrailEvent{},
 		}), nil
 	}
 
 	if !all {
-		// Subquery: restrict to audit scopes belonging to allowed ToEs.
-		conds = append(conds,
-			"audit_scope_id IN (SELECT id FROM audit_scopes WHERE target_of_evaluation_id IN ?)",
-			toeIds,
-		)
+		conds = append(conds, "audit_scope_id IN ?", scopeIds)
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
