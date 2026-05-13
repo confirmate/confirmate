@@ -222,13 +222,6 @@ func (svc *Service) UpdateAuditScope(
 		return nil, err
 	}
 
-	// Reload the updated scope from DB so that the response reflects the actual persisted
-	// state (e.g., fields skipped by GORM's zero-value logic, like a zero-valued status).
-	err = svc.db.Get(scope, "id = ?", scope.Id)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
-		return nil, err
-	}
-
 	// Notify subscribers
 	go svc.publishEvent(&orchestrator.ChangeEvent{
 		Timestamp:   timestamppb.Now(),
