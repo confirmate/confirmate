@@ -34,11 +34,11 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 		"output": "output test"
 	}`
 
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
-	openstacktest.HandleServerListSuccessfully(t)
-	openstacktest.HandleInterfaceListSuccessfully(t)
-	openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+	openstacktest.HandleServerListSuccessfully(t, fakeServer)
+	openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+	openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
 
 	type fields struct {
 		ctID     string
@@ -67,10 +67,10 @@ func Test_openstackCollector_collectServer(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					computeClient: client.ServiceClient(),
+					computeClient: client.ServiceClient(fakeServer),
 				},
 				region:  "test region",
 				domain:  &domain{},

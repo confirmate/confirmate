@@ -73,8 +73,8 @@ func Test_labels(t *testing.T) {
 }
 
 func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
 
 	type fields struct {
 		ctID       string
@@ -100,7 +100,7 @@ func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
 				},
@@ -121,7 +121,7 @@ func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
 				},
@@ -144,7 +144,7 @@ func Test_openstackCollector_getAttachedNetworkInterfaces(t *testing.T) {
 			}
 
 			if tt.fields.testhelper {
-				openstacktest.HandleInterfaceListSuccessfully(t)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
 
 			}
 
