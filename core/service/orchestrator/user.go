@@ -30,7 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertCurrentUserPermission allows the authenticated user to update their own permissions for a specific resource.
+// UpsertUserPermission creates or updates a specific permission entry for a user and resource.
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
@@ -61,6 +61,45 @@ func (svc *Service) UpsertUserPermission(
 	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{
 		UserPermission: req.Msg.UserPermission,
 	})
+	return
+}
+
+// RemoveUserPermission removes a specific permission entry for a user and resource.
+func (svc *Service) RemoveUserPermission(
+	ctx context.Context,
+	req *connect.Request[orchestrator.RemoveUserPermissionRequest],
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		permission orchestrator.UserPermission
+		allowed    bool
+	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Only admins may revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	err = svc.db.Delete(
+		&permission,
+		"user_id = ? AND resource_id = ? AND resource_type = ?",
+		req.Msg.GetUserPermission().GetUserId(),
+		req.Msg.GetUserPermission().GetResourceId(),
+		req.Msg.GetUserPermission().GetResourceType(),
+	)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&emptypb.Empty{})
 	return
 }
 
