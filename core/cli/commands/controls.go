@@ -47,13 +47,15 @@ func ControlsListCommand() *cli.Command {
 			levels := ExpandCommaSeparated(c.StringSlice("assurance-level"))
 
 			req := &orchestrator.ListControlsRequest{
-				CatalogId:    c.String("catalog-id"),
-				CategoryName: c.String("category-name"),
-				PageSize:     int32(c.Int("page-size")),
-				PageToken:    c.String("page-token"),
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
 			}
-			if len(levels) > 0 {
+			catalogId := c.String("catalog-id")
+			categoryName := c.String("category-name")
+			if catalogId != "" || categoryName != "" || len(levels) > 0 {
 				req.Filter = &orchestrator.ListControlsRequest_Filter{
+					CatalogId:       &catalogId,
+					CategoryName:    &categoryName,
 					AssuranceLevels: levels,
 				}
 			}

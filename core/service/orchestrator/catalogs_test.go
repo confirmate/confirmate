@@ -840,7 +840,9 @@ func TestService_ListControls(t *testing.T) {
 			name: "db error - not found",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CatalogId: orchestratortest.MockCatalog1.Id,
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CatalogId: &orchestratortest.MockCatalog1.Id,
+					},
 				},
 			},
 			fields: fields{
@@ -874,7 +876,9 @@ func TestService_ListControls(t *testing.T) {
 			name: "filter by catalog",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CatalogId: orchestratortest.MockCatalog2.Id,
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CatalogId: &orchestratortest.MockCatalog2.Id,
+					},
 				},
 			},
 			fields: fields{
@@ -903,7 +907,9 @@ func TestService_ListControls(t *testing.T) {
 			name: "filter by category",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CategoryName: orchestratortest.MockCatalog1.Categories[0].Name,
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CategoryName: &orchestratortest.MockCatalog1.Categories[0].Name,
+					},
 				},
 			},
 			fields: fields{

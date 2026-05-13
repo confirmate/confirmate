@@ -275,8 +275,8 @@ func (svc *Service) ListControls(
 	}
 
 	// Filter by catalog/category if provided
-	if req.Msg.CatalogId != "" || req.Msg.CategoryName != "" {
-		filteredControlIDs, err := svc.listControlIDsByCategory(req.Msg.CatalogId, req.Msg.CategoryName)
+	if req.Msg.GetFilter().GetCatalogId() != "" || req.Msg.GetFilter().GetCategoryName() != "" {
+		filteredControlIDs, err := svc.listControlIDsByCategory(req.Msg.GetFilter().GetCatalogId(), req.Msg.GetFilter().GetCategoryName())
 		if err != nil {
 			return nil, service.HandleDatabaseError(err)
 		}
