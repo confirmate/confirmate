@@ -2109,6 +2109,7 @@ components:
                 - name
                 - targetOfEvaluationId
                 - catalogId
+                - status
             type: object
             properties:
                 id:
@@ -2146,6 +2147,17 @@ components:
                     description: |-
                         List of user IDs with administrative control over this target.
                          These users can manage permissions for others and perform destructive actions like deletion.
+                status:
+                    enum:
+                        - AUDIT_SCOPE_STATUS_UNSPECIFIED
+                        - AUDIT_SCOPE_STATUS_SETUP
+                        - AUDIT_SCOPE_STATUS_INTERNAL_REVIEW
+                        - AUDIT_SCOPE_STATUS_AUDITOR_REVIEW
+                        - AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT
+                        - AUDIT_SCOPE_STATUS_FIXED
+                    type: string
+                    description: Status represents the current lifecycle status of the audit scope.
+                    format: enum
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
