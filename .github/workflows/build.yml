@@ -50,12 +50,25 @@ jobs:
           go install gotest.tools/gotestsum@latest
       - name: Test (core)
         run: |
-          gotestsum --jsonfile output-core.json --junitfile junit-core.xml -- -coverprofile=coverage-core.cov -coverpkg ./... -covermode=atomic ./...
+          gotestsum \
+            --jsonfile output-core.json \
+            --junitfile junit-core.xml \
+            -- \
+            -coverprofile=coverage-core.cov \
+            -coverpkg ./... \
+            -covermode=atomic ./...
           tparse -format markdown -file output-core.json > $GITHUB_STEP_SUMMARY
         working-directory: ./core
       - name: Test (collectors)
         run: |
-          gotestsum --jsonfile output-collectors.json --junitfile junit-collectors.xml -- -coverprofile=coverage-collectors.cov -coverpkg ./... -covermode=atomic ./...
+          gotestsum \
+            --packages=./... \
+            --jsonfile output-collectors.json\
+            --junitfile junit-collectors.xml \
+            -- \
+            -coverprofile=coverage-collectors.cov \
+            -coverpkg ./... \
+            -covermode=atomic ./...
           tparse -format markdown -file output-collectors.json >> $GITHUB_STEP_SUMMARY
         working-directory: ./collectors/cloud
       - name: Upload coverage to Codecov (core)
