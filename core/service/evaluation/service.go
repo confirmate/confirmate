@@ -64,8 +64,9 @@ type Service struct {
 
 	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint.
 	// map[catalog_id][control_id]*orchestrator.Control
-	catalogControls map[string]map[string]*orchestrator.Control
-	catalogsMutex   sync.RWMutex
+	catalogControls        map[string]map[string]*orchestrator.Control
+	catalogControlCategory map[string]map[string]string
+	catalogsMutex          sync.RWMutex
 }
 
 // DefaultConfig is the default configuration for the evaluation [Service].
@@ -113,9 +114,10 @@ func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 func NewService(opts ...service.Option[Service]) (handler evaluationconnect.EvaluationHandler, err error) {
 	var (
 		svc = &Service{
-			cfg:             DefaultConfig,
-			scheduler:       gocron.NewScheduler(time.Local),
-			catalogControls: make(map[string]map[string]*orchestrator.Control),
+			cfg:                    DefaultConfig,
+			scheduler:              gocron.NewScheduler(time.Local),
+			catalogControls:        make(map[string]map[string]*orchestrator.Control),
+			catalogControlCategory: make(map[string]map[string]string),
 		}
 	)
 
@@ -772,29 +774,40 @@ func (svc *Service) getControl(catalogId, categoryName, controlId string) (contr
 }
 
 func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, controlID string) string {
-	if catalog == nil || controlID == "" {
+	if controlID == "" {
 		return ""
 	}
 
-	for _, category := range catalog.GetCategories() {
-		if controlExistsInTree(category.GetControls(), controlID) {
-			return category.GetName()
-		}
+	var catalogID string
+	if catalog != nil {
+		catalogID = catalog.GetId()
 	}
 
-	return ""
-}
+	svc.catalogsMutex.RLock()
+	categoryMap, ok := svc.catalogControlCategory[catalogID]
+	svc.catalogsMutex.RUnlock()
 
-func controlExistsInTree(controls []*orchestrator.Control, controlID string) bool {
-	for _, control := range controls {
-		if control.GetId() == controlID {
-			return true
+	if !ok && catalog != nil {
+		categoryMap = make(map[string]string)
+		for _, category := range catalog.GetCategories() {
+			queue := append([]*orchestrator.Control(nil), category.GetControls()...)
+			for len(queue) > 0 {
+				control := queue[0]
+				queue = queue[1:]
+				categoryMap[control.GetId()] = category.GetName()
+				queue = append(queue, control.GetControls()...)
+			}
 		}
-		if controlExistsInTree(control.GetControls(), controlID) {
-			return true
+
+		svc.catalogsMutex.Lock()
+		if svc.catalogControlCategory == nil {
+			svc.catalogControlCategory = make(map[string]map[string]string)
 		}
+		svc.catalogControlCategory[catalogID] = categoryMap
+		svc.catalogsMutex.Unlock()
 	}
-	return false
+
+	return categoryMap[controlID]
 }
 
 // handlePending evaluates the given evaluation result when the current control evaluation status is PENDING
