@@ -59,6 +59,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -99,6 +100,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -142,6 +144,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -238,6 +241,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -259,6 +263,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -708,6 +713,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -771,7 +777,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path: update without status defaults to SETUP",
+			name: "validation error - missing status",
 			args: args{
 				req: &orchestrator.UpdateAuditScopeRequest{
 					AuditScope: &orchestrator.AuditScope{
@@ -783,24 +789,14 @@ func TestService_UpdateAuditScope(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockAuditScope1)
-					assert.NoError(t, err)
-				}),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
-				want := &orchestrator.AuditScope{
-					Id:                   orchestratortest.MockAuditScope1.Id,
-					Name:                 orchestratortest.MockAuditScope1.Name,
-					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
-					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
-					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
-				}
-				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, want, got.Msg)
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "audit_scope.status")
 			},
-			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: with authorization strategy with permission store and admin token",
@@ -811,6 +807,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -846,6 +843,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -927,6 +925,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 "Non-existent Scope",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -949,6 +948,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -970,6 +970,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},

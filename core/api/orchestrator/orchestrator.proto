@@ -1098,7 +1098,10 @@ message AuditScope {
   repeated User admins = 8 [(tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""];
 
   // Status represents the current lifecycle status of the audit scope.
-  AuditScopeStatus status = 9 [(buf.validate.field).enum.defined_only = true];
+  AuditScopeStatus status = 9 [
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]},
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message GetAssessmentResultRequest {
