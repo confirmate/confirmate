@@ -124,9 +124,11 @@ if !allowed {
 }
 ```
 
-The orchestrator's `checkAccess` also performs **JIT user provisioning**: on every authenticated
-request it creates or updates the user record in the database from the JWT claims.
-The evaluation service's `checkAccess` omits this step (no DB).
+The orchestrator performs **JIT user provisioning** on every authenticated request via
+`provisionCurrentUser`: it creates or updates the user record in the database from the JWT claims.
+Endpoints that skip authorization (e.g. `ListUsers`, `GetUser`) still call `provisionCurrentUser`
+directly so that the caller is always provisioned.
+The evaluation service omits this step (no DB).
 
 For authenticated create requests in the orchestrator, the creator is also granted an
 `ADMIN` `UserPermission` for each newly created target of evaluation or audit scope. This makes
@@ -141,6 +143,9 @@ permission update call.
   - `service/orchestrator/certificates.go`
   - `service/orchestrator/assessment_results.go`
   - `service/orchestrator/user.go`
+- Temporary exception: `ListUsers` (`/users`) and `GetUser` (`/users/{user_id}`) are
+  accessible to all authenticated users as a stopgap until fine-grained user access
+  control is implemented.
 - Evaluation service:
   - `service/evaluation/service.go` (`StartEvaluation`, `StopEvaluation`)
 
