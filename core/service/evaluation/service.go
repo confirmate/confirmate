@@ -62,10 +62,10 @@ type Service struct {
 
 	scheduler *gocron.Scheduler
 
-	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint
-	// map[catalog_id][category_name-control_id]*orchestrator.Control
-	catalogControls map[string]map[string]*orchestrator.Control
-	catalogsMutex   sync.RWMutex
+	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint.
+	// map[catalog_id][control_id]*orchestrator.Control
+	catalogControls        map[string]map[string]*orchestrator.Control
+	catalogsMutex sync.RWMutex
 }
 
 // DefaultConfig is the default configuration for the evaluation [Service].
@@ -113,8 +113,8 @@ func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 func NewService(opts ...service.Option[Service]) (handler evaluationconnect.EvaluationHandler, err error) {
 	var (
 		svc = &Service{
-			cfg:             DefaultConfig,
-			scheduler:       gocron.NewScheduler(time.Local),
+			cfg:                    DefaultConfig,
+			scheduler:              gocron.NewScheduler(time.Local),
 			catalogControls: make(map[string]map[string]*orchestrator.Control),
 		}
 	)
@@ -522,10 +522,9 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	slices.Sort(assessmentResultIds)
 
 	result = &evaluation.EvaluationResult{
-		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  control.CategoryName,
-		ControlCatalogId:     control.CategoryCatalogId,
+		Id:               uuid.NewString(),
+		Timestamp:        timestamppb.Now(),
+		ControlCatalogId: auditScope.CatalogId,
 		ControlId:            control.Id,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
 		AuditScopeId:         auditScope.Id,
@@ -564,7 +563,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	}
 
 	// Get metrics from control and sub-controls
-	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.CategoryName, control.Id)
+	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.Id)
 	if err != nil {
 		slog.Error("could not get metrics for",
 			slog.String("control id", control.Id),
@@ -630,10 +629,9 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 
 	// Create evaluation result
 	eval = &evaluation.EvaluationResult{
-		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  control.CategoryName,
-		ControlCatalogId:     control.CategoryCatalogId,
+		Id:               uuid.NewString(),
+		Timestamp:        timestamppb.Now(),
+		ControlCatalogId: auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
@@ -662,10 +660,10 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 //
 // For now a control has either sub-controls or metrics. If the control has sub-controls, get also all metrics from the
 // sub-controls.
-func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId string) (metrics []*assessment.Metric, err error) {
+func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metrics []*assessment.Metric, err error) {
 	var subControlMetrics []*assessment.Metric
 
-	control, err := svc.getControl(catalogId, categoryName, controlId)
+	control, err := svc.getControl(catalogId, controlId)
 	if err != nil {
 		err = fmt.Errorf("could not get control for control id {%s}: %w", controlId, err)
 		return
@@ -677,7 +675,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId 
 	// Add sub-control metrics to the metric list if exist
 	if len(control.Controls) != 0 {
 		// Get the metrics from the next sub-control
-		subControlMetrics, err = svc.getMetricsFromSubcontrols(control)
+		subControlMetrics, err = svc.getMetricsFromSubcontrols(catalogId, control)
 		if err != nil {
 			err = fmt.Errorf("error getting metrics from sub-controls: %w", err)
 			return
@@ -690,7 +688,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId 
 }
 
 // getMetricsFromSubcontrols returns a list of metrics from the sub-controls.
-func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
+func (svc *Service) getMetricsFromSubcontrols(catalogId string, control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
 	var subcontrol *orchestrator.Control
 
 	if control == nil {
@@ -698,7 +696,7 @@ func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (me
 	}
 
 	for _, c := range control.Controls {
-		subcontrol, err = svc.getControl(c.CategoryCatalogId, c.CategoryName, c.Id)
+		subcontrol, err = svc.getControl(catalogId, c.Id)
 		if err != nil {
 			return
 		}
@@ -723,7 +721,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 
 	// Get controls for given catalog
 	controls, err = api.ListAllPaginated(context.Background(), &orchestrator.ListControlsRequest{
-		CatalogId: catalogId,
+		Filter: &orchestrator.ListControlsRequest_Filter{CatalogId: &catalogId},
 	}, func(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
 		res, err := svc.orchestratorClient.ListControls(ctx, connect.NewRequest(req))
 		if err != nil {
@@ -745,7 +743,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	svc.catalogsMutex.Lock()
 	svc.catalogControls[catalogId] = make(map[string]*orchestrator.Control)
 	for _, control := range controls {
-		tag = fmt.Sprintf("%s-%s", control.GetCategoryName(), control.GetId())
+		tag = control.GetId()
 		svc.catalogControls[catalogId][tag] = control
 	}
 	svc.catalogsMutex.Unlock()
@@ -753,17 +751,15 @@ func (svc *Service) cacheControls(catalogId string) error {
 	return nil
 }
 
-// getControl returns the control for the given catalogID, CategoryName and controlID.
-func (svc *Service) getControl(catalogId, categoryName, controlId string) (control *orchestrator.Control, err error) {
+// getControl returns the control for the given catalogID and controlID.
+func (svc *Service) getControl(catalogId, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
 		return nil, errors.New("catalog id is missing")
-	} else if categoryName == "" {
-		return nil, errors.New("category name is missing")
 	} else if controlId == "" {
 		return nil, errors.New("control id is missing")
 	}
 
-	tag := fmt.Sprintf("%s-%s", categoryName, controlId)
+	tag := controlId
 
 	control, ok := svc.catalogControls[catalogId][tag]
 	if !ok {
