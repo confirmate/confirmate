@@ -187,3 +187,19 @@ func (t *errorDB) Raw(r any, query string, args ...any) error {
 
 	return t.DB.Raw(r, query, args...)
 }
+
+func (t *errorDB) Transaction(fn func(tx persistence.DB) error) error {
+	return t.DB.Transaction(func(tx persistence.DB) error {
+		return fn(&errorDB{
+			DB:        tx,
+			createErr: t.createErr,
+			saveErr:   t.saveErr,
+			updateErr: t.updateErr,
+			deleteErr: t.deleteErr,
+			getErr:    t.getErr,
+			listErr:   t.listErr,
+			countErr:  t.countErr,
+			rawErr:    t.rawErr,
+		})
+	})
+}

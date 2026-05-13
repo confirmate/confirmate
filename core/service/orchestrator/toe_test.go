@@ -79,6 +79,54 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: grants admin permission to authenticated creator",
+			args: args{
+				req: &orchestrator.CreateTargetOfEvaluationRequest{
+					TargetOfEvaluation: orchestratortest.MockTargetOfEvaluation1,
+				},
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, got.Msg,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
+					assert.NotEmpty(t, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				var (
+					count int64
+					err   error
+				)
+
+				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				count, err = db.Count(&orchestrator.UserPermission{},
+					"user_id = ? AND resource_id = ? AND resource_type = ? AND permission = ?",
+					orchestratortest.MockUserIssuer1+"|"+orchestratortest.MockUserId1,
+					res.Msg.Id,
+					orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					orchestrator.UserPermission_PERMISSION_ADMIN,
+				)
+				assert.NoError(t, err)
+
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
+					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
+					assert.NotEmpty(t, toe.GetId()) &&
+					assert.Equal(t, int64(1), count)
+			},
+		},
+		{
 			name: "happy path: with organisation details",
 			args: args{
 				req: &orchestrator.CreateTargetOfEvaluationRequest{
