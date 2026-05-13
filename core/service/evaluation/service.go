@@ -805,11 +805,10 @@ func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, contro
 		if svc.catalogControlCategory == nil {
 			svc.catalogControlCategory = make(map[string]map[string]string)
 		}
-		if existing, exists := svc.catalogControlCategory[catalogID]; exists {
-			categoryMap = existing
-		} else {
+		if _, exists := svc.catalogControlCategory[catalogID]; !exists {
 			svc.catalogControlCategory[catalogID] = categoryMap
 		}
+		categoryMap = svc.catalogControlCategory[catalogID]
 		svc.catalogsMutex.Unlock()
 	}
 
@@ -825,7 +824,7 @@ func (svc *Service) getCachedControlCategoryName(catalogID, controlID string) st
 	}
 
 	catalogMap, ok := svc.catalogControlCategory[catalogID]
-	if !ok || catalogMap == nil {
+	if !ok {
 		return ""
 	}
 
