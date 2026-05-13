@@ -113,7 +113,7 @@ func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, er
 }
 
 // MetricConfiguration returns the default configuration for a given metric
-func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
+func (m *mockMetricsSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
 	// Fetch the metric configuration directly from our file
 	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Name)
 
@@ -132,7 +132,7 @@ func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessm
 }
 
 // MetricImplementation returns the Rego implementation for a given metric
-func (m *mockMetricsSource) MetricImplementation(_ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
+func (m *mockMetricsSource) MetricImplementation(_ context.Context, _ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
 	// Fetch the metric implementation directly from our file
 	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Name)
 
@@ -157,7 +157,7 @@ type updatedMockMetricsSource struct {
 var _ MetricsSource = (*updatedMockMetricsSource)(nil)
 
 // MetricConfiguration returns an updated (non-default) configuration
-func (u *updatedMockMetricsSource) MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
+func (u *updatedMockMetricsSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
 	return &assessment.MetricConfiguration{
 		Operator:             "==",
 		TargetValue:          structpb.NewBoolValue(false),
@@ -299,7 +299,7 @@ func TestMockMetricsSource_MetricConfiguration(t *testing.T) {
 	assert.NotEmpty(t, metrics)
 
 	// Get configuration for first metric
-	config, err := mock.MetricConfiguration("test-target", metrics[0])
+	config, err := mock.MetricConfiguration(context.Background(), "test-target", metrics[0])
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 	assert.True(t, config.IsDefault)
@@ -310,7 +310,7 @@ func TestUpdatedMockMetricsSource_MetricConfiguration(t *testing.T) {
 		mockMetricsSource: mockMetricsSource{t: t},
 	}
 
-	config, err := mock.MetricConfiguration("test-target", &assessment.Metric{Name: "test-metric"})
+	config, err := mock.MetricConfiguration(context.Background(), "test-target", &assessment.Metric{Name: "test-metric"})
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 	assert.False(t, config.IsDefault)

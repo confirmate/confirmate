@@ -44,11 +44,11 @@ func (m *metricsErrorSource) Metrics(_ context.Context) (metrics []*assessment.M
 	return nil, errors.New("boom")
 }
 
-func (m *metricsErrorSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+func (m *metricsErrorSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
 	return nil, errors.New("not implemented")
 }
 
-func (m *metricsErrorSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (m *metricsErrorSource) MetricImplementation(_ context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	return nil, errors.New("not implemented")
 }
 
@@ -62,12 +62,12 @@ func (m *missingConfigSource) Metrics(_ context.Context) (metrics []*assessment.
 	}}, nil
 }
 
-func (m *missingConfigSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+func (m *missingConfigSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
 	err = connect.NewError(connect.CodeNotFound, errors.New("metric configuration not found for target"))
 	return nil, err
 }
 
-func (m *missingConfigSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (m *missingConfigSource) MetricImplementation(_ context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	return nil, errors.New("not implemented")
 }
 
@@ -81,12 +81,12 @@ func (m *metricConfigErrorSource) Metrics(_ context.Context) (metrics []*assessm
 	}}, nil
 }
 
-func (m *metricConfigErrorSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+func (m *metricConfigErrorSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
 	err = connect.NewError(connect.CodeInternal, errors.New("database unavailable"))
 	return nil, err
 }
 
-func (m *metricConfigErrorSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (m *metricConfigErrorSource) MetricImplementation(_ context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	return nil, errors.New("not implemented")
 }
 

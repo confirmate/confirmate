@@ -64,8 +64,8 @@ type CombinedResult struct {
 // configuration as well as implementation for a particular metric (and target of evaluation)
 type MetricsSource interface {
 	Metrics(ctx context.Context) ([]*assessment.Metric, error)
-	MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error)
-	MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error)
+	MetricConfiguration(ctx context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error)
+	MetricImplementation(ctx context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error)
 }
 
 // ControlsSource is used to retrieve a list of controls

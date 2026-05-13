@@ -295,7 +295,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 	)
 
 	// We need to check if the metric configuration has been changed.
-	config, err := src.MetricConfiguration(targetID, metric)
+	config, err := src.MetricConfiguration(ctx, targetID, metric)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch metric configuration for metric %s: %w", metric.Name, err)
 	}
@@ -343,7 +343,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 		pkg = util.CamelCaseToSnakeCase(metric.Name)
 
 		// Fetch the metric implementation, i.e., the Rego code from the metric source
-		impl, err = src.MetricImplementation(assessment.MetricImplementation_LANGUAGE_REGO, metric)
+		impl, err = src.MetricImplementation(ctx, assessment.MetricImplementation_LANGUAGE_REGO, metric)
 		if err != nil {
 			return nil, fmt.Errorf("could not fetch policy for metric %s: %w", metric.Name, err)
 		}
