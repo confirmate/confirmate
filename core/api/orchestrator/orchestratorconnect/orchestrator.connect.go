@@ -194,6 +194,9 @@ const (
 	// OrchestratorUpsertUserPermissionProcedure is the fully-qualified name of the Orchestrator's
 	// UpsertUserPermission RPC.
 	OrchestratorUpsertUserPermissionProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpsertUserPermission"
+	// OrchestratorRemoveUserPermissionProcedure is the fully-qualified name of the Orchestrator's
+	// RemoveUserPermission RPC.
+	OrchestratorRemoveUserPermissionProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveUserPermission"
 	// OrchestratorGetCurrentUserProcedure is the fully-qualified name of the Orchestrator's
 	// GetCurrentUser RPC.
 	OrchestratorGetCurrentUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetCurrentUser"
@@ -344,8 +347,10 @@ type OrchestratorClient interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
-	// Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+	// Upserts a specific user permission identified by user and resource.
 	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
+	// Removes a specific user permission.
+	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
 	// Returns information about the currently authenticated user
 	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
 	// Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
@@ -679,6 +684,12 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("UpsertUserPermission")),
 			connect.WithClientOptions(opts...),
 		),
+		removeUserPermission: connect.NewClient[orchestrator.RemoveUserPermissionRequest, emptypb.Empty](
+			httpClient,
+			baseURL+OrchestratorRemoveUserPermissionProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("RemoveUserPermission")),
+			connect.WithClientOptions(opts...),
+		),
 		getCurrentUser: connect.NewClient[orchestrator.GetCurrentUserRequest, orchestrator.User](
 			httpClient,
 			baseURL+OrchestratorGetCurrentUserProcedure,
@@ -805,6 +816,7 @@ type orchestratorClient struct {
 	removeAuditScope                     *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
 	getRuntimeInfo                       *connect.Client[common.GetRuntimeInfoRequest, common.Runtime]
 	upsertUserPermission                 *connect.Client[orchestrator.UpsertUserPermissionRequest, orchestrator.UpsertUserPermissionResponse]
+	removeUserPermission                 *connect.Client[orchestrator.RemoveUserPermissionRequest, emptypb.Empty]
 	getCurrentUser                       *connect.Client[orchestrator.GetCurrentUserRequest, orchestrator.User]
 	getUser                              *connect.Client[orchestrator.GetUserRequest, orchestrator.User]
 	listUsers                            *connect.Client[orchestrator.ListUsersRequest, orchestrator.ListUsersResponse]
@@ -1067,6 +1079,11 @@ func (c *orchestratorClient) UpsertUserPermission(ctx context.Context, req *conn
 	return c.upsertUserPermission.CallUnary(ctx, req)
 }
 
+// RemoveUserPermission calls confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission.
+func (c *orchestratorClient) RemoveUserPermission(ctx context.Context, req *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.removeUserPermission.CallUnary(ctx, req)
+}
+
 // GetCurrentUser calls confirmate.orchestrator.v1.Orchestrator.GetCurrentUser.
 func (c *orchestratorClient) GetCurrentUser(ctx context.Context, req *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {
 	return c.getCurrentUser.CallUnary(ctx, req)
@@ -1247,8 +1264,10 @@ type OrchestratorHandler interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
-	// Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+	// Upserts a specific user permission identified by user and resource.
 	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
+	// Removes a specific user permission.
+	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
 	// Returns information about the currently authenticated user
 	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
 	// Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
@@ -1578,6 +1597,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("UpsertUserPermission")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorRemoveUserPermissionHandler := connect.NewUnaryHandler(
+		OrchestratorRemoveUserPermissionProcedure,
+		svc.RemoveUserPermission,
+		connect.WithSchema(orchestratorMethods.ByName("RemoveUserPermission")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorGetCurrentUserHandler := connect.NewUnaryHandler(
 		OrchestratorGetCurrentUserProcedure,
 		svc.GetCurrentUser,
@@ -1750,6 +1775,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorGetRuntimeInfoHandler.ServeHTTP(w, r)
 		case OrchestratorUpsertUserPermissionProcedure:
 			orchestratorUpsertUserPermissionHandler.ServeHTTP(w, r)
+		case OrchestratorRemoveUserPermissionProcedure:
+			orchestratorRemoveUserPermissionHandler.ServeHTTP(w, r)
 		case OrchestratorGetCurrentUserProcedure:
 			orchestratorGetCurrentUserHandler.ServeHTTP(w, r)
 		case OrchestratorGetUserProcedure:
@@ -1977,6 +2004,10 @@ func (UnimplementedOrchestratorHandler) GetRuntimeInfo(context.Context, *connect
 
 func (UnimplementedOrchestratorHandler) UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error) {

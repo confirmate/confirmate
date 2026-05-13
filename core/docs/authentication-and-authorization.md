@@ -130,6 +130,9 @@ Endpoints that skip authorization (e.g. `ListUsers`, `GetUser`) still call `prov
 directly so that the caller is always provisioned.
 The evaluation service omits this step (no DB).
 
+User permission management in `service/orchestrator/user.go` is restricted to admins for listing,
+granting, and removing explicit `UserPermission` entries.
+
 For authenticated create requests in the orchestrator, the creator is also granted an
 `ADMIN` `UserPermission` for each newly created target of evaluation or audit scope. This makes
 the new resource immediately manageable by the creating user without requiring a separate
