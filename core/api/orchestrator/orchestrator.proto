@@ -306,12 +306,14 @@ service Orchestrator {
     };
   }
 
-  // Retrieves a control specified by the catalog ID, the control's category
-  // name and the control ID. If present, it also includes a list of
-  // sub-controls if present or a list of metrics if no sub-controls but metrics
-  // are present.
+  // Retrieves a control by its unique control ID.
+  // If present, it also includes a list of sub-controls if present or a list of
+  // metrics if no sub-controls but metrics are present.
   rpc GetControl(GetControlRequest) returns (Control) {
-    option (google.api.http) = {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls/{control_id}"};
+    option (google.api.http) = {
+      get: "/v1/orchestrator/controls/{control_id}"
+      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls/{control_id}"}
+    };
   }
 
   // Creates a new Audit Scope
@@ -987,8 +989,7 @@ message Category {
 // requirement in the EUCS terminology, e.g., is represented as the lowest
 // sub-control.
 message Control {
-  // A short name of the control, e.g. OPS-01, as used in OSCAL; it is not a
-  // unique ID!
+  // Globally unique ID of the control.
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.min_len = 1,
@@ -1018,9 +1019,8 @@ message Control {
   //     this is in accordance with the OSCAL model.
   repeated Control controls = 6 [
     (tagger.tags) =
-    "gorm:\"foreignKey:parent_control_id,parent_control_"
-    "category_name,parent_control_category_catalog_id;"
-    "references=id,category_name,category_catalog_id;"
+    "gorm:\"foreignKey:parent_control_id;"
+    "references:id;"
     "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
@@ -1043,6 +1043,9 @@ message Control {
   // An assurance level is not offered by every catalog, therefore it is
   // optional.
   optional string assurance_level = 11;
+
+  // Catalog-local, human-readable identifier of the control (e.g. OPS-01).
+  string local_id = 12;
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -1257,14 +1260,10 @@ message GetCategoryRequest {
 }
 
 message GetControlRequest {
-  string catalog_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_name = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // Optional. Retained for backward compatibility with legacy URL bindings.
+  string catalog_id = 1;
+  // Optional. Retained for backward compatibility with legacy URL bindings.
+  string category_name = 2;
   string control_id = 3 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED

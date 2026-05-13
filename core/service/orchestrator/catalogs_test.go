@@ -32,6 +32,7 @@ import (
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -89,7 +90,21 @@ func TestService_CreateCatalog(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
+				assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id)
+				assert.Equal(t, orchestratortest.MockCatalog1.Name, got.Msg.Name)
+				assert.Equal(t, orchestratortest.MockCatalog1.Description, got.Msg.Description)
+				for _, category := range got.Msg.GetCategories() {
+					for _, control := range category.GetControls() {
+						assert.NotEmpty(t, control.GetLocalId())
+						assert.NoError(t, uuid.Validate(control.GetId()))
+						for _, sub := range control.GetControls() {
+							assert.NoError(t, uuid.Validate(sub.GetId()))
+							assert.NotNil(t, sub.GetParentControlId())
+							assert.Equal(t, control.GetId(), sub.GetParentControlId())
+						}
+					}
+				}
+				return true
 			},
 			wantErr: assert.NoError,
 		},
@@ -1351,10 +1366,16 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 					subControl := control.Controls[0]
 
 					// Check parent relationships were set correctly
+					assert.NotEmpty(t, control.LocalId)
+					assert.Equal(t, "control-1", control.LocalId)
+					assert.NoError(t, uuid.Validate(control.Id))
 					assert.Equal(t, "category-1", subControl.CategoryName)
 					assert.Equal(t, "catalog-1", subControl.CategoryCatalogId)
+					assert.NotEmpty(t, subControl.LocalId)
+					assert.Equal(t, "sub-control-1", subControl.LocalId)
+					assert.NoError(t, uuid.Validate(subControl.Id))
 					assert.NotNil(t, subControl.ParentControlId)
-					assert.Equal(t, "control-1", *subControl.ParentControlId)
+					assert.Equal(t, control.Id, *subControl.ParentControlId)
 					assert.NotNil(t, subControl.ParentControlCategoryName)
 					assert.Equal(t, "category-1", *subControl.ParentControlCategoryName)
 					assert.NotNil(t, subControl.ParentControlCategoryCatalogId)

@@ -29,6 +29,8 @@ import (
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -47,16 +49,8 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	catalog = &orchestrator.Catalog{
-		Id:              req.Msg.GetCatalog().GetId(),
-		Name:            req.Msg.GetCatalog().GetName(),
-		Categories:      req.Msg.GetCatalog().GetCategories(),
-		Description:     req.Msg.Catalog.GetDescription(),
-		AllInScope:      req.Msg.Catalog.GetAllInScope(),
-		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
-		ShortName:       req.Msg.Catalog.GetShortName(),
-		Metadata:        req.Msg.Catalog.Metadata,
-	}
+	catalog = proto.Clone(req.Msg.GetCatalog()).(*orchestrator.Catalog)
+	normalizeCatalogControls(catalog)
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
@@ -153,16 +147,8 @@ func (svc *Service) UpdateCatalog(
 		return nil, err
 	}
 
-	catalog = &orchestrator.Catalog{
-		Id:              req.Msg.GetCatalog().GetId(),
-		Name:            req.Msg.GetCatalog().GetName(),
-		Categories:      req.Msg.GetCatalog().GetCategories(),
-		Description:     req.Msg.Catalog.GetDescription(),
-		AllInScope:      req.Msg.Catalog.GetAllInScope(),
-		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
-		ShortName:       req.Msg.Catalog.GetShortName(),
-		Metadata:        req.Msg.Catalog.Metadata,
-	}
+	catalog = proto.Clone(req.Msg.GetCatalog()).(*orchestrator.Catalog)
+	normalizeCatalogControls(catalog)
 
 	// Only admins may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
@@ -264,7 +250,7 @@ func (svc *Service) ListControls(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "id"
+		req.Msg.OrderBy = "local_id"
 		req.Msg.Asc = true
 	}
 
@@ -290,8 +276,7 @@ func (svc *Service) ListControls(
 	return
 }
 
-// GetControl retrieves a control specified by the catalog ID, the control's category
-// name and the control ID. If present, it also includes a list of
+// GetControl retrieves a control by its unique control ID. If present, it also includes a list of
 // sub-controls if present or a list of metrics if no sub-controls but metrics
 // are present.
 func (svc *Service) GetControl(
@@ -307,8 +292,7 @@ func (svc *Service) GetControl(
 		return nil, err
 	}
 
-	err = svc.db.Get(&control, "id = ? AND category_name = ? AND category_catalog_id = ?",
-		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
+	err = svc.db.Get(&control, "id = ?", req.Msg.ControlId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err
 	}
@@ -383,25 +367,45 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 		catalogs = append(catalogs, catalogsFromFile...)
 	}
 
-	// Post-processing: Populate parent relationships for nested controls.
-	// The JSON catalog files use nested structures, but the database model requires
-	// flat relationships with foreign keys. This step sets the CategoryName, CategoryCatalogId,
-	// and parent control references so sub-controls are correctly linked to their parents.
 	for _, catalog := range catalogs {
-		for _, category := range catalog.Categories {
-			for _, control := range category.Controls {
-				for _, sub := range control.Controls {
-					sub.CategoryName = category.Name
-					sub.CategoryCatalogId = catalog.Id
-
-					// Set parent info
-					sub.ParentControlCategoryCatalogId = &control.CategoryCatalogId
-					sub.ParentControlCategoryName = &control.CategoryName
-					sub.ParentControlId = &control.Id
-				}
-			}
-		}
+		normalizeCatalogControls(catalog)
 	}
 
 	return catalogs, nil
+}
+
+func normalizeCatalogControls(catalog *orchestrator.Catalog) {
+	if catalog == nil {
+		return
+	}
+
+	for _, category := range catalog.Categories {
+		normalizeControls(category.GetControls(), category.GetName(), catalog.GetId(), nil)
+	}
+}
+
+func normalizeControls(controls []*orchestrator.Control, categoryName, catalogID string, parent *orchestrator.Control) {
+	for _, control := range controls {
+		control.CategoryName = categoryName
+		control.CategoryCatalogId = catalogID
+
+		if control.GetLocalId() == "" {
+			control.LocalId = control.GetId()
+		}
+		if _, err := uuid.Parse(control.GetId()); err != nil {
+			control.Id = uuid.NewString()
+		}
+
+		if parent != nil {
+			control.ParentControlId = &parent.Id
+			control.ParentControlCategoryName = &parent.CategoryName
+			control.ParentControlCategoryCatalogId = &parent.CategoryCatalogId
+		} else {
+			control.ParentControlId = nil
+			control.ParentControlCategoryName = nil
+			control.ParentControlCategoryCatalogId = nil
+		}
+
+		normalizeControls(control.GetControls(), categoryName, catalogID, control)
+	}
 }

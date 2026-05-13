@@ -71,21 +71,17 @@ func ControlsListCommand() *cli.Command {
 func ControlsGetCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "get",
-		Usage:     "Get a control by catalog ID, category name, and control ID",
-		ArgsUsage: "<catalog-id> <category-name> <control-id>",
+		Usage:     "Get a control by control ID",
+		ArgsUsage: "<control-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.Args().Len() < 3 {
-				return fmt.Errorf("catalog ID, category name, and control ID required")
+			if c.Args().Len() < 1 {
+				return fmt.Errorf("control ID required")
 			}
-			catalogID := c.Args().Get(0)
-			categoryName := c.Args().Get(1)
-			controlID := c.Args().Get(2)
+			controlID := c.Args().Get(0)
 
 			client := OrchestratorClient(ctx, c)
 			resp, err := client.GetControl(ctx, connect.NewRequest(&orchestrator.GetControlRequest{
-				CatalogId:    catalogID,
-				CategoryName: categoryName,
-				ControlId:    controlID,
+				ControlId: controlID,
 			}))
 			if err != nil {
 				return err
