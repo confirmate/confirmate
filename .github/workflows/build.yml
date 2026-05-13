@@ -55,7 +55,7 @@ jobs:
         working-directory: ./core
       - name: Test (collectors)
         run: |
-          gotestsum --jsonfile output-collectors.json --junitfile junit-collectors.xml -- -coverprofile=coverage-collectors.cov -coverpkg ./... -covermode=atomic .
+          gotestsum --jsonfile output-collectors.json --junitfile junit-collectors.xml -- -coverprofile=coverage-collectors.cov -coverpkg ./... -covermode=atomic ./...
           tparse -format markdown -file output-collectors.json >> $GITHUB_STEP_SUMMARY
         working-directory: ./collectors
       - name: Upload coverage to Codecov (core)
