@@ -30,10 +30,10 @@ import (
 )
 
 func Test_openstackCollector_collectBlockStorage(t *testing.T) {
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
 
-	openstacktest.MockStorageListResponse(t)
+	openstacktest.MockStorageListResponse(t, fakeServer)
 
 	type fields struct {
 		ctID     string
@@ -62,10 +62,10 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					storageClient: client.ServiceClient(),
+					storageClient: client.ServiceClient(fakeServer),
 				},
 				region:  "test region",
 				domain:  &domain{},

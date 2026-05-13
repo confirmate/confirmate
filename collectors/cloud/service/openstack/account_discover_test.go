@@ -29,9 +29,9 @@ import (
 )
 
 func Test_openstackCollector_collectProjects(t *testing.T) {
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
-	openstacktest.HandleListProjectsSuccessfully(t)
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+	openstacktest.HandleListProjectsSuccessfully(t, fakeServer)
 
 	type fields struct {
 		ctID     string
@@ -60,10 +60,10 @@ func Test_openstackCollector_collectProjects(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				region:  "test region",
 				domain:  &domain{},
@@ -115,9 +115,9 @@ func Test_openstackCollector_collectProjects(t *testing.T) {
 }
 
 func Test_openstackCollector_collectDomain(t *testing.T) {
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
-	openstacktest.HandleListDomainsSuccessfully(t)
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+	openstacktest.HandleListDomainsSuccessfully(t, fakeServer)
 
 	type fields struct {
 		ctID     string
@@ -145,10 +145,10 @@ func Test_openstackCollector_collectDomain(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				domain:  &domain{},
 				project: &project{},

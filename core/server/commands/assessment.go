@@ -57,9 +57,9 @@ var AssessmentCommand = &cli.Command{
 		)
 
 		cfg = assessment.Config{
-			OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-			OrchestratorClient:  service.NewHTTPClient(),
-			RegoPackage:         cmd.String("assessment-rego-package"),
+			OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
+			OrchestratorHTTPClient: service.NewHTTPClient(),
+			RegoPackage:            cmd.String("assessment-rego-package"),
 		}
 
 		if cmd.Bool("auth-enabled") {
@@ -73,9 +73,9 @@ var AssessmentCommand = &cli.Command{
 			svcOptions = append(svcOptions, assessment.WithAuthorizationStrategyPermissionStore())
 
 			cfg.ServiceOAuth2Config = &clientcredentials.Config{
-				ClientID:     cmd.String("service-auth-client-id"),
-				ClientSecret: cmd.String("service-auth-client-secret"),
-				TokenURL:     cmd.String("service-auth-token-endpoint"),
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
 			}
 		}
 
@@ -100,7 +100,7 @@ var AssessmentCommand = &cli.Command{
 			}),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithReflection(),
 		)

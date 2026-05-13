@@ -81,9 +81,9 @@ func TestNewService(t *testing.T) {
 			args: args{
 				opts: []service.Option[Service]{
 					WithConfig(Config{
-						OrchestratorAddress: DefaultOrchestratorURL,
-						OrchestratorClient:  http.DefaultClient,
-						RegoPackage:         "testPkg",
+						OrchestratorAddress:    DefaultOrchestratorURL,
+						OrchestratorHTTPClient: http.DefaultClient,
+						RegoPackage:            "testPkg",
 					}),
 				},
 			},
@@ -96,9 +96,9 @@ func TestNewService(t *testing.T) {
 			args: args{
 				opts: []service.Option[Service]{
 					WithConfig(Config{
-						OrchestratorAddress: "localhost:9092",
-						OrchestratorClient:  http.DefaultClient,
-						RegoPackage:         policies.DefaultRegoPackage,
+						OrchestratorAddress:    "localhost:9092",
+						OrchestratorHTTPClient: http.DefaultClient,
+						RegoPackage:            policies.DefaultRegoPackage,
 					}),
 				},
 			},
@@ -370,9 +370,9 @@ func TestService_AssessEvidence(t *testing.T) {
 				_, client, url := setupOrchestratorForTesting(t)
 				aHandler, err := NewService(
 					WithConfig(Config{
-						OrchestratorAddress: url,
-						OrchestratorClient:  client,
-						RegoPackage:         policies.DefaultRegoPackage,
+						OrchestratorAddress:    url,
+						OrchestratorHTTPClient: client,
+						RegoPackage:            policies.DefaultRegoPackage,
 					}),
 				)
 				assert.NoError(t, err)
@@ -504,9 +504,9 @@ func TestService_AssessEvidences(t *testing.T) {
 
 			aHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  client,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: client,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -718,9 +718,9 @@ func TestService_handleEvidence(t *testing.T) {
 
 			aHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  client,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: client,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -774,9 +774,9 @@ func TestService_AssessEvidence_DetectMisconfiguredEvidenceEvenWhenAlreadyCached
 
 	aHandler, err := NewService(
 		WithConfig(Config{
-			OrchestratorAddress: url,
-			OrchestratorClient:  client,
-			RegoPackage:         policies.DefaultRegoPackage,
+			OrchestratorAddress:    url,
+			OrchestratorHTTPClient: client,
+			RegoPackage:            policies.DefaultRegoPackage,
 		}),
 	)
 	assert.NoError(t, err)
@@ -952,9 +952,9 @@ func TestService_AssessmentResultHooks(t *testing.T) {
 
 			aHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  client,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: client,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -1071,16 +1071,16 @@ func TestService_Metrics(t *testing.T) {
 			// Create assessment service
 			assessmentHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: testSrv.URL,
-					OrchestratorClient:  testSrv.Client(),
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    testSrv.URL,
+					OrchestratorHTTPClient: testSrv.Client(),
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
 
 			// Test
 			assessmentSvc := assessmentHandler.(*Service)
-			metrics, err := assessmentSvc.Metrics()
+			metrics, err := assessmentSvc.Metrics(context.Background())
 			tt.want(t, metrics)
 			tt.wantErr(t, err)
 		})
@@ -1089,15 +1089,22 @@ func TestService_Metrics(t *testing.T) {
 
 // TestService_MetricImplementation tests the MetricImplementation() method
 func TestService_MetricImplementation(t *testing.T) {
+	type args struct {
+		ctx  context.Context
+		lang assessment.MetricImplementation_Language
+	}
 	tests := []struct {
 		name    string
-		lang    assessment.MetricImplementation_Language
+		args    args
 		want    assert.Want[*assessment.MetricImplementation]
 		wantErr assert.WantErr
 	}{
 		{
 			name: "Successfully retrieve Rego implementation",
-			lang: assessment.MetricImplementation_LANGUAGE_REGO,
+			args: args{
+				ctx:  context.Background(),
+				lang: assessment.MetricImplementation_LANGUAGE_REGO,
+			},
 			want: func(t *testing.T, got *assessment.MetricImplementation, msgAndArgs ...any) bool {
 				return assert.NotNil(t, got)
 			},
@@ -1105,7 +1112,10 @@ func TestService_MetricImplementation(t *testing.T) {
 		},
 		{
 			name: "Unsupported language",
-			lang: assessment.MetricImplementation_LANGUAGE_UNSPECIFIED,
+			args: args{
+				ctx:  context.Background(),
+				lang: assessment.MetricImplementation_LANGUAGE_UNSPECIFIED,
+			},
 			want: assert.Nil[*assessment.MetricImplementation],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "unsupported language")
@@ -1171,16 +1181,16 @@ func TestService_MetricImplementation(t *testing.T) {
 			// Create assessment service
 			assessmentHandler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: testSrv.URL,
-					OrchestratorClient:  testSrv.Client(),
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    testSrv.URL,
+					OrchestratorHTTPClient: testSrv.Client(),
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
 
 			// Test
 			assessmentSvc := assessmentHandler.(*Service)
-			impl, err := assessmentSvc.MetricImplementation(tt.lang, metric)
+			impl, err := assessmentSvc.MetricImplementation(tt.args.ctx, tt.args.lang, metric)
 			tt.want(t, impl)
 			tt.wantErr(t, err)
 		})
@@ -1189,8 +1199,12 @@ func TestService_MetricImplementation(t *testing.T) {
 
 // TestService_MetricConfiguration tests the MetricConfiguration() method including caching
 func TestService_MetricConfiguration(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
 	tests := []struct {
 		name           string
+		args           args
 		toeID          string
 		metric         *assessment.Metric
 		preCacheConfig *cachedConfiguration
@@ -1199,7 +1213,10 @@ func TestService_MetricConfiguration(t *testing.T) {
 		wantErr        assert.WantErr
 	}{
 		{
-			name:  "Successfully retrieve and cache configuration (no pre-cache)",
+			name: "Successfully retrieve and cache configuration (no pre-cache)",
+			args: args{
+				ctx: context.Background(),
+			},
 			toeID: evidencetest.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
 				Id:          evidencetest.MockMetricID1,
@@ -1217,6 +1234,9 @@ func TestService_MetricConfiguration(t *testing.T) {
 		},
 		{
 			name: "Successfully retrieve configuration (pre-cache hit)",
+			args: args{
+				ctx: context.Background(),
+			},
 			metric: &assessment.Metric{
 				Id:          evidencetest.MockMetricID1,
 				Name:        evidencetest.MockMetricName1,
@@ -1238,7 +1258,10 @@ func TestService_MetricConfiguration(t *testing.T) {
 			wantErr:    assert.NoError,
 		},
 		{
-			name:  "Successfully retrieve configuration (expired cache refreshed)",
+			name: "Successfully retrieve configuration (expired cache refreshed)",
+			args: args{
+				ctx: context.Background(),
+			},
 			toeID: evidencetest.MockTargetOfEvaluationID1,
 			metric: &assessment.Metric{
 				Id:          evidencetest.MockMetricID1,
@@ -1304,9 +1327,9 @@ func TestService_MetricConfiguration(t *testing.T) {
 			// Create assessment service
 			handler, err := NewService(
 				WithConfig(Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  testClient,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: testClient,
+					RegoPackage:            policies.DefaultRegoPackage,
 				}),
 			)
 			assert.NoError(t, err)
@@ -1320,7 +1343,7 @@ func TestService_MetricConfiguration(t *testing.T) {
 			}
 
 			// Execute test
-			config, err := assSvc.MetricConfiguration(res.Msg.Id, tt.metric)
+			config, err := assSvc.MetricConfiguration(tt.args.ctx, res.Msg.Id, tt.metric)
 
 			tt.want(t, config)
 			tt.wantErr(t, err)
@@ -1356,14 +1379,14 @@ func TestService_initOrchestratorStream(t *testing.T) {
 			// Create service
 			assSvc := &Service{
 				cfg: Config{
-					OrchestratorAddress: url,
-					OrchestratorClient:  testClient,
-					RegoPackage:         policies.DefaultRegoPackage,
+					OrchestratorAddress:    url,
+					OrchestratorHTTPClient: testClient,
+					RegoPackage:            policies.DefaultRegoPackage,
 				},
 			}
 
 			assSvc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(
-				assSvc.cfg.OrchestratorClient,
+				assSvc.cfg.OrchestratorHTTPClient,
 				assSvc.cfg.OrchestratorAddress,
 			)
 
