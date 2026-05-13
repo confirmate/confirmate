@@ -95,7 +95,7 @@ func TestService_CreateCatalog(t *testing.T) {
 				assert.Equal(t, orchestratortest.MockCatalog1.Description, got.Msg.Description)
 				for _, category := range got.Msg.GetCategories() {
 					for _, control := range category.GetControls() {
-						assert.NotEmpty(t, control.GetLocalId())
+						assert.NotEmpty(t, control.GetCatalogControlId())
 						assert.NoError(t, uuid.Validate(control.GetId()))
 						for _, sub := range control.GetControls() {
 							assert.NoError(t, uuid.Validate(sub.GetId()))
@@ -971,8 +971,8 @@ func TestService_GetControl(t *testing.T) {
 			args: args{
 				req: &orchestrator.GetControlRequest{
 					ControlId:    orchestratortest.MockControlId1,
-					CategoryName: orchestratortest.MockCategoryName1,
-					CatalogId:    orchestratortest.MockCatalogId1,
+					CategoryName: new(orchestratortest.MockCategoryName1),
+					CatalogId:    new(orchestratortest.MockCatalogId1),
 				},
 			},
 			fields: fields{
@@ -989,22 +989,18 @@ func TestService_GetControl(t *testing.T) {
 					CategoryCatalogId: orchestratortest.MockCatalogId1,
 					Controls: []*orchestrator.Control{
 						{
-							Id:                             orchestratortest.MockSubControlId1,
-							Name:                           orchestratortest.MockSubControlName1,
-							CategoryName:                   orchestratortest.MockCategoryName1,
-							CategoryCatalogId:              orchestratortest.MockCatalogId1,
-							ParentControlId:                new(orchestratortest.MockControlId1),
-							ParentControlCategoryName:      new(orchestratortest.MockCategoryName1),
-							ParentControlCategoryCatalogId: new(orchestratortest.MockCatalogId1),
+							Id:                orchestratortest.MockSubControlId1,
+							Name:              orchestratortest.MockSubControlName1,
+							CategoryName:      orchestratortest.MockCategoryName1,
+							CategoryCatalogId: orchestratortest.MockCatalogId1,
+							ParentControlId:   new(orchestratortest.MockControlId1),
 						},
 						{
-							Id:                             orchestratortest.MockSubControlId2,
-							Name:                           orchestratortest.MockSubControlName2,
-							CategoryName:                   orchestratortest.MockCategoryName1,
-							CategoryCatalogId:              orchestratortest.MockCatalogId1,
-							ParentControlId:                new(orchestratortest.MockControlId1),
-							ParentControlCategoryName:      new(orchestratortest.MockCategoryName1),
-							ParentControlCategoryCatalogId: new(orchestratortest.MockCatalogId1),
+							Id:                orchestratortest.MockSubControlId2,
+							Name:              orchestratortest.MockSubControlName2,
+							CategoryName:      orchestratortest.MockCategoryName1,
+							CategoryCatalogId: orchestratortest.MockCatalogId1,
+							ParentControlId:   new(orchestratortest.MockControlId1),
 						},
 					},
 				}
@@ -1018,8 +1014,8 @@ func TestService_GetControl(t *testing.T) {
 			args: args{
 				req: &orchestrator.GetControlRequest{
 					ControlId:    "non-existent",
-					CategoryName: orchestratortest.MockControlId1,
-					CatalogId:    orchestratortest.MockCatalogId1,
+					CategoryName: new(orchestratortest.MockControlId1),
+					CatalogId:    new(orchestratortest.MockCatalogId1),
 				},
 			},
 			fields: fields{
@@ -1366,20 +1362,16 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 					subControl := control.Controls[0]
 
 					// Check parent relationships were set correctly
-					assert.NotEmpty(t, control.LocalId)
-					assert.Equal(t, "control-1", control.LocalId)
+					assert.NotEmpty(t, control.CatalogControlId)
+					assert.Equal(t, "control-1", control.CatalogControlId)
 					assert.NoError(t, uuid.Validate(control.Id))
 					assert.Equal(t, "category-1", subControl.CategoryName)
 					assert.Equal(t, "catalog-1", subControl.CategoryCatalogId)
-					assert.NotEmpty(t, subControl.LocalId)
-					assert.Equal(t, "sub-control-1", subControl.LocalId)
+					assert.NotEmpty(t, subControl.CatalogControlId)
+					assert.Equal(t, "sub-control-1", subControl.CatalogControlId)
 					assert.NoError(t, uuid.Validate(subControl.Id))
 					assert.NotNil(t, subControl.ParentControlId)
 					assert.Equal(t, control.Id, *subControl.ParentControlId)
-					assert.NotNil(t, subControl.ParentControlCategoryName)
-					assert.Equal(t, "category-1", *subControl.ParentControlCategoryName)
-					assert.NotNil(t, subControl.ParentControlCategoryCatalogId)
-					assert.Equal(t, "catalog-1", *subControl.ParentControlCategoryCatalogId)
 				}
 			}
 		})

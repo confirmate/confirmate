@@ -40,8 +40,9 @@ func (svc *Service) CreateCatalog(
 	req *connect.Request[orchestrator.CreateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
-		catalog *orchestrator.Catalog
-		allowed bool
+		catalog        *orchestrator.Catalog
+		requestCatalog *orchestrator.Catalog
+		allowed        bool
 	)
 
 	// Validate the request
@@ -49,7 +50,8 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	catalog = proto.Clone(req.Msg.GetCatalog()).(*orchestrator.Catalog)
+	requestCatalog = req.Msg.GetCatalog()
+	catalog = proto.Clone(requestCatalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
 	// Only admins may grant or revoke permissions.
@@ -138,8 +140,9 @@ func (svc *Service) UpdateCatalog(
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
-		catalog *orchestrator.Catalog
-		allowed bool
+		catalog        *orchestrator.Catalog
+		requestCatalog *orchestrator.Catalog
+		allowed        bool
 	)
 
 	// Validate the request
@@ -147,7 +150,8 @@ func (svc *Service) UpdateCatalog(
 		return nil, err
 	}
 
-	catalog = proto.Clone(req.Msg.GetCatalog()).(*orchestrator.Catalog)
+	requestCatalog = req.Msg.GetCatalog()
+	catalog = proto.Clone(requestCatalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
 	// Only admins may grant or revoke permissions.
@@ -250,7 +254,7 @@ func (svc *Service) ListControls(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "local_id"
+		req.Msg.OrderBy = "catalog_control_id"
 		req.Msg.Asc = true
 	}
 
@@ -389,8 +393,8 @@ func normalizeControls(controls []*orchestrator.Control, categoryName, catalogID
 		control.CategoryName = categoryName
 		control.CategoryCatalogId = catalogID
 
-		if control.GetLocalId() == "" {
-			control.LocalId = control.GetId()
+		if control.GetCatalogControlId() == "" {
+			control.CatalogControlId = control.GetId()
 		}
 		if _, err := uuid.Parse(control.GetId()); err != nil {
 			control.Id = uuid.NewString()
@@ -398,12 +402,8 @@ func normalizeControls(controls []*orchestrator.Control, categoryName, catalogID
 
 		if parent != nil {
 			control.ParentControlId = &parent.Id
-			control.ParentControlCategoryName = &parent.CategoryName
-			control.ParentControlCategoryCatalogId = &parent.CategoryCatalogId
 		} else {
 			control.ParentControlId = nil
-			control.ParentControlCategoryName = nil
-			control.ParentControlCategoryCatalogId = nil
 		}
 
 		normalizeControls(control.GetControls(), categoryName, catalogID, control)
