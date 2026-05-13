@@ -289,7 +289,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 			s := &Service{
 				catalogControls: tt.fields.catalogControls,
 			}
-			gotMetrics, err := s.getAllMetricsFromControl(tt.args.catalogId, tt.args.categoryName, tt.args.controlId)
+			gotMetrics, err := s.getAllMetricsFromControl(tt.args.catalogId, tt.args.controlId)
 			tt.wantErr(t, err)
 
 			if assert.Equal(t, len(gotMetrics), len(tt.wantMetrics)) {
@@ -593,7 +593,7 @@ func TestService_getControl(t *testing.T) {
 				catalogControls: tt.fields.catalogControls,
 			}
 
-			gotControl, err := s.getControl(tt.args.catalogId, tt.args.categoryName, tt.args.controlId)
+			gotControl, err := s.getControl(tt.args.catalogId, tt.args.controlId)
 			tt.wantErr(t, err)
 
 			if gotControl != nil {
@@ -1442,7 +1442,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		ctx        context.Context
 		auditScope *orchestrator.AuditScope
 		control    *orchestrator.Control
-		category   string
 	}
 	tests := []struct {
 		name    string
@@ -1862,7 +1861,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				catalogControls:    tt.fields.catalogControls,
 			}
 
-			got, gotErr := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control, tt.args.category)
+			got, gotErr := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control)
 
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)

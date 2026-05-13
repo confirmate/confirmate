@@ -465,12 +465,13 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 
 	// Prepare the results slice
 	evaluationResults = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
+	_ = svc.getControlCategoryName(catalog, control.Id)
 
 	// evaluate all subcontrols in parallel
 	g, gctx := errgroup.WithContext(ctx)
 	for i, sub := range relevant {
 		g.Go(func() error {
-			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub, svc.getControlCategoryName(catalog, sub.Id))
+			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub)
 			if err != nil {
 				return err
 			}
@@ -552,7 +553,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 }
 
 // evaluateSubcontrol evaluates the sub-controls, e.g., OPS-13.2
-func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control, categoryName string) (eval *evaluation.EvaluationResult, err error) {
+func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control) (eval *evaluation.EvaluationResult, err error) {
 	var (
 		assessments []*assessment.AssessmentResult
 		status      evaluation.EvaluationStatus
@@ -566,7 +567,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	}
 
 	// Get metrics from control and sub-controls
-	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), categoryName, control.Id)
+	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.Id)
 	if err != nil {
 		slog.Error("could not get metrics for",
 			slog.String("control id", control.Id),
@@ -634,7 +635,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	eval = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  categoryName,
+		ControlCategoryName:  svc.getCachedControlCategoryName(auditScope.GetCatalogId(), control.Id),
 		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
@@ -664,10 +665,10 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 //
 // For now a control has either sub-controls or metrics. If the control has sub-controls, get also all metrics from the
 // sub-controls.
-func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId string) (metrics []*assessment.Metric, err error) {
+func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metrics []*assessment.Metric, err error) {
 	var subControlMetrics []*assessment.Metric
 
-	control, err := svc.getControl(catalogId, categoryName, controlId)
+	control, err := svc.getControl(catalogId, controlId)
 	if err != nil {
 		err = fmt.Errorf("could not get control for control id {%s}: %w", controlId, err)
 		return
@@ -700,7 +701,7 @@ func (svc *Service) getMetricsFromSubcontrols(catalogId string, control *orchest
 	}
 
 	for _, c := range control.Controls {
-		subcontrol, err = svc.getControl(catalogId, "", c.Id)
+		subcontrol, err = svc.getControl(catalogId, c.Id)
 		if err != nil {
 			return
 		}
@@ -755,8 +756,8 @@ func (svc *Service) cacheControls(catalogId string) error {
 	return nil
 }
 
-// getControl returns the control for the given catalogID, CategoryName and controlID.
-func (svc *Service) getControl(catalogId, categoryName, controlId string) (control *orchestrator.Control, err error) {
+// getControl returns the control for the given catalogID and controlID.
+func (svc *Service) getControl(catalogId, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
 		return nil, errors.New("catalog id is missing")
 	} else if controlId == "" {
@@ -808,6 +809,17 @@ func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, contro
 	}
 
 	return categoryMap[controlID]
+}
+
+func (svc *Service) getCachedControlCategoryName(catalogID, controlID string) string {
+	svc.catalogsMutex.RLock()
+	defer svc.catalogsMutex.RUnlock()
+
+	if svc.catalogControlCategory == nil {
+		return ""
+	}
+
+	return svc.catalogControlCategory[catalogID][controlID]
 }
 
 // handlePending evaluates the given evaluation result when the current control evaluation status is PENDING
