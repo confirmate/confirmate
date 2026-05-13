@@ -466,7 +466,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	// Prepare the results slice
 	evaluationResults = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
 	// Prime the control-category cache for this catalog before sub-control evaluation.
-	_ = svc.getControlCategoryName(catalog, control.Id)
+	_ = svc.getOrCacheControlCategoryName(catalog, control.Id)
 
 	// evaluate all subcontrols in parallel
 	g, gctx := errgroup.WithContext(ctx)
@@ -528,7 +528,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	result = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  svc.getControlCategoryName(catalog, control.Id),
+		ControlCategoryName:  svc.getOrCacheControlCategoryName(catalog, control.Id),
 		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
@@ -775,7 +775,9 @@ func (svc *Service) getControl(catalogId, controlId string) (control *orchestrat
 	return
 }
 
-func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, controlID string) string {
+// getOrCacheControlCategoryName returns the category name for a control.
+// If the category map for the catalog is not cached yet, it is built and cached lazily.
+func (svc *Service) getOrCacheControlCategoryName(catalog *orchestrator.Catalog, controlID string) string {
 	if controlID == "" {
 		return ""
 	}
@@ -794,8 +796,9 @@ func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, contro
 		if svc.catalogControlCategory == nil {
 			svc.catalogControlCategory = make(map[string]map[string]string)
 		}
-		categoryMap, ok = svc.catalogControlCategory[catalogID]
-		if !ok {
+		if cached, exists := svc.catalogControlCategory[catalogID]; exists {
+			categoryMap = cached
+		} else {
 			categoryMap = make(map[string]string)
 			for _, category := range catalog.GetCategories() {
 				queue := append([]*orchestrator.Control(nil), category.GetControls()...)
@@ -814,6 +817,8 @@ func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, contro
 	return categoryMap[controlID]
 }
 
+// lookupControlCategoryName performs a read-only cache lookup for a control's category name.
+// It does not initialize the cache and returns an empty string when the mapping is not cached.
 func (svc *Service) lookupControlCategoryName(catalogID, controlID string) string {
 	svc.catalogsMutex.RLock()
 	defer svc.catalogsMutex.RUnlock()
