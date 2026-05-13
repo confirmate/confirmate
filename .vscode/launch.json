@@ -15,7 +15,7 @@
                 "--db-in-memory",
                 "--log-level",
                 "debug",
-                // "--auth-enabled"
+                "--auth-enabled"
             ]
         },
         {
