@@ -1341,10 +1341,6 @@ message UpsertUserPermissionResponse {
   UserPermission user_permission = 1;
 }
 
-// Note: RemoveUserPermissionRequest intentionally uses individual key fields rather than a full
-// UserPermission message, so REST DELETE callers can specify only the identifying fields without
-// needing to supply a request body. This is the desired end state; pb.go reflects the old
-// UserPermission-wrapper layout until codegen can be re-run.
 message RemoveUserPermissionRequest {
   UserPermission user_permission = 1 [
     (buf.validate.field).required = true,
