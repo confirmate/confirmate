@@ -970,9 +970,7 @@ func TestService_GetControl(t *testing.T) {
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetControlRequest{
-					ControlId:    orchestratortest.MockControlId1,
-					CategoryName: new(orchestratortest.MockCategoryName1),
-					CatalogId:    new(orchestratortest.MockCatalogId1),
+					ControlId: orchestratortest.MockControlId1,
 				},
 			},
 			fields: fields{
@@ -1013,9 +1011,7 @@ func TestService_GetControl(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetControlRequest{
-					ControlId:    "non-existent",
-					CategoryName: new(orchestratortest.MockControlId1),
-					CatalogId:    new(orchestratortest.MockCatalogId1),
+					ControlId: "non-existent",
 				},
 			},
 			fields: fields{

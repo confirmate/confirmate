@@ -3965,12 +3965,8 @@ func (x *GetCategoryRequest) GetCategoryName() string {
 }
 
 type GetControlRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional.
-	CatalogId *string `protobuf:"bytes,1,opt,name=catalog_id,json=catalogId,proto3,oneof" json:"catalog_id,omitempty"`
-	// Optional.
-	CategoryName  *string `protobuf:"bytes,2,opt,name=category_name,json=categoryName,proto3,oneof" json:"category_name,omitempty"`
-	ControlId     string  `protobuf:"bytes,3,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ControlId     string                 `protobuf:"bytes,3,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4003,20 +3999,6 @@ func (x *GetControlRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetControlRequest.ProtoReflect.Descriptor instead.
 func (*GetControlRequest) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{62}
-}
-
-func (x *GetControlRequest) GetCatalogId() string {
-	if x != nil && x.CatalogId != nil {
-		return *x.CatalogId
-	}
-	return ""
-}
-
-func (x *GetControlRequest) GetCategoryName() string {
-	if x != nil && x.CategoryName != nil {
-		return *x.CategoryName
-	}
-	return ""
 }
 
 func (x *GetControlRequest) GetControlId() string {
@@ -6045,17 +6027,17 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\tcatalogId\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\xbe\x01\n" +
-	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB}\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03jgorm:\"foreignKey:category_name,category_catalog_id;references:name,catalog_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\x94\x06\n" +
-	"\aControl\x120\n" +
-	"\x02id\x18\x01 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12E\n" +
+	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB}\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03jgorm:\"foreignKey:category_name,category_catalog_id;references:name,catalog_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\x96\x06\n" +
+	"\aControl\x121\n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12E\n" +
 	"\rcategory_name\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\fcategoryName\x12P\n" +
 	"\x13category_catalog_id\x18\x03 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x11categoryCatalogId\x12\x1e\n" +
 	"\x04name\x18\x04 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\xa1\x01\n" +
 	"\bcontrols\x18\x06 \x03(\v2#.confirmate.orchestrator.v1.ControlB`\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03Mgorm:\"foreignKey:parent_control_id;references:id;constraint:OnDelete:CASCADE\"R\bcontrols\x12\x8b\x01\n" +
-	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x128\n" +
-	"\x11parent_control_id\x18\b \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\x0fparentControlId\x88\x01\x01\x12,\n" +
+	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x129\n" +
+	"\x11parent_control_id\x18\b \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x0fparentControlId\x88\x01\x01\x12,\n" +
 	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12,\n" +
 	"\x12catalog_control_id\x18\f \x01(\tR\x10catalogControlIdB\x14\n" +
 	"\x12_parent_control_idB\x12\n" +
@@ -6188,16 +6170,11 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"catalog_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcatalogId\x12/\n" +
 	"\rcategory_name\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fcategoryName\"\xad\x01\n" +
-	"\x11GetControlRequest\x12\"\n" +
-	"\n" +
-	"catalog_id\x18\x01 \x01(\tH\x00R\tcatalogId\x88\x01\x01\x12(\n" +
-	"\rcategory_name\x18\x02 \x01(\tH\x01R\fcategoryName\x88\x01\x01\x12)\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fcategoryName\"J\n" +
+	"\x11GetControlRequest\x12)\n" +
 	"\n" +
 	"control_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcontrolIdB\r\n" +
-	"\v_catalog_idB\x10\n" +
-	"\x0e_category_name\"\xe5\x02\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcontrolIdJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03\"\xe5\x02\n" +
 	"\x13ListControlsRequest\x12\x1d\n" +
 	"\n" +
 	"catalog_id\x18\x01 \x01(\tR\tcatalogId\x12#\n" +
@@ -6748,7 +6725,6 @@ func file_api_orchestrator_orchestrator_proto_init() {
 	file_api_orchestrator_orchestrator_proto_msgTypes[39].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[41].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[46].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[62].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[63].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[73].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[81].OneofWrappers = []any{}

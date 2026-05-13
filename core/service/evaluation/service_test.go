@@ -825,7 +825,7 @@ func TestService_StopEvaluation(t *testing.T) {
 			fields: fields{
 				authz: &denyAuthorizationStrategy{},
 			},
-			want:   assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
+			want: assert.Nil[*connect.Response[evaluation.StopEvaluationResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
 			},
@@ -1513,7 +1513,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 			},
 			want: assert.Nil[*evaluation.EvaluationResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "could not get control for control id {control-1}: ")
+				return assert.ErrorContains(t, err, "could not get control for control id {"+orchestratortest.MockControlId1+"}: ")
 			},
 			wantSvc: assert.NotNil[*Service],
 		},

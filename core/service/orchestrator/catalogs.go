@@ -40,9 +40,8 @@ func (svc *Service) CreateCatalog(
 	req *connect.Request[orchestrator.CreateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
-		catalog        *orchestrator.Catalog
-		requestCatalog *orchestrator.Catalog
-		allowed        bool
+		catalog *orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -50,8 +49,17 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	requestCatalog = req.Msg.GetCatalog()
-	catalog = proto.Clone(requestCatalog).(*orchestrator.Catalog)
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
+	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
 	// Only admins may grant or revoke permissions.
@@ -140,9 +148,8 @@ func (svc *Service) UpdateCatalog(
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
-		catalog        *orchestrator.Catalog
-		requestCatalog *orchestrator.Catalog
-		allowed        bool
+		catalog *orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -150,8 +157,17 @@ func (svc *Service) UpdateCatalog(
 		return nil, err
 	}
 
-	requestCatalog = req.Msg.GetCatalog()
-	catalog = proto.Clone(requestCatalog).(*orchestrator.Catalog)
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
+	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
 	// Only admins may grant or revoke permissions.

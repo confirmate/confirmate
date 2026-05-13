@@ -989,7 +989,7 @@ message Control {
   // Globally unique ID of the control.
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
   string category_name = 2 [
@@ -1033,7 +1033,7 @@ message Control {
   ];
 
   // Unique ID of the parent control, if this is a sub-control.
-  optional string parent_control_id = 8 [(buf.validate.field).string.min_len = 1];
+  optional string parent_control_id = 8 [(buf.validate.field).string.uuid = true];
 
   reserved 9;
   reserved 10;
@@ -1258,10 +1258,8 @@ message GetCategoryRequest {
 }
 
 message GetControlRequest {
-  // Optional.
-  optional string catalog_id = 1;
-  // Optional.
-  optional string category_name = 2;
+  reserved 1;
+  reserved 2;
   string control_id = 3 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
