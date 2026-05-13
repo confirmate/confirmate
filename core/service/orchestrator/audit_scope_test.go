@@ -181,7 +181,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 
 				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
 				count, err = db.Count(&orchestrator.UserPermission{},
-					"user_id = ? AND resource_id = ? AND resource_type = ? AND permission = ?",
+					"user_id = ? AND object_id = ? AND object_type = ? AND permission = ?",
 					orchestratortest.MockUserIssuer1+"|"+orchestratortest.MockUserId1,
 					res.Msg.Id,
 					orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
