@@ -394,6 +394,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_trail_events:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists audit trail events, optionally filtered by audit scope.
+            operationId: Orchestrator_ListAuditTrailEvents
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Filter by audit scope.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAuditTrailEventsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/catalogs:
         get:
             tags:
@@ -707,201 +749,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/control_implementations:
-        get:
-            tags:
-                - Orchestrator
-            description: Lists control implementations with optional filtering by audit scope, state, or assignee.
-            operationId: Orchestrator_ListControlImplementations
-            parameters:
-                - name: filter.auditScopeId
-                  in: query
-                  description: Optional. Filter by audit scope.
-                  schema:
-                    type: string
-                - name: filter.state
-                  in: query
-                  description: Optional. Filter by current state.
-                  schema:
-                    enum:
-                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
-                        - CONTROL_IMPLEMENTATION_STATE_OPEN
-                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
-                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
-                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
-                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
-                    type: string
-                    format: enum
-                - name: filter.assigneeId
-                  in: query
-                  description: Optional. Filter by assignee.
-                  schema:
-                    type: string
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListControlImplementationsResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        post:
-            tags:
-                - Orchestrator
-            description: Creates a new control implementation to track a control's compliance status within an audit scope.
-            operationId: Orchestrator_CreateControlImplementation
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ControlImplementation'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ControlImplementation'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/orchestrator/control_implementations/{id}:
-        get:
-            tags:
-                - Orchestrator
-            description: Retrieves a control implementation by ID, including its full transition history.
-            operationId: Orchestrator_GetControlImplementation
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ControlImplementation'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        put:
-            tags:
-                - Orchestrator
-            description: |-
-                Updates a control implementation. Only assignee_id and implementation_details can be updated;
-                 structural fields (audit scope, control reference, state) use their dedicated RPCs.
-            operationId: Orchestrator_UpdateControlImplementation
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateControlImplementationRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ControlImplementation'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        delete:
-            tags:
-                - Orchestrator
-            description: Removes a control implementation.
-            operationId: Orchestrator_RemoveControlImplementation
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/orchestrator/control_implementations/{id}/transition:
-        post:
-            tags:
-                - Orchestrator
-            description: |-
-                Transitions a control implementation to a new state, enforcing valid state machine transitions
-                 and recording the transition in the history.
-            operationId: Orchestrator_TransitionControlImplementationState
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/TransitionControlImplementationStateRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ControlImplementation'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/controls:
         get:
             tags:
@@ -981,6 +828,203 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Control'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls_in_scope:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists controls in scope with optional filtering by audit scope, state, or assignee.
+            operationId: Orchestrator_ListControlsInScope
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Filter by audit scope.
+                  schema:
+                    type: string
+                - name: filter.state
+                  in: query
+                  description: Optional. Filter by current state.
+                  schema:
+                    enum:
+                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+                        - CONTROL_IMPLEMENTATION_STATE_OPEN
+                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
+                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
+                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
+                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
+                    type: string
+                    format: enum
+                - name: filter.assigneeId
+                  in: query
+                  description: Optional. Filter by assignee.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListControlsInScopeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Manually brings a control into scope within an audit scope, creating a ControlInScope record.
+                 Note: controls are also brought in scope automatically when an audit scope is created.
+            operationId: Orchestrator_ScopeControl
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ControlInScope'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls_in_scope/{id}:
+        get:
+            tags:
+                - Orchestrator
+            description: Retrieves a ControlInScope record by ID.
+            operationId: Orchestrator_GetControlInScope
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - Orchestrator
+            description: |-
+                Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
+                 use TransitionControlInScopeState to change the implementation state.
+            operationId: Orchestrator_UpdateControlInScope
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateControlInScopeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Removes a control from scope and records an AuditTrailEvent.
+            operationId: Orchestrator_UnscopeControl
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls_in_scope/{id}/transition:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Transitions a ControlInScope to a new implementation state, enforcing the state machine and
+                 recording the change as an AuditTrailEvent.
+            operationId: Orchestrator_TransitionControlInScopeState
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TransitionControlInScopeStateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
                 default:
                     description: Default error response
                     content:
@@ -2074,6 +2118,31 @@ components:
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
+        AuditTrailEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                auditScopeId:
+                    type: string
+                    description: AuditScopeId is the primary resource this event belongs to.
+                actorId:
+                    type: string
+                    description: ActorId is the User.id of the person who triggered this event.
+                comment:
+                    type: string
+                    description: Comment provides optional context for the event.
+                time:
+                    type: string
+                    format: date-time
+                eventData:
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: EventData holds the typed event payload serialized as JSON.
+            description: |-
+                AuditTrailEvent is a persisted record of any significant change related to an audit scope,
+                 such as a control being scoped/unscoped or an implementation state transition. The event_data
+                 field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
         Catalog:
             required:
                 - id
@@ -2241,31 +2310,26 @@ components:
                  a Control in a certification catalog. It follows the OSCAL model. A
                  requirement in the EUCS terminology, e.g., is represented as the lowest
                  sub-control.
-        ControlImplementation:
+        ControlInScope:
             required:
                 - id
                 - auditScopeId
-                - targetOfEvaluationId
                 - controlId
-                - controlCategoryName
-                - controlCategoryCatalogId
             type: object
             properties:
                 id:
                     type: string
                 auditScopeId:
                     type: string
-                    description: AuditScopeId describes the audit scope this implementation belongs to.
+                    description: AuditScopeId describes the audit scope this record belongs to.
                 targetOfEvaluationId:
                     type: string
-                    description: TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
+                    description: |-
+                        TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
+                         It is set server-side and not required in requests.
                 controlId:
                     type: string
-                    description: Control foreign key — references the control being implemented.
-                controlCategoryName:
-                    type: string
-                controlCategoryCatalogId:
-                    type: string
+                    description: 'ControlId references the control being implemented (unique UUID since #270).'
                 state:
                     enum:
                         - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
@@ -2279,10 +2343,7 @@ components:
                     format: enum
                 implementationDetails:
                     type: string
-                    description: |-
-                        ImplementationDetails contains details about the technical and organisation measures taken to
-                         implement the control. This is a free-form field that can be used to capture any relevant
-                         information about the implementation.
+                    description: ImplementationDetails contains free-form notes about how the control is being addressed.
                 assigneeId:
                     type: string
                     description: AssigneeId is the user (identified by User.id) responsible for implementing this control.
@@ -2292,59 +2353,11 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
-                transitions:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ControlImplementationTransition'
-                    description: Full history of state transitions (populated on read).
             description: |-
-                ControlImplementation tracks the implementation status of a specific control within an audit
-                 scope. There is exactly one ControlImplementation per (audit scope, control) pair.
-        ControlImplementationTransition:
-            required:
-                - id
-                - controlImplementationId
-                - fromState
-                - toState
-                - comment
-            type: object
-            properties:
-                id:
-                    type: string
-                controlImplementationId:
-                    type: string
-                fromState:
-                    enum:
-                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
-                        - CONTROL_IMPLEMENTATION_STATE_OPEN
-                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
-                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
-                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
-                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
-                    type: string
-                    format: enum
-                toState:
-                    enum:
-                        - CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
-                        - CONTROL_IMPLEMENTATION_STATE_OPEN
-                        - CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS
-                        - CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED
-                        - CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW
-                        - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
-                    type: string
-                    format: enum
-                performedBy:
-                    type: string
-                    description: User.id of the person who triggered this transition.
-                time:
-                    type: string
-                    format: date-time
-                comment:
-                    type: string
-                    description: Comment explaining the reason for the transition.
-            description: |-
-                ControlImplementationTransition records a single state change in a ControlImplementation's
-                 lifecycle, capturing who made the change and when.
+                ControlInScope tracks the implementation status of a specific control within an audit scope.
+                 There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
+                 when an audit scope is created and can also be managed manually via the ScopeControl /
+                 UnscopeControl RPCs.
         Dependency:
             type: object
             properties:
@@ -2469,6 +2482,15 @@ components:
                         $ref: '#/components/schemas/AuditScope'
                 nextPageToken:
                     type: string
+        ListAuditTrailEventsResponse:
+            type: object
+            properties:
+                auditTrailEvents:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AuditTrailEvent'
+                nextPageToken:
+                    type: string
         ListCatalogsResponse:
             type: object
             properties:
@@ -2487,13 +2509,13 @@ components:
                         $ref: '#/components/schemas/Certificate'
                 nextPageToken:
                     type: string
-        ListControlImplementationsResponse:
+        ListControlsInScopeResponse:
             type: object
             properties:
-                controlImplementations:
+                controlsInScope:
                     type: array
                     items:
-                        $ref: '#/components/schemas/ControlImplementation'
+                        $ref: '#/components/schemas/ControlInScope'
                 nextPageToken:
                     type: string
         ListControlsResponse:
@@ -2870,7 +2892,7 @@ components:
                     type: string
                     description: Website URL of the organisation.
             description: Organisation contains details about the organisation responsible for this target of evaluation.
-        TransitionControlImplementationStateRequest:
+        TransitionControlInScopeStateRequest:
             required:
                 - id
                 - toState
@@ -2892,7 +2914,7 @@ components:
                 comment:
                     type: string
                     description: Comment explaining the reason for this transition.
-        UpdateControlImplementationRequest:
+        UpdateControlInScopeRequest:
             required:
                 - id
             type: object
@@ -2903,9 +2925,7 @@ components:
                     type: string
                 implementationDetails:
                     type: string
-                    description: |-
-                        ImplementationDetails contains details about the technical and organisational measures taken to
-                         implement the control.
+                    description: ImplementationDetails contains free-form notes about how the control is being addressed.
         UpsertUserPermissionResponse:
             type: object
             properties:
@@ -2991,7 +3011,7 @@ components:
                         - OBJECT_TYPE_CONTROL
                         - OBJECT_TYPE_EVALUATION_RESULT
                         - OBJECT_TYPE_EVIDENCE
-                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                        - OBJECT_TYPE_CONTROL_IN_SCOPE
                     type: string
                     description: Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
                     format: enum

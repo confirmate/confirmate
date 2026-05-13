@@ -394,45 +394,51 @@ service Orchestrator {
     option (google.api.http) = {delete: "/v1/users/{user_id}"};
   }
 
-  // Creates a new control implementation to track a control's compliance status within an audit scope.
-  rpc CreateControlImplementation(CreateControlImplementationRequest) returns (ControlImplementation) {
+  // Manually brings a control into scope within an audit scope, creating a ControlInScope record.
+  // Note: controls are also brought in scope automatically when an audit scope is created.
+  rpc ScopeControl(ScopeControlRequest) returns (ControlInScope) {
     option (google.api.http) = {
-      post: "/v1/orchestrator/control_implementations"
-      body: "control_implementation"
+      post: "/v1/orchestrator/controls_in_scope"
+      body: "control_in_scope"
     };
   }
 
-  // Retrieves a control implementation by ID, including its full transition history.
-  rpc GetControlImplementation(GetControlImplementationRequest) returns (ControlImplementation) {
-    option (google.api.http) = {get: "/v1/orchestrator/control_implementations/{id}"};
+  // Retrieves a ControlInScope record by ID.
+  rpc GetControlInScope(GetControlInScopeRequest) returns (ControlInScope) {
+    option (google.api.http) = {get: "/v1/orchestrator/controls_in_scope/{id}"};
   }
 
-  // Lists control implementations with optional filtering by audit scope, state, or assignee.
-  rpc ListControlImplementations(ListControlImplementationsRequest) returns (ListControlImplementationsResponse) {
-    option (google.api.http) = {get: "/v1/orchestrator/control_implementations"};
+  // Lists controls in scope with optional filtering by audit scope, state, or assignee.
+  rpc ListControlsInScope(ListControlsInScopeRequest) returns (ListControlsInScopeResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/controls_in_scope"};
   }
 
-  // Updates a control implementation. Only assignee_id and implementation_details can be updated;
-  // structural fields (audit scope, control reference, state) use their dedicated RPCs.
-  rpc UpdateControlImplementation(UpdateControlImplementationRequest) returns (ControlImplementation) {
+  // Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
+  // use TransitionControlInScopeState to change the implementation state.
+  rpc UpdateControlInScope(UpdateControlInScopeRequest) returns (ControlInScope) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/control_implementations/{id}"
+      put: "/v1/orchestrator/controls_in_scope/{id}"
       body: "*"
     };
   }
 
-  // Transitions a control implementation to a new state, enforcing valid state machine transitions
-  // and recording the transition in the history.
-  rpc TransitionControlImplementationState(TransitionControlImplementationStateRequest) returns (ControlImplementation) {
+  // Transitions a ControlInScope to a new implementation state, enforcing the state machine and
+  // recording the change as an AuditTrailEvent.
+  rpc TransitionControlInScopeState(TransitionControlInScopeStateRequest) returns (ControlInScope) {
     option (google.api.http) = {
-      post: "/v1/orchestrator/control_implementations/{id}/transition"
+      post: "/v1/orchestrator/controls_in_scope/{id}/transition"
       body: "*"
     };
   }
 
-  // Removes a control implementation.
-  rpc RemoveControlImplementation(RemoveControlImplementationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/orchestrator/control_implementations/{id}"};
+  // Removes a control from scope and records an AuditTrailEvent.
+  rpc UnscopeControl(UnscopeControlRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/orchestrator/controls_in_scope/{id}"};
+  }
+
+  // Lists audit trail events, optionally filtered by audit scope.
+  rpc ListAuditTrailEvents(ListAuditTrailEventsRequest) returns (ListAuditTrailEventsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/audit_trail_events"};
   }
 }
 
@@ -721,6 +727,7 @@ enum EventCategory {
   EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
   EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
   EVENT_CATEGORY_USER = 8;
+  EVENT_CATEGORY_CONTROL_IN_SCOPE = 9;
 }
 
 message SubscribeRequest {
@@ -796,7 +803,8 @@ message ChangeEvent {
     confirmate.assessment.v1.MetricConfiguration  metric_configuration  = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
     AssessmentTool assessment_tool = 16;
-    User user = 17;
+    User           user            = 17;
+    ControlInScope control_in_scope = 18;
   }
 }
 

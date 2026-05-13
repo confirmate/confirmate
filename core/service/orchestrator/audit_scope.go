@@ -65,13 +65,18 @@ func (svc *Service) CreateAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the new audit scope in the database and grant the creator admin access.
+	// Persist the new audit scope in the database, grant creator admin access, and auto-create
+	// ControlInScope records for all controls in the catalog matching the assurance level.
 	err = svc.db.Transaction(func(tx persistence.DB) error {
 		if err = tx.Create(scope); err != nil {
 			return service.HandleDatabaseError(err)
 		}
 
 		if err = grantCreatorAdminPermission(ctx, tx, scope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE); err != nil {
+			return err
+		}
+
+		if err = autoCreateControlsInScope(tx, scope); err != nil {
 			return err
 		}
 
@@ -293,4 +298,50 @@ func (svc *Service) RemoveAuditScope(
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
+}
+
+// autoCreateControlsInScope loads all controls for the catalog associated with scope and creates
+// a ControlInScope record for each matching control. A control matches if the scope has no
+// assurance level, the control has no assurance level, or both levels match exactly.
+func autoCreateControlsInScope(tx persistence.DB, scope *orchestrator.AuditScope) error {
+	var controls []*orchestrator.Control
+
+	// Controls belong to categories which belong to catalogs. Join through category_controls to
+	// find all controls for the catalog. We do not use DISTINCT here because some SQL drivers used
+	// in tests do not support DISTINCT on wildcard column expansion; deduplication happens in Go.
+	if err := tx.Raw(&controls,
+		`SELECT controls.* FROM controls
+		 JOIN category_controls ON category_controls.control_id = controls.id
+		 WHERE category_controls.category_catalog_id = ?
+		 ORDER BY controls.short_name`,
+		scope.CatalogId); err != nil {
+		return service.HandleDatabaseError(err)
+	}
+
+	now := timestamppb.Now()
+	seen := make(map[string]bool, len(controls))
+	for _, ctrl := range controls {
+		if seen[ctrl.Id] {
+			continue
+		}
+		seen[ctrl.Id] = true
+		if scope.AssuranceLevel != nil && ctrl.AssuranceLevel != nil &&
+			*scope.AssuranceLevel != *ctrl.AssuranceLevel {
+			continue
+		}
+		cis := &orchestrator.ControlInScope{
+			Id:                   uuid.NewString(),
+			AuditScopeId:         scope.Id,
+			TargetOfEvaluationId: scope.TargetOfEvaluationId,
+			ControlId:            ctrl.Id,
+			State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+			CreatedAt:            now,
+			UpdatedAt:            now,
+		}
+		if err := tx.Create(cis); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+	}
+
+	return nil
 }

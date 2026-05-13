@@ -45,8 +45,8 @@ const (
 	MockToeId3                   = "00000000-0000-0000-0000-000000000003"
 	MockUserId1                  = "00000000-0000-0000-0000-000000000001"
 	MockUserId2                  = "00000000-0000-0000-0000-000000000002"
-	MockControlImplementationId1 = "00000000-0000-0000-0004-000000000001"
-	MockControlImplementationId2 = "00000000-0000-0000-0004-000000000002"
+	MockControlInScopeId1 = "00000000-0000-0000-0004-000000000001"
+	MockControlInScopeId2 = "00000000-0000-0000-0004-000000000002"
 )
 
 // Mock strings for consistent testing
@@ -624,24 +624,20 @@ var (
 		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 
-	// Mock ControlImplementations
-	MockControlImplementation1 = &orchestrator.ControlImplementation{
-		Id:                       MockControlImplementationId1,
-		AuditScopeId:             MockScopeId1,
-		TargetOfEvaluationId:     MockToeId1,
-		ControlId:                MockControlId1,
-		ControlCategoryName:      MockCategoryName1,
-		ControlCategoryCatalogId: MockCatalogId1,
-		State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+	// Mock ControlsInScope
+	MockControlInScope1 = &orchestrator.ControlInScope{
+		Id:                   MockControlInScopeId1,
+		AuditScopeId:         MockScopeId1,
+		TargetOfEvaluationId: MockToeId1,
+		ControlId:            MockControlId1,
+		State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
 	}
-	MockControlImplementation2 = &orchestrator.ControlImplementation{
-		Id:                       MockControlImplementationId2,
-		AuditScopeId:             MockScopeId2,
-		TargetOfEvaluationId:     MockToeId2,
-		ControlId:                MockControlId2,
-		ControlCategoryName:      MockCategoryName2,
-		ControlCategoryCatalogId: MockCatalogId2,
-		State:                    orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+	MockControlInScope2 = &orchestrator.ControlInScope{
+		Id:                   MockControlInScopeId2,
+		AuditScopeId:         MockScopeId2,
+		TargetOfEvaluationId: MockToeId2,
+		ControlId:            MockControlId2,
+		State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
 	}
 )
 

@@ -125,5 +125,5 @@ enum ObjectType {
   OBJECT_TYPE_CONTROL                    = 13;
   OBJECT_TYPE_EVALUATION_RESULT          = 14;
   OBJECT_TYPE_EVIDENCE                   = 15;
-  OBJECT_TYPE_CONTROL_IMPLEMENTATION     = 16;
+  OBJECT_TYPE_CONTROL_IN_SCOPE           = 16;
 }
