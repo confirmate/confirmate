@@ -347,7 +347,7 @@ type OrchestratorClient interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
-	// Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+	// Upserts a specific user permission identified by user and resource.
 	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
 	// Removes a specific user permission.
 	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
@@ -1264,7 +1264,7 @@ type OrchestratorHandler interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
-	// Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+	// Upserts a specific user permission identified by user and resource.
 	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
 	// Removes a specific user permission.
 	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)

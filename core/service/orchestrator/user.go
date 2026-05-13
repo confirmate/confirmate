@@ -30,13 +30,14 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertCurrentUserPermission allows the authenticated user to update their own permissions for a specific resource.
+// UpsertUserPermission creates or updates a specific permission entry for a user and resource.
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
 ) (res *connect.Response[orchestrator.UpsertUserPermissionResponse], err error) {
 	var (
-		allowed bool
+		allowed    bool
+		permission *orchestrator.UserPermission
 	)
 
 	// Validate the request
@@ -53,13 +54,20 @@ func (svc *Service) UpsertUserPermission(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.db.Save(req.Msg.UserPermission)
+	permission = &orchestrator.UserPermission{
+		UserId:       req.Msg.UserId,
+		ResourceId:   req.Msg.ResourceId,
+		ResourceType: req.Msg.ResourceType,
+		Permission:   req.Msg.Permission,
+	}
+
+	err = svc.db.Save(permission)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
 	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{
-		UserPermission: req.Msg.UserPermission,
+		UserPermission: permission,
 	})
 	return
 }

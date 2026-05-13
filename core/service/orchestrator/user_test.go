@@ -129,12 +129,10 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
-					UserPermission: &orchestrator.UserPermission{
-						UserId:       orchestratortest.MockUserId1,
-						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-						Permission:   orchestrator.UserPermission_PERMISSION_READER,
-					},
+					UserId:       orchestratortest.MockUserId1,
+					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission:   orchestrator.UserPermission_PERMISSION_READER,
 				}),
 			},
 			fields: fields{
@@ -150,12 +148,10 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
-					UserPermission: &orchestrator.UserPermission{
-						UserId:       orchestratortest.MockUserId1,
-						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-						Permission:   orchestrator.UserPermission_PERMISSION_READER,
-					},
+					UserId:       orchestratortest.MockUserId1,
+					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission:   orchestrator.UserPermission_PERMISSION_READER,
 				}),
 			},
 			fields: fields{
@@ -177,12 +173,10 @@ func TestService_UpsertUserPermission(t *testing.T) {
 					},
 				),
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
-					UserPermission: &orchestrator.UserPermission{
-						UserId:       orchestratortest.MockUserId1,
-						ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-						ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-						Permission:   orchestrator.UserPermission_PERMISSION_READER,
-					},
+					UserId:       orchestratortest.MockUserId1,
+					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission:   orchestrator.UserPermission_PERMISSION_READER,
 				}),
 			},
 			fields: fields{
