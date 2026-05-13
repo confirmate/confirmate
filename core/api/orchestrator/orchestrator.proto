@@ -353,10 +353,18 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
-  // Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+  // Upserts a specific user permission identified by user and resource.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      post: "/v1/users/user_permission"
+      put: "/v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}"
+      body: "user_permission"
+    };
+  }
+
+  // Removes a specific user permission.
+  rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/users/user_permission"
       body: "user_permission"
     };
   }
@@ -1372,6 +1380,13 @@ message UpsertUserPermissionRequest {
 
 message UpsertUserPermissionResponse {
   UserPermission user_permission = 1;
+}
+
+message RemoveUserPermissionRequest {
+  UserPermission user_permission = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message GetCurrentUserRequest {
