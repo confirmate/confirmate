@@ -329,6 +329,7 @@ func (svc *Service) TransitionControlImplementationState(
 			ToState:                 toState,
 			PerformedBy:             userId,
 			Time:                    timestamppb.Now(),
+			Comment:                 req.Msg.Comment,
 		}
 
 		if err = tx.Create(transition); err != nil {

@@ -1053,6 +1053,21 @@ message Control {
   optional string assurance_level = 11;
 }
 
+// AuditScopeStatus represents the lifecycle status of an audit scope.
+enum AuditScopeStatus {
+  AUDIT_SCOPE_STATUS_UNSPECIFIED               = 0;
+  // Setup is the initial status when an audit scope is first created.
+  AUDIT_SCOPE_STATUS_SETUP                     = 1;
+  // InternalReview indicates the audit scope is under internal review.
+  AUDIT_SCOPE_STATUS_INTERNAL_REVIEW           = 2;
+  // AuditorReview indicates the audit scope is being reviewed by an auditor.
+  AUDIT_SCOPE_STATUS_AUDITOR_REVIEW            = 3;
+  // ContinuousComplianceManagement indicates the audit scope is in continuous compliance management.
+  AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT = 4;
+  // Fixed indicates the audit scope has been completed and fixed.
+  AUDIT_SCOPE_STATUS_FIXED                     = 5;
+}
+
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
 // evaluated regarding this catalog's controls
 message AuditScope {
@@ -1089,6 +1104,12 @@ message AuditScope {
   // List of user IDs with administrative control over this target.
   // These users can manage permissions for others and perform destructive actions like deletion.
   repeated User admins = 8 [(tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""];
+
+  // Status represents the current lifecycle status of the audit scope.
+  AuditScopeStatus status = 9 [
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]},
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message GetAssessmentResultRequest {

@@ -2147,6 +2147,7 @@ components:
                 - name
                 - targetOfEvaluationId
                 - catalogId
+                - status
             type: object
             properties:
                 id:
@@ -2184,6 +2185,17 @@ components:
                     description: |-
                         List of user IDs with administrative control over this target.
                          These users can manage permissions for others and perform destructive actions like deletion.
+                status:
+                    enum:
+                        - AUDIT_SCOPE_STATUS_UNSPECIFIED
+                        - AUDIT_SCOPE_STATUS_SETUP
+                        - AUDIT_SCOPE_STATUS_INTERNAL_REVIEW
+                        - AUDIT_SCOPE_STATUS_AUDITOR_REVIEW
+                        - AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT
+                        - AUDIT_SCOPE_STATUS_FIXED
+                    type: string
+                    description: Status represents the current lifecycle status of the audit scope.
+                    format: enum
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
@@ -2429,6 +2441,7 @@ components:
                 - controlImplementationId
                 - fromState
                 - toState
+                - comment
             type: object
             properties:
                 id:
@@ -2461,6 +2474,9 @@ components:
                 time:
                     type: string
                     format: date-time
+                comment:
+                    type: string
+                    description: Comment explaining the reason for the transition.
             description: |-
                 ControlImplementationTransition records a single state change in a ControlImplementation's
                  lifecycle, capturing who made the change and when.
@@ -2996,6 +3012,7 @@ components:
             required:
                 - id
                 - toState
+                - comment
             type: object
             properties:
                 id:
@@ -3010,6 +3027,9 @@ components:
                         - CONTROL_IMPLEMENTATION_STATE_ACCEPTED
                     type: string
                     format: enum
+                comment:
+                    type: string
+                    description: Comment explaining the reason for this transition.
         UpdateControlImplementationRequest:
             required:
                 - id
