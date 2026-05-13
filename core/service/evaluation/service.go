@@ -465,6 +465,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 
 	// Prepare the results slice
 	evaluationResults = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
+	// Prime the control-category cache for this catalog before sub-control evaluation.
 	_ = svc.getControlCategoryName(catalog, control.Id)
 
 	// evaluate all subcontrols in parallel
@@ -804,7 +805,11 @@ func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, contro
 		if svc.catalogControlCategory == nil {
 			svc.catalogControlCategory = make(map[string]map[string]string)
 		}
-		svc.catalogControlCategory[catalogID] = categoryMap
+		if existing, exists := svc.catalogControlCategory[catalogID]; exists {
+			categoryMap = existing
+		} else {
+			svc.catalogControlCategory[catalogID] = categoryMap
+		}
 		svc.catalogsMutex.Unlock()
 	}
 
@@ -819,7 +824,12 @@ func (svc *Service) getCachedControlCategoryName(catalogID, controlID string) st
 		return ""
 	}
 
-	return svc.catalogControlCategory[catalogID][controlID]
+	catalogMap, ok := svc.catalogControlCategory[catalogID]
+	if !ok || catalogMap == nil {
+		return ""
+	}
+
+	return catalogMap[controlID]
 }
 
 // handlePending evaluates the given evaluation result when the current control evaluation status is PENDING
