@@ -163,7 +163,7 @@ require (
 )
 
 // runtime dependencies (OpenStack)
-require github.com/gophercloud/gophercloud/v2 v2.7.0
+require github.com/gophercloud/gophercloud/v2 v2.12.0
 
 // runtime dependencies (security)
 require (
