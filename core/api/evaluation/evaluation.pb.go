@@ -274,8 +274,6 @@ type EvaluationResult struct {
 	AuditScopeId string `protobuf:"bytes,3,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	// The control id the evaluation was based on
 	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
-	// The category the evaluated control belongs to
-	ControlCategoryName string `protobuf:"bytes,5,opt,name=control_category_name,json=controlCategoryName,proto3" json:"control_category_name,omitempty"`
 	// The catalog the evaluated control belongs to
 	ControlCatalogId string `protobuf:"bytes,6,opt,name=control_catalog_id,json=controlCatalogId,proto3" json:"control_catalog_id,omitempty"`
 	// Optionally, specifies the parent control ID, if this is a sub-control
@@ -356,13 +354,6 @@ func (x *EvaluationResult) GetControlId() string {
 	return ""
 }
 
-func (x *EvaluationResult) GetControlCategoryName() string {
-	if x != nil {
-		return x.ControlCategoryName
-	}
-	return ""
-}
-
 func (x *EvaluationResult) GetControlCatalogId() string {
 	if x != nil {
 		return x.ControlCatalogId
@@ -434,14 +425,13 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"successful\"J\n" +
 	"\x15StopEvaluationRequest\x121\n" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x18\n" +
-	"\x16StopEvaluationResponse\"\x8e\a\n" +
+	"\x16StopEvaluationResponse\"\xd7\x06\n" +
 	"\x10EvaluationResult\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12?\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12.\n" +
 	"\x0eaudit_scope_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12&\n" +
 	"\n" +
-	"control_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tcontrolId\x12;\n" +
-	"\x15control_category_name\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x13controlCategoryName\x125\n" +
+	"control_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tcontrolId\x125\n" +
 	"\x12control_catalog_id\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x10controlCatalogId\x12/\n" +
 	"\x11parent_control_id\x18\a \x01(\tH\x00R\x0fparentControlId\x88\x01\x01\x12O\n" +
 	"\x06status\x18\b \x01(\x0e2*.confirmate.evaluation.v1.EvaluationStatusB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12n\n" +
@@ -456,7 +446,7 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\n" +
 	"\b_commentB\x0e\n" +
 	"\f_valid_untilB\a\n" +
-	"\x05_data*\xf2\x01\n" +
+	"\x05_dataJ\x04\b\x05\x10\x06*\xf2\x01\n" +
 	"\x10EvaluationStatus\x12!\n" +
 	"\x1dEVALUATION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bEVALUATION_STATUS_COMPLIANT\x10\x01\x12(\n" +

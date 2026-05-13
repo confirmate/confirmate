@@ -68,8 +68,7 @@ message EvaluationResult {
   // The control id the evaluation was based on
   string control_id = 4 [(buf.validate.field).string.min_len = 1];
 
-  // The category the evaluated control belongs to
-  string control_category_name = 5 [(buf.validate.field).string.min_len = 1];
+  reserved 5;
 
   // The catalog the evaluated control belongs to
   string control_catalog_id = 6 [(buf.validate.field).string.min_len = 1];

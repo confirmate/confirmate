@@ -1094,7 +1094,7 @@ func TestService_evaluateControl(t *testing.T) {
 					ValidUntil:           nil,
 					Data:                 nil,
 				}
-				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1178,7 +1178,7 @@ func TestService_evaluateControl(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1249,7 +1249,7 @@ func TestService_evaluateControl(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1565,7 +1565,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
 				// Verify it was stored
@@ -1589,7 +1589,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1656,7 +1656,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
 				// Verify it was stored
@@ -1680,7 +1680,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1742,7 +1742,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
@@ -1767,7 +1767,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 		},
 		{
@@ -1825,7 +1825,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					ValidUntil:           nil,
 					Data:                 nil,
 				}
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
 				res, err := got.orchestratorClient.ListEvaluationResults(context.Background(), connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}))
@@ -1849,7 +1849,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				}
 
 				return assert.Equal(t, 1, len(res.Msg.Results)) &&
-					assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
+					assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
 			},
 			wantErr: assert.NoError,
 		},

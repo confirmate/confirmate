@@ -252,14 +252,13 @@ func (svc *Service) GetCategory(
 	return
 }
 
-// ListControls lists all controls, optionally filtered by catalog ID.
+// ListControls lists all controls.
 func (svc *Service) ListControls(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListControlsRequest],
 ) (res *connect.Response[orchestrator.ListControlsResponse], err error) {
 	var (
 		controls []*orchestrator.Control
-		conds    []any
 		npt      string
 	)
 
@@ -270,23 +269,11 @@ func (svc *Service) ListControls(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "name"
+		req.Msg.OrderBy = "short_name"
 		req.Msg.Asc = true
 	}
 
-	// Filter by catalog/category if provided
-	if req.Msg.GetFilter().GetCatalogId() != "" || req.Msg.GetFilter().GetCategoryName() != "" {
-		filteredControlIDs, err := svc.listControlIDsByCategory(req.Msg.GetFilter().GetCatalogId(), req.Msg.GetFilter().GetCategoryName())
-		if err != nil {
-			return nil, service.HandleDatabaseError(err)
-		}
-		if len(filteredControlIDs) == 0 {
-			return connect.NewResponse(&orchestrator.ListControlsResponse{}), nil
-		}
-		conds = append(conds, "id IN ?", filteredControlIDs)
-	}
-
-	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -448,56 +435,3 @@ func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
 	return flat
 }
 
-func (svc *Service) listControlIDsByCategory(catalogID, categoryName string) (ids []string, err error) {
-	var (
-		categories []*orchestrator.Category
-		visited    = make(map[string]struct{})
-		queue      []string
-		conds      []any
-	)
-
-	if catalogID != "" {
-		conds = append(conds, "catalog_id = ?", catalogID)
-	}
-	if categoryName != "" {
-		conds = append(conds, "name = ?", categoryName)
-	}
-
-	conds = append([]any{persistence.WithPreload("Controls", "parent_control_id IS NULL")}, conds...)
-	err = svc.db.List(&categories, "name", true, 0, -1, conds...)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, category := range categories {
-		for _, control := range category.GetControls() {
-			if _, ok := visited[control.GetId()]; !ok {
-				visited[control.GetId()] = struct{}{}
-				queue = append(queue, control.GetId())
-				ids = append(ids, control.GetId())
-			}
-		}
-	}
-
-	for len(queue) > 0 {
-		currentIDs := queue
-		queue = nil
-
-		var children []*orchestrator.Control
-		err = svc.db.List(&children, "id", true, 0, -1, "parent_control_id IN ?", currentIDs)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, child := range children {
-			if _, ok := visited[child.GetId()]; ok {
-				continue
-			}
-			visited[child.GetId()] = struct{}{}
-			queue = append(queue, child.GetId())
-			ids = append(ids, child.GetId())
-		}
-	}
-
-	return ids, nil
-}

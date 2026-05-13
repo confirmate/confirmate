@@ -2318,9 +2318,6 @@ components:
                 controlId:
                     type: string
                     description: The control id the evaluation was based on
-                controlCategoryName:
-                    type: string
-                    description: The category the evaluated control belongs to
                 controlCatalogId:
                     type: string
                     description: The catalog the evaluated control belongs to

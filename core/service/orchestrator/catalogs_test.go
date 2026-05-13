@@ -861,58 +861,6 @@ func TestService_ListControls(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
-		{
-			name: "filter by catalog",
-			args: args{
-				req: &orchestrator.ListControlsRequest{
-					Filter: &orchestrator.ListControlsRequest_Filter{
-						CatalogId: &orchestratortest.MockCatalog2.Id,
-					},
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCatalog2)
-					assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockCategory2)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl1)
-					// assert.NoError(t, err)
-					// err = d.Create(orchestratortest.MockControl2)
-					// assert.NoError(t, err)
-				}),
-			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
-				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Controls))
-			},
-			wantErr: assert.NoError,
-		},
-		{
-			name: "filter by category",
-			args: args{
-				req: &orchestrator.ListControlsRequest{
-					Filter: &orchestrator.ListControlsRequest_Filter{
-						CategoryName: &orchestratortest.MockCatalog1.Categories[0].Name,
-					},
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
-					assert.NoError(t, err)
-				}),
-			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
-				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 3, len(got.Msg.Controls))
-			},
-			wantErr: assert.NoError,
-		},
 	}
 
 	for _, tt := range tests {
