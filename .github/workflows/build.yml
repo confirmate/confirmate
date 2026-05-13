@@ -57,7 +57,7 @@ jobs:
         run: |
           gotestsum --jsonfile output-collectors.json --junitfile junit-collectors.xml -- -coverprofile=coverage-collectors.cov -coverpkg ./... -covermode=atomic ./...
           tparse -format markdown -file output-collectors.json >> $GITHUB_STEP_SUMMARY
-        working-directory: ./collectors
+        working-directory: ./collectors/cloud
       - name: Upload coverage to Codecov (core)
         uses: codecov/codecov-action@v5
         with:
