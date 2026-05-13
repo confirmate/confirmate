@@ -555,6 +555,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				pkg:  DefaultRegoPackage,
 			},
 			args: args{
+				ctx:      context.Background(),
 				targetID: evidencetest.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
 					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
@@ -600,6 +601,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				pkg:  DefaultRegoPackage,
 			},
 			args: args{
+				ctx:      context.Background(),
 				targetID: evidencetest.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
 					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
