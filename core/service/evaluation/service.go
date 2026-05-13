@@ -636,7 +636,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	eval = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  svc.getCachedControlCategoryName(auditScope.GetCatalogId(), control.Id),
+		ControlCategoryName:  svc.lookupControlCategoryName(auditScope.GetCatalogId(), control.Id),
 		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
@@ -790,32 +790,31 @@ func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, contro
 	svc.catalogsMutex.RUnlock()
 
 	if !ok && catalog != nil {
-		categoryMap = make(map[string]string)
-		for _, category := range catalog.GetCategories() {
-			queue := append([]*orchestrator.Control(nil), category.GetControls()...)
-			for len(queue) > 0 {
-				control := queue[0]
-				queue = queue[1:]
-				categoryMap[control.GetId()] = category.GetName()
-				queue = append(queue, control.GetControls()...)
-			}
-		}
-
 		svc.catalogsMutex.Lock()
 		if svc.catalogControlCategory == nil {
 			svc.catalogControlCategory = make(map[string]map[string]string)
 		}
-		if _, exists := svc.catalogControlCategory[catalogID]; !exists {
+		categoryMap, ok = svc.catalogControlCategory[catalogID]
+		if !ok {
+			categoryMap = make(map[string]string)
+			for _, category := range catalog.GetCategories() {
+				queue := append([]*orchestrator.Control(nil), category.GetControls()...)
+				for len(queue) > 0 {
+					control := queue[0]
+					queue = queue[1:]
+					categoryMap[control.GetId()] = category.GetName()
+					queue = append(queue, control.GetControls()...)
+				}
+			}
 			svc.catalogControlCategory[catalogID] = categoryMap
 		}
-		categoryMap = svc.catalogControlCategory[catalogID]
 		svc.catalogsMutex.Unlock()
 	}
 
 	return categoryMap[controlID]
 }
 
-func (svc *Service) getCachedControlCategoryName(catalogID, controlID string) string {
+func (svc *Service) lookupControlCategoryName(catalogID, controlID string) string {
 	svc.catalogsMutex.RLock()
 	defer svc.catalogsMutex.RUnlock()
 
