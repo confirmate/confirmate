@@ -330,10 +330,9 @@ type OrchestratorClient interface {
 	// catalog ID and a category name is specified, then only controls containing
 	// in this category are returned.
 	ListControls(context.Context, *connect.Request[orchestrator.ListControlsRequest]) (*connect.Response[orchestrator.ListControlsResponse], error)
-	// Retrieves a control specified by the catalog ID, the control's category
-	// name and the control ID. If present, it also includes a list of
-	// sub-controls if present or a list of metrics if no sub-controls but metrics
-	// are present.
+	// Retrieves a control by its unique control ID.
+	// If present, it also includes a list of sub-controls if present or a list of
+	// metrics if no sub-controls but metrics are present.
 	GetControl(context.Context, *connect.Request[orchestrator.GetControlRequest]) (*connect.Response[orchestrator.Control], error)
 	// Creates a new Audit Scope
 	CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
@@ -1247,10 +1246,9 @@ type OrchestratorHandler interface {
 	// catalog ID and a category name is specified, then only controls containing
 	// in this category are returned.
 	ListControls(context.Context, *connect.Request[orchestrator.ListControlsRequest]) (*connect.Response[orchestrator.ListControlsResponse], error)
-	// Retrieves a control specified by the catalog ID, the control's category
-	// name and the control ID. If present, it also includes a list of
-	// sub-controls if present or a list of metrics if no sub-controls but metrics
-	// are present.
+	// Retrieves a control by its unique control ID.
+	// If present, it also includes a list of sub-controls if present or a list of
+	// metrics if no sub-controls but metrics are present.
 	GetControl(context.Context, *connect.Request[orchestrator.GetControlRequest]) (*connect.Response[orchestrator.Control], error)
 	// Creates a new Audit Scope
 	CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)

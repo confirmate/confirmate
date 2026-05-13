@@ -299,19 +299,14 @@ service Orchestrator {
   // catalog ID and a category name is specified, then only controls containing
   // in this category are returned.
   rpc ListControls(ListControlsRequest) returns (ListControlsResponse) {
-    option (google.api.http) = {
-      get: "/v1/orchestrator/controls"
-      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/controls"}
-      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls"}
-    };
+    option (google.api.http) = {get: "/v1/orchestrator/controls"};
   }
 
-  // Retrieves a control specified by the catalog ID, the control's category
-  // name and the control ID. If present, it also includes a list of
-  // sub-controls if present or a list of metrics if no sub-controls but metrics
-  // are present.
+  // Retrieves a control by its unique control ID.
+  // If present, it also includes a list of sub-controls if present or a list of
+  // metrics if no sub-controls but metrics are present.
   rpc GetControl(GetControlRequest) returns (Control) {
-    option (google.api.http) = {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls/{control_id}"};
+    option (google.api.http) = {get: "/v1/orchestrator/controls/{control_id}"};
   }
 
   // Creates a new Audit Scope
@@ -974,8 +969,10 @@ message Category {
 
   repeated Control controls = 4 [
     (tagger.tags) =
-    "gorm:\"foreignKey:category_name,category_"
-    "catalog_id;references:name,catalog_id;constraint:OnDelete:CASCADE\"",
+    "gorm:\"many2many:category_controls;"
+    "joinForeignKey:category_name,category_catalog_id;"
+    "joinReferences:control_id;"
+    "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -986,29 +983,17 @@ message Category {
 // requirement in the EUCS terminology, e.g., is represented as the lowest
 // sub-control.
 message Control {
-  // A short name of the control, e.g. OPS-01, as used in OSCAL; it is not a
-  // unique ID!
+  // Globally unique ID of the control.
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string category_name = 2 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_catalog_id = 3 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  reserved 2;
+  reserved 3;
 
-  // Human-readable name of the control
-  string name = 4 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // Human-readable name of the control.
+  string name = 4;
 
   // Description of the control
   string description = 5;
@@ -1017,9 +1002,8 @@ message Control {
   //     this is in accordance with the OSCAL model.
   repeated Control controls = 6 [
     (tagger.tags) =
-    "gorm:\"foreignKey:parent_control_id,parent_control_"
-    "category_name,parent_control_category_catalog_id;"
-    "references=id,category_name,category_catalog_id;"
+    "gorm:\"foreignKey:parent_control_id;"
+    "references:id;"
     "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
@@ -1034,14 +1018,18 @@ message Control {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Reference to the parent category this control belongs to.
-  optional string parent_control_id                  = 8 [(buf.validate.field).string.min_len = 1];
-  optional string parent_control_category_name       = 9 [(buf.validate.field).string.min_len = 1];
-  optional string parent_control_category_catalog_id = 10 [(buf.validate.field).string.min_len = 1];
+  // Unique ID of the parent control, if this is a sub-control.
+  optional string parent_control_id = 8 [(buf.validate.field).string.uuid = true];
+
+  reserved 9;
+  reserved 10;
 
   // An assurance level is not offered by every catalog, therefore it is
   // optional.
   optional string assurance_level = 11;
+
+  // Catalog-local control identifier (e.g. OPS-01).
+  string short_name = 12;
 }
 
 // AuditScopeStatus represents the lifecycle status of an audit scope.
@@ -1265,14 +1253,6 @@ message GetCategoryRequest {
 }
 
 message GetControlRequest {
-  string catalog_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_name = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
   string control_id = 3 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
@@ -1280,13 +1260,13 @@ message GetControlRequest {
 }
 
 message ListControlsRequest {
-  // return either all controls or only the controls of the specified category
-  string catalog_id    = 1;
-  string category_name = 2;
-
   message Filter {
+    // Optional. Lists only controls with the specified catalog.
+    optional string catalog_id    = 1;
+    // Optional. Lists only controls with the specified category.
+    optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
-    repeated string assurance_levels = 1 [(buf.validate.field).repeated.items.string.min_len = 1];
+    repeated string assurance_levels = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
   }
   optional Filter filter = 3;
 
