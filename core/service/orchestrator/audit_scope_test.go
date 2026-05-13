@@ -144,6 +144,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -162,6 +163,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.Equal(t, want, got.Msg, cmp.Options{
 					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
@@ -191,6 +193,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				return assert.NotEmpty(t, got.Id) &&
