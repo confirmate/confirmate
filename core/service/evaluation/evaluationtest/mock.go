@@ -259,21 +259,17 @@ var (
 // Mock Controls
 var (
 	MockControl1 = &orchestrator.Control{
-		Id:                MockControlId1,
-		Name:              MockControlName1,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockControlDescription1,
+		Id:          MockControlId1,
+		Name:        MockControlName1,
+		Description: MockControlDescription1,
 		Controls: []*orchestrator.Control{
 			MockSubcontrol11,
 			MockSubcontrol12,
 		}}
 	MockSubcontrol11 = &orchestrator.Control{
-		Id:                MockSubcontrolId11,
-		Name:              MockSubcontrolName11,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockSubcontrolDescription11,
+		Id:          MockSubcontrolId11,
+		Name:        MockSubcontrolName11,
+		Description: MockSubcontrolDescription11,
 		// AssuranceLevel:                 new("basic"),
 		ParentControlId: new(MockControlId1),
 		Metrics: []*assessment.Metric{{
@@ -286,11 +282,9 @@ var (
 		},
 		}}
 	MockSubcontrol12 = &orchestrator.Control{
-		Id:                MockSubcontrolId12,
-		Name:              MockSubcontrolName12,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockSubcontrolDescription12,
+		Id:          MockSubcontrolId12,
+		Name:        MockSubcontrolName12,
+		Description: MockSubcontrolDescription12,
 		// AssuranceLevel:                 new("basic"),
 		ParentControlId: new(MockControlId1),
 		Metrics: []*assessment.Metric{{
@@ -303,23 +297,19 @@ var (
 		},
 		}}
 	MockControl2 = &orchestrator.Control{
-		Id:                MockControlId2,
-		Name:              MockControlName2,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockControlDescription2,
+		Id:          MockControlId2,
+		Name:        MockControlName2,
+		Description: MockControlDescription2,
 		Controls: []*orchestrator.Control{
 			MockSubcontrol21,
 		},
 	}
 	MockSubcontrol21 = &orchestrator.Control{
-		Id:                MockSubcontrolID21,
-		Name:              MockSubcontrolName21,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockSubcontrolDescription21,
-		AssuranceLevel:    new("basic"),
-		ParentControlId:   new(MockControlId2),
+		Id:              MockSubcontrolID21,
+		Name:            MockSubcontrolName21,
+		Description:     MockSubcontrolDescription21,
+		AssuranceLevel:  new("basic"),
+		ParentControlId: new(MockControlId2),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId2,
 			Name:        MockMetricName2,

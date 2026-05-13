@@ -974,8 +974,10 @@ message Category {
 
   repeated Control controls = 4 [
     (tagger.tags) =
-    "gorm:\"foreignKey:category_name,category_"
-    "catalog_id;references:name,catalog_id;constraint:OnDelete:CASCADE\"",
+    "gorm:\"many2many:category_controls;"
+    "joinForeignKey:category_name,category_catalog_id;"
+    "joinReferences:control_id;"
+    "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -992,16 +994,8 @@ message Control {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string category_name = 2 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_catalog_id = 3 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  reserved 2;
+  reserved 3;
 
   // Human-readable title of the control.
   string title = 4;

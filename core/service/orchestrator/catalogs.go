@@ -274,14 +274,16 @@ func (svc *Service) ListControls(
 		req.Msg.Asc = true
 	}
 
-	// Filter by catalog_id if provided
-	if req.Msg.CatalogId != "" {
-		conds = append(conds, "category_catalog_id = ?", req.Msg.CatalogId)
-	}
-
-	// Filter by category_name if provided
-	if req.Msg.CategoryName != "" {
-		conds = append(conds, "category_name = ?", req.Msg.CategoryName)
+	// Filter by catalog/category if provided
+	if req.Msg.CatalogId != "" || req.Msg.CategoryName != "" {
+		filteredControlIDs, err := svc.listControlIDsByCategory(req.Msg.CatalogId, req.Msg.CategoryName)
+		if err != nil {
+			return nil, service.HandleDatabaseError(err)
+		}
+		if len(filteredControlIDs) == 0 {
+			return connect.NewResponse(&orchestrator.ListControlsResponse{}), nil
+		}
+		conds = append(conds, "id IN ?", filteredControlIDs)
 	}
 
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -400,15 +402,13 @@ func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 	}
 
 	for _, category := range catalog.Categories {
-		normalizeControls(category.GetControls(), category.GetName(), catalog.GetId(), nil)
+		normalizeControls(category.GetControls(), nil)
+		category.Controls = flattenControls(category.GetControls())
 	}
 }
 
-func normalizeControls(controls []*orchestrator.Control, categoryName, catalogID string, parent *orchestrator.Control) {
+func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control) {
 	for _, control := range controls {
-		control.CategoryName = categoryName
-		control.CategoryCatalogId = catalogID
-
 		if control.GetName() == "" {
 			control.Name = control.GetId()
 		}
@@ -422,6 +422,82 @@ func normalizeControls(controls []*orchestrator.Control, categoryName, catalogID
 			control.ParentControlId = nil
 		}
 
-		normalizeControls(control.GetControls(), categoryName, catalogID, control)
+		normalizeControls(control.GetControls(), control)
 	}
+}
+
+func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
+	var (
+		flat    []*orchestrator.Control
+		visited = make(map[string]struct{})
+	)
+
+	var walk func(items []*orchestrator.Control)
+	walk = func(items []*orchestrator.Control) {
+		for _, control := range items {
+			if _, ok := visited[control.GetId()]; !ok {
+				visited[control.GetId()] = struct{}{}
+				flat = append(flat, control)
+			}
+			walk(control.GetControls())
+		}
+	}
+
+	walk(controls)
+
+	return flat
+}
+
+func (svc *Service) listControlIDsByCategory(catalogID, categoryName string) (ids []string, err error) {
+	var (
+		categories []*orchestrator.Category
+		visited    = make(map[string]struct{})
+		queue      []string
+		conds      []any
+	)
+
+	if catalogID != "" {
+		conds = append(conds, "catalog_id = ?", catalogID)
+	}
+	if categoryName != "" {
+		conds = append(conds, "name = ?", categoryName)
+	}
+
+	conds = append([]any{persistence.WithPreload("Controls", "parent_control_id IS NULL")}, conds...)
+	err = svc.db.List(&categories, "name", true, 0, -1, conds...)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, category := range categories {
+		for _, control := range category.GetControls() {
+			if _, ok := visited[control.GetId()]; !ok {
+				visited[control.GetId()] = struct{}{}
+				queue = append(queue, control.GetId())
+				ids = append(ids, control.GetId())
+			}
+		}
+	}
+
+	for len(queue) > 0 {
+		currentIDs := queue
+		queue = nil
+
+		var children []*orchestrator.Control
+		err = svc.db.List(&children, "id", true, 0, -1, "parent_control_id IN ?", currentIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, child := range children {
+			if _, ok := visited[child.GetId()]; ok {
+				continue
+			}
+			visited[child.GetId()] = struct{}{}
+			queue = append(queue, child.GetId())
+			ids = append(ids, child.GetId())
+		}
+	}
+
+	return ids, nil
 }

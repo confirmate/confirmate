@@ -62,8 +62,8 @@ type Service struct {
 
 	scheduler *gocron.Scheduler
 
-	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint
-	// map[catalog_id][category_name-control_id]*orchestrator.Control
+	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint.
+	// map[catalog_id][control_id]*orchestrator.Control
 	catalogControls map[string]map[string]*orchestrator.Control
 	catalogsMutex   sync.RWMutex
 }
@@ -468,7 +468,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	g, gctx := errgroup.WithContext(ctx)
 	for i, sub := range relevant {
 		g.Go(func() error {
-			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub)
+			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub, svc.getControlCategoryName(catalog, sub.Id))
 			if err != nil {
 				return err
 			}
@@ -524,8 +524,8 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	result = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  control.CategoryName,
-		ControlCatalogId:     control.CategoryCatalogId,
+		ControlCategoryName:  svc.getControlCategoryName(catalog, control.Id),
+		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
 		AuditScopeId:         auditScope.Id,
@@ -550,7 +550,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 }
 
 // evaluateSubcontrol evaluates the sub-controls, e.g., OPS-13.2
-func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control) (eval *evaluation.EvaluationResult, err error) {
+func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestrator.AuditScope, control *orchestrator.Control, categoryName string) (eval *evaluation.EvaluationResult, err error) {
 	var (
 		assessments []*assessment.AssessmentResult
 		status      evaluation.EvaluationStatus
@@ -564,7 +564,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	}
 
 	// Get metrics from control and sub-controls
-	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.CategoryName, control.Id)
+	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), categoryName, control.Id)
 	if err != nil {
 		slog.Error("could not get metrics for",
 			slog.String("control id", control.Id),
@@ -632,8 +632,8 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	eval = &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  control.CategoryName,
-		ControlCatalogId:     control.CategoryCatalogId,
+		ControlCategoryName:  categoryName,
+		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
@@ -677,7 +677,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId 
 	// Add sub-control metrics to the metric list if exist
 	if len(control.Controls) != 0 {
 		// Get the metrics from the next sub-control
-		subControlMetrics, err = svc.getMetricsFromSubcontrols(control)
+		subControlMetrics, err = svc.getMetricsFromSubcontrols(catalogId, control)
 		if err != nil {
 			err = fmt.Errorf("error getting metrics from sub-controls: %w", err)
 			return
@@ -690,7 +690,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId 
 }
 
 // getMetricsFromSubcontrols returns a list of metrics from the sub-controls.
-func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
+func (svc *Service) getMetricsFromSubcontrols(catalogId string, control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
 	var subcontrol *orchestrator.Control
 
 	if control == nil {
@@ -698,7 +698,7 @@ func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (me
 	}
 
 	for _, c := range control.Controls {
-		subcontrol, err = svc.getControl(c.CategoryCatalogId, c.CategoryName, c.Id)
+		subcontrol, err = svc.getControl(catalogId, "", c.Id)
 		if err != nil {
 			return
 		}
@@ -745,7 +745,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	svc.catalogsMutex.Lock()
 	svc.catalogControls[catalogId] = make(map[string]*orchestrator.Control)
 	for _, control := range controls {
-		tag = fmt.Sprintf("%s-%s", control.GetCategoryName(), control.GetId())
+		tag = control.GetId()
 		svc.catalogControls[catalogId][tag] = control
 	}
 	svc.catalogsMutex.Unlock()
@@ -757,13 +757,11 @@ func (svc *Service) cacheControls(catalogId string) error {
 func (svc *Service) getControl(catalogId, categoryName, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
 		return nil, errors.New("catalog id is missing")
-	} else if categoryName == "" {
-		return nil, errors.New("category name is missing")
 	} else if controlId == "" {
 		return nil, errors.New("control id is missing")
 	}
 
-	tag := fmt.Sprintf("%s-%s", categoryName, controlId)
+	tag := controlId
 
 	control, ok := svc.catalogControls[catalogId][tag]
 	if !ok {
@@ -771,6 +769,32 @@ func (svc *Service) getControl(catalogId, categoryName, controlId string) (contr
 	}
 
 	return
+}
+
+func (svc *Service) getControlCategoryName(catalog *orchestrator.Catalog, controlID string) string {
+	if catalog == nil || controlID == "" {
+		return ""
+	}
+
+	for _, category := range catalog.GetCategories() {
+		if controlExistsInTree(category.GetControls(), controlID) {
+			return category.GetName()
+		}
+	}
+
+	return ""
+}
+
+func controlExistsInTree(controls []*orchestrator.Control, controlID string) bool {
+	for _, control := range controls {
+		if control.GetId() == controlID {
+			return true
+		}
+		if controlExistsInTree(control.GetControls(), controlID) {
+			return true
+		}
+	}
+	return false
 }
 
 // handlePending evaluates the given evaluation result when the current control evaluation status is PENDING

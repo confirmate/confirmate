@@ -199,7 +199,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 			fields: fields{
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					orchestratortest.MockCatalogId1: {
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl2.GetCategoryName(), orchestratortest.MockControl2.GetId()): orchestratortest.MockControl2,
+						orchestratortest.MockControl2.GetId(): orchestratortest.MockControl2,
 					},
 				},
 			},
@@ -216,7 +216,7 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 			fields: fields{
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					orchestratortest.MockCatalogId1: {
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
+						orchestratortest.MockControl1.GetId(): orchestratortest.MockControl1,
 					},
 				},
 			},
@@ -235,11 +235,9 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 			fields: fields{
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					orchestratortest.MockCatalogId2: {
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl2.GetCategoryName(), orchestratortest.MockControl2.GetId()): {
-							Id:                orchestratortest.MockControlId2,
-							CategoryName:      orchestratortest.MockCategoryName2,
-							CategoryCatalogId: orchestratortest.MockCatalogId2,
-							Name:              "Mock Control 2",
+						orchestratortest.MockControl2.GetId(): {
+							Id:   orchestratortest.MockControlId2,
+							Name: "Mock Control 2",
 							Metrics: []*assessment.Metric{
 								{
 									Id:       orchestratortest.MockMetricId2,
@@ -269,9 +267,9 @@ func TestService_getAllMetricsFromControl(t *testing.T) {
 			name: "Happy path: control with sub-controls",
 			fields: fields{
 				catalogControls: map[string]map[string]*orchestrator.Control{
-					orchestratortest.MockControl1.GetCategoryCatalogId(): {
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
-						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+					orchestratortest.MockCatalogId1: {
+						orchestratortest.MockControl1.GetId():    orchestratortest.MockControl1,
+						orchestratortest.MockSubControl1.GetId(): orchestratortest.MockSubControl1,
 					},
 				},
 			},
@@ -329,11 +327,9 @@ func TestService_getMetricsFromSubControls(t *testing.T) {
 			name: "Sub-control level and metrics missing",
 			args: args{
 				control: &orchestrator.Control{
-					Id:                orchestratortest.MockControlId1,
-					CategoryName:      orchestratortest.MockCategoryName1,
-					CategoryCatalogId: orchestratortest.MockCatalogId1,
-					Name:              "Mock Control 1",
-					Description:       "Mock control description",
+					Id:          orchestratortest.MockControlId1,
+					Name:        "Mock Control 1",
+					Description: "Mock control description",
 				},
 			},
 			wantMetrics: nil,
@@ -344,16 +340,12 @@ func TestService_getMetricsFromSubControls(t *testing.T) {
 			fields: fields{},
 			args: args{
 				control: &orchestrator.Control{
-					Id:                "testId",
-					CategoryName:      orchestratortest.MockCategoryName1,
-					CategoryCatalogId: orchestratortest.MockCatalogId1,
-					Name:              "testId",
+					Id:   "testId",
+					Name: "testId",
 					Controls: []*orchestrator.Control{
 						{
-							Id:                "testId-subcontrol",
-							CategoryName:      orchestratortest.MockCategoryName1,
-							CategoryCatalogId: orchestratortest.MockCatalogId1,
-							Name:              "testId-subcontrol",
+							Id:   "testId-subcontrol",
+							Name: "testId-subcontrol",
 						},
 					},
 					Metrics: []*assessment.Metric{},
@@ -368,9 +360,9 @@ func TestService_getMetricsFromSubControls(t *testing.T) {
 			name: "Happy path",
 			fields: fields{
 				catalogControls: map[string]map[string]*orchestrator.Control{
-					orchestratortest.MockControl1.GetCategoryCatalogId(): {
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()):       orchestratortest.MockControl1,
-						fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+					orchestratortest.MockCatalogId1: {
+						orchestratortest.MockControl1.GetId():    orchestratortest.MockControl1,
+						orchestratortest.MockSubControl1.GetId(): orchestratortest.MockSubControl1,
 					},
 				},
 			},
@@ -386,7 +378,7 @@ func TestService_getMetricsFromSubControls(t *testing.T) {
 			s := &Service{
 				catalogControls: tt.fields.catalogControls,
 			}
-			gotMetrics, err := s.getMetricsFromSubcontrols(tt.args.control)
+			gotMetrics, err := s.getMetricsFromSubcontrols(orchestratortest.MockCatalogId1, tt.args.control)
 
 			tt.wantErr(t, err)
 
@@ -524,7 +516,7 @@ func TestService_getControl(t *testing.T) {
 			},
 		},
 		{
-			name:   "category_name is missing",
+			name:   "category_name is optional",
 			fields: fields{},
 			args: args{
 				catalogId: evidencetest.MockCatalogID1,
@@ -532,7 +524,7 @@ func TestService_getControl(t *testing.T) {
 			},
 			want: nil,
 			wantErr: func(t *testing.T, err error, i ...interface{}) bool {
-				return assert.ErrorContains(t, err, "category name is missing")
+				return assert.ErrorContains(t, err, service.ErrNotFound("control").Error())
 			},
 		},
 		{
@@ -564,15 +556,15 @@ func TestService_getControl(t *testing.T) {
 			name: "Happy path",
 			fields: fields{
 				catalogControls: map[string]map[string]*orchestrator.Control{
-					orchestratortest.MockControl1.GetCategoryCatalogId(): {
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl1.GetId()): orchestratortest.MockControl1,
-						fmt.Sprintf("%s-%s", orchestratortest.MockControl1.GetCategoryName(), orchestratortest.MockControl2.GetId()): orchestratortest.MockControl2,
+					orchestratortest.MockCatalogId1: {
+						orchestratortest.MockControl1.GetId(): orchestratortest.MockControl1,
+						orchestratortest.MockControl2.GetId(): orchestratortest.MockControl2,
 					},
 				},
 			},
 			args: args{
-				catalogId:    orchestratortest.MockControl1.GetCategoryCatalogId(),
-				categoryName: orchestratortest.MockControl1.GetCategoryName(),
+				catalogId:    orchestratortest.MockCatalogId1,
+				categoryName: orchestratortest.MockCategoryName1,
 				controlId:    orchestratortest.MockControl1.GetId(),
 			},
 			want: func(t *testing.T, got *orchestrator.Control, _ ...any) bool {
@@ -1060,11 +1052,11 @@ func TestService_evaluateControl(t *testing.T) {
 				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -1095,7 +1087,6 @@ func TestService_evaluateControl(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            evaluationtest.MockControlId1,
-					ControlCategoryName:  evaluationtest.MockCategoryName1,
 					ControlCatalogId:     evaluationtest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1103,7 +1094,7 @@ func TestService_evaluateControl(t *testing.T) {
 					ValidUntil:           nil,
 					Data:                 nil,
 				}
-				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1144,11 +1135,11 @@ func TestService_evaluateControl(t *testing.T) {
 				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -1179,7 +1170,6 @@ func TestService_evaluateControl(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            evaluationtest.MockControlId1,
-					ControlCategoryName:  evaluationtest.MockCategoryName1,
 					ControlCatalogId:     evaluationtest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1188,7 +1178,7 @@ func TestService_evaluateControl(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1221,9 +1211,9 @@ func TestService_evaluateControl(t *testing.T) {
 				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
 					},
 				},
 			},
@@ -1251,7 +1241,6 @@ func TestService_evaluateControl(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            evaluationtest.MockControlId1,
-					ControlCategoryName:  evaluationtest.MockCategoryName1,
 					ControlCatalogId:     evaluationtest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
@@ -1260,7 +1249,7 @@ func TestService_evaluateControl(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, mainControlResult, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1329,11 +1318,11 @@ func TestService_evaluateCatalog(t *testing.T) {
 				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -1396,11 +1385,11 @@ func TestService_evaluateCatalog(t *testing.T) {
 				),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -1453,6 +1442,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 		ctx        context.Context
 		auditScope *orchestrator.AuditScope
 		control    *orchestrator.Control
+		category   string
 	}
 	tests := []struct {
 		name    string
@@ -1529,19 +1519,17 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 
 				// Control with no metrics.
 				ctrl := &orchestrator.Control{
-					Id:                orchestratortest.MockControlId2,
-					CategoryName:      orchestratortest.MockCategoryName2,
-					CategoryCatalogId: orchestratortest.MockCatalogId2,
-					Name:              "Mock Control 2",
-					Metrics:           nil,
-					Controls:          nil,
+					Id:       orchestratortest.MockControlId2,
+					Name:     "Mock Control 2",
+					Metrics:  nil,
+					Controls: nil,
 				}
 
 				return fields{
 					orchestratorClient: newOrchestratorClientForTest(testSrv),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockCatalogId2: {
-							fmt.Sprintf("%s-%s", ctrl.GetCategoryName(), ctrl.GetId()): ctrl,
+							ctrl.GetId(): ctrl,
 						},
 					},
 				}
@@ -1554,12 +1542,10 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					CatalogId:            orchestratortest.MockCatalogId2,
 				},
 				control: &orchestrator.Control{
-					Id:                orchestratortest.MockControlId2,
-					CategoryName:      orchestratortest.MockCategoryName2,
-					CategoryCatalogId: orchestratortest.MockCatalogId2,
-					Name:              "Mock Control 2",
-					Metrics:           nil,
-					Controls:          nil,
+					Id:       orchestratortest.MockControlId2,
+					Name:     "Mock Control 2",
+					Metrics:  nil,
+					Controls: nil,
 				},
 			},
 			want: func(t *testing.T, got *evaluation.EvaluationResult, _ ...any) bool {
@@ -1572,7 +1558,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId2,
 					AuditScopeId:         evaluationtest.MockAuditScopeId2,
 					ControlId:            orchestratortest.MockControlId2,
-					ControlCategoryName:  orchestratortest.MockCategoryName2,
 					ControlCatalogId:     orchestratortest.MockCatalogId2,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1581,7 +1566,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
 				// Verify it was stored
@@ -1597,7 +1582,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId2,
 					AuditScopeId:         evaluationtest.MockAuditScopeId2,
 					ControlId:            orchestratortest.MockControlId2,
-					ControlCategoryName:  orchestratortest.MockCategoryName2,
 					ControlCatalogId:     orchestratortest.MockCatalogId2,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1606,7 +1590,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1624,10 +1608,8 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 
 				// Control with one metric.
 				ctrl := &orchestrator.Control{
-					Id:                orchestratortest.MockSubControlId1,
-					CategoryName:      orchestratortest.MockCategoryName1,
-					CategoryCatalogId: orchestratortest.MockCatalogId1,
-					Name:              "Mock Subcontrol 1",
+					Id:   orchestratortest.MockSubControlId1,
+					Name: "Mock Subcontrol 1",
 					Metrics: []*assessment.Metric{
 						{Id: orchestratortest.MockMetricId1},
 					},
@@ -1637,7 +1619,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					orchestratorClient: newOrchestratorClientForTest(testSrv),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockCatalogId1: {
-							fmt.Sprintf("%s-%s", ctrl.GetCategoryName(), ctrl.GetId()): ctrl,
+							ctrl.GetId(): ctrl,
 						},
 					},
 				}
@@ -1650,10 +1632,8 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					CatalogId:            orchestratortest.MockCatalogId1,
 				},
 				control: &orchestrator.Control{
-					Id:                orchestratortest.MockSubControlId1,
-					CategoryName:      orchestratortest.MockCategoryName1,
-					CategoryCatalogId: orchestratortest.MockCatalogId1,
-					Name:              "Mock Subcontrol 1",
+					Id:   orchestratortest.MockSubControlId1,
+					Name: "Mock Subcontrol 1",
 					Metrics: []*assessment.Metric{
 						{Id: orchestratortest.MockMetricId1},
 					},
@@ -1669,7 +1649,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            orchestratortest.MockSubControlId1,
-					ControlCategoryName:  orchestratortest.MockCategoryName1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1678,7 +1657,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
 				// Verify it was stored
@@ -1694,7 +1673,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            orchestratortest.MockSubControlId1,
-					ControlCategoryName:  orchestratortest.MockCategoryName1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1703,7 +1681,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1731,7 +1709,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockCatalogId1: {
-							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+							orchestratortest.MockSubControl1.GetId(): orchestratortest.MockSubControl1,
 						},
 					},
 				}
@@ -1757,7 +1735,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            orchestratortest.MockSubControlId1,
-					ControlCategoryName:  orchestratortest.MockCategoryName1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      new(orchestratortest.MockControlId1),
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1766,7 +1743,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
@@ -1783,7 +1760,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            orchestratortest.MockSubControlId1,
-					ControlCategoryName:  orchestratortest.MockCategoryName1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      new(orchestratortest.MockControlId1),
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1792,7 +1768,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					Data:                 nil,
 				}
 
-				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 		},
 		{
@@ -1819,7 +1795,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					),
 					catalogControls: map[string]map[string]*orchestrator.Control{
 						orchestratortest.MockCatalogId1: {
-							fmt.Sprintf("%s-%s", orchestratortest.MockSubControl1.GetCategoryName(), orchestratortest.MockSubControl1.GetId()): orchestratortest.MockSubControl1,
+							orchestratortest.MockSubControl1.GetId(): orchestratortest.MockSubControl1,
 						},
 					},
 				}
@@ -1843,7 +1819,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            orchestratortest.MockSubControlId1,
-					ControlCategoryName:  orchestratortest.MockCategoryName1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      orchestratortest.MockSubControl1.ParentControlId,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
@@ -1851,7 +1826,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					ValidUntil:           nil,
 					Data:                 nil,
 				}
-				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantSvc: func(t *testing.T, got *Service, _ ...any) bool {
 				res, err := got.orchestratorClient.ListEvaluationResults(context.Background(), connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{}))
@@ -1866,7 +1841,6 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
 					ControlId:            orchestratortest.MockSubControlId1,
-					ControlCategoryName:  orchestratortest.MockCategoryName1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      orchestratortest.MockSubControl1.ParentControlId,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
@@ -1876,7 +1850,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				}
 
 				return assert.Equal(t, 1, len(res.Msg.Results)) &&
-					assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids"))
+					assert.Equal(t, want, res.Msg.Results[0], protocmp.IgnoreFields(&evaluation.EvaluationResult{}, "id", "timestamp", "assessment_result_ids", "control_category_name"))
 			},
 			wantErr: assert.NoError,
 		},
@@ -1888,7 +1862,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				catalogControls:    tt.fields.catalogControls,
 			}
 
-			got, gotErr := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control)
+			got, gotErr := svc.evaluateSubcontrol(tt.args.ctx, tt.args.auditScope, tt.args.control, tt.args.category)
 
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)
@@ -1964,11 +1938,11 @@ func TestService_StartEvaluation(t *testing.T) {
 				}(),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -2000,11 +1974,11 @@ func TestService_StartEvaluation(t *testing.T) {
 				scheduler: gocron.NewScheduler(time.Local),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -2091,11 +2065,11 @@ func TestService_StartEvaluation(t *testing.T) {
 				scheduler: gocron.NewScheduler(time.Local),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
@@ -2129,11 +2103,11 @@ func TestService_StartEvaluation(t *testing.T) {
 				scheduler: gocron.NewScheduler(time.Local),
 				catalogControls: map[string]map[string]*orchestrator.Control{
 					evaluationtest.MockCatalog1.Id: {
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockControl1.Id):     evaluationtest.MockControl1,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol11.Id): evaluationtest.MockSubcontrol11,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl1.CategoryName, evaluationtest.MockSubcontrol12.Id): evaluationtest.MockSubcontrol12,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockControl2.Id):     evaluationtest.MockControl2,
-						fmt.Sprintf("%s-%s", evaluationtest.MockControl2.CategoryName, evaluationtest.MockSubcontrol21.Id): evaluationtest.MockSubcontrol21,
+						evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+						evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+						evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+						evaluationtest.MockControl2.Id:     evaluationtest.MockControl2,
+						evaluationtest.MockSubcontrol21.Id: evaluationtest.MockSubcontrol21,
 					},
 				},
 			},
