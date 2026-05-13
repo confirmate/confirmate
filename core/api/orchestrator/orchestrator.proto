@@ -385,10 +385,11 @@ service Orchestrator {
   }
 
   // Lists user permissions, optionally filtered by user ID and/or resource ID.
+  // Use `/v1/users/permissions` with query parameters for flexible filtering.
   rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
     option (google.api.http) = {
       get: "/v1/users/permissions"
-      additional_bindings: {get: "/v1/resources/{resource_id}/user_permissions"}
+      additional_bindings: {get: "/v1/users/permissions/{resource_id}"}
     };
   }
 
@@ -1412,7 +1413,10 @@ message ListUserPermissionsRequest {
     (buf.validate.field).string.min_len = 1
   ];
 
-  // Optional filter by resource ID (UUID of a Target of Evaluation or Audit Scope).
+  // Optional. Filter by the resource_id of a UserPermission, i.e. the ID of a
+  // Confirmate object such as a Target of Evaluation or Audit Scope. This is
+  // distinct from the cloud resource IDs that appear inside a Target of
+  // Evaluation.
   optional string resource_id = 2 [
     (buf.validate.field).string.uuid = true
   ];
