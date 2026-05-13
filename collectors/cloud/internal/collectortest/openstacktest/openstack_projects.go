@@ -249,8 +249,8 @@ var ExpectedProjectSlice = []projects.Project{RedTeam, BlueTeam}
 
 // HandleListAvailableProjectsSuccessfully creates an HTTP handler at `/auth/projects`
 // on the test handler mux that responds with a list of two tenants.
-func HandleListAvailableProjectsSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/auth/projects", func(w http.ResponseWriter, r *http.Request) {
+func HandleListAvailableProjectsSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/auth/projects", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "Accept", "application/json")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
@@ -263,8 +263,8 @@ func HandleListAvailableProjectsSuccessfully(t *testing.T) {
 
 // HandleListProjectsSuccessfully creates an HTTP handler at `/projects` on the
 // test handler mux that responds with a list of two tenants.
-func HandleListProjectsSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
+func HandleListProjectsSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "Accept", "application/json")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
@@ -277,8 +277,8 @@ func HandleListProjectsSuccessfully(t *testing.T) {
 
 // HandleGetProjectSuccessfully creates an HTTP handler at `/projects` on the
 // test handler mux that responds with a single project.
-func HandleGetProjectSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/projects/1234", func(w http.ResponseWriter, r *http.Request) {
+func HandleGetProjectSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/projects/1234", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "Accept", "application/json")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
@@ -291,8 +291,8 @@ func HandleGetProjectSuccessfully(t *testing.T) {
 
 // HandleCreateProjectSuccessfully creates an HTTP handler at `/projects` on the
 // test handler mux that tests project creation.
-func HandleCreateProjectSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
+func HandleCreateProjectSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "POST")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 		th.TestJSONRequest(t, r, CreateProjectsRequest)
@@ -304,8 +304,8 @@ func HandleCreateProjectSuccessfully(t *testing.T) {
 
 // HandleDeleteProjectSuccessfully creates an HTTP handler at `/projects` on the
 // test handler mux that tests project deletion.
-func HandleDeleteProjectSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/projects/1234", func(w http.ResponseWriter, r *http.Request) {
+func HandleDeleteProjectSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/projects/1234", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "DELETE")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 
@@ -315,8 +315,8 @@ func HandleDeleteProjectSuccessfully(t *testing.T) {
 
 // HandleUpdateProjectSuccessfully creates an HTTP handler at `/projects` on the
 // test handler mux that tests project updates.
-func HandleUpdateProjectSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/projects/1234", func(w http.ResponseWriter, r *http.Request) {
+func HandleUpdateProjectSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/projects/1234", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "PATCH")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 		th.TestJSONRequest(t, r, UpdateProjectRequest)

@@ -272,8 +272,8 @@ var (
 
 var ExpectedNetworkSlice = []networks.Network{Network1, Network2}
 
-func HandleNetworkListSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/networks", func(w http.ResponseWriter, r *http.Request) {
+func HandleNetworkListSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/networks", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 
@@ -283,7 +283,7 @@ func HandleNetworkListSuccessfully(t *testing.T) {
 		fmt.Fprint(w, ListResponse)
 	})
 
-	th.Mux.HandleFunc("/v2.0/networks", func(w http.ResponseWriter, r *http.Request) {
+	fakeServer.Mux.HandleFunc("/v2.0/networks", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 
