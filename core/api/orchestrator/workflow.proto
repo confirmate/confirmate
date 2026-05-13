@@ -124,8 +124,10 @@ message ControlImplementationTransition {
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
 
-  // Optional comment explaining the reason for the transition.
-  optional string comment = 7;
+  // Comment explaining the reason for the transition.
+  string comment = 7 [
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 // ── Request / Response messages ──────────────────────────────────────────────
@@ -193,8 +195,11 @@ message TransitionControlImplementationStateRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Optional comment explaining the reason for this transition.
-  optional string comment = 3;
+  // Comment explaining the reason for this transition.
+  string comment = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message RemoveControlImplementationRequest {

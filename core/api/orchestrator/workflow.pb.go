@@ -252,8 +252,8 @@ type ControlImplementationTransition struct {
 	// User.id of the person who triggered this transition.
 	PerformedBy string                 `protobuf:"bytes,5,opt,name=performed_by,json=performedBy,proto3" json:"performed_by,omitempty"`
 	Time        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=time,proto3" json:"time,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	// Optional comment explaining the reason for the transition.
-	Comment       *string `protobuf:"bytes,7,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
+	// Comment explaining the reason for the transition.
+	Comment       string `protobuf:"bytes,7,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -331,8 +331,8 @@ func (x *ControlImplementationTransition) GetTime() *timestamppb.Timestamp {
 }
 
 func (x *ControlImplementationTransition) GetComment() string {
-	if x != nil && x.Comment != nil {
-		return *x.Comment
+	if x != nil {
+		return x.Comment
 	}
 	return ""
 }
@@ -619,8 +619,8 @@ type TransitionControlImplementationStateRequest struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Id            string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ToState       ControlImplementationState `protobuf:"varint,2,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"to_state,omitempty"`
-	// Optional comment explaining the reason for this transition.
-	Comment       *string `protobuf:"bytes,3,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
+	// Comment explaining the reason for this transition.
+	Comment       string `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -670,8 +670,8 @@ func (x *TransitionControlImplementationStateRequest) GetToState() ControlImplem
 }
 
 func (x *TransitionControlImplementationStateRequest) GetComment() string {
-	if x != nil && x.Comment != nil {
-		return *x.Comment
+	if x != nil {
+		return x.Comment
 	}
 	return ""
 }
@@ -816,7 +816,7 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"orchestrator.v1.ControlImplementationTransitionBJ\x9a\x84\x9e\x03Egorm" +
 	":\x22foreignKey:ControlImplementationId;constraint:OnDelete:CASCADE" +
 	"\x22R\x0btransitionsB\x19\x0a\x17_implementation_detailsB\x0e\x0a\x0c_" +
-	"assignee_id\x22\x82\x04\x0a\x1fControlImplementationTransition\x121" +
+	"assignee_id\x22\xf6\x03\x0a\x1fControlImplementationTransition\x121" +
 	"\x0a\x02id\x18\x01 \x01(\x09B!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a" +
 	"\x84\x9e\x03\x11gorm:\x22primaryKey\x22R\x02id\x12G\x0a\x19control_imp" +
 	"lementation_id\x18\x02 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03\xb0\x01" +
@@ -827,48 +827,47 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\x12!\x0a\x0cperformed_by\x18\x05 \x01(\x09R\x0bperformedBy\x12a\x0a" +
 	"\x04time\x18\x06 \x01(\x0b2\x1a.google.protobuf.TimestampB1\x9a\x84" +
 	"\x9e\x03,gorm:\x22serializer:timestamppb;type:timestamp\x22R\x04time" +
-	"\x12\x1d\x0a\x07comment\x18\x07 \x01(\x09H\x00R\x07comment\x88\x01\x01" +
-	"B\x0a\x0a\x08_comment\x22\x99\x01\x0a\x22CreateControlImplementationRe" +
-	"quest\x12s\x0a\x16control_implementation\x18\x01 \x01(\x0b21.confirmat" +
-	"e.orchestrator.v1.ControlImplementationB\x09\xe0A\x02\xbaH\x03\xc8\x01" +
-	"\x01R\x15controlImplementation\x22>\x0a\x1fGetControlImplementationReq" +
-	"uest\x12\x1b\x0a\x02id\x18\x01 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03" +
-	"\xb0\x01\x01R\x02id\x22\xea\x03\x0a!ListControlImplementationsRequest" +
-	"\x12a\x0a\x06filter\x18\x01 \x01(\x0b2D.confirmate.orchestrator.v1.Lis" +
-	"tControlImplementationsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12" +
-	"\x1b\x0a\x09page_size\x18\x0a \x01(\x05R\x08pageSize\x12\x1d\x0a\x0apa" +
-	"ge_token\x18\x0b \x01(\x09R\x09pageToken\x12\x19\x0a\x08order_by\x18" +
-	"\x0c \x01(\x09R\x07orderBy\x12\x10\x0a\x03asc\x18\x0d \x01(\x08R\x03as" +
-	"c\x1a\xed\x01\x0a\x06Filter\x123\x0a\x0eaudit_scope_id\x18\x01 \x01(" +
-	"\x09B\x08\xbaH\x05r\x03\xb0\x01\x01H\x00R\x0cauditScopeId\x88\x01\x01" +
-	"\x12[\x0a\x05state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.Cont" +
-	"rolImplementationStateB\x08\xbaH\x05\x82\x01\x02\x10\x01H\x01R\x05stat" +
-	"e\x88\x01\x01\x12$\x0a\x0bassignee_id\x18\x03 \x01(\x09H\x02R\x0aassig" +
-	"neeId\x88\x01\x01B\x11\x0a\x0f_audit_scope_idB\x08\x0a\x06_stateB\x0e" +
-	"\x0a\x0c_assignee_idB\x09\x0a\x07_filter\x22\xb8\x01\x0a\x22ListContro" +
-	"lImplementationsResponse\x12j\x0a\x17control_implementations\x18\x01 " +
-	"\x03(\x0b21.confirmate.orchestrator.v1.ControlImplementationR\x16contr" +
-	"olImplementations\x12&\x0a\x0fnext_page_token\x18\x02 \x01(\x09R\x0dne" +
-	"xtPageToken\x22\xce\x01\x0a\x22UpdateControlImplementationRequest\x12" +
-	"\x1b\x0a\x02id\x18\x01 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03\xb0\x01" +
-	"\x01R\x02id\x12$\x0a\x0bassignee_id\x18\x02 \x01(\x09H\x00R\x0aassigne" +
-	"eId\x88\x01\x01\x12:\x0a\x16implementation_details\x18\x03 \x01(\x09H" +
-	"\x01R\x15implementationDetails\x88\x01\x01B\x0e\x0a\x0c_assignee_idB" +
-	"\x19\x0a\x17_implementation_details\x22\xd7\x01\x0a+TransitionControlI" +
-	"mplementationStateRequest\x12\x1b\x0a\x02id\x18\x01 \x01(\x09B\x0b\xe0" +
-	"A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12`\x0a\x08to_state\x18\x02 " +
-	"\x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\x0d" +
-	"\xe0A\x02\xbaH\x07\x82\x01\x04\x10\x01 \x00R\x07toState\x12\x1d\x0a" +
-	"\x07comment\x18\x03 \x01(\x09H\x00R\x07comment\x88\x01\x01B\x0a\x0a" +
-	"\x08_comment\x22A\x0a\x22RemoveControlImplementationRequest\x12\x1b" +
-	"\x0a\x02id\x18\x01 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R" +
-	"\x02id*\xab\x02\x0a\x1aControlImplementationState\x12,\x0a(CONTROL_IMP" +
-	"LEMENTATION_STATE_UNSPECIFIED\x10\x00\x12%\x0a!CONTROL_IMPLEMENTATION_" +
-	"STATE_OPEN\x10\x01\x12,\x0a(CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS" +
-	"\x10\x02\x12,\x0a(CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED\x10\x03\x12" +
-	"1\x0a-CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW\x10\x04\x12)\x0a%C" +
-	"ONTROL_IMPLEMENTATION_STATE_ACCEPTED\x10\x05B%Z#confirmate.io/core/api" +
-	"/orchestratorb\x06proto3"
+	"\x12\x1d\x0a\x07comment\x18\x07 \x01(\x09B\x03\xe0A\x02R\x07comment" +
+	"\x22\x99\x01\x0a\x22CreateControlImplementationRequest\x12s\x0a\x16con" +
+	"trol_implementation\x18\x01 \x01(\x0b21.confirmate.orchestrator.v1.Con" +
+	"trolImplementationB\x09\xe0A\x02\xbaH\x03\xc8\x01\x01R\x15controlImple" +
+	"mentation\x22>\x0a\x1fGetControlImplementationRequest\x12\x1b\x0a\x02i" +
+	"d\x18\x01 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x22" +
+	"\xea\x03\x0a!ListControlImplementationsRequest\x12a\x0a\x06filter\x18" +
+	"\x01 \x01(\x0b2D.confirmate.orchestrator.v1.ListControlImplementations" +
+	"Request.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\x0a\x09page_size" +
+	"\x18\x0a \x01(\x05R\x08pageSize\x12\x1d\x0a\x0apage_token\x18\x0b \x01" +
+	"(\x09R\x09pageToken\x12\x19\x0a\x08order_by\x18\x0c \x01(\x09R\x07orde" +
+	"rBy\x12\x10\x0a\x03asc\x18\x0d \x01(\x08R\x03asc\x1a\xed\x01\x0a\x06Fi" +
+	"lter\x123\x0a\x0eaudit_scope_id\x18\x01 \x01(\x09B\x08\xbaH\x05r\x03" +
+	"\xb0\x01\x01H\x00R\x0cauditScopeId\x88\x01\x01\x12[\x0a\x05state\x18" +
+	"\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationState" +
+	"B\x08\xbaH\x05\x82\x01\x02\x10\x01H\x01R\x05state\x88\x01\x01\x12$\x0a" +
+	"\x0bassignee_id\x18\x03 \x01(\x09H\x02R\x0aassigneeId\x88\x01\x01B\x11" +
+	"\x0a\x0f_audit_scope_idB\x08\x0a\x06_stateB\x0e\x0a\x0c_assignee_idB" +
+	"\x09\x0a\x07_filter\x22\xb8\x01\x0a\x22ListControlImplementationsRespo" +
+	"nse\x12j\x0a\x17control_implementations\x18\x01 \x03(\x0b21.confirmate" +
+	".orchestrator.v1.ControlImplementationR\x16controlImplementations\x12&" +
+	"\x0a\x0fnext_page_token\x18\x02 \x01(\x09R\x0dnextPageToken\x22\xce" +
+	"\x01\x0a\x22UpdateControlImplementationRequest\x12\x1b\x0a\x02id\x18" +
+	"\x01 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12$\x0a" +
+	"\x0bassignee_id\x18\x02 \x01(\x09H\x00R\x0aassigneeId\x88\x01\x01\x12:" +
+	"\x0a\x16implementation_details\x18\x03 \x01(\x09H\x01R\x15implementati" +
+	"onDetails\x88\x01\x01B\x0e\x0a\x0c_assignee_idB\x19\x0a\x17_implementa" +
+	"tion_details\x22\xd2\x01\x0a+TransitionControlImplementationStateReque" +
+	"st\x12\x1b\x0a\x02id\x18\x01 \x01(\x09B\x0b\xe0A\x02\xbaH\x05r\x03\xb0" +
+	"\x01\x01R\x02id\x12`\x0a\x08to_state\x18\x02 \x01(\x0e26.confirmate.or" +
+	"chestrator.v1.ControlImplementationStateB\x0d\xe0A\x02\xbaH\x07\x82" +
+	"\x01\x04\x10\x01 \x00R\x07toState\x12$\x0a\x07comment\x18\x03 \x01(" +
+	"\x09B\x0a\xe0A\x02\xbaH\x04r\x02\x10\x01R\x07comment\x22A\x0a\x22Remov" +
+	"eControlImplementationRequest\x12\x1b\x0a\x02id\x18\x01 \x01(\x09B\x0b" +
+	"\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id*\xab\x02\x0a\x1aControlImpl" +
+	"ementationState\x12,\x0a(CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED\x10" +
+	"\x00\x12%\x0a!CONTROL_IMPLEMENTATION_STATE_OPEN\x10\x01\x12,\x0a(CONTR" +
+	"OL_IMPLEMENTATION_STATE_IN_PROGRESS\x10\x02\x12,\x0a(CONTROL_IMPLEMENT" +
+	"ATION_STATE_IMPLEMENTED\x10\x03\x121\x0a-CONTROL_IMPLEMENTATION_STATE_" +
+	"READY_FOR_REVIEW\x10\x04\x12)\x0a%CONTROL_IMPLEMENTATION_STATE_ACCEPTE" +
+	"D\x10\x05B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 var (
 	file_api_orchestrator_workflow_proto_rawDescOnce sync.Once
 	file_api_orchestrator_workflow_proto_rawDescData []byte
@@ -923,10 +922,8 @@ func file_api_orchestrator_workflow_proto_init() {
 		return
 	}
 	file_api_orchestrator_workflow_proto_msgTypes[0].OneofWrappers = []any{}
-	file_api_orchestrator_workflow_proto_msgTypes[1].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[4].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[6].OneofWrappers = []any{}
-	file_api_orchestrator_workflow_proto_msgTypes[7].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

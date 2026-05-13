@@ -2391,6 +2391,7 @@ components:
                 - controlImplementationId
                 - fromState
                 - toState
+                - comment
             type: object
             properties:
                 id:
@@ -2425,7 +2426,7 @@ components:
                     format: date-time
                 comment:
                     type: string
-                    description: Optional comment explaining the reason for the transition.
+                    description: Comment explaining the reason for the transition.
             description: |-
                 ControlImplementationTransition records a single state change in a ControlImplementation's
                  lifecycle, capturing who made the change and when.
@@ -2961,6 +2962,7 @@ components:
             required:
                 - id
                 - toState
+                - comment
             type: object
             properties:
                 id:
@@ -2977,7 +2979,7 @@ components:
                     format: enum
                 comment:
                     type: string
-                    description: Optional comment explaining the reason for this transition.
+                    description: Comment explaining the reason for this transition.
         UpdateControlImplementationRequest:
             required:
                 - id
