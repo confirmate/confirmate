@@ -361,6 +361,11 @@ service Orchestrator {
     };
   }
 
+  // Removes a specific user permission.
+  rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/user_permission"};
+  }
+
   // Returns information about the currently authenticated user
   rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
     option (google.api.http) = {get: "/v1/users/me"};
@@ -1351,6 +1356,21 @@ message UpsertUserPermissionRequest {
 
 message UpsertUserPermissionResponse {
   UserPermission user_permission = 1;
+}
+
+message RemoveUserPermissionRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string resource_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  ObjectType resource_type = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message GetCurrentUserRequest {

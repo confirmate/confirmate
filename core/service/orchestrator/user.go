@@ -64,6 +64,45 @@ func (svc *Service) UpsertUserPermission(
 	return
 }
 
+// RemoveUserPermission removes a specific permission entry for a user and resource.
+func (svc *Service) RemoveUserPermission(
+	ctx context.Context,
+	req *connect.Request[orchestrator.RemoveUserPermissionRequest],
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		permission orchestrator.UserPermission
+		allowed    bool
+	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Only admins may revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	err = svc.db.Delete(
+		&permission,
+		"user_id = ? AND resource_id = ? AND resource_type = ?",
+		req.Msg.UserId,
+		req.Msg.ResourceId,
+		req.Msg.ResourceType,
+	)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&emptypb.Empty{})
+	return
+}
+
 // GetCurrentUser retrieves the current authenticated user based on the context of the request.
 func (svc *Service) GetCurrentUser(
 	ctx context.Context,
