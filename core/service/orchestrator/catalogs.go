@@ -270,7 +270,7 @@ func (svc *Service) ListControls(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "catalog_control_id"
+		req.Msg.OrderBy = "name"
 		req.Msg.Asc = true
 	}
 
@@ -409,8 +409,8 @@ func normalizeControls(controls []*orchestrator.Control, categoryName, catalogID
 		control.CategoryName = categoryName
 		control.CategoryCatalogId = catalogID
 
-		if control.GetCatalogControlId() == "" {
-			control.CatalogControlId = control.GetId()
+		if control.GetName() == "" {
+			control.Name = control.GetId()
 		}
 		if _, err := uuid.Parse(control.GetId()); err != nil {
 			control.Id = uuid.NewString()

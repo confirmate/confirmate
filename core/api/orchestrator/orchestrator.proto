@@ -1003,11 +1003,8 @@ message Control {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Human-readable name of the control
-  string name = 4 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // Human-readable title of the control.
+  string title = 4;
 
   // Description of the control
   string description = 5;
@@ -1042,8 +1039,8 @@ message Control {
   // optional.
   optional string assurance_level = 11;
 
-  // Catalog-local, human-readable identifier of the control (e.g. OPS-01).
-  string catalog_control_id = 12;
+  // Catalog-local control identifier (e.g. OPS-01).
+  string name = 12;
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
