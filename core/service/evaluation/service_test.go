@@ -1502,7 +1502,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 			},
 			want: assert.Nil[*evaluation.EvaluationResult],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "could not get control for control id {"+orchestratortest.MockControlId1+"}: ")
+				return assert.ErrorContains(t, err, fmt.Sprintf("could not get control for control id {%s}: ", orchestratortest.MockControlId1))
 			},
 			wantSvc: assert.NotNil[*Service],
 		},

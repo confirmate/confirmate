@@ -993,8 +993,8 @@ message Control {
   reserved 2;
   reserved 3;
 
-  // Human-readable title of the control.
-  string title = 4;
+  // Human-readable name of the control.
+  string name = 4;
 
   // Description of the control
   string description = 5;
@@ -1030,7 +1030,7 @@ message Control {
   optional string assurance_level = 11;
 
   // Catalog-local control identifier (e.g. OPS-01).
-  string name = 12;
+  string short_name = 12;
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is

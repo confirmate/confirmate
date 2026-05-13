@@ -2559,8 +2559,8 @@ type Control struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Globally unique ID of the control.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
-	// Human-readable title of the control.
-	Title string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
+	// Human-readable name of the control.
+	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	// Description of the control
 	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
 	// List of sub - controls -
@@ -2577,7 +2577,7 @@ type Control struct {
 	// optional.
 	AssuranceLevel *string `protobuf:"bytes,11,opt,name=assurance_level,json=assuranceLevel,proto3,oneof" json:"assurance_level,omitempty"`
 	// Catalog-local control identifier (e.g. OPS-01).
-	Name          string `protobuf:"bytes,12,opt,name=name,proto3" json:"name,omitempty"`
+	ShortName     string `protobuf:"bytes,12,opt,name=short_name,json=shortName,proto3" json:"short_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2619,9 +2619,9 @@ func (x *Control) GetId() string {
 	return ""
 }
 
-func (x *Control) GetTitle() string {
+func (x *Control) GetName() string {
 	if x != nil {
-		return x.Title
+		return x.Name
 	}
 	return ""
 }
@@ -2661,9 +2661,9 @@ func (x *Control) GetAssuranceLevel() string {
 	return ""
 }
 
-func (x *Control) GetName() string {
+func (x *Control) GetShortName() string {
 	if x != nil {
-		return x.Name
+		return x.ShortName
 	}
 	return ""
 }
@@ -6012,16 +6012,17 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\tcatalogId\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\xdf\x01\n" +
-	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\xe5\x04\n" +
+	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\xee\x04\n" +
 	"\aControl\x121\n" +
-	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x14\n" +
-	"\x05title\x18\x04 \x01(\tR\x05title\x12 \n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\xa1\x01\n" +
 	"\bcontrols\x18\x06 \x03(\v2#.confirmate.orchestrator.v1.ControlB`\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03Mgorm:\"foreignKey:parent_control_id;references:id;constraint:OnDelete:CASCADE\"R\bcontrols\x12\x8b\x01\n" +
 	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x129\n" +
 	"\x11parent_control_id\x18\b \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x0fparentControlId\x88\x01\x01\x12,\n" +
-	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\x12\n" +
-	"\x04name\x18\f \x01(\tR\x04nameB\x14\n" +
+	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"short_name\x18\f \x01(\tR\tshortNameB\x14\n" +
 	"\x12_parent_control_idB\x12\n" +
 	"\x10_assurance_levelJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\t\x10\n" +
 	"J\x04\b\n" +

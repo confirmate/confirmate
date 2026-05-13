@@ -2154,9 +2154,9 @@ components:
                 id:
                     type: string
                     description: Globally unique ID of the control.
-                title:
+                name:
                     type: string
-                    description: Human-readable title of the control.
+                    description: Human-readable name of the control.
                 description:
                     type: string
                     description: Description of the control
@@ -2183,7 +2183,7 @@ components:
                     description: |-
                         An assurance level is not offered by every catalog, therefore it is
                          optional.
-                name:
+                shortName:
                     type: string
                     description: Catalog-local control identifier (e.g. OPS-01).
             description: |-

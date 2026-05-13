@@ -409,8 +409,8 @@ func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 
 func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control) {
 	for _, control := range controls {
-		if control.GetName() == "" {
-			control.Name = control.GetId()
+		if control.GetShortName() == "" {
+			control.ShortName = control.GetId()
 		}
 		if _, err := uuid.Parse(control.GetId()); err != nil {
 			control.Id = uuid.NewString()
