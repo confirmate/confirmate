@@ -61,7 +61,7 @@ type mockOrchestratorHandler struct {
 	mu                sync.Mutex
 
 	// ListUserPermissions support
-	userPermissions         []*orchestrator.UserPermission
+	userPermissions          []*orchestrator.UserPermission
 	listUserPermissionsError error
 }
 
@@ -158,7 +158,6 @@ func (m *mockOrchestratorHandler) StoreEvaluationResult(
 	eval := &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  req.Msg.GetResult().GetControlCategoryName(),
 		ControlCatalogId:     req.Msg.GetResult().GetControlCatalogId(),
 		ControlId:            req.Msg.GetResult().GetControlId(),
 		ParentControlId:      req.Msg.GetResult().ParentControlId,
@@ -374,28 +373,20 @@ func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockO
 func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 	// Return 4 controls as expected by the test
 	control1 := &orchestrator.Control{
-		Id:                orchestratortest.MockControlId1,
-		CategoryName:      orchestratortest.MockCategoryName1,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 1",
+		Id:   orchestratortest.MockControlId1,
+		Name: "Mock Control 1",
 	}
 	control2 := &orchestrator.Control{
-		Id:                orchestratortest.MockControlId2,
-		CategoryName:      orchestratortest.MockCategoryName1,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 2",
+		Id:   orchestratortest.MockControlId2,
+		Name: "Mock Control 2",
 	}
 	control3 := &orchestrator.Control{
-		Id:                "control-3",
-		CategoryName:      orchestratortest.MockCategoryName1,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 3",
+		Id:   "control-3",
+		Name: "Mock Control 3",
 	}
 	control4 := &orchestrator.Control{
-		Id:                "control-4",
-		CategoryName:      orchestratortest.MockCategoryName2,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 4",
+		Id:   "control-4",
+		Name: "Mock Control 4",
 	}
 	return []*orchestrator.Control{control1, control2, control3, control4}
 }
