@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-
 	"time"
 
 	"confirmate.io/core/api/evidence/evidenceconnect"
@@ -26,10 +25,10 @@ import (
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence"
-	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 // evidenceFlags contains the flags that are specific to configuring the evidence store service.
