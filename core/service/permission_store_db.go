@@ -24,7 +24,7 @@ func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, reso
 
 	count, err = ps.DB.Count(
 		&userPermission,
-		"user_id = ? AND resource_type = ? AND resource_id = ? AND permission IN (?)",
+		"user_id = ? AND object_type = ? AND object_id = ? AND permission IN (?)",
 		userId, objectType, resourceId, allowedPermissions(permission),
 	)
 	if err != nil {
@@ -43,11 +43,11 @@ func (ps DBPermissionStore) PermissionForResources(_ context.Context, userID str
 
 	err = ps.DB.List(
 		&userPermissions,
-		"resource_id",
+		"object_id",
 		true,
 		0,
 		-1,
-		"user_id = ? AND resource_type = ? AND permission IN (?)",
+		"user_id = ? AND object_type = ? AND permission IN (?)",
 		userID,
 		objectType,
 		allowedPermissions(permission),
@@ -58,7 +58,7 @@ func (ps DBPermissionStore) PermissionForResources(_ context.Context, userID str
 
 	resourceIDs := make([]string, len(userPermissions))
 	for i := range userPermissions {
-		resourceIDs[i] = userPermissions[i].ResourceId
+		resourceIDs[i] = userPermissions[i].ObjectId
 	}
 
 	return resourceIDs, nil

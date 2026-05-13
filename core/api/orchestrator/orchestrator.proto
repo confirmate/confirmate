@@ -353,19 +353,18 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
-  // Upserts a specific user permission identified by user and resource.
+  // Upserts a specific user permission identified by object and user.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      put: "/v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}"
+      put: "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}"
       body: "user_permission"
     };
   }
 
-  // Removes a specific user permission.
+  // Removes a specific user permission identified by object and user.
   rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/users/user_permission"
-      body: "user_permission"
+      delete: "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}"
     };
   }
 
@@ -384,12 +383,12 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/users"};
   }
 
-  // Lists user permissions, optionally filtered by user ID and/or resource ID.
-  // Use `/v1/users/permissions` with query parameters for flexible filtering.
+  // Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
   rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
     option (google.api.http) = {
       get: "/v1/users/permissions"
-      additional_bindings: {get: "/v1/users/permissions/{resource_id}"}
+      additional_bindings: {get: "/v1/users/permissions/{object_type}/{object_id}"}
+      additional_bindings: {get: "/v1/users/permissions/{object_type}/{object_id}/users/{user_id}"}
     };
   }
 
@@ -1413,12 +1412,14 @@ message ListUserPermissionsRequest {
     (buf.validate.field).string.min_len = 1
   ];
 
-  // Optional. Filter by the resource_id of a UserPermission, i.e. the ID of a
-  // Confirmate object such as a Target of Evaluation or Audit Scope. This is
-  // distinct from the cloud resource IDs that appear inside a Target of
-  // Evaluation.
-  optional string resource_id = 2 [
+  // Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+  optional string object_id = 2 [
     (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Filter by the type of the confirmate object.
+  optional ObjectType object_type = 3 [
+    (buf.validate.field).enum.defined_only = true
   ];
 
   int32 page_size = 10;

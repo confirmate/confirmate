@@ -1870,9 +1870,110 @@ paths:
         get:
             tags:
                 - Orchestrator
-            description: Lists user permission.
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
             operationId: Orchestrator_ListUserPermissions
             parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: objectId
+                  in: query
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  schema:
+                    type: string
+                - name: objectType
+                  in: query
+                  description: Optional. Filter by the type of the confirmate object.
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                    type: string
+                    format: enum
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{objectType}/{objectId}:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: objectType
+                  in: path
+                  description: Optional. Filter by the type of the confirmate object.
+                  required: true
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                    type: string
+                    format: enum
+                - name: objectId
+                  in: path
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  required: true
+                  schema:
+                    type: string
                 - name: userId
                   in: query
                   schema:
@@ -1907,6 +2008,196 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{objectType}/{objectId}/users/{userId}:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: objectType
+                  in: path
+                  description: Optional. Filter by the type of the confirmate object.
+                  required: true
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                    type: string
+                    format: enum
+                - name: objectId
+                  in: path
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  required: true
+                  schema:
+                    type: string
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}:
+        put:
+            tags:
+                - Orchestrator
+            description: Upserts a specific user permission identified by object and user.
+            operationId: Orchestrator_UpsertUserPermission
+            parameters:
+                - name: user_permission.object_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPermission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Removes a specific user permission identified by object and user.
+            operationId: Orchestrator_RemoveUserPermission
+            parameters:
+                - name: user_permission.object_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: userPermission.userId
+                  in: query
+                  description: User ID is required to identify the user for whom the perission is being upserted.
+                  schema:
+                    type: string
+                - name: userPermission.objectId
+                  in: query
+                  description: Object ID identifies the confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+                  schema:
+                    type: string
+                - name: userPermission.objectType
+                  in: query
+                  description: Object type specifies the type of confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                    type: string
+                    format: enum
+                - name: userPermission.permission
+                  in: query
+                  description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+                  schema:
+                    enum:
+                        - PERMISSION_UNSPECIFIED
+                        - PERMISSION_READER
+                        - PERMISSION_CONTRIBUTOR
+                        - PERMISSION_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/users/roles:
         get:
             tags:
@@ -1934,28 +2225,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListUserRolesResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/users/user_permission:
-        delete:
-            tags:
-                - Orchestrator
-            description: Removes a specific user permission.
-            operationId: Orchestrator_RemoveUserPermission
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UserPermission'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
                 default:
                     description: Default error response
                     content:
@@ -2002,47 +2271,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}:
-        put:
-            tags:
-                - Orchestrator
-            description: Upserts a specific user permission identified by user and resource.
-            operationId: Orchestrator_UpsertUserPermission
-            parameters:
-                - name: user_permission.user_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: user_permission.resource_type
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: user_permission.resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UserPermission'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
                 default:
                     description: Default error response
                     content:
@@ -2164,27 +2392,6 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
-                readers:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with explicit permission to view this target (Read-only).
-                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-                contributors:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs responsible for the content and maintenance of this target.
-                         These users can modify settings and data but cannot manage other users' access.
-                admins:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with administrative control over this target.
-                         These users can manage permissions for others and perform destructive actions like deletion.
                 status:
                     enum:
                         - AUDIT_SCOPE_STATUS_UNSPECIFIED
@@ -2952,27 +3159,6 @@ components:
                     type: string
                     description: 'type of the target to be evaluated: cloud, product or organization'
                     format: enum
-                readers:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with explicit permission to view this target (Read-only).
-                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-                contributors:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs responsible for the content and maintenance of this target.
-                         These users can modify settings and data but cannot manage other users' access.
-                admins:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with administrative control over this target.
-                         These users can manage permissions for others and perform destructive actions like deletion.
                 organisation:
                     allOf:
                         - $ref: '#/components/schemas/TargetOfEvaluation_Organisation'
@@ -3100,18 +3286,18 @@ components:
         UserPermission:
             required:
                 - userId
-                - resourceId
-                - resourceType
+                - objectId
+                - objectType
                 - permission
             type: object
             properties:
                 userId:
                     type: string
                     description: User ID is required to identify the user for whom the perission is being upserted.
-                resourceId:
+                objectId:
                     type: string
-                    description: Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
-                resourceType:
+                    description: Object ID identifies the confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+                objectType:
                     enum:
                         - OBJECT_TYPE_UNSPECIFIED
                         - OBJECT_TYPE_METRIC
@@ -3131,7 +3317,7 @@ components:
                         - OBJECT_TYPE_EVIDENCE
                         - OBJECT_TYPE_CONTROL_IMPLEMENTATION
                     type: string
-                    description: Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
+                    description: Object type specifies the type of confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
                     format: enum
                 permission:
                     enum:

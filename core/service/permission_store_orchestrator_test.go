@@ -30,7 +30,7 @@ func (h *mockPermissionHandler) ListUserPermissions(_ context.Context, req *conn
 		if req.Msg.GetUserId() != "" && p.GetUserId() != req.Msg.GetUserId() {
 			continue
 		}
-		if req.Msg.GetResourceId() != "" && p.GetResourceId() != req.Msg.GetResourceId() {
+		if req.Msg.GetObjectId() != "" && p.GetObjectId() != req.Msg.GetObjectId() {
 			continue
 		}
 		filtered = append(filtered, p)
@@ -71,7 +71,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 		wantErr     assert.WantErr
 	}{
 		{
-			name: "err: list permissions fails",
+			name:    "err: list permissions fails",
 			listErr: connect.NewError(connect.CodeInternal, nil),
 			args: args{
 				userId:     orchestratortest.MockUserId1,
@@ -79,7 +79,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 				permission: orchestrator.UserPermission_PERMISSION_READER,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
-			want:    false,
+			want: false,
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
@@ -88,10 +88,10 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			name: "false: user has no matching permission",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
 				},
 			},
 			args: args{
@@ -107,10 +107,10 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			name: "false: insufficient permission level",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
 				},
 			},
 			args: args{
@@ -126,10 +126,10 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			name: "true: exact permission match",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
 				},
 			},
 			args: args{
@@ -145,10 +145,10 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			name: "false: other user's permission is not returned",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       "other-user",
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+					UserId:     "other-user",
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 				},
 			},
 			args: args{
@@ -195,7 +195,7 @@ func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
 				permission: orchestrator.UserPermission_PERMISSION_READER,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
-			want:    nil,
+			want: nil,
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInternal)
 			},
@@ -204,16 +204,16 @@ func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
 			name: "returns matching resource IDs for the user",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
 				},
 				{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   "toe-2",
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId: "toe-2",
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 				},
 			},
 			args: args{
@@ -228,10 +228,10 @@ func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
 			name: "excludes resources with insufficient permission",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       orchestratortest.MockUserId1,
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_READER,
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
 				},
 			},
 			args: args{
@@ -246,10 +246,10 @@ func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
 			name: "excludes other users' permissions",
 			permissions: []*orchestrator.UserPermission{
 				{
-					UserId:       "other-user",
-					ResourceId:   orchestratortest.MockTargetOfEvaluation1.Id,
-					ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-					Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+					UserId:     "other-user",
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 				},
 			},
 			args: args{

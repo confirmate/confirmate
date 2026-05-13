@@ -31,7 +31,7 @@ func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId
 	}
 
 	for _, p := range permissions {
-		if p.GetResourceId() == resourceId && p.GetResourceType() == objectType && p.GetPermission() >= permission {
+		if p.GetObjectId() == resourceId && p.GetObjectType() == objectType && p.GetPermission() >= permission {
 			return true, nil
 		}
 	}
@@ -53,8 +53,8 @@ func (ps *OrchestratorPermissionStore) PermissionForResources(ctx context.Contex
 	}
 
 	for _, p := range permissions {
-		if p.GetResourceType() == objectType && p.GetPermission() >= permission {
-			ids = append(ids, p.GetResourceId())
+		if p.GetObjectType() == objectType && p.GetPermission() >= permission {
+			ids = append(ids, p.GetObjectId())
 		}
 	}
 
@@ -66,7 +66,7 @@ func (ps *OrchestratorPermissionStore) PermissionForResources(ctx context.Contex
 // orchestrator treats it as an admin request.
 func (ps *OrchestratorPermissionStore) listPermissions(ctx context.Context, userId string) ([]*orchestrator.UserPermission, error) {
 	return api.ListAllPaginated(ctx, &orchestrator.ListUserPermissionsRequest{
-		UserId: userId,
+		UserId: &userId,
 	}, func(ctx context.Context, req *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error) {
 		var (
 			res *connect.Response[orchestrator.ListUserPermissionsResponse]

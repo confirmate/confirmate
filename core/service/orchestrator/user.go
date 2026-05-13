@@ -92,10 +92,10 @@ func (svc *Service) RemoveUserPermission(
 
 	err = svc.db.Delete(
 		&permission,
-		"user_id = ? AND resource_id = ? AND resource_type = ?",
+		"user_id = ? AND object_id = ? AND object_type = ?",
 		req.Msg.GetUserPermission().GetUserId(),
-		req.Msg.GetUserPermission().GetResourceId(),
-		req.Msg.GetUserPermission().GetResourceType(),
+		req.Msg.GetUserPermission().GetObjectId(),
+		req.Msg.GetUserPermission().GetObjectType(),
 	)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
 		return nil, err
@@ -235,14 +235,18 @@ func (svc *Service) ListUserPermissions(
 		req.Msg.Asc = true
 	}
 
-	// Build filter conditions for user_id and/or resource_id
+	// Build filter conditions
 	if userId := req.Msg.GetUserId(); userId != "" {
 		query = append(query, "user_id = ?")
 		args = append(args, userId)
 	}
-	if resourceId := req.Msg.GetResourceId(); resourceId != "" {
-		query = append(query, "resource_id = ?")
-		args = append(args, resourceId)
+	if objectId := req.Msg.GetObjectId(); objectId != "" {
+		query = append(query, "object_id = ?")
+		args = append(args, objectId)
+	}
+	if objectType := req.Msg.GetObjectType(); objectType != orchestrator.ObjectType_OBJECT_TYPE_UNSPECIFIED {
+		query = append(query, "object_type = ?")
+		args = append(args, objectType)
 	}
 	if len(query) > 0 {
 		conds = persistence.BuildConds(query, args)
@@ -434,10 +438,10 @@ func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourc
 	}
 
 	err = db.Create(&orchestrator.UserPermission{
-		UserId:       userId,
-		ResourceId:   resourceId,
-		ResourceType: objectType,
-		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+		UserId:     userId,
+		ObjectId:   resourceId,
+		ObjectType: objectType,
+		Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return err

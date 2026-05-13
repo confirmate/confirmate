@@ -347,9 +347,9 @@ type OrchestratorClient interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
-	// Upserts a specific user permission identified by user and resource.
+	// Upserts a specific user permission identified by object and user.
 	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
-	// Removes a specific user permission.
+	// Removes a specific user permission identified by object and user.
 	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
 	// Returns information about the currently authenticated user
 	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
@@ -357,7 +357,7 @@ type OrchestratorClient interface {
 	GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error)
 	// Lists users with optional filtering
 	ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error)
-	// Lists user permission.
+	// Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
 	ListUserPermissions(context.Context, *connect.Request[orchestrator.ListUserPermissionsRequest]) (*connect.Response[orchestrator.ListUserPermissionsResponse], error)
 	// Lists all predefined roles in the system.
 	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)
@@ -1264,9 +1264,9 @@ type OrchestratorHandler interface {
 	RemoveAuditScope(context.Context, *connect.Request[orchestrator.RemoveAuditScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Get Runtime Information
 	GetRuntimeInfo(context.Context, *connect.Request[common.GetRuntimeInfoRequest]) (*connect.Response[common.Runtime], error)
-	// Upserts a specific user permission identified by user and resource.
+	// Upserts a specific user permission identified by object and user.
 	UpsertUserPermission(context.Context, *connect.Request[orchestrator.UpsertUserPermissionRequest]) (*connect.Response[orchestrator.UpsertUserPermissionResponse], error)
-	// Removes a specific user permission.
+	// Removes a specific user permission identified by object and user.
 	RemoveUserPermission(context.Context, *connect.Request[orchestrator.RemoveUserPermissionRequest]) (*connect.Response[emptypb.Empty], error)
 	// Returns information about the currently authenticated user
 	GetCurrentUser(context.Context, *connect.Request[orchestrator.GetCurrentUserRequest]) (*connect.Response[orchestrator.User], error)
@@ -1274,7 +1274,7 @@ type OrchestratorHandler interface {
 	GetUser(context.Context, *connect.Request[orchestrator.GetUserRequest]) (*connect.Response[orchestrator.User], error)
 	// Lists users with optional filtering
 	ListUsers(context.Context, *connect.Request[orchestrator.ListUsersRequest]) (*connect.Response[orchestrator.ListUsersResponse], error)
-	// Lists user permission.
+	// Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
 	ListUserPermissions(context.Context, *connect.Request[orchestrator.ListUserPermissionsRequest]) (*connect.Response[orchestrator.ListUserPermissionsResponse], error)
 	// Lists all predefined roles in the system.
 	ListUserRoles(context.Context, *connect.Request[orchestrator.ListUserRolesRequest]) (*connect.Response[orchestrator.ListUserRolesResponse], error)

@@ -601,22 +601,22 @@ var (
 
 	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
 		UserId:       MockUserIssuer1 + "|" + MockUserId1,
-		ResourceId:   MockToeId1,
-		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		ObjectId:   MockToeId1,
+		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 
 	MockUserPermissionsToEContributor = &orchestrator.UserPermission{
 		UserId:       MockUserIssuer1 + "|" + MockUserId1,
-		ResourceId:   MockToeId1,
-		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+		ObjectId:   MockToeId1,
+		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 		Permission:   orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
 	}
 
 	MockUserPermissionsAuditScopeAdmin = &orchestrator.UserPermission{
 		UserId:       MockUserIssuer1 + "|" + MockUserId1,
-		ResourceId:   MockScopeId1,
-		ResourceType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+		ObjectId:   MockScopeId1,
+		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
 		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 

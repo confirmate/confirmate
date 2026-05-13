@@ -78,18 +78,18 @@ message UserPermission {
     (tagger.tags) = "gorm:\"column:user_id;primaryKey\""
   ];
 
-  // Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
-  string resource_id = 2 [
+  // Object ID identifies the confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+  string object_id = 2 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED,
-    (tagger.tags) = "gorm:\"column:resource_id;primaryKey;index\""
+    (tagger.tags) = "gorm:\"column:object_id;primaryKey;index\""
   ];
 
-  // Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
-  ObjectType resource_type = 3 [
+  // Object type specifies the type of confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+  ObjectType object_type = 3 [
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED,
-    (tagger.tags) = "gorm:\"column:resource_type;primaryKey\""
+    (tagger.tags) = "gorm:\"column:object_type;primaryKey\""
   ];
 
   // Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).

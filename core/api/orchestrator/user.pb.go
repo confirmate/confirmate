@@ -370,10 +370,10 @@ type UserPermission struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User ID is required to identify the user for whom the perission is being upserted.
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" gorm:"column:user_id;primaryKey"`
-	// Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
-	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" gorm:"column:resource_id;primaryKey;index"`
-	// Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
-	ResourceType ObjectType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"resource_type,omitempty" gorm:"column:resource_type;primaryKey"`
+	// Object ID identifies the confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+	ObjectId string `protobuf:"bytes,2,opt,name=object_id,json=objectId,proto3" json:"object_id,omitempty" gorm:"column:object_id;primaryKey;index"`
+	// Object type specifies the type of confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+	ObjectType ObjectType `protobuf:"varint,3,opt,name=object_type,json=objectType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"object_type,omitempty" gorm:"column:object_type;primaryKey"`
 	// Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
 	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty" gorm:"column:permission;type:integer;not null"`
 	unknownFields protoimpl.UnknownFields
@@ -417,16 +417,16 @@ func (x *UserPermission) GetUserId() string {
 	return ""
 }
 
-func (x *UserPermission) GetResourceId() string {
+func (x *UserPermission) GetObjectId() string {
 	if x != nil {
-		return x.ResourceId
+		return x.ObjectId
 	}
 	return ""
 }
 
-func (x *UserPermission) GetResourceType() ObjectType {
+func (x *UserPermission) GetObjectType() ObjectType {
 	if x != nil {
-		return x.ResourceType
+		return x.ObjectType
 	}
 	return ObjectType_OBJECT_TYPE_UNSPECIFIED
 }
@@ -467,12 +467,12 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x06_emailB\r\n" +
 	"\v_first_nameB\f\n" +
 	"\n" +
-	"_last_name\"\xc7\x04\n" +
+	"_last_name\"\xba\x04\n" +
 	"\x0eUserPermission\x12G\n" +
-	"\auser_id\x18\x01 \x01(\tB.\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03 gorm:\"column:user_id;primaryKey\"R\x06userId\x12[\n" +
-	"\vresource_id\x18\x02 \x01(\tB:\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03*gorm:\"column:resource_id;primaryKey;index\"R\n" +
-	"resourceId\x12\x83\x01\n" +
-	"\rresource_type\x18\x03 \x01(\x0e2&.confirmate.orchestrator.v1.ObjectTypeB6\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03&gorm:\"column:resource_type;primaryKey\"R\fresourceType\x12\x95\x01\n" +
+	"\auser_id\x18\x01 \x01(\tB.\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03 gorm:\"column:user_id;primaryKey\"R\x06userId\x12U\n" +
+	"\tobject_id\x18\x02 \x01(\tB8\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03(gorm:\"column:object_id;primaryKey;index\"R\bobjectId\x12}\n" +
+	"\vobject_type\x18\x03 \x01(\x0e2&.confirmate.orchestrator.v1.ObjectTypeB4\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03$gorm:\"column:object_type;primaryKey\"R\n" +
+	"objectType\x12\x95\x01\n" +
 	"\n" +
 	"permission\x18\x04 \x01(\x0e25.confirmate.orchestrator.v1.UserPermission.PermissionB>\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01\x9a\x84\x9e\x03.gorm:\"column:permission;type:integer;not null\"R\n" +
 	"permission\"q\n" +
@@ -540,7 +540,7 @@ var file_api_orchestrator_user_proto_depIdxs = []int32{
 	0, // 0: confirmate.orchestrator.v1.User.roles:type_name -> confirmate.orchestrator.v1.Role
 	5, // 1: confirmate.orchestrator.v1.User.attributes:type_name -> confirmate.orchestrator.v1.User.AttributesEntry
 	6, // 2: confirmate.orchestrator.v1.User.last_access:type_name -> google.protobuf.Timestamp
-	1, // 3: confirmate.orchestrator.v1.UserPermission.resource_type:type_name -> confirmate.orchestrator.v1.ObjectType
+	1, // 3: confirmate.orchestrator.v1.UserPermission.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
 	2, // 4: confirmate.orchestrator.v1.UserPermission.permission:type_name -> confirmate.orchestrator.v1.UserPermission.Permission
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
