@@ -25,9 +25,7 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
-	protovalidate "buf.build/go/protovalidate"
 	"connectrpc.com/connect"
-	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -93,9 +91,9 @@ func (svc *Service) RemoveUserPermission(
 	err = svc.db.Delete(
 		&permission,
 		"user_id = ? AND object_id = ? AND object_type = ?",
-		req.Msg.GetUserPermission().GetUserId(),
-		req.Msg.GetUserPermission().GetObjectId(),
-		req.Msg.GetUserPermission().GetObjectType(),
+		req.Msg.GetUserId(),
+		req.Msg.GetObjectId(),
+		req.Msg.GetObjectType(),
 	)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
 		return nil, err
@@ -194,7 +192,7 @@ func (svc *Service) ListUsers(
 	return
 }
 
-// ListUserPermissions lists all user permissions, optionally filtered by user ID and/or resource ID.
+// ListUserPermissions lists all user permissions, optionally filtered by user ID and/or object ID.
 func (svc *Service) ListUserPermissions(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserPermissionsRequest],
@@ -208,15 +206,8 @@ func (svc *Service) ListUserPermissions(
 		args        []any
 	)
 
-	// Validate request - user_id is optional, so we skip its validation constraint from the descriptor
-	err = service.Validate(req, protovalidate.WithFilter(protovalidate.FilterFunc(
-		func(_ protoreflect.Message, desc protoreflect.Descriptor) bool {
-			if fd, ok := desc.(protoreflect.FieldDescriptor); ok {
-				return fd.Name() != "user_id"
-			}
-			return true
-		})))
-	if err != nil {
+	// Validate request
+	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 

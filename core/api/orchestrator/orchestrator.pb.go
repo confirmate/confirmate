@@ -4550,6 +4550,21 @@ func (x *RemoveUserPermissionRequest) GetUserPermission() *UserPermission {
 	return nil
 }
 
+// GetUserId returns the user ID from the embedded UserPermission.
+func (x *RemoveUserPermissionRequest) GetUserId() string {
+	return x.GetUserPermission().GetUserId()
+}
+
+// GetObjectId returns the object ID from the embedded UserPermission.
+func (x *RemoveUserPermissionRequest) GetObjectId() string {
+	return x.GetUserPermission().GetObjectId()
+}
+
+// GetObjectType returns the object type from the embedded UserPermission.
+func (x *RemoveUserPermissionRequest) GetObjectType() ObjectType {
+	return x.GetUserPermission().GetObjectType()
+}
+
 type GetCurrentUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
