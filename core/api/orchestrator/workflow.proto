@@ -123,6 +123,11 @@ message ControlImplementationTransition {
   google.protobuf.Timestamp time = 6 [
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
+
+  // Comment explaining the reason for the transition.
+  string comment = 7 [
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 // ── Request / Response messages ──────────────────────────────────────────────
@@ -187,6 +192,12 @@ message TransitionControlImplementationStateRequest {
 
   ControlImplementationState to_state = 2 [
     (buf.validate.field).enum = {not_in: [0], defined_only: true},
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Comment explaining the reason for this transition.
+  string comment = 3 [
+    (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
 }

@@ -535,11 +535,37 @@ func TestService_TransitionControlImplementationState(t *testing.T) {
 		wantDB  assert.Want[persistence.DB]
 	}{
 		{
+			name: "happy path: OPEN -> IN_PROGRESS with comment",
+			args: args{
+				req: &orchestrator.TransitionControlImplementationStateRequest{
+					Id:      orchestratortest.MockControlImplementation1.Id,
+					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					Comment: "Starting implementation work.",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockControlImplementation1))
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ControlImplementation], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.Transitions)) &&
+					assert.Equal(t, "Starting implementation work.", got.Msg.Transitions[0].Comment)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				return assert.NotNil(t, db)
+			},
+		},
+		{
 			name: "happy path: OPEN -> IN_PROGRESS",
 			args: args{
 				req: &orchestrator.TransitionControlImplementationStateRequest{
 					Id:      orchestratortest.MockControlImplementation1.Id,
 					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					Comment: "Picked up by the team.",
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
 					RegisteredClaims: jwt.RegisteredClaims{
@@ -575,6 +601,7 @@ func TestService_TransitionControlImplementationState(t *testing.T) {
 				req: &orchestrator.TransitionControlImplementationStateRequest{
 					Id:      orchestratortest.MockControlImplementation1.Id,
 					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED,
+					Comment: "Marking as accepted.",
 				},
 			},
 			fields: fields{
@@ -595,6 +622,7 @@ func TestService_TransitionControlImplementationState(t *testing.T) {
 				req: &orchestrator.TransitionControlImplementationStateRequest{
 					Id:      orchestratortest.MockControlImplementation1.Id,
 					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					Comment: "Picking up.",
 				},
 			},
 			fields: fields{
@@ -615,6 +643,7 @@ func TestService_TransitionControlImplementationState(t *testing.T) {
 				req: &orchestrator.TransitionControlImplementationStateRequest{
 					Id:      orchestratortest.MockNonExistentId,
 					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					Comment: "Picking up.",
 				},
 			},
 			fields: fields{
@@ -633,6 +662,24 @@ func TestService_TransitionControlImplementationState(t *testing.T) {
 				req: &orchestrator.TransitionControlImplementationStateRequest{
 					Id:      orchestratortest.MockControlImplementation1.Id,
 					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED,
+					Comment: "Picking up.",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ControlImplementation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "validation error - missing comment",
+			args: args{
+				req: &orchestrator.TransitionControlImplementationStateRequest{
+					Id:      orchestratortest.MockControlImplementation1.Id,
+					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
 				},
 			},
 			fields: fields{
