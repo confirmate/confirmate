@@ -199,9 +199,11 @@ func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
 	}
 	var preloads []preloadSpec
 	remaining := make([]any, 0, len(conds))
+	hasPreloadOpt := false
 
 	for _, c := range conds {
 		if p, ok := c.(*preload); ok {
+			hasPreloadOpt = true
 			if p.query != "" {
 				preloads = append(preloads, preloadSpec{query: p.query, args: p.args})
 			}
@@ -215,8 +217,9 @@ func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
 		db = db.Preload(p.query, p.args...)
 	}
 
-	// If no preloads found, use default
-	if len(preloads) == 0 {
+	// Only apply default all-associations preload when no preload option was specified at all.
+	// WithoutPreload() sets hasPreloadOpt=true with an empty query, which skips this default.
+	if !hasPreloadOpt {
 		db = db.Preload(clause.Associations)
 	}
 
@@ -224,7 +227,7 @@ func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
 }
 
 // ================================================================================================
-// Query Options
+// Query options and other helpers
 // ================================================================================================
 
 // QueryOption is a condition that can be passed to the CRUD functions for customizing the query.
@@ -245,6 +248,12 @@ func WithPreload(query string, args ...any) QueryOption {
 // are used, otherwise Gorm will throw errors.
 func WithoutPreload() QueryOption {
 	return &preload{query: ""}
+}
+
+// BuildConds prepares the conds used in [Storage.List] out of arrays of query and args.
+func BuildConds(query []string, args []any) (conds []any) {
+	conds = append([]any{strings.Join(query, " AND ")}, args...)
+	return
 }
 
 // splitOrderBy splits a comma-separated orderBy string into individual column names.

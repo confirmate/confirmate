@@ -213,7 +213,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{},
+					Permissions: service.DBPermissionStore{},
 				},
 			},
 			want:    assert.NotNil[*connect.Response[orchestrator.StoreAssessmentResultResponse]],
@@ -425,8 +425,8 @@ func TestService_GetAssessmentResult(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						}),
@@ -521,8 +521,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables),
 					},
 				},
 			},
@@ -698,8 +698,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			fields: fields{
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						}),
@@ -836,8 +836,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			},
 			fields: fields{
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						},
@@ -993,8 +993,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						}),

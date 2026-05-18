@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package evaluation
 
 import (
@@ -44,6 +59,10 @@ type mockOrchestratorHandler struct {
 	listEvalError     error
 	storeEvalError    error
 	mu                sync.Mutex
+
+	// ListUserPermissions support
+	userPermissions          []*orchestrator.UserPermission
+	listUserPermissionsError error
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -139,7 +158,6 @@ func (m *mockOrchestratorHandler) StoreEvaluationResult(
 	eval := &evaluation.EvaluationResult{
 		Id:                   uuid.NewString(),
 		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  req.Msg.GetResult().GetControlCategoryName(),
 		ControlCatalogId:     req.Msg.GetResult().GetControlCatalogId(),
 		ControlId:            req.Msg.GetResult().GetControlId(),
 		ParentControlId:      req.Msg.GetResult().ParentControlId,
@@ -187,6 +205,27 @@ func (m *mockOrchestratorHandler) GetAuditScope(
 	}
 
 	return connect.NewResponse(m.auditScope), nil
+}
+
+// ListUserPermissions returns user permissions filtered by the request's UserId.
+func (m *mockOrchestratorHandler) ListUserPermissions(
+	_ context.Context,
+	req *connect.Request[orchestrator.ListUserPermissionsRequest],
+) (*connect.Response[orchestrator.ListUserPermissionsResponse], error) {
+	if m.listUserPermissionsError != nil {
+		return nil, m.listUserPermissionsError
+	}
+
+	var filtered []*orchestrator.UserPermission
+	for _, p := range m.userPermissions {
+		if req.Msg.GetUserId() == "" || p.GetUserId() == req.Msg.GetUserId() {
+			filtered = append(filtered, p)
+		}
+	}
+
+	return connect.NewResponse(&orchestrator.ListUserPermissionsResponse{
+		UserPermissions: filtered,
+	}), nil
 }
 
 // GetCatalog returns catalog or an error if configured
@@ -325,32 +364,29 @@ func WithGetCatalogNotFoundError(err error) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.getCatalogNotFoundError = err }
 }
 
+// WithUserPermissions seeds the handler with user permissions returned by ListUserPermissions.
+func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.userPermissions = permissions }
+}
+
 // mockControlsForCatalog returns mock controls for a catalog
 func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 	// Return 4 controls as expected by the test
 	control1 := &orchestrator.Control{
-		Id:                orchestratortest.MockControlId1,
-		CategoryName:      orchestratortest.MockCategoryName1,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 1",
+		Id:   orchestratortest.MockControlId1,
+		Name: "Mock Control 1",
 	}
 	control2 := &orchestrator.Control{
-		Id:                orchestratortest.MockControlId2,
-		CategoryName:      orchestratortest.MockCategoryName1,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 2",
+		Id:   orchestratortest.MockControlId2,
+		Name: "Mock Control 2",
 	}
 	control3 := &orchestrator.Control{
-		Id:                "control-3",
-		CategoryName:      orchestratortest.MockCategoryName1,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 3",
+		Id:   "control-3",
+		Name: "Mock Control 3",
 	}
 	control4 := &orchestrator.Control{
-		Id:                "control-4",
-		CategoryName:      orchestratortest.MockCategoryName2,
-		CategoryCatalogId: catalogID,
-		Name:              "Mock Control 4",
+		Id:   "control-4",
+		Name: "Mock Control 4",
 	}
 	return []*orchestrator.Control{control1, control2, control3, control4}
 }

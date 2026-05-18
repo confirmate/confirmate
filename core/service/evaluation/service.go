@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package evaluation
 
 import (
@@ -24,6 +39,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/go-co-op/gocron"
 	"github.com/google/uuid"
+	"golang.org/x/oauth2/clientcredentials"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -39,7 +55,8 @@ const (
 // [evaluationconnect.EvaluationHandler]).
 type Service struct {
 	evaluationconnect.UnimplementedEvaluationHandler
-	cfg Config
+	cfg   Config
+	authz service.AuthorizationStrategy
 
 	orchestratorClient orchestratorconnect.OrchestratorClient
 
@@ -49,10 +66,10 @@ type Service struct {
 
 	scheduler *gocron.Scheduler
 
-	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint
-	// map[catalog_id][category_name-control_id]*orchestrator.Control
-	catalogControls map[string]map[string]*orchestrator.Control
-	catalogsMutex   sync.RWMutex
+	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint.
+	// map[catalog_id][control_id]*orchestrator.Control
+	catalogControls        map[string]map[string]*orchestrator.Control
+	catalogsMutex sync.RWMutex
 }
 
 // DefaultConfig is the default configuration for the evaluation [Service].
@@ -67,6 +84,10 @@ type Config struct {
 	OrchestratorAddress string
 	// OrchestratorClient is the HTTP client to use for connecting to the Orchestrator service.
 	OrchestratorClient *http.Client
+	// ServiceOAuth2Config is the OAuth2 client credentials configuration used for
+	// service-to-service authentication with the orchestrator. When set, all outgoing
+	// orchestrator calls use this token.
+	ServiceOAuth2Config *clientcredentials.Config
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -76,12 +97,28 @@ func WithConfig(cfg Config) service.Option[Service] {
 	}
 }
 
+// WithAuthorizationStrategy configures a custom authorization strategy.
+func WithAuthorizationStrategy(authz service.AuthorizationStrategy) service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = authz
+	}
+}
+
+// WithAuthorizationStrategyPermissionStore configures permission store-based authorization backed
+// by the orchestrator API. The permission store is wired up after the orchestrator client is
+// initialized in [NewService].
+func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
+	return func(svc *Service) {
+		svc.authz = &service.AuthorizationStrategyPermissionStore{}
+	}
+}
+
 // NewService creates a new Evaluation service
 func NewService(opts ...service.Option[Service]) (handler evaluationconnect.EvaluationHandler, err error) {
 	var (
 		svc = &Service{
-			cfg:             DefaultConfig,
-			scheduler:       gocron.NewScheduler(time.Local),
+			cfg:                    DefaultConfig,
+			scheduler:              gocron.NewScheduler(time.Local),
 			catalogControls: make(map[string]map[string]*orchestrator.Control),
 		}
 	)
@@ -90,10 +127,30 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 		o(svc)
 	}
 
-	// Initialize the Orchestrator client
-	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
-	// TODO: supply authentication tokens to orchestrator
-	svc.orchestratorCtx = context.Background()
+	if svc.authz == nil {
+		svc.authz = &service.AuthorizationStrategyAllowAll{}
+	}
+
+	// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing
+	// orchestrator calls authenticate using the client credentials flow. This also fixes the
+	// scheduled-job token expiry issue: auth is handled at the transport level rather than via
+	// the original request context.
+	orchestratorHTTPClient := svc.cfg.OrchestratorClient
+	if svc.cfg.ServiceOAuth2Config != nil {
+		orchestratorHTTPClient = api.NewOAuthHTTPClient(
+			orchestratorHTTPClient,
+			api.NewOAuthAuthorizerFromClientCredentials(svc.cfg.ServiceOAuth2Config),
+		)
+	}
+
+	// Initialize the orchestrator service client
+	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(orchestratorHTTPClient, svc.cfg.OrchestratorAddress)
+
+	// If using permission store-based authorization, back it with the orchestrator client so the
+	// evaluation service can check permissions without direct database access.
+	if permStrat, ok := svc.authz.(*service.AuthorizationStrategyPermissionStore); ok {
+		permStrat.Permissions = &service.OrchestratorPermissionStore{Client: svc.orchestratorClient}
+	}
 
 	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
 
@@ -123,8 +180,18 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		return nil, err
 	}
 
+	// Check access via the configured auth strategy
+	var allowed bool
+	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
 	// Get Audit Scope
-	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(svc.orchestratorCtx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
@@ -151,7 +218,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	}
 
 	// Retrieve the catalog
-	catalogRes, err = svc.orchestratorClient.GetCatalog(svc.orchestratorCtx, connect.NewRequest(&orchestrator.GetCatalogRequest{
+	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
 		CatalogId: auditScope.GetCatalogId(),
 	}))
 	if err != nil {
@@ -197,6 +264,16 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	var allowed bool
+	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	auditScopeId := req.Msg.GetAuditScopeId()
@@ -266,11 +343,14 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 		return connect.NewError(connect.CodeInternal, errors.New("evaluation cannot be scheduled due to invalid input"))
 	}
 
+	// Use context.Background() rather than the original request context: auth for outgoing
+	// orchestrator calls is handled by the OAuth2 HTTP transport, so the scheduled job does not
+	// need (or want) to inherit the caller's token, which would eventually expire.
 	_, err = svc.scheduler.
 		Every(interval).
 		Minute().
 		Tag(auditScope.GetId()).
-		Do(svc.evaluateCatalog, ctx, auditScope, catalog, interval)
+		Do(svc.evaluateCatalog, context.Background(), auditScope, catalog, interval)
 	if err != nil {
 		slog.Error("evaluation cannot be scheduled", slog.String("audit scope", auditScope.GetId()), log.Err(err))
 		return connect.NewError(connect.CodeInternal, errors.New("evaluation cannot be scheduled"))
@@ -300,7 +380,6 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	})
 
 	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
-	// TODO(oxisto): Its problematic to use the context from the original StartEvaluation request, since this token might time out at some point
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
 		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
 			TargetOfEvaluationId: &auditScope.TargetOfEvaluationId,
@@ -483,10 +562,9 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	slices.Sort(assessmentResultIds)
 
 	result = &evaluation.EvaluationResult{
-		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  control.CategoryName,
-		ControlCatalogId:     control.CategoryCatalogId,
+		Id:               uuid.NewString(),
+		Timestamp:        timestamppb.Now(),
+		ControlCatalogId: auditScope.CatalogId,
 		ControlId:            control.Id,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
 		AuditScopeId:         auditScope.Id,
@@ -525,7 +603,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	}
 
 	// Get metrics from control and sub-controls
-	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.CategoryName, control.Id)
+	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.Id)
 	if err != nil {
 		slog.Error("could not get metrics for",
 			slog.String("control id", control.Id),
@@ -591,10 +669,9 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 
 	// Create evaluation result
 	eval = &evaluation.EvaluationResult{
-		Id:                   uuid.NewString(),
-		Timestamp:            timestamppb.Now(),
-		ControlCategoryName:  control.CategoryName,
-		ControlCatalogId:     control.CategoryCatalogId,
+		Id:               uuid.NewString(),
+		Timestamp:        timestamppb.Now(),
+		ControlCatalogId: auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
@@ -623,10 +700,10 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 //
 // For now a control has either sub-controls or metrics. If the control has sub-controls, get also all metrics from the
 // sub-controls.
-func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId string) (metrics []*assessment.Metric, err error) {
+func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metrics []*assessment.Metric, err error) {
 	var subControlMetrics []*assessment.Metric
 
-	control, err := svc.getControl(catalogId, categoryName, controlId)
+	control, err := svc.getControl(catalogId, controlId)
 	if err != nil {
 		err = fmt.Errorf("could not get control for control id {%s}: %w", controlId, err)
 		return
@@ -638,7 +715,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId 
 	// Add sub-control metrics to the metric list if exist
 	if len(control.Controls) != 0 {
 		// Get the metrics from the next sub-control
-		subControlMetrics, err = svc.getMetricsFromSubcontrols(control)
+		subControlMetrics, err = svc.getMetricsFromSubcontrols(catalogId, control)
 		if err != nil {
 			err = fmt.Errorf("error getting metrics from sub-controls: %w", err)
 			return
@@ -651,7 +728,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, categoryName, controlId 
 }
 
 // getMetricsFromSubcontrols returns a list of metrics from the sub-controls.
-func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
+func (svc *Service) getMetricsFromSubcontrols(catalogId string, control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
 	var subcontrol *orchestrator.Control
 
 	if control == nil {
@@ -659,7 +736,7 @@ func (svc *Service) getMetricsFromSubcontrols(control *orchestrator.Control) (me
 	}
 
 	for _, c := range control.Controls {
-		subcontrol, err = svc.getControl(c.CategoryCatalogId, c.CategoryName, c.Id)
+		subcontrol, err = svc.getControl(catalogId, c.Id)
 		if err != nil {
 			return
 		}
@@ -684,7 +761,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 
 	// Get controls for given catalog
 	controls, err = api.ListAllPaginated(context.Background(), &orchestrator.ListControlsRequest{
-		CatalogId: catalogId,
+		Filter: &orchestrator.ListControlsRequest_Filter{CatalogId: &catalogId},
 	}, func(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
 		res, err := svc.orchestratorClient.ListControls(ctx, connect.NewRequest(req))
 		if err != nil {
@@ -702,36 +779,27 @@ func (svc *Service) cacheControls(catalogId string) error {
 		return fmt.Errorf("no controls for catalog '%s' available", catalogId)
 	}
 
-	// Store controls in map (flatten nested structure)
+	// Store controls in map
 	svc.catalogsMutex.Lock()
 	svc.catalogControls[catalogId] = make(map[string]*orchestrator.Control)
-	var flatten func(ctrl *orchestrator.Control)
-	flatten = func(ctrl *orchestrator.Control) {
-		tag = fmt.Sprintf("%s-%s", ctrl.GetCategoryName(), ctrl.GetId())
-		svc.catalogControls[catalogId][tag] = ctrl
-		for _, sub := range ctrl.Controls {
-			flatten(sub)
-		}
-	}
 	for _, control := range controls {
-		flatten(control)
+		tag = control.GetId()
+		svc.catalogControls[catalogId][tag] = control
 	}
 	svc.catalogsMutex.Unlock()
 
 	return nil
 }
 
-// getControl returns the control for the given catalogID, CategoryName and controlID.
-func (svc *Service) getControl(catalogId, categoryName, controlId string) (control *orchestrator.Control, err error) {
+// getControl returns the control for the given catalogID and controlID.
+func (svc *Service) getControl(catalogId, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
 		return nil, errors.New("catalog id is missing")
-	} else if categoryName == "" {
-		return nil, errors.New("category name is missing")
 	} else if controlId == "" {
 		return nil, errors.New("control id is missing")
 	}
 
-	tag := fmt.Sprintf("%s-%s", categoryName, controlId)
+	tag := controlId
 
 	control, ok := svc.catalogControls[catalogId][tag]
 	if !ok {
@@ -782,7 +850,7 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 	var metricIds []string
 
 	for m := range slices.Values(metrics) {
-		metricIds = append(metricIds, m.GetName())
+		metricIds = append(metricIds, m.GetId())
 	}
 
 	return metricIds

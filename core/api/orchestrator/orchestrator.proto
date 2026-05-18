@@ -20,6 +20,7 @@ import "api/assessment/result.proto";
 import "api/evaluation/evaluation.proto";
 import "api/common/runtime.proto";
 import "api/orchestrator/user.proto";
+import "api/orchestrator/workflow.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -84,7 +85,7 @@ service Orchestrator {
   // Store the evaluation result provided by the evaluation component.″
   rpc StoreEvaluationResult(StoreEvaluationResultRequest) returns (confirmate.evaluation.v1.EvaluationResult) {
     option (google.api.http) = {
-      post: "/v1/evaluation/results"
+      post: "/v1/orchestrator/evaluation_results"
       body: "result"
     };
   }
@@ -99,7 +100,7 @@ service Orchestrator {
   // restricted by various filtering options. Part of the public API, also
   // exposed as REST.
   rpc ListEvaluationResults(ListEvaluationResultsRequest) returns (ListEvaluationResultsResponse) {
-    option (google.api.http) = {get: "/v1/evaluation/results"};
+    option (google.api.http) = {get: "/v1/orchestrator/evaluation_results"};
   }
 
   // Creates a new metric
@@ -298,19 +299,14 @@ service Orchestrator {
   // catalog ID and a category name is specified, then only controls containing
   // in this category are returned.
   rpc ListControls(ListControlsRequest) returns (ListControlsResponse) {
-    option (google.api.http) = {
-      get: "/v1/orchestrator/controls"
-      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/controls"}
-      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls"}
-    };
+    option (google.api.http) = {get: "/v1/orchestrator/controls"};
   }
 
-  // Retrieves a control specified by the catalog ID, the control's category
-  // name and the control ID. If present, it also includes a list of
-  // sub-controls if present or a list of metrics if no sub-controls but metrics
-  // are present.
+  // Retrieves a control by its unique control ID.
+  // If present, it also includes a list of sub-controls if present or a list of
+  // metrics if no sub-controls but metrics are present.
   rpc GetControl(GetControlRequest) returns (Control) {
-    option (google.api.http) = {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls/{control_id}"};
+    option (google.api.http) = {get: "/v1/orchestrator/controls/{control_id}"};
   }
 
   // Creates a new Audit Scope
@@ -352,10 +348,18 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
   }
 
-  // Upsert resource permissions for the currently authenticated user, creating a new user entry if necessary.
+  // Upserts a specific user permission identified by user and resource.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      post: "/v1/users/user_permission"
+      put: "/v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}"
+      body: "user_permission"
+    };
+  }
+
+  // Removes a specific user permission.
+  rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/users/user_permission"
       body: "user_permission"
     };
   }
@@ -388,6 +392,53 @@ service Orchestrator {
   // Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
   rpc RemoveUser(RemoveUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/users/{user_id}"};
+  }
+
+  // Manually brings a control into scope within an audit scope, creating a ControlInScope record.
+  // Note: controls are also brought in scope automatically when an audit scope is created.
+  rpc ScopeControl(ScopeControlRequest) returns (ControlInScope) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/controls_in_scope"
+      body: "control_in_scope"
+    };
+  }
+
+  // Retrieves a ControlInScope record by ID.
+  rpc GetControlInScope(GetControlInScopeRequest) returns (ControlInScope) {
+    option (google.api.http) = {get: "/v1/orchestrator/controls_in_scope/{id}"};
+  }
+
+  // Lists controls in scope with optional filtering by audit scope, state, or assignee.
+  rpc ListControlsInScope(ListControlsInScopeRequest) returns (ListControlsInScopeResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/controls_in_scope"};
+  }
+
+  // Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
+  // use TransitionControlInScopeState to change the implementation state.
+  rpc UpdateControlInScope(UpdateControlInScopeRequest) returns (ControlInScope) {
+    option (google.api.http) = {
+      put: "/v1/orchestrator/controls_in_scope/{id}"
+      body: "*"
+    };
+  }
+
+  // Transitions a ControlInScope to a new implementation state, enforcing the state machine and
+  // recording the change as an AuditTrailEvent.
+  rpc TransitionControlInScopeState(TransitionControlInScopeStateRequest) returns (ControlInScope) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/controls_in_scope/{id}/transition"
+      body: "*"
+    };
+  }
+
+  // Removes a control from scope and records an AuditTrailEvent.
+  rpc UnscopeControl(UnscopeControlRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/orchestrator/controls_in_scope/{id}"};
+  }
+
+  // Lists audit trail events, optionally filtered by audit scope.
+  rpc ListAuditTrailEvents(ListAuditTrailEventsRequest) returns (ListAuditTrailEventsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/audit_trail_events"};
   }
 }
 
@@ -676,6 +727,7 @@ enum EventCategory {
   EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
   EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
   EVENT_CATEGORY_USER = 8;
+  EVENT_CATEGORY_CONTROL_IN_SCOPE = 9;
 }
 
 message SubscribeRequest {
@@ -751,7 +803,8 @@ message ChangeEvent {
     confirmate.assessment.v1.MetricConfiguration  metric_configuration  = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
     AssessmentTool assessment_tool = 16;
-    User user = 17;
+    User           user            = 17;
+    ControlInScope control_in_scope = 18;
   }
 }
 
@@ -933,8 +986,10 @@ message Category {
 
   repeated Control controls = 4 [
     (tagger.tags) =
-    "gorm:\"foreignKey:category_name,category_"
-    "catalog_id;references:name,catalog_id;constraint:OnDelete:CASCADE\"",
+    "gorm:\"many2many:category_controls;"
+    "joinForeignKey:category_name,category_catalog_id;"
+    "joinReferences:control_id;"
+    "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -945,29 +1000,17 @@ message Category {
 // requirement in the EUCS terminology, e.g., is represented as the lowest
 // sub-control.
 message Control {
-  // A short name of the control, e.g. OPS-01, as used in OSCAL; it is not a
-  // unique ID!
+  // Globally unique ID of the control.
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string category_name = 2 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_catalog_id = 3 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  reserved 2;
+  reserved 3;
 
-  // Human-readable name of the control
-  string name = 4 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // Human-readable name of the control.
+  string name = 4;
 
   // Description of the control
   string description = 5;
@@ -976,9 +1019,8 @@ message Control {
   //     this is in accordance with the OSCAL model.
   repeated Control controls = 6 [
     (tagger.tags) =
-    "gorm:\"foreignKey:parent_control_id,parent_control_"
-    "category_name,parent_control_category_catalog_id;"
-    "references=id,category_name,category_catalog_id;"
+    "gorm:\"foreignKey:parent_control_id;"
+    "references:id;"
     "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
@@ -993,14 +1035,38 @@ message Control {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Reference to the parent category this control belongs to.
-  optional string parent_control_id                  = 8 [(buf.validate.field).string.min_len = 1];
-  optional string parent_control_category_name       = 9 [(buf.validate.field).string.min_len = 1];
-  optional string parent_control_category_catalog_id = 10 [(buf.validate.field).string.min_len = 1];
+  // Unique ID of the parent control, if this is a sub-control.
+  optional string parent_control_id = 8 [(buf.validate.field).string.uuid = true];
+
+  reserved 9;
+  reserved 10;
 
   // An assurance level is not offered by every catalog, therefore it is
   // optional.
   optional string assurance_level = 11;
+
+  // Catalog-local control identifier (e.g. OPS-01).
+  string short_name = 12;
+
+  // FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
+  repeated ControlInScope controls_in_scope = 13 [
+    (tagger.tags) = "gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\""
+  ];
+}
+
+// AuditScopeStatus represents the lifecycle status of an audit scope.
+enum AuditScopeStatus {
+  AUDIT_SCOPE_STATUS_UNSPECIFIED               = 0;
+  // Setup is the initial status when an audit scope is first created.
+  AUDIT_SCOPE_STATUS_SETUP                     = 1;
+  // InternalReview indicates the audit scope is under internal review.
+  AUDIT_SCOPE_STATUS_INTERNAL_REVIEW           = 2;
+  // AuditorReview indicates the audit scope is being reviewed by an auditor.
+  AUDIT_SCOPE_STATUS_AUDITOR_REVIEW            = 3;
+  // ContinuousComplianceManagement indicates the audit scope is in continuous compliance management.
+  AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT = 4;
+  // Fixed indicates the audit scope has been completed and fixed.
+  AUDIT_SCOPE_STATUS_FIXED                     = 5;
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -1039,6 +1105,23 @@ message AuditScope {
   // List of user IDs with administrative control over this target.
   // These users can manage permissions for others and perform destructive actions like deletion.
   repeated User admins = 8 [(tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""];
+
+  // Status represents the current lifecycle status of the audit scope.
+  AuditScopeStatus status = 9 [
+    (buf.validate.field).enum = {defined_only: true, not_in: [0]},
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // FK-constraint-only back-references: not populated in API responses (queries use WithoutPreload).
+  // GORM requires a relationship field on the parent to declare the FK and cascade behaviour on
+  // AutoMigrate; workflow.proto cannot import orchestrator.proto (circular), so the declarations
+  // must live here.
+  repeated ControlInScope controls_in_scope = 10 [
+    (tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""
+  ];
+  repeated AuditTrailEvent audit_trail_events = 11 [
+    (tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""
+  ];
 }
 
 message GetAssessmentResultRequest {
@@ -1215,14 +1298,6 @@ message GetCategoryRequest {
 }
 
 message GetControlRequest {
-  string catalog_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_name = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
   string control_id = 3 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
@@ -1230,13 +1305,13 @@ message GetControlRequest {
 }
 
 message ListControlsRequest {
-  // return either all controls or only the controls of the specified category
-  string catalog_id    = 1;
-  string category_name = 2;
-
   message Filter {
+    // Optional. Lists only controls with the specified catalog.
+    optional string catalog_id    = 1;
+    // Optional. Lists only controls with the specified category.
+    optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
-    repeated string assurance_levels = 1 [(buf.validate.field).repeated.items.string.min_len = 1];
+    repeated string assurance_levels = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
   }
   optional Filter filter = 3;
 
@@ -1309,6 +1384,13 @@ message UpsertUserPermissionRequest {
 
 message UpsertUserPermissionResponse {
   UserPermission user_permission = 1;
+}
+
+message RemoveUserPermissionRequest {
+  UserPermission user_permission = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message GetCurrentUserRequest {

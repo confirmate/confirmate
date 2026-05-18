@@ -5,6 +5,7 @@ plugins:
     opt:
       - paths=source_relative
       - Mapi/orchestrator/orchestrator.proto
+      - Mapi/orchestrator/workflow.proto
       - Mapi/assessment/metric.proto
       - Mapi/assessment/assessment.proto
       - Mapi/evaluation/evaluation.proto

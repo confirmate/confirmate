@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -52,6 +53,7 @@ func (svc *Service) CreateAuditScope(
 		Readers:              req.Msg.GetAuditScope().GetReaders(),
 		Contributors:         req.Msg.GetAuditScope().GetContributors(),
 		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+		Status:               req.Msg.GetAuditScope().GetStatus(),
 	}
 
 	// Check access via the configured auth strategy
@@ -63,8 +65,23 @@ func (svc *Service) CreateAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the new audit scope in the database
-	err = svc.db.Create(scope)
+	// Persist the new audit scope in the database, grant creator admin access, and auto-create
+	// ControlInScope records for all controls in the catalog matching the assurance level.
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		if err = tx.Create(scope); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+
+		if err = grantCreatorAdminPermission(ctx, tx, scope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE); err != nil {
+			return err
+		}
+
+		if err = autoCreateControlsInScope(ctx, tx, scope); err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -108,7 +125,7 @@ func (svc *Service) GetAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	err = svc.db.Get(&scope, persistence.WithoutPreload(), "id = ?", req.Msg.AuditScopeId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
@@ -167,7 +184,8 @@ func (svc *Service) ListAuditScopes(
 	}
 
 	// Query the database with pagination and the constructed conditions
-	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts,
+		append([]any{persistence.WithoutPreload()}, conds...)...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -203,6 +221,7 @@ func (svc *Service) UpdateAuditScope(
 		Readers:              req.Msg.GetAuditScope().GetReaders(),
 		Contributors:         req.Msg.GetAuditScope().GetContributors(),
 		Admins:               req.Msg.GetAuditScope().GetAdmins(),
+		Status:               req.Msg.GetAuditScope().GetStatus(),
 	}
 
 	// Check access via the configured auth strategy
@@ -259,7 +278,7 @@ func (svc *Service) RemoveAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	err = svc.db.Get(&scope, persistence.WithoutPreload(), "id = ?", req.Msg.AuditScopeId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
@@ -280,4 +299,61 @@ func (svc *Service) RemoveAuditScope(
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
+}
+
+// autoCreateControlsInScope loads all controls for the catalog associated with scope and creates
+// a ControlInScope record for each matching control. A control matches if the scope has no
+// assurance level, the control has no assurance level, or both levels match exactly.
+func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *orchestrator.AuditScope) error {
+	var controls []*orchestrator.Control
+
+	// Controls belong to categories which belong to catalogs. Join through category_controls to
+	// find all controls for the catalog. We do not use DISTINCT here because some SQL drivers used
+	// in tests do not support DISTINCT on wildcard column expansion; deduplication happens in Go.
+	if err := tx.Raw(&controls,
+		`SELECT controls.* FROM controls
+		 JOIN category_controls ON category_controls.control_id = controls.id
+		 WHERE category_controls.category_catalog_id = ?
+		 ORDER BY controls.short_name`,
+		scope.CatalogId); err != nil {
+		return service.HandleDatabaseError(err)
+	}
+
+	now := timestamppb.Now()
+	seen := make(map[string]bool, len(controls))
+	for _, ctrl := range controls {
+		if seen[ctrl.Id] {
+			continue
+		}
+		seen[ctrl.Id] = true
+		// Skip only when both levels are explicitly set and differ. Controls without an
+		// assurance level are included in every scope regardless of the scope's level.
+		if scope.AssuranceLevel != nil && ctrl.AssuranceLevel != nil &&
+			*scope.AssuranceLevel != *ctrl.AssuranceLevel {
+			continue
+		}
+		cis := &orchestrator.ControlInScope{
+			Id:                   uuid.NewString(),
+			AuditScopeId:         scope.Id,
+			TargetOfEvaluationId: scope.TargetOfEvaluationId,
+			ControlId:            ctrl.Id,
+			State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+			CreatedAt:            now,
+			UpdatedAt:            now,
+		}
+		if err := tx.Create(cis); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+		if err := createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
+			&orchestrator.ControlScopingEvent{
+				ControlInScopeId: cis.Id,
+				ControlId:        cis.ControlId,
+				AuditScopeId:     cis.AuditScopeId,
+				InScope:          true,
+			}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

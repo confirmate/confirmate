@@ -11,6 +11,7 @@ from .evidence_store import (
     EvidenceStoreConfig,
     EvidenceStoreError,
     build_test_evidence_payload,
+    load_prebuilt_evidence_payloads,
 )
 from .llm import LLMClient
 from .pipeline import (
@@ -20,6 +21,18 @@ from .pipeline import (
     EvidencePublisher,
 )
 from .requirements import get_requirement, list_requirements
+
+SUPPORTED_DOCUMENT_SUFFIXES = {
+    ".pdf",
+    ".txt",
+    ".md",
+    ".rst",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".csv",
+    ".log",
+}
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -75,9 +88,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Tool identifier override.",
     )
     parser.add_argument(
+        "--evidence-token",
+        dest="evidence_token",
+        help="Bearer token for evidence store auth (skips OAuth client credentials).",
+    )
+    parser.add_argument(
         "--test-evidence",
         action="store_true",
         help="Send a minimal test evidence to verify evidence store connectivity, then exit.",
+    )
+    parser.add_argument(
+        "--push-evidence-file",
+        dest="push_evidence_file",
+        help=(
+            "Send prebuilt evidence payload(s) from a JSON file (e.g. example-data/test_evidence.json), "
+            "then exit."
+        ),
     )
     parser.add_argument(
         "--test-requirement",
@@ -88,7 +114,53 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Run all predefined requirements instead of the general extractor.",
     )
+    parser.add_argument(
+        "--all-resource-types",
+        action="store_true",
+        help="Extract across all ontology-backed resource types instead of the default CRA-focused set.",
+    )
+    parser.add_argument(
+        "--ontology-proto-path",
+        dest="ontology_proto_path",
+        help=(
+            "Path to the ontology.proto file used for resource type profiles "
+            "(defaults to ONTOLOGY_PROTO_PATH env var or the bundled repo path)."
+        ),
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["requirements", "resources"],
+        default="requirements",
+        help="Analysis mode: CRA requirement checks or ontology-whitelist resource extraction.",
+    )
     return parser.parse_args(argv)
+
+
+def expand_input_paths(paths: list[str]) -> list[Path]:
+    """Expand file and directory inputs into concrete document paths."""
+    expanded: list[Path] = []
+
+    for raw_path in paths:
+        target = Path(raw_path)
+        if not target.exists():
+            raise FileNotFoundError(f"Document not found: {target}")
+
+        if target.is_dir():
+            directory_files = sorted(
+                path
+                for path in target.rglob("*")
+                if path.is_file() and path.suffix.lower() in SUPPORTED_DOCUMENT_SUFFIXES
+            )
+            if not directory_files:
+                raise FileNotFoundError(
+                    f"No supported documents found in directory: {target}"
+                )
+            expanded.extend(directory_files)
+            continue
+
+        expanded.append(target)
+
+    return expanded
 
 
 def build_config(args: argparse.Namespace) -> ModelConfig:
@@ -106,6 +178,8 @@ def build_evidence_config(args: argparse.Namespace) -> EvidenceStoreConfig:
     config = EvidenceStoreConfig.from_env()
     if args.evidence_url:
         config.base_url = args.evidence_url
+    if args.evidence_token:
+        config.bearer_token = args.evidence_token
     if args.evidence_auth:
         if ":" not in args.evidence_auth:
             raise ConfigError("Evidence auth must be in client_id:client_secret format.")
@@ -121,14 +195,13 @@ def build_evidence_config(args: argparse.Namespace) -> EvidenceStoreConfig:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
-    if not args.test_evidence and not args.files:
-        sys.stderr.write("No files provided. Specify one or more files, or use --test-evidence.\n")
+    if args.ontology_proto_path:
+        os.environ["ONTOLOGY_PROTO_PATH"] = args.ontology_proto_path
+    if not args.test_evidence and not args.push_evidence_file and not args.files:
+        sys.stderr.write(
+            "No files provided. Specify one or more files, or use --test-evidence or --push-evidence-file.\n"
+        )
         return 2
-    try:
-        config = build_config(args)
-    except ConfigError as exc:
-        sys.stderr.write(f"Configuration error: {exc}\n")
-        return 1
 
     # Optional connectivity test for evidence store
     if args.test_evidence:
@@ -147,13 +220,35 @@ def main(argv: list[str] | None = None) -> int:
             sys.stderr.write(f"Unexpected error during test evidence send: {exc}\n")
             return 1
 
-    doc_paths: list[Path] = []
-    for path in args.files:
-        target = Path(path)
-        if not target.exists():
-            sys.stderr.write(f"Document not found: {target}\n")
+    # Optional mode to push prebuilt evidence payloads from JSON, then exit.
+    if args.push_evidence_file:
+        try:
+            evidence_config = build_evidence_config(args)
+            payloads = load_prebuilt_evidence_payloads(args.push_evidence_file)
+            with EvidenceStoreClient(evidence_config) as client:
+                client.send_batch(payloads)
+            sys.stderr.write(
+                f"Pushed {len(payloads)} prebuilt evidence item(s) from {args.push_evidence_file}.\n"
+            )
+            return 0
+        except EvidenceStoreError as exc:
+            sys.stderr.write(f"Evidence store error during prebuilt evidence push: {exc}\n")
             return 1
-        doc_paths.append(target)
+        except Exception as exc:  # pragma: no cover - defensive
+            sys.stderr.write(f"Unexpected error during prebuilt evidence push: {exc}\n")
+            return 1
+
+    try:
+        config = build_config(args)
+    except ConfigError as exc:
+        sys.stderr.write(f"Configuration error: {exc}\n")
+        return 1
+
+    try:
+        doc_paths = expand_input_paths(args.files)
+    except FileNotFoundError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 1
 
     loader = DocumentLoader()
     extractor = EvidenceExtractor(llm=LLMClient(config))
@@ -163,7 +258,12 @@ def main(argv: list[str] | None = None) -> int:
     if push_enabled:
         publisher = EvidencePublisher(build_evidence_config(args))
     pipeline = DocumentAnalysisPipeline(loader, extractor, publisher)
-    if args.test_requirement:
+    if args.mode == "resources":
+        if args.test_requirement:
+            sys.stderr.write("--test-requirement can only be used with --mode requirements.\n")
+            return 2
+        requirements = None
+    elif args.test_requirement:
         requirement = get_requirement(args.test_requirement)
         if not requirement:
             sys.stderr.write(f"Unknown requirement ID: {args.test_requirement}\n")
@@ -179,6 +279,8 @@ def main(argv: list[str] | None = None) -> int:
             focus=args.focus,
             max_items=args.max_items,
             requirements=requirements,
+            mode=args.mode,
+            include_all_resource_types=args.all_resource_types,
             push=push_enabled,
         )
         print(result.to_json())

@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package orchestrator
 
 import (
@@ -15,7 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertCurrentUserPermission allows the authenticated user to update their own permissions for a specific resource.
+// UpsertUserPermission creates or updates a specific permission entry for a user and resource.
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
@@ -46,6 +61,45 @@ func (svc *Service) UpsertUserPermission(
 	res = connect.NewResponse(&orchestrator.UpsertUserPermissionResponse{
 		UserPermission: req.Msg.UserPermission,
 	})
+	return
+}
+
+// RemoveUserPermission removes a specific permission entry for a user and resource.
+func (svc *Service) RemoveUserPermission(
+	ctx context.Context,
+	req *connect.Request[orchestrator.RemoveUserPermissionRequest],
+) (res *connect.Response[emptypb.Empty], err error) {
+	var (
+		permission orchestrator.UserPermission
+		allowed    bool
+	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Only admins may revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	err = svc.db.Delete(
+		&permission,
+		"user_id = ? AND resource_id = ? AND resource_type = ?",
+		req.Msg.GetUserPermission().GetUserId(),
+		req.Msg.GetUserPermission().GetResourceId(),
+		req.Msg.GetUserPermission().GetResourceType(),
+	)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&emptypb.Empty{})
 	return
 }
 
@@ -81,22 +135,12 @@ func (svc *Service) GetUser(
 	req *connect.Request[orchestrator.GetUserRequest],
 ) (res *connect.Response[orchestrator.User], err error) {
 	var (
-		user    orchestrator.User
-		allowed bool
+		user orchestrator.User
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
-	}
-
-	// Only admins may get users.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.UserId, orchestrator.ObjectType_OBJECT_TYPE_USER)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("%w: %w", service.ErrDatabaseError, err))
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	err = svc.db.Get(&user, "id = ?", req.Msg.UserId)
@@ -114,10 +158,9 @@ func (svc *Service) ListUsers(
 	req *connect.Request[orchestrator.ListUsersRequest],
 ) (res *connect.Response[orchestrator.ListUsersResponse], err error) {
 	var (
-		users   []*orchestrator.User
-		conds   []any
-		npt     string
-		allowed bool
+		users []*orchestrator.User
+		conds []any
+		npt   string
 	)
 
 	// Validate request
@@ -126,19 +169,15 @@ func (svc *Service) ListUsers(
 		return nil, err
 	}
 
+	// JIT-provision the caller without enforcing authorization.
+	if _, err = provisionCurrentUser(ctx, svc); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "id"
 		req.Msg.Asc = true
-	}
-
-	// Only admins may list users.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	users, npt, err = service.PaginateStorage[*orchestrator.User](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -184,6 +223,11 @@ func (svc *Service) ListUserPermissions(
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "user_id"
 		req.Msg.Asc = true
+	}
+
+	// Filter by user_id if provided
+	if userId := req.Msg.GetUserId(); userId != "" {
+		conds = []any{"user_id = ?", userId}
 	}
 
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -256,170 +300,130 @@ func (svc *Service) RemoveUser(
 	return
 }
 
+// provisionCurrentUser extracts JWT claims from ctx and JIT-provisions the user in the database,
+// returning the user ID. Returns an empty string when no claims are present.
+func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
+	var (
+		claims *auth.OAuthClaims
+		user   *orchestrator.User
+		userId string
+		ok     bool
+		err    error
+	)
+
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok || claims == nil || claims.Issuer == "" || claims.Subject == "" {
+		return "", nil
+	}
+
+	if svc == nil {
+		return "", fmt.Errorf("service is nil")
+	}
+	if svc.db == nil {
+		return "", fmt.Errorf("database is not initialized")
+	}
+
+	// JIT-provision the user using a read-then-update approach to avoid overwriting existing
+	// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
+	// by the OIDC specification, ensuring uniqueness across identity providers.
+	userId = claims.Issuer + "|" + claims.Subject
+	user = &orchestrator.User{}
+	err = svc.db.Get(user, "id = ?", userId)
+
+	if errors.Is(err, persistence.ErrRecordNotFound) {
+		// User not found: create them with all identity fields.
+		user = &orchestrator.User{
+			Id:         userId,
+			Username:   new(claims.PreferredUsername),
+			FirstName:  new(claims.GivenName),
+			LastName:   new(claims.FamilyName),
+			Enabled:    true,
+			Email:      new(claims.Email),
+			LastAccess: timestamppb.Now(),
+		}
+		err = svc.db.Create(user)
+		if err != nil {
+			return "", fmt.Errorf("failed to create user: %w", err)
+		}
+	} else if err != nil {
+		return "", fmt.Errorf("failed to look up user: %w", err)
+	} else {
+		// User exists: update only identity fields and last_access to preserve other persisted
+		// fields such as enabled status.
+		user.Username = new(claims.PreferredUsername)
+		user.FirstName = new(claims.GivenName)
+		user.LastName = new(claims.FamilyName)
+		user.Email = new(claims.Email)
+		user.LastAccess = timestamppb.Now()
+		err = svc.db.Save(user)
+		if err != nil {
+			return "", fmt.Errorf("failed to update user: %w", err)
+		}
+	}
+
+	return userId, nil
+}
+
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
 func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceId string, objectType orchestrator.ObjectType) (bool, []string, error) {
 	var (
-		user   *orchestrator.User
-		claims *auth.OAuthClaims
-		ok     bool
-		err    error
-		userId string
+		userId      string
+		err         error
+		allowed     bool
+		resourceIDs []string
 	)
 
 	// If JWT claims are present, provision the user in the DB (JIT provisioning) and use their ID.
 	// If no claims are present, use an empty user ID — strategies like AuthorizationStrategyAllowAll
 	// don't require a user ID, while AuthorizationStrategyPermissionStore will deny empty IDs.
-	claims, ok = auth.ClaimsFromContext(ctx)
-	if ok && claims != nil && claims.Issuer != "" && claims.Subject != "" {
-		if svc == nil {
-			return false, nil, fmt.Errorf("service is nil")
-		}
-
-		if svc.db == nil {
-			return false, nil, fmt.Errorf("database is not initialized")
-		}
-
-		// JIT-provision the user using a read-then-update approach to avoid overwriting existing
-		// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
-		// by the OIDC specification, ensuring uniqueness across identity providers.
-		userId = claims.Issuer + "|" + claims.Subject
-		user = &orchestrator.User{}
-		err = svc.db.Get(user, "id = ?", userId)
-
-		if errors.Is(err, persistence.ErrRecordNotFound) {
-			// User not found: create them with all identity fields.
-			user = &orchestrator.User{
-				Id:         userId,
-				Username:   new(claims.PreferredUsername),
-				FirstName:  new(claims.GivenName),
-				LastName:   new(claims.FamilyName),
-				Enabled:    true,
-				Email:      new(claims.Email),
-				LastAccess: timestamppb.Now(),
-			}
-			err = svc.db.Create(user)
-			if err != nil {
-				return false, nil, fmt.Errorf("failed to create user: %w", err)
-			}
-		} else if err != nil {
-			return false, nil, fmt.Errorf("failed to look up user: %w", err)
-		} else {
-			// User exists: update only identity fields and last_access to preserve other persisted
-			// fields such as enabled status.
-			user.Username = new(claims.PreferredUsername)
-			user.FirstName = new(claims.GivenName)
-			user.LastName = new(claims.FamilyName)
-			user.Email = new(claims.Email)
-			user.LastAccess = timestamppb.Now()
-			err = svc.db.Save(user)
-			if err != nil {
-				return false, nil, fmt.Errorf("failed to update user: %w", err)
-			}
-		}
+	userId, err = provisionCurrentUser(ctx, svc)
+	if err != nil {
+		return false, nil, err
 	}
 
-	allowed, resourceIDs := authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
+	allowed, resourceIDs = authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
 
 	return allowed, resourceIDs, nil
 }
 
-type permissionStore struct {
-	db persistence.DB
-}
-
-// HasPermission checks if the given user has the specified permission for the resource.
-func (ps permissionStore) HasPermission(ctx context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
+// grantCreatorAdminPermission persists an ADMIN [orchestrator.UserPermission] for the user who is
+// making the current request (derived from JWT claims in ctx). It is called after a new resource
+// has been created so that the creator immediately has full administrative access to that resource
+// without requiring a separate permission update call.
+//
+// If no authenticated user can be determined from ctx (e.g. the context carries no claims, or the
+// claims lack issuer/subject), the function is a no-op and returns nil. This preserves the
+// existing allow-all behavior when authentication is disabled.
+func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourceId string, objectType orchestrator.ObjectType) (err error) {
 	var (
-		count          int64
-		err            error
-		userPermission orchestrator.UserPermission
+		claims *auth.OAuthClaims
+		ok     bool
+		userId string
 	)
 
-	// Check if the user has the required permission for the resource by querying the database for matching user permissions.
-	// If a lower permission is requested, also accept higher permissions (ADMIN > CONTRIBUTOR > READER).
-	allowed := []orchestrator.UserPermission_Permission{permission}
-	switch permission {
-	case orchestrator.UserPermission_PERMISSION_READER:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_READER,
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_CONTRIBUTOR:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_ADMIN:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
+	if db == nil {
+		return fmt.Errorf("database is not initialized")
 	}
 
-	count, err = ps.db.Count(
-		&userPermission,
-		"user_id = ? AND resource_type = ? AND resource_id = ? AND permission IN (?)",
-		userId, objectType, resourceId, allowed,
-	)
-	if err != nil {
-		return false, fmt.Errorf("failed to check permissions: %w", err)
+	claims, ok = auth.ClaimsFromContext(ctx)
+	if !ok {
+		return nil
 	}
 
-	return count > 0, nil
-}
-
-// PermissionForResource returns a list of resource IDs for which the given user has at least the specified permission.
-func (ps permissionStore) PermissionForResources(ctx context.Context, userID string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
-	var (
-		conds           []any
-		userPermissions []orchestrator.UserPermission
-		err             error
-	)
-
-	// Define a list of allowed permissions based on the requested permission.
-	// If a lower permission is requested, also accept higher permissions (ADMIN > CONTRIBUTOR > READER).
-	allowed := []orchestrator.UserPermission_Permission{permission}
-	switch permission {
-	case orchestrator.UserPermission_PERMISSION_READER:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_READER,
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_CONTRIBUTOR:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
-	case orchestrator.UserPermission_PERMISSION_ADMIN:
-		allowed = []orchestrator.UserPermission_Permission{
-			orchestrator.UserPermission_PERMISSION_ADMIN,
-		}
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
+	if userId == "" {
+		return nil
 	}
 
-	// Get all permissions for the user and object type that match the allowed permissions, then extract the resource IDs from those permissions.
-	conds = []any{
-		"user_id = ? AND resource_type = ? AND permission IN (?)",
-		userID,
-		objectType,
-		allowed,
-	}
-	err = ps.db.List(
-		&userPermissions,
-		"resource_id",
-		true,
-		0,
-		-1,
-		conds...,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
+	err = db.Create(&orchestrator.UserPermission{
+		UserId:       userId,
+		ResourceId:   resourceId,
+		ResourceType: objectType,
+		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+	})
+	if err = service.HandleDatabaseError(err); err != nil {
+		return err
 	}
 
-	resourceIDs := make([]string, len(userPermissions))
-	for i := range userPermissions {
-		resourceIDs[i] = userPermissions[i].ResourceId
-	}
-
-	return resourceIDs, nil
+	return nil
 }

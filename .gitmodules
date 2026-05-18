@@ -1,6 +1,6 @@
 [submodule "core/policies/security-metrics"]
 	path = core/policies/security-metrics
-	url = git@github.com:Cybersecurity-Certification-Hub/security-metrics.git
+	url = https://github.com/Cybersecurity-Certification-Hub/security-metrics.git
 [submodule "collectors/code-analysis"]
 	path = collectors/code-analysis
 	url = https://github.com/confirmate/code-analysis.git

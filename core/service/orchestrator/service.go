@@ -148,8 +148,8 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	// If using permission store-based authorization, set up the permission store for fine-grained
 	// permission checks
 	if permStrat, ok := svc.authz.(*service.AuthorizationStrategyPermissionStore); ok {
-		permStrat.Permissions = permissionStore{
-			db: svc.db,
+		permStrat.Permissions = service.DBPermissionStore{
+			DB: svc.db,
 		}
 	}
 

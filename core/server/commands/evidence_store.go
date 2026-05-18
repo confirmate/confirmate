@@ -16,8 +16,8 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
-
 	"time"
 
 	"confirmate.io/core/api/evidence/evidenceconnect"
@@ -28,6 +28,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 // evidenceFlags contains the flags that are specific to configuring the evidence store service.
@@ -51,6 +52,12 @@ var EvidenceCommand = &cli.Command{
 	Name:  "evidence",
 	Usage: "Launches the evidence store service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
+		var (
+			interceptors []connect.Interceptor
+			svcOptions   []service.Option[evidence.Service]
+			cfg          evidence.Config
+		)
+
 		slog.Info("Starting Evidence Store",
 			slog.Uint64("api_port", uint64(cmd.Uint16("api-port"))),
 			slog.String("log_level", cmd.String("log-level")),
@@ -71,23 +78,47 @@ var EvidenceCommand = &cli.Command{
 		assessmentClient := service.NewHTTPClient()
 		assessmentClient.Timeout = cmd.Duration("evidence-assessment-http-timeout")
 
-		svc, err := evidence.NewService(
-			evidence.WithConfig(evidence.Config{
-				AssessmentAddress:    cmd.String("evidence-assessment-address"),
-				AssessmentHTTPClient: assessmentClient,
-				PersistenceConfig: persistence.Config{
-					Host:       cmd.String("db-host"),
-					Port:       cmd.Int("db-port"),
-					DBName:     cmd.String("db-name"),
-					User:       cmd.String("db-user-name"),
-					Password:   cmd.String("db-password"),
-					SSLMode:    cmd.String("db-ssl-mode"),
-					InMemoryDB: cmd.Bool("db-in-memory"),
-					MaxConn:    cmd.Int("db-max-connections"),
-				},
-				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
-			}),
-		)
+		cfg = evidence.Config{
+			AssessmentAddress:    cmd.String("evidence-assessment-address"),
+			AssessmentHTTPClient: assessmentClient,
+			EvidenceQueueSize:    evidence.DefaultConfig.EvidenceQueueSize,
+		}
+
+		// Add auth config
+		if cmd.Bool("auth-enabled") {
+			jwksURL := cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+
+			svcOptions = append(svcOptions, evidence.WithAuthorizationStrategyPermissionStore())
+
+			cfg.ServiceOAuth2Config = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			}
+		}
+
+		// Add persistence config
+		cfg.PersistenceConfig = persistence.Config{
+			Host:       cmd.String("db-host"),
+			Port:       cmd.Int("db-port"),
+			DBName:     cmd.String("db-name"),
+			User:       cmd.String("db-user-name"),
+			Password:   cmd.String("db-password"),
+			SSLMode:    cmd.String("db-ssl-mode"),
+			InMemoryDB: cmd.Bool("db-in-memory"),
+			MaxConn:    cmd.Int("db-max-connections"),
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+		svcOptions = append(svcOptions, evidence.WithConfig(cfg))
+
+		svc, err := evidence.NewService(svcOptions...)
 		if err != nil {
 			return err
 		}
@@ -105,7 +136,7 @@ var EvidenceCommand = &cli.Command{
 			}),
 			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
 			server.WithHandler(evidenceconnect.NewResourcesHandler(
 				svc,

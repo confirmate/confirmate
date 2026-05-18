@@ -124,6 +124,7 @@ const (
 	ObjectType_OBJECT_TYPE_CONTROL               ObjectType = 13
 	ObjectType_OBJECT_TYPE_EVALUATION_RESULT     ObjectType = 14
 	ObjectType_OBJECT_TYPE_EVIDENCE              ObjectType = 15
+	ObjectType_OBJECT_TYPE_CONTROL_IN_SCOPE      ObjectType = 16
 )
 
 // Enum value maps for ObjectType.
@@ -145,6 +146,7 @@ var (
 		13: "OBJECT_TYPE_CONTROL",
 		14: "OBJECT_TYPE_EVALUATION_RESULT",
 		15: "OBJECT_TYPE_EVIDENCE",
+		16: "OBJECT_TYPE_CONTROL_IN_SCOPE",
 	}
 	ObjectType_value = map[string]int32{
 		"OBJECT_TYPE_UNSPECIFIED":           0,
@@ -163,6 +165,7 @@ var (
 		"OBJECT_TYPE_CONTROL":               13,
 		"OBJECT_TYPE_EVALUATION_RESULT":     14,
 		"OBJECT_TYPE_EVIDENCE":              15,
+		"OBJECT_TYPE_CONTROL_IN_SCOPE":      16,
 	}
 )
 
@@ -488,7 +491,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
 	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
 	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\xf2\x03\n" +
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\x94\x04\n" +
 	"\n" +
 	"ObjectType\x12\x1b\n" +
 	"\x17OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -507,7 +510,8 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x14OBJECT_TYPE_CATEGORY\x10\f\x12\x17\n" +
 	"\x13OBJECT_TYPE_CONTROL\x10\r\x12!\n" +
 	"\x1dOBJECT_TYPE_EVALUATION_RESULT\x10\x0e\x12\x18\n" +
-	"\x14OBJECT_TYPE_EVIDENCE\x10\x0fB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"\x14OBJECT_TYPE_EVIDENCE\x10\x0f\x12 \n" +
+	"\x1cOBJECT_TYPE_CONTROL_IN_SCOPE\x10\x10B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_user_proto_rawDescOnce sync.Once
