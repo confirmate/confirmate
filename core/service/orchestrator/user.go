@@ -192,7 +192,7 @@ func (svc *Service) ListUsers(
 	return
 }
 
-// ListUserPermissions lists all user permissions, optionally filtered by user ID and/or object ID.
+// ListUserPermissions lists all user permissions, optionally filtered by user ID, object ID and/or object type.
 func (svc *Service) ListUserPermissions(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserPermissionsRequest],
