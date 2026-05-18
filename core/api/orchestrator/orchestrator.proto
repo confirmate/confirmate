@@ -54,7 +54,7 @@ service Orchestrator {
   // Updates the assessment tool given by the passed id
   rpc UpdateAssessmentTool(UpdateAssessmentToolRequest) returns (AssessmentTool) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/assessment_tools/{tool.id}"
+      put : "/v1/orchestrator/assessment_tools/{tool.id}"
       body: "tool"
     };
   }
@@ -91,10 +91,9 @@ service Orchestrator {
   }
 
    // List all assessment results. Part of the public API, also exposed as REST.
-   rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
+  rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results"};
   }
-
 
   // List all evaluation results that the user can access. It can further be
   // restricted by various filtering options. Part of the public API, also
@@ -114,7 +113,7 @@ service Orchestrator {
   // Updates an existing metric
   rpc UpdateMetric(UpdateMetricRequest) returns (confirmate.assessment.v1.Metric) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/metrics/{metric.id}"
+      put : "/v1/orchestrator/metrics/{metric.id}"
       body: "metric"
     };
   }
@@ -145,7 +144,7 @@ service Orchestrator {
   // Registers a new target of evaluation
   rpc UpdateTargetOfEvaluation(UpdateTargetOfEvaluationRequest) returns (TargetOfEvaluation) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
+      put : "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
       body: "target_of_evaluation"
     };
   }
@@ -174,7 +173,7 @@ service Orchestrator {
   // target of evaluation and metric ID
   rpc UpdateMetricConfiguration(UpdateMetricConfigurationRequest) returns (confirmate.assessment.v1.MetricConfiguration) {
     option (google.api.http) = {
-      put: 
+      put : 
       "/v1/orchestrator/targets_of_evaluation/{configuration.target_of_evaluation_id}/"
       "metric_configurations/"
       "{configuration.metric_id}"
@@ -204,7 +203,7 @@ service Orchestrator {
   // Updates an existing metric implementation
   rpc UpdateMetricImplementation(UpdateMetricImplementationRequest) returns (confirmate.assessment.v1.MetricImplementation) {
     option (google.api.http) = {
-      put: 
+      put : 
       "/v1/orchestrator/metrics/{implementation.metric_id}/"
       "implementation"
       body: "implementation"
@@ -245,7 +244,7 @@ service Orchestrator {
   // Updates an existing certificate
   rpc UpdateCertificate(UpdateCertificateRequest) returns (Certificate) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/certificates/{certificate.id}"
+      put : "/v1/orchestrator/certificates/{certificate.id}"
       body: "certificate"
     };
   }
@@ -283,7 +282,7 @@ service Orchestrator {
   // Updates an existing certificate
   rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/catalogs/{catalog.id}"
+      put : "/v1/orchestrator/catalogs/{catalog.id}"
       body: "catalog"
     };
   }
@@ -330,7 +329,7 @@ service Orchestrator {
   // Updates an existing Audit Scope
   rpc UpdateAuditScope(UpdateAuditScopeRequest) returns (AuditScope) {
     option (google.api.http) = {
-      put: 
+      put : 
       "/v1/orchestrator/targets_of_evaluation/"
       "{audit_scope.target_of_evaluation_id}/audit_scopes/"
       "{audit_scope.catalog_id}"
@@ -351,7 +350,7 @@ service Orchestrator {
   // Upserts a specific user permission identified by object and user.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      put: "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}"
+      put : "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}"
       body: "user_permission"
     };
   }
@@ -381,7 +380,7 @@ service Orchestrator {
   // Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
   rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
     option (google.api.http) = {
-      get: "/v1/users/permissions"
+      get                : "/v1/users/permissions"
       additional_bindings: {get: "/v1/users/permissions/{object_type}/{object_id}"}
       additional_bindings: {get: "/v1/users/permissions/{object_type}/{object_id}/users/{user_id}"}
     };
@@ -419,7 +418,7 @@ service Orchestrator {
   // structural fields (audit scope, control reference, state) use their dedicated RPCs.
   rpc UpdateControlImplementation(UpdateControlImplementationRequest) returns (ControlImplementation) {
     option (google.api.http) = {
-      put: "/v1/orchestrator/control_implementations/{id}"
+      put : "/v1/orchestrator/control_implementations/{id}"
       body: "*"
     };
   }
@@ -506,7 +505,7 @@ message StoreAssessmentResultsResponse {
 
 message StoreEvaluationResultRequest {
   confirmate.evaluation.v1.EvaluationResult result = 1 [(buf.validate.field).required = true,
-  (google.api.field_behavior) = REQUIRED];
+    (google.api.field_behavior) = REQUIRED];
 }
 
 message ListEvaluationResultsRequest {
@@ -541,15 +540,15 @@ message ListEvaluationResultsRequest {
   // Optional. Latest results grouped by control_id.
   optional bool latest_by_control_id = 2;
 
-  int32 page_size = 10;
+  int32  page_size  = 10;
   string page_token = 11;
-  string order_by = 12;
-  bool asc = 13;
+  string order_by   = 12;
+  bool   asc        = 13;
 }
 
 message ListEvaluationResultsResponse {
-  repeated confirmate.evaluation.v1.EvaluationResult results = 1;
-  string next_page_token = 2;
+  repeated confirmate.evaluation.v1.EvaluationResult results         = 1;
+  string                                             next_page_token = 2;
 }
 
 message CreateMetricRequest {
@@ -719,11 +718,11 @@ enum EventCategory {
   EVENT_CATEGORY_METRIC                = 1;
   EVENT_CATEGORY_METRIC_CONFIGURATION  = 2;
   EVENT_CATEGORY_METRIC_IMPLEMENTATION = 3;
-  EVENT_CATEGORY_TARGET_OF_EVALUATION = 4;
-  EVENT_CATEGORY_AUDIT_SCOPE = 5;
-  EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
-  EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
-  EVENT_CATEGORY_USER = 8;
+  EVENT_CATEGORY_TARGET_OF_EVALUATION  = 4;
+  EVENT_CATEGORY_AUDIT_SCOPE           = 5;
+  EVENT_CATEGORY_ASSESSMENT_RESULT     = 6;
+  EVENT_CATEGORY_ASSESSMENT_TOOL       = 7;
+  EVENT_CATEGORY_USER                  = 8;
 }
 
 message SubscribeRequest {
@@ -798,8 +797,8 @@ message ChangeEvent {
     confirmate.assessment.v1.AssessmentResult     assessment_result     = 13;
     confirmate.assessment.v1.MetricConfiguration  metric_configuration  = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
-    AssessmentTool assessment_tool = 16;
-    User user = 17;
+    AssessmentTool                                assessment_tool       = 16;
+    User                                          user                  = 17;
   }
 }
 
@@ -1034,17 +1033,17 @@ message Control {
 
 // AuditScopeStatus represents the lifecycle status of an audit scope.
 enum AuditScopeStatus {
-  AUDIT_SCOPE_STATUS_UNSPECIFIED               = 0;
+  AUDIT_SCOPE_STATUS_UNSPECIFIED = 0;
   // Setup is the initial status when an audit scope is first created.
-  AUDIT_SCOPE_STATUS_SETUP                     = 1;
+  AUDIT_SCOPE_STATUS_SETUP = 1;
   // InternalReview indicates the audit scope is under internal review.
-  AUDIT_SCOPE_STATUS_INTERNAL_REVIEW           = 2;
+  AUDIT_SCOPE_STATUS_INTERNAL_REVIEW = 2;
   // AuditorReview indicates the audit scope is being reviewed by an auditor.
-  AUDIT_SCOPE_STATUS_AUDITOR_REVIEW            = 3;
+  AUDIT_SCOPE_STATUS_AUDITOR_REVIEW = 3;
   // ContinuousComplianceManagement indicates the audit scope is in continuous compliance management.
   AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT = 4;
   // Fixed indicates the audit scope has been completed and fixed.
-  AUDIT_SCOPE_STATUS_FIXED                     = 5;
+  AUDIT_SCOPE_STATUS_FIXED = 5;
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -1262,7 +1261,7 @@ message GetControlRequest {
 message ListControlsRequest {
   message Filter {
     // Optional. Lists only controls with the specified catalog.
-    optional string catalog_id    = 1;
+    optional string catalog_id = 1;
     // Optional. Lists only controls with the specified category.
     optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
@@ -1376,15 +1375,15 @@ message ListUsersRequest {
 
   optional Filter filter = 1;
 
-  int32 page_size = 10;
+  int32  page_size  = 10;
   string page_token = 11;
-  string order_by = 12;
-  bool asc = 13;
+  string order_by   = 12;
+  bool   asc        = 13;
 }
 
 message ListUsersResponse {
-  repeated User users = 1;
-  string next_page_token = 2;
+  repeated User users           = 1;
+  string        next_page_token = 2;
 }
 
 message ListUserPermissionsRequest {
@@ -1397,15 +1396,15 @@ message ListUserPermissionsRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. Filter by the type of the confirmate object.
+  // Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
   optional ObjectType object_type = 3 [
     (buf.validate.field).enum.defined_only = true
   ];
 
-  int32 page_size = 10;
+  int32  page_size  = 10;
   string page_token = 11;
-  string order_by = 12;
-  bool asc = 13;
+  string order_by   = 12;
+  bool   asc        = 13;
 }
 
 message ListUserPermissionsResponse {
@@ -1415,10 +1414,11 @@ message ListUserPermissionsResponse {
 }
 
 message ListUserRolesRequest {
-  int32 page_size = 10;
+  int32  page_size  = 10;
   string page_token = 11;
-  bool asc = 13;
+  bool   asc        = 13;
 }
+
 message ListUserRolesResponse {
   repeated Role roles = 1;
 }
