@@ -446,7 +446,7 @@ func TestService_ListUsers(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.Users)) &&
-					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
+					assert.Equal(t, orchestratortest.MockUser1, got.Msg.Users[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -487,7 +487,8 @@ func TestService_ListUsers(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.Users)) &&
-					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
+					assert.Equal(t, orchestratortest.MockUser1, got.Msg.Users[0])
+
 			},
 			wantErr: assert.NoError,
 		},
@@ -508,7 +509,8 @@ func TestService_ListUsers(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.Users)) &&
-					assert.Equal(t, "test-issuer|00000000-0000-0000-0000-000000000001", got.Msg.Users[0].Id)
+					assert.Equal(t, orchestratortest.MockUser1, got.Msg.Users[0])
+
 			},
 			wantErr: assert.NoError,
 		},
@@ -592,9 +594,16 @@ func TestService_ListUserPermissions(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				want := &orchestrator.UserPermission{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				}
+
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
-					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.UserPermissions[0].UserId)
+					assert.Equal(t, want, got.Msg.UserPermissions[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -616,9 +625,15 @@ func TestService_ListUserPermissions(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				want := &orchestrator.UserPermission{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				}
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
-					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.UserPermissions[0].UserId)
+					assert.Equal(t, want, got.Msg.UserPermissions[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -646,9 +661,16 @@ func TestService_ListUserPermissions(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				want := &orchestrator.UserPermission{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				}
+
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
-					assert.Equal(t, orchestratortest.MockUserId1, got.Msg.UserPermissions[0].UserId)
+					assert.Equal(t, want, got.Msg.UserPermissions[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -676,9 +698,16 @@ func TestService_ListUserPermissions(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				want := &orchestrator.UserPermission{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				}
+
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
-					assert.Equal(t, orchestratortest.MockTargetOfEvaluation1.Id, got.Msg.UserPermissions[0].ObjectId)
+					assert.Equal(t, want, got.Msg.UserPermissions[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -734,9 +763,15 @@ func TestService_ListUserPermissions(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				want := &orchestrator.UserPermission{
+					UserId:     orchestratortest.MockUserId1,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: orchestrator.UserPermission_PERMISSION_READER,
+				}
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.UserPermissions)) &&
-					assert.Equal(t, orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION, got.Msg.UserPermissions[0].ObjectType)
+					assert.Equal(t, want, got.Msg.UserPermissions[0])
 			},
 			wantErr: assert.NoError,
 		},
