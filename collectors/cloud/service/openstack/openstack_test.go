@@ -169,8 +169,8 @@ func Test_openstackCollector_Collect(t *testing.T) {
 }
 
 func Test_openstackCollector_authorize(t *testing.T) {
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
 
 	type fields struct {
 		ctID     string
@@ -227,7 +227,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 							if eo.Type == "network" {
 								return "", errors.New("this is a test error")
 							}
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
 				},
@@ -252,7 +252,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 							if eo.Type == "block-storage" {
 								return "", errors.New("this is a test error")
 							}
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
 				},
@@ -277,7 +277,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 							if eo.Type == "container-infrastructure-management" {
 								return "", errors.New("this is a test error")
 							}
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
 				},
@@ -299,7 +299,7 @@ func Test_openstackCollector_authorize(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
 				},
@@ -406,7 +406,7 @@ func TestNewAuthorizer(t *testing.T) {
 }
 
 func Test_openstackCollector_List(t *testing.T) {
-	testhelper.SetupHTTP()
+	fakeServer := testhelper.SetupHTTP()
 
 	type fields struct {
 		ctID     string
@@ -437,10 +437,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain:  &domain{},
@@ -464,10 +464,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain:  &domain{},
@@ -491,10 +491,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain:  &domain{},
@@ -518,10 +518,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain:  &domain{},
@@ -545,10 +545,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain: &domain{
@@ -584,10 +584,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain:  &domain{},
@@ -611,10 +611,10 @@ func Test_openstackCollector_List(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					identityClient: client.ServiceClient(),
+					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain: &domain{
@@ -629,7 +629,7 @@ func Test_openstackCollector_List(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testhelper.SetupHTTP()
+			fakeServer := testhelper.SetupHTTP()
 
 			d := &openstackCollector{
 				ctID:     tt.fields.ctID,
@@ -646,73 +646,73 @@ func Test_openstackCollector_List(t *testing.T) {
 					"output": "output test"
 				}`
 
-				openstacktest.HandleServerListSuccessfully(t)
-				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
-				openstacktest.HandleInterfaceListSuccessfully(t)
-				openstacktest.HandleNetworkListSuccessfully(t)
-				openstacktest.MockStorageListResponse(t)
-				openstacktest.HandleListClusterSuccessfully(t)
+				openstacktest.HandleServerListSuccessfully(t, fakeServer)
+				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+				openstacktest.HandleNetworkListSuccessfully(t, fakeServer)
+				openstacktest.MockStorageListResponse(t, fakeServer)
+				openstacktest.HandleListClusterSuccessfully(t, fakeServer)
 			case "domain":
 				fmt.Println("Setting up handlers to get an error for domain resources")
 				const ConsoleOutputBody = `{
 					"output": "output test"
 				}`
 
-				openstacktest.HandleServerListSuccessfully(t)
-				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
-				openstacktest.HandleInterfaceListSuccessfully(t)
-				openstacktest.HandleNetworkListSuccessfully(t)
-				openstacktest.MockStorageListResponse(t)
-				openstacktest.HandleListClusterSuccessfully(t)
+				openstacktest.HandleServerListSuccessfully(t, fakeServer)
+				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+				openstacktest.HandleNetworkListSuccessfully(t, fakeServer)
+				openstacktest.MockStorageListResponse(t, fakeServer)
+				openstacktest.HandleListClusterSuccessfully(t, fakeServer)
 			case "project":
 				fmt.Println("Setting up handlers to get an error for project resources")
 				const ConsoleOutputBody = `{
 					"output": "output test"
 				}`
 
-				openstacktest.HandleServerListSuccessfully(t)
-				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
-				openstacktest.HandleInterfaceListSuccessfully(t)
-				openstacktest.HandleNetworkListSuccessfully(t)
-				openstacktest.MockStorageListResponse(t)
-				openstacktest.HandleListClusterSuccessfully(t)
+				openstacktest.HandleServerListSuccessfully(t, fakeServer)
+				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+				openstacktest.HandleNetworkListSuccessfully(t, fakeServer)
+				openstacktest.MockStorageListResponse(t, fakeServer)
+				openstacktest.HandleListClusterSuccessfully(t, fakeServer)
 			case "clusters":
 				fmt.Println("Setting up handlers to get an error for storage resources")
 				const ConsoleOutputBody = `{
 					"output": "output test"
 				}`
 
-				openstacktest.HandleServerListSuccessfully(t)
-				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
-				openstacktest.HandleInterfaceListSuccessfully(t)
-				openstacktest.HandleNetworkListSuccessfully(t)
-				openstacktest.MockStorageListResponse(t)
+				openstacktest.HandleServerListSuccessfully(t, fakeServer)
+				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+				openstacktest.HandleNetworkListSuccessfully(t, fakeServer)
+				openstacktest.MockStorageListResponse(t, fakeServer)
 			case "storage":
 				fmt.Println("Setting up handlers to get an error for storage resources")
 				const ConsoleOutputBody = `{
 					"output": "output test"
 				}`
 
-				openstacktest.HandleServerListSuccessfully(t)
-				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
-				openstacktest.HandleInterfaceListSuccessfully(t)
-				openstacktest.HandleNetworkListSuccessfully(t)
+				openstacktest.HandleServerListSuccessfully(t, fakeServer)
+				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+				openstacktest.HandleNetworkListSuccessfully(t, fakeServer)
 			case "network":
 				fmt.Println("Setting up handlers to get an error for network resources")
 				const ConsoleOutputBody = `{
 						"output": "output test"
 					}`
 
-				openstacktest.HandleServerListSuccessfully(t)
-				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
-				openstacktest.HandleInterfaceListSuccessfully(t)
+				openstacktest.HandleServerListSuccessfully(t, fakeServer)
+				openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
+				openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
 			}
 
 			gotList, err := d.List()
 
 			tt.want(t, gotList)
 			tt.wantErr(t, err)
-			testhelper.TeardownHTTP()
+			fakeServer.Teardown()
 		})
 	}
 }

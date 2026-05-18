@@ -178,9 +178,9 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 	// Assessment service configuration
 	assessmentOpts = append([]service.Option[assessment.Service]{
 		assessment.WithConfig(assessment.Config{
-			OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-			OrchestratorClient:  orchestratorClient,
-			RegoPackage:         cmd.String("assessment-rego-package"),
+			OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
+			OrchestratorHTTPClient: orchestratorClient,
+			RegoPackage:            cmd.String("assessment-rego-package"),
 		}),
 	}, assessmentOptions...)
 

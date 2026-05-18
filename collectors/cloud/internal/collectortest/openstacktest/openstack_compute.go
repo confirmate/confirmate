@@ -488,8 +488,8 @@ var (
 )
 
 // HandleServerListSuccessfully sets up the test server to respond to a server detail List request.
-func HandleServerListSuccessfully(t *testing.T) {
-	testhelper.Mux.HandleFunc("/servers/detail", func(w http.ResponseWriter, r *http.Request) {
+func HandleServerListSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/servers/detail", func(w http.ResponseWriter, r *http.Request) {
 		testhelper.TestMethod(t, r, "GET")
 		testhelper.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 
@@ -510,8 +510,8 @@ func HandleServerListSuccessfully(t *testing.T) {
 }
 
 // HandleShowConsoleOutputSuccessfully sets up the test server to respond to a os-getConsoleOutput request with success.
-func HandleShowConsoleOutputSuccessfully(t *testing.T, response string) {
-	th.Mux.HandleFunc("/servers/ef079b0c-e610-4dfb-b1aa-b49f07ac48e5/action", func(w http.ResponseWriter, r *http.Request) {
+func HandleShowConsoleOutputSuccessfully(t *testing.T, response string, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/servers/ef079b0c-e610-4dfb-b1aa-b49f07ac48e5/action", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "POST")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 		th.TestJSONRequest(t, r, `{ "os-getConsoleOutput": {} }`)

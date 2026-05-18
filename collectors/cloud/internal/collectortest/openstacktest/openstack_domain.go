@@ -162,8 +162,8 @@ var ExpectedDomainsSlice = []domains.Domain{FirstDomain, SecondDomain}
 
 // HandleListDomainsSuccessfully creates an HTTP handler at `/domains` on the
 // test handler mux that responds with a list of two domains.
-func HandleListDomainsSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
+func HandleListDomainsSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "Accept", "application/json")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
@@ -176,8 +176,8 @@ func HandleListDomainsSuccessfully(t *testing.T) {
 
 // HandleGetDomainSuccessfully creates an HTTP handler at `/domains` on the
 // test handler mux that responds with a single domain.
-func HandleGetDomainSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/domains/9fe1d3", func(w http.ResponseWriter, r *http.Request) {
+func HandleGetDomainSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/domains/9fe1d3", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "GET")
 		th.TestHeader(t, r, "Accept", "application/json")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
@@ -190,8 +190,8 @@ func HandleGetDomainSuccessfully(t *testing.T) {
 
 // HandleCreateDomainSuccessfully creates an HTTP handler at `/domains` on the
 // test handler mux that tests domain creation.
-func HandleCreateDomainSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
+func HandleCreateDomainSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "POST")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 		th.TestJSONRequest(t, r, CreateDomainRequest)
@@ -203,8 +203,8 @@ func HandleCreateDomainSuccessfully(t *testing.T) {
 
 // HandleDeleteDomainSuccessfully creates an HTTP handler at `/domains` on the
 // test handler mux that tests domain deletion.
-func HandleDeleteDomainSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/domains/9fe1d3", func(w http.ResponseWriter, r *http.Request) {
+func HandleDeleteDomainSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/domains/9fe1d3", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "DELETE")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 
@@ -214,8 +214,8 @@ func HandleDeleteDomainSuccessfully(t *testing.T) {
 
 // HandleUpdateDomainSuccessfully creates an HTTP handler at `/domains` on the
 // test handler mux that tests domain update.
-func HandleUpdateDomainSuccessfully(t *testing.T) {
-	th.Mux.HandleFunc("/domains/9fe1d3", func(w http.ResponseWriter, r *http.Request) {
+func HandleUpdateDomainSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/domains/9fe1d3", func(w http.ResponseWriter, r *http.Request) {
 		th.TestMethod(t, r, "PATCH")
 		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
 		th.TestJSONRequest(t, r, UpdateDomainRequest)
