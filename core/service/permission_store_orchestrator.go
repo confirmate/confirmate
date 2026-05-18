@@ -65,9 +65,11 @@ func (ps *OrchestratorPermissionStore) PermissionForObjects(ctx context.Context,
 // through the service-to-service HTTP client, which injects the service OAuth2 token, so the
 // orchestrator treats it as an admin request.
 func (ps *OrchestratorPermissionStore) listPermissions(ctx context.Context, userId string) ([]*orchestrator.UserPermission, error) {
-	req := &orchestrator.ListUserPermissionsRequest{}
+	req := &orchestrator.ListUserPermissionsRequest{
+		Filter: &orchestrator.ListUserPermissionsRequest_Filter{},
+	}
 	if userId != "" {
-		req.UserId = &userId
+		req.Filter.UserId = &userId
 	}
 	return api.ListAllPaginated(ctx, req, func(ctx context.Context, req *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error) {
 		var (

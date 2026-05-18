@@ -27,10 +27,10 @@ func (h *mockPermissionHandler) ListUserPermissions(_ context.Context, req *conn
 
 	var filtered []*orchestrator.UserPermission
 	for _, p := range h.permissions {
-		if req.Msg.GetUserId() != "" && p.GetUserId() != req.Msg.GetUserId() {
+		if req.Msg.Filter.GetUserId() != "" && p.GetUserId() != req.Msg.Filter.GetUserId() {
 			continue
 		}
-		if req.Msg.GetObjectId() != "" && p.GetObjectId() != req.Msg.GetObjectId() {
+		if req.Msg.Filter.GetObjectId() != "" && p.GetObjectId() != req.Msg.Filter.GetObjectId() {
 			continue
 		}
 		filtered = append(filtered, p)

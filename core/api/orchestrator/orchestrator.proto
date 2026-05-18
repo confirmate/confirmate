@@ -381,8 +381,8 @@ service Orchestrator {
   rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
     option (google.api.http) = {
       get                : "/v1/users/permissions"
-      additional_bindings: {get: "/v1/users/permissions/{object_type}/{object_id}"}
-      additional_bindings: {get: "/v1/users/permissions/{object_type}/{object_id}/users/{user_id}"}
+      additional_bindings: {get: "/v1/users/permissions/{filter.object_type}/{filter.object_id}"}
+      additional_bindings: {get: "/v1/users/permissions/{filter.object_type}/{filter.object_id}/users/{filter.user_id}"}
     };
   }
 
@@ -1397,19 +1397,24 @@ message ListUsersResponse {
 }
 
 message ListUserPermissionsRequest {
-  optional string user_id = 1 [
-    (buf.validate.field).string.min_len = 1
-  ];
+  message Filter {
+    // Optional. Filter by a specific user ID to list all permissions for that user.
+    optional string user_id = 1 [
+      (buf.validate.field).string.min_len = 1
+    ];
 
-  // Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
-  optional string object_id = 2 [
-    (buf.validate.field).string.uuid = true
-  ];
+    // Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+    optional string object_id = 2 [
+      (buf.validate.field).string.uuid = true
+    ];
 
-  // Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
-  optional ObjectType object_type = 3 [
-    (buf.validate.field).enum.defined_only = true
-  ];
+    // Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
+    optional ObjectType object_type = 3 [
+      (buf.validate.field).enum.defined_only = true
+    ];
+  }
+
+  optional Filter filter = 1;
 
   int32  page_size  = 10;
   string page_token = 11;

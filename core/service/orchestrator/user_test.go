@@ -781,15 +781,17 @@ func TestService_ListUserPermissions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
 
-			req := &orchestrator.ListUserPermissionsRequest{}
+			req := &orchestrator.ListUserPermissionsRequest{
+				Filter: &orchestrator.ListUserPermissionsRequest_Filter{},
+			}
 			if tt.args.userId != "" {
-				req.UserId = &tt.args.userId
+				req.Filter.UserId = &tt.args.userId
 			}
 			if tt.args.objectId != "" {
-				req.ObjectId = &tt.args.objectId
+				req.Filter.ObjectId = &tt.args.objectId
 			}
 			if tt.args.objectType != orchestrator.ObjectType_OBJECT_TYPE_UNSPECIFIED {
-				req.ObjectType = &tt.args.objectType
+				req.Filter.ObjectType = &tt.args.objectType
 			}
 			res, err := svc.ListUserPermissions(tt.args.ctx, connect.NewRequest(req))
 			assert.True(t, tt.wantErr(t, err))

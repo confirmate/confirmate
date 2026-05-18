@@ -1748,16 +1748,17 @@ paths:
             description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
             operationId: Orchestrator_ListUserPermissions
             parameters:
-                - name: userId
+                - name: filter.userId
                   in: query
+                  description: Optional. Filter by a specific user ID to list all permissions for that user.
                   schema:
                     type: string
-                - name: objectId
+                - name: filter.objectId
                   in: query
                   description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
                   schema:
                     type: string
-                - name: objectType
+                - name: filter.objectType
                   in: query
                   description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
                   schema:
@@ -1811,17 +1812,36 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/users/permissions/{objectType}/{objectId}:
+    /v1/users/permissions/{filter.object_type}/{filter.object_id}:
         get:
             tags:
                 - Orchestrator
             description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
             operationId: Orchestrator_ListUserPermissions
             parameters:
-                - name: objectType
+                - name: filter.object_type
                   in: path
-                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
                   required: true
+                  schema:
+                    type: string
+                - name: filter.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.userId
+                  in: query
+                  description: Optional. Filter by a specific user ID to list all permissions for that user.
+                  schema:
+                    type: string
+                - name: filter.objectId
+                  in: query
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  schema:
+                    type: string
+                - name: filter.objectType
+                  in: query
+                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
                   schema:
                     enum:
                         - OBJECT_TYPE_UNSPECIFIED
@@ -1843,16 +1863,92 @@ paths:
                         - OBJECT_TYPE_CONTROL_IMPLEMENTATION
                     type: string
                     format: enum
-                - name: objectId
-                  in: path
-                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
-                  required: true
+                - name: pageSize
+                  in: query
                   schema:
-                    type: string
-                - name: userId
+                    type: integer
+                    format: int32
+                - name: pageToken
                   in: query
                   schema:
                     type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{filter.object_type}/{filter.object_id}/users/{filter.user_id}:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: filter.object_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.userId
+                  in: query
+                  description: Optional. Filter by a specific user ID to list all permissions for that user.
+                  schema:
+                    type: string
+                - name: filter.objectId
+                  in: query
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  schema:
+                    type: string
+                - name: filter.objectType
+                  in: query
+                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
+                    type: string
+                    format: enum
                 - name: pageSize
                   in: query
                   schema:
@@ -1884,78 +1980,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Status'
     /v1/users/permissions/{objectType}/{objectId}/users/{userId}:
-        get:
-            tags:
-                - Orchestrator
-            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
-            operationId: Orchestrator_ListUserPermissions
-            parameters:
-                - name: objectType
-                  in: path
-                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
-                  required: true
-                  schema:
-                    enum:
-                        - OBJECT_TYPE_UNSPECIFIED
-                        - OBJECT_TYPE_METRIC
-                        - OBJECT_TYPE_METRIC_CONFIGURATION
-                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
-                        - OBJECT_TYPE_TARGET_OF_EVALUATION
-                        - OBJECT_TYPE_AUDIT_SCOPE
-                        - OBJECT_TYPE_ASSESSMENT_RESULT
-                        - OBJECT_TYPE_ASSESSMENT_TOOL
-                        - OBJECT_TYPE_USER
-                        - OBJECT_TYPE_USER_PERMISSION
-                        - OBJECT_TYPE_CERTIFICATE
-                        - OBJECT_TYPE_CATALOG
-                        - OBJECT_TYPE_CATEGORY
-                        - OBJECT_TYPE_CONTROL
-                        - OBJECT_TYPE_EVALUATION_RESULT
-                        - OBJECT_TYPE_EVIDENCE
-                        - OBJECT_TYPE_CONTROL_IMPLEMENTATION
-                    type: string
-                    format: enum
-                - name: objectId
-                  in: path
-                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
-                  required: true
-                  schema:
-                    type: string
-                - name: userId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListUserPermissionsResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
         delete:
             tags:
                 - Orchestrator
