@@ -4507,10 +4507,12 @@ func (x *UpsertUserPermissionResponse) GetUserPermission() *UserPermission {
 }
 
 type RemoveUserPermissionRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	UserPermission *UserPermission        `protobuf:"bytes,1,opt,name=user_permission,json=userPermission,proto3" json:"user_permission,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ObjectId      string                 `protobuf:"bytes,2,opt,name=object_id,json=objectId,proto3" json:"object_id,omitempty"`
+	ObjectType    ObjectType             `protobuf:"varint,3,opt,name=object_type,json=objectType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"object_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RemoveUserPermissionRequest) Reset() {
@@ -4543,26 +4545,25 @@ func (*RemoveUserPermissionRequest) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{71}
 }
 
-func (x *RemoveUserPermissionRequest) GetUserPermission() *UserPermission {
-	if x != nil {
-		return x.UserPermission
-	}
-	return nil
-}
-
-// GetUserId returns the user ID from the embedded UserPermission.
 func (x *RemoveUserPermissionRequest) GetUserId() string {
-	return x.GetUserPermission().GetUserId()
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
-// GetObjectId returns the object ID from the embedded UserPermission.
 func (x *RemoveUserPermissionRequest) GetObjectId() string {
-	return x.GetUserPermission().GetObjectId()
+	if x != nil {
+		return x.ObjectId
+	}
+	return ""
 }
 
-// GetObjectType returns the object type from the embedded UserPermission.
 func (x *RemoveUserPermissionRequest) GetObjectType() ObjectType {
-	return x.GetUserPermission().GetObjectType()
+	if x != nil {
+		return x.ObjectType
+	}
+	return ObjectType_OBJECT_TYPE_UNSPECIFIED
 }
 
 type GetCurrentUserRequest struct {
@@ -4778,7 +4779,7 @@ type ListUserPermissionsRequest struct {
 	UserId *string                `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	// Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
 	ObjectId *string `protobuf:"bytes,2,opt,name=object_id,json=objectId,proto3,oneof" json:"object_id,omitempty"`
-	// Optional. Filter by the type of the confirmate object.
+	// Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
 	ObjectType    *ObjectType `protobuf:"varint,3,opt,name=object_type,json=objectType,proto3,enum=confirmate.orchestrator.v1.ObjectType,oneof" json:"object_type,omitempty"`
 	PageSize      int32       `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken     string      `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
@@ -6291,9 +6292,14 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x1bUpsertUserPermissionRequest\x12^\n" +
 	"\x0fuser_permission\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.UserPermissionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x0euserPermission\"s\n" +
 	"\x1cUpsertUserPermissionResponse\x12S\n" +
-	"\x0fuser_permission\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.UserPermissionR\x0euserPermission\"}\n" +
-	"\x1bRemoveUserPermissionRequest\x12^\n" +
-	"\x0fuser_permission\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.UserPermissionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x0euserPermission\"\x17\n" +
+	"\x0fuser_permission\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.UserPermissionR\x0euserPermission\"\xc1\x01\n" +
+	"\x1bRemoveUserPermissionRequest\x12#\n" +
+	"\auser_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\x12'\n" +
+	"\tobject_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\bobjectId\x12T\n" +
+	"\vobject_type\x18\x03 \x01(\x0e2&.confirmate.orchestrator.v1.ObjectTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\n" +
+	"objectType\"\x17\n" +
 	"\x15GetCurrentUserRequest\"5\n" +
 	"\x0eGetUserRequest\x12#\n" +
 	"\auser_id\x18\x01 \x01(\tB\n" +
@@ -6379,7 +6385,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\"AUDIT_SCOPE_STATUS_INTERNAL_REVIEW\x10\x02\x12%\n" +
 	"!AUDIT_SCOPE_STATUS_AUDITOR_REVIEW\x10\x03\x127\n" +
 	"3AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT\x10\x04\x12\x1c\n" +
-	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xdaW\n" +
+	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xaaW\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -6431,8 +6437,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x10UpdateAuditScope\x123.confirmate.orchestrator.v1.UpdateAuditScopeRequest\x1a&.confirmate.orchestrator.v1.AuditScope\"\x88\x01\x82\xd3\xe4\x93\x02\x81\x01:\vaudit_scope\x1ar/v1/orchestrator/targets_of_evaluation/{audit_scope.target_of_evaluation_id}/audit_scopes/{audit_scope.catalog_id}\x12\x97\x01\n" +
 	"\x10RemoveAuditScope\x123.confirmate.orchestrator.v1.RemoveAuditScopeRequest\x1a\x16.google.protobuf.Empty\"6\x82\xd3\xe4\x93\x020*./v1/orchestrator/audit_scopes/{audit_scope_id}\x12\x83\x01\n" +
 	"\x0eGetRuntimeInfo\x12+.confirmate.common.v1.GetRuntimeInfoRequest\x1a\x1d.confirmate.common.v1.Runtime\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/orchestrator/runtime_info\x12\x95\x02\n" +
-	"\x14UpsertUserPermission\x127.confirmate.orchestrator.v1.UpsertUserPermissionRequest\x1a8.confirmate.orchestrator.v1.UpsertUserPermissionResponse\"\x89\x01\x82\xd3\xe4\x93\x02\x82\x01:\x0fuser_permission\x1ao/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}\x12\xe0\x01\n" +
-	"\x14RemoveUserPermission\x127.confirmate.orchestrator.v1.RemoveUserPermissionRequest\x1a\x16.google.protobuf.Empty\"w\x82\xd3\xe4\x93\x02q*o/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}\x12{\n" +
+	"\x14UpsertUserPermission\x127.confirmate.orchestrator.v1.UpsertUserPermissionRequest\x1a8.confirmate.orchestrator.v1.UpsertUserPermissionResponse\"\x89\x01\x82\xd3\xe4\x93\x02\x82\x01:\x0fuser_permission\x1ao/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}\x12\xb0\x01\n" +
+	"\x14RemoveUserPermission\x127.confirmate.orchestrator.v1.RemoveUserPermissionRequest\x1a\x16.google.protobuf.Empty\"G\x82\xd3\xe4\x93\x02A*?/v1/users/permissions/{object_type}/{object_id}/users/{user_id}\x12{\n" +
 	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12t\n" +
 	"\aGetUser\x12*.confirmate.orchestrator.v1.GetUserRequest\x1a .confirmate.orchestrator.v1.User\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/users/{user_id}\x12{\n" +
 	"\tListUsers\x12,.confirmate.orchestrator.v1.ListUsersRequest\x1a-.confirmate.orchestrator.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\x9d\x02\n" +
@@ -6645,7 +6651,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	72,  // 57: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
 	107, // 58: confirmate.orchestrator.v1.UpsertUserPermissionRequest.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
 	107, // 59: confirmate.orchestrator.v1.UpsertUserPermissionResponse.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
-	107, // 60: confirmate.orchestrator.v1.RemoveUserPermissionRequest.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
+	108, // 60: confirmate.orchestrator.v1.RemoveUserPermissionRequest.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
 	98,  // 61: confirmate.orchestrator.v1.ListUsersRequest.filter:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter
 	106, // 62: confirmate.orchestrator.v1.ListUsersResponse.users:type_name -> confirmate.orchestrator.v1.User
 	108, // 63: confirmate.orchestrator.v1.ListUserPermissionsRequest.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
