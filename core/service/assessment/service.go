@@ -47,17 +47,17 @@ const DefaultOrchestratorURL = "http://localhost:8080"
 
 // DefaultConfig is the default configuration for the assessment [Service].
 var DefaultConfig = Config{
-	OrchestratorAddress: DefaultOrchestratorURL,
-	OrchestratorClient:  service.DefaultHTTPClient,
-	RegoPackage:         policies.DefaultRegoPackage,
+	OrchestratorAddress:    DefaultOrchestratorURL,
+	OrchestratorHTTPClient: service.DefaultHTTPClient,
+	RegoPackage:            policies.DefaultRegoPackage,
 }
 
 // Config represents the configuration for the assessment [Service].
 type Config struct {
 	// OrchestratorAddress is the address of the orchestrator service.
 	OrchestratorAddress string
-	// OrchestratorClient is the HTTP client to use for orchestrator communication.
-	OrchestratorClient *http.Client
+	// OrchestratorHTTPClient is the HTTP client to use for orchestrator communication.
+	OrchestratorHTTPClient *http.Client
 	// RegoPackage is the package name to use for Rego policy evaluation.
 	RegoPackage string
 	// ServiceOAuth2Config is the OAuth2 client credentials configuration used for
@@ -176,7 +176,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	}
 
 	// If service OAuth2 credentials are configured, wrap the HTTP client so all outgoing orchestrator calls authenticate using the client credentials flow. Auth is handled at the transport level rather than via the original request context.
-	orchestratorHTTPClient := svc.cfg.OrchestratorClient
+	orchestratorHTTPClient := svc.cfg.OrchestratorHTTPClient
 	if svc.cfg.ServiceOAuth2Config != nil {
 		orchestratorHTTPClient = api.NewOAuthHTTPClient(
 			orchestratorHTTPClient,
@@ -191,7 +191,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	)
 
 	// Initialize orchestrator service client
-	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(svc.cfg.OrchestratorClient, svc.cfg.OrchestratorAddress)
+	svc.orchestratorClient = orchestratorconnect.NewOrchestratorClient(orchestratorHTTPClient, svc.cfg.OrchestratorAddress)
 
 	// Initialize the restartable stream for the orchestrator service
 	err = svc.initOrchestratorStream()
@@ -199,7 +199,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 		return nil, err
 	}
 
-	slog.Info("Orchestrator URL is set", slog.String("url", svc.cfg.OrchestratorAddress))
+	slog.Info("Orchestrator URL is set", slog.String("orchestrator_url", svc.cfg.OrchestratorAddress))
 
 	handler = svc
 	return
@@ -245,6 +245,11 @@ func (svc *Service) AssessEvidences(ctx context.Context, stream *connect.BidiStr
 			slog.Error("cannot receive stream request", log.Err(err))
 			return connect.NewError(connect.CodeUnknown, err)
 		}
+
+		slog.Debug("Received evidence for assessment via stream",
+			slog.String("evidence_id", req.Evidence.GetId()),
+			slog.String("tool_id", req.Evidence.GetToolId()))
+
 		assessmentReq = connect.NewRequest(&assessment.AssessEvidenceRequest{
 			Evidence: req.Evidence,
 		})
@@ -398,7 +403,7 @@ func (svc *Service) handleEvidence(
 		slog.Any("Timestamp", ev.Timestamp.AsTime()),
 	)
 
-	evaluations, err = svc.pe.Eval(ev, resource, related, svc)
+	evaluations, err = svc.pe.Eval(ctx, ev, resource, related, svc)
 	if err != nil {
 		newError = fmt.Errorf("could not evaluate evidence: %w", err)
 
@@ -490,9 +495,9 @@ func (svc *Service) RegisterAssessmentResultHook(assessmentResultsHook func(ctx 
 }
 
 // Metrics implements MetricsSource by retrieving the metric list from the orchestrator.
-func (svc *Service) Metrics() (metrics []*assessment.Metric, err error) {
+func (svc *Service) Metrics(ctx context.Context) (metrics []*assessment.Metric, err error) {
 	res, err := svc.orchestratorClient.ListMetrics(
-		context.Background(),
+		ctx,
 		connect.NewRequest(
 			&orchestrator.ListMetricsRequest{}),
 	)
@@ -506,13 +511,13 @@ func (svc *Service) Metrics() (metrics []*assessment.Metric, err error) {
 
 // MetricImplementation implements MetricsSource by retrieving the metric implementation
 // from the orchestrator.
-func (svc *Service) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (svc *Service) MetricImplementation(ctx context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	if lang != assessment.MetricImplementation_LANGUAGE_REGO {
 		return nil, errors.New("unsupported language")
 	}
 
 	resp, err := svc.orchestratorClient.GetMetricImplementation(
-		context.Background(),
+		ctx,
 		connect.NewRequest(&orchestrator.GetMetricImplementationRequest{
 			MetricId: metric.Id,
 		}))
@@ -526,7 +531,7 @@ func (svc *Service) MetricImplementation(lang assessment.MetricImplementation_La
 
 // MetricConfiguration implements MetricsSource by getting the corresponding metric configuration for the
 // given target of evaluation
-func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *assessment.Metric) (config *assessment.MetricConfiguration, err error) {
+func (svc *Service) MetricConfiguration(ctx context.Context, TargetOfEvaluationID string, metric *assessment.Metric) (config *assessment.MetricConfiguration, err error) {
 	var (
 		ok    bool
 		cache cachedConfiguration
@@ -550,7 +555,7 @@ func (svc *Service) MetricConfiguration(TargetOfEvaluationID string, metric *ass
 			MetricId:             metric.Id,
 		})
 
-		resp, err = svc.orchestratorClient.GetMetricConfiguration(context.Background(), req)
+		resp, err = svc.orchestratorClient.GetMetricConfiguration(ctx, req)
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric configuration for %s: %w", metric.Id, err)
 		}

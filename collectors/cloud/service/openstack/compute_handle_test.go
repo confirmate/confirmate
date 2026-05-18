@@ -36,11 +36,11 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 		"output": "output test"
 	}`
 
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
-	openstacktest.HandleServerListSuccessfully(t)
-	openstacktest.HandleInterfaceListSuccessfully(t)
-	openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody)
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+	openstacktest.HandleServerListSuccessfully(t, fakeServer)
+	openstacktest.HandleInterfaceListSuccessfully(t, fakeServer)
+	openstacktest.HandleShowConsoleOutputSuccessfully(t, ConsoleOutputBody, fakeServer)
 
 	t1, err := time.Parse(time.RFC3339, "2014-09-25T13:10:02Z")
 	assert.NoError(t, err)
@@ -77,7 +77,7 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 							return "", errors.New("test error")
 						},
 					},
-					computeClient: client.ServiceClient(),
+					computeClient: client.ServiceClient(fakeServer),
 				},
 			},
 			args: args{
@@ -111,10 +111,10 @@ func Test_openstackCollector_handleServer(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					computeClient: client.ServiceClient(),
+					computeClient: client.ServiceClient(fakeServer),
 				},
 				region: "test region",
 			},

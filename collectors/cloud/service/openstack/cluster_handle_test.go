@@ -32,9 +32,9 @@ import (
 )
 
 func Test_openstackCollector_handleCluster(t *testing.T) {
-	testhelper.SetupHTTP()
-	defer testhelper.TeardownHTTP()
-	openstacktest.HandleListClusterSuccessfully(t)
+	fakeServer := testhelper.SetupHTTP()
+	defer fakeServer.Teardown()
+	openstacktest.HandleListClusterSuccessfully(t, fakeServer)
 
 	t1, err := time.Parse(time.RFC3339, "2014-09-25T13:10:02Z")
 	assert.NoError(t, err)
@@ -70,10 +70,10 @@ func Test_openstackCollector_handleCluster(t *testing.T) {
 					provider: &gophercloud.ProviderClient{
 						TokenID: client.TokenID,
 						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return testhelper.Endpoint(), nil
+							return fakeServer.Endpoint(), nil
 						},
 					},
-					clusterClient: client.ServiceClient(),
+					clusterClient: client.ServiceClient(fakeServer),
 				},
 				region: "test region",
 			},

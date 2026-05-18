@@ -16,6 +16,7 @@
 package policies
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -39,21 +40,21 @@ import (
 
 type metricsErrorSource struct{}
 
-func (m *metricsErrorSource) Metrics() (metrics []*assessment.Metric, err error) {
+func (m *metricsErrorSource) Metrics(_ context.Context) (metrics []*assessment.Metric, err error) {
 	return nil, errors.New("boom")
 }
 
-func (m *metricsErrorSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+func (m *metricsErrorSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
 	return nil, errors.New("not implemented")
 }
 
-func (m *metricsErrorSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (m *metricsErrorSource) MetricImplementation(_ context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	return nil, errors.New("not implemented")
 }
 
 type missingConfigSource struct{}
 
-func (m *missingConfigSource) Metrics() (metrics []*assessment.Metric, err error) {
+func (m *missingConfigSource) Metrics(_ context.Context) (metrics []*assessment.Metric, err error) {
 	return []*assessment.Metric{{
 		Id:       "metric-1",
 		Name:     "MetricOne",
@@ -61,18 +62,18 @@ func (m *missingConfigSource) Metrics() (metrics []*assessment.Metric, err error
 	}}, nil
 }
 
-func (m *missingConfigSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+func (m *missingConfigSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
 	err = connect.NewError(connect.CodeNotFound, errors.New("metric configuration not found for target"))
 	return nil, err
 }
 
-func (m *missingConfigSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (m *missingConfigSource) MetricImplementation(_ context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	return nil, errors.New("not implemented")
 }
 
 type metricConfigErrorSource struct{}
 
-func (m *metricConfigErrorSource) Metrics() (metrics []*assessment.Metric, err error) {
+func (m *metricConfigErrorSource) Metrics(_ context.Context) (metrics []*assessment.Metric, err error) {
 	return []*assessment.Metric{{
 		Id:       "metric-1",
 		Name:     "MetricOne",
@@ -80,12 +81,12 @@ func (m *metricConfigErrorSource) Metrics() (metrics []*assessment.Metric, err e
 	}}, nil
 }
 
-func (m *metricConfigErrorSource) MetricConfiguration(targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
+func (m *metricConfigErrorSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (cfg *assessment.MetricConfiguration, err error) {
 	err = connect.NewError(connect.CodeInternal, errors.New("database unavailable"))
 	return nil, err
 }
 
-func (m *metricConfigErrorSource) MetricImplementation(lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
+func (m *metricConfigErrorSource) MetricImplementation(_ context.Context, lang assessment.MetricImplementation_Language, metric *assessment.Metric) (impl *assessment.MetricImplementation, err error) {
 	return nil, errors.New("not implemented")
 }
 
@@ -415,7 +416,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				mrtc: tt.fields.mrtc,
 				pkg:  tt.fields.pkg,
 			}
-			results, err := pe.Eval(&evidence.Evidence{
+			results, err := pe.Eval(context.Background(), &evidence.Evidence{
 				Id:       tt.args.evidenceID,
 				Resource: prototest.NewProtobufResource(t, tt.args.resource),
 			}, tt.args.resource, tt.args.related, tt.args.src)
@@ -452,7 +453,7 @@ func Test_regoEval_Eval_MetricsError(t *testing.T) {
 	}
 	source = &metricsErrorSource{}
 
-	results, err = pe.Eval(&evidence.Evidence{
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
@@ -477,7 +478,7 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 	}
 	source = &missingConfigSource{}
 
-	results, err = pe.Eval(&evidence.Evidence{
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
@@ -502,7 +503,7 @@ func Test_regoEval_Eval_ReturnsNonSkippableMetricConfigurationError(t *testing.T
 	}
 	source = &metricConfigErrorSource{}
 
-	results, err = pe.Eval(&evidence.Evidence{
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
 		Id:                   "11111111-1111-1111-1111-111111111111",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
@@ -532,6 +533,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 		pkg  string
 	}
 	type args struct {
+		ctx      context.Context
 		baseDir  string
 		targetID string
 		metric   *assessment.Metric
@@ -553,6 +555,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				pkg:  DefaultRegoPackage,
 			},
 			args: args{
+				ctx:      context.Background(),
 				targetID: evidencetest.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
 					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
@@ -598,6 +601,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				pkg:  DefaultRegoPackage,
 			},
 			args: args{
+				ctx:      context.Background(),
 				targetID: evidencetest.MockTargetOfEvaluationID1,
 				metric: &assessment.Metric{
 					Id:       "84eaed86-759d-4419-9954-f3d3ea1f5200",
@@ -641,7 +645,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 				mrtc: tt.fields.mrtc,
 				pkg:  tt.fields.pkg,
 			}
-			gotResult, err := re.evalMap(tt.args.baseDir, tt.args.targetID, tt.args.metric, tt.args.m, tt.args.src)
+			gotResult, err := re.evalMap(tt.args.ctx, tt.args.baseDir, tt.args.targetID, tt.args.metric, tt.args.m, tt.args.src)
 
 			tt.wantErr(t, err)
 			tt.want(t, gotResult)
