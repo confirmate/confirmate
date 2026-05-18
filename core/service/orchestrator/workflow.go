@@ -73,7 +73,8 @@ func actorFromContext(ctx context.Context) string {
 }
 
 // createAuditTrailEvent persists a new AuditTrailEvent with the given payload to the database.
-func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, comment string, payload proto.Message) error {
+// controlInScopeId may be empty for events where the ControlInScope record no longer exists.
+func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, controlInScopeId, comment string, payload proto.Message) error {
 	data, err := anypb.New(payload)
 	if err != nil {
 		return fmt.Errorf("failed to pack audit trail event data: %w", err)
@@ -85,6 +86,9 @@ func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, comment str
 		Comment:      comment,
 		Time:         timestamppb.Now(),
 		EventData:    data,
+	}
+	if controlInScopeId != "" {
+		event.ControlInScopeId = &controlInScopeId
 	}
 	return db.Create(event)
 }
@@ -122,6 +126,13 @@ func (svc *Service) ScopeControl(
 		return nil, service.ErrPermissionDenied
 	}
 
+	// Verify the control exists (control IDs are globally unique UUIDs since #271).
+	var ctrl orchestrator.Control
+	err = svc.db.Get(&ctrl, persistence.WithoutPreload(), "id = ?", req.Msg.GetControlInScope().GetControlId())
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
+		return nil, err
+	}
+
 	var duplicate orchestrator.ControlInScope
 	err = svc.db.Get(&duplicate, persistence.WithoutPreload(),
 		"audit_scope_id = ? AND control_id = ?",
@@ -152,7 +163,7 @@ func (svc *Service) ScopeControl(
 		if err = tx.Create(cis); err != nil {
 			return service.HandleDatabaseError(err)
 		}
-		return createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, "",
+		return createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
 			&orchestrator.ControlScopingEvent{
 				ControlInScopeId: cis.Id,
 				ControlId:        cis.ControlId,
@@ -352,19 +363,13 @@ func (svc *Service) TransitionControlInScopeState(
 		if err = tx.Update(&cis, "id = ?", cis.Id); err != nil {
 			return err
 		}
-		return createAuditTrailEvent(tx, actor, cis.AuditScopeId, req.Msg.Comment,
+		return createAuditTrailEvent(tx, actor, cis.AuditScopeId, cis.Id, req.Msg.Comment,
 			&orchestrator.ControlImplementationTransitionEvent{
 				ControlInScopeId: cis.Id,
 				FromState:        fromState,
 				ToState:          toState,
 			})
 	})
-	if err = service.HandleDatabaseError(err); err != nil {
-		return nil, err
-	}
-
-	// Reload to return the latest persisted state.
-	err = svc.db.Get(&cis, "id = ?", cis.Id)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -405,12 +410,13 @@ func (svc *Service) UnscopeControl(
 	}
 
 	err = svc.db.Transaction(func(tx persistence.DB) error {
-		if err = createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, "",
+		// control_in_scope_id is intentionally empty: the ControlInScope record is deleted
+		// in this same transaction, so linking to it would create a dangling reference.
+		if err = createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, "", "",
 			&orchestrator.ControlScopingEvent{
-				ControlInScopeId: cis.Id,
-				ControlId:        cis.ControlId,
-				AuditScopeId:     cis.AuditScopeId,
-				InScope:          false,
+				ControlId:    cis.ControlId,
+				AuditScopeId: cis.AuditScopeId,
+				InScope:      false,
 			}); err != nil {
 			return err
 		}
@@ -460,6 +466,9 @@ func (svc *Service) ListAuditTrailEvents(
 	if f := req.Msg.GetFilter(); f != nil {
 		if f.AuditScopeId != nil {
 			conds = append(conds, "audit_scope_id = ?", f.GetAuditScopeId())
+		}
+		if f.ControlInScopeId != nil {
+			conds = append(conds, "control_in_scope_id = ?", f.GetControlInScopeId())
 		}
 	}
 

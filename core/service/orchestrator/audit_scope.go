@@ -125,7 +125,7 @@ func (svc *Service) GetAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	err = svc.db.Get(&scope, persistence.WithoutPreload(), "id = ?", req.Msg.AuditScopeId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
@@ -184,7 +184,8 @@ func (svc *Service) ListAuditScopes(
 	}
 
 	// Query the database with pagination and the constructed conditions
-	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts,
+		append([]any{persistence.WithoutPreload()}, conds...)...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -277,7 +278,7 @@ func (svc *Service) RemoveAuditScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
+	err = svc.db.Get(&scope, persistence.WithoutPreload(), "id = ?", req.Msg.AuditScopeId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
@@ -325,6 +326,8 @@ func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *or
 			continue
 		}
 		seen[ctrl.Id] = true
+		// Skip only when both levels are explicitly set and differ. Controls without an
+		// assurance level are included in every scope regardless of the scope's level.
 		if scope.AssuranceLevel != nil && ctrl.AssuranceLevel != nil &&
 			*scope.AssuranceLevel != *ctrl.AssuranceLevel {
 			continue
@@ -341,7 +344,7 @@ func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *or
 		if err := tx.Create(cis); err != nil {
 			return service.HandleDatabaseError(err)
 		}
-		if err := createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, "",
+		if err := createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
 			&orchestrator.ControlScopingEvent{
 				ControlInScopeId: cis.Id,
 				ControlId:        cis.ControlId,

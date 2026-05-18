@@ -62,6 +62,7 @@ func TestService_ScopeControl(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					seedControl(t, d, orchestratortest.MockControl1)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -111,6 +112,7 @@ func TestService_ScopeControl(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					seedControl(t, d, orchestratortest.MockControl1)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
 					Permissions: service.DBPermissionStore{
@@ -196,6 +198,7 @@ func TestService_ScopeControl(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					seedControl(t, d, orchestratortest.MockControl1)
 					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
@@ -203,6 +206,29 @@ func TestService_ScopeControl(t *testing.T) {
 			want: assert.Nil[*connect.Response[orchestrator.ControlInScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "control not in catalog",
+			args: args{
+				req: &orchestrator.ScopeControlRequest{
+					ControlInScope: &orchestrator.ControlInScope{
+						AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
+						ControlId:    orchestratortest.MockNonExistentId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					seedControl(t, d, orchestratortest.MockControl1)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ControlInScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
@@ -220,6 +246,28 @@ func TestService_ScopeControl(t *testing.T) {
 			tt.wantDB(t, tt.fields.db, res)
 		})
 	}
+}
+
+// seedControl inserts a Control record into the DB so that ScopeControl's existence check passes.
+func seedControl(t *testing.T, d persistence.DB, ctrl *orchestrator.Control) {
+	t.Helper()
+	assert.NoError(t, d.Create(ctrl))
+}
+
+// seedControlInScope1 seeds the FK-required parents and then MockControlInScope1.
+func seedControlInScope1(t *testing.T, d persistence.DB) {
+	t.Helper()
+	assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+	seedControl(t, d, orchestratortest.MockControl1)
+	assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+}
+
+// seedControlInScope2 seeds the FK-required parents and then MockControlInScope2.
+func seedControlInScope2(t *testing.T, d persistence.DB) {
+	t.Helper()
+	assert.NoError(t, d.Create(orchestratortest.MockAuditScope2))
+	seedControl(t, d, orchestratortest.MockControl2)
+	assert.NoError(t, d.Create(orchestratortest.MockControlInScope2))
 }
 
 func TestService_GetControlInScope(t *testing.T) {
@@ -247,6 +295,8 @@ func TestService_GetControlInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					seedControl(t, d, orchestratortest.MockControl1)
 					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
@@ -266,6 +316,8 @@ func TestService_GetControlInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					seedControl(t, d, orchestratortest.MockControl1)
 					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
 				}),
 				authz: &denyAuthorizationStrategy{},
@@ -342,8 +394,8 @@ func TestService_ListControlsInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope2))
+					seedControlInScope1(t, d)
+					seedControlInScope2(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -364,8 +416,8 @@ func TestService_ListControlsInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope2))
+					seedControlInScope1(t, d)
+					seedControlInScope2(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -383,7 +435,7 @@ func TestService_ListControlsInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &denyAuthorizationStrategy{},
 			},
@@ -438,7 +490,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -465,7 +517,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -490,7 +542,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &denyAuthorizationStrategy{},
 			},
@@ -561,7 +613,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -597,7 +649,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -626,7 +678,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -647,7 +699,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &denyAuthorizationStrategy{},
 			},
@@ -753,7 +805,7 @@ func TestService_UnscopeControl(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
@@ -784,7 +836,7 @@ func TestService_UnscopeControl(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 				}),
 				authz: &denyAuthorizationStrategy{},
 			},
@@ -864,7 +916,7 @@ func TestService_ListAuditTrailEvents(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+					seedControlInScope1(t, d)
 					assert.NoError(t, d.Create(&orchestrator.AuditTrailEvent{
 						Id:           "00000000-0000-0000-0005-000000000001",
 						AuditScopeId: orchestratortest.MockScopeId1,
@@ -893,6 +945,8 @@ func TestService_ListAuditTrailEvents(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope2))
 					assert.NoError(t, d.Create(&orchestrator.AuditTrailEvent{
 						Id:           "00000000-0000-0000-0005-000000000001",
 						AuditScopeId: orchestratortest.MockScopeId1,
@@ -918,6 +972,7 @@ func TestService_ListAuditTrailEvents(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
 					assert.NoError(t, d.Create(&orchestrator.AuditTrailEvent{
 						Id:           "00000000-0000-0000-0005-000000000001",
 						AuditScopeId: orchestratortest.MockScopeId1,

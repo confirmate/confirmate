@@ -85,7 +85,8 @@ message ControlInScope {
 message AuditTrailEvent {
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.uuid = true
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
   // AuditScopeId is the primary resource this event belongs to.
@@ -107,9 +108,17 @@ message AuditTrailEvent {
   google.protobuf.Any event_data = 6 [
     (tagger.tags) = "gorm:\"serializer:anypb;type:text\""
   ];
+
+  // ControlInScopeId optionally links this event to the affected ControlInScope record.
+  // Not set for events where the ControlInScope record is deleted (e.g. UnscopeControl).
+  optional string control_in_scope_id = 7 [
+    (tagger.tags) = "gorm:\"index\""
+  ];
 }
 
 // ControlScopingEvent is emitted when a control is brought in or out of scope.
+// control_in_scope_id is only set for in-scope events; it is omitted for out-of-scope events
+// because the ControlInScope record is deleted as part of the same transaction.
 message ControlScopingEvent {
   string control_in_scope_id = 1;
   string control_id = 2;
@@ -207,6 +216,9 @@ message ListAuditTrailEventsRequest {
   message Filter {
     // Optional. Filter by audit scope.
     optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by control in scope (returns only events for that specific record).
+    optional string control_in_scope_id = 2 [(buf.validate.field).string.uuid = true];
   }
 
   optional Filter filter = 1;

@@ -1047,6 +1047,11 @@ message Control {
 
   // Catalog-local control identifier (e.g. OPS-01).
   string short_name = 12;
+
+  // FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
+  repeated ControlInScope controls_in_scope = 13 [
+    (tagger.tags) = "gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\""
+  ];
 }
 
 // AuditScopeStatus represents the lifecycle status of an audit scope.
@@ -1105,6 +1110,17 @@ message AuditScope {
   AuditScopeStatus status = 9 [
     (buf.validate.field).enum = {defined_only: true, not_in: [0]},
     (google.api.field_behavior) = REQUIRED
+  ];
+
+  // FK-constraint-only back-references: not populated in API responses (queries use WithoutPreload).
+  // GORM requires a relationship field on the parent to declare the FK and cascade behaviour on
+  // AutoMigrate; workflow.proto cannot import orchestrator.proto (circular), so the declarations
+  // must live here.
+  repeated ControlInScope controls_in_scope = 10 [
+    (tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""
+  ];
+  repeated AuditTrailEvent audit_trail_events = 11 [
+    (tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""
   ];
 }
 

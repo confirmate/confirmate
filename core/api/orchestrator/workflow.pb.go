@@ -232,9 +232,12 @@ type AuditTrailEvent struct {
 	Comment string                 `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
 	Time    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=time,proto3" json:"time,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// EventData holds the typed event payload serialized as JSON.
-	EventData     *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
+	// ControlInScopeId optionally links this event to the affected ControlInScope record.
+	// Not set for events where the ControlInScope record is deleted (e.g. UnscopeControl).
+	ControlInScopeId *string `protobuf:"bytes,7,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty" gorm:"index"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *AuditTrailEvent) Reset() {
@@ -309,7 +312,16 @@ func (x *AuditTrailEvent) GetEventData() *anypb.Any {
 	return nil
 }
 
+func (x *AuditTrailEvent) GetControlInScopeId() string {
+	if x != nil && x.ControlInScopeId != nil {
+		return *x.ControlInScopeId
+	}
+	return ""
+}
+
 // ControlScopingEvent is emitted when a control is brought in or out of scope.
+// control_in_scope_id is only set for in-scope events; it is omitted for out-of-scope events
+// because the ControlInScope record is deleted as part of the same transaction.
 type ControlScopingEvent struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	ControlInScopeId string                 `protobuf:"bytes,1,opt,name=control_in_scope_id,json=controlInScopeId,proto3" json:"control_in_scope_id,omitempty"`
@@ -1016,9 +1028,11 @@ func (x *ListControlsInScopeRequest_Filter) GetAssigneeId() string {
 type ListAuditTrailEventsRequest_Filter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. Filter by audit scope.
-	AuditScopeId  *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AuditScopeId *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
+	// Optional. Filter by control in scope (returns only events for that specific record).
+	ControlInScopeId *string `protobuf:"bytes,2,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ListAuditTrailEventsRequest_Filter) Reset() {
@@ -1058,6 +1072,13 @@ func (x *ListAuditTrailEventsRequest_Filter) GetAuditScopeId() string {
 	return ""
 }
 
+func (x *ListAuditTrailEventsRequest_Filter) GetControlInScopeId() string {
+	if x != nil && x.ControlInScopeId != nil {
+		return *x.ControlInScopeId
+	}
+	return ""
+}
+
 var File_api_orchestrator_workflow_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_workflow_proto_rawDesc = "" +
@@ -1078,15 +1099,17 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tupdatedAtB\x19\n" +
 	"\x17_implementation_detailsB\x0e\n" +
-	"\f_assignee_id\"\xef\x02\n" +
-	"\x0fAuditTrailEvent\x12.\n" +
-	"\x02id\x18\x01 \x01(\tB\x1e\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x127\n" +
+	"\f_assignee_id\"\xd1\x03\n" +
+	"\x0fAuditTrailEvent\x121\n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x127\n" +
 	"\x0eaudit_scope_id\x18\x02 \x01(\tB\x11\x9a\x84\x9e\x03\fgorm:\"index\"R\fauditScopeId\x12\x19\n" +
 	"\bactor_id\x18\x03 \x01(\tR\aactorId\x12\x18\n" +
 	"\acomment\x18\x04 \x01(\tR\acomment\x12a\n" +
 	"\x04time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x04time\x12[\n" +
 	"\n" +
-	"event_data\x18\x06 \x01(\v2\x14.google.protobuf.AnyB&\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:text\"R\teventData\"\xa4\x01\n" +
+	"event_data\x18\x06 \x01(\v2\x14.google.protobuf.AnyB&\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:text\"R\teventData\x12E\n" +
+	"\x13control_in_scope_id\x18\a \x01(\tB\x11\x9a\x84\x9e\x03\fgorm:\"index\"H\x00R\x10controlInScopeId\x88\x01\x01B\x16\n" +
+	"\x14_control_in_scope_id\"\xa4\x01\n" +
 	"\x13ControlScopingEvent\x12-\n" +
 	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12\x1d\n" +
 	"\n" +
@@ -1135,7 +1158,7 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\acomment\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\"4\n" +
 	"\x15UnscopeControlRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xc0\x02\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x97\x03\n" +
 	"\x1bListAuditTrailEventsRequest\x12[\n" +
 	"\x06filter\x18\x01 \x01(\v2>.confirmate.orchestrator.v1.ListAuditTrailEventsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
@@ -1143,10 +1166,12 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1aP\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xa6\x01\n" +
 	"\x06Filter\x123\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01B\x11\n" +
-	"\x0f_audit_scope_idB\t\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12<\n" +
+	"\x13control_in_scope_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x01R\x10controlInScopeId\x88\x01\x01B\x11\n" +
+	"\x0f_audit_scope_idB\x16\n" +
+	"\x14_control_in_scope_idB\t\n" +
 	"\a_filter\"\xa1\x01\n" +
 	"\x1cListAuditTrailEventsResponse\x12Y\n" +
 	"\x12audit_trail_events\x18\x01 \x03(\v2+.confirmate.orchestrator.v1.AuditTrailEventR\x10auditTrailEvents\x12&\n" +
@@ -1221,6 +1246,7 @@ func file_api_orchestrator_workflow_proto_init() {
 		return
 	}
 	file_api_orchestrator_workflow_proto_msgTypes[0].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[1].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[6].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[8].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[11].OneofWrappers = []any{}

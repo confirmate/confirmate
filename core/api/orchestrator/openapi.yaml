@@ -406,6 +406,11 @@ paths:
                   description: Optional. Filter by audit scope.
                   schema:
                     type: string
+                - name: filter.controlInScopeId
+                  in: query
+                  description: Optional. Filter by control in scope (returns only events for that specific record).
+                  schema:
+                    type: string
                 - name: pageSize
                   in: query
                   schema:
@@ -2115,6 +2120,19 @@ components:
                     type: string
                     description: Status represents the current lifecycle status of the audit scope.
                     format: enum
+                controlsInScope:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlInScope'
+                    description: |-
+                        FK-constraint-only back-references: not populated in API responses (queries use WithoutPreload).
+                         GORM requires a relationship field on the parent to declare the FK and cascade behaviour on
+                         AutoMigrate; workflow.proto cannot import orchestrator.proto (circular), so the declarations
+                         must live here.
+                auditTrailEvents:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AuditTrailEvent'
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
@@ -2122,6 +2140,7 @@ components:
             type: object
             properties:
                 id:
+                    readOnly: true
                     type: string
                 auditScopeId:
                     type: string
@@ -2139,6 +2158,11 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/GoogleProtobufAny'
                     description: EventData holds the typed event payload serialized as JSON.
+                controlInScopeId:
+                    type: string
+                    description: |-
+                        ControlInScopeId optionally links this event to the affected ControlInScope record.
+                         Not set for events where the ControlInScope record is deleted (e.g. UnscopeControl).
             description: |-
                 AuditTrailEvent is a persisted record of any significant change related to an audit scope,
                  such as a control being scoped/unscoped or an implementation state transition. The event_data
@@ -2305,6 +2329,11 @@ components:
                 shortName:
                     type: string
                     description: Catalog-local control identifier (e.g. OPS-01).
+                controlsInScope:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlInScope'
+                    description: 'FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).'
             description: |-
                 Control represents a certain Control that needs to be fulfilled. It could be
                  a Control in a certification catalog. It follows the OSCAL model. A
