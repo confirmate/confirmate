@@ -14,8 +14,8 @@ type DBPermissionStore struct {
 	DB persistence.DB
 }
 
-// HasPermission checks if the given user has the specified permission for the resource.
-func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
+// HasPermission checks if the given user has the specified permission for the object.
+func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, objectId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
 	var (
 		count          int64
 		err            error
@@ -25,7 +25,7 @@ func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, reso
 	count, err = ps.DB.Count(
 		&userPermission,
 		"user_id = ? AND object_type = ? AND object_id = ? AND permission IN (?)",
-		userId, objectType, resourceId, allowedPermissions(permission),
+		userId, objectType, objectId, allowedPermissions(permission),
 	)
 	if err != nil {
 		return false, fmt.Errorf("failed to check permissions: %w", err)
@@ -34,8 +34,8 @@ func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, reso
 	return count > 0, nil
 }
 
-// PermissionForResources returns a list of resource IDs for which the given user has at least the specified permission.
-func (ps DBPermissionStore) PermissionForResources(_ context.Context, userID string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
+// PermissionForObjects returns a list of object IDs for which the given user has at least the specified permission.
+func (ps DBPermissionStore) PermissionForObjects(_ context.Context, userID string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
 	var (
 		userPermissions []orchestrator.UserPermission
 		err             error
@@ -56,12 +56,12 @@ func (ps DBPermissionStore) PermissionForResources(_ context.Context, userID str
 		return nil, fmt.Errorf("failed to retrieve permissions: %w", err)
 	}
 
-	resourceIDs := make([]string, len(userPermissions))
+	objectIds := make([]string, len(userPermissions))
 	for i := range userPermissions {
-		resourceIDs[i] = userPermissions[i].ObjectId
+		objectIds[i] = userPermissions[i].ObjectId
 	}
 
-	return resourceIDs, nil
+	return objectIds, nil
 }
 
 // allowedPermissions returns the set of permission levels that satisfy the required permission,

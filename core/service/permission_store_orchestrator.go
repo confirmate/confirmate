@@ -18,8 +18,8 @@ type OrchestratorPermissionStore struct {
 	Client orchestratorconnect.OrchestratorClient
 }
 
-// HasPermission checks whether the given user has at least the required permission for the given resource.
-func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
+// HasPermission checks whether the given user has at least the required permission for the given object.
+func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId string, objectId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
 	var (
 		permissions []*orchestrator.UserPermission
 		err         error
@@ -31,7 +31,7 @@ func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId
 	}
 
 	for _, p := range permissions {
-		if p.GetObjectId() == resourceId && p.GetObjectType() == objectType && p.GetPermission() >= permission {
+		if p.GetObjectId() == objectId && p.GetObjectType() == objectType && p.GetPermission() >= permission {
 			return true, nil
 		}
 	}
@@ -39,8 +39,8 @@ func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId
 	return false, nil
 }
 
-// PermissionForResources returns the resource IDs for which the given user has at least the required permission.
-func (ps *OrchestratorPermissionStore) PermissionForResources(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
+// PermissionForObjects returns the object IDs for which the given user has at least the required permission.
+func (ps *OrchestratorPermissionStore) PermissionForObjects(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
 	var (
 		permissions []*orchestrator.UserPermission
 		ids         []string

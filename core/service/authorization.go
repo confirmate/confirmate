@@ -118,7 +118,7 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 
 	// For list requests, we check if the user has reader permissions for any resources of the given type and return the list of resource IDs they have access to.
 	if reqType == orchestrator.RequestType_REQUEST_TYPE_LIST {
-		resourceIDs, err = a.Permissions.PermissionForResources(ctx,
+		resourceIDs, err = a.Permissions.PermissionForObjects(ctx,
 			userId,
 			orchestrator.UserPermission_PERMISSION_READER,
 			reqType,
@@ -182,7 +182,7 @@ func (a *AuthorizationStrategyPermissionStore) AllowedTargetOfEvaluations(ctx co
 	// Get user ID
 	userId = auth.GetConfirmateUserIDFromClaims(claims)
 
-	toeIds, err := a.Permissions.PermissionForResources(ctx,
+	toeIds, err := a.Permissions.PermissionForObjects(ctx,
 		userId,
 		orchestrator.UserPermission_PERMISSION_READER,
 		orchestrator.RequestType_REQUEST_TYPE_LIST,
@@ -215,7 +215,7 @@ func (a *AuthorizationStrategyPermissionStore) AllowedAuditScopes(ctx context.Co
 	// Get user ID
 	userId = auth.GetConfirmateUserIDFromClaims(claims)
 
-	auditScopeIds, err := a.Permissions.PermissionForResources(ctx,
+	auditScopeIds, err := a.Permissions.PermissionForObjects(ctx,
 		userId,
 		orchestrator.UserPermission_PERMISSION_READER,
 		orchestrator.RequestType_REQUEST_TYPE_LIST,

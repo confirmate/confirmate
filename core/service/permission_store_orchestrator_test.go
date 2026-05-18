@@ -57,7 +57,7 @@ func newPermissionStoreForTest(t *testing.T, permissions []*orchestrator.UserPer
 func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 	type args struct {
 		userId     string
-		resourceId string
+		objectId   string
 		permission orchestrator.UserPermission_Permission
 		reqType    orchestrator.RequestType
 		objectType orchestrator.ObjectType
@@ -75,7 +75,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			listErr: connect.NewError(connect.CodeInternal, nil),
 			args: args{
 				userId:     orchestratortest.MockUserId1,
-				resourceId: orchestratortest.MockTargetOfEvaluation1.Id,
+				objectId:   orchestratortest.MockTargetOfEvaluation1.Id,
 				permission: orchestrator.UserPermission_PERMISSION_READER,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
@@ -96,7 +96,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			},
 			args: args{
 				userId:     orchestratortest.MockUserId1,
-				resourceId: "other-resource",
+				objectId:   "other-resource",
 				permission: orchestrator.UserPermission_PERMISSION_READER,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
@@ -115,7 +115,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			},
 			args: args{
 				userId:     orchestratortest.MockUserId1,
-				resourceId: orchestratortest.MockTargetOfEvaluation1.Id,
+				objectId:   orchestratortest.MockTargetOfEvaluation1.Id,
 				permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
@@ -134,7 +134,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			},
 			args: args{
 				userId:     orchestratortest.MockUserId1,
-				resourceId: orchestratortest.MockTargetOfEvaluation1.Id,
+				objectId:   orchestratortest.MockTargetOfEvaluation1.Id,
 				permission: orchestrator.UserPermission_PERMISSION_READER,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
@@ -153,7 +153,7 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 			},
 			args: args{
 				userId:     orchestratortest.MockUserId1,
-				resourceId: orchestratortest.MockTargetOfEvaluation1.Id,
+				objectId:   orchestratortest.MockTargetOfEvaluation1.Id,
 				permission: orchestrator.UserPermission_PERMISSION_READER,
 				objectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 			},
@@ -165,14 +165,14 @@ func TestOrchestratorPermissionStore_HasPermission(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ps := newPermissionStoreForTest(t, tt.permissions, tt.listErr)
-			got, err := ps.HasPermission(context.Background(), tt.args.userId, tt.args.resourceId, tt.args.permission, tt.args.reqType, tt.args.objectType)
+			got, err := ps.HasPermission(context.Background(), tt.args.userId, tt.args.objectId, tt.args.permission, tt.args.reqType, tt.args.objectType)
 			assert.Equal(t, tt.want, got)
 			tt.wantErr(t, err)
 		})
 	}
 }
 
-func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
+func TestOrchestratorPermissionStore_PermissionForObjects(t *testing.T) {
 	type args struct {
 		userId     string
 		permission orchestrator.UserPermission_Permission
@@ -211,7 +211,7 @@ func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
 				},
 				{
 					UserId:     orchestratortest.MockUserId1,
-					ObjectId: "toe-2",
+					ObjectId:   "toe-2",
 					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 					Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 				},
@@ -265,7 +265,7 @@ func TestOrchestratorPermissionStore_PermissionForResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ps := newPermissionStoreForTest(t, tt.permissions, tt.listErr)
-			got, err := ps.PermissionForResources(context.Background(), tt.args.userId, tt.args.permission, tt.args.reqType, tt.args.objectType)
+			got, err := ps.PermissionForObjects(context.Background(), tt.args.userId, tt.args.permission, tt.args.reqType, tt.args.objectType)
 			assert.Equal(t, tt.want, got)
 			tt.wantErr(t, err)
 		})
