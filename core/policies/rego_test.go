@@ -120,6 +120,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			compliant: map[string]bool{
 				"AtRestEncryptionAlgorithm":         true,
 				"AtRestEncryptionEnabled":           true,
+				"MalwareProtectionEnabled":          false,
 				"ObjectStoragePublicAccessDisabled": true,
 				"VulnerabilitiesNotExploitable":     true,
 			},
@@ -170,6 +171,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			compliant: map[string]bool{
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
+				"MalwareProtectionEnabled":          false,
 				"ObjectStoragePublicAccessDisabled": false,
 				"VulnerabilitiesNotExploitable":     true,
 			},
@@ -203,6 +205,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			compliant: map[string]bool{
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
+				"MalwareProtectionEnabled":          false,
 				"ObjectStoragePublicAccessDisabled": false,
 				"VulnerabilitiesNotExploitable":     true,
 			},
