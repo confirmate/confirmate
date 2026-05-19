@@ -371,10 +371,10 @@ func (svc *Service) TransitionControlInScopeState(
 	return
 }
 
-// UnscopeControl removes a control from scope and records an AuditTrailEvent.
-func (svc *Service) UnscopeControl(
+// RemoveControlInScope removes a control from scope and records an AuditTrailEvent.
+func (svc *Service) RemoveControlInScope(
 	ctx context.Context,
-	req *connect.Request[orchestrator.UnscopeControlRequest],
+	req *connect.Request[orchestrator.RemoveControlInScopeRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
 		cis     orchestrator.ControlInScope

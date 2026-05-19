@@ -102,7 +102,7 @@ func (ControlInScopeState) EnumDescriptor() ([]byte, []int) {
 // ControlInScope tracks the implementation status of a specific control within an audit scope.
 // There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
 // when an audit scope is created and can also be managed manually via the CreateControlInScope /
-// UnscopeControl RPCs.
+// RemoveControlInScope RPCs.
 type ControlInScope struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
@@ -236,7 +236,7 @@ type AuditTrailEvent struct {
 	// EventData holds the typed event payload serialized as JSON.
 	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
 	// ControlInScopeId optionally links this event to the affected ControlInScope record.
-	// Not set for events where the ControlInScope record is deleted (e.g. UnscopeControl).
+	// Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
 	ControlInScopeId *string `protobuf:"bytes,7,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty" gorm:"index"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -818,27 +818,27 @@ func (x *TransitionControlInScopeStateRequest) GetComment() string {
 	return ""
 }
 
-type UnscopeControlRequest struct {
+type RemoveControlInScopeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UnscopeControlRequest) Reset() {
-	*x = UnscopeControlRequest{}
+func (x *RemoveControlInScopeRequest) Reset() {
+	*x = RemoveControlInScopeRequest{}
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UnscopeControlRequest) String() string {
+func (x *RemoveControlInScopeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UnscopeControlRequest) ProtoMessage() {}
+func (*RemoveControlInScopeRequest) ProtoMessage() {}
 
-func (x *UnscopeControlRequest) ProtoReflect() protoreflect.Message {
+func (x *RemoveControlInScopeRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -850,12 +850,12 @@ func (x *UnscopeControlRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UnscopeControlRequest.ProtoReflect.Descriptor instead.
-func (*UnscopeControlRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RemoveControlInScopeRequest.ProtoReflect.Descriptor instead.
+func (*RemoveControlInScopeRequest) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *UnscopeControlRequest) GetId() string {
+func (x *RemoveControlInScopeRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
@@ -1200,8 +1200,8 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12Y\n" +
 	"\bto_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\x12$\n" +
 	"\acomment\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\"4\n" +
-	"\x15UnscopeControlRequest\x12\x1b\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\":\n" +
+	"\x1bRemoveControlInScopeRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xc4\x03\n" +
 	"\x1bListAuditTrailEventsRequest\x12[\n" +
 	"\x06filter\x18\x01 \x01(\v2>.confirmate.orchestrator.v1.ListAuditTrailEventsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
@@ -1256,7 +1256,7 @@ var file_api_orchestrator_workflow_proto_goTypes = []any{
 	(*ListControlsInScopeResponse)(nil),          // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse
 	(*UpdateControlInScopeRequest)(nil),          // 9: confirmate.orchestrator.v1.UpdateControlInScopeRequest
 	(*TransitionControlInScopeStateRequest)(nil), // 10: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
-	(*UnscopeControlRequest)(nil),                // 11: confirmate.orchestrator.v1.UnscopeControlRequest
+	(*RemoveControlInScopeRequest)(nil),          // 11: confirmate.orchestrator.v1.RemoveControlInScopeRequest
 	(*ListAuditTrailEventsRequest)(nil),          // 12: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
 	(*ListAuditTrailEventsResponse)(nil),         // 13: confirmate.orchestrator.v1.ListAuditTrailEventsResponse
 	(*ListControlsInScopeRequest_Filter)(nil),    // 14: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter

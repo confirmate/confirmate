@@ -36,7 +36,7 @@ enum ControlInScopeState {
 // ControlInScope tracks the implementation status of a specific control within an audit scope.
 // There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
 // when an audit scope is created and can also be managed manually via the CreateControlInScope /
-// UnscopeControl RPCs.
+// RemoveControlInScope RPCs.
 message ControlInScope {
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
@@ -117,7 +117,7 @@ message AuditTrailEvent {
   ];
 
   // ControlInScopeId optionally links this event to the affected ControlInScope record.
-  // Not set for events where the ControlInScope record is deleted (e.g. UnscopeControl).
+  // Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
   optional string control_in_scope_id = 7 [
     (tagger.tags) = "gorm:\"index\""
   ];
@@ -226,7 +226,7 @@ message TransitionControlInScopeStateRequest {
   ];
 }
 
-message UnscopeControlRequest {
+message RemoveControlInScopeRequest {
   string id = 1 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED

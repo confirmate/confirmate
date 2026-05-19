@@ -761,9 +761,9 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 	}
 }
 
-func TestService_UnscopeControl(t *testing.T) {
+func TestService_RemoveControlInScope(t *testing.T) {
 	type args struct {
-		req     *orchestrator.UnscopeControlRequest
+		req     *orchestrator.RemoveControlInScopeRequest
 		context context.Context
 	}
 	type fields struct {
@@ -781,7 +781,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{
+				req: &orchestrator.RemoveControlInScopeRequest{
 					Id: orchestratortest.MockControlInScope1.Id,
 				},
 			},
@@ -812,7 +812,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "authorization failure",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{
+				req: &orchestrator.RemoveControlInScopeRequest{
 					Id: orchestratortest.MockControlInScope1.Id,
 				},
 			},
@@ -831,7 +831,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "not found",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{
+				req: &orchestrator.RemoveControlInScopeRequest{
 					Id: orchestratortest.MockNonExistentId,
 				},
 			},
@@ -848,7 +848,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "validation error - empty id",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{},
+				req: &orchestrator.RemoveControlInScopeRequest{},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -867,7 +867,7 @@ func TestService_UnscopeControl(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.UnscopeControl(tt.args.context, connect.NewRequest(tt.args.req))
+			res, err := svc.RemoveControlInScope(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db, res)

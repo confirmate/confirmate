@@ -990,8 +990,8 @@ paths:
         delete:
             tags:
                 - Orchestrator
-            description: Removes a control from scope and records an AuditTrailEvent.
-            operationId: Orchestrator_UnscopeControl
+            description: Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
+            operationId: Orchestrator_RemoveControlInScope
             parameters:
                 - name: id
                   in: path
@@ -2172,7 +2172,7 @@ components:
                     type: string
                     description: |-
                         ControlInScopeId optionally links this event to the affected ControlInScope record.
-                         Not set for events where the ControlInScope record is deleted (e.g. UnscopeControl).
+                         Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
             description: |-
                 AuditTrailEvent is a persisted record of any significant change related to an audit scope,
                  such as a control being scoped/unscoped or an audit scope state transition. The event_data
@@ -2398,7 +2398,7 @@ components:
                 ControlInScope tracks the implementation status of a specific control within an audit scope.
                  There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
                  when an audit scope is created and can also be managed manually via the CreateControlInScope /
-                 UnscopeControl RPCs.
+                 RemoveControlInScope RPCs.
         CreateControlInScopeRequest:
             required:
                 - auditScopeId

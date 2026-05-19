@@ -6459,7 +6459,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\"AUDIT_SCOPE_STATUS_INTERNAL_REVIEW\x10\x02\x12%\n" +
 	"!AUDIT_SCOPE_STATUS_AUDITOR_REVIEW\x10\x03\x127\n" +
 	"3AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT\x10\x04\x12\x1c\n" +
-	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\x98V\n" +
+	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xa4V\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -6524,8 +6524,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x11GetControlInScope\x124.confirmate.orchestrator.v1.GetControlInScopeRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"/\x82\xd3\xe4\x93\x02)\x12'/v1/orchestrator/controls_in_scope/{id}\x12\xb2\x01\n" +
 	"\x13ListControlsInScope\x126.confirmate.orchestrator.v1.ListControlsInScopeRequest\x1a7.confirmate.orchestrator.v1.ListControlsInScopeResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/v1/orchestrator/controls_in_scope\x12\xaf\x01\n" +
 	"\x14UpdateControlInScope\x127.confirmate.orchestrator.v1.UpdateControlInScopeRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/v1/orchestrator/controls_in_scope/{id}\x12\xcc\x01\n" +
-	"\x1dTransitionControlInScopeState\x12@.confirmate.orchestrator.v1.TransitionControlInScopeStateRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"=\x82\xd3\xe4\x93\x027:\x01*\"2/v1/orchestrator/controls_in_scope/{id}/transition\x12\x8c\x01\n" +
-	"\x0eUnscopeControl\x121.confirmate.orchestrator.v1.UnscopeControlRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/v1/orchestrator/controls_in_scope/{id}\x12\xb6\x01\n" +
+	"\x1dTransitionControlInScopeState\x12@.confirmate.orchestrator.v1.TransitionControlInScopeStateRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"=\x82\xd3\xe4\x93\x027:\x01*\"2/v1/orchestrator/controls_in_scope/{id}/transition\x12\x98\x01\n" +
+	"\x14RemoveControlInScope\x127.confirmate.orchestrator.v1.RemoveControlInScopeRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/v1/orchestrator/controls_in_scope/{id}\x12\xb6\x01\n" +
 	"\x14ListAuditTrailEvents\x127.confirmate.orchestrator.v1.ListAuditTrailEventsRequest\x1a8.confirmate.orchestrator.v1.ListAuditTrailEventsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/v1/orchestrator/audit_trail_eventsB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
@@ -6660,7 +6660,7 @@ var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(*ListControlsInScopeRequest)(nil),                    // 114: confirmate.orchestrator.v1.ListControlsInScopeRequest
 	(*UpdateControlInScopeRequest)(nil),                   // 115: confirmate.orchestrator.v1.UpdateControlInScopeRequest
 	(*TransitionControlInScopeStateRequest)(nil),          // 116: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
-	(*UnscopeControlRequest)(nil),                         // 117: confirmate.orchestrator.v1.UnscopeControlRequest
+	(*RemoveControlInScopeRequest)(nil),                   // 117: confirmate.orchestrator.v1.RemoveControlInScopeRequest
 	(*ListAuditTrailEventsRequest)(nil),                   // 118: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
 	(*emptypb.Empty)(nil),                                 // 119: google.protobuf.Empty
 	(*common.Runtime)(nil),                                // 120: confirmate.common.v1.Runtime
@@ -6810,7 +6810,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	114, // 139: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:input_type -> confirmate.orchestrator.v1.ListControlsInScopeRequest
 	115, // 140: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:input_type -> confirmate.orchestrator.v1.UpdateControlInScopeRequest
 	116, // 141: confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState:input_type -> confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
-	117, // 142: confirmate.orchestrator.v1.Orchestrator.UnscopeControl:input_type -> confirmate.orchestrator.v1.UnscopeControlRequest
+	117, // 142: confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope:input_type -> confirmate.orchestrator.v1.RemoveControlInScopeRequest
 	118, // 143: confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents:input_type -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest
 	38,  // 144: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
 	6,   // 145: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
@@ -6873,7 +6873,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	121, // 202: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:output_type -> confirmate.orchestrator.v1.ListControlsInScopeResponse
 	107, // 203: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
 	107, // 204: confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState:output_type -> confirmate.orchestrator.v1.ControlInScope
-	119, // 205: confirmate.orchestrator.v1.Orchestrator.UnscopeControl:output_type -> google.protobuf.Empty
+	119, // 205: confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope:output_type -> google.protobuf.Empty
 	122, // 206: confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents:output_type -> confirmate.orchestrator.v1.ListAuditTrailEventsResponse
 	144, // [144:207] is the sub-list for method output_type
 	81,  // [81:144] is the sub-list for method input_type
