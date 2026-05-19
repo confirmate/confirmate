@@ -1083,17 +1083,8 @@ message AuditScope {
   // optional
   optional string assurance_level = 3;
 
-  // List of user IDs with explicit permission to view this target (Read-only).
-  // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-  repeated User readers = 6 [(tagger.tags) = "gorm:\"many2many:audit_scope_readers;constraint:OnDelete:CASCADE\""];
-
-  // List of user IDs responsible for the content and maintenance of this target.
-  // These users can modify settings and data but cannot manage other users' access.
-  repeated User contributors = 7 [(tagger.tags) = "gorm:\"many2many:audit_scope_contributors;constraint:OnDelete:CASCADE\""];
-
-  // List of user IDs with administrative control over this target.
-  // These users can manage permissions for others and perform destructive actions like deletion.
-  repeated User admins = 8 [(tagger.tags) = "gorm:\"many2many:audit_scope_admins;constraint:OnDelete:CASCADE\""];
+  reserved 6, 7, 8;
+  reserved "readers", "contributors", "admins";
 
   // Status represents the current lifecycle status of the audit scope.
   AuditScopeStatus status = 9 [

@@ -39,7 +39,6 @@ var types = []any{
 	// Category depends on Control (category_controls join table).
 	&orchestrator.Control{},
 	&orchestrator.Category{},
-	// AuditScope depends on User (audit_scope_readers/contributors/admins join tables).
 	&orchestrator.AuditScope{},
 	&orchestrator.AssessmentTool{},
 	&assessment.MetricConfiguration{},
