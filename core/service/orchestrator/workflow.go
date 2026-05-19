@@ -83,7 +83,7 @@ func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, controlInSc
 		AuditScopeId: auditScopeId,
 		ActorId:      actorId,
 		Comment:      comment,
-		Time:         timestamppb.Now(),
+		CreatedAt:    timestamppb.Now(),
 		EventData:    data,
 	}
 	if controlInScopeId != "" {

@@ -232,7 +232,7 @@ type AuditTrailEvent struct {
 	// Comment provides optional context for the event.
 	Comment string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
 	// Time is the creation time of this event.
-	Time *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=time,proto3" json:"time,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// EventData holds the typed event payload serialized as JSON.
 	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
 	// ControlInScopeId optionally links this event to the affected ControlInScope record.
@@ -300,9 +300,9 @@ func (x *AuditTrailEvent) GetComment() string {
 	return ""
 }
 
-func (x *AuditTrailEvent) GetTime() *timestamppb.Timestamp {
+func (x *AuditTrailEvent) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.Time
+		return x.CreatedAt
 	}
 	return nil
 }
@@ -1136,13 +1136,14 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tupdatedAtB\x19\n" +
 	"\x17_implementation_detailsB\x0e\n" +
-	"\f_assignee_id\"\xdf\x03\n" +
+	"\f_assignee_id\"\xea\x03\n" +
 	"\x0fAuditTrailEvent\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12:\n" +
 	"\x0eaudit_scope_id\x18\x02 \x01(\tB\x14\xe0A\x03\x9a\x84\x9e\x03\fgorm:\"index\"R\fauditScopeId\x12\x1e\n" +
 	"\bactor_id\x18\x03 \x01(\tB\x03\xe0A\x03R\aactorId\x12\x18\n" +
-	"\acomment\x18\x04 \x01(\tR\acomment\x12d\n" +
-	"\x04time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x03\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x04time\x12^\n" +
+	"\acomment\x18\x04 \x01(\tR\acomment\x12o\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x03\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tcreatedAt\x12^\n" +
 	"\n" +
 	"event_data\x18\x06 \x01(\v2\x14.google.protobuf.AnyB)\xe0A\x03\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:text\"R\teventData\x12E\n" +
 	"\x13control_in_scope_id\x18\a \x01(\tB\x11\x9a\x84\x9e\x03\fgorm:\"index\"H\x00R\x10controlInScopeId\x88\x01\x01B\x16\n" +
@@ -1267,7 +1268,7 @@ var file_api_orchestrator_workflow_proto_depIdxs = []int32{
 	0,  // 0: confirmate.orchestrator.v1.ControlInScope.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
 	16, // 1: confirmate.orchestrator.v1.ControlInScope.created_at:type_name -> google.protobuf.Timestamp
 	16, // 2: confirmate.orchestrator.v1.ControlInScope.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 3: confirmate.orchestrator.v1.AuditTrailEvent.time:type_name -> google.protobuf.Timestamp
+	16, // 3: confirmate.orchestrator.v1.AuditTrailEvent.created_at:type_name -> google.protobuf.Timestamp
 	17, // 4: confirmate.orchestrator.v1.AuditTrailEvent.event_data:type_name -> google.protobuf.Any
 	0,  // 5: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.from_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
 	0,  // 6: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState

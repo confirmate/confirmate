@@ -105,7 +105,7 @@ message AuditTrailEvent {
   string comment = 4;
 
   // Time is the creation time of this event.
-  google.protobuf.Timestamp time = 5 [
+  google.protobuf.Timestamp created_at = 5 [
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
@@ -128,16 +128,16 @@ message AuditTrailEvent {
 // because the ControlInScope record is deleted as part of the same transaction.
 message ControlScopingEvent {
   string control_in_scope_id = 1;
-  string control_id = 2;
-  string audit_scope_id = 3;
-  bool in_scope = 4;
+  string control_id          = 2;
+  string audit_scope_id      = 3;
+  bool   in_scope            = 4;
 }
 
 // ControlInScopeTransitionEvent is emitted when a ControlInScope moves between implementation states.
 message ControlInScopeTransitionEvent {
-  string control_in_scope_id = 1;
-  ControlInScopeState from_state = 2;
-  ControlInScopeState to_state = 3;
+  string              control_in_scope_id = 1;
+  ControlInScopeState from_state          = 2;
+  ControlInScopeState to_state            = 3;
 }
 
 // ── Request / Response messages ──────────────────────────────────────────────
