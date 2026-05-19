@@ -26,6 +26,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -39,108 +40,106 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// ControlImplementationState represents the lifecycle state of a control implementation.
-type ControlImplementationState int32
+// ControlInScopeState represents the lifecycle state of a control's implementation within an audit scope.
+type ControlInScopeState int32
 
 const (
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED      ControlImplementationState = 0
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN             ControlImplementationState = 1
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS      ControlImplementationState = 2
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED      ControlImplementationState = 3
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW ControlImplementationState = 4
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED         ControlImplementationState = 5
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED      ControlInScopeState = 0
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN             ControlInScopeState = 1
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS      ControlInScopeState = 2
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_IMPLEMENTED      ControlInScopeState = 3
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW ControlInScopeState = 4
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED         ControlInScopeState = 5
 )
 
-// Enum value maps for ControlImplementationState.
+// Enum value maps for ControlInScopeState.
 var (
-	ControlImplementationState_name = map[int32]string{
-		0: "CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED",
-		1: "CONTROL_IMPLEMENTATION_STATE_OPEN",
-		2: "CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS",
-		3: "CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED",
-		4: "CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW",
-		5: "CONTROL_IMPLEMENTATION_STATE_ACCEPTED",
+	ControlInScopeState_name = map[int32]string{
+		0: "CONTROL_IN_SCOPE_STATE_UNSPECIFIED",
+		1: "CONTROL_IN_SCOPE_STATE_OPEN",
+		2: "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+		3: "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+		4: "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+		5: "CONTROL_IN_SCOPE_STATE_ACCEPTED",
 	}
-	ControlImplementationState_value = map[string]int32{
-		"CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED":      0,
-		"CONTROL_IMPLEMENTATION_STATE_OPEN":             1,
-		"CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS":      2,
-		"CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED":      3,
-		"CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW": 4,
-		"CONTROL_IMPLEMENTATION_STATE_ACCEPTED":         5,
+	ControlInScopeState_value = map[string]int32{
+		"CONTROL_IN_SCOPE_STATE_UNSPECIFIED":      0,
+		"CONTROL_IN_SCOPE_STATE_OPEN":             1,
+		"CONTROL_IN_SCOPE_STATE_IN_PROGRESS":      2,
+		"CONTROL_IN_SCOPE_STATE_IMPLEMENTED":      3,
+		"CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW": 4,
+		"CONTROL_IN_SCOPE_STATE_ACCEPTED":         5,
 	}
 )
 
-func (x ControlImplementationState) Enum() *ControlImplementationState {
-	p := new(ControlImplementationState)
+func (x ControlInScopeState) Enum() *ControlInScopeState {
+	p := new(ControlInScopeState)
 	*p = x
 	return p
 }
 
-func (x ControlImplementationState) String() string {
+func (x ControlInScopeState) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (ControlImplementationState) Descriptor() protoreflect.EnumDescriptor {
+func (ControlInScopeState) Descriptor() protoreflect.EnumDescriptor {
 	return file_api_orchestrator_workflow_proto_enumTypes[0].Descriptor()
 }
 
-func (ControlImplementationState) Type() protoreflect.EnumType {
+func (ControlInScopeState) Type() protoreflect.EnumType {
 	return &file_api_orchestrator_workflow_proto_enumTypes[0]
 }
 
-func (x ControlImplementationState) Number() protoreflect.EnumNumber {
+func (x ControlInScopeState) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use ControlImplementationState.Descriptor instead.
-func (ControlImplementationState) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use ControlInScopeState.Descriptor instead.
+func (ControlInScopeState) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{0}
 }
 
-// ControlImplementation tracks the implementation status of a specific control within an audit
-// scope. There is exactly one ControlImplementation per (audit scope, control) pair.
-type ControlImplementation struct {
+// ControlInScope tracks the implementation status of a specific control within an audit scope.
+// There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
+// when an audit scope is created and can also be managed manually via the CreateControlInScope /
+// RemoveControlInScope RPCs.
+type ControlInScope struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// AuditScopeId describes the audit scope this implementation belongs to.
-	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
+	// AuditScopeId describes the audit scope this record belongs to.
+	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"uniqueIndex:idx_control_in_scope_audit_scope_control"`
 	// TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
+	// It is set server-side and not required in requests.
 	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
-	// Control foreign key — references the control being implemented.
-	ControlId                string `protobuf:"bytes,5,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
-	ControlCategoryName      string `protobuf:"bytes,6,opt,name=control_category_name,json=controlCategoryName,proto3" json:"control_category_name,omitempty"`
-	ControlCategoryCatalogId string `protobuf:"bytes,7,opt,name=control_category_catalog_id,json=controlCategoryCatalogId,proto3" json:"control_category_catalog_id,omitempty"`
+	// ControlId references the control being implemented (unique UUID since #270).
+	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty" gorm:"uniqueIndex:idx_control_in_scope_audit_scope_control"`
 	// Current implementation state.
-	State ControlImplementationState `protobuf:"varint,9,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"state,omitempty"`
-	// ImplementationDetails contains details about the technical and organisation measures taken to
-	// implement the control. This is a free-form field that can be used to capture any relevant
-	// information about the implementation.
-	ImplementationDetails *string `protobuf:"bytes,10,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
-	// AssigneeId is the user (identified by User.id) responsible for implementing this control.
-	AssigneeId *string                `protobuf:"bytes,11,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
-	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	// Full history of state transitions (populated on read).
-	Transitions   []*ControlImplementationTransition `protobuf:"bytes,14,rep,name=transitions,proto3" json:"transitions,omitempty"`
+	State ControlInScopeState `protobuf:"varint,5,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"state,omitempty"`
+	// ImplementationDetails contains free-form notes about how the control is being addressed.
+	ImplementationDetails *string `protobuf:"bytes,6,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
+	// AssigneeId is the ID of the orchestrator User entity responsible for implementing this control.
+	// This is the User.id of the person assigned, not the actor making the request.
+	AssigneeId    *string                `protobuf:"bytes,7,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ControlImplementation) Reset() {
-	*x = ControlImplementation{}
+func (x *ControlInScope) Reset() {
+	*x = ControlInScope{}
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ControlImplementation) String() string {
+func (x *ControlInScope) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ControlImplementation) ProtoMessage() {}
+func (*ControlInScope) ProtoMessage() {}
 
-func (x *ControlImplementation) ProtoReflect() protoreflect.Message {
+func (x *ControlInScope) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -152,126 +151,111 @@ func (x *ControlImplementation) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ControlImplementation.ProtoReflect.Descriptor instead.
-func (*ControlImplementation) Descriptor() ([]byte, []int) {
+// Deprecated: Use ControlInScope.ProtoReflect.Descriptor instead.
+func (*ControlInScope) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ControlImplementation) GetId() string {
+func (x *ControlInScope) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *ControlImplementation) GetAuditScopeId() string {
+func (x *ControlInScope) GetAuditScopeId() string {
 	if x != nil {
 		return x.AuditScopeId
 	}
 	return ""
 }
 
-func (x *ControlImplementation) GetTargetOfEvaluationId() string {
+func (x *ControlInScope) GetTargetOfEvaluationId() string {
 	if x != nil {
 		return x.TargetOfEvaluationId
 	}
 	return ""
 }
 
-func (x *ControlImplementation) GetControlId() string {
+func (x *ControlInScope) GetControlId() string {
 	if x != nil {
 		return x.ControlId
 	}
 	return ""
 }
 
-func (x *ControlImplementation) GetControlCategoryName() string {
-	if x != nil {
-		return x.ControlCategoryName
-	}
-	return ""
-}
-
-func (x *ControlImplementation) GetControlCategoryCatalogId() string {
-	if x != nil {
-		return x.ControlCategoryCatalogId
-	}
-	return ""
-}
-
-func (x *ControlImplementation) GetState() ControlImplementationState {
+func (x *ControlInScope) GetState() ControlInScopeState {
 	if x != nil {
 		return x.State
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
-func (x *ControlImplementation) GetImplementationDetails() string {
+func (x *ControlInScope) GetImplementationDetails() string {
 	if x != nil && x.ImplementationDetails != nil {
 		return *x.ImplementationDetails
 	}
 	return ""
 }
 
-func (x *ControlImplementation) GetAssigneeId() string {
+func (x *ControlInScope) GetAssigneeId() string {
 	if x != nil && x.AssigneeId != nil {
 		return *x.AssigneeId
 	}
 	return ""
 }
 
-func (x *ControlImplementation) GetCreatedAt() *timestamppb.Timestamp {
+func (x *ControlInScope) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *ControlImplementation) GetUpdatedAt() *timestamppb.Timestamp {
+func (x *ControlInScope) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
 	return nil
 }
 
-func (x *ControlImplementation) GetTransitions() []*ControlImplementationTransition {
-	if x != nil {
-		return x.Transitions
-	}
-	return nil
+// AuditTrailEvent is a persisted record of any significant change related to an audit scope,
+// such as a control being scoped/unscoped or an audit scope state transition. The event_data
+// field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
+type AuditTrailEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
+	// AuditScopeId is the primary resource this event belongs to.
+	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"index"`
+	// ActorId is the User.id of the person who triggered this event.
+	ActorId string `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	// Comment provides optional context for the event.
+	Comment string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
+	// Time is the creation time of this event.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	// EventData holds the typed event payload serialized as JSON.
+	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
+	// ControlInScopeId optionally links this event to the affected ControlInScope record.
+	// Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
+	ControlInScopeId *string `protobuf:"bytes,7,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty" gorm:"index"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
-// ControlImplementationTransition records a single state change in a ControlImplementation's
-// lifecycle, capturing who made the change and when.
-type ControlImplementationTransition struct {
-	state                   protoimpl.MessageState     `protogen:"open.v1"`
-	Id                      string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ControlImplementationId string                     `protobuf:"bytes,2,opt,name=control_implementation_id,json=controlImplementationId,proto3" json:"control_implementation_id,omitempty"`
-	FromState               ControlImplementationState `protobuf:"varint,3,opt,name=from_state,json=fromState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"from_state,omitempty"`
-	ToState                 ControlImplementationState `protobuf:"varint,4,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"to_state,omitempty"`
-	// User.id of the person who triggered this transition.
-	PerformedBy string                 `protobuf:"bytes,5,opt,name=performed_by,json=performedBy,proto3" json:"performed_by,omitempty"`
-	Time        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=time,proto3" json:"time,omitempty"`
-	// Comment explaining the reason for the transition.
-	Comment       string `protobuf:"bytes,7,opt,name=comment,proto3" json:"comment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ControlImplementationTransition) Reset() {
-	*x = ControlImplementationTransition{}
+func (x *AuditTrailEvent) Reset() {
+	*x = AuditTrailEvent{}
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ControlImplementationTransition) String() string {
+func (x *AuditTrailEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ControlImplementationTransition) ProtoMessage() {}
+func (*AuditTrailEvent) ProtoMessage() {}
 
-func (x *ControlImplementationTransition) ProtoReflect() protoreflect.Message {
+func (x *AuditTrailEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -283,81 +267,87 @@ func (x *ControlImplementationTransition) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ControlImplementationTransition.ProtoReflect.Descriptor instead.
-func (*ControlImplementationTransition) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuditTrailEvent.ProtoReflect.Descriptor instead.
+func (*AuditTrailEvent) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ControlImplementationTransition) GetId() string {
+func (x *AuditTrailEvent) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *ControlImplementationTransition) GetControlImplementationId() string {
+func (x *AuditTrailEvent) GetAuditScopeId() string {
 	if x != nil {
-		return x.ControlImplementationId
+		return x.AuditScopeId
 	}
 	return ""
 }
 
-func (x *ControlImplementationTransition) GetFromState() ControlImplementationState {
+func (x *AuditTrailEvent) GetActorId() string {
 	if x != nil {
-		return x.FromState
-	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
-}
-
-func (x *ControlImplementationTransition) GetToState() ControlImplementationState {
-	if x != nil {
-		return x.ToState
-	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
-}
-
-func (x *ControlImplementationTransition) GetPerformedBy() string {
-	if x != nil {
-		return x.PerformedBy
+		return x.ActorId
 	}
 	return ""
 }
 
-func (x *ControlImplementationTransition) GetTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.Time
-	}
-	return nil
-}
-
-func (x *ControlImplementationTransition) GetComment() string {
+func (x *AuditTrailEvent) GetComment() string {
 	if x != nil {
 		return x.Comment
 	}
 	return ""
 }
 
-type CreateControlImplementationRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	ControlImplementation *ControlImplementation `protobuf:"bytes,1,opt,name=control_implementation,json=controlImplementation,proto3" json:"control_implementation,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+func (x *AuditTrailEvent) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
 }
 
-func (x *CreateControlImplementationRequest) Reset() {
-	*x = CreateControlImplementationRequest{}
+func (x *AuditTrailEvent) GetEventData() *anypb.Any {
+	if x != nil {
+		return x.EventData
+	}
+	return nil
+}
+
+func (x *AuditTrailEvent) GetControlInScopeId() string {
+	if x != nil && x.ControlInScopeId != nil {
+		return *x.ControlInScopeId
+	}
+	return ""
+}
+
+// ControlScopingEvent is emitted when a control is brought in or out of scope.
+// control_in_scope_id is only set for in-scope events; it is omitted for out-of-scope events
+// because the ControlInScope record is deleted as part of the same transaction.
+type ControlScopingEvent struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ControlInScopeId string                 `protobuf:"bytes,1,opt,name=control_in_scope_id,json=controlInScopeId,proto3" json:"control_in_scope_id,omitempty"`
+	ControlId        string                 `protobuf:"bytes,2,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	AuditScopeId     string                 `protobuf:"bytes,3,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	InScope          bool                   `protobuf:"varint,4,opt,name=in_scope,json=inScope,proto3" json:"in_scope,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ControlScopingEvent) Reset() {
+	*x = ControlScopingEvent{}
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateControlImplementationRequest) String() string {
+func (x *ControlScopingEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateControlImplementationRequest) ProtoMessage() {}
+func (*ControlScopingEvent) ProtoMessage() {}
 
-func (x *CreateControlImplementationRequest) ProtoReflect() protoreflect.Message {
+func (x *ControlScopingEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -369,40 +359,193 @@ func (x *CreateControlImplementationRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateControlImplementationRequest.ProtoReflect.Descriptor instead.
-func (*CreateControlImplementationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ControlScopingEvent.ProtoReflect.Descriptor instead.
+func (*ControlScopingEvent) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CreateControlImplementationRequest) GetControlImplementation() *ControlImplementation {
+func (x *ControlScopingEvent) GetControlInScopeId() string {
 	if x != nil {
-		return x.ControlImplementation
+		return x.ControlInScopeId
 	}
-	return nil
+	return ""
 }
 
-type GetControlImplementationRequest struct {
+func (x *ControlScopingEvent) GetControlId() string {
+	if x != nil {
+		return x.ControlId
+	}
+	return ""
+}
+
+func (x *ControlScopingEvent) GetAuditScopeId() string {
+	if x != nil {
+		return x.AuditScopeId
+	}
+	return ""
+}
+
+func (x *ControlScopingEvent) GetInScope() bool {
+	if x != nil {
+		return x.InScope
+	}
+	return false
+}
+
+// ControlInScopeTransitionEvent is emitted when a ControlInScope moves between implementation states.
+type ControlInScopeTransitionEvent struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ControlInScopeId string                 `protobuf:"bytes,1,opt,name=control_in_scope_id,json=controlInScopeId,proto3" json:"control_in_scope_id,omitempty"`
+	FromState        ControlInScopeState    `protobuf:"varint,2,opt,name=from_state,json=fromState,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"from_state,omitempty"`
+	ToState          ControlInScopeState    `protobuf:"varint,3,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"to_state,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ControlInScopeTransitionEvent) Reset() {
+	*x = ControlInScopeTransitionEvent{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ControlInScopeTransitionEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ControlInScopeTransitionEvent) ProtoMessage() {}
+
+func (x *ControlInScopeTransitionEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ControlInScopeTransitionEvent.ProtoReflect.Descriptor instead.
+func (*ControlInScopeTransitionEvent) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ControlInScopeTransitionEvent) GetControlInScopeId() string {
+	if x != nil {
+		return x.ControlInScopeId
+	}
+	return ""
+}
+
+func (x *ControlInScopeTransitionEvent) GetFromState() ControlInScopeState {
+	if x != nil {
+		return x.FromState
+	}
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
+}
+
+func (x *ControlInScopeTransitionEvent) GetToState() ControlInScopeState {
+	if x != nil {
+		return x.ToState
+	}
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
+}
+
+type CreateControlInScopeRequest struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	ControlId    string                 `protobuf:"bytes,2,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	// TargetOfEvaluationId must match the target_of_evaluation_id of the referenced audit scope.
+	// It is required here so the server can avoid a round-trip fetch of the AuditScope.
+	TargetOfEvaluationId string `protobuf:"bytes,4,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
+	// AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateControlInScopeRequest) Reset() {
+	*x = CreateControlInScopeRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateControlInScopeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateControlInScopeRequest) ProtoMessage() {}
+
+func (x *CreateControlInScopeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateControlInScopeRequest.ProtoReflect.Descriptor instead.
+func (*CreateControlInScopeRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateControlInScopeRequest) GetAuditScopeId() string {
+	if x != nil {
+		return x.AuditScopeId
+	}
+	return ""
+}
+
+func (x *CreateControlInScopeRequest) GetControlId() string {
+	if x != nil {
+		return x.ControlId
+	}
+	return ""
+}
+
+func (x *CreateControlInScopeRequest) GetTargetOfEvaluationId() string {
+	if x != nil {
+		return x.TargetOfEvaluationId
+	}
+	return ""
+}
+
+func (x *CreateControlInScopeRequest) GetAssigneeId() string {
+	if x != nil && x.AssigneeId != nil {
+		return *x.AssigneeId
+	}
+	return ""
+}
+
+type GetControlInScopeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetControlImplementationRequest) Reset() {
-	*x = GetControlImplementationRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[3]
+func (x *GetControlInScopeRequest) Reset() {
+	*x = GetControlInScopeRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetControlImplementationRequest) String() string {
+func (x *GetControlInScopeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetControlImplementationRequest) ProtoMessage() {}
+func (*GetControlInScopeRequest) ProtoMessage() {}
 
-func (x *GetControlImplementationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[3]
+func (x *GetControlInScopeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -413,44 +556,44 @@ func (x *GetControlImplementationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetControlImplementationRequest.ProtoReflect.Descriptor instead.
-func (*GetControlImplementationRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use GetControlInScopeRequest.ProtoReflect.Descriptor instead.
+func (*GetControlInScopeRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetControlImplementationRequest) GetId() string {
+func (x *GetControlInScopeRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type ListControlImplementationsRequest struct {
-	state         protoimpl.MessageState                    `protogen:"open.v1"`
-	Filter        *ListControlImplementationsRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
-	PageSize      int32                                     `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                                    `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	OrderBy       string                                    `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	Asc           bool                                      `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
+type ListControlsInScopeRequest struct {
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	Filter        *ListControlsInScopeRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	PageSize      int32                              `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                             `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	OrderBy       string                             `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	Asc           bool                               `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListControlImplementationsRequest) Reset() {
-	*x = ListControlImplementationsRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+func (x *ListControlsInScopeRequest) Reset() {
+	*x = ListControlsInScopeRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListControlImplementationsRequest) String() string {
+func (x *ListControlsInScopeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListControlImplementationsRequest) ProtoMessage() {}
+func (*ListControlsInScopeRequest) ProtoMessage() {}
 
-func (x *ListControlImplementationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+func (x *ListControlsInScopeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,69 +604,69 @@ func (x *ListControlImplementationsRequest) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListControlImplementationsRequest.ProtoReflect.Descriptor instead.
-func (*ListControlImplementationsRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{4}
+// Deprecated: Use ListControlsInScopeRequest.ProtoReflect.Descriptor instead.
+func (*ListControlsInScopeRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListControlImplementationsRequest) GetFilter() *ListControlImplementationsRequest_Filter {
+func (x *ListControlsInScopeRequest) GetFilter() *ListControlsInScopeRequest_Filter {
 	if x != nil {
 		return x.Filter
 	}
 	return nil
 }
 
-func (x *ListControlImplementationsRequest) GetPageSize() int32 {
+func (x *ListControlsInScopeRequest) GetPageSize() int32 {
 	if x != nil {
 		return x.PageSize
 	}
 	return 0
 }
 
-func (x *ListControlImplementationsRequest) GetPageToken() string {
+func (x *ListControlsInScopeRequest) GetPageToken() string {
 	if x != nil {
 		return x.PageToken
 	}
 	return ""
 }
 
-func (x *ListControlImplementationsRequest) GetOrderBy() string {
+func (x *ListControlsInScopeRequest) GetOrderBy() string {
 	if x != nil {
 		return x.OrderBy
 	}
 	return ""
 }
 
-func (x *ListControlImplementationsRequest) GetAsc() bool {
+func (x *ListControlsInScopeRequest) GetAsc() bool {
 	if x != nil {
 		return x.Asc
 	}
 	return false
 }
 
-type ListControlImplementationsResponse struct {
-	state                  protoimpl.MessageState   `protogen:"open.v1"`
-	ControlImplementations []*ControlImplementation `protobuf:"bytes,1,rep,name=control_implementations,json=controlImplementations,proto3" json:"control_implementations,omitempty"`
-	NextPageToken          string                   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+type ListControlsInScopeResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ControlsInScope []*ControlInScope      `protobuf:"bytes,1,rep,name=controls_in_scope,json=controlsInScope,proto3" json:"controls_in_scope,omitempty"`
+	NextPageToken   string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListControlImplementationsResponse) Reset() {
-	*x = ListControlImplementationsResponse{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
+func (x *ListControlsInScopeResponse) Reset() {
+	*x = ListControlsInScopeResponse{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListControlImplementationsResponse) String() string {
+func (x *ListControlsInScopeResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListControlImplementationsResponse) ProtoMessage() {}
+func (*ListControlsInScopeResponse) ProtoMessage() {}
 
-func (x *ListControlImplementationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
+func (x *ListControlsInScopeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -534,51 +677,50 @@ func (x *ListControlImplementationsResponse) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListControlImplementationsResponse.ProtoReflect.Descriptor instead.
-func (*ListControlImplementationsResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{5}
+// Deprecated: Use ListControlsInScopeResponse.ProtoReflect.Descriptor instead.
+func (*ListControlsInScopeResponse) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ListControlImplementationsResponse) GetControlImplementations() []*ControlImplementation {
+func (x *ListControlsInScopeResponse) GetControlsInScope() []*ControlInScope {
 	if x != nil {
-		return x.ControlImplementations
+		return x.ControlsInScope
 	}
 	return nil
 }
 
-func (x *ListControlImplementationsResponse) GetNextPageToken() string {
+func (x *ListControlsInScopeResponse) GetNextPageToken() string {
 	if x != nil {
 		return x.NextPageToken
 	}
 	return ""
 }
 
-type UpdateControlImplementationRequest struct {
+type UpdateControlInScopeRequest struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	AssigneeId *string                `protobuf:"bytes,2,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
-	// ImplementationDetails contains details about the technical and organisational measures taken to
-	// implement the control.
+	// ImplementationDetails contains free-form notes about how the control is being addressed.
 	ImplementationDetails *string `protobuf:"bytes,3,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
 
-func (x *UpdateControlImplementationRequest) Reset() {
-	*x = UpdateControlImplementationRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
+func (x *UpdateControlInScopeRequest) Reset() {
+	*x = UpdateControlInScopeRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateControlImplementationRequest) String() string {
+func (x *UpdateControlInScopeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateControlImplementationRequest) ProtoMessage() {}
+func (*UpdateControlInScopeRequest) ProtoMessage() {}
 
-func (x *UpdateControlImplementationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
+func (x *UpdateControlInScopeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -589,57 +731,57 @@ func (x *UpdateControlImplementationRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateControlImplementationRequest.ProtoReflect.Descriptor instead.
-func (*UpdateControlImplementationRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{6}
+// Deprecated: Use UpdateControlInScopeRequest.ProtoReflect.Descriptor instead.
+func (*UpdateControlInScopeRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *UpdateControlImplementationRequest) GetId() string {
+func (x *UpdateControlInScopeRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *UpdateControlImplementationRequest) GetAssigneeId() string {
+func (x *UpdateControlInScopeRequest) GetAssigneeId() string {
 	if x != nil && x.AssigneeId != nil {
 		return *x.AssigneeId
 	}
 	return ""
 }
 
-func (x *UpdateControlImplementationRequest) GetImplementationDetails() string {
+func (x *UpdateControlInScopeRequest) GetImplementationDetails() string {
 	if x != nil && x.ImplementationDetails != nil {
 		return *x.ImplementationDetails
 	}
 	return ""
 }
 
-type TransitionControlImplementationStateRequest struct {
-	state   protoimpl.MessageState     `protogen:"open.v1"`
-	Id      string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ToState ControlImplementationState `protobuf:"varint,2,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"to_state,omitempty"`
+type TransitionControlInScopeStateRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Id      string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ToState ControlInScopeState    `protobuf:"varint,2,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"to_state,omitempty"`
 	// Comment explaining the reason for this transition.
 	Comment       string `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TransitionControlImplementationStateRequest) Reset() {
-	*x = TransitionControlImplementationStateRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
+func (x *TransitionControlInScopeStateRequest) Reset() {
+	*x = TransitionControlInScopeStateRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TransitionControlImplementationStateRequest) String() string {
+func (x *TransitionControlInScopeStateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TransitionControlImplementationStateRequest) ProtoMessage() {}
+func (*TransitionControlInScopeStateRequest) ProtoMessage() {}
 
-func (x *TransitionControlImplementationStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
+func (x *TransitionControlInScopeStateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -650,54 +792,54 @@ func (x *TransitionControlImplementationStateRequest) ProtoReflect() protoreflec
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TransitionControlImplementationStateRequest.ProtoReflect.Descriptor instead.
-func (*TransitionControlImplementationStateRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{7}
+// Deprecated: Use TransitionControlInScopeStateRequest.ProtoReflect.Descriptor instead.
+func (*TransitionControlInScopeStateRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *TransitionControlImplementationStateRequest) GetId() string {
+func (x *TransitionControlInScopeStateRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *TransitionControlImplementationStateRequest) GetToState() ControlImplementationState {
+func (x *TransitionControlInScopeStateRequest) GetToState() ControlInScopeState {
 	if x != nil {
 		return x.ToState
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
-func (x *TransitionControlImplementationStateRequest) GetComment() string {
+func (x *TransitionControlInScopeStateRequest) GetComment() string {
 	if x != nil {
 		return x.Comment
 	}
 	return ""
 }
 
-type RemoveControlImplementationRequest struct {
+type RemoveControlInScopeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RemoveControlImplementationRequest) Reset() {
-	*x = RemoveControlImplementationRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
+func (x *RemoveControlInScopeRequest) Reset() {
+	*x = RemoveControlInScopeRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RemoveControlImplementationRequest) String() string {
+func (x *RemoveControlInScopeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RemoveControlImplementationRequest) ProtoMessage() {}
+func (*RemoveControlInScopeRequest) ProtoMessage() {}
 
-func (x *RemoveControlImplementationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
+func (x *RemoveControlInScopeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,45 +850,44 @@ func (x *RemoveControlImplementationRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RemoveControlImplementationRequest.ProtoReflect.Descriptor instead.
-func (*RemoveControlImplementationRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{8}
+// Deprecated: Use RemoveControlInScopeRequest.ProtoReflect.Descriptor instead.
+func (*RemoveControlInScopeRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *RemoveControlImplementationRequest) GetId() string {
+func (x *RemoveControlInScopeRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type ListControlImplementationsRequest_Filter struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Filter by audit scope.
-	AuditScopeId *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
-	// Optional. Filter by current state.
-	State *ControlImplementationState `protobuf:"varint,2,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState,oneof" json:"state,omitempty"`
-	// Optional. Filter by assignee.
-	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+type ListAuditTrailEventsRequest struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Filter        *ListAuditTrailEventsRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	PageSize      int32                               `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                              `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	OrderBy       string                              `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	Asc           bool                                `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListControlImplementationsRequest_Filter) Reset() {
-	*x = ListControlImplementationsRequest_Filter{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
+func (x *ListAuditTrailEventsRequest) Reset() {
+	*x = ListAuditTrailEventsRequest{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListControlImplementationsRequest_Filter) String() string {
+func (x *ListAuditTrailEventsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListControlImplementationsRequest_Filter) ProtoMessage() {}
+func (*ListAuditTrailEventsRequest) ProtoMessage() {}
 
-func (x *ListControlImplementationsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
+func (x *ListAuditTrailEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -757,28 +898,220 @@ func (x *ListControlImplementationsRequest_Filter) ProtoReflect() protoreflect.M
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListControlImplementationsRequest_Filter.ProtoReflect.Descriptor instead.
-func (*ListControlImplementationsRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{4, 0}
+// Deprecated: Use ListAuditTrailEventsRequest.ProtoReflect.Descriptor instead.
+func (*ListAuditTrailEventsRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ListControlImplementationsRequest_Filter) GetAuditScopeId() string {
+func (x *ListAuditTrailEventsRequest) GetFilter() *ListAuditTrailEventsRequest_Filter {
+	if x != nil {
+		return x.Filter
+	}
+	return nil
+}
+
+func (x *ListAuditTrailEventsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListAuditTrailEventsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListAuditTrailEventsRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListAuditTrailEventsRequest) GetAsc() bool {
+	if x != nil {
+		return x.Asc
+	}
+	return false
+}
+
+type ListAuditTrailEventsResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AuditTrailEvents []*AuditTrailEvent     `protobuf:"bytes,1,rep,name=audit_trail_events,json=auditTrailEvents,proto3" json:"audit_trail_events,omitempty"`
+	NextPageToken    string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ListAuditTrailEventsResponse) Reset() {
+	*x = ListAuditTrailEventsResponse{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAuditTrailEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAuditTrailEventsResponse) ProtoMessage() {}
+
+func (x *ListAuditTrailEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAuditTrailEventsResponse.ProtoReflect.Descriptor instead.
+func (*ListAuditTrailEventsResponse) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListAuditTrailEventsResponse) GetAuditTrailEvents() []*AuditTrailEvent {
+	if x != nil {
+		return x.AuditTrailEvents
+	}
+	return nil
+}
+
+func (x *ListAuditTrailEventsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type ListControlsInScopeRequest_Filter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Filter by audit scope.
+	AuditScopeId *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
+	// Optional. Filter by current state.
+	State *ControlInScopeState `protobuf:"varint,2,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState,oneof" json:"state,omitempty"`
+	// Optional. Filter by assignee.
+	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListControlsInScopeRequest_Filter) Reset() {
+	*x = ListControlsInScopeRequest_Filter{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListControlsInScopeRequest_Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListControlsInScopeRequest_Filter) ProtoMessage() {}
+
+func (x *ListControlsInScopeRequest_Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListControlsInScopeRequest_Filter.ProtoReflect.Descriptor instead.
+func (*ListControlsInScopeRequest_Filter) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *ListControlsInScopeRequest_Filter) GetAuditScopeId() string {
 	if x != nil && x.AuditScopeId != nil {
 		return *x.AuditScopeId
 	}
 	return ""
 }
 
-func (x *ListControlImplementationsRequest_Filter) GetState() ControlImplementationState {
+func (x *ListControlsInScopeRequest_Filter) GetState() ControlInScopeState {
 	if x != nil && x.State != nil {
 		return *x.State
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
-func (x *ListControlImplementationsRequest_Filter) GetAssigneeId() string {
+func (x *ListControlsInScopeRequest_Filter) GetAssigneeId() string {
 	if x != nil && x.AssigneeId != nil {
 		return *x.AssigneeId
+	}
+	return ""
+}
+
+type ListAuditTrailEventsRequest_Filter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Filter by audit scope.
+	AuditScopeId *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
+	// Optional. Filter by control in scope (returns only events for that specific record).
+	ControlInScopeId *string `protobuf:"bytes,2,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty"`
+	// Optional. Filter by the actor (User.id) who triggered the events.
+	ActorId       *string `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3,oneof" json:"actor_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAuditTrailEventsRequest_Filter) Reset() {
+	*x = ListAuditTrailEventsRequest_Filter{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAuditTrailEventsRequest_Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAuditTrailEventsRequest_Filter) ProtoMessage() {}
+
+func (x *ListAuditTrailEventsRequest_Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAuditTrailEventsRequest_Filter.ProtoReflect.Descriptor instead.
+func (*ListAuditTrailEventsRequest_Filter) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{11, 0}
+}
+
+func (x *ListAuditTrailEventsRequest_Filter) GetAuditScopeId() string {
+	if x != nil && x.AuditScopeId != nil {
+		return *x.AuditScopeId
+	}
+	return ""
+}
+
+func (x *ListAuditTrailEventsRequest_Filter) GetControlInScopeId() string {
+	if x != nil && x.ControlInScopeId != nil {
+		return *x.ControlInScopeId
+	}
+	return ""
+}
+
+func (x *ListAuditTrailEventsRequest_Filter) GetActorId() string {
+	if x != nil && x.ActorId != nil {
+		return *x.ActorId
 	}
 	return ""
 }
@@ -787,81 +1120,115 @@ var File_api_orchestrator_workflow_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
-	"\x1fapi/orchestrator/workflow.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xcb\t\n" +
-	"\x15ControlImplementation\x121\n" +
-	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12m\n" +
-	"\x0eaudit_scope_id\x18\x02 \x01(\tBG\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x037gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\"R\fauditScopeId\x12B\n" +
-	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12e\n" +
+	"\x1fapi/orchestrator/workflow.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x89\x06\n" +
+	"\x0eControlInScope\x121\n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12q\n" +
+	"\x0eaudit_scope_id\x18\x02 \x01(\tBK\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03;gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\"R\fauditScopeId\x125\n" +
+	"\x17target_of_evaluation_id\x18\x03 \x01(\tR\x14targetOfEvaluationId\x12j\n" +
 	"\n" +
-	"control_id\x18\x05 \x01(\tBF\xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x037gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\"R\tcontrolId\x12z\n" +
-	"\x15control_category_name\x18\x06 \x01(\tBF\xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x037gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\"R\x13controlCategoryName\x12\x85\x01\n" +
-	"\x1bcontrol_category_catalog_id\x18\a \x01(\tBF\xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x037gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\"R\x18controlCategoryCatalogId\x12L\n" +
-	"\x05state\x18\t \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateR\x05state\x12:\n" +
-	"\x16implementation_details\x18\n" +
-	" \x01(\tH\x00R\x15implementationDetails\x88\x01\x01\x12$\n" +
-	"\vassignee_id\x18\v \x01(\tH\x01R\n" +
+	"control_id\x18\x04 \x01(\tBK\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03;gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\"R\tcontrolId\x12E\n" +
+	"\x05state\x18\x05 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\x05state\x12:\n" +
+	"\x16implementation_details\x18\x06 \x01(\tH\x00R\x15implementationDetails\x88\x01\x01\x12$\n" +
+	"\vassignee_id\x18\a \x01(\tH\x01R\n" +
 	"assigneeId\x88\x01\x01\x12l\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tcreatedAt\x12l\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tcreatedAt\x12l\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tupdatedAt\x12\xa9\x01\n" +
-	"\vtransitions\x18\x0e \x03(\v2;.confirmate.orchestrator.v1.ControlImplementationTransitionBJ\x9a\x84\x9e\x03Egorm:\"foreignKey:ControlImplementationId;constraint:OnDelete:CASCADE\"R\vtransitionsB\x19\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tupdatedAtB\x19\n" +
 	"\x17_implementation_detailsB\x0e\n" +
-	"\f_assignee_id\"\xf6\x03\n" +
-	"\x1fControlImplementationTransition\x121\n" +
-	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12G\n" +
-	"\x19control_implementation_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x17controlImplementationId\x12Z\n" +
+	"\f_assignee_id\"\xea\x03\n" +
+	"\x0fAuditTrailEvent\x121\n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12:\n" +
+	"\x0eaudit_scope_id\x18\x02 \x01(\tB\x14\xe0A\x03\x9a\x84\x9e\x03\fgorm:\"index\"R\fauditScopeId\x12\x1e\n" +
+	"\bactor_id\x18\x03 \x01(\tB\x03\xe0A\x03R\aactorId\x12\x18\n" +
+	"\acomment\x18\x04 \x01(\tR\acomment\x12o\n" +
 	"\n" +
-	"from_state\x18\x03 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\x03\xe0A\x02R\tfromState\x12V\n" +
-	"\bto_state\x18\x04 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\x03\xe0A\x02R\atoState\x12!\n" +
-	"\fperformed_by\x18\x05 \x01(\tR\vperformedBy\x12a\n" +
-	"\x04time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x04time\x12\x1d\n" +
-	"\acomment\x18\a \x01(\tB\x03\xe0A\x02R\acomment\"\x99\x01\n" +
-	"\"CreateControlImplementationRequest\x12s\n" +
-	"\x16control_implementation\x18\x01 \x01(\v21.confirmate.orchestrator.v1.ControlImplementationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x15controlImplementation\">\n" +
-	"\x1fGetControlImplementationRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xea\x03\n" +
-	"!ListControlImplementationsRequest\x12a\n" +
-	"\x06filter\x18\x01 \x01(\v2D.confirmate.orchestrator.v1.ListControlImplementationsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x03\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tcreatedAt\x12^\n" +
+	"\n" +
+	"event_data\x18\x06 \x01(\v2\x14.google.protobuf.AnyB)\xe0A\x03\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:text\"R\teventData\x12E\n" +
+	"\x13control_in_scope_id\x18\a \x01(\tB\x11\x9a\x84\x9e\x03\fgorm:\"index\"H\x00R\x10controlInScopeId\x88\x01\x01B\x16\n" +
+	"\x14_control_in_scope_id\"\xa4\x01\n" +
+	"\x13ControlScopingEvent\x12-\n" +
+	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12\x1d\n" +
+	"\n" +
+	"control_id\x18\x02 \x01(\tR\tcontrolId\x12$\n" +
+	"\x0eaudit_scope_id\x18\x03 \x01(\tR\fauditScopeId\x12\x19\n" +
+	"\bin_scope\x18\x04 \x01(\bR\ainScope\"\xea\x01\n" +
+	"\x1dControlInScopeTransitionEvent\x12-\n" +
+	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12N\n" +
+	"\n" +
+	"from_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\tfromState\x12J\n" +
+	"\bto_state\x18\x03 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\atoState\"\xf6\x01\n" +
+	"\x1bCreateControlInScopeRequest\x121\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12*\n" +
+	"\n" +
+	"control_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\tcontrolId\x12B\n" +
+	"\x17target_of_evaluation_id\x18\x04 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12$\n" +
+	"\vassignee_id\x18\x03 \x01(\tH\x00R\n" +
+	"assigneeId\x88\x01\x01B\x0e\n" +
+	"\f_assignee_id\"7\n" +
+	"\x18GetControlInScopeRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xd5\x03\n" +
+	"\x1aListControlsInScopeRequest\x12Z\n" +
+	"\x06filter\x18\x01 \x01(\v2=.confirmate.orchestrator.v1.ListControlsInScopeRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xed\x01\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xe6\x01\n" +
 	"\x06Filter\x123\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12[\n" +
-	"\x05state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\b\xbaH\x05\x82\x01\x02\x10\x01H\x01R\x05state\x88\x01\x01\x12$\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12T\n" +
+	"\x05state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateB\b\xbaH\x05\x82\x01\x02\x10\x01H\x01R\x05state\x88\x01\x01\x12$\n" +
 	"\vassignee_id\x18\x03 \x01(\tH\x02R\n" +
 	"assigneeId\x88\x01\x01B\x11\n" +
 	"\x0f_audit_scope_idB\b\n" +
 	"\x06_stateB\x0e\n" +
 	"\f_assignee_idB\t\n" +
-	"\a_filter\"\xb8\x01\n" +
-	"\"ListControlImplementationsResponse\x12j\n" +
-	"\x17control_implementations\x18\x01 \x03(\v21.confirmate.orchestrator.v1.ControlImplementationR\x16controlImplementations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xce\x01\n" +
-	"\"UpdateControlImplementationRequest\x12\x1b\n" +
+	"\a_filter\"\x9d\x01\n" +
+	"\x1bListControlsInScopeResponse\x12V\n" +
+	"\x11controls_in_scope\x18\x01 \x03(\v2*.confirmate.orchestrator.v1.ControlInScopeR\x0fcontrolsInScope\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc7\x01\n" +
+	"\x1bUpdateControlInScopeRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12$\n" +
 	"\vassignee_id\x18\x02 \x01(\tH\x00R\n" +
 	"assigneeId\x88\x01\x01\x12:\n" +
 	"\x16implementation_details\x18\x03 \x01(\tH\x01R\x15implementationDetails\x88\x01\x01B\x0e\n" +
 	"\f_assignee_idB\x19\n" +
-	"\x17_implementation_details\"\xd2\x01\n" +
-	"+TransitionControlImplementationStateRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12`\n" +
-	"\bto_state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\x12$\n" +
+	"\x17_implementation_details\"\xc4\x01\n" +
+	"$TransitionControlInScopeStateRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12Y\n" +
+	"\bto_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\x12$\n" +
 	"\acomment\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\"A\n" +
-	"\"RemoveControlImplementationRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id*\xab\x02\n" +
-	"\x1aControlImplementationState\x12,\n" +
-	"(CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED\x10\x00\x12%\n" +
-	"!CONTROL_IMPLEMENTATION_STATE_OPEN\x10\x01\x12,\n" +
-	"(CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS\x10\x02\x12,\n" +
-	"(CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED\x10\x03\x121\n" +
-	"-CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW\x10\x04\x12)\n" +
-	"%CONTROL_IMPLEMENTATION_STATE_ACCEPTED\x10\x05B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\":\n" +
+	"\x1bRemoveControlInScopeRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xc4\x03\n" +
+	"\x1bListAuditTrailEventsRequest\x12[\n" +
+	"\x06filter\x18\x01 \x01(\v2>.confirmate.orchestrator.v1.ListAuditTrailEventsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
+	"\tpage_size\x18\n" +
+	" \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
+	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xd3\x01\n" +
+	"\x06Filter\x123\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12<\n" +
+	"\x13control_in_scope_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x01R\x10controlInScopeId\x88\x01\x01\x12\x1e\n" +
+	"\bactor_id\x18\x03 \x01(\tH\x02R\aactorId\x88\x01\x01B\x11\n" +
+	"\x0f_audit_scope_idB\x16\n" +
+	"\x14_control_in_scope_idB\v\n" +
+	"\t_actor_idB\t\n" +
+	"\a_filter\"\xa1\x01\n" +
+	"\x1cListAuditTrailEventsResponse\x12Y\n" +
+	"\x12audit_trail_events\x18\x01 \x03(\v2+.confirmate.orchestrator.v1.AuditTrailEventR\x10auditTrailEvents\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\x80\x02\n" +
+	"\x13ControlInScopeState\x12&\n" +
+	"\"CONTROL_IN_SCOPE_STATE_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bCONTROL_IN_SCOPE_STATE_OPEN\x10\x01\x12&\n" +
+	"\"CONTROL_IN_SCOPE_STATE_IN_PROGRESS\x10\x02\x12&\n" +
+	"\"CONTROL_IN_SCOPE_STATE_IMPLEMENTED\x10\x03\x12+\n" +
+	"'CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW\x10\x04\x12#\n" +
+	"\x1fCONTROL_IN_SCOPE_STATE_ACCEPTED\x10\x05B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_workflow_proto_rawDescOnce sync.Once
@@ -876,39 +1243,46 @@ func file_api_orchestrator_workflow_proto_rawDescGZIP() []byte {
 }
 
 var file_api_orchestrator_workflow_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_orchestrator_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_api_orchestrator_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_api_orchestrator_workflow_proto_goTypes = []any{
-	(ControlImplementationState)(0),                     // 0: confirmate.orchestrator.v1.ControlImplementationState
-	(*ControlImplementation)(nil),                       // 1: confirmate.orchestrator.v1.ControlImplementation
-	(*ControlImplementationTransition)(nil),             // 2: confirmate.orchestrator.v1.ControlImplementationTransition
-	(*CreateControlImplementationRequest)(nil),          // 3: confirmate.orchestrator.v1.CreateControlImplementationRequest
-	(*GetControlImplementationRequest)(nil),             // 4: confirmate.orchestrator.v1.GetControlImplementationRequest
-	(*ListControlImplementationsRequest)(nil),           // 5: confirmate.orchestrator.v1.ListControlImplementationsRequest
-	(*ListControlImplementationsResponse)(nil),          // 6: confirmate.orchestrator.v1.ListControlImplementationsResponse
-	(*UpdateControlImplementationRequest)(nil),          // 7: confirmate.orchestrator.v1.UpdateControlImplementationRequest
-	(*TransitionControlImplementationStateRequest)(nil), // 8: confirmate.orchestrator.v1.TransitionControlImplementationStateRequest
-	(*RemoveControlImplementationRequest)(nil),          // 9: confirmate.orchestrator.v1.RemoveControlImplementationRequest
-	(*ListControlImplementationsRequest_Filter)(nil),    // 10: confirmate.orchestrator.v1.ListControlImplementationsRequest.Filter
-	(*timestamppb.Timestamp)(nil),                       // 11: google.protobuf.Timestamp
+	(ControlInScopeState)(0),                     // 0: confirmate.orchestrator.v1.ControlInScopeState
+	(*ControlInScope)(nil),                       // 1: confirmate.orchestrator.v1.ControlInScope
+	(*AuditTrailEvent)(nil),                      // 2: confirmate.orchestrator.v1.AuditTrailEvent
+	(*ControlScopingEvent)(nil),                  // 3: confirmate.orchestrator.v1.ControlScopingEvent
+	(*ControlInScopeTransitionEvent)(nil),        // 4: confirmate.orchestrator.v1.ControlInScopeTransitionEvent
+	(*CreateControlInScopeRequest)(nil),          // 5: confirmate.orchestrator.v1.CreateControlInScopeRequest
+	(*GetControlInScopeRequest)(nil),             // 6: confirmate.orchestrator.v1.GetControlInScopeRequest
+	(*ListControlsInScopeRequest)(nil),           // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest
+	(*ListControlsInScopeResponse)(nil),          // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse
+	(*UpdateControlInScopeRequest)(nil),          // 9: confirmate.orchestrator.v1.UpdateControlInScopeRequest
+	(*TransitionControlInScopeStateRequest)(nil), // 10: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
+	(*RemoveControlInScopeRequest)(nil),          // 11: confirmate.orchestrator.v1.RemoveControlInScopeRequest
+	(*ListAuditTrailEventsRequest)(nil),          // 12: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
+	(*ListAuditTrailEventsResponse)(nil),         // 13: confirmate.orchestrator.v1.ListAuditTrailEventsResponse
+	(*ListControlsInScopeRequest_Filter)(nil),    // 14: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
+	(*ListAuditTrailEventsRequest_Filter)(nil),   // 15: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
+	(*timestamppb.Timestamp)(nil),                // 16: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                            // 17: google.protobuf.Any
 }
 var file_api_orchestrator_workflow_proto_depIdxs = []int32{
-	0,  // 0: confirmate.orchestrator.v1.ControlImplementation.state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	11, // 1: confirmate.orchestrator.v1.ControlImplementation.created_at:type_name -> google.protobuf.Timestamp
-	11, // 2: confirmate.orchestrator.v1.ControlImplementation.updated_at:type_name -> google.protobuf.Timestamp
-	2,  // 3: confirmate.orchestrator.v1.ControlImplementation.transitions:type_name -> confirmate.orchestrator.v1.ControlImplementationTransition
-	0,  // 4: confirmate.orchestrator.v1.ControlImplementationTransition.from_state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	0,  // 5: confirmate.orchestrator.v1.ControlImplementationTransition.to_state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	11, // 6: confirmate.orchestrator.v1.ControlImplementationTransition.time:type_name -> google.protobuf.Timestamp
-	1,  // 7: confirmate.orchestrator.v1.CreateControlImplementationRequest.control_implementation:type_name -> confirmate.orchestrator.v1.ControlImplementation
-	10, // 8: confirmate.orchestrator.v1.ListControlImplementationsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlImplementationsRequest.Filter
-	1,  // 9: confirmate.orchestrator.v1.ListControlImplementationsResponse.control_implementations:type_name -> confirmate.orchestrator.v1.ControlImplementation
-	0,  // 10: confirmate.orchestrator.v1.TransitionControlImplementationStateRequest.to_state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	0,  // 11: confirmate.orchestrator.v1.ListControlImplementationsRequest.Filter.state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	0,  // 0: confirmate.orchestrator.v1.ControlInScope.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	16, // 1: confirmate.orchestrator.v1.ControlInScope.created_at:type_name -> google.protobuf.Timestamp
+	16, // 2: confirmate.orchestrator.v1.ControlInScope.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 3: confirmate.orchestrator.v1.AuditTrailEvent.created_at:type_name -> google.protobuf.Timestamp
+	17, // 4: confirmate.orchestrator.v1.AuditTrailEvent.event_data:type_name -> google.protobuf.Any
+	0,  // 5: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.from_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	0,  // 6: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	14, // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
+	1,  // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
+	0,  // 9: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	15, // 10: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
+	2,  // 11: confirmate.orchestrator.v1.ListAuditTrailEventsResponse.audit_trail_events:type_name -> confirmate.orchestrator.v1.AuditTrailEvent
+	0,  // 12: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_workflow_proto_init() }
@@ -917,16 +1291,20 @@ func file_api_orchestrator_workflow_proto_init() {
 		return
 	}
 	file_api_orchestrator_workflow_proto_msgTypes[0].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[1].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[4].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[6].OneofWrappers = []any{}
-	file_api_orchestrator_workflow_proto_msgTypes[9].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[8].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[11].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[13].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_workflow_proto_rawDesc), len(file_api_orchestrator_workflow_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

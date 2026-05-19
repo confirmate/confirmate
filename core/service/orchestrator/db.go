@@ -39,8 +39,8 @@ var types = []any{
 	&assessment.Metric{},
 	&assessment.MetricImplementation{},
 	&evaluation.EvaluationResult{},
-	&orchestrator.ControlImplementation{},
-	&orchestrator.ControlImplementationTransition{},
+	&orchestrator.ControlInScope{},
+	&orchestrator.AuditTrailEvent{},
 }
 
 // joinTables defines the [MetricConfiguration] as a custom join table between
