@@ -106,7 +106,7 @@ const (
 	MockToolDescription2        = "Mock assessment tool"
 	MockToolIdConcurrent        = "tool-concurrent"
 	MockUserIssuer1             = "test-issuer"
-	MockOrgName1                = "Mock Organisation 1"
+	MockOrgName1                = "Mock Organization 1"
 	MockOrgStreet1              = "Mock Street 1"
 	MockOrgCity1                = "Mock City 1"
 	MockOrgZip1                 = "12345"
@@ -213,14 +213,14 @@ var (
 		Name:       "Mock TOE 2",
 		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_CLOUD,
 	}
-	// MockTargetOfEvaluationWithOrganisation is a target of evaluation that includes organisation details.
-	MockTargetOfEvaluationWithOrganisation = &orchestrator.TargetOfEvaluation{
+	// MockTargetOfEvaluationWithOrganization is a target of evaluation that includes organization details.
+	MockTargetOfEvaluationWithOrganization = &orchestrator.TargetOfEvaluation{
 		Id:         MockToeId3,
-		Name:       "Mock TOE with Organisation",
+		Name:       "Mock TOE with Organization",
 		TargetType: orchestrator.TargetOfEvaluation_TARGET_TYPE_ORGANIZATION,
-		Organisation: &orchestrator.TargetOfEvaluation_Organisation{
+		Organization: &orchestrator.TargetOfEvaluation_Organization{
 			Name: MockOrgName1,
-			Address: &orchestrator.TargetOfEvaluation_Organisation_PostalAddress{
+			Address: &orchestrator.TargetOfEvaluation_Organization_PostalAddress{
 				Street:  MockOrgStreet1,
 				City:    MockOrgCity1,
 				Zip:     MockOrgZip1,
@@ -604,24 +604,24 @@ var (
 	}
 
 	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
-		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		UserId:     MockUserIssuer1 + "|" + MockUserId1,
 		ObjectId:   MockToeId1,
 		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+		Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 
 	MockUserPermissionsToEContributor = &orchestrator.UserPermission{
-		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		UserId:     MockUserIssuer1 + "|" + MockUserId1,
 		ObjectId:   MockToeId1,
 		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
-		Permission:   orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+		Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
 	}
 
 	MockUserPermissionsAuditScopeAdmin = &orchestrator.UserPermission{
-		UserId:       MockUserIssuer1 + "|" + MockUserId1,
+		UserId:     MockUserIssuer1 + "|" + MockUserId1,
 		ObjectId:   MockScopeId1,
 		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
-		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+		Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 
 	// Mock ControlImplementations

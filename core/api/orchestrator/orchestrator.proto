@@ -873,12 +873,12 @@ message TargetOfEvaluation {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Organisation contains details about the organisation responsible for this target of evaluation.
-  message Organisation {
-    // Name of the company or organisation.
+  // Organization contains details about the organization responsible for this target of evaluation.
+  message Organization {
+    // Name of the company or organization.
     string name = 1;
 
-    // PostalAddress holds the physical address of the organisation.
+    // PostalAddress holds the physical address of the organization.
     message PostalAddress {
       // Street name and number.
       string street = 1;
@@ -893,7 +893,7 @@ message TargetOfEvaluation {
       string country = 4;
     }
 
-    // Postal address of the organisation.
+    // Postal address of the organization.
     PostalAddress address = 2;
 
     // Optional name of the primary contact person.
@@ -902,12 +902,12 @@ message TargetOfEvaluation {
     // Contact e-mail address.
     string contact_email = 4;
 
-    // Website URL of the organisation.
+    // Website URL of the organization.
     string website = 5;
   }
 
-  // Organisation details for this target of evaluation.
-  optional Organisation organisation = 15 [(tagger.tags) = "gorm:\"serializer:json\""];
+  // Organization details for this target of evaluation.
+  optional Organization organization = 15 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
 message Catalog {

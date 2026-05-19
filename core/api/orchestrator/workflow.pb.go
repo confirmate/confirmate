@@ -113,7 +113,7 @@ type ControlImplementation struct {
 	ControlCategoryCatalogId string `protobuf:"bytes,7,opt,name=control_category_catalog_id,json=controlCategoryCatalogId,proto3" json:"control_category_catalog_id,omitempty" gorm:"uniqueIndex:idx_control_impl_audit_scope_control"`
 	// Current implementation state.
 	State ControlImplementationState `protobuf:"varint,9,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"state,omitempty"`
-	// ImplementationDetails contains details about the technical and organisation measures taken to
+	// ImplementationDetails contains details about the technical and organization measures taken to
 	// implement the control. This is a free-form field that can be used to capture any relevant
 	// information about the implementation.
 	ImplementationDetails *string `protobuf:"bytes,10,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
@@ -557,7 +557,7 @@ type UpdateControlImplementationRequest struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	AssigneeId *string                `protobuf:"bytes,2,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
-	// ImplementationDetails contains details about the technical and organisational measures taken to
+	// ImplementationDetails contains details about the technical and organizational measures taken to
 	// implement the control.
 	ImplementationDetails *string `protobuf:"bytes,3,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
 	unknownFields         protoimpl.UnknownFields

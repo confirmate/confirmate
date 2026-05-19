@@ -24,12 +24,12 @@ option go_package = "confirmate.io/core/api/orchestrator";
 
 // ControlImplementationState represents the lifecycle state of a control implementation.
 enum ControlImplementationState {
-  CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED    = 0;
-  CONTROL_IMPLEMENTATION_STATE_OPEN           = 1;
-  CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS    = 2;
-  CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED    = 3;
+  CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED      = 0;
+  CONTROL_IMPLEMENTATION_STATE_OPEN             = 1;
+  CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS      = 2;
+  CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED      = 3;
   CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW = 4;
-  CONTROL_IMPLEMENTATION_STATE_ACCEPTED       = 5;
+  CONTROL_IMPLEMENTATION_STATE_ACCEPTED         = 5;
 }
 
 // ControlImplementation tracks the implementation status of a specific control within an audit
@@ -74,7 +74,7 @@ message ControlImplementation {
   // Current implementation state.
   ControlImplementationState state = 9;
 
-  // ImplementationDetails contains details about the technical and organisation measures taken to
+  // ImplementationDetails contains details about the technical and organization measures taken to
   // implement the control. This is a free-form field that can be used to capture any relevant
   // information about the implementation.
   optional string implementation_details = 10;
@@ -179,7 +179,7 @@ message UpdateControlImplementationRequest {
 
   optional string assignee_id = 2;
 
-  // ImplementationDetails contains details about the technical and organisational measures taken to
+  // ImplementationDetails contains details about the technical and organizational measures taken to
   // implement the control.
   optional string implementation_details = 3;
 }

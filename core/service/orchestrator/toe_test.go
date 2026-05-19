@@ -127,10 +127,10 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 			},
 		},
 		{
-			name: "happy path: with organisation details",
+			name: "happy path: with organization details",
 			args: args{
 				req: &orchestrator.CreateTargetOfEvaluationRequest{
-					TargetOfEvaluation: orchestratortest.MockTargetOfEvaluationWithOrganisation,
+					TargetOfEvaluation: orchestratortest.MockTargetOfEvaluationWithOrganization,
 				},
 			},
 			fields: fields{
@@ -138,12 +138,12 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.TargetOfEvaluation], args ...any) bool {
-				expectedOrg := orchestratortest.MockTargetOfEvaluationWithOrganisation.GetOrganisation()
-				gotOrg := got.Msg.GetOrganisation()
+				expectedOrg := orchestratortest.MockTargetOfEvaluationWithOrganization.GetOrganization()
+				gotOrg := got.Msg.GetOrganization()
 				expectedAddress := expectedOrg.GetAddress()
 				gotAddress := gotOrg.GetAddress()
 
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganisation, got.Msg,
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganization, got.Msg,
 					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, got.Msg.Id) &&
 					assert.NotNil(t, gotOrg) &&
@@ -161,10 +161,10 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				assert.NotNil(t, res)
 
 				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
-				wantOrg := orchestratortest.MockTargetOfEvaluationWithOrganisation.GetOrganisation()
-				org := toe.GetOrganisation()
+				wantOrg := orchestratortest.MockTargetOfEvaluationWithOrganization.GetOrganization()
+				org := toe.GetOrganization()
 
-				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganisation, toe,
+				return assert.Equal(t, orchestratortest.MockTargetOfEvaluationWithOrganization, toe,
 					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotNil(t, org) &&
 					assert.NotNil(t, org.GetAddress()) &&

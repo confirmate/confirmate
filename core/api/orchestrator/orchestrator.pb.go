@@ -2310,8 +2310,8 @@ type TargetOfEvaluation struct {
 	Metadata *TargetOfEvaluation_Metadata `protobuf:"bytes,10,opt,name=metadata,proto3,oneof" json:"metadata,omitempty" gorm:"serializer:json"`
 	// type of the target to be evaluated: cloud, product or organization
 	TargetType TargetOfEvaluation_TargetType `protobuf:"varint,11,opt,name=target_type,json=targetType,proto3,enum=confirmate.orchestrator.v1.TargetOfEvaluation_TargetType" json:"target_type,omitempty"`
-	// Organisation details for this target of evaluation.
-	Organisation  *TargetOfEvaluation_Organisation `protobuf:"bytes,15,opt,name=organisation,proto3,oneof" json:"organisation,omitempty" gorm:"serializer:json"`
+	// Organization details for this target of evaluation.
+	Organization  *TargetOfEvaluation_Organization `protobuf:"bytes,15,opt,name=organization,proto3,oneof" json:"organization,omitempty" gorm:"serializer:json"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2402,9 +2402,9 @@ func (x *TargetOfEvaluation) GetTargetType() TargetOfEvaluation_TargetType {
 	return TargetOfEvaluation_TARGET_TYPE_UNSPECIFIED
 }
 
-func (x *TargetOfEvaluation) GetOrganisation() *TargetOfEvaluation_Organisation {
+func (x *TargetOfEvaluation) GetOrganization() *TargetOfEvaluation_Organization {
 	if x != nil {
-		return x.Organisation
+		return x.Organization
 	}
 	return nil
 }
@@ -5357,37 +5357,37 @@ func (x *TargetOfEvaluation_Metadata) GetIcon() string {
 	return ""
 }
 
-// Organisation contains details about the organisation responsible for this target of evaluation.
-type TargetOfEvaluation_Organisation struct {
+// Organization contains details about the organization responsible for this target of evaluation.
+type TargetOfEvaluation_Organization struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Name of the company or organisation.
+	// Name of the company or organization.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Postal address of the organisation.
-	Address *TargetOfEvaluation_Organisation_PostalAddress `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	// Postal address of the organization.
+	Address *TargetOfEvaluation_Organization_PostalAddress `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// Optional name of the primary contact person.
 	ContactPerson *string `protobuf:"bytes,3,opt,name=contact_person,json=contactPerson,proto3,oneof" json:"contact_person,omitempty"`
 	// Contact e-mail address.
 	ContactEmail string `protobuf:"bytes,4,opt,name=contact_email,json=contactEmail,proto3" json:"contact_email,omitempty"`
-	// Website URL of the organisation.
+	// Website URL of the organization.
 	Website       string `protobuf:"bytes,5,opt,name=website,proto3" json:"website,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TargetOfEvaluation_Organisation) Reset() {
-	*x = TargetOfEvaluation_Organisation{}
+func (x *TargetOfEvaluation_Organization) Reset() {
+	*x = TargetOfEvaluation_Organization{}
 	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TargetOfEvaluation_Organisation) String() string {
+func (x *TargetOfEvaluation_Organization) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TargetOfEvaluation_Organisation) ProtoMessage() {}
+func (*TargetOfEvaluation_Organization) ProtoMessage() {}
 
-func (x *TargetOfEvaluation_Organisation) ProtoReflect() protoreflect.Message {
+func (x *TargetOfEvaluation_Organization) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -5399,48 +5399,48 @@ func (x *TargetOfEvaluation_Organisation) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TargetOfEvaluation_Organisation.ProtoReflect.Descriptor instead.
-func (*TargetOfEvaluation_Organisation) Descriptor() ([]byte, []int) {
+// Deprecated: Use TargetOfEvaluation_Organization.ProtoReflect.Descriptor instead.
+func (*TargetOfEvaluation_Organization) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{35, 1}
 }
 
-func (x *TargetOfEvaluation_Organisation) GetName() string {
+func (x *TargetOfEvaluation_Organization) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *TargetOfEvaluation_Organisation) GetAddress() *TargetOfEvaluation_Organisation_PostalAddress {
+func (x *TargetOfEvaluation_Organization) GetAddress() *TargetOfEvaluation_Organization_PostalAddress {
 	if x != nil {
 		return x.Address
 	}
 	return nil
 }
 
-func (x *TargetOfEvaluation_Organisation) GetContactPerson() string {
+func (x *TargetOfEvaluation_Organization) GetContactPerson() string {
 	if x != nil && x.ContactPerson != nil {
 		return *x.ContactPerson
 	}
 	return ""
 }
 
-func (x *TargetOfEvaluation_Organisation) GetContactEmail() string {
+func (x *TargetOfEvaluation_Organization) GetContactEmail() string {
 	if x != nil {
 		return x.ContactEmail
 	}
 	return ""
 }
 
-func (x *TargetOfEvaluation_Organisation) GetWebsite() string {
+func (x *TargetOfEvaluation_Organization) GetWebsite() string {
 	if x != nil {
 		return x.Website
 	}
 	return ""
 }
 
-// PostalAddress holds the physical address of the organisation.
-type TargetOfEvaluation_Organisation_PostalAddress struct {
+// PostalAddress holds the physical address of the organization.
+type TargetOfEvaluation_Organization_PostalAddress struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Street name and number.
 	Street string `protobuf:"bytes,1,opt,name=street,proto3" json:"street,omitempty"`
@@ -5454,20 +5454,20 @@ type TargetOfEvaluation_Organisation_PostalAddress struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) Reset() {
-	*x = TargetOfEvaluation_Organisation_PostalAddress{}
+func (x *TargetOfEvaluation_Organization_PostalAddress) Reset() {
+	*x = TargetOfEvaluation_Organization_PostalAddress{}
 	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) String() string {
+func (x *TargetOfEvaluation_Organization_PostalAddress) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TargetOfEvaluation_Organisation_PostalAddress) ProtoMessage() {}
+func (*TargetOfEvaluation_Organization_PostalAddress) ProtoMessage() {}
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) ProtoReflect() protoreflect.Message {
+func (x *TargetOfEvaluation_Organization_PostalAddress) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -5479,33 +5479,33 @@ func (x *TargetOfEvaluation_Organisation_PostalAddress) ProtoReflect() protorefl
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TargetOfEvaluation_Organisation_PostalAddress.ProtoReflect.Descriptor instead.
-func (*TargetOfEvaluation_Organisation_PostalAddress) Descriptor() ([]byte, []int) {
+// Deprecated: Use TargetOfEvaluation_Organization_PostalAddress.ProtoReflect.Descriptor instead.
+func (*TargetOfEvaluation_Organization_PostalAddress) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{35, 1, 0}
 }
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) GetStreet() string {
+func (x *TargetOfEvaluation_Organization_PostalAddress) GetStreet() string {
 	if x != nil {
 		return x.Street
 	}
 	return ""
 }
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) GetCity() string {
+func (x *TargetOfEvaluation_Organization_PostalAddress) GetCity() string {
 	if x != nil {
 		return x.City
 	}
 	return ""
 }
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) GetZip() string {
+func (x *TargetOfEvaluation_Organization_PostalAddress) GetZip() string {
 	if x != nil {
 		return x.Zip
 	}
 	return ""
 }
 
-func (x *TargetOfEvaluation_Organisation_PostalAddress) GetCountry() string {
+func (x *TargetOfEvaluation_Organization_PostalAddress) GetCountry() string {
 	if x != nil {
 		return x.Country
 	}
@@ -6091,7 +6091,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	" \x01(\v27.confirmate.orchestrator.v1.TargetOfEvaluation.MetadataB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"H\x02R\bmetadata\x88\x01\x01\x12g\n" +
 	"\vtarget_type\x18\v \x01(\x0e29.confirmate.orchestrator.v1.TargetOfEvaluation.TargetTypeB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\n" +
 	"targetType\x12\x81\x01\n" +
-	"\forganisation\x18\x0f \x01(\v2;.confirmate.orchestrator.v1.TargetOfEvaluation.OrganisationB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"H\x03R\forganisation\x88\x01\x01\x1a\xc4\x01\n" +
+	"\forganization\x18\x0f \x01(\v2;.confirmate.orchestrator.v1.TargetOfEvaluation.OrganizationB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"H\x03R\forganization\x88\x01\x01\x1a\xc4\x01\n" +
 	"\bMetadata\x12[\n" +
 	"\x06labels\x18\x01 \x03(\v2C.confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntryR\x06labels\x12\x17\n" +
 	"\x04icon\x18\x02 \x01(\tH\x00R\x04icon\x88\x01\x01\x1a9\n" +
@@ -6099,9 +6099,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
 	"\x05_icon\x1a\xee\x02\n" +
-	"\fOrganisation\x12\x12\n" +
+	"\fOrganization\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12c\n" +
-	"\aaddress\x18\x02 \x01(\v2I.confirmate.orchestrator.v1.TargetOfEvaluation.Organisation.PostalAddressR\aaddress\x12*\n" +
+	"\aaddress\x18\x02 \x01(\v2I.confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddressR\aaddress\x12*\n" +
 	"\x0econtact_person\x18\x03 \x01(\tH\x00R\rcontactPerson\x88\x01\x01\x12#\n" +
 	"\rcontact_email\x18\x04 \x01(\tR\fcontactEmail\x12\x18\n" +
 	"\awebsite\x18\x05 \x01(\tR\awebsite\x1ag\n" +
@@ -6120,7 +6120,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\v\n" +
 	"\t_metadataB\x0f\n" +
-	"\r_organisation\"\x9c\x04\n" +
+	"\r_organization\"\x9c\x04\n" +
 	"\aCatalog\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
@@ -6607,9 +6607,9 @@ var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	nil,                                                   // 88: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
 	(*SubscribeRequest_Filter)(nil),                       // 89: confirmate.orchestrator.v1.SubscribeRequest.Filter
 	(*TargetOfEvaluation_Metadata)(nil),                   // 90: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
-	(*TargetOfEvaluation_Organisation)(nil),               // 91: confirmate.orchestrator.v1.TargetOfEvaluation.Organisation
+	(*TargetOfEvaluation_Organization)(nil),               // 91: confirmate.orchestrator.v1.TargetOfEvaluation.Organization
 	nil,                                                   // 92: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	(*TargetOfEvaluation_Organisation_PostalAddress)(nil), // 93: confirmate.orchestrator.v1.TargetOfEvaluation.Organisation.PostalAddress
+	(*TargetOfEvaluation_Organization_PostalAddress)(nil), // 93: confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddress
 	(*Catalog_Metadata)(nil),                              // 94: confirmate.orchestrator.v1.Catalog.Metadata
 	(*ListAssessmentResultsRequest_Filter)(nil),           // 95: confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
 	(*ListAuditScopesRequest_Filter)(nil),                 // 96: confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
@@ -6675,7 +6675,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	106, // 32: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
 	90,  // 33: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
 	3,   // 34: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
-	91,  // 35: confirmate.orchestrator.v1.TargetOfEvaluation.organisation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organisation
+	91,  // 35: confirmate.orchestrator.v1.TargetOfEvaluation.organization:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organization
 	41,  // 36: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
 	94,  // 37: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
 	42,  // 38: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
@@ -6709,7 +6709,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	104, // 66: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
 	0,   // 67: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
 	92,  // 68: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	93,  // 69: confirmate.orchestrator.v1.TargetOfEvaluation.Organisation.address:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organisation.PostalAddress
+	93,  // 69: confirmate.orchestrator.v1.TargetOfEvaluation.Organization.address:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddress
 	110, // 70: confirmate.orchestrator.v1.ListUsersRequest.Filter.role:type_name -> confirmate.orchestrator.v1.Role
 	99,  // 71: confirmate.orchestrator.v1.ListUsersRequest.Filter.attributes:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
 	109, // 72: confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
