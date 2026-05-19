@@ -31,7 +31,6 @@ var types = []any{
 	&orchestrator.UserPermission{},
 	&assessment.Metric{},
 	&assessment.MetricImplementation{},
-	// Depend on User (toe_readers / toe_contributors / toe_admins join tables).
 	&orchestrator.TargetOfEvaluation{},
 	&orchestrator.Certificate{},
 	&orchestrator.State{},

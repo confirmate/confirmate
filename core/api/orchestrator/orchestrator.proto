@@ -17,8 +17,8 @@ package confirmate.orchestrator.v1;
 
 import "api/assessment/metric.proto";
 import "api/assessment/result.proto";
-import "api/evaluation/evaluation.proto";
 import "api/common/runtime.proto";
+import "api/evaluation/evaluation.proto";
 import "api/orchestrator/user.proto";
 import "api/orchestrator/workflow.proto";
 import "buf/validate/validate.proto";
@@ -54,7 +54,7 @@ service Orchestrator {
   // Updates the assessment tool given by the passed id
   rpc UpdateAssessmentTool(UpdateAssessmentToolRequest) returns (AssessmentTool) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/assessment_tools/{tool.id}"
+      put: "/v1/orchestrator/assessment_tools/{tool.id}"
       body: "tool"
     };
   }
@@ -90,7 +90,7 @@ service Orchestrator {
     };
   }
 
-   // List all assessment results. Part of the public API, also exposed as REST.
+  // List all assessment results. Part of the public API, also exposed as REST.
   rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results"};
   }
@@ -113,7 +113,7 @@ service Orchestrator {
   // Updates an existing metric
   rpc UpdateMetric(UpdateMetricRequest) returns (confirmate.assessment.v1.Metric) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/metrics/{metric.id}"
+      put: "/v1/orchestrator/metrics/{metric.id}"
       body: "metric"
     };
   }
@@ -144,7 +144,7 @@ service Orchestrator {
   // Registers a new target of evaluation
   rpc UpdateTargetOfEvaluation(UpdateTargetOfEvaluationRequest) returns (TargetOfEvaluation) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
+      put: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
       body: "target_of_evaluation"
     };
   }
@@ -173,10 +173,10 @@ service Orchestrator {
   // target of evaluation and metric ID
   rpc UpdateMetricConfiguration(UpdateMetricConfigurationRequest) returns (confirmate.assessment.v1.MetricConfiguration) {
     option (google.api.http) = {
-      put : 
-      "/v1/orchestrator/targets_of_evaluation/{configuration.target_of_evaluation_id}/"
-      "metric_configurations/"
-      "{configuration.metric_id}"
+      put:
+        "/v1/orchestrator/targets_of_evaluation/{configuration.target_of_evaluation_id}/"
+        "metric_configurations/"
+        "{configuration.metric_id}"
       body: "configuration"
     };
   }
@@ -185,27 +185,27 @@ service Orchestrator {
   // target of evaluation and metric ID.
   rpc GetMetricConfiguration(GetMetricConfigurationRequest) returns (confirmate.assessment.v1.MetricConfiguration) {
     option (google.api.http) = {get:
-      "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
-      "metric_configurations/"
-      "{metric_id}"
-    };
+        "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
+        "metric_configurations/"
+        "{metric_id}"
+};
   }
 
   // Lists all metric configurations (target value and operator) for a
   // specific target of evaluation ID
   rpc ListMetricConfigurations(ListMetricConfigurationRequest) returns (ListMetricConfigurationResponse) {
     option (google.api.http) = {get:
-      "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
-      "metric_configurations"
-    };
+        "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation_id}/"
+        "metric_configurations"
+};
   }
 
   // Updates an existing metric implementation
   rpc UpdateMetricImplementation(UpdateMetricImplementationRequest) returns (confirmate.assessment.v1.MetricImplementation) {
     option (google.api.http) = {
-      put : 
-      "/v1/orchestrator/metrics/{implementation.metric_id}/"
-      "implementation"
+      put:
+        "/v1/orchestrator/metrics/{implementation.metric_id}/"
+        "implementation"
       body: "implementation"
     };
   }
@@ -244,7 +244,7 @@ service Orchestrator {
   // Updates an existing certificate
   rpc UpdateCertificate(UpdateCertificateRequest) returns (Certificate) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/certificates/{certificate.id}"
+      put: "/v1/orchestrator/certificates/{certificate.id}"
       body: "certificate"
     };
   }
@@ -282,7 +282,7 @@ service Orchestrator {
   // Updates an existing certificate
   rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/catalogs/{catalog.id}"
+      put: "/v1/orchestrator/catalogs/{catalog.id}"
       body: "catalog"
     };
   }
@@ -329,10 +329,10 @@ service Orchestrator {
   // Updates an existing Audit Scope
   rpc UpdateAuditScope(UpdateAuditScopeRequest) returns (AuditScope) {
     option (google.api.http) = {
-      put : 
-      "/v1/orchestrator/targets_of_evaluation/"
-      "{audit_scope.target_of_evaluation_id}/audit_scopes/"
-      "{audit_scope.catalog_id}"
+      put:
+        "/v1/orchestrator/targets_of_evaluation/"
+        "{audit_scope.target_of_evaluation_id}/audit_scopes/"
+        "{audit_scope.catalog_id}"
       body: "audit_scope"
     };
   }
@@ -350,7 +350,7 @@ service Orchestrator {
   // Upserts a specific user permission identified by user and resource.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      put : "/v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}"
+      put: "/v1/users/{user_permission.user_id}/permissions/{user_permission.resource_type}/{user_permission.resource_id}"
       body: "user_permission"
     };
   }
@@ -359,7 +359,7 @@ service Orchestrator {
   rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/users/user_permission"
-      body  : "user_permission"
+      body: "user_permission"
     };
   }
 
@@ -416,7 +416,7 @@ service Orchestrator {
   // use TransitionControlInScopeState to change the implementation state.
   rpc UpdateControlInScope(UpdateControlInScopeRequest) returns (ControlInScope) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/controls_in_scope/{id}"
+      put: "/v1/orchestrator/controls_in_scope/{id}"
       body: "*"
     };
   }
@@ -453,15 +453,15 @@ message ListAssessmentToolsRequest {
 
   optional Filter filter = 1;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListAssessmentToolsResponse {
-  repeated AssessmentTool tools           = 1;
-  string                  next_page_token = 2;
+  repeated AssessmentTool tools = 1;
+  string next_page_token = 2;
 }
 
 message GetAssessmentToolRequest {
@@ -502,13 +502,15 @@ message StoreAssessmentResultResponse {}
 // according to the style convention. The bidirectional streaming needs the
 // status and its message in the response for error handling.
 message StoreAssessmentResultsResponse {
-  bool   status         = 1;
+  bool status = 1;
   string status_message = 2;
 }
 
 message StoreEvaluationResultRequest {
-  confirmate.evaluation.v1.EvaluationResult result = 1 [(buf.validate.field).required = true,
-    (google.api.field_behavior) = REQUIRED];
+  confirmate.evaluation.v1.EvaluationResult result = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 message ListEvaluationResultsRequest {
@@ -535,7 +537,6 @@ message ListEvaluationResultsRequest {
 
     // Optional. Lists only evaluation results for a specific audit scope.
     optional string audit_scope_id = 7 [(buf.validate.field).string.uuid = true];
-
   }
 
   optional Filter filter = 1;
@@ -543,15 +544,15 @@ message ListEvaluationResultsRequest {
   // Optional. Latest results grouped by control_id.
   optional bool latest_by_control_id = 2;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListEvaluationResultsResponse {
-  repeated confirmate.evaluation.v1.EvaluationResult results         = 1;
-  string                                             next_page_token = 2;
+  repeated confirmate.evaluation.v1.EvaluationResult results = 1;
+  string next_page_token = 2;
 }
 
 message CreateMetricRequest {
@@ -582,10 +583,10 @@ message ListMetricsRequest {
 
   optional Filter filter = 1;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message RemoveMetricRequest {
@@ -596,8 +597,8 @@ message RemoveMetricRequest {
 }
 
 message ListMetricsResponse {
-  repeated confirmate.assessment.v1.Metric metrics         = 1 [(google.api.field_behavior) = REQUIRED];
-  string                                   next_page_token = 2;
+  repeated confirmate.assessment.v1.Metric metrics = 1 [(google.api.field_behavior) = REQUIRED];
+  string next_page_token = 2;
 }
 
 message GetTargetOfEvaluationRequest {
@@ -629,10 +630,10 @@ message RemoveTargetOfEvaluationRequest {
 }
 
 message ListTargetsOfEvaluationRequest {
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListTargetsOfEvaluationResponse {
@@ -689,16 +690,16 @@ message ListMetricConfigurationRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  int32  page_size  = 1;
+  int32 page_size = 1;
   string page_token = 2;
-  string order_by   = 3;
-  bool   asc        = 4;
+  string order_by = 3;
+  bool asc = 4;
 }
 
 message ListMetricConfigurationResponse {
   // A map of metric configurations associated by their metric ID
-  map<string, confirmate.assessment.v1.MetricConfiguration> configurations  = 1;
-  string                                                    next_page_token = 2;
+  map<string, confirmate.assessment.v1.MetricConfiguration> configurations = 1;
+  string next_page_token = 2;
 }
 
 message UpdateMetricImplementationRequest {
@@ -717,16 +718,16 @@ message GetMetricImplementationRequest {
 
 // Top-level event categories for subscription filtering
 enum EventCategory {
-  EVENT_CATEGORY_UNSPECIFIED           = 0;
-  EVENT_CATEGORY_METRIC                = 1;
-  EVENT_CATEGORY_METRIC_CONFIGURATION  = 2;
+  EVENT_CATEGORY_UNSPECIFIED = 0;
+  EVENT_CATEGORY_METRIC = 1;
+  EVENT_CATEGORY_METRIC_CONFIGURATION = 2;
   EVENT_CATEGORY_METRIC_IMPLEMENTATION = 3;
-  EVENT_CATEGORY_TARGET_OF_EVALUATION  = 4;
-  EVENT_CATEGORY_AUDIT_SCOPE           = 5;
-  EVENT_CATEGORY_ASSESSMENT_RESULT     = 6;
-  EVENT_CATEGORY_ASSESSMENT_TOOL       = 7;
-  EVENT_CATEGORY_USER                  = 8;
-  EVENT_CATEGORY_CONTROL_IN_SCOPE      = 9;
+  EVENT_CATEGORY_TARGET_OF_EVALUATION = 4;
+  EVENT_CATEGORY_AUDIT_SCOPE = 5;
+  EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
+  EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
+  EVENT_CATEGORY_USER = 8;
+  EVENT_CATEGORY_CONTROL_IN_SCOPE = 9;
 }
 
 message SubscribeRequest {
@@ -739,7 +740,7 @@ message SubscribeRequest {
     repeated string operations = 2;
 
     // Optional: filter by resource IDs
-    repeated string metric_ids               = 3;
+    repeated string metric_ids = 3;
     repeated string target_of_evaluation_ids = 4;
   }
 
@@ -795,15 +796,15 @@ message ChangeEvent {
 
   // The actual entity data (optional, may be omitted for DELETED events)
   oneof entity {
-    confirmate.assessment.v1.Metric               metric                = 10;
-    TargetOfEvaluation                            target_of_evaluation  = 11;
-    AuditScope                                    audit_scope           = 12;
-    confirmate.assessment.v1.AssessmentResult     assessment_result     = 13;
-    confirmate.assessment.v1.MetricConfiguration  metric_configuration  = 14;
+    confirmate.assessment.v1.Metric metric = 10;
+    TargetOfEvaluation target_of_evaluation = 11;
+    AuditScope audit_scope = 12;
+    confirmate.assessment.v1.AssessmentResult assessment_result = 13;
+    confirmate.assessment.v1.MetricConfiguration metric_configuration = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
-    AssessmentTool                                assessment_tool       = 16;
-    User                                          user                  = 17;
-    ControlInScope                                control_in_scope      = 18;
+    AssessmentTool assessment_tool = 16;
+    User user = 17;
+    ControlInScope control_in_scope = 18;
   }
 }
 
@@ -867,8 +868,8 @@ message TargetOfEvaluation {
   enum TargetType {
     TARGET_TYPE_UNSPECIFIED = 0;
 
-    TARGET_TYPE_CLOUD        = 1;
-    TARGET_TYPE_PRODUCT      = 2;
+    TARGET_TYPE_CLOUD = 1;
+    TARGET_TYPE_PRODUCT = 2;
     TARGET_TYPE_ORGANIZATION = 3;
   }
 
@@ -878,17 +879,8 @@ message TargetOfEvaluation {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // List of user IDs with explicit permission to view this target (Read-only).
-  // If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-  repeated User readers = 12 [(tagger.tags) = "gorm:\"many2many:toe_readers;constraint:OnDelete:CASCADE\""];
-
-  // List of user IDs responsible for the content and maintenance of this target.
-  // These users can modify settings and data but cannot manage other users' access.
-  repeated User contributors = 13 [(tagger.tags) = "gorm:\"many2many:toe_contributors;constraint:OnDelete:CASCADE\""];
-
-  // List of user IDs with administrative control over this target.
-  // These users can manage permissions for others and perform destructive actions like deletion.
-  repeated User admins = 14 [(tagger.tags) = "gorm:\"many2many:toe_admins;constraint:OnDelete:CASCADE\""];
+  reserved 12, 13, 14;
+  reserved "readers", "contributors", "admins";
 
   // Organisation contains details about the organisation responsible for this target of evaluation.
   message Organisation {
@@ -985,10 +977,10 @@ message Category {
 
   repeated Control controls = 4 [
     (tagger.tags) =
-    "gorm:\"many2many:category_controls;"
-    "joinForeignKey:category_name,category_catalog_id;"
-    "joinReferences:control_id;"
-    "constraint:OnDelete:CASCADE\"",
+      "gorm:\"many2many:category_controls;"
+      "joinForeignKey:category_name,category_catalog_id;"
+      "joinReferences:control_id;"
+      "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1018,9 +1010,9 @@ message Control {
   //     this is in accordance with the OSCAL model.
   repeated Control controls = 6 [
     (tagger.tags) =
-    "gorm:\"foreignKey:parent_control_id;"
-    "references:id;"
-    "constraint:OnDelete:CASCADE\"",
+      "gorm:\"foreignKey:parent_control_id;"
+      "references:id;"
+      "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1048,9 +1040,7 @@ message Control {
   string short_name = 12;
 
   // FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
-  repeated ControlInScope controls_in_scope = 13 [
-    (tagger.tags) = "gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\""
-  ];
+  repeated ControlInScope controls_in_scope = 13 [(tagger.tags) = "gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\""];
 }
 
 // AuditScopeStatus represents the lifecycle status of an audit scope.
@@ -1107,7 +1097,10 @@ message AuditScope {
 
   // Status represents the current lifecycle status of the audit scope.
   AuditScopeStatus status = 9 [
-    (buf.validate.field).enum = {defined_only: true, not_in: [0]},
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    },
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -1115,12 +1108,8 @@ message AuditScope {
   // GORM requires a relationship field on the parent to declare the FK and cascade behaviour on
   // AutoMigrate; workflow.proto cannot import orchestrator.proto (circular), so the declarations
   // must live here.
-  repeated ControlInScope controls_in_scope = 10 [
-    (tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""
-  ];
-  repeated AuditTrailEvent audit_trail_events = 11 [
-    (tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""
-  ];
+  repeated ControlInScope controls_in_scope = 10 [(tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""];
+  repeated AuditTrailEvent audit_trail_events = 11 [(tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""];
 }
 
 message GetAssessmentResultRequest {
@@ -1135,7 +1124,7 @@ message ListAssessmentResultsRequest {
     optional bool compliant = 2;
     // Optional. List only assessment results of a specific metric id.
     repeated string metric_ids = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
-    optional string metric_id  = 4 [(buf.validate.field).string.min_len = 1];
+    optional string metric_id = 4 [(buf.validate.field).string.min_len = 1];
     // Optional. List only assessment result from a specific assessment tool.
     optional string tool_id = 5 [(buf.validate.field).string.min_len = 1];
     // Optional. List only assessment result from a specific list of IDs.
@@ -1145,15 +1134,15 @@ message ListAssessmentResultsRequest {
   // Optional. Latest results grouped by resource_id and metric_id.
   optional bool latest_by_resource_id = 2;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListAssessmentResultsResponse {
-  repeated confirmate.assessment.v1.AssessmentResult results         = 1;
-  string                                             next_page_token = 2;
+  repeated confirmate.assessment.v1.AssessmentResult results = 1;
+  string next_page_token = 2;
 }
 
 message CreateAuditScopeRequest {
@@ -1189,15 +1178,15 @@ message ListAuditScopesRequest {
 
   optional Filter filter = 1;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListAuditScopesResponse {
-  repeated AuditScope audit_scopes    = 1;
-  string              next_page_token = 2;
+  repeated AuditScope audit_scopes = 1;
+  string next_page_token = 2;
 }
 
 message UpdateAuditScopeRequest {
@@ -1215,27 +1204,27 @@ message GetCertificateRequest {
 }
 
 message ListCertificatesRequest {
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListCertificatesResponse {
-  repeated Certificate certificates    = 1;
-  string               next_page_token = 2;
+  repeated Certificate certificates = 1;
+  string next_page_token = 2;
 }
 
 message ListPublicCertificatesRequest {
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListPublicCertificatesResponse {
-  repeated Certificate certificates    = 1;
-  string               next_page_token = 2;
+  repeated Certificate certificates = 1;
+  string next_page_token = 2;
 }
 
 message UpdateCertificateRequest {
@@ -1267,15 +1256,15 @@ message GetCatalogRequest {
 }
 
 message ListCatalogsRequest {
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListCatalogsResponse {
-  repeated Catalog catalogs        = 1;
-  string           next_page_token = 2;
+  repeated Catalog catalogs = 1;
+  string next_page_token = 2;
 }
 
 message UpdateCatalogRequest {
@@ -1314,15 +1303,15 @@ message ListControlsRequest {
   }
   optional Filter filter = 3;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListControlsResponse {
-  repeated Control controls        = 1;
-  string           next_page_token = 2;
+  repeated Control controls = 1;
+  string next_page_token = 2;
 }
 
 message CreateCertificateRequest {
@@ -1353,12 +1342,12 @@ message Certificate {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string issue_date      = 4;
+  string issue_date = 4;
   string expiration_date = 5;
-  string standard        = 6;
+  string standard = 6;
   string assurance_level = 7;
-  string cab             = 8;
-  string description     = 9;
+  string cab = 8;
+  string description = 9;
   // A list of states at specific times
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
 }
@@ -1367,8 +1356,8 @@ message Certificate {
 message State {
   string id = 1;
   // An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
-  string state     = 2;
-  string tree_id   = 3;
+  string state = 2;
+  string tree_id = 3;
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
@@ -1420,15 +1409,15 @@ message ListUsersRequest {
 
   optional Filter filter = 1;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListUsersResponse {
-  repeated User users           = 1;
-  string        next_page_token = 2;
+  repeated User users = 1;
+  string next_page_token = 2;
 }
 
 message ListUserPermissionsRequest {
@@ -1437,10 +1426,10 @@ message ListUserPermissionsRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListUserPermissionsResponse {
@@ -1450,9 +1439,9 @@ message ListUserPermissionsResponse {
 }
 
 message ListUserRolesRequest {
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  bool   asc        = 13;
+  bool asc = 13;
 }
 
 message ListUserRolesResponse {
