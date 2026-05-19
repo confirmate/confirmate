@@ -30,6 +30,7 @@ var types = []any{
 	&orchestrator.User{},
 	&orchestrator.UserPermission{},
 	&assessment.Metric{},
+	// MetricImplementation depends on Metric.
 	&assessment.MetricImplementation{},
 	&orchestrator.TargetOfEvaluation{},
 	&orchestrator.Certificate{},
