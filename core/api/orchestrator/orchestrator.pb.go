@@ -6459,7 +6459,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\"AUDIT_SCOPE_STATUS_INTERNAL_REVIEW\x10\x02\x12%\n" +
 	"!AUDIT_SCOPE_STATUS_AUDITOR_REVIEW\x10\x03\x127\n" +
 	"3AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT\x10\x04\x12\x1c\n" +
-	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\x97V\n" +
+	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\x98V\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -6519,8 +6519,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x13ListUserPermissions\x126.confirmate.orchestrator.v1.ListUserPermissionsRequest\x1a7.confirmate.orchestrator.v1.ListUserPermissionsResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/users/permissions\x12\x8d\x01\n" +
 	"\rListUserRoles\x120.confirmate.orchestrator.v1.ListUserRolesRequest\x1a1.confirmate.orchestrator.v1.ListUserRolesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/users/roles\x12p\n" +
 	"\n" +
-	"RemoveUser\x12-.confirmate.orchestrator.v1.RemoveUserRequest\x1a\x16.google.protobuf.Empty\"\x1b\x82\xd3\xe4\x93\x02\x15*\x13/v1/users/{user_id}\x12\xa9\x01\n" +
-	"\fScopeControl\x12/.confirmate.orchestrator.v1.ScopeControlRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"<\x82\xd3\xe4\x93\x026:\x10control_in_scope\"\"/v1/orchestrator/controls_in_scope\x12\xa6\x01\n" +
+	"RemoveUser\x12-.confirmate.orchestrator.v1.RemoveUserRequest\x1a\x16.google.protobuf.Empty\"\x1b\x82\xd3\xe4\x93\x02\x15*\x13/v1/users/{user_id}\x12\xaa\x01\n" +
+	"\x14CreateControlInScope\x127.confirmate.orchestrator.v1.CreateControlInScopeRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/v1/orchestrator/controls_in_scope\x12\xa6\x01\n" +
 	"\x11GetControlInScope\x124.confirmate.orchestrator.v1.GetControlInScopeRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"/\x82\xd3\xe4\x93\x02)\x12'/v1/orchestrator/controls_in_scope/{id}\x12\xb2\x01\n" +
 	"\x13ListControlsInScope\x126.confirmate.orchestrator.v1.ListControlsInScopeRequest\x1a7.confirmate.orchestrator.v1.ListControlsInScopeResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/v1/orchestrator/controls_in_scope\x12\xaf\x01\n" +
 	"\x14UpdateControlInScope\x127.confirmate.orchestrator.v1.UpdateControlInScopeRequest\x1a*.confirmate.orchestrator.v1.ControlInScope\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/v1/orchestrator/controls_in_scope/{id}\x12\xcc\x01\n" +
@@ -6655,7 +6655,7 @@ var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(*UserPermission)(nil),                                // 109: confirmate.orchestrator.v1.UserPermission
 	(Role)(0),                                             // 110: confirmate.orchestrator.v1.Role
 	(*common.GetRuntimeInfoRequest)(nil),                  // 111: confirmate.common.v1.GetRuntimeInfoRequest
-	(*ScopeControlRequest)(nil),                           // 112: confirmate.orchestrator.v1.ScopeControlRequest
+	(*CreateControlInScopeRequest)(nil),                   // 112: confirmate.orchestrator.v1.CreateControlInScopeRequest
 	(*GetControlInScopeRequest)(nil),                      // 113: confirmate.orchestrator.v1.GetControlInScopeRequest
 	(*ListControlsInScopeRequest)(nil),                    // 114: confirmate.orchestrator.v1.ListControlsInScopeRequest
 	(*UpdateControlInScopeRequest)(nil),                   // 115: confirmate.orchestrator.v1.UpdateControlInScopeRequest
@@ -6805,7 +6805,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	80,  // 134: confirmate.orchestrator.v1.Orchestrator.ListUserPermissions:input_type -> confirmate.orchestrator.v1.ListUserPermissionsRequest
 	82,  // 135: confirmate.orchestrator.v1.Orchestrator.ListUserRoles:input_type -> confirmate.orchestrator.v1.ListUserRolesRequest
 	84,  // 136: confirmate.orchestrator.v1.Orchestrator.RemoveUser:input_type -> confirmate.orchestrator.v1.RemoveUserRequest
-	112, // 137: confirmate.orchestrator.v1.Orchestrator.ScopeControl:input_type -> confirmate.orchestrator.v1.ScopeControlRequest
+	112, // 137: confirmate.orchestrator.v1.Orchestrator.CreateControlInScope:input_type -> confirmate.orchestrator.v1.CreateControlInScopeRequest
 	113, // 138: confirmate.orchestrator.v1.Orchestrator.GetControlInScope:input_type -> confirmate.orchestrator.v1.GetControlInScopeRequest
 	114, // 139: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:input_type -> confirmate.orchestrator.v1.ListControlsInScopeRequest
 	115, // 140: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:input_type -> confirmate.orchestrator.v1.UpdateControlInScopeRequest
@@ -6868,7 +6868,7 @@ var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	81,  // 197: confirmate.orchestrator.v1.Orchestrator.ListUserPermissions:output_type -> confirmate.orchestrator.v1.ListUserPermissionsResponse
 	83,  // 198: confirmate.orchestrator.v1.Orchestrator.ListUserRoles:output_type -> confirmate.orchestrator.v1.ListUserRolesResponse
 	119, // 199: confirmate.orchestrator.v1.Orchestrator.RemoveUser:output_type -> google.protobuf.Empty
-	107, // 200: confirmate.orchestrator.v1.Orchestrator.ScopeControl:output_type -> confirmate.orchestrator.v1.ControlInScope
+	107, // 200: confirmate.orchestrator.v1.Orchestrator.CreateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
 	107, // 201: confirmate.orchestrator.v1.Orchestrator.GetControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
 	121, // 202: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:output_type -> confirmate.orchestrator.v1.ListControlsInScopeResponse
 	107, // 203: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope

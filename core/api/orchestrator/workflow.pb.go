@@ -40,68 +40,68 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// ControlImplementationState represents the lifecycle state of a control's implementation.
-type ControlImplementationState int32
+// ControlInScopeState represents the lifecycle state of a control's implementation within an audit scope.
+type ControlInScopeState int32
 
 const (
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED      ControlImplementationState = 0
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN             ControlImplementationState = 1
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS      ControlImplementationState = 2
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED      ControlImplementationState = 3
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW ControlImplementationState = 4
-	ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED         ControlImplementationState = 5
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED      ControlInScopeState = 0
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN             ControlInScopeState = 1
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS      ControlInScopeState = 2
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_IMPLEMENTED      ControlInScopeState = 3
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW ControlInScopeState = 4
+	ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED         ControlInScopeState = 5
 )
 
-// Enum value maps for ControlImplementationState.
+// Enum value maps for ControlInScopeState.
 var (
-	ControlImplementationState_name = map[int32]string{
-		0: "CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED",
-		1: "CONTROL_IMPLEMENTATION_STATE_OPEN",
-		2: "CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS",
-		3: "CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED",
-		4: "CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW",
-		5: "CONTROL_IMPLEMENTATION_STATE_ACCEPTED",
+	ControlInScopeState_name = map[int32]string{
+		0: "CONTROL_IN_SCOPE_STATE_UNSPECIFIED",
+		1: "CONTROL_IN_SCOPE_STATE_OPEN",
+		2: "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+		3: "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+		4: "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+		5: "CONTROL_IN_SCOPE_STATE_ACCEPTED",
 	}
-	ControlImplementationState_value = map[string]int32{
-		"CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED":      0,
-		"CONTROL_IMPLEMENTATION_STATE_OPEN":             1,
-		"CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS":      2,
-		"CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED":      3,
-		"CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW": 4,
-		"CONTROL_IMPLEMENTATION_STATE_ACCEPTED":         5,
+	ControlInScopeState_value = map[string]int32{
+		"CONTROL_IN_SCOPE_STATE_UNSPECIFIED":      0,
+		"CONTROL_IN_SCOPE_STATE_OPEN":             1,
+		"CONTROL_IN_SCOPE_STATE_IN_PROGRESS":      2,
+		"CONTROL_IN_SCOPE_STATE_IMPLEMENTED":      3,
+		"CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW": 4,
+		"CONTROL_IN_SCOPE_STATE_ACCEPTED":         5,
 	}
 )
 
-func (x ControlImplementationState) Enum() *ControlImplementationState {
-	p := new(ControlImplementationState)
+func (x ControlInScopeState) Enum() *ControlInScopeState {
+	p := new(ControlInScopeState)
 	*p = x
 	return p
 }
 
-func (x ControlImplementationState) String() string {
+func (x ControlInScopeState) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (ControlImplementationState) Descriptor() protoreflect.EnumDescriptor {
+func (ControlInScopeState) Descriptor() protoreflect.EnumDescriptor {
 	return file_api_orchestrator_workflow_proto_enumTypes[0].Descriptor()
 }
 
-func (ControlImplementationState) Type() protoreflect.EnumType {
+func (ControlInScopeState) Type() protoreflect.EnumType {
 	return &file_api_orchestrator_workflow_proto_enumTypes[0]
 }
 
-func (x ControlImplementationState) Number() protoreflect.EnumNumber {
+func (x ControlInScopeState) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use ControlImplementationState.Descriptor instead.
-func (ControlImplementationState) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use ControlInScopeState.Descriptor instead.
+func (ControlInScopeState) EnumDescriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{0}
 }
 
 // ControlInScope tracks the implementation status of a specific control within an audit scope.
 // There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
-// when an audit scope is created and can also be managed manually via the ScopeControl /
+// when an audit scope is created and can also be managed manually via the CreateControlInScope /
 // UnscopeControl RPCs.
 type ControlInScope struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -114,10 +114,11 @@ type ControlInScope struct {
 	// ControlId references the control being implemented (unique UUID since #270).
 	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty" gorm:"uniqueIndex:idx_control_in_scope_audit_scope_control"`
 	// Current implementation state.
-	State ControlImplementationState `protobuf:"varint,5,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"state,omitempty"`
+	State ControlInScopeState `protobuf:"varint,5,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"state,omitempty"`
 	// ImplementationDetails contains free-form notes about how the control is being addressed.
 	ImplementationDetails *string `protobuf:"bytes,6,opt,name=implementation_details,json=implementationDetails,proto3,oneof" json:"implementation_details,omitempty"`
-	// AssigneeId is the user (identified by User.id) responsible for implementing this control.
+	// AssigneeId is the ID of the orchestrator User entity responsible for implementing this control.
+	// This is the User.id of the person assigned, not the actor making the request.
 	AssigneeId    *string                `protobuf:"bytes,7,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
@@ -183,11 +184,11 @@ func (x *ControlInScope) GetControlId() string {
 	return ""
 }
 
-func (x *ControlInScope) GetState() ControlImplementationState {
+func (x *ControlInScope) GetState() ControlInScopeState {
 	if x != nil {
 		return x.State
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
 func (x *ControlInScope) GetImplementationDetails() string {
@@ -219,7 +220,7 @@ func (x *ControlInScope) GetUpdatedAt() *timestamppb.Timestamp {
 }
 
 // AuditTrailEvent is a persisted record of any significant change related to an audit scope,
-// such as a control being scoped/unscoped or an implementation state transition. The event_data
+// such as a control being scoped/unscoped or an audit scope state transition. The event_data
 // field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
 type AuditTrailEvent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -229,8 +230,9 @@ type AuditTrailEvent struct {
 	// ActorId is the User.id of the person who triggered this event.
 	ActorId string `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
 	// Comment provides optional context for the event.
-	Comment string                 `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
-	Time    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=time,proto3" json:"time,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	Comment string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
+	// Time is the creation time of this event.
+	Time *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=time,proto3" json:"time,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// EventData holds the typed event payload serialized as JSON.
 	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
 	// ControlInScopeId optionally links this event to the affected ControlInScope record.
@@ -390,31 +392,30 @@ func (x *ControlScopingEvent) GetInScope() bool {
 	return false
 }
 
-// ControlImplementationTransitionEvent is emitted when a ControlInScope moves between
-// implementation states.
-type ControlImplementationTransitionEvent struct {
-	state            protoimpl.MessageState     `protogen:"open.v1"`
-	ControlInScopeId string                     `protobuf:"bytes,1,opt,name=control_in_scope_id,json=controlInScopeId,proto3" json:"control_in_scope_id,omitempty"`
-	FromState        ControlImplementationState `protobuf:"varint,2,opt,name=from_state,json=fromState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"from_state,omitempty"`
-	ToState          ControlImplementationState `protobuf:"varint,3,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"to_state,omitempty"`
+// ControlInScopeTransitionEvent is emitted when a ControlInScope moves between implementation states.
+type ControlInScopeTransitionEvent struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ControlInScopeId string                 `protobuf:"bytes,1,opt,name=control_in_scope_id,json=controlInScopeId,proto3" json:"control_in_scope_id,omitempty"`
+	FromState        ControlInScopeState    `protobuf:"varint,2,opt,name=from_state,json=fromState,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"from_state,omitempty"`
+	ToState          ControlInScopeState    `protobuf:"varint,3,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"to_state,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
-func (x *ControlImplementationTransitionEvent) Reset() {
-	*x = ControlImplementationTransitionEvent{}
+func (x *ControlInScopeTransitionEvent) Reset() {
+	*x = ControlInScopeTransitionEvent{}
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ControlImplementationTransitionEvent) String() string {
+func (x *ControlInScopeTransitionEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ControlImplementationTransitionEvent) ProtoMessage() {}
+func (*ControlInScopeTransitionEvent) ProtoMessage() {}
 
-func (x *ControlImplementationTransitionEvent) ProtoReflect() protoreflect.Message {
+func (x *ControlInScopeTransitionEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -426,53 +427,56 @@ func (x *ControlImplementationTransitionEvent) ProtoReflect() protoreflect.Messa
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ControlImplementationTransitionEvent.ProtoReflect.Descriptor instead.
-func (*ControlImplementationTransitionEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use ControlInScopeTransitionEvent.ProtoReflect.Descriptor instead.
+func (*ControlInScopeTransitionEvent) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ControlImplementationTransitionEvent) GetControlInScopeId() string {
+func (x *ControlInScopeTransitionEvent) GetControlInScopeId() string {
 	if x != nil {
 		return x.ControlInScopeId
 	}
 	return ""
 }
 
-func (x *ControlImplementationTransitionEvent) GetFromState() ControlImplementationState {
+func (x *ControlInScopeTransitionEvent) GetFromState() ControlInScopeState {
 	if x != nil {
 		return x.FromState
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
-func (x *ControlImplementationTransitionEvent) GetToState() ControlImplementationState {
+func (x *ControlInScopeTransitionEvent) GetToState() ControlInScopeState {
 	if x != nil {
 		return x.ToState
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
-type ScopeControlRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	ControlInScope *ControlInScope        `protobuf:"bytes,1,opt,name=control_in_scope,json=controlInScope,proto3" json:"control_in_scope,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+type CreateControlInScopeRequest struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	ControlId    string                 `protobuf:"bytes,2,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	// AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ScopeControlRequest) Reset() {
-	*x = ScopeControlRequest{}
+func (x *CreateControlInScopeRequest) Reset() {
+	*x = CreateControlInScopeRequest{}
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ScopeControlRequest) String() string {
+func (x *CreateControlInScopeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ScopeControlRequest) ProtoMessage() {}
+func (*CreateControlInScopeRequest) ProtoMessage() {}
 
-func (x *ScopeControlRequest) ProtoReflect() protoreflect.Message {
+func (x *CreateControlInScopeRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -484,16 +488,30 @@ func (x *ScopeControlRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ScopeControlRequest.ProtoReflect.Descriptor instead.
-func (*ScopeControlRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateControlInScopeRequest.ProtoReflect.Descriptor instead.
+func (*CreateControlInScopeRequest) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ScopeControlRequest) GetControlInScope() *ControlInScope {
+func (x *CreateControlInScopeRequest) GetAuditScopeId() string {
 	if x != nil {
-		return x.ControlInScope
+		return x.AuditScopeId
 	}
-	return nil
+	return ""
+}
+
+func (x *CreateControlInScopeRequest) GetControlId() string {
+	if x != nil {
+		return x.ControlId
+	}
+	return ""
+}
+
+func (x *CreateControlInScopeRequest) GetAssigneeId() string {
+	if x != nil && x.AssigneeId != nil {
+		return *x.AssigneeId
+	}
+	return ""
 }
 
 type GetControlInScopeRequest struct {
@@ -730,9 +748,9 @@ func (x *UpdateControlInScopeRequest) GetImplementationDetails() string {
 }
 
 type TransitionControlInScopeStateRequest struct {
-	state   protoimpl.MessageState     `protogen:"open.v1"`
-	Id      string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ToState ControlImplementationState `protobuf:"varint,2,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState" json:"to_state,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Id      string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ToState ControlInScopeState    `protobuf:"varint,2,opt,name=to_state,json=toState,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"to_state,omitempty"`
 	// Comment explaining the reason for this transition.
 	Comment       string `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -776,11 +794,11 @@ func (x *TransitionControlInScopeStateRequest) GetId() string {
 	return ""
 }
 
-func (x *TransitionControlInScopeStateRequest) GetToState() ControlImplementationState {
+func (x *TransitionControlInScopeStateRequest) GetToState() ControlInScopeState {
 	if x != nil {
 		return x.ToState
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
 func (x *TransitionControlInScopeStateRequest) GetComment() string {
@@ -967,7 +985,7 @@ type ListControlsInScopeRequest_Filter struct {
 	// Optional. Filter by audit scope.
 	AuditScopeId *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
 	// Optional. Filter by current state.
-	State *ControlImplementationState `protobuf:"varint,2,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlImplementationState,oneof" json:"state,omitempty"`
+	State *ControlInScopeState `protobuf:"varint,2,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState,oneof" json:"state,omitempty"`
 	// Optional. Filter by assignee.
 	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1011,11 +1029,11 @@ func (x *ListControlsInScopeRequest_Filter) GetAuditScopeId() string {
 	return ""
 }
 
-func (x *ListControlsInScopeRequest_Filter) GetState() ControlImplementationState {
+func (x *ListControlsInScopeRequest_Filter) GetState() ControlInScopeState {
 	if x != nil && x.State != nil {
 		return *x.State
 	}
-	return ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED
+	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
 func (x *ListControlsInScopeRequest_Filter) GetAssigneeId() string {
@@ -1031,8 +1049,10 @@ type ListAuditTrailEventsRequest_Filter struct {
 	AuditScopeId *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
 	// Optional. Filter by control in scope (returns only events for that specific record).
 	ControlInScopeId *string `protobuf:"bytes,2,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Optional. Filter by the actor (User.id) who triggered the events.
+	ActorId       *string `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3,oneof" json:"actor_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAuditTrailEventsRequest_Filter) Reset() {
@@ -1079,18 +1099,25 @@ func (x *ListAuditTrailEventsRequest_Filter) GetControlInScopeId() string {
 	return ""
 }
 
+func (x *ListAuditTrailEventsRequest_Filter) GetActorId() string {
+	if x != nil && x.ActorId != nil {
+		return *x.ActorId
+	}
+	return ""
+}
+
 var File_api_orchestrator_workflow_proto protoreflect.FileDescriptor
 
 const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
-	"\x1fapi/orchestrator/workflow.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x90\x06\n" +
+	"\x1fapi/orchestrator/workflow.proto\x12\x1aconfirmate.orchestrator.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x89\x06\n" +
 	"\x0eControlInScope\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12q\n" +
 	"\x0eaudit_scope_id\x18\x02 \x01(\tBK\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03;gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\"R\fauditScopeId\x125\n" +
 	"\x17target_of_evaluation_id\x18\x03 \x01(\tR\x14targetOfEvaluationId\x12j\n" +
 	"\n" +
-	"control_id\x18\x04 \x01(\tBK\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03;gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\"R\tcontrolId\x12L\n" +
-	"\x05state\x18\x05 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateR\x05state\x12:\n" +
+	"control_id\x18\x04 \x01(\tBK\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03;gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\"R\tcontrolId\x12E\n" +
+	"\x05state\x18\x05 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\x05state\x12:\n" +
 	"\x16implementation_details\x18\x06 \x01(\tH\x00R\x15implementationDetails\x88\x01\x01\x12$\n" +
 	"\vassignee_id\x18\a \x01(\tH\x01R\n" +
 	"assigneeId\x88\x01\x01\x12l\n" +
@@ -1099,15 +1126,15 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tupdatedAtB\x19\n" +
 	"\x17_implementation_detailsB\x0e\n" +
-	"\f_assignee_id\"\xd1\x03\n" +
+	"\f_assignee_id\"\xdf\x03\n" +
 	"\x0fAuditTrailEvent\x121\n" +
-	"\x02id\x18\x01 \x01(\tB!\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x127\n" +
-	"\x0eaudit_scope_id\x18\x02 \x01(\tB\x11\x9a\x84\x9e\x03\fgorm:\"index\"R\fauditScopeId\x12\x19\n" +
-	"\bactor_id\x18\x03 \x01(\tR\aactorId\x12\x18\n" +
-	"\acomment\x18\x04 \x01(\tR\acomment\x12a\n" +
-	"\x04time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x04time\x12[\n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12:\n" +
+	"\x0eaudit_scope_id\x18\x02 \x01(\tB\x14\xe0A\x03\x9a\x84\x9e\x03\fgorm:\"index\"R\fauditScopeId\x12\x1e\n" +
+	"\bactor_id\x18\x03 \x01(\tB\x03\xe0A\x03R\aactorId\x12\x18\n" +
+	"\acomment\x18\x04 \x01(\tR\acomment\x12d\n" +
+	"\x04time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x03\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x04time\x12^\n" +
 	"\n" +
-	"event_data\x18\x06 \x01(\v2\x14.google.protobuf.AnyB&\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:text\"R\teventData\x12E\n" +
+	"event_data\x18\x06 \x01(\v2\x14.google.protobuf.AnyB)\xe0A\x03\x9a\x84\x9e\x03!gorm:\"serializer:anypb;type:text\"R\teventData\x12E\n" +
 	"\x13control_in_scope_id\x18\a \x01(\tB\x11\x9a\x84\x9e\x03\fgorm:\"index\"H\x00R\x10controlInScopeId\x88\x01\x01B\x16\n" +
 	"\x14_control_in_scope_id\"\xa4\x01\n" +
 	"\x13ControlScopingEvent\x12-\n" +
@@ -1115,16 +1142,21 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"control_id\x18\x02 \x01(\tR\tcontrolId\x12$\n" +
 	"\x0eaudit_scope_id\x18\x03 \x01(\tR\fauditScopeId\x12\x19\n" +
-	"\bin_scope\x18\x04 \x01(\bR\ainScope\"\xff\x01\n" +
-	"$ControlImplementationTransitionEvent\x12-\n" +
-	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12U\n" +
+	"\bin_scope\x18\x04 \x01(\bR\ainScope\"\xea\x01\n" +
+	"\x1dControlInScopeTransitionEvent\x12-\n" +
+	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12N\n" +
 	"\n" +
-	"from_state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateR\tfromState\x12Q\n" +
-	"\bto_state\x18\x03 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateR\atoState\"v\n" +
-	"\x13ScopeControlRequest\x12_\n" +
-	"\x10control_in_scope\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.ControlInScopeB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x0econtrolInScope\"7\n" +
+	"from_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\tfromState\x12J\n" +
+	"\bto_state\x18\x03 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\atoState\"\xb2\x01\n" +
+	"\x1bCreateControlInScopeRequest\x121\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12*\n" +
+	"\n" +
+	"control_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\tcontrolId\x12$\n" +
+	"\vassignee_id\x18\x03 \x01(\tH\x00R\n" +
+	"assigneeId\x88\x01\x01B\x0e\n" +
+	"\f_assignee_id\"7\n" +
 	"\x18GetControlInScopeRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xdc\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xd5\x03\n" +
 	"\x1aListControlsInScopeRequest\x12Z\n" +
 	"\x06filter\x18\x01 \x01(\v2=.confirmate.orchestrator.v1.ListControlsInScopeRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
@@ -1132,10 +1164,10 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xed\x01\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xe6\x01\n" +
 	"\x06Filter\x123\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12[\n" +
-	"\x05state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\b\xbaH\x05\x82\x01\x02\x10\x01H\x01R\x05state\x88\x01\x01\x12$\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12T\n" +
+	"\x05state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateB\b\xbaH\x05\x82\x01\x02\x10\x01H\x01R\x05state\x88\x01\x01\x12$\n" +
 	"\vassignee_id\x18\x03 \x01(\tH\x02R\n" +
 	"assigneeId\x88\x01\x01B\x11\n" +
 	"\x0f_audit_scope_idB\b\n" +
@@ -1151,14 +1183,14 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"assigneeId\x88\x01\x01\x12:\n" +
 	"\x16implementation_details\x18\x03 \x01(\tH\x01R\x15implementationDetails\x88\x01\x01B\x0e\n" +
 	"\f_assignee_idB\x19\n" +
-	"\x17_implementation_details\"\xcb\x01\n" +
+	"\x17_implementation_details\"\xc4\x01\n" +
 	"$TransitionControlInScopeStateRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12`\n" +
-	"\bto_state\x18\x02 \x01(\x0e26.confirmate.orchestrator.v1.ControlImplementationStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\x12$\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12Y\n" +
+	"\bto_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\x12$\n" +
 	"\acomment\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\"4\n" +
 	"\x15UnscopeControlRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x97\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xc4\x03\n" +
 	"\x1bListAuditTrailEventsRequest\x12[\n" +
 	"\x06filter\x18\x01 \x01(\v2>.confirmate.orchestrator.v1.ListAuditTrailEventsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
@@ -1166,23 +1198,25 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xa6\x01\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xd3\x01\n" +
 	"\x06Filter\x123\n" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01\x12<\n" +
-	"\x13control_in_scope_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x01R\x10controlInScopeId\x88\x01\x01B\x11\n" +
+	"\x13control_in_scope_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x01R\x10controlInScopeId\x88\x01\x01\x12\x1e\n" +
+	"\bactor_id\x18\x03 \x01(\tH\x02R\aactorId\x88\x01\x01B\x11\n" +
 	"\x0f_audit_scope_idB\x16\n" +
-	"\x14_control_in_scope_idB\t\n" +
+	"\x14_control_in_scope_idB\v\n" +
+	"\t_actor_idB\t\n" +
 	"\a_filter\"\xa1\x01\n" +
 	"\x1cListAuditTrailEventsResponse\x12Y\n" +
 	"\x12audit_trail_events\x18\x01 \x03(\v2+.confirmate.orchestrator.v1.AuditTrailEventR\x10auditTrailEvents\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\xab\x02\n" +
-	"\x1aControlImplementationState\x12,\n" +
-	"(CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED\x10\x00\x12%\n" +
-	"!CONTROL_IMPLEMENTATION_STATE_OPEN\x10\x01\x12,\n" +
-	"(CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS\x10\x02\x12,\n" +
-	"(CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED\x10\x03\x121\n" +
-	"-CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW\x10\x04\x12)\n" +
-	"%CONTROL_IMPLEMENTATION_STATE_ACCEPTED\x10\x05B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\x80\x02\n" +
+	"\x13ControlInScopeState\x12&\n" +
+	"\"CONTROL_IN_SCOPE_STATE_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bCONTROL_IN_SCOPE_STATE_OPEN\x10\x01\x12&\n" +
+	"\"CONTROL_IN_SCOPE_STATE_IN_PROGRESS\x10\x02\x12&\n" +
+	"\"CONTROL_IN_SCOPE_STATE_IMPLEMENTED\x10\x03\x12+\n" +
+	"'CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW\x10\x04\x12#\n" +
+	"\x1fCONTROL_IN_SCOPE_STATE_ACCEPTED\x10\x05B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_workflow_proto_rawDescOnce sync.Once
@@ -1199,12 +1233,12 @@ func file_api_orchestrator_workflow_proto_rawDescGZIP() []byte {
 var file_api_orchestrator_workflow_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_api_orchestrator_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_api_orchestrator_workflow_proto_goTypes = []any{
-	(ControlImplementationState)(0),              // 0: confirmate.orchestrator.v1.ControlImplementationState
+	(ControlInScopeState)(0),                     // 0: confirmate.orchestrator.v1.ControlInScopeState
 	(*ControlInScope)(nil),                       // 1: confirmate.orchestrator.v1.ControlInScope
 	(*AuditTrailEvent)(nil),                      // 2: confirmate.orchestrator.v1.AuditTrailEvent
 	(*ControlScopingEvent)(nil),                  // 3: confirmate.orchestrator.v1.ControlScopingEvent
-	(*ControlImplementationTransitionEvent)(nil), // 4: confirmate.orchestrator.v1.ControlImplementationTransitionEvent
-	(*ScopeControlRequest)(nil),                  // 5: confirmate.orchestrator.v1.ScopeControlRequest
+	(*ControlInScopeTransitionEvent)(nil),        // 4: confirmate.orchestrator.v1.ControlInScopeTransitionEvent
+	(*CreateControlInScopeRequest)(nil),          // 5: confirmate.orchestrator.v1.CreateControlInScopeRequest
 	(*GetControlInScopeRequest)(nil),             // 6: confirmate.orchestrator.v1.GetControlInScopeRequest
 	(*ListControlsInScopeRequest)(nil),           // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest
 	(*ListControlsInScopeResponse)(nil),          // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse
@@ -1219,25 +1253,24 @@ var file_api_orchestrator_workflow_proto_goTypes = []any{
 	(*anypb.Any)(nil),                            // 17: google.protobuf.Any
 }
 var file_api_orchestrator_workflow_proto_depIdxs = []int32{
-	0,  // 0: confirmate.orchestrator.v1.ControlInScope.state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
+	0,  // 0: confirmate.orchestrator.v1.ControlInScope.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
 	16, // 1: confirmate.orchestrator.v1.ControlInScope.created_at:type_name -> google.protobuf.Timestamp
 	16, // 2: confirmate.orchestrator.v1.ControlInScope.updated_at:type_name -> google.protobuf.Timestamp
 	16, // 3: confirmate.orchestrator.v1.AuditTrailEvent.time:type_name -> google.protobuf.Timestamp
 	17, // 4: confirmate.orchestrator.v1.AuditTrailEvent.event_data:type_name -> google.protobuf.Any
-	0,  // 5: confirmate.orchestrator.v1.ControlImplementationTransitionEvent.from_state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	0,  // 6: confirmate.orchestrator.v1.ControlImplementationTransitionEvent.to_state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	1,  // 7: confirmate.orchestrator.v1.ScopeControlRequest.control_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
-	14, // 8: confirmate.orchestrator.v1.ListControlsInScopeRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
-	1,  // 9: confirmate.orchestrator.v1.ListControlsInScopeResponse.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
-	0,  // 10: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest.to_state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	15, // 11: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
-	2,  // 12: confirmate.orchestrator.v1.ListAuditTrailEventsResponse.audit_trail_events:type_name -> confirmate.orchestrator.v1.AuditTrailEvent
-	0,  // 13: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter.state:type_name -> confirmate.orchestrator.v1.ControlImplementationState
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	0,  // 5: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.from_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	0,  // 6: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	14, // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
+	1,  // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
+	0,  // 9: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	15, // 10: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
+	2,  // 11: confirmate.orchestrator.v1.ListAuditTrailEventsResponse.audit_trail_events:type_name -> confirmate.orchestrator.v1.AuditTrailEvent
+	0,  // 12: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_workflow_proto_init() }
@@ -1247,6 +1280,7 @@ func file_api_orchestrator_workflow_proto_init() {
 	}
 	file_api_orchestrator_workflow_proto_msgTypes[0].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[1].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[4].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[6].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[8].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[11].OneofWrappers = []any{}

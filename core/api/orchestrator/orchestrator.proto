@@ -396,10 +396,10 @@ service Orchestrator {
 
   // Manually brings a control into scope within an audit scope, creating a ControlInScope record.
   // Note: controls are also brought in scope automatically when an audit scope is created.
-  rpc ScopeControl(ScopeControlRequest) returns (ControlInScope) {
+  rpc CreateControlInScope(CreateControlInScopeRequest) returns (ControlInScope) {
     option (google.api.http) = {
       post: "/v1/orchestrator/controls_in_scope"
-      body: "control_in_scope"
+      body: "*"
     };
   }
 

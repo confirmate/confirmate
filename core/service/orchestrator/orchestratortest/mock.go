@@ -630,14 +630,14 @@ var (
 		AuditScopeId:         MockScopeId1,
 		TargetOfEvaluationId: MockToeId1,
 		ControlId:            MockControlId1,
-		State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+		State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 	}
 	MockControlInScope2 = &orchestrator.ControlInScope{
 		Id:                   MockControlInScopeId2,
 		AuditScopeId:         MockScopeId2,
 		TargetOfEvaluationId: MockToeId2,
 		ControlId:            MockControlId2,
-		State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+		State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 	}
 )
 
