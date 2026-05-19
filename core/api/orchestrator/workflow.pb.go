@@ -457,6 +457,9 @@ type CreateControlInScopeRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	ControlId    string                 `protobuf:"bytes,2,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	// TargetOfEvaluationId must match the target_of_evaluation_id of the referenced audit scope.
+	// It is required here so the server can avoid a round-trip fetch of the AuditScope.
+	TargetOfEvaluationId string `protobuf:"bytes,4,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	// AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
 	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -503,6 +506,13 @@ func (x *CreateControlInScopeRequest) GetAuditScopeId() string {
 func (x *CreateControlInScopeRequest) GetControlId() string {
 	if x != nil {
 		return x.ControlId
+	}
+	return ""
+}
+
+func (x *CreateControlInScopeRequest) GetTargetOfEvaluationId() string {
+	if x != nil {
+		return x.TargetOfEvaluationId
 	}
 	return ""
 }
@@ -1147,11 +1157,12 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12N\n" +
 	"\n" +
 	"from_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\tfromState\x12J\n" +
-	"\bto_state\x18\x03 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\atoState\"\xb2\x01\n" +
+	"\bto_state\x18\x03 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\atoState\"\xf6\x01\n" +
 	"\x1bCreateControlInScopeRequest\x121\n" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12*\n" +
 	"\n" +
-	"control_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\tcontrolId\x12$\n" +
+	"control_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\tcontrolId\x12B\n" +
+	"\x17target_of_evaluation_id\x18\x04 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12$\n" +
 	"\vassignee_id\x18\x03 \x01(\tH\x00R\n" +
 	"assigneeId\x88\x01\x01B\x0e\n" +
 	"\f_assignee_id\"7\n" +

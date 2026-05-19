@@ -100,16 +100,10 @@ func (svc *Service) CreateControlInScope(
 ) (res *connect.Response[orchestrator.ControlInScope], err error) {
 	var (
 		cis     *orchestrator.ControlInScope
-		scope   orchestrator.AuditScope
 		allowed bool
 	)
 
 	if err = service.Validate(req); err != nil {
-		return nil, err
-	}
-
-	err = svc.db.Get(&scope, "id = ?", req.Msg.GetAuditScopeId())
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
 
@@ -150,7 +144,7 @@ func (svc *Service) CreateControlInScope(
 	cis = &orchestrator.ControlInScope{
 		Id:                   uuid.NewString(),
 		AuditScopeId:         req.Msg.GetAuditScopeId(),
-		TargetOfEvaluationId: scope.GetTargetOfEvaluationId(),
+		TargetOfEvaluationId: req.Msg.GetTargetOfEvaluationId(),
 		ControlId:            req.Msg.GetControlId(),
 		State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 		AssigneeId:           req.Msg.AssigneeId,

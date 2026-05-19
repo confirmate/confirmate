@@ -153,6 +153,13 @@ message CreateControlInScopeRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
+  // TargetOfEvaluationId must match the target_of_evaluation_id of the referenced audit scope.
+  // It is required here so the server can avoid a round-trip fetch of the AuditScope.
+  string target_of_evaluation_id = 4 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
   // AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
   optional string assignee_id = 3;
 }

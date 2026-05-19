@@ -53,8 +53,9 @@ func TestService_CreateControlInScope(t *testing.T) {
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.CreateControlInScopeRequest{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -78,12 +79,13 @@ func TestService_CreateControlInScope(t *testing.T) {
 
 				got := assert.InDB[orchestrator.ControlInScope](t, db, res.Msg.Id)
 				want := &orchestrator.ControlInScope{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					State:        orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
+					State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 				}
 				if !assert.Equal(t, want, got, protocmp.IgnoreFields(&orchestrator.ControlInScope{},
-					"id", "target_of_evaluation_id", "created_at", "updated_at")) {
+					"id", "created_at", "updated_at")) {
 					return false
 				}
 
@@ -98,8 +100,9 @@ func TestService_CreateControlInScope(t *testing.T) {
 			name: "happy path: with permission store and admin token",
 			args: args{
 				req: &orchestrator.CreateControlInScopeRequest{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
 					IsAdminToken: true,
@@ -149,8 +152,9 @@ func TestService_CreateControlInScope(t *testing.T) {
 			name: "authorization failure",
 			args: args{
 				req: &orchestrator.CreateControlInScopeRequest{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -166,30 +170,12 @@ func TestService_CreateControlInScope(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "audit scope not found",
-			args: args{
-				req: &orchestrator.CreateControlInScopeRequest{
-					AuditScopeId: orchestratortest.MockNonExistentId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
-				},
-			},
-			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-				authz: &service.AuthorizationStrategyAllowAll{},
-			},
-			want: assert.Nil[*connect.Response[orchestrator.ControlInScope]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
-					assert.ErrorContains(t, err, "audit scope")
-			},
-			wantDB: assert.NotNil[persistence.DB],
-		},
-		{
 			name: "duplicate: already in scope",
 			args: args{
 				req: &orchestrator.CreateControlInScopeRequest{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -210,8 +196,9 @@ func TestService_CreateControlInScope(t *testing.T) {
 			name: "control not in catalog",
 			args: args{
 				req: &orchestrator.CreateControlInScopeRequest{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockNonExistentId,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockNonExistentId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
