@@ -22,23 +22,32 @@ import (
 	"confirmate.io/core/persistence"
 )
 
-// types contains all Orchestrator types that we need to auto-migrate into database tables
+// types contains all Orchestrator types that we need to auto-migrate into database tables.
+// Order matters: types must appear before any other type that holds a FK or many2many
+// constraint referencing their table.
 var types = []any{
+	// No outgoing FK dependencies — must come first.
+	&orchestrator.User{},
+	&orchestrator.UserPermission{},
+	&assessment.Metric{},
+	&assessment.MetricImplementation{},
+	// Depend on User (toe_readers / toe_contributors / toe_admins join tables).
 	&orchestrator.TargetOfEvaluation{},
 	&orchestrator.Certificate{},
 	&orchestrator.State{},
 	&orchestrator.Catalog{},
-	&orchestrator.Category{},
+	// Control depends on Metric (control_metrics join table).
+	// Category depends on Control (category_controls join table).
 	&orchestrator.Control{},
+	&orchestrator.Category{},
+	// AuditScope depends on User (audit_scope_readers/contributors/admins join tables).
 	&orchestrator.AuditScope{},
 	&orchestrator.AssessmentTool{},
-	&orchestrator.User{},
-	&orchestrator.UserPermission{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},
-	&assessment.Metric{},
-	&assessment.MetricImplementation{},
 	&evaluation.EvaluationResult{},
+	// ControlInScope depends on AuditScope and Control.
+	// AuditTrailEvent depends on AuditScope.
 	&orchestrator.ControlInScope{},
 	&orchestrator.AuditTrailEvent{},
 }
