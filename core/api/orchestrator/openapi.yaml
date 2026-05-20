@@ -2093,27 +2093,6 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
-                readers:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with explicit permission to view this target (Read-only).
-                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-                contributors:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs responsible for the content and maintenance of this target.
-                         These users can modify settings and data but cannot manage other users' access.
-                admins:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with administrative control over this target.
-                         These users can manage permissions for others and perform destructive actions like deletion.
                 status:
                     enum:
                         - AUDIT_SCOPE_STATUS_UNSPECIFIED
@@ -2896,27 +2875,6 @@ components:
                     type: string
                     description: 'type of the target to be evaluated: cloud, product or organization'
                     format: enum
-                readers:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with explicit permission to view this target (Read-only).
-                         If empty, only users in the contributor or admin lists (or elevated system roles) have access.
-                contributors:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs responsible for the content and maintenance of this target.
-                         These users can modify settings and data but cannot manage other users' access.
-                admins:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/User'
-                    description: |-
-                        List of user IDs with administrative control over this target.
-                         These users can manage permissions for others and perform destructive actions like deletion.
                 organisation:
                     allOf:
                         - $ref: '#/components/schemas/TargetOfEvaluation_Organisation'

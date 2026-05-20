@@ -44,6 +44,7 @@ import (
 // Changes:
 // - 2024-12-10: Add function HandleNetworkListSuccessfully() and add second path for "/networks" based on the HandleFunc in https://github.com/gophercloud/gophercloud/blob/5770765aa037e1572cbaa9474113010a1397e822/openstack/networking/v2/networks/testing/requests_test.go (anatheka)
 // - 2025-01-28: Add ProjectID property to all network objects (anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 const ListResponse = `
 {

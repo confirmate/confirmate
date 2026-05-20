@@ -42,7 +42,7 @@ import (
 //
 // Changes:
 // - 2024-12-10: Extended function HandleInterfaceListSuccessfully() for all 3 virtual machines given in /internal/testuitl/servicetes/openstacktest/openstack_compute.go (@anatheka)
-// - 2025-01-07:  (@anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 // ListInterfacesExpected represents an expected response from a ListInterfaces request.
 var ListInterfacesExpected = []attachinterfaces.Interface{
