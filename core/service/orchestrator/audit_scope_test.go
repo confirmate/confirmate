@@ -19,6 +19,7 @@ import (
 	"context"
 	"testing"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
@@ -1258,4 +1259,54 @@ func TestService_RemoveAuditScope(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+func TestCreateAuditScope_AutoCreatesControlsInScope(t *testing.T) {
+	// Build a minimal catalog+category+controls fixture directly in the DB to verify that
+	// auto-creation of ControlInScope records works on CreateAuditScope.
+	catalogId := "00000000-0000-0000-0009-000000000001"
+	toeId := "00000000-0000-0000-0000-000000000099"
+	ctrl1Id := "00000000-0000-0000-000a-000000000001"
+	ctrl2Id := "00000000-0000-0000-000a-000000000002"
+
+	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+		// Seed catalog, 2 controls, and a category that links to both via the many2many join.
+		assert.NoError(t, d.Create(&orchestrator.Catalog{Id: catalogId, Name: "Test Catalog"}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl1Id, ShortName: "C-01", Name: "Control 1"}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl2Id, ShortName: "C-02", Name: "Control 2"}))
+		// Create the category with both controls referenced — GORM inserts the join table rows.
+		assert.NoError(t, d.Create(&orchestrator.Category{
+			Name:      "Cat1",
+			CatalogId: catalogId,
+			Controls: []*orchestrator.Control{
+				{Id: ctrl1Id},
+				{Id: ctrl2Id},
+			},
+		}))
+	})
+	_ = assessment.Metric{} // keep import used
+
+	svc := &Service{
+		db:    db,
+		authz: &service.AuthorizationStrategyAllowAll{},
+	}
+
+	res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(&orchestrator.CreateAuditScopeRequest{
+		AuditScope: &orchestrator.AuditScope{
+			TargetOfEvaluationId: toeId,
+			CatalogId:            catalogId,
+			Name:                 "Test Scope",
+			Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+		},
+	}))
+	assert.NoError(t, err)
+	if !assert.NotNil(t, res) {
+		return
+	}
+
+	// Verify one ControlInScope was created for each control in the catalog.
+	var count int64
+	count, err = db.Count(&orchestrator.ControlInScope{}, "audit_scope_id = ?", res.Msg.Id)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(2), count)
 }

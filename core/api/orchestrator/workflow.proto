@@ -17,142 +17,167 @@ package confirmate.orchestrator.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "tagger/tagger.proto";
 
 option go_package = "confirmate.io/core/api/orchestrator";
 
-// ControlImplementationState represents the lifecycle state of a control implementation.
-enum ControlImplementationState {
-  CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED      = 0;
-  CONTROL_IMPLEMENTATION_STATE_OPEN             = 1;
-  CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS      = 2;
-  CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED      = 3;
-  CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW = 4;
-  CONTROL_IMPLEMENTATION_STATE_ACCEPTED         = 5;
+// ControlInScopeState represents the lifecycle state of a control's implementation within an audit scope.
+enum ControlInScopeState {
+  CONTROL_IN_SCOPE_STATE_UNSPECIFIED      = 0;
+  CONTROL_IN_SCOPE_STATE_OPEN             = 1;
+  CONTROL_IN_SCOPE_STATE_IN_PROGRESS      = 2;
+  CONTROL_IN_SCOPE_STATE_IMPLEMENTED      = 3;
+  CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW = 4;
+  CONTROL_IN_SCOPE_STATE_ACCEPTED         = 5;
 }
 
-// ControlImplementation tracks the implementation status of a specific control within an audit
-// scope. There is exactly one ControlImplementation per (audit scope, control) pair.
-message ControlImplementation {
+// ControlInScope tracks the implementation status of a specific control within an audit scope.
+// There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
+// when an audit scope is created and can also be managed manually via the CreateControlInScope /
+// RemoveControlInScope RPCs.
+message ControlInScope {
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // AuditScopeId describes the audit scope this implementation belongs to.
+  // AuditScopeId describes the audit scope this record belongs to.
   string audit_scope_id = 2 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED,
-    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\""
   ];
 
   // TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
-  string target_of_evaluation_id = 3 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // It is set server-side and not required in requests.
+  string target_of_evaluation_id = 3;
 
-  // Control foreign key — references the control being implemented.
-  string control_id = 5 [
-    (buf.validate.field).string.min_len = 1,
+  // ControlId references the control being implemented (unique UUID since #270).
+  string control_id = 4 [
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED,
-    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
-  ];
-  string control_category_name = 6 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED,
-    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
-  ];
-  string control_category_catalog_id = 7 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED,
-    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_impl_audit_scope_control\""
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\""
   ];
 
   // Current implementation state.
-  ControlImplementationState state = 9;
+  ControlInScopeState state = 5;
 
-  // ImplementationDetails contains details about the technical and organization measures taken to
-  // implement the control. This is a free-form field that can be used to capture any relevant
-  // information about the implementation.
-  optional string implementation_details = 10;
+  // ImplementationDetails contains free-form notes about how the control is being addressed.
+  optional string implementation_details = 6;
 
-  // AssigneeId is the user (identified by User.id) responsible for implementing this control.
-  optional string assignee_id = 11;
+  // AssigneeId is the ID of the orchestrator User entity responsible for implementing this control.
+  // This is the User.id of the person assigned, not the actor making the request.
+  optional string assignee_id = 7;
 
-  google.protobuf.Timestamp created_at = 12 [
+  google.protobuf.Timestamp created_at = 8 [
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
   ];
-  google.protobuf.Timestamp updated_at = 13 [
+  google.protobuf.Timestamp updated_at = 9 [
     (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
-  ];
-
-  // Full history of state transitions (populated on read).
-  repeated ControlImplementationTransition transitions = 14 [
-    (tagger.tags) = "gorm:\"foreignKey:ControlImplementationId;constraint:OnDelete:CASCADE\""
   ];
 }
 
-// ControlImplementationTransition records a single state change in a ControlImplementation's
-// lifecycle, capturing who made the change and when.
-message ControlImplementationTransition {
+// AuditTrailEvent is a persisted record of any significant change related to an audit scope,
+// such as a control being scoped/unscoped or an audit scope state transition. The event_data
+// field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
+message AuditTrailEvent {
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
-  string control_implementation_id = 2 [
-    (buf.validate.field).string.uuid = true,
-    (google.api.field_behavior) = REQUIRED
+  // AuditScopeId is the primary resource this event belongs to.
+  string audit_scope_id = 2 [
+    (tagger.tags) = "gorm:\"index\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
-  ControlImplementationState from_state = 3 [
-    (google.api.field_behavior) = REQUIRED
+  // ActorId is the User.id of the person who triggered this event.
+  string actor_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
-  ControlImplementationState to_state = 4 [
-    (google.api.field_behavior) = REQUIRED
+  // Comment provides optional context for the event.
+  string comment = 4;
+
+  // Time is the creation time of this event.
+  google.protobuf.Timestamp created_at = 5 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
-  // User.id of the person who triggered this transition.
-  string performed_by = 5;
-
-  google.protobuf.Timestamp time = 6 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
+  // EventData holds the typed event payload serialized as JSON.
+  google.protobuf.Any event_data = 6 [
+    (tagger.tags) = "gorm:\"serializer:anypb;type:text\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
-  // Comment explaining the reason for the transition.
-  string comment = 7 [
-    (google.api.field_behavior) = REQUIRED
+  // ControlInScopeId optionally links this event to the affected ControlInScope record.
+  // Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
+  optional string control_in_scope_id = 7 [
+    (tagger.tags) = "gorm:\"index\""
   ];
+}
+
+// ControlScopingEvent is emitted when a control is brought in or out of scope.
+// control_in_scope_id is only set for in-scope events; it is omitted for out-of-scope events
+// because the ControlInScope record is deleted as part of the same transaction.
+message ControlScopingEvent {
+  string control_in_scope_id = 1;
+  string control_id          = 2;
+  string audit_scope_id      = 3;
+  bool   in_scope            = 4;
+}
+
+// ControlInScopeTransitionEvent is emitted when a ControlInScope moves between implementation states.
+message ControlInScopeTransitionEvent {
+  string              control_in_scope_id = 1;
+  ControlInScopeState from_state          = 2;
+  ControlInScopeState to_state            = 3;
 }
 
 // ── Request / Response messages ──────────────────────────────────────────────
 
-message CreateControlImplementationRequest {
-  ControlImplementation control_implementation = 1 [
-    (buf.validate.field).required = true,
+message CreateControlInScopeRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  string control_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // TargetOfEvaluationId must match the target_of_evaluation_id of the referenced audit scope.
+  // It is required here so the server can avoid a round-trip fetch of the AuditScope.
+  string target_of_evaluation_id = 4 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+  optional string assignee_id = 3;
 }
 
-message GetControlImplementationRequest {
+message GetControlInScopeRequest {
   string id = 1 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
 }
 
-message ListControlImplementationsRequest {
+message ListControlsInScopeRequest {
   message Filter {
     // Optional. Filter by audit scope.
     optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
 
     // Optional. Filter by current state.
-    optional ControlImplementationState state = 2 [(buf.validate.field).enum = {defined_only: true}];
+    optional ControlInScopeState state = 2 [(buf.validate.field).enum = {defined_only: true}];
 
     // Optional. Filter by assignee.
     optional string assignee_id = 3;
@@ -166,12 +191,12 @@ message ListControlImplementationsRequest {
   bool   asc        = 13;
 }
 
-message ListControlImplementationsResponse {
-  repeated ControlImplementation control_implementations = 1;
-  string                         next_page_token         = 2;
+message ListControlsInScopeResponse {
+  repeated ControlInScope controls_in_scope = 1;
+  string                  next_page_token   = 2;
 }
 
-message UpdateControlImplementationRequest {
+message UpdateControlInScopeRequest {
   string id = 1 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
@@ -179,18 +204,17 @@ message UpdateControlImplementationRequest {
 
   optional string assignee_id = 2;
 
-  // ImplementationDetails contains details about the technical and organizational measures taken to
-  // implement the control.
+  // ImplementationDetails contains free-form notes about how the control is being addressed.
   optional string implementation_details = 3;
 }
 
-message TransitionControlImplementationStateRequest {
+message TransitionControlInScopeStateRequest {
   string id = 1 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
-  ControlImplementationState to_state = 2 [
+  ControlInScopeState to_state = 2 [
     (buf.validate.field).enum = {not_in: [0], defined_only: true},
     (google.api.field_behavior) = REQUIRED
   ];
@@ -202,9 +226,34 @@ message TransitionControlImplementationStateRequest {
   ];
 }
 
-message RemoveControlImplementationRequest {
+message RemoveControlInScopeRequest {
   string id = 1 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+}
+
+message ListAuditTrailEventsRequest {
+  message Filter {
+    // Optional. Filter by audit scope.
+    optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by control in scope (returns only events for that specific record).
+    optional string control_in_scope_id = 2 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by the actor (User.id) who triggered the events.
+    optional string actor_id = 3;
+  }
+
+  optional Filter filter = 1;
+
+  int32  page_size  = 10;
+  string page_token = 11;
+  string order_by   = 12;
+  bool   asc        = 13;
+}
+
+message ListAuditTrailEventsResponse {
+  repeated AuditTrailEvent audit_trail_events = 1;
+  string                   next_page_token    = 2;
 }

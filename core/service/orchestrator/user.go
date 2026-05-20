@@ -227,15 +227,15 @@ func (svc *Service) ListUserPermissions(
 	}
 
 	// Build filter conditions
-	if userId := req.Msg.Filter.GetUserId(); userId != "" {
+	if userId := req.Msg.GetFilter().GetUserId(); userId != "" {
 		query = append(query, "user_id = ?")
 		args = append(args, userId)
 	}
-	if objectId := req.Msg.Filter.GetObjectId(); objectId != "" {
+	if objectId := req.Msg.GetFilter().GetObjectId(); objectId != "" {
 		query = append(query, "object_id = ?")
 		args = append(args, objectId)
 	}
-	if objectType := req.Msg.Filter.GetObjectType(); objectType != orchestrator.ObjectType_OBJECT_TYPE_UNSPECIFIED {
+	if objectType := req.Msg.GetFilter().GetObjectType(); objectType != orchestrator.ObjectType_OBJECT_TYPE_UNSPECIFIED {
 		query = append(query, "object_type = ?")
 		args = append(args, objectType)
 	}
