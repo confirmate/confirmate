@@ -55,9 +55,6 @@ func (svc *Service) CreateTargetOfEvaluation(
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organisation:      req.Msg.GetTargetOfEvaluation().GetOrganisation(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
-		Readers:           req.Msg.GetTargetOfEvaluation().GetReaders(),
-		Contributors:      req.Msg.GetTargetOfEvaluation().GetContributors(),
-		Admins:            req.Msg.GetTargetOfEvaluation().GetAdmins(),
 		CreatedAt:         now,
 		UpdatedAt:         now,
 	}
@@ -210,9 +207,6 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organisation:      req.Msg.GetTargetOfEvaluation().GetOrganisation(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
-		Readers:           req.Msg.GetTargetOfEvaluation().GetReaders(),
-		Contributors:      req.Msg.GetTargetOfEvaluation().GetContributors(),
-		Admins:            req.Msg.GetTargetOfEvaluation().GetAdmins(),
 		UpdatedAt:         timestamppb.Now(),
 	}
 

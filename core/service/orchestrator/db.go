@@ -22,25 +22,33 @@ import (
 	"confirmate.io/core/persistence"
 )
 
-// types contains all Orchestrator types that we need to auto-migrate into database tables
+// types contains all Orchestrator types that we need to auto-migrate into database tables.
+// Order matters: types must appear before any other type that holds a FK or many2many
+// constraint referencing their table.
 var types = []any{
+	// No outgoing FK dependencies — must come first.
+	&orchestrator.User{},
+	&orchestrator.UserPermission{},
+	&assessment.Metric{},
+	// MetricImplementation depends on Metric.
+	&assessment.MetricImplementation{},
 	&orchestrator.TargetOfEvaluation{},
 	&orchestrator.Certificate{},
 	&orchestrator.State{},
 	&orchestrator.Catalog{},
-	&orchestrator.Category{},
+	// Control depends on Metric (control_metrics join table).
 	&orchestrator.Control{},
+	// Category depends on Control (category_controls join table).
+    &orchestrator.Category{},
 	&orchestrator.AuditScope{},
 	&orchestrator.AssessmentTool{},
-	&orchestrator.User{},
-	&orchestrator.UserPermission{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},
-	&assessment.Metric{},
-	&assessment.MetricImplementation{},
 	&evaluation.EvaluationResult{},
-	&orchestrator.ControlImplementation{},
-	&orchestrator.ControlImplementationTransition{},
+	// ControlInScope depends on AuditScope and Control.
+    &orchestrator.ControlInScope{},
+	// AuditTrailEvent depends on AuditScope.
+    &orchestrator.AuditTrailEvent{},
 }
 
 // joinTables defines the [MetricConfiguration] as a custom join table between
