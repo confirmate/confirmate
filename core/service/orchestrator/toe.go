@@ -21,6 +21,7 @@ import (
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -54,9 +55,6 @@ func (svc *Service) CreateTargetOfEvaluation(
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organisation:      req.Msg.GetTargetOfEvaluation().GetOrganisation(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
-		Readers:           req.Msg.GetTargetOfEvaluation().GetReaders(),
-		Contributors:      req.Msg.GetTargetOfEvaluation().GetContributors(),
-		Admins:            req.Msg.GetTargetOfEvaluation().GetAdmins(),
 		CreatedAt:         now,
 		UpdatedAt:         now,
 	}
@@ -70,8 +68,18 @@ func (svc *Service) CreateTargetOfEvaluation(
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the target of evaluation in the database
-	err = svc.db.Create(toe)
+	// Persist the target of evaluation in the database and grant the creator admin access.
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		if err = tx.Create(toe); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+
+		if err = grantCreatorAdminPermission(ctx, tx, toe.Id, orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION); err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -199,9 +207,6 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
 		Organisation:      req.Msg.GetTargetOfEvaluation().GetOrganisation(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
-		Readers:           req.Msg.GetTargetOfEvaluation().GetReaders(),
-		Contributors:      req.Msg.GetTargetOfEvaluation().GetContributors(),
-		Admins:            req.Msg.GetTargetOfEvaluation().GetAdmins(),
 		UpdatedAt:         timestamppb.Now(),
 	}
 

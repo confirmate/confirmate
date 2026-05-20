@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package orchestrator
 
 import (
@@ -28,9 +43,8 @@ func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Reques
 		Id:                   req.Msg.Result.GetId(),
 		TargetOfEvaluationId: req.Msg.Result.GetTargetOfEvaluationId(),
 		AuditScopeId:         req.Msg.Result.GetAuditScopeId(),
-		ControlId:            req.Msg.Result.GetControlId(),
-		ControlCategoryName:  req.Msg.Result.GetControlCategoryName(),
-		ControlCatalogId:     req.Msg.Result.GetControlCatalogId(),
+		ControlId:        req.Msg.Result.GetControlId(),
+		ControlCatalogId: req.Msg.Result.GetControlCatalogId(),
 		ParentControlId:      req.Msg.Result.ParentControlId,
 		Status:               req.Msg.Result.GetStatus(),
 		Timestamp:            timestamppb.Now(),

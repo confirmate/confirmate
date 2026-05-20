@@ -124,6 +124,7 @@ const (
 	ObjectType_OBJECT_TYPE_CONTROL               ObjectType = 13
 	ObjectType_OBJECT_TYPE_EVALUATION_RESULT     ObjectType = 14
 	ObjectType_OBJECT_TYPE_EVIDENCE              ObjectType = 15
+	ObjectType_OBJECT_TYPE_CONTROL_IN_SCOPE      ObjectType = 16
 )
 
 // Enum value maps for ObjectType.
@@ -145,6 +146,7 @@ var (
 		13: "OBJECT_TYPE_CONTROL",
 		14: "OBJECT_TYPE_EVALUATION_RESULT",
 		15: "OBJECT_TYPE_EVIDENCE",
+		16: "OBJECT_TYPE_CONTROL_IN_SCOPE",
 	}
 	ObjectType_value = map[string]int32{
 		"OBJECT_TYPE_UNSPECIFIED":           0,
@@ -163,6 +165,7 @@ var (
 		"OBJECT_TYPE_CONTROL":               13,
 		"OBJECT_TYPE_EVALUATION_RESULT":     14,
 		"OBJECT_TYPE_EVIDENCE":              15,
+		"OBJECT_TYPE_CONTROL_IN_SCOPE":      16,
 	}
 )
 
@@ -259,13 +262,13 @@ type User struct {
 	// LastName is the last name of the user, if available.
 	LastName *string `protobuf:"bytes,5,opt,name=last_name,json=lastName,proto3,oneof" json:"last_name,omitempty"`
 	// Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
-	Roles []Role `protobuf:"varint,6,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty" gorm:"serializer:json"`
+	Roles []Role `protobuf:"varint,6,rep,packed,name=roles,proto3,enum=confirmate.orchestrator.v1.Role" json:"roles,omitempty"`
 	// Enabled indicates whether the user is active/enabled in the system
 	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Attributes contains additional key-value pairs associated with the user, such as department or team.
-	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" gorm:"serializer:json"`
+	Attributes map[string]string `protobuf:"bytes,8,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// LastAccess indicates the last time the user accessed the system.
-	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	LastAccess    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_access,json=lastAccess,proto3" json:"last_access,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -366,13 +369,13 @@ func (x *User) GetLastAccess() *timestamppb.Timestamp {
 type UserPermission struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User ID is required to identify the user for whom the perission is being upserted.
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" gorm:"column:user_id;primaryKey"`
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Resource ID is required to identify the parent resource for which the permission is being upserted. This can be the ID of a Target of Evaluation or Audit Scope.
-	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" gorm:"column:resource_id;primaryKey;index"`
+	ResourceId string `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	// Resource type is required to specify the parent type of the resource for which the permission is being upserted. This can be the type of a Target of Evaluation or Audit Scope.
-	ResourceType ObjectType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"resource_type,omitempty" gorm:"column:resource_type;primaryKey"`
+	ResourceType ObjectType `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=confirmate.orchestrator.v1.ObjectType" json:"resource_type,omitempty"`
 	// Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
-	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty" gorm:"column:permission;type:integer;not null"`
+	Permission    UserPermission_Permission `protobuf:"varint,4,opt,name=permission,proto3,enum=confirmate.orchestrator.v1.UserPermission_Permission" json:"permission,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -488,7 +491,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
 	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
 	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\xf2\x03\n" +
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\x94\x04\n" +
 	"\n" +
 	"ObjectType\x12\x1b\n" +
 	"\x17OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -507,7 +510,8 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x14OBJECT_TYPE_CATEGORY\x10\f\x12\x17\n" +
 	"\x13OBJECT_TYPE_CONTROL\x10\r\x12!\n" +
 	"\x1dOBJECT_TYPE_EVALUATION_RESULT\x10\x0e\x12\x18\n" +
-	"\x14OBJECT_TYPE_EVIDENCE\x10\x0fB%Z#confirmate.io/core/api/orchestratorb\x06proto3"
+	"\x14OBJECT_TYPE_EVIDENCE\x10\x0f\x12 \n" +
+	"\x1cOBJECT_TYPE_CONTROL_IN_SCOPE\x10\x10B%Z#confirmate.io/core/api/orchestratorb\x06proto3"
 
 var (
 	file_api_orchestrator_user_proto_rawDescOnce sync.Once

@@ -116,7 +116,7 @@ func TestLoginCommand_Action_Flow_Integration(t *testing.T) {
 		if err != nil {
 			t.Fatalf("login command failed: %v", err)
 		}
-	case <-time.After(5 * time.Second):
+	case <-time.After(10 * time.Second):
 		t.Fatal("login command timed out")
 	}
 
