@@ -41,6 +41,7 @@ import (
 //
 // Changes:
 // - 2025-03-12: Rename function name from MockListResponse() to MockStorageListResponse()(@anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 func MockStorageListResponse(t *testing.T, fakeServer th.FakeServer) {
 	fakeServer.Mux.HandleFunc("/volumes/detail", func(w http.ResponseWriter, r *http.Request) {

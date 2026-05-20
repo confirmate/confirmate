@@ -44,6 +44,7 @@ import (
 //
 // Changes:
 // - 2025-01-13: Added function HandleShowConsoleOutputSuccessfullyModified to get console output of server and delete `"length": 50` in TestJSONRequest, otherwise it does not work. (@anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 // ServerListBody contains the canned body of a servers.List response.
 const ServerListBody = `
