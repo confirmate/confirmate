@@ -37,18 +37,18 @@ var types = []any{
 	&orchestrator.State{},
 	&orchestrator.Catalog{},
 	// Control depends on Metric (control_metrics join table).
-	// Category depends on Control (category_controls join table).
 	&orchestrator.Control{},
-	&orchestrator.Category{},
+	// Category depends on Control (category_controls join table).
+    &orchestrator.Category{},
 	&orchestrator.AuditScope{},
 	&orchestrator.AssessmentTool{},
 	&assessment.MetricConfiguration{},
 	&assessment.AssessmentResult{},
 	&evaluation.EvaluationResult{},
 	// ControlInScope depends on AuditScope and Control.
+    &orchestrator.ControlInScope{},
 	// AuditTrailEvent depends on AuditScope.
-	&orchestrator.ControlInScope{},
-	&orchestrator.AuditTrailEvent{},
+    &orchestrator.AuditTrailEvent{},
 }
 
 // joinTables defines the [MetricConfiguration] as a custom join table between
