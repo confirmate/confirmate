@@ -19,6 +19,7 @@ import (
 	"context"
 	"testing"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
@@ -59,6 +60,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -81,6 +83,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				// Check if ID is generated and not empty
@@ -98,6 +101,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -123,6 +127,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				// Check if ID is generated and not empty
@@ -133,6 +138,73 @@ func TestService_CreateAuditScope(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: grants admin permission to authenticated creator",
+			args: args{
+				req: &orchestrator.CreateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+				}
+				return assert.Equal(t, want, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
+				}) && assert.NotEmpty(t, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				var (
+					count int64
+					err   error
+				)
+
+				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
+				assert.NotNil(t, res)
+
+				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				count, err = db.Count(&orchestrator.UserPermission{},
+					"user_id = ? AND resource_id = ? AND resource_type = ? AND permission = ?",
+					orchestratortest.MockUserIssuer1+"|"+orchestratortest.MockUserId1,
+					res.Msg.Id,
+					orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+					orchestrator.UserPermission_PERMISSION_ADMIN,
+				)
+				assert.NoError(t, err)
+
+				want := &orchestrator.AuditScope{
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+				}
+
+				return assert.NotEmpty(t, got.Id) &&
+					assert.Equal(t, want, got, cmp.Options{
+						protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
+					}) &&
+					assert.Equal(t, int64(1), count)
+			},
+		},
+		{
 			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
 			args: args{
 				req: &orchestrator.CreateAuditScopeRequest{
@@ -140,6 +212,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -153,8 +226,8 @@ func TestService_CreateAuditScope(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
 							assert.NoError(t, err)
 						}),
@@ -167,6 +240,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.Equal(t, want, got.Msg, cmp.Options{
 					protocmp.IgnoreFields(&orchestrator.AuditScope{}, "id", "assurance_level"),
@@ -183,6 +257,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 					Name:                 orchestratortest.MockScopeName1,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 
 				// Check if ID is generated and not empty
@@ -234,6 +309,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -255,6 +331,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
 						Name:                 orchestratortest.MockScopeName1,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -383,8 +460,8 @@ func TestService_GetAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -529,8 +606,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables),
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables),
 					},
 				},
 			},
@@ -601,8 +678,8 @@ func TestService_ListAuditScopes(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -704,6 +781,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -720,11 +798,73 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: update status field",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_INTERNAL_REVIEW,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(&orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+					})
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.AuditScope], args ...any) bool {
+				want := &orchestrator.AuditScope{
+					Id:                   orchestratortest.MockAuditScope1.Id,
+					Name:                 orchestratortest.MockAuditScope1.Name,
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+					CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_INTERNAL_REVIEW,
+				}
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "validation error - missing status",
+			args: args{
+				req: &orchestrator.UpdateAuditScopeRequest{
+					AuditScope: &orchestrator.AuditScope{
+						Id:                   orchestratortest.MockAuditScope1.Id,
+						Name:                 orchestratortest.MockAuditScope1.Name,
+						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
+						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.AuditScope]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.IsValidationError(t, err, "audit_scope.status")
+			},
 		},
 		{
 			name: "happy path: with authorization strategy with permission store and admin token",
@@ -735,6 +875,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -754,6 +895,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)
@@ -769,6 +911,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockToeId2,
 						CatalogId:            "catalog-1-updated",
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -788,8 +931,8 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -802,6 +945,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 					Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 					TargetOfEvaluationId: orchestratortest.MockToeId2,
 					CatalogId:            "catalog-1-updated",
+					Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 				}
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, want, got.Msg)
@@ -849,6 +993,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 "Non-existent Scope",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -871,6 +1016,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -892,6 +1038,7 @@ func TestService_UpdateAuditScope(t *testing.T) {
 						Name:                 orchestratortest.MockAuditScope1.Name + " Updated",
 						TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
 						CatalogId:            orchestratortest.MockAuditScope1.CatalogId,
+						Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
 					},
 				},
 			},
@@ -1002,8 +1149,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -1069,8 +1216,8 @@ func TestService_RemoveAuditScope(t *testing.T) {
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
-					Permissions: permissionStore{
-						db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
 							assert.NoError(t, err)
 						}),
@@ -1112,4 +1259,54 @@ func TestService_RemoveAuditScope(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+func TestCreateAuditScope_AutoCreatesControlsInScope(t *testing.T) {
+	// Build a minimal catalog+category+controls fixture directly in the DB to verify that
+	// auto-creation of ControlInScope records works on CreateAuditScope.
+	catalogId := "00000000-0000-0000-0009-000000000001"
+	toeId := "00000000-0000-0000-0000-000000000099"
+	ctrl1Id := "00000000-0000-0000-000a-000000000001"
+	ctrl2Id := "00000000-0000-0000-000a-000000000002"
+
+	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+		// Seed catalog, 2 controls, and a category that links to both via the many2many join.
+		assert.NoError(t, d.Create(&orchestrator.Catalog{Id: catalogId, Name: "Test Catalog"}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl1Id, ShortName: "C-01", Name: "Control 1"}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl2Id, ShortName: "C-02", Name: "Control 2"}))
+		// Create the category with both controls referenced — GORM inserts the join table rows.
+		assert.NoError(t, d.Create(&orchestrator.Category{
+			Name:      "Cat1",
+			CatalogId: catalogId,
+			Controls: []*orchestrator.Control{
+				{Id: ctrl1Id},
+				{Id: ctrl2Id},
+			},
+		}))
+	})
+	_ = assessment.Metric{} // keep import used
+
+	svc := &Service{
+		db:    db,
+		authz: &service.AuthorizationStrategyAllowAll{},
+	}
+
+	res, err := svc.CreateAuditScope(context.Background(), connect.NewRequest(&orchestrator.CreateAuditScopeRequest{
+		AuditScope: &orchestrator.AuditScope{
+			TargetOfEvaluationId: toeId,
+			CatalogId:            catalogId,
+			Name:                 "Test Scope",
+			Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
+		},
+	}))
+	assert.NoError(t, err)
+	if !assert.NotNil(t, res) {
+		return
+	}
+
+	// Verify one ControlInScope was created for each control in the catalog.
+	var count int64
+	count, err = db.Count(&orchestrator.ControlInScope{}, "audit_scope_id = ?", res.Msg.Id)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(2), count)
 }

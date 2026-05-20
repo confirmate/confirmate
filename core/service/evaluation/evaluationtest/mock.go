@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package evaluationtest
 
 import (
@@ -91,7 +106,6 @@ var (
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockControlId1,
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
@@ -105,7 +119,6 @@ var (
 		TargetOfEvaluationId: MockToeId2,
 		AuditScopeId:         MockAuditScopeId2,
 		ControlId:            MockControlId2,
-		ControlCategoryName:  MockCategoryName2,
 		ControlCatalogId:     MockCatalogId2,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(5 * time.Minute)),
@@ -120,7 +133,6 @@ var (
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockSubcontrolId11,
 		ParentControlId:      new(MockControlId1),
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(10 * time.Minute)),
@@ -133,7 +145,6 @@ var (
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId2,
 		ControlId:            MockControlId1,
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 		Timestamp:            timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
@@ -147,7 +158,6 @@ var (
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockControlId1,
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		ParentControlId:      new(""),
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
@@ -163,7 +173,6 @@ var (
 		TargetOfEvaluationId: MockToeId2,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockSubcontrolId11,
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(25 * time.Minute)),
@@ -179,7 +188,6 @@ var (
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId2,
 		ControlId:            MockControlId1,
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(15 * time.Minute)),
@@ -195,7 +203,6 @@ var (
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
 		ControlId:            MockControlId1,
-		ControlCategoryName:  MockCategoryName1,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(-15 * time.Minute)),
@@ -244,25 +251,19 @@ var (
 // Mock Controls
 var (
 	MockControl1 = &orchestrator.Control{
-		Id:                MockControlId1,
-		Name:              MockControlName1,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockControlDescription1,
+		Id:          MockControlId1,
+		Name:        MockControlName1,
+		Description: MockControlDescription1,
 		Controls: []*orchestrator.Control{
 			MockSubcontrol11,
 			MockSubcontrol12,
 		}}
 	MockSubcontrol11 = &orchestrator.Control{
-		Id:                MockSubcontrolId11,
-		Name:              MockSubcontrolName11,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockSubcontrolDescription11,
+		Id:          MockSubcontrolId11,
+		Name:        MockSubcontrolName11,
+		Description: MockSubcontrolDescription11,
 		// AssuranceLevel:                 new("basic"),
-		ParentControlId:                new(MockControlId1),
-		ParentControlCategoryName:      new(MockCategoryName1),
-		ParentControlCategoryCatalogId: new(MockCatalogId1),
+		ParentControlId: new(MockControlId1),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId1,
 			Name:        MockMetricName1,
@@ -273,15 +274,11 @@ var (
 		},
 		}}
 	MockSubcontrol12 = &orchestrator.Control{
-		Id:                MockSubcontrolId12,
-		Name:              MockSubcontrolName12,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockSubcontrolDescription12,
+		Id:          MockSubcontrolId12,
+		Name:        MockSubcontrolName12,
+		Description: MockSubcontrolDescription12,
 		// AssuranceLevel:                 new("basic"),
-		ParentControlId:                new(MockControlId1),
-		ParentControlCategoryName:      new(MockCategoryName1),
-		ParentControlCategoryCatalogId: new(MockCatalogId1),
+		ParentControlId: new(MockControlId1),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId2,
 			Name:        MockMetricName2,
@@ -292,25 +289,19 @@ var (
 		},
 		}}
 	MockControl2 = &orchestrator.Control{
-		Id:                MockControlId2,
-		Name:              MockControlName2,
-		CategoryName:      MockCategoryName1,
-		CategoryCatalogId: MockCatalogId1,
-		Description:       MockControlDescription2,
+		Id:          MockControlId2,
+		Name:        MockControlName2,
+		Description: MockControlDescription2,
 		Controls: []*orchestrator.Control{
 			MockSubcontrol21,
 		},
 	}
 	MockSubcontrol21 = &orchestrator.Control{
-		Id:                             MockSubcontrolID21,
-		Name:                           MockSubcontrolName21,
-		CategoryName:                   MockCategoryName1,
-		CategoryCatalogId:              MockCatalogId1,
-		Description:                    MockSubcontrolDescription21,
-		AssuranceLevel:                 new("basic"),
-		ParentControlId:                new(MockControlId2),
-		ParentControlCategoryName:      new(MockCategoryName1),
-		ParentControlCategoryCatalogId: new(MockCatalogId1),
+		Id:              MockSubcontrolID21,
+		Name:            MockSubcontrolName21,
+		Description:     MockSubcontrolDescription21,
+		AssuranceLevel:  new("basic"),
+		ParentControlId: new(MockControlId2),
 		Metrics: []*assessment.Metric{{
 			Id:          MockMetricId2,
 			Name:        MockMetricName2,

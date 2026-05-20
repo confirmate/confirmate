@@ -1,0 +1,259 @@
+// Copyright 2026 Fraunhofer AISEC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package confirmate.orchestrator.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "tagger/tagger.proto";
+
+option go_package = "confirmate.io/core/api/orchestrator";
+
+// ControlInScopeState represents the lifecycle state of a control's implementation within an audit scope.
+enum ControlInScopeState {
+  CONTROL_IN_SCOPE_STATE_UNSPECIFIED      = 0;
+  CONTROL_IN_SCOPE_STATE_OPEN             = 1;
+  CONTROL_IN_SCOPE_STATE_IN_PROGRESS      = 2;
+  CONTROL_IN_SCOPE_STATE_IMPLEMENTED      = 3;
+  CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW = 4;
+  CONTROL_IN_SCOPE_STATE_ACCEPTED         = 5;
+}
+
+// ControlInScope tracks the implementation status of a specific control within an audit scope.
+// There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
+// when an audit scope is created and can also be managed manually via the CreateControlInScope /
+// RemoveControlInScope RPCs.
+message ControlInScope {
+  string id = 1 [
+    (tagger.tags) = "gorm:\"primaryKey\"",
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // AuditScopeId describes the audit scope this record belongs to.
+  string audit_scope_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\""
+  ];
+
+  // TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
+  // It is set server-side and not required in requests.
+  string target_of_evaluation_id = 3;
+
+  // ControlId references the control being implemented (unique UUID since #270).
+  string control_id = 4 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED,
+    (tagger.tags) = "gorm:\"uniqueIndex:idx_control_in_scope_audit_scope_control\""
+  ];
+
+  // Current implementation state.
+  ControlInScopeState state = 5;
+
+  // ImplementationDetails contains free-form notes about how the control is being addressed.
+  optional string implementation_details = 6;
+
+  // AssigneeId is the ID of the orchestrator User entity responsible for implementing this control.
+  // This is the User.id of the person assigned, not the actor making the request.
+  optional string assignee_id = 7;
+
+  google.protobuf.Timestamp created_at = 8 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
+  ];
+  google.protobuf.Timestamp updated_at = 9 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""
+  ];
+}
+
+// AuditTrailEvent is a persisted record of any significant change related to an audit scope,
+// such as a control being scoped/unscoped or an audit scope state transition. The event_data
+// field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
+message AuditTrailEvent {
+  string id = 1 [
+    (tagger.tags) = "gorm:\"primaryKey\"",
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // AuditScopeId is the primary resource this event belongs to.
+  string audit_scope_id = 2 [
+    (tagger.tags) = "gorm:\"index\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // ActorId is the User.id of the person who triggered this event.
+  string actor_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Comment provides optional context for the event.
+  string comment = 4;
+
+  // Time is the creation time of this event.
+  google.protobuf.Timestamp created_at = 5 [
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // EventData holds the typed event payload serialized as JSON.
+  google.protobuf.Any event_data = 6 [
+    (tagger.tags) = "gorm:\"serializer:anypb;type:text\"",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // ControlInScopeId optionally links this event to the affected ControlInScope record.
+  // Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
+  optional string control_in_scope_id = 7 [
+    (tagger.tags) = "gorm:\"index\""
+  ];
+}
+
+// ControlScopingEvent is emitted when a control is brought in or out of scope.
+// control_in_scope_id is only set for in-scope events; it is omitted for out-of-scope events
+// because the ControlInScope record is deleted as part of the same transaction.
+message ControlScopingEvent {
+  string control_in_scope_id = 1;
+  string control_id          = 2;
+  string audit_scope_id      = 3;
+  bool   in_scope            = 4;
+}
+
+// ControlInScopeTransitionEvent is emitted when a ControlInScope moves between implementation states.
+message ControlInScopeTransitionEvent {
+  string              control_in_scope_id = 1;
+  ControlInScopeState from_state          = 2;
+  ControlInScopeState to_state            = 3;
+}
+
+// ── Request / Response messages ──────────────────────────────────────────────
+
+message CreateControlInScopeRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string control_id = 2 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // TargetOfEvaluationId must match the target_of_evaluation_id of the referenced audit scope.
+  // It is required here so the server can avoid a round-trip fetch of the AuditScope.
+  string target_of_evaluation_id = 4 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+  optional string assignee_id = 3;
+}
+
+message GetControlInScopeRequest {
+  string id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListControlsInScopeRequest {
+  message Filter {
+    // Optional. Filter by audit scope.
+    optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by current state.
+    optional ControlInScopeState state = 2 [(buf.validate.field).enum = {defined_only: true}];
+
+    // Optional. Filter by assignee.
+    optional string assignee_id = 3;
+  }
+
+  optional Filter filter = 1;
+
+  int32  page_size  = 10;
+  string page_token = 11;
+  string order_by   = 12;
+  bool   asc        = 13;
+}
+
+message ListControlsInScopeResponse {
+  repeated ControlInScope controls_in_scope = 1;
+  string                  next_page_token   = 2;
+}
+
+message UpdateControlInScopeRequest {
+  string id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string assignee_id = 2;
+
+  // ImplementationDetails contains free-form notes about how the control is being addressed.
+  optional string implementation_details = 3;
+}
+
+message TransitionControlInScopeStateRequest {
+  string id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  ControlInScopeState to_state = 2 [
+    (buf.validate.field).enum = {not_in: [0], defined_only: true},
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Comment explaining the reason for this transition.
+  string comment = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message RemoveControlInScopeRequest {
+  string id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListAuditTrailEventsRequest {
+  message Filter {
+    // Optional. Filter by audit scope.
+    optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by control in scope (returns only events for that specific record).
+    optional string control_in_scope_id = 2 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by the actor (User.id) who triggered the events.
+    optional string actor_id = 3;
+  }
+
+  optional Filter filter = 1;
+
+  int32  page_size  = 10;
+  string page_token = 11;
+  string order_by   = 12;
+  bool   asc        = 13;
+}
+
+message ListAuditTrailEventsResponse {
+  repeated AuditTrailEvent audit_trail_events = 1;
+  string                   next_page_token    = 2;
+}
