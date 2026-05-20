@@ -29,8 +29,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/testhelper"
 	"github.com/gophercloud/gophercloud/v2/testhelper/client"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewOpenstackCollector(t *testing.T) {
@@ -406,11 +408,8 @@ func TestNewAuthorizer(t *testing.T) {
 }
 
 func Test_openstackCollector_List(t *testing.T) {
-	fakeServer := testhelper.SetupHTTP()
-
 	type fields struct {
 		ctID     string
-		clients  clients
 		authOpts *gophercloud.AuthOptions
 		domain   *domain
 		project  *project
@@ -433,15 +432,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
 				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
-				},
 				project: &project{},
 				domain:  &domain{},
 			},
@@ -459,15 +449,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Username:         testdata.MockOpenstackUsername,
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
-				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain:  &domain{},
@@ -487,15 +468,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
 				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
-				},
 				project: &project{},
 				domain:  &domain{},
 			},
@@ -514,15 +486,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
 				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
-				},
 				project: &project{},
 				domain:  &domain{},
 			},
@@ -540,15 +503,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Username:         testdata.MockOpenstackUsername,
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
-				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
 				},
 				project: &project{},
 				domain: &domain{
@@ -580,15 +534,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
 				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
-				},
 				project: &project{},
 				domain:  &domain{},
 			},
@@ -607,15 +552,6 @@ func Test_openstackCollector_List(t *testing.T) {
 					Password:         testdata.MockOpenstackPassword,
 					TenantName:       testdata.MockOpenstackTenantName,
 				},
-				clients: clients{
-					provider: &gophercloud.ProviderClient{
-						TokenID: client.TokenID,
-						EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
-							return fakeServer.Endpoint(), nil
-						},
-					},
-					identityClient: client.ServiceClient(fakeServer),
-				},
 				project: &project{},
 				domain: &domain{
 					domainID: "test domain ID",
@@ -630,10 +566,30 @@ func Test_openstackCollector_List(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fakeServer := testhelper.SetupHTTP()
+			t.Cleanup(fakeServer.Teardown)
+
+			// provider points to fakeServer for every service type.
+			provider := &gophercloud.ProviderClient{
+				TokenID: client.TokenID,
+				EndpointLocator: func(eo gophercloud.EndpointOpts) (string, error) {
+					return fakeServer.Endpoint(), nil
+				},
+			}
+
+			// Create service clients that will call fakeServer.
+			computeClient, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{})
+			require.NoError(t, err)
+
+			networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{})
+			require.NoError(t, err)
 
 			d := &openstackCollector{
-				ctID:     tt.fields.ctID,
-				clients:  tt.fields.clients,
+				ctID: tt.fields.ctID,
+				clients: clients{
+					provider:      provider,
+					computeClient: computeClient,
+					networkClient: networkClient,
+				},
 				authOpts: tt.fields.authOpts,
 				domain:   tt.fields.domain,
 				project:  tt.fields.project,
@@ -712,7 +668,7 @@ func Test_openstackCollector_List(t *testing.T) {
 
 			tt.want(t, gotList)
 			tt.wantErr(t, err)
-			fakeServer.Teardown()
+
 		})
 	}
 }
