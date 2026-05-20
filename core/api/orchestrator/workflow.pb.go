@@ -105,14 +105,14 @@ func (ControlInScopeState) EnumDescriptor() ([]byte, []int) {
 // RemoveControlInScope RPCs.
 type ControlInScope struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
 	// AuditScopeId describes the audit scope this record belongs to.
-	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"uniqueIndex:idx_control_in_scope_audit_scope_control"`
 	// TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
 	// It is set server-side and not required in requests.
 	TargetOfEvaluationId string `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	// ControlId references the control being implemented (unique UUID since #270).
-	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty" gorm:"uniqueIndex:idx_control_in_scope_audit_scope_control"`
 	// Current implementation state.
 	State ControlInScopeState `protobuf:"varint,5,opt,name=state,proto3,enum=confirmate.orchestrator.v1.ControlInScopeState" json:"state,omitempty"`
 	// ImplementationDetails contains free-form notes about how the control is being addressed.
@@ -120,8 +120,8 @@ type ControlInScope struct {
 	// AssigneeId is the ID of the orchestrator User entity responsible for implementing this control.
 	// This is the User.id of the person assigned, not the actor making the request.
 	AssigneeId    *string                `protobuf:"bytes,7,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -224,20 +224,20 @@ func (x *ControlInScope) GetUpdatedAt() *timestamppb.Timestamp {
 // field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
 type AuditTrailEvent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
 	// AuditScopeId is the primary resource this event belongs to.
-	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	AuditScopeId string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"index"`
 	// ActorId is the User.id of the person who triggered this event.
 	ActorId string `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
 	// Comment provides optional context for the event.
 	Comment string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
 	// Time is the creation time of this event.
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// EventData holds the typed event payload serialized as JSON.
-	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty"`
+	EventData *anypb.Any `protobuf:"bytes,6,opt,name=event_data,json=eventData,proto3" json:"event_data,omitempty" gorm:"serializer:anypb;type:text"`
 	// ControlInScopeId optionally links this event to the affected ControlInScope record.
 	// Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
-	ControlInScopeId *string `protobuf:"bytes,7,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty"`
+	ControlInScopeId *string `protobuf:"bytes,7,opt,name=control_in_scope_id,json=controlInScopeId,proto3,oneof" json:"control_in_scope_id,omitempty" gorm:"index"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
