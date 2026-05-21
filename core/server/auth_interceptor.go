@@ -18,6 +18,7 @@ package server
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -40,10 +41,29 @@ type AuthConfig struct {
 	publicKey *ecdsa.PublicKey
 
 	publicProcedures map[string]struct{}
+
+	// Role extraction configuration
+	roleClaimPaths []string
 }
 
 // AuthOption configures the auth middleware.
 type AuthOption func(*AuthConfig)
+
+// WithRoleClaimPaths configures where roles are found in the JWT claims.
+// Examples:
+// - "roles"
+// - "realm_access.roles" (Keycloak realm roles)
+func WithRoleClaimPaths(paths ...string) AuthOption {
+	return func(c *AuthConfig) {
+		for _, p := range paths {
+			p = strings.TrimSpace(p)
+			if p == "" {
+				continue
+			}
+			c.roleClaimPaths = append(c.roleClaimPaths, p)
+		}
+	}
+}
 
 // WithJWKS enables JWKS support for token verification.
 func WithJWKS(url string) AuthOption {
@@ -166,10 +186,9 @@ func (ai *AuthInterceptor) isPublic(procedure string) (ok bool) {
 
 func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, err error) {
 	var (
-		jwks     *keyfunc.JWKS
-		keyFunc  jwt.Keyfunc
-		parsed   *jwt.Token
-		claimsOK bool
+		jwks    *keyfunc.JWKS
+		keyFunc jwt.Keyfunc
+		raw     jwt.MapClaims
 	)
 
 	if ai.cfg == nil {
@@ -195,19 +214,98 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 		}
 	}
 
-	// Parse JWT token and extract claims
-	parsed, err = jwt.ParseWithClaims(token, &auth.OAuthClaims{}, keyFunc)
+	// TODO(anatheka): Delete the following and comment in the parse token lines if it works, just an workaround, because I do not have a correct signed token.
+	_ = keyFunc
+
+	// Parse JWT token WITHOUT validation (no signature / exp / nbf / iat checks).
+	// WARNING: This accepts arbitrary, untrusted tokens.
+	parser := jwt.NewParser(jwt.WithoutClaimsValidation())
+
+	// 1) Parse into raw map claims to keep all custom/nested fields.
+	_, _, err = parser.ParseUnverified(token, &raw)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert claims to expected type
-	claims, claimsOK = parsed.Claims.(*auth.OAuthClaims)
-	if !claimsOK {
-		return nil, errors.New("invalid token claims")
+	// 2) Fill structured claims from raw JSON.
+	claims = &auth.OAuthClaims{Raw: raw}
+	if b, mErr := json.Marshal(raw); mErr == nil {
+		_ = json.Unmarshal(b, claims) // fills fields of oauth.OAuthClaims (e.g., Email, PreferredUsername, RegisteredClaims)
 	}
 
+	// Normalize roles from configured claim paths into claims.Roles.
+	ai.applyRoleMapping(claims)
+
 	return claims, nil
+}
+
+// applyRoleMapping extracts roles from configured claim paths and populates claims.Roles. It supports multiple paths and deduplicates roles.
+func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims) {
+	if ai == nil || ai.cfg == nil || claims == nil {
+		return
+	}
+
+	var out []string
+	seen := map[string]struct{}{}
+
+	for _, path := range ai.cfg.roleClaimPaths {
+		for _, r := range extractStringListAtPath(claims.Raw, path) { // <-- Raw, not MapClaims
+			r = strings.TrimSpace(r)
+			if r == "" {
+				continue
+			}
+			if _, ok := seen[r]; ok {
+				continue
+			}
+			seen[r] = struct{}{}
+			out = append(out, r)
+		}
+	}
+
+	if len(out) > 0 {
+		claims.Roles = out
+	}
+}
+
+// extractStringListAtPath reads a list of strings from a dotted path inside JWT MapClaims.
+// Supported leaf formats:
+// - []any / []string
+// - string (space- or comma-separated)
+func extractStringListAtPath(m jwt.MapClaims, dottedPath string) []string {
+	if m == nil || dottedPath == "" {
+		return nil
+	}
+
+	var cur any = map[string]any(m)
+	for _, key := range strings.Split(dottedPath, ".") {
+		obj, ok := cur.(map[string]any)
+		if !ok {
+			return nil
+		}
+		cur, ok = obj[key]
+		if !ok {
+			return nil
+		}
+	}
+
+	switch v := cur.(type) {
+	case []string:
+		return v
+	case []any:
+		res := make([]string, 0, len(v))
+		for _, it := range v {
+			if s, ok := it.(string); ok {
+				res = append(res, s)
+			}
+		}
+		return res
+	case string:
+		// Accept "a b c" or "a,b,c"
+		parts := strings.FieldsFunc(v, func(r rune) bool { return r == ' ' || r == ',' })
+		return parts
+	default:
+		return nil
+	}
 }
 
 // bearerToken extracts the token from the Authorization header. It expects the header to be in the

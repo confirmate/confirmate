@@ -37,6 +37,60 @@ type OAuthClaims struct {
 	// The presence and value of this claim should be determined by the authentication provider
 	// issuing the token.
 	IsAdminToken bool `json:"cfadmin,omitempty"`
+
+	// Raw holds the complete, unstructured set of JWT claims for flexible extraction.
+	// It is not serialized/deserialized directly by jwt; we fill it during parsing.
+	Raw jwt.MapClaims `json:"-"`
+}
+
+// ClaimOption mutates/normalizes claims after parsing.
+type ClaimOption func(claims *OAuthClaims)
+
+// Apply applies options to claims.
+func (c *OAuthClaims) Apply(opts ...ClaimOption) {
+	if c == nil {
+		return
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+}
+
+// WithRoles ensures that all specified roles are present in the claims.
+// Duplicate roles are ignored. Empty role strings are ignored.
+func WithRoles(roles ...string) ClaimOption {
+	return func(claims *OAuthClaims) {
+		if claims == nil || len(roles) == 0 {
+			return
+		}
+
+		for _, role := range roles {
+			if role == "" {
+				continue
+			}
+			// ensure role exists (idempotent)
+			found := false
+			for _, r := range claims.Roles {
+				if r == role {
+					found = true
+					break
+				}
+			}
+			if !found {
+				claims.Roles = append(claims.Roles, role)
+			}
+		}
+	}
+}
+
+// WithAdminToken sets the IsAdminToken claim to true, indicating that the token is an admin token.
+func WithAdminToken() ClaimOption {
+	return func(claims *OAuthClaims) {
+		if claims == nil {
+			return
+		}
+		claims.IsAdminToken = true
+	}
 }
 
 // IsAdmin returns whether the claims indicate that the token is an admin token. It checks the

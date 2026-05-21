@@ -130,6 +130,9 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
 		interceptors = append(interceptors, server.NewAuthInterceptor(
 			server.WithJWKS(jwksURL),
+			server.WithRoleClaimPaths(
+				"realm_access.roles", // Keycloak realm roles TODO(anatheka): Delete beforge merge in main
+			),
 		))
 		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
