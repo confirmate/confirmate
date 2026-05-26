@@ -44,6 +44,7 @@ import (
 // - 2024-12-10: Changed variable from CreateRequest to CreateProjectsRequest (@anatheka)
 // - 2024-12-10: Changed variable from UpdateRequest to UpdateProjectRequest (@anatheka)
 // - 2024-12-10: Changed import from "github.com/gophercloud/gophercloud/testhelper" to "github.com/gophercloud/gophercloud/testhelper"(@anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 // ListAvailableOutput provides a single page of available Project results.
 const ListAvailableOutput = `

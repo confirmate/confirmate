@@ -11,6 +11,7 @@ require (
 	github.com/go-co-op/gocron v1.37.0
 	github.com/google/go-cmp v0.7.0
 	github.com/lmittmann/tint v1.1.3
+	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.9.0
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
 	k8s.io/apimachinery v0.36.1
@@ -61,7 +62,6 @@ require (
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2 // indirect
-	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.3 // indirect
 	github.com/valyala/fastjson v1.6.10 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.32 // indirect
@@ -136,7 +136,7 @@ require (
 	github.com/Intevation/gval v1.3.0 // indirect
 	github.com/Intevation/jsonpath v0.2.1 // indirect
 	github.com/ProtonMail/go-crypto v1.4.1
-	github.com/gocsaf/csaf/v3 v3.4.0
+	github.com/gocsaf/csaf/v3 v3.5.1
 	github.com/shopspring/decimal v1.4.0 // indirect
 	go.etcd.io/bbolt v1.4.3 // indirect
 	golang.org/x/time v0.15.0 // indirect

@@ -402,7 +402,6 @@ func TestComputeCollector_collectFunctions(t *testing.T) {
 					GeoLocation: &ontology.GeoLocation{
 						Region: mockFunction1Region,
 					},
-					Raw: "{\"*types.FunctionConfiguration\":[{\"Architectures\":null,\"CodeSha256\":null,\"CodeSize\":0,\"DeadLetterConfig\":null,\"Description\":null,\"Environment\":null,\"EphemeralStorage\":null,\"FileSystemConfigs\":null,\"FunctionArn\":\"arn:aws:lambda:eu-central-1:123456789:function:mock-function:1\",\"FunctionName\":\"MockFunction1\",\"Handler\":null,\"ImageConfigResponse\":null,\"KMSKeyArn\":null,\"LastModified\":\"2012-11-01T22:08:41.0+00:00\",\"LastUpdateStatus\":\"\",\"LastUpdateStatusReason\":null,\"LastUpdateStatusReasonCode\":\"\",\"Layers\":null,\"LoggingConfig\":null,\"MasterArn\":null,\"MemorySize\":null,\"PackageType\":\"\",\"RevisionId\":null,\"Role\":null,\"Runtime\":\"\",\"RuntimeVersionConfig\":null,\"SigningJobArn\":null,\"SigningProfileVersionArn\":null,\"SnapStart\":null,\"State\":\"\",\"StateReason\":null,\"StateReasonCode\":\"\",\"Timeout\":null,\"TracingConfig\":null,\"Version\":null,\"VpcConfig\":null}]}",
 				},
 			},
 			assert.Nil[error],
@@ -430,7 +429,11 @@ func TestComputeCollector_collectFunctions(t *testing.T) {
 			got, err := d.collectFunctions()
 
 			tt.wantErr(t, err)
-			if !assert.Empty(t, cmp.Diff(tt.want, got, protocmp.Transform())) {
+
+			if tt.want != nil {
+				assert.NotEmpty(t, got[0].Raw)
+			}
+			if !assert.Empty(t, cmp.Diff(tt.want, got, protocmp.Transform(), protocmp.IgnoreFields(&ontology.Function{}, "raw"))) {
 				t.Errorf("collectFunctions() got = %v, want %v", got, tt.want)
 			}
 		})

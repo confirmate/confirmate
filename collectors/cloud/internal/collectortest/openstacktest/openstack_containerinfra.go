@@ -46,6 +46,7 @@ import (
 // - 2025-06-04: Renamed UpdateResponse to UpdateClusterResponse  (@anatheka)
 // - 2025-06-04: Remove fakeServer parameter from methods/functions  (@anatheka)
 // - 2025-06-04: Change path from /v1/clusters to /clusters (@anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 const clusterUUID = "746e779a-751a-456b-a3e9-c883d734946f"
 const clusterUUID2 = "846e779a-751a-456b-a3e9-c883d734946f"

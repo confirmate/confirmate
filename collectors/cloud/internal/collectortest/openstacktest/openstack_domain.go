@@ -47,6 +47,7 @@ import (
 // - 2024-12-10: Changed variable from CreateRequest to ListDomainOutput (@anatheka)
 // - 2024-12-10: Changed variable from UpdateRequest to UpdateDomainRequest (@anatheka)
 // - 2024-12-10: Changed variable from UpdateOutput to UpdateDomainOutput (@anatheka)
+// - 2026-05-13: Add fake server as parameter to functions, necessary since v2.12.0. (@anatheka)
 
 // ListDomainOutput provides a single page of Domain results.
 const ListDomainOutput = `
