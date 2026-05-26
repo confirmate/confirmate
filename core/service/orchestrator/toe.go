@@ -53,7 +53,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 		Description:       req.Msg.GetTargetOfEvaluation().GetDescription(),
 		ConfiguredMetrics: req.Msg.GetTargetOfEvaluation().GetConfiguredMetrics(),
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
-		Organisation:      req.Msg.GetTargetOfEvaluation().GetOrganisation(),
+		Organization:      req.Msg.GetTargetOfEvaluation().GetOrganization(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
 		CreatedAt:         now,
 		UpdatedAt:         now,
@@ -167,7 +167,7 @@ func (svc *Service) ListTargetsOfEvaluation(
 		}), nil
 	}
 
-	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
 		conds = append(conds, "id IN ?", toeIds)
 	}
@@ -205,7 +205,7 @@ func (svc *Service) UpdateTargetOfEvaluation(
 		Description:       req.Msg.GetTargetOfEvaluation().GetDescription(),
 		ConfiguredMetrics: req.Msg.GetTargetOfEvaluation().GetConfiguredMetrics(),
 		Metadata:          req.Msg.GetTargetOfEvaluation().GetMetadata(),
-		Organisation:      req.Msg.GetTargetOfEvaluation().GetOrganisation(),
+		Organization:      req.Msg.GetTargetOfEvaluation().GetOrganization(),
 		TargetType:        req.Msg.GetTargetOfEvaluation().GetTargetType(),
 		UpdatedAt:         timestamppb.Now(),
 	}

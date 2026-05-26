@@ -64,8 +64,8 @@ type Service struct {
 
 	// catalogControls stores the catalog controls so that they do not always have to be retrieved from Orchestrators getControl endpoint.
 	// map[catalog_id][control_id]*orchestrator.Control
-	catalogControls        map[string]map[string]*orchestrator.Control
-	catalogsMutex sync.RWMutex
+	catalogControls map[string]map[string]*orchestrator.Control
+	catalogsMutex   sync.RWMutex
 }
 
 // DefaultConfig is the default configuration for the evaluation [Service].
@@ -113,8 +113,8 @@ func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 func NewService(opts ...service.Option[Service]) (handler evaluationconnect.EvaluationHandler, err error) {
 	var (
 		svc = &Service{
-			cfg:                    DefaultConfig,
-			scheduler:              gocron.NewScheduler(time.Local),
+			cfg:             DefaultConfig,
+			scheduler:       gocron.NewScheduler(time.Local),
 			catalogControls: make(map[string]map[string]*orchestrator.Control),
 		}
 	)
@@ -522,9 +522,9 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	slices.Sort(assessmentResultIds)
 
 	result = &evaluation.EvaluationResult{
-		Id:               uuid.NewString(),
-		Timestamp:        timestamppb.Now(),
-		ControlCatalogId: auditScope.CatalogId,
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,
 		AuditScopeId:         auditScope.Id,
@@ -629,9 +629,9 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 
 	// Create evaluation result
 	eval = &evaluation.EvaluationResult{
-		Id:               uuid.NewString(),
-		Timestamp:        timestamppb.Now(),
-		ControlCatalogId: auditScope.CatalogId,
+		Id:                   uuid.NewString(),
+		Timestamp:            timestamppb.Now(),
+		ControlCatalogId:     auditScope.CatalogId,
 		ControlId:            control.Id,
 		ParentControlId:      control.ParentControlId,
 		TargetOfEvaluationId: auditScope.TargetOfEvaluationId,

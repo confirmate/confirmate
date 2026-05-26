@@ -30,7 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// UpsertUserPermission creates or updates a specific permission entry for a user and resource.
+// UpsertUserPermission creates or updates a specific permission entry for a user and object.
 func (svc *Service) UpsertUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpsertUserPermissionRequest],
@@ -64,7 +64,7 @@ func (svc *Service) UpsertUserPermission(
 	return
 }
 
-// RemoveUserPermission removes a specific permission entry for a user and resource.
+// RemoveUserPermission removes a specific permission entry for a user and object.
 func (svc *Service) RemoveUserPermission(
 	ctx context.Context,
 	req *connect.Request[orchestrator.RemoveUserPermissionRequest],
@@ -90,10 +90,10 @@ func (svc *Service) RemoveUserPermission(
 
 	err = svc.db.Delete(
 		&permission,
-		"user_id = ? AND resource_id = ? AND resource_type = ?",
-		req.Msg.GetUserPermission().GetUserId(),
-		req.Msg.GetUserPermission().GetResourceId(),
-		req.Msg.GetUserPermission().GetResourceType(),
+		"user_id = ? AND object_id = ? AND object_type = ?",
+		req.Msg.GetUserId(),
+		req.Msg.GetObjectId(),
+		req.Msg.GetObjectType(),
 	)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user permission")); err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func (svc *Service) ListUsers(
 	return
 }
 
-// ListUserPermissions lists all user permissions for a given userID.
+// ListUserPermissions lists all user permissions, optionally filtered by user ID, object ID and/or object type.
 func (svc *Service) ListUserPermissions(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListUserPermissionsRequest],
@@ -202,11 +202,12 @@ func (svc *Service) ListUserPermissions(
 		conds       []any
 		npt         string
 		allowed     bool
+		query       []string
+		args        []any
 	)
 
 	// Validate request
-	err = service.Validate(req)
-	if err != nil {
+	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
@@ -225,9 +226,21 @@ func (svc *Service) ListUserPermissions(
 		req.Msg.Asc = true
 	}
 
-	// Filter by user_id if provided
-	if userId := req.Msg.GetUserId(); userId != "" {
-		conds = []any{"user_id = ?", userId}
+	// Build filter conditions
+	if userId := req.Msg.GetFilter().GetUserId(); userId != "" {
+		query = append(query, "user_id = ?")
+		args = append(args, userId)
+	}
+	if objectId := req.Msg.GetFilter().GetObjectId(); objectId != "" {
+		query = append(query, "object_id = ?")
+		args = append(args, objectId)
+	}
+	if objectType := req.Msg.GetFilter().GetObjectType(); objectType != orchestrator.ObjectType_OBJECT_TYPE_UNSPECIFIED {
+		query = append(query, "object_type = ?")
+		args = append(args, objectType)
+	}
+	if len(query) > 0 {
+		conds = persistence.BuildConds(query, args)
 	}
 
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -365,12 +378,12 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 }
 
 // CheckAccess is a helper function to check if the user associated with the given context has access to perform the specified request type and request. It extracts user information from the JWT claims, ensures the user exists in the database, and then checks access using the provided authorization strategy.
-func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, resourceId string, objectType orchestrator.ObjectType) (bool, []string, error) {
+func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *Service, reqType orchestrator.RequestType, objectId string, objectType orchestrator.ObjectType) (bool, []string, error) {
 	var (
-		userId      string
-		err         error
-		allowed     bool
-		resourceIDs []string
+		userId    string
+		err       error
+		allowed   bool
+		objectIds []string
 	)
 
 	// If JWT claims are present, provision the user in the DB (JIT provisioning) and use their ID.
@@ -381,20 +394,20 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 		return false, nil, err
 	}
 
-	allowed, resourceIDs = authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, resourceId, objectType)
+	allowed, objectIds = authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, objectId, objectType)
 
-	return allowed, resourceIDs, nil
+	return allowed, objectIds, nil
 }
 
 // grantCreatorAdminPermission persists an ADMIN [orchestrator.UserPermission] for the user who is
-// making the current request (derived from JWT claims in ctx). It is called after a new resource
-// has been created so that the creator immediately has full administrative access to that resource
+// making the current request (derived from JWT claims in ctx). It is called after a new object
+// has been created so that the creator immediately has full administrative access to that object
 // without requiring a separate permission update call.
 //
 // If no authenticated user can be determined from ctx (e.g. the context carries no claims, or the
 // claims lack issuer/subject), the function is a no-op and returns nil. This preserves the
 // existing allow-all behavior when authentication is disabled.
-func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourceId string, objectType orchestrator.ObjectType) (err error) {
+func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, objectId string, objectType orchestrator.ObjectType) (err error) {
 	var (
 		claims *auth.OAuthClaims
 		ok     bool
@@ -416,10 +429,10 @@ func grantCreatorAdminPermission(ctx context.Context, db persistence.DB, resourc
 	}
 
 	err = db.Create(&orchestrator.UserPermission{
-		UserId:       userId,
-		ResourceId:   resourceId,
-		ResourceType: objectType,
-		Permission:   orchestrator.UserPermission_PERMISSION_ADMIN,
+		UserId:     userId,
+		ObjectId:   objectId,
+		ObjectType: objectType,
+		Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return err

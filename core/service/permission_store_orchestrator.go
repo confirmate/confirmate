@@ -18,8 +18,8 @@ type OrchestratorPermissionStore struct {
 	Client orchestratorconnect.OrchestratorClient
 }
 
-// HasPermission checks whether the given user has at least the required permission for the given resource.
-func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId string, resourceId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
+// HasPermission checks whether the given user has at least the required permission for the given object.
+func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId string, objectId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) (bool, error) {
 	var (
 		permissions []*orchestrator.UserPermission
 		err         error
@@ -31,7 +31,7 @@ func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId
 	}
 
 	for _, p := range permissions {
-		if p.GetResourceId() == resourceId && p.GetResourceType() == objectType && p.GetPermission() >= permission {
+		if p.GetObjectId() == objectId && p.GetObjectType() == objectType && p.GetPermission() >= permission {
 			return true, nil
 		}
 	}
@@ -39,8 +39,8 @@ func (ps *OrchestratorPermissionStore) HasPermission(ctx context.Context, userId
 	return false, nil
 }
 
-// PermissionForResources returns the resource IDs for which the given user has at least the required permission.
-func (ps *OrchestratorPermissionStore) PermissionForResources(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
+// PermissionForObjects returns the object IDs for which the given user has at least the required permission.
+func (ps *OrchestratorPermissionStore) PermissionForObjects(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, _ orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
 	var (
 		permissions []*orchestrator.UserPermission
 		ids         []string
@@ -53,8 +53,8 @@ func (ps *OrchestratorPermissionStore) PermissionForResources(ctx context.Contex
 	}
 
 	for _, p := range permissions {
-		if p.GetResourceType() == objectType && p.GetPermission() >= permission {
-			ids = append(ids, p.GetResourceId())
+		if p.GetObjectType() == objectType && p.GetPermission() >= permission {
+			ids = append(ids, p.GetObjectId())
 		}
 	}
 
@@ -65,9 +65,13 @@ func (ps *OrchestratorPermissionStore) PermissionForResources(ctx context.Contex
 // through the service-to-service HTTP client, which injects the service OAuth2 token, so the
 // orchestrator treats it as an admin request.
 func (ps *OrchestratorPermissionStore) listPermissions(ctx context.Context, userId string) ([]*orchestrator.UserPermission, error) {
-	return api.ListAllPaginated(ctx, &orchestrator.ListUserPermissionsRequest{
-		UserId: userId,
-	}, func(ctx context.Context, req *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error) {
+	req := &orchestrator.ListUserPermissionsRequest{
+		Filter: &orchestrator.ListUserPermissionsRequest_Filter{},
+	}
+	if userId != "" {
+		req.Filter.UserId = &userId
+	}
+	return api.ListAllPaginated(ctx, req, func(ctx context.Context, req *orchestrator.ListUserPermissionsRequest) (*orchestrator.ListUserPermissionsResponse, error) {
 		var (
 			res *connect.Response[orchestrator.ListUserPermissionsResponse]
 			err error
