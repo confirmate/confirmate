@@ -496,15 +496,18 @@ func (svc *Service) RegisterAssessmentResultHook(assessmentResultsHook func(ctx 
 
 // Metrics implements MetricsSource by retrieving the metric list from the orchestrator.
 func (svc *Service) Metrics(ctx context.Context) (metrics []*assessment.Metric, err error) {
-	res, err := svc.orchestratorClient.ListMetrics(
-		ctx,
-		connect.NewRequest(
-			&orchestrator.ListMetricsRequest{}),
-	)
+	metrics, err = api.ListAllPaginated(context.Background(), &orchestrator.ListMetricsRequest{}, func(ctx context.Context, req *orchestrator.ListMetricsRequest) (*orchestrator.ListMetricsResponse, error) {
+		res, err := svc.orchestratorClient.ListMetrics(ctx, connect.NewRequest(req))
+		if err != nil {
+			return nil, err
+		}
+		return res.Msg, nil
+	}, func(res *orchestrator.ListMetricsResponse) []*assessment.Metric {
+		return res.Metrics
+	})
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve metric list from orchestrator: %w", err)
 	}
-	metrics = res.Msg.Metrics
 
 	return metrics, nil
 }
