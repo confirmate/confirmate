@@ -175,7 +175,7 @@ func (svc *Service) ListAuditScopes(
 		}), nil
 	}
 
-	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
 		conds = append(conds, "id IN ?", auditScopeIds)
 	}

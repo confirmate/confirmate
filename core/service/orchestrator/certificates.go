@@ -139,7 +139,7 @@ func (svc *Service) ListCertificates(
 		}), nil
 	}
 
-	// If access is not allowed to all resources, add a condition to filter by the allowed resource IDs
+	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
 		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
 	}

@@ -754,9 +754,9 @@ func TestService_GetCategory(t *testing.T) {
 					CatalogId: orchestratortest.MockCatalogId1,
 					Controls: []*orchestrator.Control{
 						{
-							Id:   orchestratortest.MockControlId1,
+							Id:        orchestratortest.MockControlId1,
 							Name:      orchestratortest.MockControlName1,
-						ShortName: orchestratortest.MockControlShortName1,
+							ShortName: orchestratortest.MockControlShortName1,
 						},
 					},
 				}

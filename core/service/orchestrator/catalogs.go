@@ -434,4 +434,3 @@ func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
 
 	return flat
 }
-

@@ -42,7 +42,7 @@ func (f *fakePermissionStore) HasPermission(ctx context.Context, userId string, 
 	return len(f.ids) > 0 && f.err == nil, f.err
 }
 
-func (f *fakePermissionStore) PermissionForResources(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
+func (f *fakePermissionStore) PermissionForObjects(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
 	return f.ids, f.err
 }
 
