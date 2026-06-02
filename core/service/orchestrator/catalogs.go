@@ -267,7 +267,7 @@ func (svc *Service) ListControls(
 		return nil, err
 	}
 
-	// Set default ordering
+	// Set default ordering - order by ID for proper sorting within each category
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "short_name"
 		req.Msg.Asc = true

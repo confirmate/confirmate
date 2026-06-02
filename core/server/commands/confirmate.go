@@ -18,18 +18,22 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/collection"
+	"confirmate.io/core/service/evaluation"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
@@ -83,7 +87,199 @@ var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
 	Usage: "Launches the confirmate framework (including orchestrator, assessment, and evidence store services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
-		return runConfirmate(ctx, cmd)
+		var (
+			interceptors        []connect.Interceptor
+			orchestratorOptions []service.Option[orchestrator.Service]
+			assessmentOptions   []service.Option[assessment.Service]
+			evidenceOptions     []service.Option[evidence.Service]
+			jwksURL             string
+			orchestratorOpts    []service.Option[orchestrator.Service]
+			assessmentOpts      []service.Option[assessment.Service]
+			evidenceOpts        []service.Option[evidence.Service]
+			orchestratorSvc     orchestratorconnect.OrchestratorHandler
+			assessmentSvc       assessmentconnect.AssessmentHandler
+			evidenceSvc         *evidence.Service
+			evaluationSvc       evaluationconnect.EvaluationHandler
+			orchestratorClient  *http.Client
+			apiPort             uint16
+			credentials         *clientcredentials.Config
+			authorizer          api.Authorizer
+			collectionSvc       *collection.Service
+			collectionResults   <-chan collection.CollectionResult
+			serverOpts          []server.Option
+		)
+
+		if cmd.Bool("auth-enabled") {
+			jwksURL = cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+
+			// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
+			interceptors = append(interceptors, server.NewAuthInterceptor(
+				server.WithJWKS(jwksURL),
+			))
+			orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
+			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+
+		// Orchestrator service configuration
+		orchestratorOpts = append([]service.Option[orchestrator.Service]{
+			orchestrator.WithConfig(orchestrator.Config{
+				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
+				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
+				DefaultMetricsPath:              cmd.String("metrics-default-path"),
+				LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
+				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user-name"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-ssl-mode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
+			}),
+		}, orchestratorOptions...)
+
+		orchestratorSvc, err = orchestrator.NewService(orchestratorOpts...)
+		if err != nil {
+			return err
+		}
+		apiPort = cmd.Uint16("api-port")
+
+		orchestratorClient = service.NewHTTPClient()
+		if cmd.Bool("auth-enabled") {
+			credentials = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			}
+			authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
+			orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
+		}
+
+		// Assessment service configuration
+		assessmentOpts = append([]service.Option[assessment.Service]{
+			assessment.WithConfig(assessment.Config{
+				OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
+				OrchestratorHTTPClient: orchestratorClient,
+				RegoPackage:         cmd.String("assessment-rego-package"),
+			}),
+		}, assessmentOptions...)
+
+		assessmentSvc, err = assessment.NewService(assessmentOpts...)
+		if err != nil {
+			return err
+		}
+
+		collectionSvc, err = collection.NewService(
+			collection.WithConfig(collection.Config{
+				Interval:   cmd.Duration("collection-interval"),
+				Collectors: []collection.Collector{newNoOpCollector("confirmate-no-op-collector")},
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
+		// EvidenceStore service configuration
+		evidenceOpts = append([]service.Option[evidence.Service]{
+			evidence.WithConfig(evidence.Config{
+				AssessmentAddress: cmd.String("evidence-assessment-address"),
+				EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
+				PersistenceConfig: persistence.Config{
+					Host:       cmd.String("db-host"),
+					Port:       cmd.Int("db-port"),
+					DBName:     cmd.String("db-name"),
+					User:       cmd.String("db-user-name"),
+					Password:   cmd.String("db-password"),
+					SSLMode:    cmd.String("db-ssl-mode"),
+					InMemoryDB: cmd.Bool("db-in-memory"),
+					MaxConn:    cmd.Int("db-max-connections"),
+				},
+				AssessmentHTTPClient: func() *http.Client {
+					c := service.NewHTTPClient()
+					c.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+					return c
+				}(),
+			}),
+		}, evidenceOptions...)
+
+		evidenceSvc, err = evidence.NewService(evidenceOpts...)
+		if err != nil {
+			return err
+		}
+
+		// Evaluation service configuration — connects back to the orchestrator on the same port
+		evaluationSvc, err = evaluation.NewService(
+			evaluation.WithConfig(evaluation.Config{
+				OrchestratorAddress: fmt.Sprintf("http://localhost:%d", apiPort),
+				OrchestratorClient:  orchestratorClient,
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Start collection service
+		collectionResults = collectionSvc.Start(ctx)
+		go func() {
+			for range collectionResults {
+				slog.Debug("Collection cycle finished")
+			}
+		}()
+
+		// Server options configuration including CORS, logging, handler and gRPC reflection
+		serverOpts = []server.Option{
+			server.WithConfig(server.Config{
+				Port:     apiPort,
+				Path:     "/",
+				LogLevel: cmd.String("log-level"),
+				CORS: server.CORS{
+					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
+					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
+					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
+				},
+			}),
+			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
+				orchestratorSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(assessmentconnect.NewAssessmentHandler(
+				assessmentSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
+				evidenceSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(evidenceconnect.NewResourcesHandler(
+				evidenceSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithHandler(evaluationconnect.NewEvaluationHandler(
+				evaluationSvc,
+				connect.WithInterceptors(interceptors...),
+			)),
+			server.WithReflection(),
+		}
+
+		if cmd.Bool("oauth2-embedded") {
+			serverOpts = append(serverOpts, server.WithEmbeddedOAuth2Server(
+				cmd.String("oauth2-key-path"),
+				cmd.String("oauth2-key-password"),
+				cmd.Bool("oauth2-key-save-on-create"),
+				cmd.String("oauth2-public-url"),
+			))
+		}
+
+		err = server.RunConnectServer(serverOpts...)
+		return err
 	},
 	Flags: joinFlagSlices(
 		logFlags,
