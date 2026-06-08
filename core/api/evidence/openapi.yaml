@@ -880,6 +880,8 @@ components:
         CodeRepository:
             type: object
             properties:
+                approvedCommitAuthorEnforced:
+                    type: boolean
                 creationTime:
                     type: string
                     format: date-time
@@ -895,9 +897,18 @@ components:
                         type: string
                 name:
                     type: string
+                numberOfRequiredReviewers:
+                    type: integer
+                    format: int32
                 raw:
                     type: string
                     description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                reviewPercentage:
+                    type: number
+                    format: float
+                reviewPercentageLastMonth:
+                    type: number
+                    format: float
                 changeAndConfigurationManagement:
                     $ref: '#/components/schemas/ChangeAndConfigurationManagement'
                 codeSignoff:
@@ -916,17 +927,29 @@ components:
                         $ref: '#/components/schemas/Redundancy'
                 parentId:
                     type: string
+                signedCommits:
+                    $ref: '#/components/schemas/SignedCommits'
                 usageStatistics:
                     $ref: '#/components/schemas/UsageStatistics'
-            description: CodeRepository is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                verifiedCommits:
+                    $ref: '#/components/schemas/VerifiedCommits'
+            description: |-
+                CodeRepository is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 ApprovedCommitAuthorEnforced verifies that code modifications are made by authorized developers whose changes have been validated, enhancing accountability and traceability.
+                 ReviewPercentage is the percentage of merged pull requests with code reviews.
+                 ReviewPercentageLastMonth is the percentage of merged pull requests with code reviews in the last 30 days.
         CodeSignoff:
             type: object
             properties:
                 enforced:
                     type: boolean
-            description: |-
-                CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-                 Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
+                percentage:
+                    type: number
+                    format: float
+                percentageLastMonth:
+                    type: number
+                    format: float
+            description: "CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n Percentage: Percentage of commits with \"Signed-off-by\" lines. \n PercentageLastMonth: Percentage of commits with \"Signed-off-by\" lines in the last 30 days. \n Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository"
         Configuration:
             type: object
             properties:
@@ -5854,6 +5877,10 @@ components:
                     $ref: '#/components/schemas/Immutability'
                 documentSignature:
                     $ref: '#/components/schemas/DocumentSignature'
+                signedCommits:
+                    $ref: '#/components/schemas/SignedCommits'
+                verifiedCommits:
+                    $ref: '#/components/schemas/VerifiedCommits'
                 explainableResults:
                     $ref: '#/components/schemas/ExplainableResults'
                 robustnessScore:
@@ -5941,6 +5968,18 @@ components:
                     items:
                         $ref: '#/components/schemas/SecurityFeature'
             description: ServiceMetadataDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        SignedCommits:
+            type: object
+            properties:
+                enforced:
+                    type: boolean
+                percentage:
+                    type: number
+                    format: float
+                percentageLastMonth:
+                    type: number
+                    format: float
+            description: "SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  SignedCommits cryptographically verify the identity of the commit author.\n Percentage: Percentage of signed commits. \n PercentageLastMonth: Percentage of signed commits in the last 30 days."
         SingleSignOn:
             type: object
             properties:
@@ -6232,6 +6271,16 @@ components:
             description: |-
                 Value is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  The node that represents the "value" of this option. For example, in an INI file, this would be the [FieldDeclaration.initializer] node that represents the value.
+        VerifiedCommits:
+            type: object
+            properties:
+                percentage:
+                    type: number
+                    format: float
+                percentageLastMonth:
+                    type: number
+                    format: float
+            description: "VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.\n Percentage: Percentage of verified commits. \n PercentageLastMonth: Percentage of verified commits in the last 30 days."
         VirtualMachine:
             type: object
             properties:
