@@ -132,7 +132,7 @@ message ListResourcesRequest {
 }
 
 message ListResourcesResponse {
-  repeated Resource results = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated ResourceSnapshot results = 1 [(google.api.field_behavior) = REQUIRED];
   string next_page_token = 2;
 }
 
