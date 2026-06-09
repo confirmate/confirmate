@@ -76,7 +76,7 @@ func TestStoreEvidenceRequest_GetPayload(t *testing.T) {
 
 func TestUpdateResourceRequest_TargetOfEvaluationId(t *testing.T) {
 	req := &UpdateResourceRequest{
-		Resource: &Resource{
+		Resource: &ResourceSnapshot{
 			TargetOfEvaluationId: "toe-2",
 		},
 	}
