@@ -193,6 +193,11 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 	}
 
 	// EvidenceStore service configuration
+	assessmentClient := service.NewHTTPClient()
+	assessmentClient.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+	if authorizer != nil {
+		assessmentClient = api.NewOAuthHTTPClient(assessmentClient, authorizer)
+	}
 	evidenceOpts = append([]service.Option[evidence.Service]{
 		evidence.WithConfig(evidence.Config{
 			AssessmentAddress: cmd.String("evidence-assessment-address"),
@@ -207,11 +212,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 				InMemoryDB: cmd.Bool("db-in-memory"),
 				MaxConn:    cmd.Int("db-max-connections"),
 			},
-			AssessmentHTTPClient: func() *http.Client {
-				c := service.NewHTTPClient()
-				c.Timeout = cmd.Duration("evidence-assessment-http-timeout")
-				return c
-			}(),
+			AssessmentHTTPClient: assessmentClient,
 		}),
 	}, evidenceOptions...)
 
