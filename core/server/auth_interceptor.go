@@ -44,7 +44,16 @@ type AuthConfig struct {
 
 	// Role extraction configuration
 	roleClaimPaths []string
+
+	// roleMapper, when non-nil, is applied to each raw role string after
+	// extraction. Returning the empty string drops the role.
+	roleMapper RoleMapper
 }
+
+// RoleMapper translates a raw role string from the JWT into a canonical role
+// string used by the rest of the system (e.g. the orchestrator enum names like
+// "ROLE_ADMIN"). Returning "" drops the role.
+type RoleMapper func(rawRole string) string
 
 // AuthOption configures the auth middleware.
 type AuthOption func(*AuthConfig)
@@ -62,6 +71,14 @@ func WithRoleClaimPaths(paths ...string) AuthOption {
 			}
 			c.roleClaimPaths = append(c.roleClaimPaths, p)
 		}
+	}
+}
+
+// WithRoleMapper installs a custom translator from raw JWT role strings to the
+// canonical role strings used by the rest of the system. See [RoleMapper].
+func WithRoleMapper(m RoleMapper) AuthOption {
+	return func(c *AuthConfig) {
+		c.roleMapper = m
 	}
 }
 
@@ -214,23 +231,26 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 		}
 	}
 
-	// TODO(anatheka): Delete the following and comment in the parse token lines if it works, just an workaround, because I do not have a correct signed token.
-	_ = keyFunc
-
-	// Parse JWT token WITHOUT validation (no signature / exp / nbf / iat checks).
-	// WARNING: This accepts arbitrary, untrusted tokens.
-	parser := jwt.NewParser(jwt.WithoutClaimsValidation())
-
-	// 1) Parse into raw map claims to keep all custom/nested fields.
-	_, _, err = parser.ParseUnverified(token, &raw)
+	// Parse and verify the JWT into the raw map representation so we can drive
+	// path-based role extraction off the full claim set (including nested objects
+	// like Keycloak's realm_access). Signature, exp, nbf, and iat are all checked
+	// by the default validator.
+	parsed, err := jwt.Parse(token, keyFunc)
 	if err != nil {
 		return nil, err
 	}
+	mapClaims, ok := parsed.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+	raw = mapClaims
 
-	// 2) Fill structured claims from raw JSON.
+	// Re-hydrate the typed OAuthClaims view from the verified map. Errors here
+	// are non-fatal: the structured fields are best-effort convenience accessors
+	// and authorization decisions read from claims.Roles / claims.Raw.
 	claims = &auth.OAuthClaims{Raw: raw}
 	if b, mErr := json.Marshal(raw); mErr == nil {
-		_ = json.Unmarshal(b, claims) // fills fields of oauth.OAuthClaims (e.g., Email, PreferredUsername, RegisteredClaims)
+		_ = json.Unmarshal(b, claims)
 	}
 
 	// Normalize roles from configured claim paths into claims.Roles.
@@ -239,9 +259,14 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 	return claims, nil
 }
 
-// applyRoleMapping extracts roles from configured claim paths and populates claims.Roles. It supports multiple paths and deduplicates roles.
+// applyRoleMapping extracts roles from configured claim paths, optionally
+// translates them via the configured [RoleMapper], deduplicates, and stores
+// the result in claims.Roles.
 func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims) {
 	if ai == nil || ai.cfg == nil || claims == nil {
+		return
+	}
+	if len(ai.cfg.roleClaimPaths) == 0 {
 		return
 	}
 
@@ -249,10 +274,16 @@ func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims) {
 	seen := map[string]struct{}{}
 
 	for _, path := range ai.cfg.roleClaimPaths {
-		for _, r := range extractStringListAtPath(claims.Raw, path) { // <-- Raw, not MapClaims
+		for _, r := range extractStringListAtPath(claims.Raw, path) {
 			r = strings.TrimSpace(r)
 			if r == "" {
 				continue
+			}
+			if ai.cfg.roleMapper != nil {
+				r = ai.cfg.roleMapper(r)
+				if r == "" {
+					continue
+				}
 			}
 			if _, ok := seen[r]; ok {
 				continue

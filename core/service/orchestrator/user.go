@@ -343,6 +343,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	user = &orchestrator.User{}
 	err = svc.db.Get(user, "id = ?", userId)
 
+	roles := rolesFromClaims(claims)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
 		// User not found: create them with all identity fields.
 		user = &orchestrator.User{
@@ -352,6 +353,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 			LastName:   new(claims.FamilyName),
 			Enabled:    true,
 			Email:      new(claims.Email),
+			Roles:      roles,
 			LastAccess: timestamppb.Now(),
 		}
 		err = svc.db.Create(user)
@@ -367,6 +369,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 		user.FirstName = new(claims.GivenName)
 		user.LastName = new(claims.FamilyName)
 		user.Email = new(claims.Email)
+		user.Roles = roles
 		user.LastAccess = timestamppb.Now()
 		err = svc.db.Save(user)
 		if err != nil {
@@ -397,6 +400,40 @@ func CheckAccess(ctx context.Context, authz service.AuthorizationStrategy, svc *
 	allowed, objectIds = authz.CheckAccess(ctx, userId, reqType, orchestrator.UserPermission_PERMISSION_READER, objectId, objectType)
 
 	return allowed, objectIds, nil
+}
+
+// rolesFromClaims maps the canonical role strings on the JWT claims (already
+// extracted and normalized by the AuthInterceptor) onto the strongly-typed
+// [orchestrator.Role] enum values stored on [orchestrator.User]. Role strings
+// that do not match a known enum value are silently dropped from the user
+// record — callers can still consult them via claims.HasRole for project-
+// specific access decisions.
+func rolesFromClaims(claims *auth.OAuthClaims) []orchestrator.Role {
+	if claims == nil || len(claims.Roles) == 0 {
+		return nil
+	}
+
+	seen := make(map[orchestrator.Role]struct{}, len(claims.Roles))
+	out := make([]orchestrator.Role, 0, len(claims.Roles))
+	for _, raw := range claims.Roles {
+		value, ok := orchestrator.Role_value[raw]
+		if !ok {
+			continue
+		}
+		role := orchestrator.Role(value)
+		if role == orchestrator.Role_ROLE_UNSPECIFIED {
+			continue
+		}
+		if _, dup := seen[role]; dup {
+			continue
+		}
+		seen[role] = struct{}{}
+		out = append(out, role)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 // grantCreatorAdminPermission persists an ADMIN [orchestrator.UserPermission] for the user who is

@@ -80,6 +80,18 @@ var (
 			Value:   server.DefaultJWKSURL,
 			Sources: envVarSources("auth-jwks-url"),
 		},
+		&cli.StringSliceFlag{
+			Name:    "auth-role-claim-paths",
+			Usage:   "Dotted JWT claim paths to read role strings from (repeatable); e.g. \"roles\" or \"realm_access.roles\"",
+			Value:   []string{"roles"},
+			Sources: envVarSources("auth-role-claim-paths"),
+		},
+		&cli.StringFlag{
+			Name:    "auth-role-mapping",
+			Usage:   "Role-string mapping flavor: \"default\" (no translation) or \"keycloak\" (normalize EMERALD/Keycloak names to ROLE_*)",
+			Value:   "default",
+			Sources: envVarSources("auth-role-mapping"),
+		},
 	}
 
 	// serviceAuthFlags contains the flags for configuring service-to-service authentication using
@@ -190,6 +202,26 @@ func newDBFlags(defaultInMemory bool) (flags []cli.Flag) {
 	}
 
 	return flags
+}
+
+// authInterceptorOptions builds the [server.AuthOption] list for the auth
+// interceptor from the shared --auth-* flags. Server commands should pass the
+// already-resolved JWKS URL — the rest comes straight from the CLI flags.
+func authInterceptorOptions(cmd *cli.Command, jwksURL string) []server.AuthOption {
+	opts := []server.AuthOption{server.WithJWKS(jwksURL)}
+
+	if paths := cmd.StringSlice("auth-role-claim-paths"); len(paths) > 0 {
+		opts = append(opts, server.WithRoleClaimPaths(paths...))
+	}
+
+	switch strings.ToLower(strings.TrimSpace(cmd.String("auth-role-mapping"))) {
+	case "keycloak":
+		opts = append(opts, server.WithRoleMapper(server.KeycloakRoleMapper))
+	case "", "default":
+		// no-op: roles are taken as-is.
+	}
+
+	return opts
 }
 
 // ParseAndRun parses the command line arguments and runs the given command.
