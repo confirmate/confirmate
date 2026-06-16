@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 
 	"connectrpc.com/connect"
@@ -47,27 +48,31 @@ type AuthConfig struct {
 	// then canonicalized via the always-on [roleMapper].
 	roleClaimPaths []string
 
-	// roleMapper translates a raw role string from the JWT into the canonical
-	// ROLE_* string used elsewhere in the codebase. It defaults to
-	// [normalizeRoleString] and is intentionally not exposed as an option —
-	// per-IdP behavior is configured via [WithRoleClaimPaths], not via the
-	// mapper.
+	// roleMapper translates a raw role string from the JWT into a typed
+	// orchestrator.Role. It defaults to [normalizeRole] and is intentionally
+	// not exposed as an option — per-IdP behavior is configured via
+	// [WithRoleClaimPaths], not via the mapper.
 	roleMapper roleMapper
 }
 
-// roleMapper translates a raw role string from the JWT into a canonical role
-// string. Returning the empty string drops the role.
-type roleMapper func(rawRole string) string
+// roleMapper translates a raw role string from the JWT into the typed
+// [orchestrator.Role] enum. Returning Role_ROLE_UNSPECIFIED drops the role.
+type roleMapper func(rawRole string) orchestrator.Role
 
 // AuthOption configures the auth middleware.
 type AuthOption func(*AuthConfig)
 
 // WithRoleClaimPaths configures where roles are found in the JWT claims.
-// Examples:
-// - "roles"
-// - "realm_access.roles" (Keycloak realm roles)
+// It replaces the default ("roles") so callers that need multiple sources
+// must list them all in a single call. Examples:
+//   - WithRoleClaimPaths("roles")
+//   - WithRoleClaimPaths("realm_access.roles") (Keycloak realm roles)
+//   - WithRoleClaimPaths("roles", "realm_access.roles") (both)
+//
+// Empty / whitespace-only entries are ignored.
 func WithRoleClaimPaths(paths ...string) AuthOption {
 	return func(c *AuthConfig) {
+		c.roleClaimPaths = c.roleClaimPaths[:0]
 		for _, p := range paths {
 			p = strings.TrimSpace(p)
 			if p == "" {
@@ -117,7 +122,11 @@ func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
 	)
 
 	cfg = &AuthConfig{
-		roleMapper: normalizeRoleString,
+		roleMapper: normalizeRole,
+		// Default to reading roles from the standard top-level "roles" claim.
+		// Callers that emit roles elsewhere (e.g. Keycloak's realm_access.roles)
+		// override this via WithRoleClaimPaths.
+		roleClaimPaths: []string{"roles"},
 	}
 	for _, opt := range opts {
 		opt(cfg)
@@ -245,23 +254,26 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 
 	// Re-hydrate the typed OAuthClaims view from the verified map. Errors here
 	// are non-fatal: the structured fields are best-effort convenience accessors
-	// and authorization decisions read from claims.Roles / claims.Raw.
-	claims = &auth.OAuthClaims{Raw: raw}
+	// and authorization decisions read from claims.Roles.
+	claims = &auth.OAuthClaims{}
 	if b, mErr := json.Marshal(raw); mErr == nil {
 		_ = json.Unmarshal(b, claims)
 	}
 
-	// Normalize roles from configured claim paths into claims.Roles.
-	ai.applyRoleMapping(claims)
+	// Normalize roles from configured claim paths into claims.Roles. The raw
+	// map is needed here (and only here) so we can walk nested paths like
+	// "realm_access.roles" that the typed view doesn't expose.
+	ai.applyRoleMapping(claims, raw)
 
 	return claims, nil
 }
 
-// applyRoleMapping extracts roles from the configured claim paths, runs each
-// raw string through [normalizeRoleString] (the always-on mapper), dedupes,
-// and stores the result in claims.Roles. Returns early when no paths are
-// configured so the JSON-unmarshalled claims.Roles is left untouched.
-func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims) {
+// applyRoleMapping extracts roles from the configured claim paths in raw, runs
+// each string through the always-on [normalizeRole] mapper to land on the
+// orchestrator's typed Role enum, dedupes, and stores the result in
+// claims.Roles. Returns early when no paths are configured so claims.Roles is
+// left untouched.
+func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims, raw jwt.MapClaims) {
 	if ai == nil || ai.cfg == nil || claims == nil {
 		return
 	}
@@ -269,26 +281,20 @@ func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims) {
 		return
 	}
 
-	var out []string
-	seen := map[string]struct{}{}
+	var out []orchestrator.Role
+	seen := map[orchestrator.Role]struct{}{}
 
 	for _, path := range ai.cfg.roleClaimPaths {
-		for _, r := range extractStringListAtPath(claims.Raw, path) {
-			r = strings.TrimSpace(r)
-			if r == "" {
+		for _, r := range extractStringListAtPath(raw, path) {
+			role := ai.cfg.roleMapper(r)
+			if role == orchestrator.Role_ROLE_UNSPECIFIED {
 				continue
 			}
-			if ai.cfg.roleMapper != nil {
-				r = ai.cfg.roleMapper(r)
-				if r == "" {
-					continue
-				}
-			}
-			if _, ok := seen[r]; ok {
+			if _, ok := seen[role]; ok {
 				continue
 			}
-			seen[r] = struct{}{}
-			out = append(out, r)
+			seen[role] = struct{}{}
+			out = append(out, role)
 		}
 	}
 

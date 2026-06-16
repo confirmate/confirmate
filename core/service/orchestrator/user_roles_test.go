@@ -19,56 +19,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func TestRolesFromClaims(t *testing.T) {
-	tests := []struct {
-		name   string
-		claims *auth.OAuthClaims
-		want   []orchestrator.Role
-	}{
-		{name: "nil claims", claims: nil, want: nil},
-		{name: "no roles", claims: &auth.OAuthClaims{}, want: nil},
-		{
-			name:   "single known role",
-			claims: &auth.OAuthClaims{Roles: []string{"ROLE_ADMIN"}},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN},
-		},
-		{
-			name: "multiple known roles preserve order",
-			claims: &auth.OAuthClaims{Roles: []string{
-				"ROLE_AUDITOR", "ROLE_COMPLIANCE_MANAGER",
-			}},
-			want: []orchestrator.Role{
-				orchestrator.Role_ROLE_AUDITOR,
-				orchestrator.Role_ROLE_COMPLIANCE_MANAGER,
-			},
-		},
-		{
-			name:   "duplicate roles are collapsed",
-			claims: &auth.OAuthClaims{Roles: []string{"ROLE_ADMIN", "ROLE_ADMIN"}},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN},
-		},
-		{
-			name:   "unknown role strings are dropped",
-			claims: &auth.OAuthClaims{Roles: []string{"AMOE_ADMIN", "ROLE_ADMIN"}},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN},
-		},
-		{
-			name:   "ROLE_UNSPECIFIED is dropped",
-			claims: &auth.OAuthClaims{Roles: []string{"ROLE_UNSPECIFIED", "ROLE_ADMIN"}},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, rolesFromClaims(tt.claims))
-		})
-	}
-}
-
 // TestProvisionCurrentUser_PopulatesRoles verifies that JIT user provisioning
-// translates claims.Roles into typed Role enum values on the persisted User
-// record — the wire-up for issue #288.
+// carries the Role enum values already extracted on claims.Roles by the auth
+// interceptor across to the persisted User record — the wire-up for #288.
 func TestProvisionCurrentUser_PopulatesRoles(t *testing.T) {
 	db := persistencetest.NewInMemoryDB(t, types, joinTables)
 	svc := &Service{db: db}
@@ -78,7 +31,10 @@ func TestProvisionCurrentUser_PopulatesRoles(t *testing.T) {
 			Subject: "alice",
 			Issuer:  "https://idp.example",
 		},
-		Roles: []string{"ROLE_ADMIN", "AMOE_ADMIN", "ROLE_AUDITOR"},
+		Roles: []orchestrator.Role{
+			orchestrator.Role_ROLE_ADMIN,
+			orchestrator.Role_ROLE_AUDITOR,
+		},
 	})
 
 	userId, err := provisionCurrentUser(ctx, svc)
@@ -111,7 +67,7 @@ func TestProvisionCurrentUser_UpdatesRolesOnReprovisioning(t *testing.T) {
 			Subject: "bob",
 			Issuer:  "https://idp.example",
 		},
-		Roles: []string{"ROLE_AUDITOR"},
+		Roles: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
 	})
 
 	_, err := provisionCurrentUser(ctx, svc)
