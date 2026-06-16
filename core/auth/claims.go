@@ -25,12 +25,18 @@ import (
 // standard JWT claims with additional fields commonly used in OAuth2 and OpenID Connect tokens.
 type OAuthClaims struct {
 	jwt.RegisteredClaims
-	Scope             string   `json:"scope,omitempty"`
-	Email             string   `json:"email,omitempty"`
-	PreferredUsername string   `json:"preferred_username,omitempty"`
-	GivenName         string   `json:"given_name,omitempty"`
-	FamilyName        string   `json:"family_name,omitempty"`
-	Roles             []string `json:"roles,omitempty"`
+	Scope             string `json:"scope,omitempty"`
+	Email             string `json:"email,omitempty"`
+	PreferredUsername string `json:"preferred_username,omitempty"`
+	GivenName         string `json:"given_name,omitempty"`
+	FamilyName        string `json:"family_name,omitempty"`
+
+	// Roles holds the canonical roles assigned to the caller, already mapped
+	// onto the orchestrator [orchestrator.Role] enum by the auth interceptor's
+	// role-extraction step. It is not populated from JSON unmarshal of the
+	// token — IdP-specific role strings live in nested claim paths
+	// (e.g. realm_access.roles) and are normalized before landing here.
+	Roles []orchestrator.Role `json:"-"`
 
 	// IsAdminToken is a custom claim that indicates whether the token is an admin token. This can
 	// be used to grant elevated permissions to tokens that are meant for administrative purposes.
@@ -46,7 +52,7 @@ func (claims *OAuthClaims) IsAdmin() bool {
 		return false
 	}
 
-	if claims.HasRole(orchestrator.RoleAdmin) || claims.IsAdminToken {
+	if claims.HasRole(orchestrator.Role_ROLE_ADMIN) || claims.IsAdminToken {
 		return true
 	}
 
@@ -54,14 +60,12 @@ func (claims *OAuthClaims) IsAdmin() bool {
 }
 
 // HasRole checks if the given role exists in the roles claim.
-func (claims *OAuthClaims) HasRole(role string) (ok bool) {
-	var candidate string
-
-	if claims == nil || role == "" {
+func (claims *OAuthClaims) HasRole(role orchestrator.Role) bool {
+	if claims == nil || role == orchestrator.Role_ROLE_UNSPECIFIED {
 		return false
 	}
 
-	for _, candidate = range claims.Roles {
+	for _, candidate := range claims.Roles {
 		if candidate == role {
 			return true
 		}
