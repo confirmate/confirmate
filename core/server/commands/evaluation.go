@@ -61,9 +61,7 @@ var EvaluationCommand = &cli.Command{
 				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
 			}
 
-			interceptors = append(interceptors, server.NewAuthInterceptor(
-				server.WithJWKS(jwksURL),
-			))
+			interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
 			svcOptions = append(svcOptions, evaluation.WithAuthorizationStrategyPermissionStore())
 
 			cfg.ServiceOAuth2Config = &clientcredentials.Config{

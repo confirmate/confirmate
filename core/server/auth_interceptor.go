@@ -18,10 +18,12 @@ package server
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
 
+	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 
 	"connectrpc.com/connect"
@@ -40,10 +42,46 @@ type AuthConfig struct {
 	publicKey *ecdsa.PublicKey
 
 	publicProcedures map[string]struct{}
+
+	// roleClaimPaths lists the dotted JWT claim paths to read role strings
+	// from (e.g. "roles" or "realm_access.roles"). Extracted strings are
+	// then canonicalized via the always-on [roleMapper].
+	roleClaimPaths []string
+
+	// roleMapper translates a raw role string from the JWT into a typed
+	// orchestrator.Role. It defaults to [normalizeRole] and is intentionally
+	// not exposed as an option — per-IdP behavior is configured via
+	// [WithRoleClaimPaths], not via the mapper.
+	roleMapper roleMapper
 }
+
+// roleMapper translates a raw role string from the JWT into the typed
+// [orchestrator.Role] enum. Returning Role_ROLE_UNSPECIFIED drops the role.
+type roleMapper func(rawRole string) orchestrator.Role
 
 // AuthOption configures the auth middleware.
 type AuthOption func(*AuthConfig)
+
+// WithRoleClaimPaths configures where roles are found in the JWT claims.
+// It replaces the default ("roles") so callers that need multiple sources
+// must list them all in a single call. Examples:
+//   - WithRoleClaimPaths("roles")
+//   - WithRoleClaimPaths("realm_access.roles") (Keycloak realm roles)
+//   - WithRoleClaimPaths("roles", "realm_access.roles") (both)
+//
+// Empty / whitespace-only entries are ignored.
+func WithRoleClaimPaths(paths ...string) AuthOption {
+	return func(c *AuthConfig) {
+		c.roleClaimPaths = c.roleClaimPaths[:0]
+		for _, p := range paths {
+			p = strings.TrimSpace(p)
+			if p == "" {
+				continue
+			}
+			c.roleClaimPaths = append(c.roleClaimPaths, p)
+		}
+	}
+}
 
 // WithJWKS enables JWKS support for token verification.
 func WithJWKS(url string) AuthOption {
@@ -83,7 +121,13 @@ func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
 		cfg *AuthConfig
 	)
 
-	cfg = &AuthConfig{}
+	cfg = &AuthConfig{
+		roleMapper: normalizeRole,
+		// Default to reading roles from the standard top-level "roles" claim.
+		// Callers that emit roles elsewhere (e.g. Keycloak's realm_access.roles)
+		// override this via WithRoleClaimPaths.
+		roleClaimPaths: []string{"roles"},
+	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
@@ -166,10 +210,9 @@ func (ai *AuthInterceptor) isPublic(procedure string) (ok bool) {
 
 func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, err error) {
 	var (
-		jwks     *keyfunc.JWKS
-		keyFunc  jwt.Keyfunc
-		parsed   *jwt.Token
-		claimsOK bool
+		jwks    *keyfunc.JWKS
+		keyFunc jwt.Keyfunc
+		raw     jwt.MapClaims
 	)
 
 	if ai.cfg == nil {
@@ -195,19 +238,110 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 		}
 	}
 
-	// Parse JWT token and extract claims
-	parsed, err = jwt.ParseWithClaims(token, &auth.OAuthClaims{}, keyFunc)
+	// Parse and verify the JWT into the raw map representation so we can drive
+	// path-based role extraction off the full claim set (including nested objects
+	// like Keycloak's realm_access). Signature, exp, nbf, and iat are all checked
+	// by the default validator.
+	parsed, err := jwt.Parse(token, keyFunc)
 	if err != nil {
 		return nil, err
 	}
-
-	// Convert claims to expected type
-	claims, claimsOK = parsed.Claims.(*auth.OAuthClaims)
-	if !claimsOK {
+	mapClaims, ok := parsed.Claims.(jwt.MapClaims)
+	if !ok {
 		return nil, errors.New("invalid token claims")
 	}
+	raw = mapClaims
+
+	// Re-hydrate the typed OAuthClaims view from the verified map. Errors here
+	// are non-fatal: the structured fields are best-effort convenience accessors
+	// and authorization decisions read from claims.Roles.
+	claims = &auth.OAuthClaims{}
+	if b, mErr := json.Marshal(raw); mErr == nil {
+		_ = json.Unmarshal(b, claims)
+	}
+
+	// Normalize roles from configured claim paths into claims.Roles. The raw
+	// map is needed here (and only here) so we can walk nested paths like
+	// "realm_access.roles" that the typed view doesn't expose.
+	ai.applyRoleMapping(claims, raw)
 
 	return claims, nil
+}
+
+// applyRoleMapping extracts roles from the configured claim paths in raw, runs
+// each string through the always-on [normalizeRole] mapper to land on the
+// orchestrator's typed Role enum, dedupes, and stores the result in
+// claims.Roles. Returns early when no paths are configured so claims.Roles is
+// left untouched.
+func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims, raw jwt.MapClaims) {
+	if ai == nil || ai.cfg == nil || claims == nil {
+		return
+	}
+	if len(ai.cfg.roleClaimPaths) == 0 {
+		return
+	}
+
+	var out []orchestrator.Role
+	seen := map[orchestrator.Role]struct{}{}
+
+	for _, path := range ai.cfg.roleClaimPaths {
+		for _, r := range extractStringListAtPath(raw, path) {
+			role := ai.cfg.roleMapper(r)
+			if role == orchestrator.Role_ROLE_UNSPECIFIED {
+				continue
+			}
+			if _, ok := seen[role]; ok {
+				continue
+			}
+			seen[role] = struct{}{}
+			out = append(out, role)
+		}
+	}
+
+	if len(out) > 0 {
+		claims.Roles = out
+	}
+}
+
+// extractStringListAtPath reads a list of strings from a dotted path inside JWT MapClaims.
+// Supported leaf formats:
+// - []any / []string
+// - string (space- or comma-separated)
+func extractStringListAtPath(m jwt.MapClaims, dottedPath string) []string {
+	if m == nil || dottedPath == "" {
+		return nil
+	}
+
+	var cur any = map[string]any(m)
+	for _, key := range strings.Split(dottedPath, ".") {
+		obj, ok := cur.(map[string]any)
+		if !ok {
+			return nil
+		}
+		cur, ok = obj[key]
+		if !ok {
+			return nil
+		}
+	}
+
+	switch v := cur.(type) {
+	case []string:
+		return v
+	case []any:
+		res := make([]string, 0, len(v))
+		for _, it := range v {
+			if s, ok := it.(string); ok {
+				res = append(res, s)
+			}
+		}
+		return res
+	case string:
+		// Accept "a b c" or "a,b,c"
+		parts := strings.FieldsFunc(v, func(r rune) bool { return r == ' ' || r == ',' })
+		return parts
+	default:
+		return nil
+	}
 }
 
 // bearerToken extracts the token from the Authorization header. It expects the header to be in the
