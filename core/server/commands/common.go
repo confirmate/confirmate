@@ -82,15 +82,9 @@ var (
 		},
 		&cli.StringSliceFlag{
 			Name:    "auth-role-claim-paths",
-			Usage:   "Dotted JWT claim paths to read role strings from (repeatable); e.g. \"roles\" or \"realm_access.roles\"",
+			Usage:   "Dotted JWT claim paths to read role strings from (repeatable); e.g. \"roles\" or \"realm_access.roles\" for Keycloak",
 			Value:   []string{"roles"},
 			Sources: envVarSources("auth-role-claim-paths"),
-		},
-		&cli.StringFlag{
-			Name:    "auth-role-mapping",
-			Usage:   "Role-string mapping flavor: \"default\" (no translation) or \"keycloak\" (normalize EMERALD/Keycloak names to ROLE_*)",
-			Value:   "default",
-			Sources: envVarSources("auth-role-mapping"),
 		},
 	}
 
@@ -212,13 +206,6 @@ func authInterceptorOptions(cmd *cli.Command, jwksURL string) []server.AuthOptio
 
 	if paths := cmd.StringSlice("auth-role-claim-paths"); len(paths) > 0 {
 		opts = append(opts, server.WithRoleClaimPaths(paths...))
-	}
-
-	switch strings.ToLower(strings.TrimSpace(cmd.String("auth-role-mapping"))) {
-	case "keycloak":
-		opts = append(opts, server.WithRoleMapper(server.KeycloakRoleMapper))
-	case "", "default":
-		// no-op: roles are taken as-is.
 	}
 
 	return opts

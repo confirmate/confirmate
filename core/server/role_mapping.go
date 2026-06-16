@@ -12,18 +12,17 @@ import (
 	"confirmate.io/core/api/orchestrator"
 )
 
-// KeycloakRoleMapper translates the IdP-specific role names typically emitted
-// by Keycloak (under realm_access.roles) into the canonical ROLE_* strings
-// that match the orchestrator's [orchestrator.Role] enum. Unknown role strings
-// are passed through unchanged so callers can still consult them via
-// claims.HasRole for project-specific access decisions.
+// normalizeRoleString translates a raw role string from the JWT into the
+// canonical ROLE_* string used elsewhere in the codebase (matching the
+// orchestrator's [orchestrator.Role] enum). The translation table covers the
+// IdP-specific names we know about (EMERALD/Keycloak-style: ORCHESTRATOR_ADMIN,
+// "Compliance Manager", ...); unknown role strings are passed through
+// unchanged so callers can still consult them via claims.HasRole for
+// project-specific access decisions.
 //
-// The mapping is intentionally lenient: it matches case-insensitively and
-// recognizes a few well-known Keycloak naming conventions used by EMERALD
-// (e.g. "ORCHESTRATOR_ADMIN", "Compliance Manager"). Pure ROLE_* strings are
-// returned as-is so a Keycloak realm that already uses the canonical names
-// works without translation.
-func KeycloakRoleMapper(raw string) string {
+// Matching is case-insensitive. Pure ROLE_* strings short-circuit to
+// themselves so a token that already uses canonical names is a no-op.
+func normalizeRoleString(raw string) string {
 	if raw == "" {
 		return ""
 	}

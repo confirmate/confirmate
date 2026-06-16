@@ -42,18 +42,22 @@ type AuthConfig struct {
 
 	publicProcedures map[string]struct{}
 
-	// Role extraction configuration
+	// roleClaimPaths lists the dotted JWT claim paths to read role strings
+	// from (e.g. "roles" or "realm_access.roles"). Extracted strings are
+	// then canonicalized via the always-on [roleMapper].
 	roleClaimPaths []string
 
-	// roleMapper, when non-nil, is applied to each raw role string after
-	// extraction. Returning the empty string drops the role.
-	roleMapper RoleMapper
+	// roleMapper translates a raw role string from the JWT into the canonical
+	// ROLE_* string used elsewhere in the codebase. It defaults to
+	// [normalizeRoleString] and is intentionally not exposed as an option —
+	// per-IdP behavior is configured via [WithRoleClaimPaths], not via the
+	// mapper.
+	roleMapper roleMapper
 }
 
-// RoleMapper translates a raw role string from the JWT into a canonical role
-// string used by the rest of the system (e.g. the orchestrator enum names like
-// "ROLE_ADMIN"). Returning "" drops the role.
-type RoleMapper func(rawRole string) string
+// roleMapper translates a raw role string from the JWT into a canonical role
+// string. Returning the empty string drops the role.
+type roleMapper func(rawRole string) string
 
 // AuthOption configures the auth middleware.
 type AuthOption func(*AuthConfig)
@@ -71,14 +75,6 @@ func WithRoleClaimPaths(paths ...string) AuthOption {
 			}
 			c.roleClaimPaths = append(c.roleClaimPaths, p)
 		}
-	}
-}
-
-// WithRoleMapper installs a custom translator from raw JWT role strings to the
-// canonical role strings used by the rest of the system. See [RoleMapper].
-func WithRoleMapper(m RoleMapper) AuthOption {
-	return func(c *AuthConfig) {
-		c.roleMapper = m
 	}
 }
 
@@ -120,7 +116,9 @@ func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
 		cfg *AuthConfig
 	)
 
-	cfg = &AuthConfig{}
+	cfg = &AuthConfig{
+		roleMapper: normalizeRoleString,
+	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
@@ -259,9 +257,10 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 	return claims, nil
 }
 
-// applyRoleMapping extracts roles from configured claim paths, optionally
-// translates them via the configured [RoleMapper], deduplicates, and stores
-// the result in claims.Roles.
+// applyRoleMapping extracts roles from the configured claim paths, runs each
+// raw string through [normalizeRoleString] (the always-on mapper), dedupes,
+// and stores the result in claims.Roles. Returns early when no paths are
+// configured so the JSON-unmarshalled claims.Roles is left untouched.
 func (ai *AuthInterceptor) applyRoleMapping(claims *auth.OAuthClaims) {
 	if ai == nil || ai.cfg == nil || claims == nil {
 		return

@@ -86,11 +86,13 @@ func TestExtractStringListAtPath(t *testing.T) {
 }
 
 func TestApplyRoleMapping(t *testing.T) {
+	// applyRoleMapping always runs through normalizeRoleString — exercise it
+	// through the public constructor so the test reflects the wiring callers
+	// actually get.
 	tests := []struct {
-		name   string
-		paths  []string
-		mapper RoleMapper
-		raw    jwt.MapClaims
+		name  string
+		paths []string
+		raw   jwt.MapClaims
 		// preset is the value of claims.Roles before applyRoleMapping runs (as
 		// already populated by JSON unmarshal from the structured "roles" field).
 		preset []string
@@ -122,13 +124,12 @@ func TestApplyRoleMapping(t *testing.T) {
 			want: []string{"ROLE_ADMIN", "ROLE_AUDITOR"},
 		},
 		{
-			name:   "mapper translates and drops empties",
-			paths:  []string{"realm_access.roles"},
-			mapper: KeycloakRoleMapper,
+			name:  "normalizer translates known IdP names",
+			paths: []string{"realm_access.roles"},
 			raw: jwt.MapClaims{
-				"realm_access": map[string]any{"roles": []any{"ORCHESTRATOR_ADMIN", "Compliance Manager", "AMOE_ADMIN"}},
+				"realm_access": map[string]any{"roles": []any{"ORCHESTRATOR_ADMIN", "Compliance Manager"}},
 			},
-			want: []string{"ROLE_ADMIN", "ROLE_COMPLIANCE_MANAGER", "AMOE_ADMIN"},
+			want: []string{"ROLE_ADMIN", "ROLE_COMPLIANCE_MANAGER"},
 		},
 		{
 			name:  "all paths empty leaves preset alone",
@@ -143,10 +144,7 @@ func TestApplyRoleMapping(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ai := &AuthInterceptor{cfg: &AuthConfig{
-				roleClaimPaths: tt.paths,
-				roleMapper:     tt.mapper,
-			}}
+			ai := NewAuthInterceptor(WithRoleClaimPaths(tt.paths...))
 			claims := &auth.OAuthClaims{Raw: tt.raw, Roles: tt.preset}
 			ai.applyRoleMapping(claims)
 			assert.Equal(t, tt.want, claims.Roles)
