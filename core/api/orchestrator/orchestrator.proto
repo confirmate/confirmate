@@ -350,8 +350,8 @@ service Orchestrator {
   // Upserts a specific user permission identified by object and user.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      put : "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}"
-      body: "user_permission"
+      put : "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}"
+      body: "*"
     };
   }
 
