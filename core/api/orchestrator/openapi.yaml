@@ -2084,8 +2084,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}:
-        put:
+    ? /v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}
+    :   put:
             tags:
                 - Orchestrator
             description: Upserts a specific user permission identified by object and user.
@@ -2106,11 +2106,16 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: user_permission.permission
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UserPermission'
+                            $ref: '#/components/schemas/UpsertUserPermissionRequest'
                 required: true
             responses:
                 "200":
@@ -3170,6 +3175,13 @@ components:
                 implementationDetails:
                     type: string
                     description: ImplementationDetails contains free-form notes about how the control is being addressed.
+        UpsertUserPermissionRequest:
+            required:
+                - userPermission
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
         UpsertUserPermissionResponse:
             type: object
             properties:
