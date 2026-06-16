@@ -129,9 +129,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		}
 
 		// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
-		interceptors = append(interceptors, server.NewAuthInterceptor(
-			server.WithJWKS(jwksURL),
-		))
+		interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
 		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
 	}

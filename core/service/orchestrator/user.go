@@ -352,6 +352,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 			LastName:   new(claims.FamilyName),
 			Enabled:    true,
 			Email:      new(claims.Email),
+			Roles:      claims.Roles,
 			LastAccess: timestamppb.Now(),
 		}
 		err = svc.db.Create(user)
@@ -367,6 +368,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 		user.FirstName = new(claims.GivenName)
 		user.LastName = new(claims.FamilyName)
 		user.Email = new(claims.Email)
+		user.Roles = claims.Roles
 		user.LastAccess = timestamppb.Now()
 		err = svc.db.Save(user)
 		if err != nil {
