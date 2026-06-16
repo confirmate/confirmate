@@ -241,7 +241,7 @@ func (svc *Service) initEvidenceChannel() {
 // This implements the [evidenceconnect.EvidenceStoreHandler.StoreEvidence] RPC method.
 func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evidence.StoreEvidenceRequest]) (res *connect.Response[evidence.StoreEvidenceResponse], err error) {
 	var (
-		r *evidence.Resource
+		r *evidence.ResourceSnapshot
 	)
 
 	// Validate request
@@ -265,13 +265,20 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	svc.toolIds[req.Msg.Evidence.GetToolId()] = struct{}{}
 	svc.toolIdsMu.Unlock()
 
-	// Store Resource:
-	// Build a resource struct. This will hold the latest sync state of the
-	// resource for our storage layer. This is needed to store the resource in our DBs
-	r, err = evidence.ToEvidenceResource(req.Msg.Evidence.GetOntologyResource(), req.Msg.GetTargetOfEvaluationId(), req.Msg.Evidence.GetToolId())
+	// Store resource snapshot. This will hold the latest sync state of the resource and its
+	// association to ToE for our storage layer.
+	ontologyResource := req.Msg.Evidence.GetOntologyResource()
+	if ontologyResource == nil {
+		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB): nil ontology resource"))
+	}
+	r, err = evidence.ToResourceSnapshot(
+		ontologyResource,
+		req.Msg.GetTargetOfEvaluationId(),
+		req.Msg.Evidence.GetToolId(),
+	)
 	if err != nil {
 		// Only reveal limited information about the error to the client
-		return nil, connect.NewError(connect.CodeInternal, errors.New("could not convert resource (proto to DB)"))
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not convert resource (proto to DB): %w", err))
 	}
 	// Persist the latest state of the resource; Save already uses the primary key.
 	err = svc.db.Save(r)
@@ -520,7 +527,7 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	// Join query with AND and prepend the query
 	args = append([]any{strings.Join(query, " AND ")}, args...)
 
-	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Resource](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
+	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.ResourceSnapshot](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
