@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -128,9 +129,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		}
 
 		// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
-		interceptors = append(interceptors, server.NewAuthInterceptor(
-			server.WithJWKS(jwksURL),
-		))
+		interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
 		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
 	}
@@ -190,6 +189,11 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 	}
 
 	// EvidenceStore service configuration
+	assessmentClient := service.NewHTTPClient()
+	assessmentClient.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+	if authorizer != nil {
+		assessmentClient = api.NewOAuthHTTPClient(assessmentClient, authorizer)
+	}
 	evidenceOpts = append([]service.Option[evidence.Service]{
 		evidence.WithConfig(evidence.Config{
 			AssessmentAddress: cmd.String("evidence-assessment-address"),
@@ -204,11 +208,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 				InMemoryDB: cmd.Bool("db-in-memory"),
 				MaxConn:    cmd.Int("db-max-connections"),
 			},
-			AssessmentHTTPClient: func() *http.Client {
-				c := service.NewHTTPClient()
-				c.Timeout = cmd.Duration("evidence-assessment-http-timeout")
-				return c
-			}(),
+			AssessmentHTTPClient: assessmentClient,
 		}),
 	}, evidenceOptions...)
 
@@ -268,7 +268,19 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		return err
 	}
 
-	err = <-serverErrCh
+	// Run until the server exits on its own or the context is cancelled (SIGTERM,
+	// test teardown, etc.) — in which case shut the HTTP server down gracefully.
+	select {
+	case err = <-serverErrCh:
+	case <-ctx.Done():
+		shutdownCtx, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelShutdown()
+		_ = srv.Shutdown(shutdownCtx)
+		err = <-serverErrCh
+		if errors.Is(err, http.ErrServerClosed) {
+			err = nil
+		}
+	}
 	return err
 }
 

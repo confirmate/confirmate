@@ -6487,7 +6487,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\"AUDIT_SCOPE_STATUS_INTERNAL_REVIEW\x10\x02\x12%\n" +
 	"!AUDIT_SCOPE_STATUS_AUDITOR_REVIEW\x10\x03\x127\n" +
 	"3AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT\x10\x04\x12\x1c\n" +
-	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xd6W\n" +
+	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xe6W\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -6538,8 +6538,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x0fListAuditScopes\x122.confirmate.orchestrator.v1.ListAuditScopesRequest\x1a3.confirmate.orchestrator.v1.ListAuditScopesResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/orchestrator/audit_scopes\x12\xfa\x01\n" +
 	"\x10UpdateAuditScope\x123.confirmate.orchestrator.v1.UpdateAuditScopeRequest\x1a&.confirmate.orchestrator.v1.AuditScope\"\x88\x01\x82\xd3\xe4\x93\x02\x81\x01:\vaudit_scope\x1ar/v1/orchestrator/targets_of_evaluation/{audit_scope.target_of_evaluation_id}/audit_scopes/{audit_scope.catalog_id}\x12\x97\x01\n" +
 	"\x10RemoveAuditScope\x123.confirmate.orchestrator.v1.RemoveAuditScopeRequest\x1a\x16.google.protobuf.Empty\"6\x82\xd3\xe4\x93\x020*./v1/orchestrator/audit_scopes/{audit_scope_id}\x12\x83\x01\n" +
-	"\x0eGetRuntimeInfo\x12+.confirmate.common.v1.GetRuntimeInfoRequest\x1a\x1d.confirmate.common.v1.Runtime\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/orchestrator/runtime_info\x12\x95\x02\n" +
-	"\x14UpsertUserPermission\x127.confirmate.orchestrator.v1.UpsertUserPermissionRequest\x1a8.confirmate.orchestrator.v1.UpsertUserPermissionResponse\"\x89\x01\x82\xd3\xe4\x93\x02\x82\x01:\x0fuser_permission\x1ao/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}\x12\xb0\x01\n" +
+	"\x0eGetRuntimeInfo\x12+.confirmate.common.v1.GetRuntimeInfoRequest\x1a\x1d.confirmate.common.v1.Runtime\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/orchestrator/runtime_info\x12\xa5\x02\n" +
+	"\x14UpsertUserPermission\x127.confirmate.orchestrator.v1.UpsertUserPermissionRequest\x1a8.confirmate.orchestrator.v1.UpsertUserPermissionResponse\"\x99\x01\x82\xd3\xe4\x93\x02\x92\x01:\x01*\x1a\x8c\x01/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}\x12\xb0\x01\n" +
 	"\x14RemoveUserPermission\x127.confirmate.orchestrator.v1.RemoveUserPermissionRequest\x1a\x16.google.protobuf.Empty\"G\x82\xd3\xe4\x93\x02A*?/v1/users/permissions/{object_type}/{object_id}/users/{user_id}\x12{\n" +
 	"\x0eGetCurrentUser\x121.confirmate.orchestrator.v1.GetCurrentUserRequest\x1a .confirmate.orchestrator.v1.User\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/users/me\x12t\n" +
 	"\aGetUser\x12*.confirmate.orchestrator.v1.GetUserRequest\x1a .confirmate.orchestrator.v1.User\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/users/{user_id}\x12{\n" +
