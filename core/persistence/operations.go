@@ -135,10 +135,14 @@ func (s *gormDB) List(r any, orderBy string, asc bool, offset int, limit int, co
 	// Use GORM's clause.OrderByColumn to safely handle column names
 	// This prevents SQL injection by treating the column name as an identifier
 	if orderBy != "" {
-		db = db.Order(clause.OrderByColumn{
-			Column: clause.Column{Name: orderBy},
-			Desc:   !asc,
-		})
+		// Support multiple comma-separated order columns (e.g., "category_name,id")
+		columns := splitOrderBy(orderBy)
+		for _, col := range columns {
+			db = db.Order(clause.OrderByColumn{
+				Column: clause.Column{Name: col},
+				Desc:   !asc,
+			})
+		}
 	}
 
 	// Preload all associations of r if necessary
@@ -189,17 +193,37 @@ func applyWhere(db *gorm.DB, conds ...any) *gorm.DB {
 // applyPreload checks for any preload options and prepends them to the DB query. If no extra option
 // is specified, [clause.Associations] is used as the default preload.
 func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
-	if len(conds) > 0 {
-		if preload, ok := conds[0].(*preload); ok {
-			if preload.query != "" {
-				return db.Preload(preload.query, preload.args...), conds[1:]
-			} else {
-				return db, conds[1:]
+	type preloadSpec struct {
+		query string
+		args  []any
+	}
+	var preloads []preloadSpec
+	remaining := make([]any, 0, len(conds))
+	hasPreloadOpt := false
+
+	for _, c := range conds {
+		if p, ok := c.(*preload); ok {
+			hasPreloadOpt = true
+			if p.query != "" {
+				preloads = append(preloads, preloadSpec{query: p.query, args: p.args})
 			}
+		} else {
+			remaining = append(remaining, c)
 		}
 	}
 
-	return db.Preload(clause.Associations), conds
+	// Apply preloads in order
+	for _, p := range preloads {
+		db = db.Preload(p.query, p.args...)
+	}
+
+	// Only apply default all-associations preload when no preload option was specified at all.
+	// WithoutPreload() sets hasPreloadOpt=true with an empty query, which skips this default.
+	if !hasPreloadOpt {
+		db = db.Preload(clause.Associations)
+	}
+
+	return db, remaining
 }
 
 // ================================================================================================
@@ -230,4 +254,14 @@ func WithoutPreload() QueryOption {
 func BuildConds(query []string, args []any) (conds []any) {
 	conds = append([]any{strings.Join(query, " AND ")}, args...)
 	return
+}
+
+// splitOrderBy splits a comma-separated orderBy string into individual column names.
+// This handles cases like "category_name,id" to support multiple ORDER BY columns.
+func splitOrderBy(orderBy string) []string {
+	orderBy = strings.TrimSpace(orderBy)
+	if orderBy == "" {
+		return nil
+	}
+	return strings.Split(orderBy, ",")
 }

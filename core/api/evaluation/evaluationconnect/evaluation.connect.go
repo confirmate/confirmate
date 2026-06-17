@@ -39,6 +39,9 @@ const (
 	// EvaluationStopEvaluationProcedure is the fully-qualified name of the Evaluation's StopEvaluation
 	// RPC.
 	EvaluationStopEvaluationProcedure = "/confirmate.evaluation.v1.Evaluation/StopEvaluation"
+	// EvaluationGetEvaluationStatusProcedure is the fully-qualified name of the Evaluation's
+	// GetEvaluationStatus RPC.
+	EvaluationGetEvaluationStatusProcedure = "/confirmate.evaluation.v1.Evaluation/GetEvaluationStatus"
 )
 
 // EvaluationClient is a client for the confirmate.evaluation.v1.Evaluation service.
@@ -48,6 +51,9 @@ type EvaluationClient interface {
 	// StopEvaluation stops the evaluation for the given audit scope.
 	// Part of the public API, also exposed as REST.
 	StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error)
+	// GetEvaluationStatus returns the current evaluation status for the given audit scope.
+	// Part of the public API, also exposed as REST.
+	GetEvaluationStatus(context.Context, *connect.Request[evaluation.GetEvaluationStatusRequest]) (*connect.Response[evaluation.GetEvaluationStatusResponse], error)
 }
 
 // NewEvaluationClient constructs a client for the confirmate.evaluation.v1.Evaluation service. By
@@ -73,13 +79,20 @@ func NewEvaluationClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(evaluationMethods.ByName("StopEvaluation")),
 			connect.WithClientOptions(opts...),
 		),
+		getEvaluationStatus: connect.NewClient[evaluation.GetEvaluationStatusRequest, evaluation.GetEvaluationStatusResponse](
+			httpClient,
+			baseURL+EvaluationGetEvaluationStatusProcedure,
+			connect.WithSchema(evaluationMethods.ByName("GetEvaluationStatus")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // evaluationClient implements EvaluationClient.
 type evaluationClient struct {
-	startEvaluation *connect.Client[evaluation.StartEvaluationRequest, evaluation.StartEvaluationResponse]
-	stopEvaluation  *connect.Client[evaluation.StopEvaluationRequest, evaluation.StopEvaluationResponse]
+	startEvaluation     *connect.Client[evaluation.StartEvaluationRequest, evaluation.StartEvaluationResponse]
+	stopEvaluation      *connect.Client[evaluation.StopEvaluationRequest, evaluation.StopEvaluationResponse]
+	getEvaluationStatus *connect.Client[evaluation.GetEvaluationStatusRequest, evaluation.GetEvaluationStatusResponse]
 }
 
 // StartEvaluation calls confirmate.evaluation.v1.Evaluation.StartEvaluation.
@@ -92,6 +105,11 @@ func (c *evaluationClient) StopEvaluation(ctx context.Context, req *connect.Requ
 	return c.stopEvaluation.CallUnary(ctx, req)
 }
 
+// GetEvaluationStatus calls confirmate.evaluation.v1.Evaluation.GetEvaluationStatus.
+func (c *evaluationClient) GetEvaluationStatus(ctx context.Context, req *connect.Request[evaluation.GetEvaluationStatusRequest]) (*connect.Response[evaluation.GetEvaluationStatusResponse], error) {
+	return c.getEvaluationStatus.CallUnary(ctx, req)
+}
+
 // EvaluationHandler is an implementation of the confirmate.evaluation.v1.Evaluation service.
 type EvaluationHandler interface {
 	// StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
@@ -99,6 +117,9 @@ type EvaluationHandler interface {
 	// StopEvaluation stops the evaluation for the given audit scope.
 	// Part of the public API, also exposed as REST.
 	StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error)
+	// GetEvaluationStatus returns the current evaluation status for the given audit scope.
+	// Part of the public API, also exposed as REST.
+	GetEvaluationStatus(context.Context, *connect.Request[evaluation.GetEvaluationStatusRequest]) (*connect.Response[evaluation.GetEvaluationStatusResponse], error)
 }
 
 // NewEvaluationHandler builds an HTTP handler from the service implementation. It returns the path
@@ -120,12 +141,20 @@ func NewEvaluationHandler(svc EvaluationHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(evaluationMethods.ByName("StopEvaluation")),
 		connect.WithHandlerOptions(opts...),
 	)
+	evaluationGetEvaluationStatusHandler := connect.NewUnaryHandler(
+		EvaluationGetEvaluationStatusProcedure,
+		svc.GetEvaluationStatus,
+		connect.WithSchema(evaluationMethods.ByName("GetEvaluationStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/confirmate.evaluation.v1.Evaluation/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EvaluationStartEvaluationProcedure:
 			evaluationStartEvaluationHandler.ServeHTTP(w, r)
 		case EvaluationStopEvaluationProcedure:
 			evaluationStopEvaluationHandler.ServeHTTP(w, r)
+		case EvaluationGetEvaluationStatusProcedure:
+			evaluationGetEvaluationStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -141,4 +170,8 @@ func (UnimplementedEvaluationHandler) StartEvaluation(context.Context, *connect.
 
 func (UnimplementedEvaluationHandler) StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evaluation.v1.Evaluation.StopEvaluation is not implemented"))
+}
+
+func (UnimplementedEvaluationHandler) GetEvaluationStatus(context.Context, *connect.Request[evaluation.GetEvaluationStatusRequest]) (*connect.Response[evaluation.GetEvaluationStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evaluation.v1.Evaluation.GetEvaluationStatus is not implemented"))
 }

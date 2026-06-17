@@ -1,0 +1,552 @@
+[
+  {
+    "id": "BSI_C3A",
+    "name": "BSI C3A Cloud Computing Autonomy",
+    "description": "Criteria enabling Cloud Computing Autonomy (C3A) by the German Federal Office for Information Security (BSI). These criteria are based on the EU Cloud Sovereignty Framework and C5:2026.",
+    "short_name": "C3A",
+    "all_in_scope": false,
+    "categories": [
+      {
+        "name": "SOV-1 Strategic Sovereignty",
+        "description": "BSI Cloud Computing Autonomy criteria - SOV-1 Strategic Sovereignty",
+        "controls": [
+          {
+            "id": "SOV-1-01",
+            "name": "Jurisdiction",
+            "description": "If restrictions are imposed by cloud service customers for Germany, they should be justified, and it should  be ensured that their implementation, for example, in procurement procedures, is legally permissible on the  basis of reasons such as public safety.  2.1.2",
+            "controls": [
+              {
+                "id": "SOV-1-01-C1",
+                "description": "The cloud service provider MUST operate under EU jurisdiction, with contract governance and dispute resolution",
+                "metrics": []
+              },
+              {
+                "id": "SOV-1-01-C2",
+                "description": "The cloud service provider MUST operate under German jurisdiction, with contract governance and dispute resolution",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-1-02",
+            "name": "Registered Office",
+            "description": "If the cloud service provider uses a subcontractor for the provision of services, such as operations, that  subcontractor MUST also meet the criteria.  If restrictions are imposed by cloud service customers for EU or Germany, they should be justified, and it  should be ensured that their implementation, for example, in procurement procedures, is legally  permissible on the basis of reasons such as public safety.  2.1.3",
+            "controls": [
+              {
+                "id": "SOV-1-02-C1",
+                "description": "The cloud service provider MUST have a registered head office in the EU",
+                "metrics": []
+              },
+              {
+                "id": "SOV-1-02-C2",
+                "description": "The cloud service provider MUST have a registered head office in Germany",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-1-03",
+            "name": "CSP Effective Control",
+            "description": "Effective control in this context means the possibility to exert direct or indirect influence, or determine the  key strategic, financial, or operational decisions from non-EU undertakings.  Criteria, Additional Criteria and Supplementary Information  Federal Office for Information Security 8  If restrictions are imposed by cloud service customers for EU or Germany, they should be justified, and it  should be ensured that their implementation, for example, in procurement procedures, is legally  permissible on the basis of reasons such as public safety.  2.1.4",
+            "controls": [
+              {
+                "id": "SOV-1-03-C1",
+                "description": "The cloud service provider MUST be effectively controlled by one or more EU corporations. The cloud service provider MUST ensure that effective controls are transparent to cloud service customers",
+                "metrics": []
+              },
+              {
+                "id": "SOV-1-03-C2",
+                "description": "The cloud service provider MUST be under the effective control of one or more German undertakings. The cloud service provider MUST ensure that effective controls are transparent to cloud service customers",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-1-04",
+            "name": "CSP Control Change",
+            "description": "BSI C3A: SOV-1-04 - CSP Control Change",
+            "controls": [
+              {
+                "id": "SOV-1-04-C",
+                "description": "SOV-1-04-C Criterion",
+                "metrics": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SOV-2 Legal & Jurisdictional Sovereignty",
+        "description": "BSI Cloud Computing Autonomy criteria - SOV-2 Legal & Jurisdictional Sovereignty",
+        "controls": [
+          {
+            "id": "SOV-2-01",
+            "name": "Extraterritorial Exposure",
+            "description": "BSI C3A: SOV-2-01 - Extraterritorial Exposure",
+            "controls": [
+              {
+                "id": "SOV-2-01-C",
+                "description": "SOV-2-01-C Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-2-02",
+            "name": "Audit Rights",
+            "description": "The audit rights may be derived from a contract or law that explicitly reserves the right for the federal or  national authority to conduct audits. If possible, the authority tries to make use of existing audits (e.g., BSI  C5, SOC 2 Type 2) before carrying out an audit.  Any audit shall be conducted in accordance with the cloud service provider's strict security and  confidentiality protocols, including defined notice periods, to protect the data of other tenants and the  integrity of the data centre. While costs are a commercial matter, the right to audit is a regulatory mandate.  Fees shall not be so high as to effectively deny this right.  2.2.3",
+            "controls": [
+              {
+                "id": "SOV-2-02-C1",
+                "description": "The cloud service provider MUST document procedures that allow the relevant federal or national cybersecurity authority to verify compliance with the C3A criteria by an audit. The responsible authority is the one in the country where the data center is located",
+                "metrics": []
+              },
+              {
+                "id": "SOV-2-02-C2",
+                "description": "The cloud service provider MUST document procedures that allow the German federal administration to verify compliance with the C3A criteria by an audit",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-2-03",
+            "name": "State of Defense Takeover",
+            "description": "This usually means that the cloud service provider has the documentation, source code and administration  tools in a portable format so that a federal administration can use them.  2.3",
+            "controls": [
+              {
+                "id": "SOV-2-03-C1",
+                "description": "SOV-2-03-C1 Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-2-03-C2",
+                "description": "If Germany declares a state of defense, the cloud service provider MUST enable the German federal administration to take over the capabilities required to operate the cloud, including the necessary material assets and personnel, within the framework of legal possibilities",
+                "metrics": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SOV-3 Data Sovereignty",
+        "description": "BSI Cloud Computing Autonomy criteria - SOV-3 Data Sovereignty",
+        "controls": [
+          {
+            "id": "SOV-3-01",
+            "name": "Data Residence",
+            "description": "If a cloud service provider operates in other locations/regions in addition to the EU or Germany, the  location/region of processing and storing MUST be clearly identifiable for the cloud service customer.  2.3.2",
+            "controls": [
+              {
+                "id": "SOV-3-01-C1",
+                "description": "A cloud service customer MUST be able to check where their cloud service derived data, cloud service customer data, and account data are stored and processed",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-01-C2",
+                "description": "The cloud service provider MUST provide a service option where cloud service derived data and account data are exclusively stored and processed in the EU",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-01-C3",
+                "description": "The cloud service provider MUST provide a service option where cloud service customer data is exclusively stored and processed in the EU",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-01-C4",
+                "description": "The cloud service provider MUST provide a service option where cloud service customer data is exclusively stored and processed in Germany",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-01-C5",
+                "description": "The cloud service provider MUST provide a service option where cloud service provider data is exclusively stored and processed in the EU",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-3-02",
+            "name": "External Key Management",
+            "description": "The integration of external key management systems for IaaS and PaaS is widely implemented and  commonly standardized. For SaaS solutions, external encryption key management systems are less  common; therefore, cloud service providers should support external encryption key management  capabilities for SaaS where technically feasible and appropriate to the service architecture. If this criterion is  only fulfilled for some SaaS, the cloud service provider MUST provide a list of these services to the cloud  services customer.  2.3.3",
+            "controls": [
+              {
+                "id": "SOV-3-02-C",
+                "description": "SOV-3-02-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-02-A",
+                "description": "SOV-3-02-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-3-03",
+            "name": "External Identity Provider",
+            "description": "BSI C3A: SOV-3-03 - External Identity Provider",
+            "controls": [
+              {
+                "id": "SOV-3-03-C",
+                "description": "The cloud service provider MUST support standards-based integration of external identity providers for authentication and access management for the cloud service",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-03-A",
+                "description": "SOV-3-03-AC1 Additional criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-03-A",
+                "description": "SOV-3-03-AC2 Additional criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-03-A",
+                "description": "SOV-3-03-AC3 Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-3-04",
+            "name": "Logging and Monitoring",
+            "description": "BSI C3A: SOV-3-04 - Logging and Monitoring",
+            "controls": [
+              {
+                "id": "SOV-3-04-C",
+                "description": "SOV-3-04-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-04-A",
+                "description": "SOV-3-04-AC1 Additional criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-3-04-A",
+                "description": "SOV-3-04-AC2 Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-3-05",
+            "name": "Client-Side Encryption",
+            "description": "If this criterion is only fulfilled for some cloud services, the cloud service provider MUST provide a list of  these services to the cloud services customer.  2.4",
+            "controls": [
+              {
+                "id": "SOV-3-05-C",
+                "description": "SOV-3-05-C Criterion",
+                "metrics": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SOV-4 Operational Sovereignty",
+        "description": "BSI Cloud Computing Autonomy criteria - SOV-4 Operational Sovereignty",
+        "controls": [
+          {
+            "id": "SOV-4-01",
+            "name": "Operating Personnel",
+            "description": "BSI C3A: SOV-4-01 - Operating Personnel",
+            "controls": [
+              {
+                "id": "SOV-4-01-C1",
+                "description": "All personnel who have logical or physical access to infrastructure used to operate the cloud service, as well as those who are responsible for customer support, and all persons who have management control of the cloud service provider MUST be EU citizens with EU as main residency",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-01-C2",
+                "description": "All personnel who have logical or physical access to infrastructure used to operate the cloud service, as well as those who are responsible for customer support, and all persons who have management control of the cloud service provider MUST be EU citizens with Germany as main residency",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-01-C3",
+                "description": "criterion The operating personnel is part of an organization that MUST be a standalone European organization. 2.4.2 SOV-4 Remote Work",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-02",
+            "name": "Remote Work",
+            "description": "BSI C3A: SOV-4-02 - Remote Work",
+            "controls": [
+              {
+                "id": "SOV-4-02-C1",
+                "description": "SOV-4-02-C1 Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-02-C2",
+                "description": "SOV-4-02-C2 Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-03",
+            "name": "Redundant connectivity providers",
+            "description": "BSI C3A: SOV-4-03 - Redundant connectivity providers",
+            "controls": [
+              {
+                "id": "SOV-4-03-C",
+                "description": "SOV-4-03-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-03-A",
+                "description": "SOV-4-03-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-04",
+            "name": "SOC",
+            "description": "BSI C3A: SOV-4-04 - SOC",
+            "controls": [
+              {
+                "id": "SOV-4-04-C1",
+                "description": "The cloud service provider MUST ensure that Security Operations Center (SOC) capabilities for the offered cloud services are established and operated within the EU. In the case of a disconnect (SOV-4-10), a stand- alone and equivalent SOC MUST be provided in the EU",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-04-C2",
+                "description": "SOV-4-04-C2 Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-05",
+            "name": "Ingress Data Control",
+            "description": "A vulnerability is regarded as known, when it is listed in the European Union Vulnerability Database (EUVD)  or in the Common Vulnerabilities and Exposures (CVE) Program from the National Institute of Standards  and Technology (NIST).  2.4.6",
+            "controls": [
+              {
+                "id": "SOV-4-05-C",
+                "description": "SOV-4-05-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-05-A",
+                "description": "SOV-4-05-AC1 Additional criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-05-A",
+                "description": "SOV-4-05-AC2 Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-06",
+            "name": "Update threat analysis",
+            "description": "BSI C3A: SOV-4-06 - Update threat analysis",
+            "controls": [
+              {
+                "id": "SOV-4-06-C",
+                "description": "SOV-4-06-C Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-07",
+            "name": "Data exchange monitoring",
+            "description": "In the context of this requirement, a cloud service customer is not considered a third party. An associated  company within the same group of companies is classified as a third party.  2.4.8",
+            "controls": [
+              {
+                "id": "SOV-4-07-C",
+                "description": "SOV-4-07-C Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-08",
+            "name": "Data exchange gateways",
+            "description": "In the context of this requirement, a cloud service customer is not considered a third party. An associated  company within the same group of companies is classified as a third party.  2.4.9",
+            "controls": [
+              {
+                "id": "SOV-4-08-C",
+                "description": "SOV-4-08-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-08-A",
+                "description": "SOV-4-08-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-09",
+            "name": "Disconnect",
+            "description": "In the context of the disconnect requirement, network connections between the cloud service provider and  cloud service customers are excluded from the scope of the disconnection capability.  2.4.10",
+            "controls": [
+              {
+                "id": "SOV-4-09-C",
+                "description": "SOV-4-09-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-4-09-A",
+                "description": "SOV-4-09-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-4-10",
+            "name": "Reconnect",
+            "description": "BSI C3A: SOV-4-10 - Reconnect",
+            "controls": [
+              {
+                "id": "SOV-4-10-C",
+                "description": "SOV-4-10-C Criterion",
+                "metrics": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SOV-5 Supply Chain Sovereignty",
+        "description": "BSI Cloud Computing Autonomy criteria - SOV-5 Supply Chain Sovereignty",
+        "controls": [
+          {
+            "id": "SOV-5-01",
+            "name": "Software Dependencies",
+            "description": "BSI C3A: SOV-5-01 - Software Dependencies",
+            "controls": [
+              {
+                "id": "SOV-5-01-C",
+                "description": "SOV-5-01-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-5-01-A",
+                "description": "SOV-5-01-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-5-02",
+            "name": "Hardware Dependencies",
+            "description": "It is acceptable that this is only made available to the customer if he has agreed to keep the information  confidential and not publicly disclose it.  2.5.3",
+            "controls": [
+              {
+                "id": "SOV-5-02-C",
+                "description": "The cloud service provider MUST maintain a documented inventory of the hardware components used to provide cloud services. A list of the relevant hardware suppliers and their country or countries MUST be compiled and available on demand to cloud service customers",
+                "metrics": []
+              },
+              {
+                "id": "SOV-5-02-A",
+                "description": "SOV-5-02-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-5-03",
+            "name": "External Service Dependencies",
+            "description": "External services refer exclusively to services that are functionally required for the provision of the cloud  service itself. In this context, external cloud services refer to services provided by third-party cloud  providers that are integrated into the delivery of the primary cloud service but are operated and maintained  by separate providers.  It is acceptable that this is only made available to the customer if he has agreed to keep the information  confidential and not publicly disclose it.  2.5.4",
+            "controls": [
+              {
+                "id": "SOV-5-03-C",
+                "description": "SOV-5-03-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-5-03-A",
+                "description": "SOV-5-03-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-5-04",
+            "name": "Export Restriction",
+            "description": "BSI C3A: SOV-5-04 - Export Restriction",
+            "controls": [
+              {
+                "id": "SOV-5-04-C",
+                "description": "SOV-5-04-C Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-5-05",
+            "name": "Capacity Management",
+            "description": "BSI C3A: SOV-5-05 - Capacity Management",
+            "controls": [
+              {
+                "id": "SOV-5-05-C1",
+                "description": "Capacity management MUST be performed in the EU in accordance with C5",
+                "metrics": []
+              },
+              {
+                "id": "SOV-5-05-C2",
+                "description": "Capacity management MUST be performed in Germany in accordance with C5. 2.6 SOV-6 Technology Sovereignty 2.6.1 SOV-6 Source Code Availability",
+                "metrics": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SOV-6 Technology Sovereignty",
+        "description": "BSI Cloud Computing Autonomy criteria - SOV-6 Technology Sovereignty",
+        "controls": [
+          {
+            "id": "SOV-6-01",
+            "name": "Source Code Availability",
+            "description": "BSI C3A: SOV-6-01 - Source Code Availability",
+            "controls": [
+              {
+                "id": "SOV-6-01-C",
+                "description": "SOV-6-01-C Criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-6-02",
+            "name": "Continuous Service Delivery",
+            "description": "BSI C3A: SOV-6-02 - Continuous Service Delivery",
+            "controls": [
+              {
+                "id": "SOV-6-02-C",
+                "description": "SOV-6-02-C Criterion",
+                "metrics": []
+              },
+              {
+                "id": "SOV-6-02-A",
+                "description": "SOV-6-02-AC Additional criterion",
+                "metrics": []
+              }
+            ]
+          },
+          {
+            "id": "SOV-6-03",
+            "name": "Software Development",
+            "description": "BSI C3A: SOV-6-03 - Software Development",
+            "controls": [
+              {
+                "id": "SOV-6-03-C",
+                "description": "SOV-6-03-C Criterion",
+                "metrics": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
