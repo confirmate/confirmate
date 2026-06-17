@@ -337,7 +337,7 @@ func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *or
 			AuditScopeId:         scope.Id,
 			TargetOfEvaluationId: scope.TargetOfEvaluationId,
 			ControlId:            ctrl.Id,
-			State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 			CreatedAt:            now,
 			UpdatedAt:            now,
 		}

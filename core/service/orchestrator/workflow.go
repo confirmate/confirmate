@@ -26,7 +26,6 @@ import (
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
-	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
@@ -37,29 +36,29 @@ import (
 
 // validTransitions defines the allowed state machine transitions for a ControlInScope.
 // Any transition not listed here will be rejected by TransitionControlInScopeState.
-var validTransitions = map[orchestrator.ControlImplementationState][]orchestrator.ControlImplementationState{
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+var validTransitions = map[orchestrator.ControlInScopeState][]orchestrator.ControlInScopeState{
+	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN: {
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 	},
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED,
+	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS: {
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IMPLEMENTED,
 	},
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IMPLEMENTED: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW,
+	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IMPLEMENTED: {
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW,
 	},
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_READY_FOR_REVIEW: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED,
+	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW: {
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED,
 	},
-	orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED: {
-		orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED: {
+		orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 	},
 }
 
 // isValidTransition reports whether moving from current to next is allowed by the state machine.
-func isValidTransition(current, next orchestrator.ControlImplementationState) bool {
+func isValidTransition(current, next orchestrator.ControlInScopeState) bool {
 	return slices.Contains(validTransitions[current], next)
 }
 
@@ -84,7 +83,7 @@ func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, controlInSc
 		AuditScopeId: auditScopeId,
 		ActorId:      actorId,
 		Comment:      comment,
-		Time:         timestamppb.Now(),
+		CreatedAt:    timestamppb.Now(),
 		EventData:    data,
 	}
 	if controlInScopeId != "" {
@@ -93,30 +92,24 @@ func createAuditTrailEvent(db persistence.DB, actorId, auditScopeId, controlInSc
 	return db.Create(event)
 }
 
-// ScopeControl manually brings a control into scope within an audit scope. Controls are also
-// brought in scope automatically when an audit scope is created.
-func (svc *Service) ScopeControl(
+// CreateControlInScope manually brings a control into scope within an audit scope. Controls are
+// also brought in scope automatically when an audit scope is created.
+func (svc *Service) CreateControlInScope(
 	ctx context.Context,
-	req *connect.Request[orchestrator.ScopeControlRequest],
+	req *connect.Request[orchestrator.CreateControlInScopeRequest],
 ) (res *connect.Response[orchestrator.ControlInScope], err error) {
 	var (
 		cis     *orchestrator.ControlInScope
-		scope   orchestrator.AuditScope
 		allowed bool
 	)
 
-	if err = service.Validate(req, protovalidate.WithFilter(service.IgnoreIDFilter)); err != nil {
-		return nil, err
-	}
-
-	err = svc.db.Get(&scope, "id = ?", req.Msg.GetControlInScope().GetAuditScopeId())
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc,
 		orchestrator.RequestType_REQUEST_TYPE_CREATED,
-		req.Msg.GetControlInScope().GetAuditScopeId(),
+		req.Msg.GetAuditScopeId(),
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IN_SCOPE,
 	)
 	if err != nil {
@@ -128,7 +121,7 @@ func (svc *Service) ScopeControl(
 
 	// Verify the control exists (control IDs are globally unique UUIDs since #271).
 	var ctrl orchestrator.Control
-	err = svc.db.Get(&ctrl, persistence.WithoutPreload(), "id = ?", req.Msg.GetControlInScope().GetControlId())
+	err = svc.db.Get(&ctrl, persistence.WithoutPreload(), "id = ?", req.Msg.GetControlId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err
 	}
@@ -136,8 +129,8 @@ func (svc *Service) ScopeControl(
 	var duplicate orchestrator.ControlInScope
 	err = svc.db.Get(&duplicate, persistence.WithoutPreload(),
 		"audit_scope_id = ? AND control_id = ?",
-		req.Msg.GetControlInScope().GetAuditScopeId(),
-		req.Msg.GetControlInScope().GetControlId(),
+		req.Msg.GetAuditScopeId(),
+		req.Msg.GetControlId(),
 	)
 	if err == nil {
 		return nil, connect.NewError(connect.CodeAlreadyExists, service.ErrResourceAlreadyExists)
@@ -150,11 +143,11 @@ func (svc *Service) ScopeControl(
 	now := timestamppb.Now()
 	cis = &orchestrator.ControlInScope{
 		Id:                   uuid.NewString(),
-		AuditScopeId:         req.Msg.GetControlInScope().GetAuditScopeId(),
-		TargetOfEvaluationId: scope.GetTargetOfEvaluationId(),
-		ControlId:            req.Msg.GetControlInScope().GetControlId(),
-		State:                orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
-		AssigneeId:           req.Msg.GetControlInScope().AssigneeId,
+		AuditScopeId:         req.Msg.GetAuditScopeId(),
+		TargetOfEvaluationId: req.Msg.GetTargetOfEvaluationId(),
+		ControlId:            req.Msg.GetControlId(),
+		State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+		AssigneeId:           req.Msg.AssigneeId,
 		CreatedAt:            now,
 		UpdatedAt:            now,
 	}
@@ -364,7 +357,7 @@ func (svc *Service) TransitionControlInScopeState(
 			return err
 		}
 		return createAuditTrailEvent(tx, actor, cis.AuditScopeId, cis.Id, req.Msg.Comment,
-			&orchestrator.ControlImplementationTransitionEvent{
+			&orchestrator.ControlInScopeTransitionEvent{
 				ControlInScopeId: cis.Id,
 				FromState:        fromState,
 				ToState:          toState,
@@ -378,10 +371,10 @@ func (svc *Service) TransitionControlInScopeState(
 	return
 }
 
-// UnscopeControl removes a control from scope and records an AuditTrailEvent.
-func (svc *Service) UnscopeControl(
+// RemoveControlInScope removes a control from scope and records an AuditTrailEvent.
+func (svc *Service) RemoveControlInScope(
 	ctx context.Context,
-	req *connect.Request[orchestrator.UnscopeControlRequest],
+	req *connect.Request[orchestrator.RemoveControlInScopeRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
 		cis     orchestrator.ControlInScope
@@ -469,6 +462,9 @@ func (svc *Service) ListAuditTrailEvents(
 		}
 		if f.ControlInScopeId != nil {
 			conds = append(conds, "control_in_scope_id = ?", f.GetControlInScopeId())
+		}
+		if f.ActorId != nil {
+			conds = append(conds, "actor_id = ?", f.GetActorId())
 		}
 	}
 

@@ -32,9 +32,9 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func TestService_ScopeControl(t *testing.T) {
+func TestService_CreateControlInScope(t *testing.T) {
 	type args struct {
-		req     *orchestrator.ScopeControlRequest
+		req     *orchestrator.CreateControlInScopeRequest
 		context context.Context
 	}
 	type fields struct {
@@ -52,11 +52,10 @@ func TestService_ScopeControl(t *testing.T) {
 		{
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
-				req: &orchestrator.ScopeControlRequest{
-					ControlInScope: &orchestrator.ControlInScope{
-						AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-						ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					},
+				req: &orchestrator.CreateControlInScopeRequest{
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -70,7 +69,7 @@ func TestService_ScopeControl(t *testing.T) {
 				return assert.NotNil(t, got.Msg) &&
 					assert.NotEmpty(t, got.Msg.Id) &&
 					assert.Equal(t,
-						orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+						orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 						got.Msg.State)
 			},
 			wantErr: assert.NoError,
@@ -80,12 +79,13 @@ func TestService_ScopeControl(t *testing.T) {
 
 				got := assert.InDB[orchestrator.ControlInScope](t, db, res.Msg.Id)
 				want := &orchestrator.ControlInScope{
-					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-					ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					State:        orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_OPEN,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
+					State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 				}
 				if !assert.Equal(t, want, got, protocmp.IgnoreFields(&orchestrator.ControlInScope{},
-					"id", "target_of_evaluation_id", "created_at", "updated_at")) {
+					"id", "created_at", "updated_at")) {
 					return false
 				}
 
@@ -99,11 +99,10 @@ func TestService_ScopeControl(t *testing.T) {
 		{
 			name: "happy path: with permission store and admin token",
 			args: args{
-				req: &orchestrator.ScopeControlRequest{
-					ControlInScope: &orchestrator.ControlInScope{
-						AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-						ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					},
+				req: &orchestrator.CreateControlInScopeRequest{
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
 					IsAdminToken: true,
@@ -123,8 +122,14 @@ func TestService_ScopeControl(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ControlInScope], args ...any) bool {
+				want := &orchestrator.ControlInScope{
+					AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:    orchestratortest.MockControlInScope1.ControlId,
+					State:        orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+				}
 				return assert.NotNil(t, got.Msg) &&
-					assert.NotEmpty(t, got.Msg.Id)
+					assert.Equal(t, want, got.Msg, protocmp.IgnoreFields(&orchestrator.ControlInScope{},
+						"id", "target_of_evaluation_id", "created_at", "updated_at"))
 			},
 			wantErr: assert.NoError,
 			wantDB:  assert.NotNil[persistence.DB],
@@ -132,7 +137,7 @@ func TestService_ScopeControl(t *testing.T) {
 		{
 			name: "validation error - empty request",
 			args: args{
-				req: &orchestrator.ScopeControlRequest{},
+				req: &orchestrator.CreateControlInScopeRequest{},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -146,11 +151,10 @@ func TestService_ScopeControl(t *testing.T) {
 		{
 			name: "authorization failure",
 			args: args{
-				req: &orchestrator.ScopeControlRequest{
-					ControlInScope: &orchestrator.ControlInScope{
-						AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-						ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					},
+				req: &orchestrator.CreateControlInScopeRequest{
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -166,33 +170,12 @@ func TestService_ScopeControl(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "audit scope not found",
-			args: args{
-				req: &orchestrator.ScopeControlRequest{
-					ControlInScope: &orchestrator.ControlInScope{
-						AuditScopeId: orchestratortest.MockNonExistentId,
-						ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					},
-				},
-			},
-			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-				authz: &service.AuthorizationStrategyAllowAll{},
-			},
-			want: assert.Nil[*connect.Response[orchestrator.ControlInScope]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
-			},
-			wantDB: assert.NotNil[persistence.DB],
-		},
-		{
 			name: "duplicate: already in scope",
 			args: args{
-				req: &orchestrator.ScopeControlRequest{
-					ControlInScope: &orchestrator.ControlInScope{
-						AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-						ControlId:    orchestratortest.MockControlInScope1.ControlId,
-					},
+				req: &orchestrator.CreateControlInScopeRequest{
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -212,11 +195,10 @@ func TestService_ScopeControl(t *testing.T) {
 		{
 			name: "control not in catalog",
 			args: args{
-				req: &orchestrator.ScopeControlRequest{
-					ControlInScope: &orchestrator.ControlInScope{
-						AuditScopeId: orchestratortest.MockControlInScope1.AuditScopeId,
-						ControlId:    orchestratortest.MockNonExistentId,
-					},
+				req: &orchestrator.CreateControlInScopeRequest{
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockNonExistentId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 				},
 			},
 			fields: fields{
@@ -240,7 +222,7 @@ func TestService_ScopeControl(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.ScopeControl(tt.args.context, connect.NewRequest(tt.args.req))
+			res, err := svc.CreateControlInScope(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db, res)
@@ -248,7 +230,7 @@ func TestService_ScopeControl(t *testing.T) {
 	}
 }
 
-// seedControl inserts a Control record into the DB so that ScopeControl's existence check passes.
+// seedControl inserts a Control record into the DB so that CreateControlInScope's existence check passes.
 func seedControl(t *testing.T, d persistence.DB, ctrl *orchestrator.Control) {
 	t.Helper()
 	assert.NoError(t, d.Create(ctrl))
@@ -607,7 +589,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockControlInScope1.Id,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 					Comment: "Starting implementation work.",
 				},
 			},
@@ -620,7 +602,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ControlInScope], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t,
-						orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+						orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 						got.Msg.State)
 			},
 			wantErr: assert.NoError,
@@ -637,7 +619,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockControlInScope1.Id,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 					Comment: "Picked up by the team.",
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -656,14 +638,14 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ControlInScope], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t,
-						orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+						orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 						got.Msg.State)
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
 				return assert.Equal(t,
-					orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 					got.State)
 			},
 		},
@@ -672,7 +654,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockControlInScope1.Id,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_ACCEPTED,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED,
 					Comment: "Marking as accepted.",
 				},
 			},
@@ -693,7 +675,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockControlInScope1.Id,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 					Comment: "Picking up.",
 				},
 			},
@@ -714,7 +696,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockNonExistentId,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 					Comment: "Picking up.",
 				},
 			},
@@ -733,7 +715,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockControlInScope1.Id,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_UNSPECIFIED,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED,
 					Comment: "Picking up.",
 				},
 			},
@@ -751,7 +733,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			args: args{
 				req: &orchestrator.TransitionControlInScopeStateRequest{
 					Id:      orchestratortest.MockControlInScope1.Id,
-					ToState: orchestrator.ControlImplementationState_CONTROL_IMPLEMENTATION_STATE_IN_PROGRESS,
+					ToState: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 				},
 			},
 			fields: fields{
@@ -779,9 +761,9 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 	}
 }
 
-func TestService_UnscopeControl(t *testing.T) {
+func TestService_RemoveControlInScope(t *testing.T) {
 	type args struct {
-		req     *orchestrator.UnscopeControlRequest
+		req     *orchestrator.RemoveControlInScopeRequest
 		context context.Context
 	}
 	type fields struct {
@@ -799,7 +781,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "happy path",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{
+				req: &orchestrator.RemoveControlInScopeRequest{
 					Id: orchestratortest.MockControlInScope1.Id,
 				},
 			},
@@ -830,7 +812,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "authorization failure",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{
+				req: &orchestrator.RemoveControlInScopeRequest{
 					Id: orchestratortest.MockControlInScope1.Id,
 				},
 			},
@@ -849,7 +831,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "not found",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{
+				req: &orchestrator.RemoveControlInScopeRequest{
 					Id: orchestratortest.MockNonExistentId,
 				},
 			},
@@ -866,7 +848,7 @@ func TestService_UnscopeControl(t *testing.T) {
 		{
 			name: "validation error - empty id",
 			args: args{
-				req: &orchestrator.UnscopeControlRequest{},
+				req: &orchestrator.RemoveControlInScopeRequest{},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -885,7 +867,7 @@ func TestService_UnscopeControl(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.UnscopeControl(tt.args.context, connect.NewRequest(tt.args.req))
+			res, err := svc.RemoveControlInScope(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db, res)

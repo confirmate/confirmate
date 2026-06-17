@@ -212,9 +212,9 @@ const (
 	OrchestratorListUserRolesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListUserRoles"
 	// OrchestratorRemoveUserProcedure is the fully-qualified name of the Orchestrator's RemoveUser RPC.
 	OrchestratorRemoveUserProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveUser"
-	// OrchestratorScopeControlProcedure is the fully-qualified name of the Orchestrator's ScopeControl
-	// RPC.
-	OrchestratorScopeControlProcedure = "/confirmate.orchestrator.v1.Orchestrator/ScopeControl"
+	// OrchestratorCreateControlInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// CreateControlInScope RPC.
+	OrchestratorCreateControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateControlInScope"
 	// OrchestratorGetControlInScopeProcedure is the fully-qualified name of the Orchestrator's
 	// GetControlInScope RPC.
 	OrchestratorGetControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetControlInScope"
@@ -227,9 +227,9 @@ const (
 	// OrchestratorTransitionControlInScopeStateProcedure is the fully-qualified name of the
 	// Orchestrator's TransitionControlInScopeState RPC.
 	OrchestratorTransitionControlInScopeStateProcedure = "/confirmate.orchestrator.v1.Orchestrator/TransitionControlInScopeState"
-	// OrchestratorUnscopeControlProcedure is the fully-qualified name of the Orchestrator's
-	// UnscopeControl RPC.
-	OrchestratorUnscopeControlProcedure = "/confirmate.orchestrator.v1.Orchestrator/UnscopeControl"
+	// OrchestratorRemoveControlInScopeProcedure is the fully-qualified name of the Orchestrator's
+	// RemoveControlInScope RPC.
+	OrchestratorRemoveControlInScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveControlInScope"
 	// OrchestratorListAuditTrailEventsProcedure is the fully-qualified name of the Orchestrator's
 	// ListAuditTrailEvents RPC.
 	OrchestratorListAuditTrailEventsProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAuditTrailEvents"
@@ -367,7 +367,7 @@ type OrchestratorClient interface {
 	RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error)
 	// Manually brings a control into scope within an audit scope, creating a ControlInScope record.
 	// Note: controls are also brought in scope automatically when an audit scope is created.
-	ScopeControl(context.Context, *connect.Request[orchestrator.ScopeControlRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	CreateControlInScope(context.Context, *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
 	// Retrieves a ControlInScope record by ID.
 	GetControlInScope(context.Context, *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
 	// Lists controls in scope with optional filtering by audit scope, state, or assignee.
@@ -378,8 +378,8 @@ type OrchestratorClient interface {
 	// Transitions a ControlInScope to a new implementation state, enforcing the state machine and
 	// recording the change as an AuditTrailEvent.
 	TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error)
-	// Removes a control from scope and records an AuditTrailEvent.
-	UnscopeControl(context.Context, *connect.Request[orchestrator.UnscopeControlRequest]) (*connect.Response[emptypb.Empty], error)
+	// Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
+	RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Lists audit trail events, optionally filtered by audit scope.
 	ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error)
 }
@@ -731,10 +731,10 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("RemoveUser")),
 			connect.WithClientOptions(opts...),
 		),
-		scopeControl: connect.NewClient[orchestrator.ScopeControlRequest, orchestrator.ControlInScope](
+		createControlInScope: connect.NewClient[orchestrator.CreateControlInScopeRequest, orchestrator.ControlInScope](
 			httpClient,
-			baseURL+OrchestratorScopeControlProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("ScopeControl")),
+			baseURL+OrchestratorCreateControlInScopeProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("CreateControlInScope")),
 			connect.WithClientOptions(opts...),
 		),
 		getControlInScope: connect.NewClient[orchestrator.GetControlInScopeRequest, orchestrator.ControlInScope](
@@ -761,10 +761,10 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("TransitionControlInScopeState")),
 			connect.WithClientOptions(opts...),
 		),
-		unscopeControl: connect.NewClient[orchestrator.UnscopeControlRequest, emptypb.Empty](
+		removeControlInScope: connect.NewClient[orchestrator.RemoveControlInScopeRequest, emptypb.Empty](
 			httpClient,
-			baseURL+OrchestratorUnscopeControlProcedure,
-			connect.WithSchema(orchestratorMethods.ByName("UnscopeControl")),
+			baseURL+OrchestratorRemoveControlInScopeProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("RemoveControlInScope")),
 			connect.WithClientOptions(opts...),
 		),
 		listAuditTrailEvents: connect.NewClient[orchestrator.ListAuditTrailEventsRequest, orchestrator.ListAuditTrailEventsResponse](
@@ -834,12 +834,12 @@ type orchestratorClient struct {
 	listUserPermissions             *connect.Client[orchestrator.ListUserPermissionsRequest, orchestrator.ListUserPermissionsResponse]
 	listUserRoles                   *connect.Client[orchestrator.ListUserRolesRequest, orchestrator.ListUserRolesResponse]
 	removeUser                      *connect.Client[orchestrator.RemoveUserRequest, emptypb.Empty]
-	scopeControl                    *connect.Client[orchestrator.ScopeControlRequest, orchestrator.ControlInScope]
+	createControlInScope            *connect.Client[orchestrator.CreateControlInScopeRequest, orchestrator.ControlInScope]
 	getControlInScope               *connect.Client[orchestrator.GetControlInScopeRequest, orchestrator.ControlInScope]
 	listControlsInScope             *connect.Client[orchestrator.ListControlsInScopeRequest, orchestrator.ListControlsInScopeResponse]
 	updateControlInScope            *connect.Client[orchestrator.UpdateControlInScopeRequest, orchestrator.ControlInScope]
 	transitionControlInScopeState   *connect.Client[orchestrator.TransitionControlInScopeStateRequest, orchestrator.ControlInScope]
-	unscopeControl                  *connect.Client[orchestrator.UnscopeControlRequest, emptypb.Empty]
+	removeControlInScope            *connect.Client[orchestrator.RemoveControlInScopeRequest, emptypb.Empty]
 	listAuditTrailEvents            *connect.Client[orchestrator.ListAuditTrailEventsRequest, orchestrator.ListAuditTrailEventsResponse]
 }
 
@@ -1126,9 +1126,9 @@ func (c *orchestratorClient) RemoveUser(ctx context.Context, req *connect.Reques
 	return c.removeUser.CallUnary(ctx, req)
 }
 
-// ScopeControl calls confirmate.orchestrator.v1.Orchestrator.ScopeControl.
-func (c *orchestratorClient) ScopeControl(ctx context.Context, req *connect.Request[orchestrator.ScopeControlRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return c.scopeControl.CallUnary(ctx, req)
+// CreateControlInScope calls confirmate.orchestrator.v1.Orchestrator.CreateControlInScope.
+func (c *orchestratorClient) CreateControlInScope(ctx context.Context, req *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
+	return c.createControlInScope.CallUnary(ctx, req)
 }
 
 // GetControlInScope calls confirmate.orchestrator.v1.Orchestrator.GetControlInScope.
@@ -1152,9 +1152,9 @@ func (c *orchestratorClient) TransitionControlInScopeState(ctx context.Context, 
 	return c.transitionControlInScopeState.CallUnary(ctx, req)
 }
 
-// UnscopeControl calls confirmate.orchestrator.v1.Orchestrator.UnscopeControl.
-func (c *orchestratorClient) UnscopeControl(ctx context.Context, req *connect.Request[orchestrator.UnscopeControlRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.unscopeControl.CallUnary(ctx, req)
+// RemoveControlInScope calls confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope.
+func (c *orchestratorClient) RemoveControlInScope(ctx context.Context, req *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.removeControlInScope.CallUnary(ctx, req)
 }
 
 // ListAuditTrailEvents calls confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents.
@@ -1294,7 +1294,7 @@ type OrchestratorHandler interface {
 	RemoveUser(context.Context, *connect.Request[orchestrator.RemoveUserRequest]) (*connect.Response[emptypb.Empty], error)
 	// Manually brings a control into scope within an audit scope, creating a ControlInScope record.
 	// Note: controls are also brought in scope automatically when an audit scope is created.
-	ScopeControl(context.Context, *connect.Request[orchestrator.ScopeControlRequest]) (*connect.Response[orchestrator.ControlInScope], error)
+	CreateControlInScope(context.Context, *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
 	// Retrieves a ControlInScope record by ID.
 	GetControlInScope(context.Context, *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error)
 	// Lists controls in scope with optional filtering by audit scope, state, or assignee.
@@ -1305,8 +1305,8 @@ type OrchestratorHandler interface {
 	// Transitions a ControlInScope to a new implementation state, enforcing the state machine and
 	// recording the change as an AuditTrailEvent.
 	TransitionControlInScopeState(context.Context, *connect.Request[orchestrator.TransitionControlInScopeStateRequest]) (*connect.Response[orchestrator.ControlInScope], error)
-	// Removes a control from scope and records an AuditTrailEvent.
-	UnscopeControl(context.Context, *connect.Request[orchestrator.UnscopeControlRequest]) (*connect.Response[emptypb.Empty], error)
+	// Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
+	RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error)
 	// Lists audit trail events, optionally filtered by audit scope.
 	ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error)
 }
@@ -1654,10 +1654,10 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("RemoveUser")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorScopeControlHandler := connect.NewUnaryHandler(
-		OrchestratorScopeControlProcedure,
-		svc.ScopeControl,
-		connect.WithSchema(orchestratorMethods.ByName("ScopeControl")),
+	orchestratorCreateControlInScopeHandler := connect.NewUnaryHandler(
+		OrchestratorCreateControlInScopeProcedure,
+		svc.CreateControlInScope,
+		connect.WithSchema(orchestratorMethods.ByName("CreateControlInScope")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorGetControlInScopeHandler := connect.NewUnaryHandler(
@@ -1684,10 +1684,10 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("TransitionControlInScopeState")),
 		connect.WithHandlerOptions(opts...),
 	)
-	orchestratorUnscopeControlHandler := connect.NewUnaryHandler(
-		OrchestratorUnscopeControlProcedure,
-		svc.UnscopeControl,
-		connect.WithSchema(orchestratorMethods.ByName("UnscopeControl")),
+	orchestratorRemoveControlInScopeHandler := connect.NewUnaryHandler(
+		OrchestratorRemoveControlInScopeProcedure,
+		svc.RemoveControlInScope,
+		connect.WithSchema(orchestratorMethods.ByName("RemoveControlInScope")),
 		connect.WithHandlerOptions(opts...),
 	)
 	orchestratorListAuditTrailEventsHandler := connect.NewUnaryHandler(
@@ -1810,8 +1810,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorListUserRolesHandler.ServeHTTP(w, r)
 		case OrchestratorRemoveUserProcedure:
 			orchestratorRemoveUserHandler.ServeHTTP(w, r)
-		case OrchestratorScopeControlProcedure:
-			orchestratorScopeControlHandler.ServeHTTP(w, r)
+		case OrchestratorCreateControlInScopeProcedure:
+			orchestratorCreateControlInScopeHandler.ServeHTTP(w, r)
 		case OrchestratorGetControlInScopeProcedure:
 			orchestratorGetControlInScopeHandler.ServeHTTP(w, r)
 		case OrchestratorListControlsInScopeProcedure:
@@ -1820,8 +1820,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorUpdateControlInScopeHandler.ServeHTTP(w, r)
 		case OrchestratorTransitionControlInScopeStateProcedure:
 			orchestratorTransitionControlInScopeStateHandler.ServeHTTP(w, r)
-		case OrchestratorUnscopeControlProcedure:
-			orchestratorUnscopeControlHandler.ServeHTTP(w, r)
+		case OrchestratorRemoveControlInScopeProcedure:
+			orchestratorRemoveControlInScopeHandler.ServeHTTP(w, r)
 		case OrchestratorListAuditTrailEventsProcedure:
 			orchestratorListAuditTrailEventsHandler.ServeHTTP(w, r)
 		default:
@@ -2057,8 +2057,8 @@ func (UnimplementedOrchestratorHandler) RemoveUser(context.Context, *connect.Req
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveUser is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) ScopeControl(context.Context, *connect.Request[orchestrator.ScopeControlRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.ScopeControl is not implemented"))
+func (UnimplementedOrchestratorHandler) CreateControlInScope(context.Context, *connect.Request[orchestrator.CreateControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.CreateControlInScope is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) GetControlInScope(context.Context, *connect.Request[orchestrator.GetControlInScopeRequest]) (*connect.Response[orchestrator.ControlInScope], error) {
@@ -2077,8 +2077,8 @@ func (UnimplementedOrchestratorHandler) TransitionControlInScopeState(context.Co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState is not implemented"))
 }
 
-func (UnimplementedOrchestratorHandler) UnscopeControl(context.Context, *connect.Request[orchestrator.UnscopeControlRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UnscopeControl is not implemented"))
+func (UnimplementedOrchestratorHandler) RemoveControlInScope(context.Context, *connect.Request[orchestrator.RemoveControlInScopeRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) ListAuditTrailEvents(context.Context, *connect.Request[orchestrator.ListAuditTrailEventsRequest]) (*connect.Response[orchestrator.ListAuditTrailEventsResponse], error) {
