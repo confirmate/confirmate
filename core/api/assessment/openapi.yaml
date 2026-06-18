@@ -3,11 +3,11 @@
 
 openapi: 3.0.3
 info:
-    title: Assessment API
+    title: "Assessment API"
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.2.13-5-g4143db5
+    version: core/v0.2.13-6-g24db927
 paths:
     /v1/assessment/evidences:
         post:
