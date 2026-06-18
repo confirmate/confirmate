@@ -3,48 +3,10 @@
 
 openapi: 3.0.3
 info:
-    title: "Evidence Store API"
-    version: core/v0.2.13-6-g24db927
+    title: EvidenceStore API
+    description: Manages the storage of evidences.
+    version: core/v0.2.13-8-g2f42abb
 paths:
-    /v1/evidence/graph/edges:
-        get:
-            tags:
-                - Resources
-            description: |-
-                ListGraphEdges returns the edges (relationship) between resources in our
-                 resource graph.
-            operationId: Resources_ListGraphEdges
-            parameters:
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListGraphEdgesResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/evidence_store/evidence:
         post:
             tags:
@@ -188,40 +150,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListResourcesResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/evidence_store/resources/{resource.id}:
-        post:
-            tags:
-                - Resources
-            description: |-
-                UpdateResource updates a resource (or creates it, if it does not exist).
-                 This is used to give third-party tools the possibility to add something to
-                 the resource graph.
-            operationId: Resources_UpdateResource
-            parameters:
-                - name: resource.id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateResourceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ResourceSnapshot'
                 default:
                     description: Default error response
                     content:
@@ -2586,22 +2514,6 @@ components:
                 securityTraining:
                     $ref: '#/components/schemas/SecurityTraining'
             description: Governance is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
-        GraphEdge:
-            required:
-                - id
-                - source
-                - target
-                - type
-            type: object
-            properties:
-                id:
-                    type: string
-                source:
-                    type: string
-                target:
-                    type: string
-                type:
-                    type: string
         HashOperation:
             type: object
             properties:
@@ -3608,17 +3520,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Evidence'
-                nextPageToken:
-                    type: string
-        ListGraphEdgesResponse:
-            required:
-                - edges
-            type: object
-            properties:
-                edges:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/GraphEdge'
                 nextPageToken:
                     type: string
         ListResourcesResponse:
@@ -6176,13 +6077,6 @@ components:
                 diskEncryption:
                     $ref: '#/components/schemas/DiskEncryption'
             description: UnlockEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-        UpdateResourceRequest:
-            required:
-                - resource
-            type: object
-            properties:
-                resource:
-                    $ref: '#/components/schemas/ResourceSnapshot'
         UsageStatistics:
             type: object
             properties:
@@ -6575,8 +6469,3 @@ components:
             description: ZoneRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 tags:
     - name: EvidenceStore
-      description: Manages the storage of evidences
-    - name: Resources
-      description: |-
-        Maps cloud resources and its properties to the format of the
-         ontology

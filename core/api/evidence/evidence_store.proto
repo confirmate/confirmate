@@ -23,7 +23,9 @@ import "google/api/field_behavior.proto";
 
 option go_package = "confirmate.io/core/api/evidence";
 
-// Manages the storage of evidences
+// EvidenceStore API
+
+// Manages the storage of evidences.
 service EvidenceStore {
   // Stores an evidence to the evidence storage. Part of the public API, also
   // exposed as REST.
