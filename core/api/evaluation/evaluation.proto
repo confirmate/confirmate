@@ -10,7 +10,7 @@ import "tagger/tagger.proto";
 
 option go_package = "confirmate.io/core/api/evaluation";
 
-// Manages the evaluation of Clouditor's assessment results
+// Manages the evaluation of Confirmate's assessment results
 service Evaluation {
   // StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
   rpc StartEvaluation(StartEvaluationRequest) returns (StartEvaluationResponse) {
