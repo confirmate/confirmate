@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: ""
-    version: 0.0.1
+    version: core/v0.2.13-5-g4143db5
 paths:
     /v1/evidence/graph/edges:
         get:

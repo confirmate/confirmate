@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Clouditor's assessment results
-    version: 0.0.1
+    version: core/v0.2.13-5-g4143db5
 paths:
     /v1/evaluation/evaluate/{auditScopeId}/start:
         post:
