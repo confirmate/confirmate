@@ -3,8 +3,8 @@
 
 openapi: 3.0.3
 info:
-    title: ""
-    version: 0.0.1
+    title: Evidence Store API
+    version: core/v0.2.13-12-g98f0a8b
 paths:
     /v1/evidence/graph/edges:
         get:
@@ -6575,7 +6575,7 @@ components:
             description: ZoneRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 tags:
     - name: EvidenceStore
-      description: Manages the storage of evidences
+      description: Manages the storage of evidences.
     - name: Resources
       description: |-
         Maps cloud resources and its properties to the format of the

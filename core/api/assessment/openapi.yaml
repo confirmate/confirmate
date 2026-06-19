@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: 0.0.1
+    version: core/v0.2.13-12-g98f0a8b
 paths:
     /v1/assessment/evidences:
         post:
