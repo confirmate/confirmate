@@ -301,7 +301,7 @@ func (svc *Service) GetControl(
 		return nil, err
 	}
 
-	err = svc.db.Get(&control, persistence.WithPreload("Controls"), "id = ?", req.Msg.ControlId)
+	err = svc.db.Get(&control, persistence.WithPreload("Controls.Metrics"), "id = ?", req.Msg.ControlId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err
 	}
