@@ -88,6 +88,26 @@ message ResourceSnapshot {
   confirmate.ontology.v1.Resource resource = 6 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
+// Maps cloud resources and its properties to the format of the
+// ontology
+service Resources {
+  // UpdateResource updates a resource (or creates it, if it does not exist).
+  // This is used to give third-party tools the possibility to add something to
+  // the resource graph.
+  rpc UpdateResource(UpdateResourceRequest) returns (confirmate.evidence.v1.ResourceSnapshot) {
+    option (google.api.http) = {
+      post: "/v1/evidence_store/resources/{resource.id}"
+      body: "*"
+    };
+  }
+
+  // ListGraphEdges returns the edges (relationship) between resources in our
+  // resource graph.
+  rpc ListGraphEdges(ListGraphEdgesRequest) returns (ListGraphEdgesResponse) {
+    option (google.api.http) = {get: "/v1/evidence/graph/edges"};
+  }
+}
+
 message UpdateResourceRequest {
   confirmate.evidence.v1.ResourceSnapshot resource = 1 [(google.api.field_behavior) = REQUIRED];
 }

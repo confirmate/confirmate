@@ -497,7 +497,10 @@ const file_api_evidence_evidence_proto_rawDesc = "" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06source\x12\"\n" +
 	"\x06target\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06target\x12\x17\n" +
-	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04typeB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
+	"\x04type\x18\x04 \x01(\tB\x03\xe0A\x02R\x04type2\xc2\x02\n" +
+	"\tResources\x12\xa0\x01\n" +
+	"\x0eUpdateResource\x12-.confirmate.evidence.v1.UpdateResourceRequest\x1a(.confirmate.evidence.v1.ResourceSnapshot\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/evidence_store/resources/{resource.id}\x12\x91\x01\n" +
+	"\x0eListGraphEdges\x12-.confirmate.evidence.v1.ListGraphEdgesRequest\x1a..confirmate.evidence.v1.ListGraphEdgesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/evidence/graph/edgesB!Z\x1fconfirmate.io/core/api/evidenceb\x06proto3"
 
 var (
 	file_api_evidence_evidence_proto_rawDescOnce sync.Once
@@ -528,8 +531,12 @@ var file_api_evidence_evidence_proto_depIdxs = []int32{
 	7, // 2: confirmate.evidence.v1.ResourceSnapshot.resource:type_name -> confirmate.ontology.v1.Resource
 	1, // 3: confirmate.evidence.v1.UpdateResourceRequest.resource:type_name -> confirmate.evidence.v1.ResourceSnapshot
 	5, // 4: confirmate.evidence.v1.ListGraphEdgesResponse.edges:type_name -> confirmate.evidence.v1.GraphEdge
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
+	2, // 5: confirmate.evidence.v1.Resources.UpdateResource:input_type -> confirmate.evidence.v1.UpdateResourceRequest
+	3, // 6: confirmate.evidence.v1.Resources.ListGraphEdges:input_type -> confirmate.evidence.v1.ListGraphEdgesRequest
+	1, // 7: confirmate.evidence.v1.Resources.UpdateResource:output_type -> confirmate.evidence.v1.ResourceSnapshot
+	4, // 8: confirmate.evidence.v1.Resources.ListGraphEdges:output_type -> confirmate.evidence.v1.ListGraphEdgesResponse
+	7, // [7:9] is the sub-list for method output_type
+	5, // [5:7] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
 	5, // [5:5] is the sub-list for extension extendee
 	0, // [0:5] is the sub-list for field type_name
@@ -548,7 +555,7 @@ func file_api_evidence_evidence_proto_init() {
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_api_evidence_evidence_proto_goTypes,
 		DependencyIndexes: file_api_evidence_evidence_proto_depIdxs,
