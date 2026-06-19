@@ -3,9 +3,9 @@
 
 openapi: 3.0.3
 info:
-    title: Evidence Store API
+    title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.13-11-g21373d5
+    version: core/v0.2.13-12-g98f0a8b
 paths:
     /v1/orchestrator/assessment_results:
         get:
