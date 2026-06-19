@@ -875,6 +875,60 @@ func TestService_RemoveControlInScope(t *testing.T) {
 	}
 }
 
+// TestService_RemoveControlInScope_CascadesToDescendants verifies that
+// removing a parent ControlInScope also removes the ControlInScope record of
+// every descendant control in the same audit scope, and that one audit-trail
+// event is recorded per removed record. Without this cascade a sub-control
+// could remain "in scope" after its parent was taken out.
+func TestService_RemoveControlInScope_CascadesToDescendants(t *testing.T) {
+	const subControlInScopeId = "00000000-0000-0000-0004-000000000099"
+
+	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+		// Seed audit scope, parent control (which auto-cascades the
+		// MockSubControl1 row in via gorm), and a ControlInScope record for
+		// each of them under that audit scope.
+		assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+		seedControl(t, d, orchestratortest.MockControl1)
+		assert.NoError(t, d.Create(orchestratortest.MockControlInScope1))
+		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
+			Id:                   subControlInScopeId,
+			AuditScopeId:         orchestratortest.MockScopeId1,
+			TargetOfEvaluationId: orchestratortest.MockToeId1,
+			ControlId:            orchestratortest.MockSubControlId1,
+			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+		}))
+	})
+
+	svc := &Service{db: db, authz: &service.AuthorizationStrategyAllowAll{}}
+	_, err := svc.RemoveControlInScope(context.Background(), connect.NewRequest(
+		&orchestrator.RemoveControlInScopeRequest{Id: orchestratortest.MockControlInScopeId1},
+	))
+	assert.NoError(t, err)
+
+	// Both records should be gone.
+	var parent, child orchestrator.ControlInScope
+	assert.ErrorIs(t, db.Get(&parent, "id = ?", orchestratortest.MockControlInScopeId1), persistence.ErrRecordNotFound)
+	assert.ErrorIs(t, db.Get(&child, "id = ?", subControlInScopeId), persistence.ErrRecordNotFound)
+
+	// One audit-trail event per removed ControlInScope record. We can't filter
+	// here because of a ramsql quirk on the in-memory test backend that drops
+	// rows when WHERE is used on this table; the test seeds no other events, so
+	// listing them all is equivalent.
+	var events []*orchestrator.AuditTrailEvent
+	assert.NoError(t, db.List(&events, "id", true, 0, -1))
+	assert.Equal(t, 2, len(events))
+	scopingControlIds := map[string]struct{}{}
+	for _, e := range events {
+		assert.Equal(t, orchestratortest.MockScopeId1, e.AuditScopeId)
+		var payload orchestrator.ControlScopingEvent
+		assert.NoError(t, e.EventData.UnmarshalTo(&payload))
+		assert.False(t, payload.InScope)
+		scopingControlIds[payload.ControlId] = struct{}{}
+	}
+	assert.Contains(t, scopingControlIds, orchestratortest.MockControlId1)
+	assert.Contains(t, scopingControlIds, orchestratortest.MockSubControlId1)
+}
+
 func TestService_ListAuditTrailEvents(t *testing.T) {
 	type args struct {
 		req     *orchestrator.ListAuditTrailEventsRequest
