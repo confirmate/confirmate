@@ -393,6 +393,8 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	}
 
 	slog.Info("Starting catalog evaluation",
+		slog.String("audit scope id", auditScope.GetId()),
+		slog.String("audit_scope_name", auditScope.GetName()),
 		slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
 		slog.String("catalog id", auditScope.GetCatalogId()),
 		slog.Int("number of relevant controls for the audit scope", len(relevant)),
