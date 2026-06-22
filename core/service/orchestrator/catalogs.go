@@ -273,7 +273,14 @@ func (svc *Service) ListControls(
 		req.Msg.Asc = true
 	}
 
-	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, persistence.WithoutPreload())
+	// Preload Metrics and sub-Controls (with their own Metrics) so callers —
+	// notably the evaluation service — can walk a control's full subtree and
+	// resolve every metric ID without making per-control round trips.
+	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
+		req.Msg, svc.db, service.DefaultPaginationOpts,
+		persistence.WithPreload("Metrics"),
+		persistence.WithPreload("Controls.Metrics"),
+	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -301,7 +308,7 @@ func (svc *Service) GetControl(
 		return nil, err
 	}
 
-	err = svc.db.Get(&control, persistence.WithPreload("Controls"), "id = ?", req.Msg.ControlId)
+	err = svc.db.Get(&control, persistence.WithPreload("Controls.Metrics"), "id = ?", req.Msg.ControlId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err
 	}
