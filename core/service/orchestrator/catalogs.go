@@ -22,6 +22,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
@@ -258,8 +259,12 @@ func (svc *Service) ListControls(
 	req *connect.Request[orchestrator.ListControlsRequest],
 ) (res *connect.Response[orchestrator.ListControlsResponse], err error) {
 	var (
-		controls []*orchestrator.Control
-		npt      string
+		controls     []*orchestrator.Control
+		npt          string
+		conds        []any
+		whereClauses []string
+		args         []any
+		where        string
 	)
 
 	// Validate the request
@@ -273,13 +278,46 @@ func (svc *Service) ListControls(
 		req.Msg.Asc = true
 	}
 
+	// Apply filters if provided
+	if req.Msg.Filter != nil {
+		if req.Msg.Filter.CatalogId != nil {
+			whereClauses = append(whereClauses, "catalog_id = ?")
+			args = append(args, req.Msg.Filter.GetCatalogId())
+		}
+		if req.Msg.Filter.CategoryName != nil {
+			whereClauses = append(whereClauses, "category_name = ?")
+			args = append(args, req.Msg.Filter.GetCategoryName())
+		}
+		if req.Msg.Filter.AssuranceLevels != nil {
+			whereClauses = append(whereClauses, "assurace_levels = ?")
+			args = append(args, req.Msg.Filter.GetAssuranceLevels())
+		}
+	}
+
+	// Combine all WHERE clauses with AND
+	if len(whereClauses) > 0 {
+		where = strings.Join(whereClauses, " AND ")
+		conds = append(conds, where)
+		conds = append(conds, args...)
+	}
+
+	// Prepare preloads and combine with any WHERE clauses/args.
+	opts := []any{
+		persistence.WithPreload("Controls.Metrics"),
+		persistence.WithPreload("Metrics"),
+	}
+	if where != "" {
+		// first the SQL WHERE clause, followed by its arguments
+		opts = append(opts, where)
+		opts = append(opts, args...)
+	}
+
 	// Preload Metrics and sub-Controls (with their own Metrics) so callers —
 	// notably the evaluation service — can walk a control's full subtree and
 	// resolve every metric ID without making per-control round trips.
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
 		req.Msg, svc.db, service.DefaultPaginationOpts,
-		persistence.WithPreload("Metrics"),
-		persistence.WithPreload("Controls.Metrics"),
+		opts...,
 	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
