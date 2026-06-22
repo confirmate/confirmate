@@ -242,9 +242,9 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		return nil, err
 	}
 
-	slog.Info("Scheduled to evaluate audit scope '%s' every %d minutes...",
+	slog.Info("Scheduled to evaluate audit scope",
 		slog.String("audit scope", auditScope.GetId()),
-		slog.Int("interval", interval),
+		slog.Int("interval (in minutes)", interval),
 	)
 
 	res = connect.NewResponse(&evaluation.StartEvaluationResponse{

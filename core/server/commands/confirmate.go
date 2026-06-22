@@ -25,12 +25,14 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/evaluation"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
@@ -82,7 +84,7 @@ var oauthServerFlags = []cli.Flag{
 // ConfirmateCommand starts the full framework: orchestrator, assessment, and evidence store services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator, assessment, and evidence store services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store and evaluation services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
 		return runConfirmate(ctx, cmd)
 	},
@@ -96,6 +98,7 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
+		evaluationFlags,
 	),
 }
 
@@ -106,14 +109,18 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		orchestratorOptions []service.Option[orchestrator.Service]
 		assessmentOptions   []service.Option[assessment.Service]
 		evidenceOptions     []service.Option[evidence.Service]
+		evaluationOptions   []service.Option[evaluation.Service]
 		jwksURL             string
 		orchestratorOpts    []service.Option[orchestrator.Service]
 		assessmentOpts      []service.Option[assessment.Service]
 		evidenceOpts        []service.Option[evidence.Service]
+		evaluationOpts      []service.Option[evaluation.Service]
 		orchestratorSvc     orchestratorconnect.OrchestratorHandler
 		assessmentSvc       assessmentconnect.AssessmentHandler
 		evidenceSvc         evidenceconnect.EvidenceStoreHandler
+		evaluationSvc       evaluationconnect.EvaluationHandler
 		orchestratorClient  *http.Client
+		evaluationClient    *http.Client
 		apiPort             uint16
 		credentials         *clientcredentials.Config
 		authorizer          api.Authorizer
@@ -132,6 +139,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
 		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
+		evaluationOptions = append(evaluationOptions, evaluation.WithAuthorizationStrategyPermissionStore())
 	}
 
 	interceptors = append(interceptors, &server.LoggingInterceptor{})
@@ -164,6 +172,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 	apiPort = cmd.Uint16("api-port")
 
 	orchestratorClient = service.NewHTTPClient()
+	evaluationClient = service.NewHTTPClient()
 	if cmd.Bool("auth-enabled") {
 		credentials = &clientcredentials.Config{
 			ClientID:     cmd.String("service-oauth2-client-id"),
@@ -172,6 +181,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		}
 		authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
 		orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
+		evaluationClient = api.NewOAuthHTTPClient(evaluationClient, authorizer)
 	}
 
 	// Assessment service configuration
@@ -217,6 +227,19 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		return err
 	}
 
+	// Evaluation service configuration
+	evaluationOpts = append([]service.Option[evaluation.Service]{
+		evaluation.WithConfig(evaluation.Config{
+			OrchestratorAddress: cmd.String("evaluation-orchestrator-address"),
+			OrchestratorClient:  orchestratorClient,
+		}),
+	}, evaluationOptions...)
+
+	evaluationSvc, err = evaluation.NewService(evaluationOpts...)
+	if err != nil {
+		return err
+	}
+
 	// Server options configuration including CORS, logging, handler and gRPC reflection
 	serverOpts = []server.Option{
 		server.WithConfig(server.Config{
@@ -239,6 +262,10 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		)),
 		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
 			evidenceSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(evaluationconnect.NewEvaluationHandler(
+			evaluationSvc,
 			connect.WithInterceptors(interceptors...),
 		)),
 		server.WithReflection(),
