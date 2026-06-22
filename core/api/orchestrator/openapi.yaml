@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.13-12-g98f0a8b
+    version: core/v0.2.14-1-g6f9910d4
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2510,8 +2510,10 @@ components:
         Control:
             required:
                 - id
+                - name
                 - controls
                 - metrics
+                - shortName
             type: object
             properties:
                 id:
