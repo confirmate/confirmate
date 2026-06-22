@@ -375,7 +375,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		}
 	}
 
-	// Filter relevant controls
+	// Filter relevant controls (only parent controls)
 	for _, c := range controls {
 		// Only parent controls
 		if c.ParentControlId != nil {
