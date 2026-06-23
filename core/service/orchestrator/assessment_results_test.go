@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"sort"
 	"testing"
 	"time"
 
@@ -704,12 +705,26 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-				// MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID and different Evidence IDs
-				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, 2, len(got.Msg.Results)) &&
-					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[1]) &&
-					assert.Equal(t, orchestratortest.MockAssessmentResult3, got.Msg.Results[0])
+				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
 
+				// order result by ID to ensure consistent ordering for assertions
+				sort.SliceStable(got.Msg.Results, func(i, j int) bool {
+					return got.Msg.Results[i].Id < got.Msg.Results[j].Id
+				})
+
+				// order expected results by ID to ensure consistent ordering for assertions
+				expected := []*assessment.AssessmentResult{
+					orchestratortest.MockAssessmentResult1,
+					orchestratortest.MockAssessmentResult3,
+				}
+				sort.SliceStable(expected, func(i, j int) bool {
+					return expected[i].Id < expected[j].Id
+				})
+
+				return assert.Equal(t, expected[0], got.Msg.Results[0]) &&
+					assert.Equal(t, expected[1], got.Msg.Results[1])
 			},
 			wantErr: assert.NoError,
 		},
