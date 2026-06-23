@@ -27,7 +27,7 @@ func TestNormalizeRole(t *testing.T) {
 		{name: "shorthand admin maps to ROLE_ADMIN", in: "admin", want: orchestrator.Role_ROLE_ADMIN},
 		{name: "Compliance Manager (with space) maps to enum", in: "Compliance Manager", want: orchestrator.Role_ROLE_COMPLIANCE_MANAGER},
 		{name: "compliance_manager (snake case) maps to enum", in: "compliance_manager", want: orchestrator.Role_ROLE_COMPLIANCE_MANAGER},
-		{name: "auditor maps to enum", in: "auditor", want: orchestrator.Role_ROLE_AUDITOR},
+		{name: "lead auditor maps to enum", in: "lead_auditor", want: orchestrator.Role_ROLE_LEAD_AUDITOR},
 		{name: "CISO shorthand maps to enum", in: "ciso", want: orchestrator.Role_ROLE_CHIEF_INFORMATION_SECURITY_OFFICER},
 		{name: "unknown role returns UNSPECIFIED", in: "SOME_OTHER_ROLE", want: orchestrator.Role_ROLE_UNSPECIFIED},
 		{name: "whitespace is trimmed", in: "  admin  ", want: orchestrator.Role_ROLE_ADMIN},
