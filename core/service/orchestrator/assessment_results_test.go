@@ -698,13 +698,17 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult3)
+					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID and different Evidence IDs
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
+					assert.Equal(t, 2, len(got.Msg.Results)) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[1]) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult3, got.Msg.Results[0])
 
 			},
 			wantErr: assert.NoError,
