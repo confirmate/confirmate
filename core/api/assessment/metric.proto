@@ -25,7 +25,7 @@ import "tagger/tagger.proto";
 
 option go_package = "confirmate.io/core/api/assessment";
 
-// A metric resource
+// A metric resource for testing
 message Metric {
   // Required. The unique identifier of the metric.
   string id = 1 [
