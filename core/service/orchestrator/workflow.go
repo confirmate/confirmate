@@ -441,7 +441,7 @@ func (svc *Service) ListAuditTrailEvents(
 	}
 
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "time"
+		req.Msg.OrderBy = "created_at"
 		req.Msg.Asc = false
 	}
 
