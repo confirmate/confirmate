@@ -573,11 +573,11 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Empty(t, got.Msg.Results)
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -597,11 +597,11 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Empty(t, got.Msg.Results)
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
 
 			},
 			wantErr: assert.NoError,
@@ -622,12 +622,12 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					err = d.Create(orchestratortest.MockAssessmentResult2)
 					assert.NoError(t, err)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Both MockAssessmentResult1 and MockAssessmentResult2 have tool-1
 				return assert.NotNil(t, got.Msg) &&
-					assert.Empty(t, got.Msg.Results)
+					assert.Equal(t, 2, len(got.Msg.Results))
 
 			},
 			wantErr: assert.NoError,
@@ -645,15 +645,15 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockAssessmentResult1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockAssessmentResult2)
+					err = d.Create(orchestratortest.MockAssessmentResultToE2)
 					assert.NoError(t, err)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Both MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID
 				return assert.NotNil(t, got.Msg) &&
-					assert.Empty(t, got.Msg.Results)
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
 
 			},
 			wantErr: assert.NoError,
@@ -971,9 +971,14 @@ func TestService_ListAssessmentResults(t *testing.T) {
 					orchestratortest.MockNewAssessmentResult,
 					got.Msg.Results[0],
 					cmp.Options{
-						protocmp.IgnoreFields(&assessment.AssessmentResult{}, "created_at"),
+						protocmp.IgnoreFields(&assessment.AssessmentResult{}, "created_at", "history_updated_at", "history"),
 					},
-				)
+				) && assert.Equal(t,
+					&assessment.Record{EvidenceId: orchestratortest.MockEvidenceId1},
+					got.Msg.Results[0].History[0],
+					cmp.Options{
+						protocmp.IgnoreFields(&assessment.Record{}, "evidence_recorded_at"),
+					})
 			},
 			wantErr: assert.NoError,
 		},
