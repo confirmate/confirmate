@@ -6194,17 +6194,17 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\tcatalogId\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\xdf\x01\n" +
-	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\x86\x06\n" +
+	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\x90\x06\n" +
 	"\aControl\x121\n" +
-	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\x12 \n" +
+	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x17\n" +
+	"\x04name\x18\x04 \x01(\tB\x03\xe0A\x02R\x04name\x12 \n" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\xa1\x01\n" +
 	"\bcontrols\x18\x06 \x03(\v2#.confirmate.orchestrator.v1.ControlB`\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03Mgorm:\"foreignKey:parent_control_id;references:id;constraint:OnDelete:CASCADE\"R\bcontrols\x12\x8b\x01\n" +
 	"\ametrics\x18\a \x03(\v2 .confirmate.assessment.v1.MetricBO\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03<gorm:\"many2many:control_metrics;constraint:OnDelete:CASCADE\"R\ametrics\x129\n" +
 	"\x11parent_control_id\x18\b \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x0fparentControlId\x88\x01\x01\x12,\n" +
-	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\x1d\n" +
+	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"short_name\x18\f \x01(\tR\tshortName\x12\x95\x01\n" +
+	"short_name\x18\f \x01(\tB\x03\xe0A\x02R\tshortName\x12\x95\x01\n" +
 	"\x11controls_in_scope\x18\r \x03(\v2*.confirmate.orchestrator.v1.ControlInScopeB=\x9a\x84\x9e\x038gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\"R\x0fcontrolsInScopeB\x14\n" +
 	"\x12_parent_control_idB\x12\n" +
 	"\x10_assurance_levelJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\t\x10\n" +
