@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.14-1-g6f9910d4
+    version: core/v0.2.14-5-gd200e72
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -47,6 +47,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.evidenceId
+                  in: query
+                  description: Optional. List only assessment result from a specific evidence ID.
+                  schema:
+                    type: string
                 - name: latestByResourceId
                   in: query
                   description: Optional. Latest results grouped by resource_id and metric_id.

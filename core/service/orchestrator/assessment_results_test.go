@@ -684,6 +684,32 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
+			name: "filter by evidence ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						EvidenceId: new(orchestratortest.MockEvidenceId1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID and different Evidence IDs
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
+
+			},
+			wantErr: assert.NoError,
+		},
+		{
 			name: "filter by latest_by_resource_id",
 			args: args{
 				req: &orchestrator.ListAssessmentResultsRequest{
