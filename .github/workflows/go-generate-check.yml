@@ -1,0 +1,51 @@
+name: Proto generated files check
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        types: [opened, synchronize, reopened]
+        paths:
+        - 'api/**/*.proto'
+        - 'api/**/*.pb.go'
+        - 'api/**/openapi.yaml'
+        - 'api/**/*.connect.go'
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  check-generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check proto and generated files
+        shell: bash
+        run: |
+          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^api/.*\.proto$' || true)
+          for proto in $CHANGED_PROTOS; do
+            dir=$(dirname "$proto")
+            base=$(basename "$proto" .proto)
+
+            # Always check pb.go
+            if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
+              echo "❌ $proto changed, but $dir/$base.pb.go was not updated."
+              exit 1
+            fi
+
+            # Only require .connect.go and openapi.yaml if not in api/common
+            if [[ "$dir" != "api/common" ]]; then
+              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/${base}connect/$base\.connect\.go$"; then
+                echo "❌ $proto changed, but $dir/${base}connect/$base.connect.go was not updated."
+                exit 1
+              fi
+              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/openapi\.yaml$"; then
+                echo "❌ $proto changed, but $dir/openapi.yaml was not updated."
+                exit 1
+              fi
+            fi
+          done
