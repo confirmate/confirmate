@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.14-23-g1c4dc93
+    version: core/v0.2.14-25-ga698f64
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2964,7 +2964,7 @@ components:
                     description: The metric this configuration belongs to
                 targetOfEvaluationId:
                     type: string
-                    description: The target of evaluation this configuration belongs to
+                    description: The target of evaluation this configuration belongs to.
             description: Defines the operator and a target value for an individual metric
         MetricImplementation:
             required:

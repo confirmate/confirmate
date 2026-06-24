@@ -211,7 +211,7 @@ type MetricConfiguration struct {
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// The metric this configuration belongs to
 	MetricId string `protobuf:"bytes,5,opt,name=metric_id,json=metricId,proto3" json:"metric_id,omitempty" gorm:"primaryKey"`
-	// The target of evaluation this configuration belongs to
+	// The target of evaluation this configuration belongs to.
 	TargetOfEvaluationId string `protobuf:"bytes,6,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"primaryKey"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
