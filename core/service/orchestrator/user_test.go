@@ -75,11 +75,11 @@ func TestService_GetCurrentUser(t *testing.T) {
 			}),
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					assert.NoError(t, d.Create(&orchestrator.User{Id: "test|user-1", Enabled: true}))
+					assert.NoError(t, d.Create(&orchestrator.User{Id: orchestratortest.GetConfirmateUserID("test", "user-1"), Enabled: true}))
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
-				return assert.NotNil(t, got) && assert.Equal(t, "test|user-1", got.Msg.Id)
+				return assert.NotNil(t, got) && assert.Equal(t, orchestratortest.GetConfirmateUserID("test", "user-1"), got.Msg.Id)
 			},
 			wantErr: assert.NoError,
 		},
@@ -469,7 +469,7 @@ func TestService_ListUsers(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListUsersResponse], _ ...any) bool {
 				return assert.NotNil(t, got) &&
 					assert.Equal(t, 1, len(got.Msg.Users)) &&
-					assert.Equal(t, orchestratortest.MockUserIssuer1+"|new-caller-id", got.Msg.Users[0].Id)
+					assert.Equal(t, orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, "new-caller-id"), got.Msg.Users[0].Id)
 			},
 			wantErr: assert.NoError,
 		},
