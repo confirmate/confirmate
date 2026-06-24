@@ -42,10 +42,16 @@ func normalizeRole(raw string) orchestrator.Role {
 		return orchestrator.Role_ROLE_INTERNAL_CONTROL_OWNER
 	case "technical implementer", "technical_implementer":
 		return orchestrator.Role_ROLE_TECHNICAL_IMPLEMENTER
-	case "auditor":
-		return orchestrator.Role_ROLE_AUDITOR
+	case "internal auditor", "internal_auditor":
+		return orchestrator.Role_ROLE_INTERNAL_AUDITOR
+	case "lead auditor", "lead_auditor":
+		return orchestrator.Role_ROLE_LEAD_AUDITOR
+	case "technical auditor", "technical_auditor":
+		return orchestrator.Role_ROLE_TECHNICAL_AUDITOR
 	case "chief information security officer", "ciso":
 		return orchestrator.Role_ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+	case "ui-admin", "ui admin", "ui_admin":
+		return orchestrator.Role_ROLE_UI_ADMIN
 	}
 
 	return orchestrator.Role_ROLE_UNSPECIFIED
