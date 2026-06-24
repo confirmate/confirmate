@@ -3524,6 +3524,43 @@ func (x *CipherSuite) GetCiphers() []*Cipher {
 	return nil
 }
 
+// CloudFeature is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+type CloudFeature struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CloudFeature) Reset() {
+	*x = CloudFeature{}
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CloudFeature) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CloudFeature) ProtoMessage() {}
+
+func (x *CloudFeature) ProtoReflect() protoreflect.Message {
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CloudFeature.ProtoReflect.Descriptor instead.
+func (*CloudFeature) Descriptor() ([]byte, []int) {
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{36}
+}
+
 // Infrastructure is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
 type Infrastructure struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -3578,7 +3615,7 @@ type Infrastructure struct {
 
 func (x *Infrastructure) Reset() {
 	*x = Infrastructure{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[36]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3590,7 +3627,7 @@ func (x *Infrastructure) String() string {
 func (*Infrastructure) ProtoMessage() {}
 
 func (x *Infrastructure) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[36]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3603,7 +3640,7 @@ func (x *Infrastructure) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Infrastructure.ProtoReflect.Descriptor instead.
 func (*Infrastructure) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{36}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *Infrastructure) GetType() isInfrastructure_Type {
@@ -4256,7 +4293,7 @@ type CloudSDK struct {
 
 func (x *CloudSDK) Reset() {
 	*x = CloudSDK{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[37]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4268,7 +4305,7 @@ func (x *CloudSDK) String() string {
 func (*CloudSDK) ProtoMessage() {}
 
 func (x *CloudSDK) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[37]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4281,7 +4318,7 @@ func (x *CloudSDK) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloudSDK.ProtoReflect.Descriptor instead.
 func (*CloudSDK) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{37}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{38}
 }
 
 // CodeRegion is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -4299,7 +4336,7 @@ type CodeRegion struct {
 
 func (x *CodeRegion) Reset() {
 	*x = CodeRegion{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[38]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4311,7 +4348,7 @@ func (x *CodeRegion) String() string {
 func (*CodeRegion) ProtoMessage() {}
 
 func (x *CodeRegion) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[38]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4324,7 +4361,7 @@ func (x *CodeRegion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeRegion.ProtoReflect.Descriptor instead.
 func (*CodeRegion) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{38}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *CodeRegion) GetCode() string {
@@ -4403,7 +4440,7 @@ type CodeRepository struct {
 
 func (x *CodeRepository) Reset() {
 	*x = CodeRepository{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[39]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4415,7 +4452,7 @@ func (x *CodeRepository) String() string {
 func (*CodeRepository) ProtoMessage() {}
 
 func (x *CodeRepository) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[39]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4428,7 +4465,7 @@ func (x *CodeRepository) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeRepository.ProtoReflect.Descriptor instead.
 func (*CodeRepository) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{39}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CodeRepository) GetApprovedCommitAuthorEnforced() bool {
@@ -4593,7 +4630,7 @@ type CodeSignoff struct {
 
 func (x *CodeSignoff) Reset() {
 	*x = CodeSignoff{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4605,7 +4642,7 @@ func (x *CodeSignoff) String() string {
 func (*CodeSignoff) ProtoMessage() {}
 
 func (x *CodeSignoff) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4618,7 +4655,7 @@ func (x *CodeSignoff) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeSignoff.ProtoReflect.Descriptor instead.
 func (*CodeSignoff) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{40}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *CodeSignoff) GetEnforced() bool {
@@ -4656,7 +4693,7 @@ type Component struct {
 
 func (x *Component) Reset() {
 	*x = Component{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4668,7 +4705,7 @@ func (x *Component) String() string {
 func (*Component) ProtoMessage() {}
 
 func (x *Component) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4681,7 +4718,7 @@ func (x *Component) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Component.ProtoReflect.Descriptor instead.
 func (*Component) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{41}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *Component) GetType() isComponent_Type {
@@ -4741,7 +4778,7 @@ type Compute struct {
 
 func (x *Compute) Reset() {
 	*x = Compute{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4753,7 +4790,7 @@ func (x *Compute) String() string {
 func (*Compute) ProtoMessage() {}
 
 func (x *Compute) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4766,7 +4803,7 @@ func (x *Compute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Compute.ProtoReflect.Descriptor instead.
 func (*Compute) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{42}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *Compute) GetType() isCompute_Type {
@@ -4857,7 +4894,7 @@ type Confidentiality struct {
 
 func (x *Confidentiality) Reset() {
 	*x = Confidentiality{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4869,7 +4906,7 @@ func (x *Confidentiality) String() string {
 func (*Confidentiality) ProtoMessage() {}
 
 func (x *Confidentiality) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4882,7 +4919,7 @@ func (x *Confidentiality) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Confidentiality.ProtoReflect.Descriptor instead.
 func (*Confidentiality) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{43}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *Confidentiality) GetType() isConfidentiality_Type {
@@ -4991,7 +5028,7 @@ type Configuration struct {
 
 func (x *Configuration) Reset() {
 	*x = Configuration{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5003,7 +5040,7 @@ func (x *Configuration) String() string {
 func (*Configuration) ProtoMessage() {}
 
 func (x *Configuration) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5016,7 +5053,7 @@ func (x *Configuration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Configuration.ProtoReflect.Descriptor instead.
 func (*Configuration) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{44}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *Configuration) GetCreationTime() *timestamppb.Timestamp {
@@ -5105,7 +5142,7 @@ type ConfigurationDocument struct {
 
 func (x *ConfigurationDocument) Reset() {
 	*x = ConfigurationDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[45]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5117,7 +5154,7 @@ func (x *ConfigurationDocument) String() string {
 func (*ConfigurationDocument) ProtoMessage() {}
 
 func (x *ConfigurationDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[45]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5130,7 +5167,7 @@ func (x *ConfigurationDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationDocument.ProtoReflect.Descriptor instead.
 func (*ConfigurationDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{45}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ConfigurationDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -5245,7 +5282,7 @@ type ConfigurationGroup struct {
 
 func (x *ConfigurationGroup) Reset() {
 	*x = ConfigurationGroup{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[46]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5257,7 +5294,7 @@ func (x *ConfigurationGroup) String() string {
 func (*ConfigurationGroup) ProtoMessage() {}
 
 func (x *ConfigurationGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[46]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5270,7 +5307,7 @@ func (x *ConfigurationGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationGroup.ProtoReflect.Descriptor instead.
 func (*ConfigurationGroup) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{46}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ConfigurationGroup) GetCreationTime() *timestamppb.Timestamp {
@@ -5362,7 +5399,7 @@ type ConfigurationGroupSource struct {
 
 func (x *ConfigurationGroupSource) Reset() {
 	*x = ConfigurationGroupSource{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[47]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5374,7 +5411,7 @@ func (x *ConfigurationGroupSource) String() string {
 func (*ConfigurationGroupSource) ProtoMessage() {}
 
 func (x *ConfigurationGroupSource) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[47]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5387,7 +5424,7 @@ func (x *ConfigurationGroupSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationGroupSource.ProtoReflect.Descriptor instead.
 func (*ConfigurationGroupSource) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{47}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ConfigurationGroupSource) GetCreationTime() *timestamppb.Timestamp {
@@ -5466,7 +5503,7 @@ type ConfigurationOperation struct {
 
 func (x *ConfigurationOperation) Reset() {
 	*x = ConfigurationOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[48]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5478,7 +5515,7 @@ func (x *ConfigurationOperation) String() string {
 func (*ConfigurationOperation) ProtoMessage() {}
 
 func (x *ConfigurationOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[48]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5491,7 +5528,7 @@ func (x *ConfigurationOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationOperation.ProtoReflect.Descriptor instead.
 func (*ConfigurationOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{48}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ConfigurationOperation) GetType() isConfigurationOperation_Type {
@@ -5647,7 +5684,7 @@ type ConfigurationOption struct {
 
 func (x *ConfigurationOption) Reset() {
 	*x = ConfigurationOption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[49]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5659,7 +5696,7 @@ func (x *ConfigurationOption) String() string {
 func (*ConfigurationOption) ProtoMessage() {}
 
 func (x *ConfigurationOption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[49]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5672,7 +5709,7 @@ func (x *ConfigurationOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationOption.ProtoReflect.Descriptor instead.
 func (*ConfigurationOption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{49}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ConfigurationOption) GetCreationTime() *timestamppb.Timestamp {
@@ -5771,7 +5808,7 @@ type ConfigurationOptionSource struct {
 
 func (x *ConfigurationOptionSource) Reset() {
 	*x = ConfigurationOptionSource{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[50]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5783,7 +5820,7 @@ func (x *ConfigurationOptionSource) String() string {
 func (*ConfigurationOptionSource) ProtoMessage() {}
 
 func (x *ConfigurationOptionSource) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[50]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5796,7 +5833,7 @@ func (x *ConfigurationOptionSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationOptionSource.ProtoReflect.Descriptor instead.
 func (*ConfigurationOptionSource) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{50}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *ConfigurationOptionSource) GetCreationTime() *timestamppb.Timestamp {
@@ -5875,7 +5912,7 @@ type ConfigurationSource struct {
 
 func (x *ConfigurationSource) Reset() {
 	*x = ConfigurationSource{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[51]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5887,7 +5924,7 @@ func (x *ConfigurationSource) String() string {
 func (*ConfigurationSource) ProtoMessage() {}
 
 func (x *ConfigurationSource) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[51]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5900,7 +5937,7 @@ func (x *ConfigurationSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationSource.ProtoReflect.Descriptor instead.
 func (*ConfigurationSource) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{51}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *ConfigurationSource) GetCreationTime() *timestamppb.Timestamp {
@@ -5978,7 +6015,7 @@ type ContactPerson struct {
 
 func (x *ContactPerson) Reset() {
 	*x = ContactPerson{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[52]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5990,7 +6027,7 @@ func (x *ContactPerson) String() string {
 func (*ContactPerson) ProtoMessage() {}
 
 func (x *ContactPerson) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[52]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6003,7 +6040,7 @@ func (x *ContactPerson) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactPerson.ProtoReflect.Descriptor instead.
 func (*ContactPerson) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{52}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ContactPerson) GetEmailAddress() string {
@@ -6056,7 +6093,7 @@ type Container struct {
 
 func (x *Container) Reset() {
 	*x = Container{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[53]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6068,7 +6105,7 @@ func (x *Container) String() string {
 func (*Container) ProtoMessage() {}
 
 func (x *Container) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[53]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6081,7 +6118,7 @@ func (x *Container) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container.ProtoReflect.Descriptor instead.
 func (*Container) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{53}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *Container) GetCreationTime() *timestamppb.Timestamp {
@@ -6242,7 +6279,7 @@ type ContainerImage struct {
 
 func (x *ContainerImage) Reset() {
 	*x = ContainerImage{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[54]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6254,7 +6291,7 @@ func (x *ContainerImage) String() string {
 func (*ContainerImage) ProtoMessage() {}
 
 func (x *ContainerImage) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[54]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6267,7 +6304,7 @@ func (x *ContainerImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerImage.ProtoReflect.Descriptor instead.
 func (*ContainerImage) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{54}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ContainerImage) GetCreationTime() *timestamppb.Timestamp {
@@ -6402,7 +6439,7 @@ type ContainerOrchestration struct {
 
 func (x *ContainerOrchestration) Reset() {
 	*x = ContainerOrchestration{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[55]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6414,7 +6451,7 @@ func (x *ContainerOrchestration) String() string {
 func (*ContainerOrchestration) ProtoMessage() {}
 
 func (x *ContainerOrchestration) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[55]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6427,7 +6464,7 @@ func (x *ContainerOrchestration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerOrchestration.ProtoReflect.Descriptor instead.
 func (*ContainerOrchestration) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{55}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ContainerOrchestration) GetCreationTime() *timestamppb.Timestamp {
@@ -6573,7 +6610,7 @@ type ContainerRegistry struct {
 
 func (x *ContainerRegistry) Reset() {
 	*x = ContainerRegistry{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[56]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6585,7 +6622,7 @@ func (x *ContainerRegistry) String() string {
 func (*ContainerRegistry) ProtoMessage() {}
 
 func (x *ContainerRegistry) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[56]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6598,7 +6635,7 @@ func (x *ContainerRegistry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerRegistry.ProtoReflect.Descriptor instead.
 func (*ContainerRegistry) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{56}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *ContainerRegistry) GetCreationTime() *timestamppb.Timestamp {
@@ -6718,7 +6755,7 @@ type Context struct {
 
 func (x *Context) Reset() {
 	*x = Context{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[57]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6730,7 +6767,7 @@ func (x *Context) String() string {
 func (*Context) ProtoMessage() {}
 
 func (x *Context) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[57]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6743,7 +6780,7 @@ func (x *Context) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Context.ProtoReflect.Descriptor instead.
 func (*Context) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{57}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *Context) GetCreationTime() *timestamppb.Timestamp {
@@ -6822,7 +6859,7 @@ type CoordinatedVulnerabilityDisclosurePolicy struct {
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) Reset() {
 	*x = CoordinatedVulnerabilityDisclosurePolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[58]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6834,7 +6871,7 @@ func (x *CoordinatedVulnerabilityDisclosurePolicy) String() string {
 func (*CoordinatedVulnerabilityDisclosurePolicy) ProtoMessage() {}
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[58]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6847,7 +6884,7 @@ func (x *CoordinatedVulnerabilityDisclosurePolicy) ProtoReflect() protoreflect.M
 
 // Deprecated: Use CoordinatedVulnerabilityDisclosurePolicy.ProtoReflect.Descriptor instead.
 func (*CoordinatedVulnerabilityDisclosurePolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{58}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *CoordinatedVulnerabilityDisclosurePolicy) GetCreationTime() *timestamppb.Timestamp {
@@ -6937,7 +6974,7 @@ type Core struct {
 
 func (x *Core) Reset() {
 	*x = Core{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[59]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6949,7 +6986,7 @@ func (x *Core) String() string {
 func (*Core) ProtoMessage() {}
 
 func (x *Core) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[59]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6962,7 +6999,7 @@ func (x *Core) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Core.ProtoReflect.Descriptor instead.
 func (*Core) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{59}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *Core) GetType() isCore_Type {
@@ -7062,7 +7099,7 @@ type CreateEncryptedDisk struct {
 
 func (x *CreateEncryptedDisk) Reset() {
 	*x = CreateEncryptedDisk{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[60]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7074,7 +7111,7 @@ func (x *CreateEncryptedDisk) String() string {
 func (*CreateEncryptedDisk) ProtoMessage() {}
 
 func (x *CreateEncryptedDisk) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[60]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7087,7 +7124,7 @@ func (x *CreateEncryptedDisk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEncryptedDisk.ProtoReflect.Descriptor instead.
 func (*CreateEncryptedDisk) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{60}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *CreateEncryptedDisk) GetCodeRegion() *CodeRegion {
@@ -7115,7 +7152,7 @@ type CreateSecret struct {
 
 func (x *CreateSecret) Reset() {
 	*x = CreateSecret{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[61]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7127,7 +7164,7 @@ func (x *CreateSecret) String() string {
 func (*CreateSecret) ProtoMessage() {}
 
 func (x *CreateSecret) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[61]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7140,7 +7177,7 @@ func (x *CreateSecret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSecret.ProtoReflect.Descriptor instead.
 func (*CreateSecret) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{61}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *CreateSecret) GetCodeRegion() *CodeRegion {
@@ -7172,7 +7209,7 @@ type Credential struct {
 
 func (x *Credential) Reset() {
 	*x = Credential{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[62]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7184,7 +7221,7 @@ func (x *Credential) String() string {
 func (*Credential) ProtoMessage() {}
 
 func (x *Credential) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[62]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7197,7 +7234,7 @@ func (x *Credential) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Credential.ProtoReflect.Descriptor instead.
 func (*Credential) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{62}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *Credential) GetType() isCredential_Type {
@@ -7267,7 +7304,7 @@ type CryptographicHash struct {
 
 func (x *CryptographicHash) Reset() {
 	*x = CryptographicHash{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[63]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7279,7 +7316,7 @@ func (x *CryptographicHash) String() string {
 func (*CryptographicHash) ProtoMessage() {}
 
 func (x *CryptographicHash) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[63]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7292,7 +7329,7 @@ func (x *CryptographicHash) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CryptographicHash.ProtoReflect.Descriptor instead.
 func (*CryptographicHash) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{63}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *CryptographicHash) GetAlgorithm() string {
@@ -7322,7 +7359,7 @@ type CryptographicOperation struct {
 
 func (x *CryptographicOperation) Reset() {
 	*x = CryptographicOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[64]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7334,7 +7371,7 @@ func (x *CryptographicOperation) String() string {
 func (*CryptographicOperation) ProtoMessage() {}
 
 func (x *CryptographicOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[64]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7347,7 +7384,7 @@ func (x *CryptographicOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CryptographicOperation.ProtoReflect.Descriptor instead.
 func (*CryptographicOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{64}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *CryptographicOperation) GetType() isCryptographicOperation_Type {
@@ -7390,7 +7427,7 @@ type CustomerKeyEncryption struct {
 
 func (x *CustomerKeyEncryption) Reset() {
 	*x = CustomerKeyEncryption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7402,7 +7439,7 @@ func (x *CustomerKeyEncryption) String() string {
 func (*CustomerKeyEncryption) ProtoMessage() {}
 
 func (x *CustomerKeyEncryption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7415,7 +7452,7 @@ func (x *CustomerKeyEncryption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CustomerKeyEncryption.ProtoReflect.Descriptor instead.
 func (*CustomerKeyEncryption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{65}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *CustomerKeyEncryption) GetAlgorithm() string {
@@ -7476,7 +7513,7 @@ type CyberSecurityRiskAssessmentDocument struct {
 
 func (x *CyberSecurityRiskAssessmentDocument) Reset() {
 	*x = CyberSecurityRiskAssessmentDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[66]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7488,7 +7525,7 @@ func (x *CyberSecurityRiskAssessmentDocument) String() string {
 func (*CyberSecurityRiskAssessmentDocument) ProtoMessage() {}
 
 func (x *CyberSecurityRiskAssessmentDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[66]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7501,7 +7538,7 @@ func (x *CyberSecurityRiskAssessmentDocument) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use CyberSecurityRiskAssessmentDocument.ProtoReflect.Descriptor instead.
 func (*CyberSecurityRiskAssessmentDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{66}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *CyberSecurityRiskAssessmentDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -7604,7 +7641,7 @@ type DDoSProtection struct {
 
 func (x *DDoSProtection) Reset() {
 	*x = DDoSProtection{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[67]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7616,7 +7653,7 @@ func (x *DDoSProtection) String() string {
 func (*DDoSProtection) ProtoMessage() {}
 
 func (x *DDoSProtection) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[67]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7629,7 +7666,7 @@ func (x *DDoSProtection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DDoSProtection.ProtoReflect.Descriptor instead.
 func (*DDoSProtection) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{67}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{68}
 }
 
 // Darwin is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -7653,7 +7690,7 @@ type Darwin struct {
 
 func (x *Darwin) Reset() {
 	*x = Darwin{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[68]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7665,7 +7702,7 @@ func (x *Darwin) String() string {
 func (*Darwin) ProtoMessage() {}
 
 func (x *Darwin) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[68]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7678,7 +7715,7 @@ func (x *Darwin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Darwin.ProtoReflect.Descriptor instead.
 func (*Darwin) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{68}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *Darwin) GetCreationTime() *timestamppb.Timestamp {
@@ -7780,11 +7817,6 @@ type Data struct {
 	//	*Data_MachineLearningDataset
 	//	*Data_MachineLearningModel
 	//	*Data_CoordinatedVulnerabilityDisclosurePolicy
-	//	*Data_DataConfidentialitySdnPolicy
-	//	*Data_LeastPrivilegePolicy
-	//	*Data_NeedToKnowPolicy
-	//	*Data_SdnFunctionValidationPolicy
-	//	*Data_SeparationOfDutiesPolicy
 	//	*Data_AndRule
 	//	*Data_Token
 	//	*Data_Value
@@ -7795,7 +7827,7 @@ type Data struct {
 
 func (x *Data) Reset() {
 	*x = Data{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[69]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7807,7 +7839,7 @@ func (x *Data) String() string {
 func (*Data) ProtoMessage() {}
 
 func (x *Data) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[69]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7820,7 +7852,7 @@ func (x *Data) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Data.ProtoReflect.Descriptor instead.
 func (*Data) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{69}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *Data) GetType() isData_Type {
@@ -8046,51 +8078,6 @@ func (x *Data) GetCoordinatedVulnerabilityDisclosurePolicy() *CoordinatedVulnera
 	return nil
 }
 
-func (x *Data) GetDataConfidentialitySdnPolicy() *DataConfidentialitySDNPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Data_DataConfidentialitySdnPolicy); ok {
-			return x.DataConfidentialitySdnPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Data) GetLeastPrivilegePolicy() *LeastPrivilegePolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Data_LeastPrivilegePolicy); ok {
-			return x.LeastPrivilegePolicy
-		}
-	}
-	return nil
-}
-
-func (x *Data) GetNeedToKnowPolicy() *NeedToKnowPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Data_NeedToKnowPolicy); ok {
-			return x.NeedToKnowPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Data) GetSdnFunctionValidationPolicy() *SDNFunctionValidationPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Data_SdnFunctionValidationPolicy); ok {
-			return x.SdnFunctionValidationPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Data) GetSeparationOfDutiesPolicy() *SeparationOfDutiesPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Data_SeparationOfDutiesPolicy); ok {
-			return x.SeparationOfDutiesPolicy
-		}
-	}
-	return nil
-}
-
 func (x *Data) GetAndRule() *AndRule {
 	if x != nil {
 		if x, ok := x.Type.(*Data_AndRule); ok {
@@ -8218,26 +8205,6 @@ type Data_CoordinatedVulnerabilityDisclosurePolicy struct {
 	CoordinatedVulnerabilityDisclosurePolicy *CoordinatedVulnerabilityDisclosurePolicy `protobuf:"bytes,18002,opt,name=coordinated_vulnerability_disclosure_policy,json=coordinatedVulnerabilityDisclosurePolicy,proto3,oneof"`
 }
 
-type Data_DataConfidentialitySdnPolicy struct {
-	DataConfidentialitySdnPolicy *DataConfidentialitySDNPolicy `protobuf:"bytes,18631,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3,oneof"`
-}
-
-type Data_LeastPrivilegePolicy struct {
-	LeastPrivilegePolicy *LeastPrivilegePolicy `protobuf:"bytes,9544,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3,oneof"`
-}
-
-type Data_NeedToKnowPolicy struct {
-	NeedToKnowPolicy *NeedToKnowPolicy `protobuf:"bytes,8800,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3,oneof"`
-}
-
-type Data_SdnFunctionValidationPolicy struct {
-	SdnFunctionValidationPolicy *SDNFunctionValidationPolicy `protobuf:"bytes,7153,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3,oneof"`
-}
-
-type Data_SeparationOfDutiesPolicy struct {
-	SeparationOfDutiesPolicy *SeparationOfDutiesPolicy `protobuf:"bytes,6331,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3,oneof"`
-}
-
 type Data_AndRule struct {
 	AndRule *AndRule `protobuf:"bytes,1114,opt,name=and_rule,json=andRule,proto3,oneof"`
 }
@@ -8298,16 +8265,6 @@ func (*Data_MachineLearningModel) isData_Type() {}
 
 func (*Data_CoordinatedVulnerabilityDisclosurePolicy) isData_Type() {}
 
-func (*Data_DataConfidentialitySdnPolicy) isData_Type() {}
-
-func (*Data_LeastPrivilegePolicy) isData_Type() {}
-
-func (*Data_NeedToKnowPolicy) isData_Type() {}
-
-func (*Data_SdnFunctionValidationPolicy) isData_Type() {}
-
-func (*Data_SeparationOfDutiesPolicy) isData_Type() {}
-
 func (*Data_AndRule) isData_Type() {}
 
 func (*Data_Token) isData_Type() {}
@@ -8317,26 +8274,15 @@ func (*Data_Value) isData_Type() {}
 // DataConfidentialitySDNPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 // Represents a policy section within a [PolicyDocument] describing data confidentiality requirements for Software Defined Networking (SDN). isDefined: whether this policy section is present and defined.
 type DataConfidentialitySDNPolicy struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,15489,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,876,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,3163,opt,name=id,proto3" json:"id,omitempty"`
-	IsDefined    bool                   `protobuf:"varint,17955,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
-	Labels       map[string]string      `protobuf:"bytes,14977,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,7916,opt,name=name,proto3" json:"name,omitempty"`
-	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,5124,opt,name=raw,proto3" json:"raw,omitempty"`
-	ContextId     *string       `protobuf:"bytes,11333,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,3177,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
-	PolicyRuleIds []string      `protobuf:"bytes,5689,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
-	ParentId      *string       `protobuf:"bytes,16709,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsDefined     bool                   `protobuf:"varint,1199,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DataConfidentialitySDNPolicy) Reset() {
 	*x = DataConfidentialitySDNPolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[70]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8348,7 +8294,7 @@ func (x *DataConfidentialitySDNPolicy) String() string {
 func (*DataConfidentialitySDNPolicy) ProtoMessage() {}
 
 func (x *DataConfidentialitySDNPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[70]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8361,28 +8307,7 @@ func (x *DataConfidentialitySDNPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataConfidentialitySDNPolicy.ProtoReflect.Descriptor instead.
 func (*DataConfidentialitySDNPolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{70}
-}
-
-func (x *DataConfidentialitySDNPolicy) GetCreationTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreationTime
-	}
-	return nil
-}
-
-func (x *DataConfidentialitySDNPolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *DataConfidentialitySDNPolicy) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *DataConfidentialitySDNPolicy) GetIsDefined() bool {
@@ -8390,55 +8315,6 @@ func (x *DataConfidentialitySDNPolicy) GetIsDefined() bool {
 		return x.IsDefined
 	}
 	return false
-}
-
-func (x *DataConfidentialitySDNPolicy) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *DataConfidentialitySDNPolicy) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *DataConfidentialitySDNPolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
-	}
-	return ""
-}
-
-func (x *DataConfidentialitySDNPolicy) GetContextId() string {
-	if x != nil && x.ContextId != nil {
-		return *x.ContextId
-	}
-	return ""
-}
-
-func (x *DataConfidentialitySDNPolicy) GetDataLocation() *DataLocation {
-	if x != nil {
-		return x.DataLocation
-	}
-	return nil
-}
-
-func (x *DataConfidentialitySDNPolicy) GetPolicyRuleIds() []string {
-	if x != nil {
-		return x.PolicyRuleIds
-	}
-	return nil
-}
-
-func (x *DataConfidentialitySDNPolicy) GetParentId() string {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return ""
 }
 
 // DataLocation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -8456,7 +8332,7 @@ type DataLocation struct {
 
 func (x *DataLocation) Reset() {
 	*x = DataLocation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[71]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8468,7 +8344,7 @@ func (x *DataLocation) String() string {
 func (*DataLocation) ProtoMessage() {}
 
 func (x *DataLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[71]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8481,7 +8357,7 @@ func (x *DataLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataLocation.ProtoReflect.Descriptor instead.
 func (*DataLocation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{71}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *DataLocation) GetType() isDataLocation_Type {
@@ -8538,7 +8414,7 @@ type DatabaseConnect struct {
 
 func (x *DatabaseConnect) Reset() {
 	*x = DatabaseConnect{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[72]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8550,7 +8426,7 @@ func (x *DatabaseConnect) String() string {
 func (*DatabaseConnect) ProtoMessage() {}
 
 func (x *DatabaseConnect) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[72]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8563,7 +8439,7 @@ func (x *DatabaseConnect) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatabaseConnect.ProtoReflect.Descriptor instead.
 func (*DatabaseConnect) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{72}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *DatabaseConnect) GetCalls() []string {
@@ -8608,7 +8484,7 @@ type DatabaseOperation struct {
 
 func (x *DatabaseOperation) Reset() {
 	*x = DatabaseOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8620,7 +8496,7 @@ func (x *DatabaseOperation) String() string {
 func (*DatabaseOperation) ProtoMessage() {}
 
 func (x *DatabaseOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8633,7 +8509,7 @@ func (x *DatabaseOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatabaseOperation.ProtoReflect.Descriptor instead.
 func (*DatabaseOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{73}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *DatabaseOperation) GetType() isDatabaseOperation_Type {
@@ -8691,7 +8567,7 @@ type DatabaseQuery struct {
 
 func (x *DatabaseQuery) Reset() {
 	*x = DatabaseQuery{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8703,7 +8579,7 @@ func (x *DatabaseQuery) String() string {
 func (*DatabaseQuery) ProtoMessage() {}
 
 func (x *DatabaseQuery) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8716,7 +8592,7 @@ func (x *DatabaseQuery) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatabaseQuery.ProtoReflect.Descriptor instead.
 func (*DatabaseQuery) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{74}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *DatabaseQuery) GetCalls() []string {
@@ -8771,7 +8647,7 @@ type DatabaseService struct {
 
 func (x *DatabaseService) Reset() {
 	*x = DatabaseService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[75]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8783,7 +8659,7 @@ func (x *DatabaseService) String() string {
 func (*DatabaseService) ProtoMessage() {}
 
 func (x *DatabaseService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[75]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8796,7 +8672,7 @@ func (x *DatabaseService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatabaseService.ProtoReflect.Descriptor instead.
 func (*DatabaseService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{75}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *DatabaseService) GetType() isDatabaseService_Type {
@@ -8901,7 +8777,7 @@ type DatabaseStorage struct {
 
 func (x *DatabaseStorage) Reset() {
 	*x = DatabaseStorage{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[76]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8913,7 +8789,7 @@ func (x *DatabaseStorage) String() string {
 func (*DatabaseStorage) ProtoMessage() {}
 
 func (x *DatabaseStorage) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[76]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8926,7 +8802,7 @@ func (x *DatabaseStorage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatabaseStorage.ProtoReflect.Descriptor instead.
 func (*DatabaseStorage) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{76}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *DatabaseStorage) GetCreationTime() *timestamppb.Timestamp {
@@ -9081,7 +8957,7 @@ type DeAllocate struct {
 
 func (x *DeAllocate) Reset() {
 	*x = DeAllocate{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[77]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9093,7 +8969,7 @@ func (x *DeAllocate) String() string {
 func (*DeAllocate) ProtoMessage() {}
 
 func (x *DeAllocate) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[77]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9106,7 +8982,7 @@ func (x *DeAllocate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeAllocate.ProtoReflect.Descriptor instead.
 func (*DeAllocate) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{77}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *DeAllocate) GetCodeRegion() *CodeRegion {
@@ -9136,7 +9012,7 @@ type Decryption struct {
 
 func (x *Decryption) Reset() {
 	*x = Decryption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[78]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9148,7 +9024,7 @@ func (x *Decryption) String() string {
 func (*Decryption) ProtoMessage() {}
 
 func (x *Decryption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[78]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9161,7 +9037,7 @@ func (x *Decryption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Decryption.ProtoReflect.Descriptor instead.
 func (*Decryption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{78}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *Decryption) GetAlgorithm() string {
@@ -9216,7 +9092,7 @@ type DeviceProvisioningService struct {
 
 func (x *DeviceProvisioningService) Reset() {
 	*x = DeviceProvisioningService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[79]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9228,7 +9104,7 @@ func (x *DeviceProvisioningService) String() string {
 func (*DeviceProvisioningService) ProtoMessage() {}
 
 func (x *DeviceProvisioningService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[79]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9241,7 +9117,7 @@ func (x *DeviceProvisioningService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceProvisioningService.ProtoReflect.Descriptor instead.
 func (*DeviceProvisioningService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{79}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *DeviceProvisioningService) GetCreationTime() *timestamppb.Timestamp {
@@ -9357,7 +9233,7 @@ type DiskEncryption struct {
 
 func (x *DiskEncryption) Reset() {
 	*x = DiskEncryption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[80]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9369,7 +9245,7 @@ func (x *DiskEncryption) String() string {
 func (*DiskEncryption) ProtoMessage() {}
 
 func (x *DiskEncryption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[80]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9382,7 +9258,7 @@ func (x *DiskEncryption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiskEncryption.ProtoReflect.Descriptor instead.
 func (*DiskEncryption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{80}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *DiskEncryption) GetAlgorithm() string {
@@ -9441,7 +9317,7 @@ type DiskEncryptionOperation struct {
 
 func (x *DiskEncryptionOperation) Reset() {
 	*x = DiskEncryptionOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[81]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9453,7 +9329,7 @@ func (x *DiskEncryptionOperation) String() string {
 func (*DiskEncryptionOperation) ProtoMessage() {}
 
 func (x *DiskEncryptionOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[81]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9466,7 +9342,7 @@ func (x *DiskEncryptionOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiskEncryptionOperation.ProtoReflect.Descriptor instead.
 func (*DiskEncryptionOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{81}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *DiskEncryptionOperation) GetType() isDiskEncryptionOperation_Type {
@@ -9533,7 +9409,7 @@ type DistributionOfUpdatesDocument struct {
 
 func (x *DistributionOfUpdatesDocument) Reset() {
 	*x = DistributionOfUpdatesDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[82]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9545,7 +9421,7 @@ func (x *DistributionOfUpdatesDocument) String() string {
 func (*DistributionOfUpdatesDocument) ProtoMessage() {}
 
 func (x *DistributionOfUpdatesDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[82]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9558,7 +9434,7 @@ func (x *DistributionOfUpdatesDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DistributionOfUpdatesDocument.ProtoReflect.Descriptor instead.
 func (*DistributionOfUpdatesDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{82}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *DistributionOfUpdatesDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -9677,7 +9553,7 @@ type Document struct {
 
 func (x *Document) Reset() {
 	*x = Document{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[83]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9689,7 +9565,7 @@ func (x *Document) String() string {
 func (*Document) ProtoMessage() {}
 
 func (x *Document) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[83]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9702,7 +9578,7 @@ func (x *Document) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Document.ProtoReflect.Descriptor instead.
 func (*Document) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{83}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *Document) GetType() isDocument_Type {
@@ -9929,7 +9805,7 @@ type DocumentDatabaseService struct {
 
 func (x *DocumentDatabaseService) Reset() {
 	*x = DocumentDatabaseService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[84]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9941,7 +9817,7 @@ func (x *DocumentDatabaseService) String() string {
 func (*DocumentDatabaseService) ProtoMessage() {}
 
 func (x *DocumentDatabaseService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[84]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9954,7 +9830,7 @@ func (x *DocumentDatabaseService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentDatabaseService.ProtoReflect.Descriptor instead.
 func (*DocumentDatabaseService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{84}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *DocumentDatabaseService) GetCreationTime() *timestamppb.Timestamp {
@@ -10128,7 +10004,7 @@ type DynamicLoading struct {
 
 func (x *DynamicLoading) Reset() {
 	*x = DynamicLoading{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[85]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10140,7 +10016,7 @@ func (x *DynamicLoading) String() string {
 func (*DynamicLoading) ProtoMessage() {}
 
 func (x *DynamicLoading) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[85]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10153,7 +10029,7 @@ func (x *DynamicLoading) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DynamicLoading.ProtoReflect.Descriptor instead.
 func (*DynamicLoading) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{85}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{86}
 }
 
 // DynamicLoadingOperation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -10171,7 +10047,7 @@ type DynamicLoadingOperation struct {
 
 func (x *DynamicLoadingOperation) Reset() {
 	*x = DynamicLoadingOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[86]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10183,7 +10059,7 @@ func (x *DynamicLoadingOperation) String() string {
 func (*DynamicLoadingOperation) ProtoMessage() {}
 
 func (x *DynamicLoadingOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[86]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10196,7 +10072,7 @@ func (x *DynamicLoadingOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DynamicLoadingOperation.ProtoReflect.Descriptor instead.
 func (*DynamicLoadingOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{86}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *DynamicLoadingOperation) GetType() isDynamicLoadingOperation_Type {
@@ -10263,7 +10139,7 @@ type EUDeclarationOfConformity struct {
 
 func (x *EUDeclarationOfConformity) Reset() {
 	*x = EUDeclarationOfConformity{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[87]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10275,7 +10151,7 @@ func (x *EUDeclarationOfConformity) String() string {
 func (*EUDeclarationOfConformity) ProtoMessage() {}
 
 func (x *EUDeclarationOfConformity) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[87]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10288,7 +10164,7 @@ func (x *EUDeclarationOfConformity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EUDeclarationOfConformity.ProtoReflect.Descriptor instead.
 func (*EUDeclarationOfConformity) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{87}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *EUDeclarationOfConformity) GetCreationTime() *timestamppb.Timestamp {
@@ -10399,7 +10275,7 @@ type Encryption struct {
 
 func (x *Encryption) Reset() {
 	*x = Encryption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[88]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10411,7 +10287,7 @@ func (x *Encryption) String() string {
 func (*Encryption) ProtoMessage() {}
 
 func (x *Encryption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[88]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10424,7 +10300,7 @@ func (x *Encryption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Encryption.ProtoReflect.Descriptor instead.
 func (*Encryption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{88}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *Encryption) GetType() isEncryption_Type {
@@ -10508,7 +10384,7 @@ type EncryptionInUse struct {
 
 func (x *EncryptionInUse) Reset() {
 	*x = EncryptionInUse{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[89]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10520,7 +10396,7 @@ func (x *EncryptionInUse) String() string {
 func (*EncryptionInUse) ProtoMessage() {}
 
 func (x *EncryptionInUse) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[89]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10533,7 +10409,7 @@ func (x *EncryptionInUse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EncryptionInUse.ProtoReflect.Descriptor instead.
 func (*EncryptionInUse) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{89}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *EncryptionInUse) GetEnabled() bool {
@@ -10556,7 +10432,7 @@ type EncryptionOperation struct {
 
 func (x *EncryptionOperation) Reset() {
 	*x = EncryptionOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[90]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10568,7 +10444,7 @@ func (x *EncryptionOperation) String() string {
 func (*EncryptionOperation) ProtoMessage() {}
 
 func (x *EncryptionOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[90]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10581,7 +10457,7 @@ func (x *EncryptionOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EncryptionOperation.ProtoReflect.Descriptor instead.
 func (*EncryptionOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{90}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *EncryptionOperation) GetAlgorithm() string {
@@ -10628,7 +10504,7 @@ type EntryPoint struct {
 
 func (x *EntryPoint) Reset() {
 	*x = EntryPoint{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[91]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10640,7 +10516,7 @@ func (x *EntryPoint) String() string {
 func (*EntryPoint) ProtoMessage() {}
 
 func (x *EntryPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[91]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10653,7 +10529,7 @@ func (x *EntryPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EntryPoint.ProtoReflect.Descriptor instead.
 func (*EntryPoint) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{91}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *EntryPoint) GetType() isEntryPoint_Type {
@@ -10726,7 +10602,7 @@ type EqualityCheck struct {
 
 func (x *EqualityCheck) Reset() {
 	*x = EqualityCheck{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10738,7 +10614,7 @@ func (x *EqualityCheck) String() string {
 func (*EqualityCheck) ProtoMessage() {}
 
 func (x *EqualityCheck) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10751,7 +10627,7 @@ func (x *EqualityCheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EqualityCheck.ProtoReflect.Descriptor instead.
 func (*EqualityCheck) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{92}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *EqualityCheck) GetCodeRegion() *CodeRegion {
@@ -10792,7 +10668,7 @@ type Error struct {
 
 func (x *Error) Reset() {
 	*x = Error{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[93]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10804,7 +10680,7 @@ func (x *Error) String() string {
 func (*Error) ProtoMessage() {}
 
 func (x *Error) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[93]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10817,7 +10693,7 @@ func (x *Error) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Error.ProtoReflect.Descriptor instead.
 func (*Error) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{93}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *Error) GetMessage() string {
@@ -10839,7 +10715,7 @@ type ExitBoundaryOperation struct {
 
 func (x *ExitBoundaryOperation) Reset() {
 	*x = ExitBoundaryOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[94]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10851,7 +10727,7 @@ func (x *ExitBoundaryOperation) String() string {
 func (*ExitBoundaryOperation) ProtoMessage() {}
 
 func (x *ExitBoundaryOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[94]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10864,7 +10740,7 @@ func (x *ExitBoundaryOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExitBoundaryOperation.ProtoReflect.Descriptor instead.
 func (*ExitBoundaryOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{94}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *ExitBoundaryOperation) GetBoundary() *Boundary {
@@ -10890,7 +10766,7 @@ type ExplainableResults struct {
 
 func (x *ExplainableResults) Reset() {
 	*x = ExplainableResults{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[95]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10902,7 +10778,7 @@ func (x *ExplainableResults) String() string {
 func (*ExplainableResults) ProtoMessage() {}
 
 func (x *ExplainableResults) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[95]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10915,7 +10791,7 @@ func (x *ExplainableResults) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainableResults.ProtoReflect.Descriptor instead.
 func (*ExplainableResults) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{95}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{96}
 }
 
 // File is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -10936,7 +10812,7 @@ type File struct {
 
 func (x *File) Reset() {
 	*x = File{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10948,7 +10824,7 @@ func (x *File) String() string {
 func (*File) ProtoMessage() {}
 
 func (x *File) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10961,7 +10837,7 @@ func (x *File) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use File.ProtoReflect.Descriptor instead.
 func (*File) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{96}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{97}
 }
 
 func (x *File) GetCreationTime() *timestamppb.Timestamp {
@@ -11039,7 +10915,7 @@ type FileHandle struct {
 
 func (x *FileHandle) Reset() {
 	*x = FileHandle{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[97]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11051,7 +10927,7 @@ func (x *FileHandle) String() string {
 func (*FileHandle) ProtoMessage() {}
 
 func (x *FileHandle) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[97]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11064,7 +10940,7 @@ func (x *FileHandle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileHandle.ProtoReflect.Descriptor instead.
 func (*FileHandle) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{97}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *FileHandle) GetCreationTime() *timestamppb.Timestamp {
@@ -11138,7 +11014,7 @@ type FileLikeObject struct {
 
 func (x *FileLikeObject) Reset() {
 	*x = FileLikeObject{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[98]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11150,7 +11026,7 @@ func (x *FileLikeObject) String() string {
 func (*FileLikeObject) ProtoMessage() {}
 
 func (x *FileLikeObject) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[98]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11163,7 +11039,7 @@ func (x *FileLikeObject) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileLikeObject.ProtoReflect.Descriptor instead.
 func (*FileLikeObject) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{98}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{99}
 }
 
 func (x *FileLikeObject) GetType() isFileLikeObject_Type {
@@ -11218,7 +11094,7 @@ type FileOperation struct {
 
 func (x *FileOperation) Reset() {
 	*x = FileOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11230,7 +11106,7 @@ func (x *FileOperation) String() string {
 func (*FileOperation) ProtoMessage() {}
 
 func (x *FileOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11243,7 +11119,7 @@ func (x *FileOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileOperation.ProtoReflect.Descriptor instead.
 func (*FileOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{99}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{100}
 }
 
 func (x *FileOperation) GetCodeRegion() *CodeRegion {
@@ -11290,7 +11166,7 @@ type FileStorage struct {
 
 func (x *FileStorage) Reset() {
 	*x = FileStorage{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11302,7 +11178,7 @@ func (x *FileStorage) String() string {
 func (*FileStorage) ProtoMessage() {}
 
 func (x *FileStorage) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11315,7 +11191,7 @@ func (x *FileStorage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileStorage.ProtoReflect.Descriptor instead.
 func (*FileStorage) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{100}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{101}
 }
 
 func (x *FileStorage) GetCreationTime() *timestamppb.Timestamp {
@@ -11491,7 +11367,7 @@ type FileStorageService struct {
 
 func (x *FileStorageService) Reset() {
 	*x = FileStorageService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11503,7 +11379,7 @@ func (x *FileStorageService) String() string {
 func (*FileStorageService) ProtoMessage() {}
 
 func (x *FileStorageService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11516,7 +11392,7 @@ func (x *FileStorageService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileStorageService.ProtoReflect.Descriptor instead.
 func (*FileStorageService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{101}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{102}
 }
 
 func (x *FileStorageService) GetCreationTime() *timestamppb.Timestamp {
@@ -11687,7 +11563,7 @@ type Firewall struct {
 
 func (x *Firewall) Reset() {
 	*x = Firewall{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[102]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11699,7 +11575,7 @@ func (x *Firewall) String() string {
 func (*Firewall) ProtoMessage() {}
 
 func (x *Firewall) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[102]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11712,7 +11588,7 @@ func (x *Firewall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Firewall.ProtoReflect.Descriptor instead.
 func (*Firewall) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{102}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{103}
 }
 
 func (x *Firewall) GetType() isFirewall_Type {
@@ -11772,7 +11648,7 @@ type Framework struct {
 
 func (x *Framework) Reset() {
 	*x = Framework{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[103]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[104]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11784,7 +11660,7 @@ func (x *Framework) String() string {
 func (*Framework) ProtoMessage() {}
 
 func (x *Framework) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[103]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[104]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11797,7 +11673,7 @@ func (x *Framework) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Framework.ProtoReflect.Descriptor instead.
 func (*Framework) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{103}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{104}
 }
 
 func (x *Framework) GetType() isFramework_Type {
@@ -11901,7 +11777,7 @@ type Function struct {
 
 func (x *Function) Reset() {
 	*x = Function{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[104]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[105]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11913,7 +11789,7 @@ func (x *Function) String() string {
 func (*Function) ProtoMessage() {}
 
 func (x *Function) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[104]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[105]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11926,7 +11802,7 @@ func (x *Function) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Function.ProtoReflect.Descriptor instead.
 func (*Function) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{104}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{105}
 }
 
 func (x *Function) GetCreationTime() *timestamppb.Timestamp {
@@ -12099,7 +11975,7 @@ type FunctionService struct {
 
 func (x *FunctionService) Reset() {
 	*x = FunctionService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[105]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12111,7 +11987,7 @@ func (x *FunctionService) String() string {
 func (*FunctionService) ProtoMessage() {}
 
 func (x *FunctionService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[105]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12124,7 +12000,7 @@ func (x *FunctionService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionService.ProtoReflect.Descriptor instead.
 func (*FunctionService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{105}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{106}
 }
 
 func (x *FunctionService) GetCreationTime() *timestamppb.Timestamp {
@@ -12339,6 +12215,11 @@ type Functionality struct {
 	//	*Functionality_GetSecret
 	//	*Functionality_Output
 	//	*Functionality_Padding
+	//	*Functionality_DataConfidentialitySdnPolicy
+	//	*Functionality_LeastPrivilegePolicy
+	//	*Functionality_NeedToKnowPolicy
+	//	*Functionality_SdnFunctionValidationPolicy
+	//	*Functionality_SeparationOfDutiesPolicy
 	//	*Functionality_Principal
 	//	*Functionality_ProtectedAsset
 	//	*Functionality_RequestForChange
@@ -12353,7 +12234,7 @@ type Functionality struct {
 
 func (x *Functionality) Reset() {
 	*x = Functionality{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[106]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[107]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12365,7 +12246,7 @@ func (x *Functionality) String() string {
 func (*Functionality) ProtoMessage() {}
 
 func (x *Functionality) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[106]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[107]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12378,7 +12259,7 @@ func (x *Functionality) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Functionality.ProtoReflect.Descriptor instead.
 func (*Functionality) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{106}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{107}
 }
 
 func (x *Functionality) GetType() isFunctionality_Type {
@@ -12991,6 +12872,51 @@ func (x *Functionality) GetPadding() *Padding {
 	return nil
 }
 
+func (x *Functionality) GetDataConfidentialitySdnPolicy() *DataConfidentialitySDNPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Functionality_DataConfidentialitySdnPolicy); ok {
+			return x.DataConfidentialitySdnPolicy
+		}
+	}
+	return nil
+}
+
+func (x *Functionality) GetLeastPrivilegePolicy() *LeastPrivilegePolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Functionality_LeastPrivilegePolicy); ok {
+			return x.LeastPrivilegePolicy
+		}
+	}
+	return nil
+}
+
+func (x *Functionality) GetNeedToKnowPolicy() *NeedToKnowPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Functionality_NeedToKnowPolicy); ok {
+			return x.NeedToKnowPolicy
+		}
+	}
+	return nil
+}
+
+func (x *Functionality) GetSdnFunctionValidationPolicy() *SDNFunctionValidationPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Functionality_SdnFunctionValidationPolicy); ok {
+			return x.SdnFunctionValidationPolicy
+		}
+	}
+	return nil
+}
+
+func (x *Functionality) GetSeparationOfDutiesPolicy() *SeparationOfDutiesPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Functionality_SeparationOfDutiesPolicy); ok {
+			return x.SeparationOfDutiesPolicy
+		}
+	}
+	return nil
+}
+
 func (x *Functionality) GetPrincipal() *Principal {
 	if x != nil {
 		if x, ok := x.Type.(*Functionality_Principal); ok {
@@ -13326,6 +13252,26 @@ type Functionality_Padding struct {
 	Padding *Padding `protobuf:"bytes,9245,opt,name=padding,proto3,oneof"`
 }
 
+type Functionality_DataConfidentialitySdnPolicy struct {
+	DataConfidentialitySdnPolicy *DataConfidentialitySDNPolicy `protobuf:"bytes,12690,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3,oneof"`
+}
+
+type Functionality_LeastPrivilegePolicy struct {
+	LeastPrivilegePolicy *LeastPrivilegePolicy `protobuf:"bytes,15025,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3,oneof"`
+}
+
+type Functionality_NeedToKnowPolicy struct {
+	NeedToKnowPolicy *NeedToKnowPolicy `protobuf:"bytes,17201,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3,oneof"`
+}
+
+type Functionality_SdnFunctionValidationPolicy struct {
+	SdnFunctionValidationPolicy *SDNFunctionValidationPolicy `protobuf:"bytes,1891,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3,oneof"`
+}
+
+type Functionality_SeparationOfDutiesPolicy struct {
+	SeparationOfDutiesPolicy *SeparationOfDutiesPolicy `protobuf:"bytes,1439,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3,oneof"`
+}
+
 type Functionality_Principal struct {
 	Principal *Principal `protobuf:"bytes,16173,opt,name=principal,proto3,oneof"`
 }
@@ -13488,6 +13434,16 @@ func (*Functionality_Output) isFunctionality_Type() {}
 
 func (*Functionality_Padding) isFunctionality_Type() {}
 
+func (*Functionality_DataConfidentialitySdnPolicy) isFunctionality_Type() {}
+
+func (*Functionality_LeastPrivilegePolicy) isFunctionality_Type() {}
+
+func (*Functionality_NeedToKnowPolicy) isFunctionality_Type() {}
+
+func (*Functionality_SdnFunctionValidationPolicy) isFunctionality_Type() {}
+
+func (*Functionality_SeparationOfDutiesPolicy) isFunctionality_Type() {}
+
 func (*Functionality_Principal) isFunctionality_Type() {}
 
 func (*Functionality_ProtectedAsset) isFunctionality_Type() {}
@@ -13516,7 +13472,7 @@ type GenericDocument struct {
 
 func (x *GenericDocument) Reset() {
 	*x = GenericDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[107]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[108]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13528,7 +13484,7 @@ func (x *GenericDocument) String() string {
 func (*GenericDocument) ProtoMessage() {}
 
 func (x *GenericDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[107]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[108]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13541,7 +13497,7 @@ func (x *GenericDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenericDocument.ProtoReflect.Descriptor instead.
 func (*GenericDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{107}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{108}
 }
 
 func (x *GenericDocument) GetType() isGenericDocument_Type {
@@ -13600,7 +13556,7 @@ type GenericNetworkService struct {
 
 func (x *GenericNetworkService) Reset() {
 	*x = GenericNetworkService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[108]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[109]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13612,7 +13568,7 @@ func (x *GenericNetworkService) String() string {
 func (*GenericNetworkService) ProtoMessage() {}
 
 func (x *GenericNetworkService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[108]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[109]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13625,7 +13581,7 @@ func (x *GenericNetworkService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenericNetworkService.ProtoReflect.Descriptor instead.
 func (*GenericNetworkService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{108}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{109}
 }
 
 func (x *GenericNetworkService) GetCreationTime() *timestamppb.Timestamp {
@@ -13771,7 +13727,7 @@ type GeoLocation struct {
 
 func (x *GeoLocation) Reset() {
 	*x = GeoLocation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[109]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[110]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13783,7 +13739,7 @@ func (x *GeoLocation) String() string {
 func (*GeoLocation) ProtoMessage() {}
 
 func (x *GeoLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[109]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[110]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13796,7 +13752,7 @@ func (x *GeoLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeoLocation.ProtoReflect.Descriptor instead.
 func (*GeoLocation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{109}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{110}
 }
 
 func (x *GeoLocation) GetRegion() string {
@@ -13816,7 +13772,7 @@ type GeoRedundancy struct {
 
 func (x *GeoRedundancy) Reset() {
 	*x = GeoRedundancy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[110]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[111]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13828,7 +13784,7 @@ func (x *GeoRedundancy) String() string {
 func (*GeoRedundancy) ProtoMessage() {}
 
 func (x *GeoRedundancy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[110]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[111]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13841,7 +13797,7 @@ func (x *GeoRedundancy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeoRedundancy.ProtoReflect.Descriptor instead.
 func (*GeoRedundancy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{110}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{111}
 }
 
 func (x *GeoRedundancy) GetGeoLocations() []*GeoLocation {
@@ -13862,7 +13818,7 @@ type GetCurrentTimeOperation struct {
 
 func (x *GetCurrentTimeOperation) Reset() {
 	*x = GetCurrentTimeOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[111]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13874,7 +13830,7 @@ func (x *GetCurrentTimeOperation) String() string {
 func (*GetCurrentTimeOperation) ProtoMessage() {}
 
 func (x *GetCurrentTimeOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[111]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13887,7 +13843,7 @@ func (x *GetCurrentTimeOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentTimeOperation.ProtoReflect.Descriptor instead.
 func (*GetCurrentTimeOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{111}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{112}
 }
 
 func (x *GetCurrentTimeOperation) GetCodeRegion() *CodeRegion {
@@ -13916,7 +13872,7 @@ type GetSecret struct {
 
 func (x *GetSecret) Reset() {
 	*x = GetSecret{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[113]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13928,7 +13884,7 @@ func (x *GetSecret) String() string {
 func (*GetSecret) ProtoMessage() {}
 
 func (x *GetSecret) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[113]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13941,7 +13897,7 @@ func (x *GetSecret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecret.ProtoReflect.Descriptor instead.
 func (*GetSecret) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{112}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{113}
 }
 
 func (x *GetSecret) GetCodeRegion() *CodeRegion {
@@ -13974,7 +13930,7 @@ type Governance struct {
 
 func (x *Governance) Reset() {
 	*x = Governance{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[113]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13986,7 +13942,7 @@ func (x *Governance) String() string {
 func (*Governance) ProtoMessage() {}
 
 func (x *Governance) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[113]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13999,7 +13955,7 @@ func (x *Governance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Governance.ProtoReflect.Descriptor instead.
 func (*Governance) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{113}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{114}
 }
 
 func (x *Governance) GetType() isGovernance_Type {
@@ -14086,7 +14042,7 @@ type Hardware struct {
 
 func (x *Hardware) Reset() {
 	*x = Hardware{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14098,7 +14054,7 @@ func (x *Hardware) String() string {
 func (*Hardware) ProtoMessage() {}
 
 func (x *Hardware) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14111,7 +14067,7 @@ func (x *Hardware) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Hardware.ProtoReflect.Descriptor instead.
 func (*Hardware) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{114}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{115}
 }
 
 func (x *Hardware) GetType() isHardware_Type {
@@ -14153,7 +14109,7 @@ type HashOperation struct {
 
 func (x *HashOperation) Reset() {
 	*x = HashOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14165,7 +14121,7 @@ func (x *HashOperation) String() string {
 func (*HashOperation) ProtoMessage() {}
 
 func (x *HashOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14178,7 +14134,7 @@ func (x *HashOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HashOperation.ProtoReflect.Descriptor instead.
 func (*HashOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{115}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{116}
 }
 
 func (x *HashOperation) GetAlgorithm() string {
@@ -14225,7 +14181,7 @@ type Http struct {
 
 func (x *Http) Reset() {
 	*x = Http{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[117]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14237,7 +14193,7 @@ func (x *Http) String() string {
 func (*Http) ProtoMessage() {}
 
 func (x *Http) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[117]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14250,7 +14206,7 @@ func (x *Http) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Http.ProtoReflect.Descriptor instead.
 func (*Http) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{116}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{117}
 }
 
 func (x *Http) GetType() isHttp_Type {
@@ -14322,7 +14278,7 @@ type HttpClient struct {
 
 func (x *HttpClient) Reset() {
 	*x = HttpClient{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[117]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[118]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14334,7 +14290,7 @@ func (x *HttpClient) String() string {
 func (*HttpClient) ProtoMessage() {}
 
 func (x *HttpClient) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[117]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[118]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14347,7 +14303,7 @@ func (x *HttpClient) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpClient.ProtoReflect.Descriptor instead.
 func (*HttpClient) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{117}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{118}
 }
 
 func (x *HttpClient) GetIsTls() bool {
@@ -14380,7 +14336,7 @@ type HttpClientLibrary struct {
 
 func (x *HttpClientLibrary) Reset() {
 	*x = HttpClientLibrary{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[118]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[119]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14392,7 +14348,7 @@ func (x *HttpClientLibrary) String() string {
 func (*HttpClientLibrary) ProtoMessage() {}
 
 func (x *HttpClientLibrary) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[118]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[119]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14405,7 +14361,7 @@ func (x *HttpClientLibrary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpClientLibrary.ProtoReflect.Descriptor instead.
 func (*HttpClientLibrary) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{118}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{119}
 }
 
 // HttpClientOperation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -14422,7 +14378,7 @@ type HttpClientOperation struct {
 
 func (x *HttpClientOperation) Reset() {
 	*x = HttpClientOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[119]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[120]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14434,7 +14390,7 @@ func (x *HttpClientOperation) String() string {
 func (*HttpClientOperation) ProtoMessage() {}
 
 func (x *HttpClientOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[119]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[120]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14447,7 +14403,7 @@ func (x *HttpClientOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpClientOperation.ProtoReflect.Descriptor instead.
 func (*HttpClientOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{119}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{120}
 }
 
 func (x *HttpClientOperation) GetType() isHttpClientOperation_Type {
@@ -14497,7 +14453,7 @@ type HttpEndpoint struct {
 
 func (x *HttpEndpoint) Reset() {
 	*x = HttpEndpoint{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[120]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[121]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14509,7 +14465,7 @@ func (x *HttpEndpoint) String() string {
 func (*HttpEndpoint) ProtoMessage() {}
 
 func (x *HttpEndpoint) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[120]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[121]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14522,7 +14478,7 @@ func (x *HttpEndpoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpEndpoint.ProtoReflect.Descriptor instead.
 func (*HttpEndpoint) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{120}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{121}
 }
 
 func (x *HttpEndpoint) GetHandler() string {
@@ -14607,7 +14563,7 @@ type HttpEndpointOperation struct {
 
 func (x *HttpEndpointOperation) Reset() {
 	*x = HttpEndpointOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[121]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[122]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14619,7 +14575,7 @@ func (x *HttpEndpointOperation) String() string {
 func (*HttpEndpointOperation) ProtoMessage() {}
 
 func (x *HttpEndpointOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[121]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[122]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14632,7 +14588,7 @@ func (x *HttpEndpointOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpEndpointOperation.ProtoReflect.Descriptor instead.
 func (*HttpEndpointOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{121}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{122}
 }
 
 func (x *HttpEndpointOperation) GetCodeRegion() *CodeRegion {
@@ -14665,7 +14621,7 @@ type HttpRequest struct {
 
 func (x *HttpRequest) Reset() {
 	*x = HttpRequest{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[122]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[123]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14677,7 +14633,7 @@ func (x *HttpRequest) String() string {
 func (*HttpRequest) ProtoMessage() {}
 
 func (x *HttpRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[122]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[123]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14690,7 +14646,7 @@ func (x *HttpRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpRequest.ProtoReflect.Descriptor instead.
 func (*HttpRequest) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{122}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{123}
 }
 
 func (x *HttpRequest) GetCall() string {
@@ -14745,7 +14701,7 @@ type HttpRequestContext struct {
 
 func (x *HttpRequestContext) Reset() {
 	*x = HttpRequestContext{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[123]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[124]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14757,7 +14713,7 @@ func (x *HttpRequestContext) String() string {
 func (*HttpRequestContext) ProtoMessage() {}
 
 func (x *HttpRequestContext) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[123]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[124]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14770,7 +14726,7 @@ func (x *HttpRequestContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpRequestContext.ProtoReflect.Descriptor instead.
 func (*HttpRequestContext) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{123}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{124}
 }
 
 // HttpRequestHandler is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -14785,7 +14741,7 @@ type HttpRequestHandler struct {
 
 func (x *HttpRequestHandler) Reset() {
 	*x = HttpRequestHandler{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[124]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14797,7 +14753,7 @@ func (x *HttpRequestHandler) String() string {
 func (*HttpRequestHandler) ProtoMessage() {}
 
 func (x *HttpRequestHandler) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[124]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14810,7 +14766,7 @@ func (x *HttpRequestHandler) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpRequestHandler.ProtoReflect.Descriptor instead.
 func (*HttpRequestHandler) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{124}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{125}
 }
 
 func (x *HttpRequestHandler) GetPath() string {
@@ -14847,7 +14803,7 @@ type HttpRequestHandlerOperation struct {
 
 func (x *HttpRequestHandlerOperation) Reset() {
 	*x = HttpRequestHandlerOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[126]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14859,7 +14815,7 @@ func (x *HttpRequestHandlerOperation) String() string {
 func (*HttpRequestHandlerOperation) ProtoMessage() {}
 
 func (x *HttpRequestHandlerOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[126]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14872,7 +14828,7 @@ func (x *HttpRequestHandlerOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpRequestHandlerOperation.ProtoReflect.Descriptor instead.
 func (*HttpRequestHandlerOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{125}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{126}
 }
 
 func (x *HttpRequestHandlerOperation) GetType() isHttpRequestHandlerOperation_Type {
@@ -14911,7 +14867,7 @@ type HttpServer struct {
 
 func (x *HttpServer) Reset() {
 	*x = HttpServer{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[126]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[127]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14923,7 +14879,7 @@ func (x *HttpServer) String() string {
 func (*HttpServer) ProtoMessage() {}
 
 func (x *HttpServer) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[126]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[127]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14936,7 +14892,7 @@ func (x *HttpServer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpServer.ProtoReflect.Descriptor instead.
 func (*HttpServer) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{126}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{127}
 }
 
 func (x *HttpServer) GetHttpRequestHandler() *HttpRequestHandler {
@@ -14966,7 +14922,7 @@ type HybridCipher struct {
 
 func (x *HybridCipher) Reset() {
 	*x = HybridCipher{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[127]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14978,7 +14934,7 @@ func (x *HybridCipher) String() string {
 func (*HybridCipher) ProtoMessage() {}
 
 func (x *HybridCipher) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[127]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14991,7 +14947,7 @@ func (x *HybridCipher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HybridCipher.ProtoReflect.Descriptor instead.
 func (*HybridCipher) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{127}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{128}
 }
 
 func (x *HybridCipher) GetBlockSize() int32 {
@@ -15064,7 +15020,7 @@ type Identifiable struct {
 
 func (x *Identifiable) Reset() {
 	*x = Identifiable{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15076,7 +15032,7 @@ func (x *Identifiable) String() string {
 func (*Identifiable) ProtoMessage() {}
 
 func (x *Identifiable) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15089,7 +15045,7 @@ func (x *Identifiable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Identifiable.ProtoReflect.Descriptor instead.
 func (*Identifiable) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{128}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{129}
 }
 
 func (x *Identifiable) GetType() isIdentifiable_Type {
@@ -15164,7 +15120,7 @@ type Identity struct {
 
 func (x *Identity) Reset() {
 	*x = Identity{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15176,7 +15132,7 @@ func (x *Identity) String() string {
 func (*Identity) ProtoMessage() {}
 
 func (x *Identity) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15189,7 +15145,7 @@ func (x *Identity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Identity.ProtoReflect.Descriptor instead.
 func (*Identity) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{129}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{130}
 }
 
 func (x *Identity) GetActivated() bool {
@@ -15353,7 +15309,7 @@ type Image struct {
 
 func (x *Image) Reset() {
 	*x = Image{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15365,7 +15321,7 @@ func (x *Image) String() string {
 func (*Image) ProtoMessage() {}
 
 func (x *Image) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15378,7 +15334,7 @@ func (x *Image) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Image.ProtoReflect.Descriptor instead.
 func (*Image) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{130}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{131}
 }
 
 func (x *Image) GetType() isImage_Type {
@@ -15432,7 +15388,7 @@ type Immutability struct {
 
 func (x *Immutability) Reset() {
 	*x = Immutability{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[132]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15444,7 +15400,7 @@ func (x *Immutability) String() string {
 func (*Immutability) ProtoMessage() {}
 
 func (x *Immutability) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[132]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15457,7 +15413,7 @@ func (x *Immutability) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Immutability.ProtoReflect.Descriptor instead.
 func (*Immutability) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{131}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{132}
 }
 
 func (x *Immutability) GetEnabled() bool {
@@ -15477,7 +15433,7 @@ type InitializationVector struct {
 
 func (x *InitializationVector) Reset() {
 	*x = InitializationVector{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[132]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[133]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15489,7 +15445,7 @@ func (x *InitializationVector) String() string {
 func (*InitializationVector) ProtoMessage() {}
 
 func (x *InitializationVector) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[132]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[133]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15502,7 +15458,7 @@ func (x *InitializationVector) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InitializationVector.ProtoReflect.Descriptor instead.
 func (*InitializationVector) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{132}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{133}
 }
 
 // Input is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -15515,7 +15471,7 @@ type Input struct {
 
 func (x *Input) Reset() {
 	*x = Input{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[133]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[134]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15527,7 +15483,7 @@ func (x *Input) String() string {
 func (*Input) ProtoMessage() {}
 
 func (x *Input) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[133]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[134]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15540,7 +15496,7 @@ func (x *Input) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Input.ProtoReflect.Descriptor instead.
 func (*Input) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{133}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{134}
 }
 
 // InputValidationOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -15555,7 +15511,7 @@ type InputValidationOperation struct {
 
 func (x *InputValidationOperation) Reset() {
 	*x = InputValidationOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[134]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[135]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15567,7 +15523,7 @@ func (x *InputValidationOperation) String() string {
 func (*InputValidationOperation) ProtoMessage() {}
 
 func (x *InputValidationOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[134]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[135]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15580,7 +15536,7 @@ func (x *InputValidationOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InputValidationOperation.ProtoReflect.Descriptor instead.
 func (*InputValidationOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{134}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{135}
 }
 
 func (x *InputValidationOperation) GetCodeRegion() *CodeRegion {
@@ -15615,7 +15571,7 @@ type InstallUpdateOperation struct {
 
 func (x *InstallUpdateOperation) Reset() {
 	*x = InstallUpdateOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[135]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[136]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15627,7 +15583,7 @@ func (x *InstallUpdateOperation) String() string {
 func (*InstallUpdateOperation) ProtoMessage() {}
 
 func (x *InstallUpdateOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[135]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[136]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15640,7 +15596,7 @@ func (x *InstallUpdateOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstallUpdateOperation.ProtoReflect.Descriptor instead.
 func (*InstallUpdateOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{135}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{136}
 }
 
 func (x *InstallUpdateOperation) GetAutomaticUpdates() *AutomaticUpdates {
@@ -15677,7 +15633,7 @@ type Integrity struct {
 
 func (x *Integrity) Reset() {
 	*x = Integrity{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[136]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15689,7 +15645,7 @@ func (x *Integrity) String() string {
 func (*Integrity) ProtoMessage() {}
 
 func (x *Integrity) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[136]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15702,7 +15658,7 @@ func (x *Integrity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Integrity.ProtoReflect.Descriptor instead.
 func (*Integrity) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{136}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{137}
 }
 
 func (x *Integrity) GetType() isIntegrity_Type {
@@ -15850,7 +15806,7 @@ type IoT struct {
 
 func (x *IoT) Reset() {
 	*x = IoT{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[138]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15862,7 +15818,7 @@ func (x *IoT) String() string {
 func (*IoT) ProtoMessage() {}
 
 func (x *IoT) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[138]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15875,7 +15831,7 @@ func (x *IoT) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IoT.ProtoReflect.Descriptor instead.
 func (*IoT) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{137}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{138}
 }
 
 func (x *IoT) GetType() isIoT_Type {
@@ -15931,7 +15887,7 @@ type IssueJwt struct {
 
 func (x *IssueJwt) Reset() {
 	*x = IssueJwt{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[138]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15943,7 +15899,7 @@ func (x *IssueJwt) String() string {
 func (*IssueJwt) ProtoMessage() {}
 
 func (x *IssueJwt) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[138]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15956,7 +15912,7 @@ func (x *IssueJwt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IssueJwt.ProtoReflect.Descriptor instead.
 func (*IssueJwt) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{138}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{139}
 }
 
 func (x *IssueJwt) GetAuthenticity() *Authenticity {
@@ -15997,7 +15953,7 @@ type Job struct {
 
 func (x *Job) Reset() {
 	*x = Job{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[140]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16009,7 +15965,7 @@ func (x *Job) String() string {
 func (*Job) ProtoMessage() {}
 
 func (x *Job) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[140]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16022,7 +15978,7 @@ func (x *Job) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Job.ProtoReflect.Descriptor instead.
 func (*Job) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{139}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{140}
 }
 
 func (x *Job) GetCreationTime() *timestamppb.Timestamp {
@@ -16140,7 +16096,7 @@ type JwtAuthentication struct {
 
 func (x *JwtAuthentication) Reset() {
 	*x = JwtAuthentication{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[140]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16152,7 +16108,7 @@ func (x *JwtAuthentication) String() string {
 func (*JwtAuthentication) ProtoMessage() {}
 
 func (x *JwtAuthentication) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[140]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16165,7 +16121,7 @@ func (x *JwtAuthentication) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtAuthentication.ProtoReflect.Descriptor instead.
 func (*JwtAuthentication) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{140}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{141}
 }
 
 func (x *JwtAuthentication) GetContextIsChecked() bool {
@@ -16224,7 +16180,7 @@ type TokenBasedAuthentication struct {
 
 func (x *TokenBasedAuthentication) Reset() {
 	*x = TokenBasedAuthentication{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16236,7 +16192,7 @@ func (x *TokenBasedAuthentication) String() string {
 func (*TokenBasedAuthentication) ProtoMessage() {}
 
 func (x *TokenBasedAuthentication) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16249,7 +16205,7 @@ func (x *TokenBasedAuthentication) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenBasedAuthentication.ProtoReflect.Descriptor instead.
 func (*TokenBasedAuthentication) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{141}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{142}
 }
 
 func (x *TokenBasedAuthentication) GetType() isTokenBasedAuthentication_Type {
@@ -16312,7 +16268,7 @@ type Key struct {
 
 func (x *Key) Reset() {
 	*x = Key{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[143]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16324,7 +16280,7 @@ func (x *Key) String() string {
 func (*Key) ProtoMessage() {}
 
 func (x *Key) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[143]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16337,7 +16293,7 @@ func (x *Key) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Key.ProtoReflect.Descriptor instead.
 func (*Key) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{142}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{143}
 }
 
 func (x *Key) GetAlgorithm() string {
@@ -16498,7 +16454,7 @@ type KeyDerivationFunction struct {
 
 func (x *KeyDerivationFunction) Reset() {
 	*x = KeyDerivationFunction{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[143]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[144]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16510,7 +16466,7 @@ func (x *KeyDerivationFunction) String() string {
 func (*KeyDerivationFunction) ProtoMessage() {}
 
 func (x *KeyDerivationFunction) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[143]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[144]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16523,7 +16479,7 @@ func (x *KeyDerivationFunction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KeyDerivationFunction.ProtoReflect.Descriptor instead.
 func (*KeyDerivationFunction) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{143}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{144}
 }
 
 func (x *KeyDerivationFunction) GetType() string {
@@ -16573,7 +16529,7 @@ type KeyValueDatabaseService struct {
 
 func (x *KeyValueDatabaseService) Reset() {
 	*x = KeyValueDatabaseService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[144]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[145]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16585,7 +16541,7 @@ func (x *KeyValueDatabaseService) String() string {
 func (*KeyValueDatabaseService) ProtoMessage() {}
 
 func (x *KeyValueDatabaseService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[144]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[145]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16598,7 +16554,7 @@ func (x *KeyValueDatabaseService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KeyValueDatabaseService.ProtoReflect.Descriptor instead.
 func (*KeyValueDatabaseService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{144}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{145}
 }
 
 func (x *KeyValueDatabaseService) GetCreationTime() *timestamppb.Timestamp {
@@ -16787,7 +16743,7 @@ type KeyVault struct {
 
 func (x *KeyVault) Reset() {
 	*x = KeyVault{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[145]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[146]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16799,7 +16755,7 @@ func (x *KeyVault) String() string {
 func (*KeyVault) ProtoMessage() {}
 
 func (x *KeyVault) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[145]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[146]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16812,7 +16768,7 @@ func (x *KeyVault) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KeyVault.ProtoReflect.Descriptor instead.
 func (*KeyVault) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{145}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{146}
 }
 
 func (x *KeyVault) GetCreationTime() *timestamppb.Timestamp {
@@ -16932,7 +16888,7 @@ type L3Firewall struct {
 
 func (x *L3Firewall) Reset() {
 	*x = L3Firewall{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[146]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[147]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16944,7 +16900,7 @@ func (x *L3Firewall) String() string {
 func (*L3Firewall) ProtoMessage() {}
 
 func (x *L3Firewall) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[146]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[147]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16957,7 +16913,7 @@ func (x *L3Firewall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use L3Firewall.ProtoReflect.Descriptor instead.
 func (*L3Firewall) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{146}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{147}
 }
 
 func (x *L3Firewall) GetEnabled() bool {
@@ -16984,26 +16940,15 @@ func (x *L3Firewall) GetRestrictedPorts() string {
 // LeastPrivilegePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 // Represents a policy section within a [PolicyDocument] describing least privilege requirements. isDefined: whether this policy section is present and defined.
 type LeastPrivilegePolicy struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,7311,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,13895,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,8817,opt,name=id,proto3" json:"id,omitempty"`
-	IsDefined    bool                   `protobuf:"varint,18699,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
-	Labels       map[string]string      `protobuf:"bytes,13802,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,4494,opt,name=name,proto3" json:"name,omitempty"`
-	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,7445,opt,name=raw,proto3" json:"raw,omitempty"`
-	ContextId     *string       `protobuf:"bytes,3990,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,6882,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
-	PolicyRuleIds []string      `protobuf:"bytes,8085,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
-	ParentId      *string       `protobuf:"bytes,13204,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsDefined     bool                   `protobuf:"varint,18064,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LeastPrivilegePolicy) Reset() {
 	*x = LeastPrivilegePolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[147]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[148]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17015,7 +16960,7 @@ func (x *LeastPrivilegePolicy) String() string {
 func (*LeastPrivilegePolicy) ProtoMessage() {}
 
 func (x *LeastPrivilegePolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[147]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[148]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17028,28 +16973,7 @@ func (x *LeastPrivilegePolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LeastPrivilegePolicy.ProtoReflect.Descriptor instead.
 func (*LeastPrivilegePolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{147}
-}
-
-func (x *LeastPrivilegePolicy) GetCreationTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreationTime
-	}
-	return nil
-}
-
-func (x *LeastPrivilegePolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *LeastPrivilegePolicy) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{148}
 }
 
 func (x *LeastPrivilegePolicy) GetIsDefined() bool {
@@ -17057,55 +16981,6 @@ func (x *LeastPrivilegePolicy) GetIsDefined() bool {
 		return x.IsDefined
 	}
 	return false
-}
-
-func (x *LeastPrivilegePolicy) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *LeastPrivilegePolicy) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *LeastPrivilegePolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
-	}
-	return ""
-}
-
-func (x *LeastPrivilegePolicy) GetContextId() string {
-	if x != nil && x.ContextId != nil {
-		return *x.ContextId
-	}
-	return ""
-}
-
-func (x *LeastPrivilegePolicy) GetDataLocation() *DataLocation {
-	if x != nil {
-		return x.DataLocation
-	}
-	return nil
-}
-
-func (x *LeastPrivilegePolicy) GetPolicyRuleIds() []string {
-	if x != nil {
-		return x.PolicyRuleIds
-	}
-	return nil
-}
-
-func (x *LeastPrivilegePolicy) GetParentId() string {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return ""
 }
 
 // Library is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -17130,7 +17005,7 @@ type Library struct {
 
 func (x *Library) Reset() {
 	*x = Library{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[148]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17142,7 +17017,7 @@ func (x *Library) String() string {
 func (*Library) ProtoMessage() {}
 
 func (x *Library) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[148]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17155,7 +17030,7 @@ func (x *Library) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Library.ProtoReflect.Descriptor instead.
 func (*Library) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{148}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{149}
 }
 
 func (x *Library) GetCreationTime() *timestamppb.Timestamp {
@@ -17253,7 +17128,7 @@ type LibraryEntryPoint struct {
 
 func (x *LibraryEntryPoint) Reset() {
 	*x = LibraryEntryPoint{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17265,7 +17140,7 @@ func (x *LibraryEntryPoint) String() string {
 func (*LibraryEntryPoint) ProtoMessage() {}
 
 func (x *LibraryEntryPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17278,7 +17153,7 @@ func (x *LibraryEntryPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LibraryEntryPoint.ProtoReflect.Descriptor instead.
 func (*LibraryEntryPoint) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{149}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{150}
 }
 
 func (x *LibraryEntryPoint) GetUsedBy() *OperatingSystemArchitecture {
@@ -17322,7 +17197,7 @@ type LoadBalancer struct {
 
 func (x *LoadBalancer) Reset() {
 	*x = LoadBalancer{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17334,7 +17209,7 @@ func (x *LoadBalancer) String() string {
 func (*LoadBalancer) ProtoMessage() {}
 
 func (x *LoadBalancer) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17347,7 +17222,7 @@ func (x *LoadBalancer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancer.ProtoReflect.Descriptor instead.
 func (*LoadBalancer) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{150}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{151}
 }
 
 func (x *LoadBalancer) GetCreationTime() *timestamppb.Timestamp {
@@ -17523,7 +17398,7 @@ type LoadConfiguration struct {
 
 func (x *LoadConfiguration) Reset() {
 	*x = LoadConfiguration{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[152]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17535,7 +17410,7 @@ func (x *LoadConfiguration) String() string {
 func (*LoadConfiguration) ProtoMessage() {}
 
 func (x *LoadConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[152]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17548,7 +17423,7 @@ func (x *LoadConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadConfiguration.ProtoReflect.Descriptor instead.
 func (*LoadConfiguration) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{151}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{152}
 }
 
 func (x *LoadConfiguration) GetCodeRegion() *CodeRegion {
@@ -17579,7 +17454,7 @@ type LoadLibrary struct {
 
 func (x *LoadLibrary) Reset() {
 	*x = LoadLibrary{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[152]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17591,7 +17466,7 @@ func (x *LoadLibrary) String() string {
 func (*LoadLibrary) ProtoMessage() {}
 
 func (x *LoadLibrary) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[152]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17604,7 +17479,7 @@ func (x *LoadLibrary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadLibrary.ProtoReflect.Descriptor instead.
 func (*LoadLibrary) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{152}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{153}
 }
 
 func (x *LoadLibrary) GetCodeRegion() *CodeRegion {
@@ -17648,7 +17523,7 @@ type LoadSymbol struct {
 
 func (x *LoadSymbol) Reset() {
 	*x = LoadSymbol{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17660,7 +17535,7 @@ func (x *LoadSymbol) String() string {
 func (*LoadSymbol) ProtoMessage() {}
 
 func (x *LoadSymbol) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17673,7 +17548,7 @@ func (x *LoadSymbol) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadSymbol.ProtoReflect.Descriptor instead.
 func (*LoadSymbol) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{153}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{154}
 }
 
 func (x *LoadSymbol) GetCodeRegion() *CodeRegion {
@@ -17707,7 +17582,7 @@ type LocalAttestation struct {
 
 func (x *LocalAttestation) Reset() {
 	*x = LocalAttestation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17719,7 +17594,7 @@ func (x *LocalAttestation) String() string {
 func (*LocalAttestation) ProtoMessage() {}
 
 func (x *LocalAttestation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17732,7 +17607,7 @@ func (x *LocalAttestation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalAttestation.ProtoReflect.Descriptor instead.
 func (*LocalAttestation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{154}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{155}
 }
 
 func (x *LocalAttestation) GetEnabled() bool {
@@ -17754,7 +17629,7 @@ type LocalDataLocation struct {
 
 func (x *LocalDataLocation) Reset() {
 	*x = LocalDataLocation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17766,7 +17641,7 @@ func (x *LocalDataLocation) String() string {
 func (*LocalDataLocation) ProtoMessage() {}
 
 func (x *LocalDataLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17779,7 +17654,7 @@ func (x *LocalDataLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalDataLocation.ProtoReflect.Descriptor instead.
 func (*LocalDataLocation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{155}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{156}
 }
 
 func (x *LocalDataLocation) GetPath() string {
@@ -17818,7 +17693,7 @@ type LocalEntryPoint struct {
 
 func (x *LocalEntryPoint) Reset() {
 	*x = LocalEntryPoint{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[157]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17830,7 +17705,7 @@ func (x *LocalEntryPoint) String() string {
 func (*LocalEntryPoint) ProtoMessage() {}
 
 func (x *LocalEntryPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[157]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17843,7 +17718,7 @@ func (x *LocalEntryPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalEntryPoint.ProtoReflect.Descriptor instead.
 func (*LocalEntryPoint) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{156}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{157}
 }
 
 func (x *LocalEntryPoint) GetType() isLocalEntryPoint_Type {
@@ -17897,7 +17772,7 @@ type LocalRedundancy struct {
 
 func (x *LocalRedundancy) Reset() {
 	*x = LocalRedundancy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[157]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[158]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17909,7 +17784,7 @@ func (x *LocalRedundancy) String() string {
 func (*LocalRedundancy) ProtoMessage() {}
 
 func (x *LocalRedundancy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[157]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[158]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17922,7 +17797,7 @@ func (x *LocalRedundancy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalRedundancy.ProtoReflect.Descriptor instead.
 func (*LocalRedundancy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{157}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{158}
 }
 
 func (x *LocalRedundancy) GetGeoLocations() []*GeoLocation {
@@ -17955,7 +17830,7 @@ type LogDocument struct {
 
 func (x *LogDocument) Reset() {
 	*x = LogDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[158]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[159]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17967,7 +17842,7 @@ func (x *LogDocument) String() string {
 func (*LogDocument) ProtoMessage() {}
 
 func (x *LogDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[158]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[159]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17980,7 +17855,7 @@ func (x *LogDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogDocument.ProtoReflect.Descriptor instead.
 func (*LogDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{158}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{159}
 }
 
 func (x *LogDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -18086,7 +17961,7 @@ type LogGet struct {
 
 func (x *LogGet) Reset() {
 	*x = LogGet{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[159]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[160]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18098,7 +17973,7 @@ func (x *LogGet) String() string {
 func (*LogGet) ProtoMessage() {}
 
 func (x *LogGet) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[159]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[160]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18111,7 +17986,7 @@ func (x *LogGet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogGet.ProtoReflect.Descriptor instead.
 func (*LogGet) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{159}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{160}
 }
 
 func (x *LogGet) GetCodeRegion() *CodeRegion {
@@ -18142,7 +18017,7 @@ type LogOperation struct {
 
 func (x *LogOperation) Reset() {
 	*x = LogOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[160]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[161]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18154,7 +18029,7 @@ func (x *LogOperation) String() string {
 func (*LogOperation) ProtoMessage() {}
 
 func (x *LogOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[160]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[161]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18167,7 +18042,7 @@ func (x *LogOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogOperation.ProtoReflect.Descriptor instead.
 func (*LogOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{160}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{161}
 }
 
 func (x *LogOperation) GetType() isLogOperation_Type {
@@ -18225,7 +18100,7 @@ type LogOutput struct {
 
 func (x *LogOutput) Reset() {
 	*x = LogOutput{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[161]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[162]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18237,7 +18112,7 @@ func (x *LogOutput) String() string {
 func (*LogOutput) ProtoMessage() {}
 
 func (x *LogOutput) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[161]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[162]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18250,7 +18125,7 @@ func (x *LogOutput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogOutput.ProtoReflect.Descriptor instead.
 func (*LogOutput) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{161}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{162}
 }
 
 func (x *LogOutput) GetCall() string {
@@ -18295,7 +18170,7 @@ type LogWrite struct {
 
 func (x *LogWrite) Reset() {
 	*x = LogWrite{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[162]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[163]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18307,7 +18182,7 @@ func (x *LogWrite) String() string {
 func (*LogWrite) ProtoMessage() {}
 
 func (x *LogWrite) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[162]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[163]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18320,7 +18195,7 @@ func (x *LogWrite) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogWrite.ProtoReflect.Descriptor instead.
 func (*LogWrite) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{162}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{163}
 }
 
 func (x *LogWrite) GetLogLevel() string {
@@ -18353,7 +18228,7 @@ type Logger struct {
 
 func (x *Logger) Reset() {
 	*x = Logger{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[163]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[164]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18365,7 +18240,7 @@ func (x *Logger) String() string {
 func (*Logger) ProtoMessage() {}
 
 func (x *Logger) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[163]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[164]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18378,7 +18253,7 @@ func (x *Logger) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Logger.ProtoReflect.Descriptor instead.
 func (*Logger) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{163}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{164}
 }
 
 // Logging is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -18399,7 +18274,7 @@ type Logging struct {
 
 func (x *Logging) Reset() {
 	*x = Logging{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[164]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18411,7 +18286,7 @@ func (x *Logging) String() string {
 func (*Logging) ProtoMessage() {}
 
 func (x *Logging) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[164]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18424,7 +18299,7 @@ func (x *Logging) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Logging.ProtoReflect.Descriptor instead.
 func (*Logging) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{164}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{165}
 }
 
 func (x *Logging) GetType() isLogging_Type {
@@ -18544,7 +18419,7 @@ type LoggingService struct {
 
 func (x *LoggingService) Reset() {
 	*x = LoggingService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[166]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18556,7 +18431,7 @@ func (x *LoggingService) String() string {
 func (*LoggingService) ProtoMessage() {}
 
 func (x *LoggingService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[166]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18569,7 +18444,7 @@ func (x *LoggingService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoggingService.ProtoReflect.Descriptor instead.
 func (*LoggingService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{165}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{166}
 }
 
 func (x *LoggingService) GetCreationTime() *timestamppb.Timestamp {
@@ -18726,7 +18601,7 @@ type MachineLearning struct {
 
 func (x *MachineLearning) Reset() {
 	*x = MachineLearning{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[166]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18738,7 +18613,7 @@ func (x *MachineLearning) String() string {
 func (*MachineLearning) ProtoMessage() {}
 
 func (x *MachineLearning) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[166]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18751,7 +18626,7 @@ func (x *MachineLearning) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MachineLearning.ProtoReflect.Descriptor instead.
 func (*MachineLearning) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{166}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{167}
 }
 
 func (x *MachineLearning) GetType() isMachineLearning_Type {
@@ -18815,7 +18690,7 @@ type MachineLearningDataset struct {
 
 func (x *MachineLearningDataset) Reset() {
 	*x = MachineLearningDataset{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[168]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18827,7 +18702,7 @@ func (x *MachineLearningDataset) String() string {
 func (*MachineLearningDataset) ProtoMessage() {}
 
 func (x *MachineLearningDataset) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[168]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18840,7 +18715,7 @@ func (x *MachineLearningDataset) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MachineLearningDataset.ProtoReflect.Descriptor instead.
 func (*MachineLearningDataset) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{167}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{168}
 }
 
 func (x *MachineLearningDataset) GetCreationTime() *timestamppb.Timestamp {
@@ -18940,7 +18815,7 @@ type MachineLearningModel struct {
 
 func (x *MachineLearningModel) Reset() {
 	*x = MachineLearningModel{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[168]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[169]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18952,7 +18827,7 @@ func (x *MachineLearningModel) String() string {
 func (*MachineLearningModel) ProtoMessage() {}
 
 func (x *MachineLearningModel) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[168]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[169]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18965,7 +18840,7 @@ func (x *MachineLearningModel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MachineLearningModel.ProtoReflect.Descriptor instead.
 func (*MachineLearningModel) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{168}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{169}
 }
 
 func (x *MachineLearningModel) GetAdversarialRobustnessScore() float32 {
@@ -19118,7 +18993,7 @@ type MachineLearningService struct {
 
 func (x *MachineLearningService) Reset() {
 	*x = MachineLearningService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[169]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19130,7 +19005,7 @@ func (x *MachineLearningService) String() string {
 func (*MachineLearningService) ProtoMessage() {}
 
 func (x *MachineLearningService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[169]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19143,7 +19018,7 @@ func (x *MachineLearningService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MachineLearningService.ProtoReflect.Descriptor instead.
 func (*MachineLearningService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{169}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{170}
 }
 
 func (x *MachineLearningService) GetCreationTime() *timestamppb.Timestamp {
@@ -19304,7 +19179,7 @@ type Main struct {
 
 func (x *Main) Reset() {
 	*x = Main{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[171]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19316,7 +19191,7 @@ func (x *Main) String() string {
 func (*Main) ProtoMessage() {}
 
 func (x *Main) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[171]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19329,7 +19204,7 @@ func (x *Main) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Main.ProtoReflect.Descriptor instead.
 func (*Main) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{170}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{171}
 }
 
 func (x *Main) GetUsedBy() *OperatingSystemArchitecture {
@@ -19353,7 +19228,7 @@ type MalwareProtection struct {
 
 func (x *MalwareProtection) Reset() {
 	*x = MalwareProtection{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[171]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19365,7 +19240,7 @@ func (x *MalwareProtection) String() string {
 func (*MalwareProtection) ProtoMessage() {}
 
 func (x *MalwareProtection) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[171]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19378,7 +19253,7 @@ func (x *MalwareProtection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MalwareProtection.ProtoReflect.Descriptor instead.
 func (*MalwareProtection) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{171}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{172}
 }
 
 func (x *MalwareProtection) GetDurationSinceActive() *durationpb.Duration {
@@ -19423,7 +19298,7 @@ type ManagedKeyEncryption struct {
 
 func (x *ManagedKeyEncryption) Reset() {
 	*x = ManagedKeyEncryption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[173]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19435,7 +19310,7 @@ func (x *ManagedKeyEncryption) String() string {
 func (*ManagedKeyEncryption) ProtoMessage() {}
 
 func (x *ManagedKeyEncryption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[173]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19448,7 +19323,7 @@ func (x *ManagedKeyEncryption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ManagedKeyEncryption.ProtoReflect.Descriptor instead.
 func (*ManagedKeyEncryption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{172}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{173}
 }
 
 func (x *ManagedKeyEncryption) GetAlgorithm() string {
@@ -19505,7 +19380,7 @@ type Memory struct {
 
 func (x *Memory) Reset() {
 	*x = Memory{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[173]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19517,7 +19392,7 @@ func (x *Memory) String() string {
 func (*Memory) ProtoMessage() {}
 
 func (x *Memory) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[173]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19530,7 +19405,7 @@ func (x *Memory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Memory.ProtoReflect.Descriptor instead.
 func (*Memory) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{173}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{174}
 }
 
 func (x *Memory) GetCreationTime() *timestamppb.Timestamp {
@@ -19606,7 +19481,7 @@ type MemoryOperation struct {
 
 func (x *MemoryOperation) Reset() {
 	*x = MemoryOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19618,7 +19493,7 @@ func (x *MemoryOperation) String() string {
 func (*MemoryOperation) ProtoMessage() {}
 
 func (x *MemoryOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19631,7 +19506,7 @@ func (x *MemoryOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MemoryOperation.ProtoReflect.Descriptor instead.
 func (*MemoryOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{174}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{175}
 }
 
 func (x *MemoryOperation) GetType() isMemoryOperation_Type {
@@ -19717,7 +19592,7 @@ type MessageAuthenticationCode struct {
 
 func (x *MessageAuthenticationCode) Reset() {
 	*x = MessageAuthenticationCode{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19729,7 +19604,7 @@ func (x *MessageAuthenticationCode) String() string {
 func (*MessageAuthenticationCode) ProtoMessage() {}
 
 func (x *MessageAuthenticationCode) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19742,7 +19617,7 @@ func (x *MessageAuthenticationCode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageAuthenticationCode.ProtoReflect.Descriptor instead.
 func (*MessageAuthenticationCode) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{175}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{176}
 }
 
 func (x *MessageAuthenticationCode) GetType() string {
@@ -19790,7 +19665,7 @@ type MessagingHub struct {
 
 func (x *MessagingHub) Reset() {
 	*x = MessagingHub{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19802,7 +19677,7 @@ func (x *MessagingHub) String() string {
 func (*MessagingHub) ProtoMessage() {}
 
 func (x *MessagingHub) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19815,7 +19690,7 @@ func (x *MessagingHub) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessagingHub.ProtoReflect.Descriptor instead.
 func (*MessagingHub) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{176}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{177}
 }
 
 func (x *MessagingHub) GetCreationTime() *timestamppb.Timestamp {
@@ -19930,7 +19805,7 @@ type CodeModule struct {
 
 func (x *CodeModule) Reset() {
 	*x = CodeModule{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[178]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19942,7 +19817,7 @@ func (x *CodeModule) String() string {
 func (*CodeModule) ProtoMessage() {}
 
 func (x *CodeModule) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[178]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19955,7 +19830,7 @@ func (x *CodeModule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeModule.ProtoReflect.Descriptor instead.
 func (*CodeModule) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{177}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{178}
 }
 
 func (x *CodeModule) GetType() isCodeModule_Type {
@@ -20011,7 +19886,7 @@ type MonitoringProcedure struct {
 
 func (x *MonitoringProcedure) Reset() {
 	*x = MonitoringProcedure{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[178]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[179]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20023,7 +19898,7 @@ func (x *MonitoringProcedure) String() string {
 func (*MonitoringProcedure) ProtoMessage() {}
 
 func (x *MonitoringProcedure) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[178]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[179]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20036,7 +19911,7 @@ func (x *MonitoringProcedure) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MonitoringProcedure.ProtoReflect.Descriptor instead.
 func (*MonitoringProcedure) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{178}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{179}
 }
 
 func (x *MonitoringProcedure) GetIntervalMonths() int32 {
@@ -20060,7 +19935,7 @@ type MultiFactorAuthentiation struct {
 
 func (x *MultiFactorAuthentiation) Reset() {
 	*x = MultiFactorAuthentiation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[179]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[180]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20072,7 +19947,7 @@ func (x *MultiFactorAuthentiation) String() string {
 func (*MultiFactorAuthentiation) ProtoMessage() {}
 
 func (x *MultiFactorAuthentiation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[179]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[180]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20085,7 +19960,7 @@ func (x *MultiFactorAuthentiation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MultiFactorAuthentiation.ProtoReflect.Descriptor instead.
 func (*MultiFactorAuthentiation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{179}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{180}
 }
 
 func (x *MultiFactorAuthentiation) GetContextIsChecked() bool {
@@ -20150,7 +20025,7 @@ type MultiModalDatabaseService struct {
 
 func (x *MultiModalDatabaseService) Reset() {
 	*x = MultiModalDatabaseService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[180]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[181]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20162,7 +20037,7 @@ func (x *MultiModalDatabaseService) String() string {
 func (*MultiModalDatabaseService) ProtoMessage() {}
 
 func (x *MultiModalDatabaseService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[180]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[181]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20175,7 +20050,7 @@ func (x *MultiModalDatabaseService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MultiModalDatabaseService.ProtoReflect.Descriptor instead.
 func (*MultiModalDatabaseService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{180}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{181}
 }
 
 func (x *MultiModalDatabaseService) GetCreationTime() *timestamppb.Timestamp {
@@ -20342,26 +20217,15 @@ func (x *MultiModalDatabaseService) GetUsageStatistics() *UsageStatistics {
 // NeedToKnowPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 // Represents a policy section within a [PolicyDocument] describing need-to-know access control requirements. isDefined: whether this policy section is present and defined.
 type NeedToKnowPolicy struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,12273,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,6717,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,10876,opt,name=id,proto3" json:"id,omitempty"`
-	IsDefined    bool                   `protobuf:"varint,11624,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
-	Labels       map[string]string      `protobuf:"bytes,17695,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,8236,opt,name=name,proto3" json:"name,omitempty"`
-	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,820,opt,name=raw,proto3" json:"raw,omitempty"`
-	ContextId     *string       `protobuf:"bytes,8403,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,18121,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
-	PolicyRuleIds []string      `protobuf:"bytes,17372,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
-	ParentId      *string       `protobuf:"bytes,2396,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsDefined     bool                   `protobuf:"varint,17587,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NeedToKnowPolicy) Reset() {
 	*x = NeedToKnowPolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[181]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[182]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20373,7 +20237,7 @@ func (x *NeedToKnowPolicy) String() string {
 func (*NeedToKnowPolicy) ProtoMessage() {}
 
 func (x *NeedToKnowPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[181]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[182]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20386,28 +20250,7 @@ func (x *NeedToKnowPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NeedToKnowPolicy.ProtoReflect.Descriptor instead.
 func (*NeedToKnowPolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{181}
-}
-
-func (x *NeedToKnowPolicy) GetCreationTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreationTime
-	}
-	return nil
-}
-
-func (x *NeedToKnowPolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *NeedToKnowPolicy) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{182}
 }
 
 func (x *NeedToKnowPolicy) GetIsDefined() bool {
@@ -20415,55 +20258,6 @@ func (x *NeedToKnowPolicy) GetIsDefined() bool {
 		return x.IsDefined
 	}
 	return false
-}
-
-func (x *NeedToKnowPolicy) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *NeedToKnowPolicy) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *NeedToKnowPolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
-	}
-	return ""
-}
-
-func (x *NeedToKnowPolicy) GetContextId() string {
-	if x != nil && x.ContextId != nil {
-		return *x.ContextId
-	}
-	return ""
-}
-
-func (x *NeedToKnowPolicy) GetDataLocation() *DataLocation {
-	if x != nil {
-		return x.DataLocation
-	}
-	return nil
-}
-
-func (x *NeedToKnowPolicy) GetPolicyRuleIds() []string {
-	if x != nil {
-		return x.PolicyRuleIds
-	}
-	return nil
-}
-
-func (x *NeedToKnowPolicy) GetParentId() string {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return ""
 }
 
 // NetworkInterface is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -20492,7 +20286,7 @@ type NetworkInterface struct {
 
 func (x *NetworkInterface) Reset() {
 	*x = NetworkInterface{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[182]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[183]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20504,7 +20298,7 @@ func (x *NetworkInterface) String() string {
 func (*NetworkInterface) ProtoMessage() {}
 
 func (x *NetworkInterface) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[182]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[183]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20517,7 +20311,7 @@ func (x *NetworkInterface) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkInterface.ProtoReflect.Descriptor instead.
 func (*NetworkInterface) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{182}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{183}
 }
 
 func (x *NetworkInterface) GetCreationTime() *timestamppb.Timestamp {
@@ -20656,7 +20450,7 @@ type NetworkSecurityGroup struct {
 
 func (x *NetworkSecurityGroup) Reset() {
 	*x = NetworkSecurityGroup{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[183]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20668,7 +20462,7 @@ func (x *NetworkSecurityGroup) String() string {
 func (*NetworkSecurityGroup) ProtoMessage() {}
 
 func (x *NetworkSecurityGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[183]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20681,7 +20475,7 @@ func (x *NetworkSecurityGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkSecurityGroup.ProtoReflect.Descriptor instead.
 func (*NetworkSecurityGroup) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{183}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{184}
 }
 
 func (x *NetworkSecurityGroup) GetCreationTime() *timestamppb.Timestamp {
@@ -20808,7 +20602,7 @@ type NetworkService struct {
 
 func (x *NetworkService) Reset() {
 	*x = NetworkService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20820,7 +20614,7 @@ func (x *NetworkService) String() string {
 func (*NetworkService) ProtoMessage() {}
 
 func (x *NetworkService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20833,7 +20627,7 @@ func (x *NetworkService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkService.ProtoReflect.Descriptor instead.
 func (*NetworkService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{184}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{185}
 }
 
 func (x *NetworkService) GetType() isNetworkService_Type {
@@ -21055,7 +20849,7 @@ type Networking struct {
 
 func (x *Networking) Reset() {
 	*x = Networking{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[186]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21067,7 +20861,7 @@ func (x *Networking) String() string {
 func (*Networking) ProtoMessage() {}
 
 func (x *Networking) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[186]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21080,7 +20874,7 @@ func (x *Networking) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Networking.ProtoReflect.Descriptor instead.
 func (*Networking) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{185}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{186}
 }
 
 func (x *Networking) GetType() isNetworking_Type {
@@ -21347,7 +21141,7 @@ type NoAuthentication struct {
 
 func (x *NoAuthentication) Reset() {
 	*x = NoAuthentication{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[186]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[187]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21359,7 +21153,7 @@ func (x *NoAuthentication) String() string {
 func (*NoAuthentication) ProtoMessage() {}
 
 func (x *NoAuthentication) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[186]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[187]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21372,7 +21166,7 @@ func (x *NoAuthentication) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NoAuthentication.ProtoReflect.Descriptor instead.
 func (*NoAuthentication) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{186}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{187}
 }
 
 func (x *NoAuthentication) GetContextIsChecked() bool {
@@ -21412,7 +21206,7 @@ type OSLogging struct {
 
 func (x *OSLogging) Reset() {
 	*x = OSLogging{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[187]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[188]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21424,7 +21218,7 @@ func (x *OSLogging) String() string {
 func (*OSLogging) ProtoMessage() {}
 
 func (x *OSLogging) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[187]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[188]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21437,7 +21231,7 @@ func (x *OSLogging) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSLogging.ProtoReflect.Descriptor instead.
 func (*OSLogging) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{187}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{188}
 }
 
 func (x *OSLogging) GetEnabled() bool {
@@ -21496,7 +21290,7 @@ type OTPBasedAuthentication struct {
 
 func (x *OTPBasedAuthentication) Reset() {
 	*x = OTPBasedAuthentication{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[188]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[189]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21508,7 +21302,7 @@ func (x *OTPBasedAuthentication) String() string {
 func (*OTPBasedAuthentication) ProtoMessage() {}
 
 func (x *OTPBasedAuthentication) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[188]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[189]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21521,7 +21315,7 @@ func (x *OTPBasedAuthentication) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OTPBasedAuthentication.ProtoReflect.Descriptor instead.
 func (*OTPBasedAuthentication) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{188}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{189}
 }
 
 func (x *OTPBasedAuthentication) GetActivated() bool {
@@ -21582,7 +21376,7 @@ type ObjectStorage struct {
 
 func (x *ObjectStorage) Reset() {
 	*x = ObjectStorage{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[189]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[190]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21594,7 +21388,7 @@ func (x *ObjectStorage) String() string {
 func (*ObjectStorage) ProtoMessage() {}
 
 func (x *ObjectStorage) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[189]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[190]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21607,7 +21401,7 @@ func (x *ObjectStorage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObjectStorage.ProtoReflect.Descriptor instead.
 func (*ObjectStorage) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{189}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{190}
 }
 
 func (x *ObjectStorage) GetCreationTime() *timestamppb.Timestamp {
@@ -21763,7 +21557,7 @@ type ObjectStorageRequest struct {
 
 func (x *ObjectStorageRequest) Reset() {
 	*x = ObjectStorageRequest{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[190]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[191]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21775,7 +21569,7 @@ func (x *ObjectStorageRequest) String() string {
 func (*ObjectStorageRequest) ProtoMessage() {}
 
 func (x *ObjectStorageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[190]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[191]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21788,7 +21582,7 @@ func (x *ObjectStorageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObjectStorageRequest.ProtoReflect.Descriptor instead.
 func (*ObjectStorageRequest) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{190}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{191}
 }
 
 func (x *ObjectStorageRequest) GetSource() string {
@@ -21852,7 +21646,7 @@ type ObjectStorageService struct {
 
 func (x *ObjectStorageService) Reset() {
 	*x = ObjectStorageService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[191]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21864,7 +21658,7 @@ func (x *ObjectStorageService) String() string {
 func (*ObjectStorageService) ProtoMessage() {}
 
 func (x *ObjectStorageService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[191]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21877,7 +21671,7 @@ func (x *ObjectStorageService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObjectStorageService.ProtoReflect.Descriptor instead.
 func (*ObjectStorageService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{191}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{192}
 }
 
 func (x *ObjectStorageService) GetCreationTime() *timestamppb.Timestamp {
@@ -22051,7 +21845,7 @@ type OperatingSystemArchitecture struct {
 
 func (x *OperatingSystemArchitecture) Reset() {
 	*x = OperatingSystemArchitecture{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22063,7 +21857,7 @@ func (x *OperatingSystemArchitecture) String() string {
 func (*OperatingSystemArchitecture) ProtoMessage() {}
 
 func (x *OperatingSystemArchitecture) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22076,7 +21870,7 @@ func (x *OperatingSystemArchitecture) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OperatingSystemArchitecture.ProtoReflect.Descriptor instead.
 func (*OperatingSystemArchitecture) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{192}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{193}
 }
 
 func (x *OperatingSystemArchitecture) GetType() isOperatingSystemArchitecture_Type {
@@ -22202,7 +21996,7 @@ type Operation struct {
 
 func (x *Operation) Reset() {
 	*x = Operation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[194]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22214,7 +22008,7 @@ func (x *Operation) String() string {
 func (*Operation) ProtoMessage() {}
 
 func (x *Operation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[194]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22227,7 +22021,7 @@ func (x *Operation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Operation.ProtoReflect.Descriptor instead.
 func (*Operation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{193}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{194}
 }
 
 func (x *Operation) GetType() isOperation_Type {
@@ -22850,7 +22644,7 @@ type Output struct {
 
 func (x *Output) Reset() {
 	*x = Output{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[194]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[195]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22862,7 +22656,7 @@ func (x *Output) String() string {
 func (*Output) ProtoMessage() {}
 
 func (x *Output) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[194]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[195]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22875,7 +22669,7 @@ func (x *Output) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Output.ProtoReflect.Descriptor instead.
 func (*Output) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{194}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{195}
 }
 
 // POSIX is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -22899,7 +22693,7 @@ type POSIX struct {
 
 func (x *POSIX) Reset() {
 	*x = POSIX{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[195]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[196]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22911,7 +22705,7 @@ func (x *POSIX) String() string {
 func (*POSIX) ProtoMessage() {}
 
 func (x *POSIX) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[195]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[196]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22924,7 +22718,7 @@ func (x *POSIX) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use POSIX.ProtoReflect.Descriptor instead.
 func (*POSIX) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{195}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{196}
 }
 
 func (x *POSIX) GetCreationTime() *timestamppb.Timestamp {
@@ -23018,7 +22812,7 @@ type Package struct {
 
 func (x *Package) Reset() {
 	*x = Package{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[196]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[197]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23030,7 +22824,7 @@ func (x *Package) String() string {
 func (*Package) ProtoMessage() {}
 
 func (x *Package) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[196]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[197]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23043,7 +22837,7 @@ func (x *Package) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Package.ProtoReflect.Descriptor instead.
 func (*Package) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{196}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{197}
 }
 
 func (x *Package) GetCreationTime() *timestamppb.Timestamp {
@@ -23128,7 +22922,7 @@ type Padding struct {
 
 func (x *Padding) Reset() {
 	*x = Padding{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[197]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[198]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23140,7 +22934,7 @@ func (x *Padding) String() string {
 func (*Padding) ProtoMessage() {}
 
 func (x *Padding) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[197]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[198]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23153,7 +22947,7 @@ func (x *Padding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Padding.ProtoReflect.Descriptor instead.
 func (*Padding) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{197}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{198}
 }
 
 func (x *Padding) GetScheme() string {
@@ -23177,7 +22971,7 @@ type PasswordBasedAuthentication struct {
 
 func (x *PasswordBasedAuthentication) Reset() {
 	*x = PasswordBasedAuthentication{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[198]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[199]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23189,7 +22983,7 @@ func (x *PasswordBasedAuthentication) String() string {
 func (*PasswordBasedAuthentication) ProtoMessage() {}
 
 func (x *PasswordBasedAuthentication) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[198]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[199]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23202,7 +22996,7 @@ func (x *PasswordBasedAuthentication) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PasswordBasedAuthentication.ProtoReflect.Descriptor instead.
 func (*PasswordBasedAuthentication) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{198}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{199}
 }
 
 func (x *PasswordBasedAuthentication) GetActivated() bool {
@@ -23257,7 +23051,7 @@ type PasswordPolicy struct {
 
 func (x *PasswordPolicy) Reset() {
 	*x = PasswordPolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[199]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23269,7 +23063,7 @@ func (x *PasswordPolicy) String() string {
 func (*PasswordPolicy) ProtoMessage() {}
 
 func (x *PasswordPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[199]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23282,7 +23076,7 @@ func (x *PasswordPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PasswordPolicy.ProtoReflect.Descriptor instead.
 func (*PasswordPolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{199}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{200}
 }
 
 func (x *PasswordPolicy) GetCreationTime() *timestamppb.Timestamp {
@@ -23383,6 +23177,138 @@ func (x *PasswordPolicy) GetUsageStatistics() *UsageStatistics {
 	return nil
 }
 
+// Policies is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+// Represents the functional capability of enforcing and managing policies within an application.
+type Policies struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Type:
+	//
+	//	*Policies_DataConfidentialitySdnPolicy
+	//	*Policies_LeastPrivilegePolicy
+	//	*Policies_NeedToKnowPolicy
+	//	*Policies_SdnFunctionValidationPolicy
+	//	*Policies_SeparationOfDutiesPolicy
+	Type          isPolicies_Type `protobuf_oneof:"type"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Policies) Reset() {
+	*x = Policies{}
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Policies) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Policies) ProtoMessage() {}
+
+func (x *Policies) ProtoReflect() protoreflect.Message {
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Policies.ProtoReflect.Descriptor instead.
+func (*Policies) Descriptor() ([]byte, []int) {
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{201}
+}
+
+func (x *Policies) GetType() isPolicies_Type {
+	if x != nil {
+		return x.Type
+	}
+	return nil
+}
+
+func (x *Policies) GetDataConfidentialitySdnPolicy() *DataConfidentialitySDNPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Policies_DataConfidentialitySdnPolicy); ok {
+			return x.DataConfidentialitySdnPolicy
+		}
+	}
+	return nil
+}
+
+func (x *Policies) GetLeastPrivilegePolicy() *LeastPrivilegePolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Policies_LeastPrivilegePolicy); ok {
+			return x.LeastPrivilegePolicy
+		}
+	}
+	return nil
+}
+
+func (x *Policies) GetNeedToKnowPolicy() *NeedToKnowPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Policies_NeedToKnowPolicy); ok {
+			return x.NeedToKnowPolicy
+		}
+	}
+	return nil
+}
+
+func (x *Policies) GetSdnFunctionValidationPolicy() *SDNFunctionValidationPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Policies_SdnFunctionValidationPolicy); ok {
+			return x.SdnFunctionValidationPolicy
+		}
+	}
+	return nil
+}
+
+func (x *Policies) GetSeparationOfDutiesPolicy() *SeparationOfDutiesPolicy {
+	if x != nil {
+		if x, ok := x.Type.(*Policies_SeparationOfDutiesPolicy); ok {
+			return x.SeparationOfDutiesPolicy
+		}
+	}
+	return nil
+}
+
+type isPolicies_Type interface {
+	isPolicies_Type()
+}
+
+type Policies_DataConfidentialitySdnPolicy struct {
+	DataConfidentialitySdnPolicy *DataConfidentialitySDNPolicy `protobuf:"bytes,12690,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3,oneof"`
+}
+
+type Policies_LeastPrivilegePolicy struct {
+	LeastPrivilegePolicy *LeastPrivilegePolicy `protobuf:"bytes,15025,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3,oneof"`
+}
+
+type Policies_NeedToKnowPolicy struct {
+	NeedToKnowPolicy *NeedToKnowPolicy `protobuf:"bytes,17201,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3,oneof"`
+}
+
+type Policies_SdnFunctionValidationPolicy struct {
+	SdnFunctionValidationPolicy *SDNFunctionValidationPolicy `protobuf:"bytes,1891,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3,oneof"`
+}
+
+type Policies_SeparationOfDutiesPolicy struct {
+	SeparationOfDutiesPolicy *SeparationOfDutiesPolicy `protobuf:"bytes,1439,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3,oneof"`
+}
+
+func (*Policies_DataConfidentialitySdnPolicy) isPolicies_Type() {}
+
+func (*Policies_LeastPrivilegePolicy) isPolicies_Type() {}
+
+func (*Policies_NeedToKnowPolicy) isPolicies_Type() {}
+
+func (*Policies_SdnFunctionValidationPolicy) isPolicies_Type() {}
+
+func (*Policies_SeparationOfDutiesPolicy) isPolicies_Type() {}
+
 // Policy is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
 // Represents a policy that can be applied to a resource or a set of resources. Policies can contain rules and operations that define how access to the resource is controlled.
 type Policy struct {
@@ -23390,11 +23316,6 @@ type Policy struct {
 	// Types that are valid to be assigned to Type:
 	//
 	//	*Policy_CoordinatedVulnerabilityDisclosurePolicy
-	//	*Policy_DataConfidentialitySdnPolicy
-	//	*Policy_LeastPrivilegePolicy
-	//	*Policy_NeedToKnowPolicy
-	//	*Policy_SdnFunctionValidationPolicy
-	//	*Policy_SeparationOfDutiesPolicy
 	Type          isPolicy_Type `protobuf_oneof:"type"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -23402,7 +23323,7 @@ type Policy struct {
 
 func (x *Policy) Reset() {
 	*x = Policy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[202]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23414,7 +23335,7 @@ func (x *Policy) String() string {
 func (*Policy) ProtoMessage() {}
 
 func (x *Policy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[202]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23427,7 +23348,7 @@ func (x *Policy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Policy.ProtoReflect.Descriptor instead.
 func (*Policy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{200}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{202}
 }
 
 func (x *Policy) GetType() isPolicy_Type {
@@ -23446,51 +23367,6 @@ func (x *Policy) GetCoordinatedVulnerabilityDisclosurePolicy() *CoordinatedVulne
 	return nil
 }
 
-func (x *Policy) GetDataConfidentialitySdnPolicy() *DataConfidentialitySDNPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Policy_DataConfidentialitySdnPolicy); ok {
-			return x.DataConfidentialitySdnPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Policy) GetLeastPrivilegePolicy() *LeastPrivilegePolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Policy_LeastPrivilegePolicy); ok {
-			return x.LeastPrivilegePolicy
-		}
-	}
-	return nil
-}
-
-func (x *Policy) GetNeedToKnowPolicy() *NeedToKnowPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Policy_NeedToKnowPolicy); ok {
-			return x.NeedToKnowPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Policy) GetSdnFunctionValidationPolicy() *SDNFunctionValidationPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Policy_SdnFunctionValidationPolicy); ok {
-			return x.SdnFunctionValidationPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Policy) GetSeparationOfDutiesPolicy() *SeparationOfDutiesPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Policy_SeparationOfDutiesPolicy); ok {
-			return x.SeparationOfDutiesPolicy
-		}
-	}
-	return nil
-}
-
 type isPolicy_Type interface {
 	isPolicy_Type()
 }
@@ -23499,37 +23375,7 @@ type Policy_CoordinatedVulnerabilityDisclosurePolicy struct {
 	CoordinatedVulnerabilityDisclosurePolicy *CoordinatedVulnerabilityDisclosurePolicy `protobuf:"bytes,18002,opt,name=coordinated_vulnerability_disclosure_policy,json=coordinatedVulnerabilityDisclosurePolicy,proto3,oneof"`
 }
 
-type Policy_DataConfidentialitySdnPolicy struct {
-	DataConfidentialitySdnPolicy *DataConfidentialitySDNPolicy `protobuf:"bytes,18631,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3,oneof"`
-}
-
-type Policy_LeastPrivilegePolicy struct {
-	LeastPrivilegePolicy *LeastPrivilegePolicy `protobuf:"bytes,9544,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3,oneof"`
-}
-
-type Policy_NeedToKnowPolicy struct {
-	NeedToKnowPolicy *NeedToKnowPolicy `protobuf:"bytes,8800,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3,oneof"`
-}
-
-type Policy_SdnFunctionValidationPolicy struct {
-	SdnFunctionValidationPolicy *SDNFunctionValidationPolicy `protobuf:"bytes,7153,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3,oneof"`
-}
-
-type Policy_SeparationOfDutiesPolicy struct {
-	SeparationOfDutiesPolicy *SeparationOfDutiesPolicy `protobuf:"bytes,6331,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3,oneof"`
-}
-
 func (*Policy_CoordinatedVulnerabilityDisclosurePolicy) isPolicy_Type() {}
-
-func (*Policy_DataConfidentialitySdnPolicy) isPolicy_Type() {}
-
-func (*Policy_LeastPrivilegePolicy) isPolicy_Type() {}
-
-func (*Policy_NeedToKnowPolicy) isPolicy_Type() {}
-
-func (*Policy_SdnFunctionValidationPolicy) isPolicy_Type() {}
-
-func (*Policy_SeparationOfDutiesPolicy) isPolicy_Type() {}
 
 // PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type PolicyDocument struct {
@@ -23541,26 +23387,30 @@ type PolicyDocument struct {
 	Labels       map[string]string      `protobuf:"bytes,5677,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Name         string                 `protobuf:"bytes,2052,opt,name=name,proto3" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw                            string               `protobuf:"bytes,5038,opt,name=raw,proto3" json:"raw,omitempty"`
-	CryptographicHashs             []*CryptographicHash `protobuf:"bytes,12896,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataConfidentialitySdnPolicyId *string              `protobuf:"bytes,4864,opt,name=data_confidentiality_sdn_policy_id,json=dataConfidentialitySdnPolicyId,proto3,oneof" json:"data_confidentiality_sdn_policy_id,omitempty"`
-	DataLocation                   *DataLocation        `protobuf:"bytes,11474,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
-	DocumentSignatures             []*DocumentSignature `protobuf:"bytes,7191,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
-	Governances                    []*Governance        `protobuf:"bytes,4759,rep,name=governances,proto3" json:"governances,omitempty"`
-	LeastPrivilegePolicyId         *string              `protobuf:"bytes,12663,opt,name=least_privilege_policy_id,json=leastPrivilegePolicyId,proto3,oneof" json:"least_privilege_policy_id,omitempty"`
-	NeedToKnowPolicyId             *string              `protobuf:"bytes,3585,opt,name=need_to_know_policy_id,json=needToKnowPolicyId,proto3,oneof" json:"need_to_know_policy_id,omitempty"`
-	ParentId                       *string              `protobuf:"bytes,18208,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	SdnFunctionValidationPolicyId  *string              `protobuf:"bytes,8099,opt,name=sdn_function_validation_policy_id,json=sdnFunctionValidationPolicyId,proto3,oneof" json:"sdn_function_validation_policy_id,omitempty"`
-	ValidatedBy                    *SchemaValidation    `protobuf:"bytes,5620,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
-	SecurityFeatures               []*SecurityFeature   `protobuf:"bytes,13896,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
-	SeparationOfDutiesPolicyId     *string              `protobuf:"bytes,6434,opt,name=separation_of_duties_policy_id,json=separationOfDutiesPolicyId,proto3,oneof" json:"separation_of_duties_policy_id,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	Raw                          string                        `protobuf:"bytes,5038,opt,name=raw,proto3" json:"raw,omitempty"`
+	AssetInventory               *AssetInventory               `protobuf:"bytes,16496,opt,name=asset_inventory,json=assetInventory,proto3" json:"asset_inventory,omitempty"`
+	Backup                       *Backup                       `protobuf:"bytes,16402,opt,name=backup,proto3" json:"backup,omitempty"`
+	CloudFeature                 *CloudFeature                 `protobuf:"bytes,1878,opt,name=cloud_feature,json=cloudFeature,proto3" json:"cloud_feature,omitempty"`
+	CryptographicHashs           []*CryptographicHash          `protobuf:"bytes,12896,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
+	DataConfidentialitySdnPolicy *DataConfidentialitySDNPolicy `protobuf:"bytes,4864,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3" json:"data_confidentiality_sdn_policy,omitempty"`
+	DataLocation                 *DataLocation                 `protobuf:"bytes,11474,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
+	DocumentSignatures           []*DocumentSignature          `protobuf:"bytes,7191,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
+	Governances                  []*Governance                 `protobuf:"bytes,4759,rep,name=governances,proto3" json:"governances,omitempty"`
+	LeastPrivilegePolicy         *LeastPrivilegePolicy         `protobuf:"bytes,12663,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3" json:"least_privilege_policy,omitempty"`
+	NeedToKnowPolicy             *NeedToKnowPolicy             `protobuf:"bytes,3585,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3" json:"need_to_know_policy,omitempty"`
+	ParentId                     *string                       `protobuf:"bytes,18208,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	SdnFunctionValidationPolicy  *SDNFunctionValidationPolicy  `protobuf:"bytes,8099,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3" json:"sdn_function_validation_policy,omitempty"`
+	ValidatedBy                  *SchemaValidation             `protobuf:"bytes,5620,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
+	SecurityFeatures             []*SecurityFeature            `protobuf:"bytes,13896,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
+	SecurityIncident             *SecurityIncident             `protobuf:"bytes,16664,opt,name=security_incident,json=securityIncident,proto3" json:"security_incident,omitempty"`
+	SeparationOfDutiesPolicy     *SeparationOfDutiesPolicy     `protobuf:"bytes,6434,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3" json:"separation_of_duties_policy,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *PolicyDocument) Reset() {
 	*x = PolicyDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23572,7 +23422,7 @@ func (x *PolicyDocument) String() string {
 func (*PolicyDocument) ProtoMessage() {}
 
 func (x *PolicyDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23585,7 +23435,7 @@ func (x *PolicyDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyDocument.ProtoReflect.Descriptor instead.
 func (*PolicyDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{201}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{203}
 }
 
 func (x *PolicyDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -23637,6 +23487,27 @@ func (x *PolicyDocument) GetRaw() string {
 	return ""
 }
 
+func (x *PolicyDocument) GetAssetInventory() *AssetInventory {
+	if x != nil {
+		return x.AssetInventory
+	}
+	return nil
+}
+
+func (x *PolicyDocument) GetBackup() *Backup {
+	if x != nil {
+		return x.Backup
+	}
+	return nil
+}
+
+func (x *PolicyDocument) GetCloudFeature() *CloudFeature {
+	if x != nil {
+		return x.CloudFeature
+	}
+	return nil
+}
+
 func (x *PolicyDocument) GetCryptographicHashs() []*CryptographicHash {
 	if x != nil {
 		return x.CryptographicHashs
@@ -23644,11 +23515,11 @@ func (x *PolicyDocument) GetCryptographicHashs() []*CryptographicHash {
 	return nil
 }
 
-func (x *PolicyDocument) GetDataConfidentialitySdnPolicyId() string {
-	if x != nil && x.DataConfidentialitySdnPolicyId != nil {
-		return *x.DataConfidentialitySdnPolicyId
+func (x *PolicyDocument) GetDataConfidentialitySdnPolicy() *DataConfidentialitySDNPolicy {
+	if x != nil {
+		return x.DataConfidentialitySdnPolicy
 	}
-	return ""
+	return nil
 }
 
 func (x *PolicyDocument) GetDataLocation() *DataLocation {
@@ -23672,18 +23543,18 @@ func (x *PolicyDocument) GetGovernances() []*Governance {
 	return nil
 }
 
-func (x *PolicyDocument) GetLeastPrivilegePolicyId() string {
-	if x != nil && x.LeastPrivilegePolicyId != nil {
-		return *x.LeastPrivilegePolicyId
+func (x *PolicyDocument) GetLeastPrivilegePolicy() *LeastPrivilegePolicy {
+	if x != nil {
+		return x.LeastPrivilegePolicy
 	}
-	return ""
+	return nil
 }
 
-func (x *PolicyDocument) GetNeedToKnowPolicyId() string {
-	if x != nil && x.NeedToKnowPolicyId != nil {
-		return *x.NeedToKnowPolicyId
+func (x *PolicyDocument) GetNeedToKnowPolicy() *NeedToKnowPolicy {
+	if x != nil {
+		return x.NeedToKnowPolicy
 	}
-	return ""
+	return nil
 }
 
 func (x *PolicyDocument) GetParentId() string {
@@ -23693,11 +23564,11 @@ func (x *PolicyDocument) GetParentId() string {
 	return ""
 }
 
-func (x *PolicyDocument) GetSdnFunctionValidationPolicyId() string {
-	if x != nil && x.SdnFunctionValidationPolicyId != nil {
-		return *x.SdnFunctionValidationPolicyId
+func (x *PolicyDocument) GetSdnFunctionValidationPolicy() *SDNFunctionValidationPolicy {
+	if x != nil {
+		return x.SdnFunctionValidationPolicy
 	}
-	return ""
+	return nil
 }
 
 func (x *PolicyDocument) GetValidatedBy() *SchemaValidation {
@@ -23714,11 +23585,18 @@ func (x *PolicyDocument) GetSecurityFeatures() []*SecurityFeature {
 	return nil
 }
 
-func (x *PolicyDocument) GetSeparationOfDutiesPolicyId() string {
-	if x != nil && x.SeparationOfDutiesPolicyId != nil {
-		return *x.SeparationOfDutiesPolicyId
+func (x *PolicyDocument) GetSecurityIncident() *SecurityIncident {
+	if x != nil {
+		return x.SecurityIncident
 	}
-	return ""
+	return nil
+}
+
+func (x *PolicyDocument) GetSeparationOfDutiesPolicy() *SeparationOfDutiesPolicy {
+	if x != nil {
+		return x.SeparationOfDutiesPolicy
+	}
+	return nil
 }
 
 // PolicyOperation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -23735,7 +23613,7 @@ type PolicyOperation struct {
 
 func (x *PolicyOperation) Reset() {
 	*x = PolicyOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[202]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[204]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23747,7 +23625,7 @@ func (x *PolicyOperation) String() string {
 func (*PolicyOperation) ProtoMessage() {}
 
 func (x *PolicyOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[202]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[204]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23760,7 +23638,7 @@ func (x *PolicyOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyOperation.ProtoReflect.Descriptor instead.
 func (*PolicyOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{202}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{204}
 }
 
 func (x *PolicyOperation) GetType() isPolicyOperation_Type {
@@ -23803,7 +23681,7 @@ type PolicyRule struct {
 
 func (x *PolicyRule) Reset() {
 	*x = PolicyRule{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[205]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23815,7 +23693,7 @@ func (x *PolicyRule) String() string {
 func (*PolicyRule) ProtoMessage() {}
 
 func (x *PolicyRule) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[205]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23828,7 +23706,7 @@ func (x *PolicyRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyRule.ProtoReflect.Descriptor instead.
 func (*PolicyRule) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{203}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{205}
 }
 
 func (x *PolicyRule) GetType() isPolicyRule_Type {
@@ -23867,7 +23745,7 @@ type Principal struct {
 
 func (x *Principal) Reset() {
 	*x = Principal{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[204]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[206]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23879,7 +23757,7 @@ func (x *Principal) String() string {
 func (*Principal) ProtoMessage() {}
 
 func (x *Principal) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[204]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[206]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23892,7 +23770,7 @@ func (x *Principal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Principal.ProtoReflect.Descriptor instead.
 func (*Principal) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{204}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{206}
 }
 
 // ProtectedAsset is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -23907,7 +23785,7 @@ type ProtectedAsset struct {
 
 func (x *ProtectedAsset) Reset() {
 	*x = ProtectedAsset{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[205]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[207]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23919,7 +23797,7 @@ func (x *ProtectedAsset) String() string {
 func (*ProtectedAsset) ProtoMessage() {}
 
 func (x *ProtectedAsset) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[205]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[207]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23932,7 +23810,7 @@ func (x *ProtectedAsset) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtectedAsset.ProtoReflect.Descriptor instead.
 func (*ProtectedAsset) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{205}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{207}
 }
 
 func (x *ProtectedAsset) GetPolicyIds() []string {
@@ -23978,7 +23856,7 @@ type Product struct {
 
 func (x *Product) Reset() {
 	*x = Product{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[206]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23990,7 +23868,7 @@ func (x *Product) String() string {
 func (*Product) ProtoMessage() {}
 
 func (x *Product) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[206]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24003,7 +23881,7 @@ func (x *Product) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Product.ProtoReflect.Descriptor instead.
 func (*Product) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{206}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{208}
 }
 
 func (x *Product) GetContextOfUse() string {
@@ -24155,7 +24033,7 @@ type ProductionAndMonitoringProcessDocument struct {
 
 func (x *ProductionAndMonitoringProcessDocument) Reset() {
 	*x = ProductionAndMonitoringProcessDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[207]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[209]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24167,7 +24045,7 @@ func (x *ProductionAndMonitoringProcessDocument) String() string {
 func (*ProductionAndMonitoringProcessDocument) ProtoMessage() {}
 
 func (x *ProductionAndMonitoringProcessDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[207]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[209]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24180,7 +24058,7 @@ func (x *ProductionAndMonitoringProcessDocument) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use ProductionAndMonitoringProcessDocument.ProtoReflect.Descriptor instead.
 func (*ProductionAndMonitoringProcessDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{207}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{209}
 }
 
 func (x *ProductionAndMonitoringProcessDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -24288,7 +24166,7 @@ type ProtectedAssetOperation struct {
 
 func (x *ProtectedAssetOperation) Reset() {
 	*x = ProtectedAssetOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24300,7 +24178,7 @@ func (x *ProtectedAssetOperation) String() string {
 func (*ProtectedAssetOperation) ProtoMessage() {}
 
 func (x *ProtectedAssetOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24313,7 +24191,7 @@ func (x *ProtectedAssetOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtectedAssetOperation.ProtoReflect.Descriptor instead.
 func (*ProtectedAssetOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{208}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{210}
 }
 
 func (x *ProtectedAssetOperation) GetType() isProtectedAssetOperation_Type {
@@ -24355,7 +24233,7 @@ type ProvideConfiguration struct {
 
 func (x *ProvideConfiguration) Reset() {
 	*x = ProvideConfiguration{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[209]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[211]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24367,7 +24245,7 @@ func (x *ProvideConfiguration) String() string {
 func (*ProvideConfiguration) ProtoMessage() {}
 
 func (x *ProvideConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[209]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[211]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24380,7 +24258,7 @@ func (x *ProvideConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProvideConfiguration.ProtoReflect.Descriptor instead.
 func (*ProvideConfiguration) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{209}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{211}
 }
 
 func (x *ProvideConfiguration) GetCodeRegion() *CodeRegion {
@@ -24417,7 +24295,7 @@ type ProvideConfigurationGroup struct {
 
 func (x *ProvideConfigurationGroup) Reset() {
 	*x = ProvideConfigurationGroup{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[212]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24429,7 +24307,7 @@ func (x *ProvideConfigurationGroup) String() string {
 func (*ProvideConfigurationGroup) ProtoMessage() {}
 
 func (x *ProvideConfigurationGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[212]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24442,7 +24320,7 @@ func (x *ProvideConfigurationGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProvideConfigurationGroup.ProtoReflect.Descriptor instead.
 func (*ProvideConfigurationGroup) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{210}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{212}
 }
 
 func (x *ProvideConfigurationGroup) GetCodeRegion() *CodeRegion {
@@ -24487,7 +24365,7 @@ type ProvideConfigurationOption struct {
 
 func (x *ProvideConfigurationOption) Reset() {
 	*x = ProvideConfigurationOption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[211]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[213]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24499,7 +24377,7 @@ func (x *ProvideConfigurationOption) String() string {
 func (*ProvideConfigurationOption) ProtoMessage() {}
 
 func (x *ProvideConfigurationOption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[211]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[213]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24512,7 +24390,7 @@ func (x *ProvideConfigurationOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProvideConfigurationOption.ProtoReflect.Descriptor instead.
 func (*ProvideConfigurationOption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{211}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{213}
 }
 
 func (x *ProvideConfigurationOption) GetCodeRegion() *CodeRegion {
@@ -24581,7 +24459,7 @@ type QPU struct {
 
 func (x *QPU) Reset() {
 	*x = QPU{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[212]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[214]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24593,7 +24471,7 @@ func (x *QPU) String() string {
 func (*QPU) ProtoMessage() {}
 
 func (x *QPU) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[212]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[214]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24606,7 +24484,7 @@ func (x *QPU) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QPU.ProtoReflect.Descriptor instead.
 func (*QPU) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{212}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{214}
 }
 
 func (x *QPU) GetOneQubitErrorRate() float32 {
@@ -24797,7 +24675,7 @@ type RBAC struct {
 
 func (x *RBAC) Reset() {
 	*x = RBAC{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[213]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[215]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24809,7 +24687,7 @@ func (x *RBAC) String() string {
 func (*RBAC) ProtoMessage() {}
 
 func (x *RBAC) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[213]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[215]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24822,7 +24700,7 @@ func (x *RBAC) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RBAC.ProtoReflect.Descriptor instead.
 func (*RBAC) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{213}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{215}
 }
 
 func (x *RBAC) GetBroadAssignments() float32 {
@@ -24852,7 +24730,7 @@ type RateLimiting struct {
 
 func (x *RateLimiting) Reset() {
 	*x = RateLimiting{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[214]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[216]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24864,7 +24742,7 @@ func (x *RateLimiting) String() string {
 func (*RateLimiting) ProtoMessage() {}
 
 func (x *RateLimiting) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[214]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[216]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24877,7 +24755,7 @@ func (x *RateLimiting) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RateLimiting.ProtoReflect.Descriptor instead.
 func (*RateLimiting) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{214}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{216}
 }
 
 func (x *RateLimiting) GetEnabled() bool {
@@ -24914,7 +24792,7 @@ type ReadConfigurationGroup struct {
 
 func (x *ReadConfigurationGroup) Reset() {
 	*x = ReadConfigurationGroup{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[215]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24926,7 +24804,7 @@ func (x *ReadConfigurationGroup) String() string {
 func (*ReadConfigurationGroup) ProtoMessage() {}
 
 func (x *ReadConfigurationGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[215]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -24939,7 +24817,7 @@ func (x *ReadConfigurationGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadConfigurationGroup.ProtoReflect.Descriptor instead.
 func (*ReadConfigurationGroup) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{215}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{217}
 }
 
 func (x *ReadConfigurationGroup) GetCodeRegion() *CodeRegion {
@@ -24976,7 +24854,7 @@ type ReadConfigurationOption struct {
 
 func (x *ReadConfigurationOption) Reset() {
 	*x = ReadConfigurationOption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[216]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -24988,7 +24866,7 @@ func (x *ReadConfigurationOption) String() string {
 func (*ReadConfigurationOption) ProtoMessage() {}
 
 func (x *ReadConfigurationOption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[216]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25001,7 +24879,7 @@ func (x *ReadConfigurationOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadConfigurationOption.ProtoReflect.Descriptor instead.
 func (*ReadConfigurationOption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{216}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{218}
 }
 
 func (x *ReadConfigurationOption) GetCodeRegion() *CodeRegion {
@@ -25040,7 +24918,7 @@ type Redundancy struct {
 
 func (x *Redundancy) Reset() {
 	*x = Redundancy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25052,7 +24930,7 @@ func (x *Redundancy) String() string {
 func (*Redundancy) ProtoMessage() {}
 
 func (x *Redundancy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25065,7 +24943,7 @@ func (x *Redundancy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Redundancy.ProtoReflect.Descriptor instead.
 func (*Redundancy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{217}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{219}
 }
 
 func (x *Redundancy) GetType() isRedundancy_Type {
@@ -25137,7 +25015,7 @@ type RegisterConfigurationGroup struct {
 
 func (x *RegisterConfigurationGroup) Reset() {
 	*x = RegisterConfigurationGroup{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[220]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25149,7 +25027,7 @@ func (x *RegisterConfigurationGroup) String() string {
 func (*RegisterConfigurationGroup) ProtoMessage() {}
 
 func (x *RegisterConfigurationGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[220]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25162,7 +25040,7 @@ func (x *RegisterConfigurationGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterConfigurationGroup.ProtoReflect.Descriptor instead.
 func (*RegisterConfigurationGroup) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{218}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{220}
 }
 
 func (x *RegisterConfigurationGroup) GetCodeRegion() *CodeRegion {
@@ -25199,7 +25077,7 @@ type RegisterConfigurationOption struct {
 
 func (x *RegisterConfigurationOption) Reset() {
 	*x = RegisterConfigurationOption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[221]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25211,7 +25089,7 @@ func (x *RegisterConfigurationOption) String() string {
 func (*RegisterConfigurationOption) ProtoMessage() {}
 
 func (x *RegisterConfigurationOption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[221]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25224,7 +25102,7 @@ func (x *RegisterConfigurationOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterConfigurationOption.ProtoReflect.Descriptor instead.
 func (*RegisterConfigurationOption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{219}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{221}
 }
 
 func (x *RegisterConfigurationOption) GetCodeRegion() *CodeRegion {
@@ -25260,7 +25138,7 @@ type RegisterHttpEndpoint struct {
 
 func (x *RegisterHttpEndpoint) Reset() {
 	*x = RegisterHttpEndpoint{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[220]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[222]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25272,7 +25150,7 @@ func (x *RegisterHttpEndpoint) String() string {
 func (*RegisterHttpEndpoint) ProtoMessage() {}
 
 func (x *RegisterHttpEndpoint) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[220]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[222]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25285,7 +25163,7 @@ func (x *RegisterHttpEndpoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterHttpEndpoint.ProtoReflect.Descriptor instead.
 func (*RegisterHttpEndpoint) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{220}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{222}
 }
 
 func (x *RegisterHttpEndpoint) GetCodeRegion() *CodeRegion {
@@ -25342,7 +25220,7 @@ type RelationalDatabaseService struct {
 
 func (x *RelationalDatabaseService) Reset() {
 	*x = RelationalDatabaseService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[221]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[223]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25354,7 +25232,7 @@ func (x *RelationalDatabaseService) String() string {
 func (*RelationalDatabaseService) ProtoMessage() {}
 
 func (x *RelationalDatabaseService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[221]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[223]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25367,7 +25245,7 @@ func (x *RelationalDatabaseService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RelationalDatabaseService.ProtoReflect.Descriptor instead.
 func (*RelationalDatabaseService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{221}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{223}
 }
 
 func (x *RelationalDatabaseService) GetCreationTime() *timestamppb.Timestamp {
@@ -25545,7 +25423,7 @@ type Reliability struct {
 
 func (x *Reliability) Reset() {
 	*x = Reliability{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[222]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25557,7 +25435,7 @@ func (x *Reliability) String() string {
 func (*Reliability) ProtoMessage() {}
 
 func (x *Reliability) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[222]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25570,7 +25448,7 @@ func (x *Reliability) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Reliability.ProtoReflect.Descriptor instead.
 func (*Reliability) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{222}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{224}
 }
 
 func (x *Reliability) GetType() isReliability_Type {
@@ -25626,7 +25504,7 @@ type RemoteAttestation struct {
 
 func (x *RemoteAttestation) Reset() {
 	*x = RemoteAttestation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[223]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[225]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25638,7 +25516,7 @@ func (x *RemoteAttestation) String() string {
 func (*RemoteAttestation) ProtoMessage() {}
 
 func (x *RemoteAttestation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[223]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[225]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25651,7 +25529,7 @@ func (x *RemoteAttestation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoteAttestation.ProtoReflect.Descriptor instead.
 func (*RemoteAttestation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{223}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{225}
 }
 
 func (x *RemoteAttestation) GetCreationTime() *timestamppb.Timestamp {
@@ -25688,7 +25566,7 @@ type RemoteDataLocation struct {
 
 func (x *RemoteDataLocation) Reset() {
 	*x = RemoteDataLocation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25700,7 +25578,7 @@ func (x *RemoteDataLocation) String() string {
 func (*RemoteDataLocation) ProtoMessage() {}
 
 func (x *RemoteDataLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25713,7 +25591,7 @@ func (x *RemoteDataLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoteDataLocation.ProtoReflect.Descriptor instead.
 func (*RemoteDataLocation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{224}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{226}
 }
 
 func (x *RemoteDataLocation) GetPath() string {
@@ -25758,7 +25636,7 @@ type RemoteEntryPoint struct {
 
 func (x *RemoteEntryPoint) Reset() {
 	*x = RemoteEntryPoint{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[225]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[227]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25770,7 +25648,7 @@ func (x *RemoteEntryPoint) String() string {
 func (*RemoteEntryPoint) ProtoMessage() {}
 
 func (x *RemoteEntryPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[225]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[227]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25783,7 +25661,7 @@ func (x *RemoteEntryPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoteEntryPoint.ProtoReflect.Descriptor instead.
 func (*RemoteEntryPoint) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{225}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{227}
 }
 
 func (x *RemoteEntryPoint) GetType() isRemoteEntryPoint_Type {
@@ -25835,7 +25713,7 @@ type ReportDocument struct {
 
 func (x *ReportDocument) Reset() {
 	*x = ReportDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25847,7 +25725,7 @@ func (x *ReportDocument) String() string {
 func (*ReportDocument) ProtoMessage() {}
 
 func (x *ReportDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25860,7 +25738,7 @@ func (x *ReportDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportDocument.ProtoReflect.Descriptor instead.
 func (*ReportDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{226}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{228}
 }
 
 func (x *ReportDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -25964,7 +25842,7 @@ type RequestForChange struct {
 
 func (x *RequestForChange) Reset() {
 	*x = RequestForChange{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[227]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[229]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -25976,7 +25854,7 @@ func (x *RequestForChange) String() string {
 func (*RequestForChange) ProtoMessage() {}
 
 func (x *RequestForChange) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[227]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[229]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -25989,7 +25867,7 @@ func (x *RequestForChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestForChange.ProtoReflect.Descriptor instead.
 func (*RequestForChange) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{227}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{229}
 }
 
 func (x *RequestForChange) GetApprovedBeforeDeployment() bool {
@@ -26070,11 +25948,6 @@ type Resource struct {
 	//	*Resource_MachineLearningDataset
 	//	*Resource_MachineLearningModel
 	//	*Resource_CoordinatedVulnerabilityDisclosurePolicy
-	//	*Resource_DataConfidentialitySdnPolicy
-	//	*Resource_LeastPrivilegePolicy
-	//	*Resource_NeedToKnowPolicy
-	//	*Resource_SdnFunctionValidationPolicy
-	//	*Resource_SeparationOfDutiesPolicy
 	//	*Resource_AndRule
 	//	*Resource_Token
 	//	*Resource_Value
@@ -26095,7 +25968,7 @@ type Resource struct {
 
 func (x *Resource) Reset() {
 	*x = Resource{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[230]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -26107,7 +25980,7 @@ func (x *Resource) String() string {
 func (*Resource) ProtoMessage() {}
 
 func (x *Resource) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[230]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -26120,7 +25993,7 @@ func (x *Resource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Resource.ProtoReflect.Descriptor instead.
 func (*Resource) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{228}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{230}
 }
 
 func (x *Resource) GetType() isResource_Type {
@@ -26724,51 +26597,6 @@ func (x *Resource) GetCoordinatedVulnerabilityDisclosurePolicy() *CoordinatedVul
 	return nil
 }
 
-func (x *Resource) GetDataConfidentialitySdnPolicy() *DataConfidentialitySDNPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Resource_DataConfidentialitySdnPolicy); ok {
-			return x.DataConfidentialitySdnPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Resource) GetLeastPrivilegePolicy() *LeastPrivilegePolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Resource_LeastPrivilegePolicy); ok {
-			return x.LeastPrivilegePolicy
-		}
-	}
-	return nil
-}
-
-func (x *Resource) GetNeedToKnowPolicy() *NeedToKnowPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Resource_NeedToKnowPolicy); ok {
-			return x.NeedToKnowPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Resource) GetSdnFunctionValidationPolicy() *SDNFunctionValidationPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Resource_SdnFunctionValidationPolicy); ok {
-			return x.SdnFunctionValidationPolicy
-		}
-	}
-	return nil
-}
-
-func (x *Resource) GetSeparationOfDutiesPolicy() *SeparationOfDutiesPolicy {
-	if x != nil {
-		if x, ok := x.Type.(*Resource_SeparationOfDutiesPolicy); ok {
-			return x.SeparationOfDutiesPolicy
-		}
-	}
-	return nil
-}
-
 func (x *Resource) GetAndRule() *AndRule {
 	if x != nil {
 		if x, ok := x.Type.(*Resource_AndRule); ok {
@@ -27154,26 +26982,6 @@ type Resource_CoordinatedVulnerabilityDisclosurePolicy struct {
 	CoordinatedVulnerabilityDisclosurePolicy *CoordinatedVulnerabilityDisclosurePolicy `protobuf:"bytes,18002,opt,name=coordinated_vulnerability_disclosure_policy,json=coordinatedVulnerabilityDisclosurePolicy,proto3,oneof"`
 }
 
-type Resource_DataConfidentialitySdnPolicy struct {
-	DataConfidentialitySdnPolicy *DataConfidentialitySDNPolicy `protobuf:"bytes,18631,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3,oneof"`
-}
-
-type Resource_LeastPrivilegePolicy struct {
-	LeastPrivilegePolicy *LeastPrivilegePolicy `protobuf:"bytes,9544,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3,oneof"`
-}
-
-type Resource_NeedToKnowPolicy struct {
-	NeedToKnowPolicy *NeedToKnowPolicy `protobuf:"bytes,8800,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3,oneof"`
-}
-
-type Resource_SdnFunctionValidationPolicy struct {
-	SdnFunctionValidationPolicy *SDNFunctionValidationPolicy `protobuf:"bytes,7153,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3,oneof"`
-}
-
-type Resource_SeparationOfDutiesPolicy struct {
-	SeparationOfDutiesPolicy *SeparationOfDutiesPolicy `protobuf:"bytes,6331,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3,oneof"`
-}
-
 type Resource_AndRule struct {
 	AndRule *AndRule `protobuf:"bytes,1114,opt,name=and_rule,json=andRule,proto3,oneof"`
 }
@@ -27358,16 +27166,6 @@ func (*Resource_MachineLearningModel) isResource_Type() {}
 
 func (*Resource_CoordinatedVulnerabilityDisclosurePolicy) isResource_Type() {}
 
-func (*Resource_DataConfidentialitySdnPolicy) isResource_Type() {}
-
-func (*Resource_LeastPrivilegePolicy) isResource_Type() {}
-
-func (*Resource_NeedToKnowPolicy) isResource_Type() {}
-
-func (*Resource_SdnFunctionValidationPolicy) isResource_Type() {}
-
-func (*Resource_SeparationOfDutiesPolicy) isResource_Type() {}
-
 func (*Resource_AndRule) isResource_Type() {}
 
 func (*Resource_Token) isResource_Type() {}
@@ -27418,7 +27216,7 @@ type ResourceGroup struct {
 
 func (x *ResourceGroup) Reset() {
 	*x = ResourceGroup{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[229]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[231]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -27430,7 +27228,7 @@ func (x *ResourceGroup) String() string {
 func (*ResourceGroup) ProtoMessage() {}
 
 func (x *ResourceGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[229]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[231]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -27443,7 +27241,7 @@ func (x *ResourceGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceGroup.ProtoReflect.Descriptor instead.
 func (*ResourceGroup) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{229}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{231}
 }
 
 func (x *ResourceGroup) GetCreationTime() *timestamppb.Timestamp {
@@ -27560,7 +27358,7 @@ type ResourceLogging struct {
 
 func (x *ResourceLogging) Reset() {
 	*x = ResourceLogging{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[230]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[232]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -27572,7 +27370,7 @@ func (x *ResourceLogging) String() string {
 func (*ResourceLogging) ProtoMessage() {}
 
 func (x *ResourceLogging) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[230]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[232]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -27585,7 +27383,7 @@ func (x *ResourceLogging) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceLogging.ProtoReflect.Descriptor instead.
 func (*ResourceLogging) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{230}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{232}
 }
 
 func (x *ResourceLogging) GetEnabled() bool {
@@ -27639,7 +27437,7 @@ type ResourceType struct {
 
 func (x *ResourceType) Reset() {
 	*x = ResourceType{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[231]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[233]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -27651,7 +27449,7 @@ func (x *ResourceType) String() string {
 func (*ResourceType) ProtoMessage() {}
 
 func (x *ResourceType) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[231]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[233]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -27664,7 +27462,7 @@ func (x *ResourceType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceType.ProtoReflect.Descriptor instead.
 func (*ResourceType) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{231}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{233}
 }
 
 // RobustnessScore is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -27676,7 +27474,7 @@ type RobustnessScore struct {
 
 func (x *RobustnessScore) Reset() {
 	*x = RobustnessScore{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[232]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[234]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -27688,7 +27486,7 @@ func (x *RobustnessScore) String() string {
 func (*RobustnessScore) ProtoMessage() {}
 
 func (x *RobustnessScore) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[232]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[234]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -27701,7 +27499,7 @@ func (x *RobustnessScore) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RobustnessScore.ProtoReflect.Descriptor instead.
 func (*RobustnessScore) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{232}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{234}
 }
 
 // RoleAssignment is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -27730,7 +27528,7 @@ type RoleAssignment struct {
 
 func (x *RoleAssignment) Reset() {
 	*x = RoleAssignment{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[233]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[235]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -27742,7 +27540,7 @@ func (x *RoleAssignment) String() string {
 func (*RoleAssignment) ProtoMessage() {}
 
 func (x *RoleAssignment) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[233]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[235]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -27755,7 +27553,7 @@ func (x *RoleAssignment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleAssignment.ProtoReflect.Descriptor instead.
 func (*RoleAssignment) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{233}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{235}
 }
 
 func (x *RoleAssignment) GetActivated() bool {
@@ -27893,7 +27691,7 @@ type SBOMDocument struct {
 
 func (x *SBOMDocument) Reset() {
 	*x = SBOMDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[234]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[236]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -27905,7 +27703,7 @@ func (x *SBOMDocument) String() string {
 func (*SBOMDocument) ProtoMessage() {}
 
 func (x *SBOMDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[234]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[236]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -27918,7 +27716,7 @@ func (x *SBOMDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SBOMDocument.ProtoReflect.Descriptor instead.
 func (*SBOMDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{234}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{236}
 }
 
 func (x *SBOMDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -28015,26 +27813,15 @@ func (x *SBOMDocument) GetSecurityFeatures() []*SecurityFeature {
 // SDNFunctionValidationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 // Represents a policy section within a [PolicyDocument] describing validation and testing requirements for SDN functions. isDefined: whether this policy section is present and defined.
 type SDNFunctionValidationPolicy struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,14647,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,5378,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,3498,opt,name=id,proto3" json:"id,omitempty"`
-	IsDefined    bool                   `protobuf:"varint,12864,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
-	Labels       map[string]string      `protobuf:"bytes,12485,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,14269,opt,name=name,proto3" json:"name,omitempty"`
-	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,16190,opt,name=raw,proto3" json:"raw,omitempty"`
-	ContextId     *string       `protobuf:"bytes,708,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,13722,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
-	PolicyRuleIds []string      `protobuf:"bytes,9678,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
-	ParentId      *string       `protobuf:"bytes,8717,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsDefined     bool                   `protobuf:"varint,10249,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SDNFunctionValidationPolicy) Reset() {
 	*x = SDNFunctionValidationPolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[235]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[237]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28046,7 +27833,7 @@ func (x *SDNFunctionValidationPolicy) String() string {
 func (*SDNFunctionValidationPolicy) ProtoMessage() {}
 
 func (x *SDNFunctionValidationPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[235]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[237]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28059,28 +27846,7 @@ func (x *SDNFunctionValidationPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SDNFunctionValidationPolicy.ProtoReflect.Descriptor instead.
 func (*SDNFunctionValidationPolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{235}
-}
-
-func (x *SDNFunctionValidationPolicy) GetCreationTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreationTime
-	}
-	return nil
-}
-
-func (x *SDNFunctionValidationPolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *SDNFunctionValidationPolicy) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{237}
 }
 
 func (x *SDNFunctionValidationPolicy) GetIsDefined() bool {
@@ -28088,55 +27854,6 @@ func (x *SDNFunctionValidationPolicy) GetIsDefined() bool {
 		return x.IsDefined
 	}
 	return false
-}
-
-func (x *SDNFunctionValidationPolicy) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *SDNFunctionValidationPolicy) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *SDNFunctionValidationPolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
-	}
-	return ""
-}
-
-func (x *SDNFunctionValidationPolicy) GetContextId() string {
-	if x != nil && x.ContextId != nil {
-		return *x.ContextId
-	}
-	return ""
-}
-
-func (x *SDNFunctionValidationPolicy) GetDataLocation() *DataLocation {
-	if x != nil {
-		return x.DataLocation
-	}
-	return nil
-}
-
-func (x *SDNFunctionValidationPolicy) GetPolicyRuleIds() []string {
-	if x != nil {
-		return x.PolicyRuleIds
-	}
-	return nil
-}
-
-func (x *SDNFunctionValidationPolicy) GetParentId() string {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return ""
 }
 
 // SchemaValidation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -28151,7 +27868,7 @@ type SchemaValidation struct {
 
 func (x *SchemaValidation) Reset() {
 	*x = SchemaValidation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[236]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[238]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28163,7 +27880,7 @@ func (x *SchemaValidation) String() string {
 func (*SchemaValidation) ProtoMessage() {}
 
 func (x *SchemaValidation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[236]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[238]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28176,7 +27893,7 @@ func (x *SchemaValidation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SchemaValidation.ProtoReflect.Descriptor instead.
 func (*SchemaValidation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{236}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{238}
 }
 
 func (x *SchemaValidation) GetFormat() string {
@@ -28232,7 +27949,7 @@ type Secret struct {
 
 func (x *Secret) Reset() {
 	*x = Secret{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[237]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28244,7 +27961,7 @@ func (x *Secret) String() string {
 func (*Secret) ProtoMessage() {}
 
 func (x *Secret) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[237]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28257,7 +27974,7 @@ func (x *Secret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Secret.ProtoReflect.Descriptor instead.
 func (*Secret) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{237}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{239}
 }
 
 func (x *Secret) GetCreationTime() *timestamppb.Timestamp {
@@ -28421,7 +28138,7 @@ type SecretOperation struct {
 
 func (x *SecretOperation) Reset() {
 	*x = SecretOperation{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[238]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[240]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28433,7 +28150,7 @@ func (x *SecretOperation) String() string {
 func (*SecretOperation) ProtoMessage() {}
 
 func (x *SecretOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[238]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[240]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28446,7 +28163,7 @@ func (x *SecretOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecretOperation.ProtoReflect.Descriptor instead.
 func (*SecretOperation) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{238}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{240}
 }
 
 func (x *SecretOperation) GetType() isSecretOperation_Type {
@@ -28514,7 +28231,7 @@ type SecurityAdvisoryDocument struct {
 
 func (x *SecurityAdvisoryDocument) Reset() {
 	*x = SecurityAdvisoryDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[241]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28526,7 +28243,7 @@ func (x *SecurityAdvisoryDocument) String() string {
 func (*SecurityAdvisoryDocument) ProtoMessage() {}
 
 func (x *SecurityAdvisoryDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[241]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28539,7 +28256,7 @@ func (x *SecurityAdvisoryDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecurityAdvisoryDocument.ProtoReflect.Descriptor instead.
 func (*SecurityAdvisoryDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{239}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{241}
 }
 
 func (x *SecurityAdvisoryDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -28650,7 +28367,7 @@ type SecurityAdvisoryFeed struct {
 
 func (x *SecurityAdvisoryFeed) Reset() {
 	*x = SecurityAdvisoryFeed{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[240]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[242]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28662,7 +28379,7 @@ func (x *SecurityAdvisoryFeed) String() string {
 func (*SecurityAdvisoryFeed) ProtoMessage() {}
 
 func (x *SecurityAdvisoryFeed) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[240]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[242]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28675,7 +28392,7 @@ func (x *SecurityAdvisoryFeed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecurityAdvisoryFeed.ProtoReflect.Descriptor instead.
 func (*SecurityAdvisoryFeed) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{240}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{242}
 }
 
 func (x *SecurityAdvisoryFeed) GetSecurityAdvisoryDocumentIds() []string {
@@ -28717,7 +28434,7 @@ type SecurityAdvisoryService struct {
 
 func (x *SecurityAdvisoryService) Reset() {
 	*x = SecurityAdvisoryService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[241]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[243]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28729,7 +28446,7 @@ func (x *SecurityAdvisoryService) String() string {
 func (*SecurityAdvisoryService) ProtoMessage() {}
 
 func (x *SecurityAdvisoryService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[241]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[243]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28742,7 +28459,7 @@ func (x *SecurityAdvisoryService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecurityAdvisoryService.ProtoReflect.Descriptor instead.
 func (*SecurityAdvisoryService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{241}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{243}
 }
 
 func (x *SecurityAdvisoryService) GetCreationTime() *timestamppb.Timestamp {
@@ -28947,7 +28664,7 @@ type SecurityFeature struct {
 
 func (x *SecurityFeature) Reset() {
 	*x = SecurityFeature{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[242]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[244]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -28959,7 +28676,7 @@ func (x *SecurityFeature) String() string {
 func (*SecurityFeature) ProtoMessage() {}
 
 func (x *SecurityFeature) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[242]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[244]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -28972,7 +28689,7 @@ func (x *SecurityFeature) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecurityFeature.ProtoReflect.Descriptor instead.
 func (*SecurityFeature) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{242}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{244}
 }
 
 func (x *SecurityFeature) GetType() isSecurityFeature_Type {
@@ -29631,6 +29348,43 @@ func (*SecurityFeature_ExplainableResults) isSecurityFeature_Type() {}
 
 func (*SecurityFeature_RobustnessScore) isSecurityFeature_Type() {}
 
+// SecurityIncident is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+type SecurityIncident struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SecurityIncident) Reset() {
+	*x = SecurityIncident{}
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[245]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityIncident) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityIncident) ProtoMessage() {}
+
+func (x *SecurityIncident) ProtoReflect() protoreflect.Message {
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[245]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityIncident.ProtoReflect.Descriptor instead.
+func (*SecurityIncident) Descriptor() ([]byte, []int) {
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{245}
+}
+
 // SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type SecurityTraining struct {
 	state                           protoimpl.MessageState `protogen:"open.v1"`
@@ -29642,7 +29396,7 @@ type SecurityTraining struct {
 
 func (x *SecurityTraining) Reset() {
 	*x = SecurityTraining{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[243]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[246]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -29654,7 +29408,7 @@ func (x *SecurityTraining) String() string {
 func (*SecurityTraining) ProtoMessage() {}
 
 func (x *SecurityTraining) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[243]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[246]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -29667,7 +29421,7 @@ func (x *SecurityTraining) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecurityTraining.ProtoReflect.Descriptor instead.
 func (*SecurityTraining) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{243}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{246}
 }
 
 func (x *SecurityTraining) GetAnnualUpdateCompleted() bool {
@@ -29687,26 +29441,15 @@ func (x *SecurityTraining) GetSuccessfullyCompletedPercentage() bool {
 // SeparationOfDutiesPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 // Represents a policy section within a [PolicyDocument] describing separation of duties requirements. isDefined: whether this policy section is present and defined.
 type SeparationOfDutiesPolicy struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	CreationTime *timestamppb.Timestamp `protobuf:"bytes,1232,opt,name=creation_time,json=creationTime,proto3" json:"creation_time,omitempty"`
-	Description  string                 `protobuf:"bytes,13879,opt,name=description,proto3" json:"description,omitempty"`
-	Id           string                 `protobuf:"bytes,5002,opt,name=id,proto3" json:"id,omitempty"`
-	IsDefined    bool                   `protobuf:"varint,6623,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
-	Labels       map[string]string      `protobuf:"bytes,18569,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Name         string                 `protobuf:"bytes,12303,opt,name=name,proto3" json:"name,omitempty"`
-	// The raw field contains the raw information that is used to fill in the fields of the ontology.
-	Raw           string        `protobuf:"bytes,10731,opt,name=raw,proto3" json:"raw,omitempty"`
-	ContextId     *string       `protobuf:"bytes,10827,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,15124,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
-	PolicyRuleIds []string      `protobuf:"bytes,16493,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
-	ParentId      *string       `protobuf:"bytes,13819,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsDefined     bool                   `protobuf:"varint,14281,opt,name=is_defined,json=isDefined,proto3" json:"is_defined,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SeparationOfDutiesPolicy) Reset() {
 	*x = SeparationOfDutiesPolicy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[244]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[247]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -29718,7 +29461,7 @@ func (x *SeparationOfDutiesPolicy) String() string {
 func (*SeparationOfDutiesPolicy) ProtoMessage() {}
 
 func (x *SeparationOfDutiesPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[244]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[247]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -29731,28 +29474,7 @@ func (x *SeparationOfDutiesPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SeparationOfDutiesPolicy.ProtoReflect.Descriptor instead.
 func (*SeparationOfDutiesPolicy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{244}
-}
-
-func (x *SeparationOfDutiesPolicy) GetCreationTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreationTime
-	}
-	return nil
-}
-
-func (x *SeparationOfDutiesPolicy) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *SeparationOfDutiesPolicy) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{247}
 }
 
 func (x *SeparationOfDutiesPolicy) GetIsDefined() bool {
@@ -29760,55 +29482,6 @@ func (x *SeparationOfDutiesPolicy) GetIsDefined() bool {
 		return x.IsDefined
 	}
 	return false
-}
-
-func (x *SeparationOfDutiesPolicy) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *SeparationOfDutiesPolicy) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *SeparationOfDutiesPolicy) GetRaw() string {
-	if x != nil {
-		return x.Raw
-	}
-	return ""
-}
-
-func (x *SeparationOfDutiesPolicy) GetContextId() string {
-	if x != nil && x.ContextId != nil {
-		return *x.ContextId
-	}
-	return ""
-}
-
-func (x *SeparationOfDutiesPolicy) GetDataLocation() *DataLocation {
-	if x != nil {
-		return x.DataLocation
-	}
-	return nil
-}
-
-func (x *SeparationOfDutiesPolicy) GetPolicyRuleIds() []string {
-	if x != nil {
-		return x.PolicyRuleIds
-	}
-	return nil
-}
-
-func (x *SeparationOfDutiesPolicy) GetParentId() string {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return ""
 }
 
 // ServiceMetadataDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -29834,7 +29507,7 @@ type ServiceMetadataDocument struct {
 
 func (x *ServiceMetadataDocument) Reset() {
 	*x = ServiceMetadataDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[245]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[248]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -29846,7 +29519,7 @@ func (x *ServiceMetadataDocument) String() string {
 func (*ServiceMetadataDocument) ProtoMessage() {}
 
 func (x *ServiceMetadataDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[245]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[248]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -29859,7 +29532,7 @@ func (x *ServiceMetadataDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceMetadataDocument.ProtoReflect.Descriptor instead.
 func (*ServiceMetadataDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{245}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{248}
 }
 
 func (x *ServiceMetadataDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -29964,7 +29637,7 @@ type DocumentSignature struct {
 
 func (x *DocumentSignature) Reset() {
 	*x = DocumentSignature{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[246]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[249]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -29976,7 +29649,7 @@ func (x *DocumentSignature) String() string {
 func (*DocumentSignature) ProtoMessage() {}
 
 func (x *DocumentSignature) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[246]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[249]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -29989,7 +29662,7 @@ func (x *DocumentSignature) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentSignature.ProtoReflect.Descriptor instead.
 func (*DocumentSignature) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{246}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{249}
 }
 
 func (x *DocumentSignature) GetAlgorithm() string {
@@ -30023,7 +29696,7 @@ type SignedCommits struct {
 
 func (x *SignedCommits) Reset() {
 	*x = SignedCommits{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[247]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[250]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30035,7 +29708,7 @@ func (x *SignedCommits) String() string {
 func (*SignedCommits) ProtoMessage() {}
 
 func (x *SignedCommits) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[247]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[250]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30048,7 +29721,7 @@ func (x *SignedCommits) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignedCommits.ProtoReflect.Descriptor instead.
 func (*SignedCommits) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{247}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{250}
 }
 
 func (x *SignedCommits) GetEnforced() bool {
@@ -30086,7 +29759,7 @@ type SingleSignOn struct {
 
 func (x *SingleSignOn) Reset() {
 	*x = SingleSignOn{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[248]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[251]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30098,7 +29771,7 @@ func (x *SingleSignOn) String() string {
 func (*SingleSignOn) ProtoMessage() {}
 
 func (x *SingleSignOn) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[248]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[251]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30111,7 +29784,7 @@ func (x *SingleSignOn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SingleSignOn.ProtoReflect.Descriptor instead.
 func (*SingleSignOn) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{248}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{251}
 }
 
 func (x *SingleSignOn) GetContextIsChecked() bool {
@@ -30162,7 +29835,7 @@ type Code struct {
 
 func (x *Code) Reset() {
 	*x = Code{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[249]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30174,7 +29847,7 @@ func (x *Code) String() string {
 func (*Code) ProtoMessage() {}
 
 func (x *Code) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[249]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30187,7 +29860,7 @@ func (x *Code) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Code.ProtoReflect.Descriptor instead.
 func (*Code) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{249}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{252}
 }
 
 func (x *Code) GetType() isCode_Type {
@@ -30341,7 +30014,7 @@ type SourceCodeFile struct {
 
 func (x *SourceCodeFile) Reset() {
 	*x = SourceCodeFile{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[250]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[253]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30353,7 +30026,7 @@ func (x *SourceCodeFile) String() string {
 func (*SourceCodeFile) ProtoMessage() {}
 
 func (x *SourceCodeFile) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[250]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[253]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30366,7 +30039,7 @@ func (x *SourceCodeFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SourceCodeFile.ProtoReflect.Descriptor instead.
 func (*SourceCodeFile) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{250}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{253}
 }
 
 func (x *SourceCodeFile) GetCreationTime() *timestamppb.Timestamp {
@@ -30455,7 +30128,7 @@ type Storage struct {
 
 func (x *Storage) Reset() {
 	*x = Storage{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[251]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[254]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30467,7 +30140,7 @@ func (x *Storage) String() string {
 func (*Storage) ProtoMessage() {}
 
 func (x *Storage) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[251]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[254]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30480,7 +30153,7 @@ func (x *Storage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Storage.ProtoReflect.Descriptor instead.
 func (*Storage) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{251}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{254}
 }
 
 func (x *Storage) GetType() isStorage_Type {
@@ -30573,7 +30246,7 @@ type StorageService struct {
 
 func (x *StorageService) Reset() {
 	*x = StorageService{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30585,7 +30258,7 @@ func (x *StorageService) String() string {
 func (*StorageService) ProtoMessage() {}
 
 func (x *StorageService) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30598,7 +30271,7 @@ func (x *StorageService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StorageService.ProtoReflect.Descriptor instead.
 func (*StorageService) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{252}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{255}
 }
 
 func (x *StorageService) GetType() isStorageService_Type {
@@ -30724,7 +30397,7 @@ type SymmetricCipher struct {
 
 func (x *SymmetricCipher) Reset() {
 	*x = SymmetricCipher{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[253]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[256]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30736,7 +30409,7 @@ func (x *SymmetricCipher) String() string {
 func (*SymmetricCipher) ProtoMessage() {}
 
 func (x *SymmetricCipher) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[253]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[256]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30749,7 +30422,7 @@ func (x *SymmetricCipher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymmetricCipher.ProtoReflect.Descriptor instead.
 func (*SymmetricCipher) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{253}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{256}
 }
 
 func (x *SymmetricCipher) GetAuthTagSize() int32 {
@@ -30810,7 +30483,7 @@ type Time struct {
 
 func (x *Time) Reset() {
 	*x = Time{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[254]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[257]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30822,7 +30495,7 @@ func (x *Time) String() string {
 func (*Time) ProtoMessage() {}
 
 func (x *Time) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[254]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[257]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30835,7 +30508,7 @@ func (x *Time) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Time.ProtoReflect.Descriptor instead.
 func (*Time) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{254}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{257}
 }
 
 // Token is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -30857,7 +30530,7 @@ type Token struct {
 
 func (x *Token) Reset() {
 	*x = Token{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[258]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30869,7 +30542,7 @@ func (x *Token) String() string {
 func (*Token) ProtoMessage() {}
 
 func (x *Token) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[258]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30882,7 +30555,7 @@ func (x *Token) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Token.ProtoReflect.Descriptor instead.
 func (*Token) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{255}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{258}
 }
 
 func (x *Token) GetCreationTime() *timestamppb.Timestamp {
@@ -30955,7 +30628,7 @@ type Training struct {
 
 func (x *Training) Reset() {
 	*x = Training{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[256]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[259]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -30967,7 +30640,7 @@ func (x *Training) String() string {
 func (*Training) ProtoMessage() {}
 
 func (x *Training) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[256]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[259]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -30980,7 +30653,7 @@ func (x *Training) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Training.ProtoReflect.Descriptor instead.
 func (*Training) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{256}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{259}
 }
 
 func (x *Training) GetType() isTraining_Type {
@@ -31043,7 +30716,7 @@ type TransportEncryption struct {
 
 func (x *TransportEncryption) Reset() {
 	*x = TransportEncryption{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[257]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[260]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31055,7 +30728,7 @@ func (x *TransportEncryption) String() string {
 func (*TransportEncryption) ProtoMessage() {}
 
 func (x *TransportEncryption) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[257]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[260]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31068,7 +30741,7 @@ func (x *TransportEncryption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransportEncryption.ProtoReflect.Descriptor instead.
 func (*TransportEncryption) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{257}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{260}
 }
 
 func (x *TransportEncryption) GetEnabled() bool {
@@ -31138,7 +30811,7 @@ type UnlockEncryptedDisk struct {
 
 func (x *UnlockEncryptedDisk) Reset() {
 	*x = UnlockEncryptedDisk{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[258]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[261]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31150,7 +30823,7 @@ func (x *UnlockEncryptedDisk) String() string {
 func (*UnlockEncryptedDisk) ProtoMessage() {}
 
 func (x *UnlockEncryptedDisk) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[258]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[261]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31163,7 +30836,7 @@ func (x *UnlockEncryptedDisk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlockEncryptedDisk.ProtoReflect.Descriptor instead.
 func (*UnlockEncryptedDisk) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{258}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{261}
 }
 
 func (x *UnlockEncryptedDisk) GetCodeRegion() *CodeRegion {
@@ -31190,7 +30863,7 @@ type UsageStatistics struct {
 
 func (x *UsageStatistics) Reset() {
 	*x = UsageStatistics{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[259]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[262]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31202,7 +30875,7 @@ func (x *UsageStatistics) String() string {
 func (*UsageStatistics) ProtoMessage() {}
 
 func (x *UsageStatistics) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[259]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[262]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31215,7 +30888,7 @@ func (x *UsageStatistics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UsageStatistics.ProtoReflect.Descriptor instead.
 func (*UsageStatistics) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{259}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{262}
 }
 
 func (x *UsageStatistics) GetApiHitsPerMonth() int32 {
@@ -31248,7 +30921,7 @@ type UserInformationAndIntructionDocument struct {
 
 func (x *UserInformationAndIntructionDocument) Reset() {
 	*x = UserInformationAndIntructionDocument{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[260]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[263]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31260,7 +30933,7 @@ func (x *UserInformationAndIntructionDocument) String() string {
 func (*UserInformationAndIntructionDocument) ProtoMessage() {}
 
 func (x *UserInformationAndIntructionDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[260]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[263]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31273,7 +30946,7 @@ func (x *UserInformationAndIntructionDocument) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use UserInformationAndIntructionDocument.ProtoReflect.Descriptor instead.
 func (*UserInformationAndIntructionDocument) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{260}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{263}
 }
 
 func (x *UserInformationAndIntructionDocument) GetCreationTime() *timestamppb.Timestamp {
@@ -31392,7 +31065,7 @@ type VMImage struct {
 
 func (x *VMImage) Reset() {
 	*x = VMImage{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[261]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31404,7 +31077,7 @@ func (x *VMImage) String() string {
 func (*VMImage) ProtoMessage() {}
 
 func (x *VMImage) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[261]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31417,7 +31090,7 @@ func (x *VMImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VMImage.ProtoReflect.Descriptor instead.
 func (*VMImage) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{261}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{264}
 }
 
 func (x *VMImage) GetCreationTime() *timestamppb.Timestamp {
@@ -31537,7 +31210,7 @@ type ValidateJwt struct {
 
 func (x *ValidateJwt) Reset() {
 	*x = ValidateJwt{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[262]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[265]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31549,7 +31222,7 @@ func (x *ValidateJwt) String() string {
 func (*ValidateJwt) ProtoMessage() {}
 
 func (x *ValidateJwt) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[262]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[265]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31562,7 +31235,7 @@ func (x *ValidateJwt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateJwt.ProtoReflect.Descriptor instead.
 func (*ValidateJwt) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{262}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{265}
 }
 
 func (x *ValidateJwt) GetAuthenticity() *Authenticity {
@@ -31598,7 +31271,7 @@ type Value struct {
 
 func (x *Value) Reset() {
 	*x = Value{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[263]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31610,7 +31283,7 @@ func (x *Value) String() string {
 func (*Value) ProtoMessage() {}
 
 func (x *Value) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[263]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31623,7 +31296,7 @@ func (x *Value) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Value.ProtoReflect.Descriptor instead.
 func (*Value) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{263}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{266}
 }
 
 func (x *Value) GetCreationTime() *timestamppb.Timestamp {
@@ -31698,7 +31371,7 @@ type VerifiedCommits struct {
 
 func (x *VerifiedCommits) Reset() {
 	*x = VerifiedCommits{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31710,7 +31383,7 @@ func (x *VerifiedCommits) String() string {
 func (*VerifiedCommits) ProtoMessage() {}
 
 func (x *VerifiedCommits) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31723,7 +31396,7 @@ func (x *VerifiedCommits) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifiedCommits.ProtoReflect.Descriptor instead.
 func (*VerifiedCommits) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{264}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{267}
 }
 
 func (x *VerifiedCommits) GetPercentage() float32 {
@@ -31773,7 +31446,7 @@ type VirtualMachine struct {
 
 func (x *VirtualMachine) Reset() {
 	*x = VirtualMachine{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[265]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31785,7 +31458,7 @@ func (x *VirtualMachine) String() string {
 func (*VirtualMachine) ProtoMessage() {}
 
 func (x *VirtualMachine) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[265]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -31798,7 +31471,7 @@ func (x *VirtualMachine) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VirtualMachine.ProtoReflect.Descriptor instead.
 func (*VirtualMachine) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{265}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{268}
 }
 
 func (x *VirtualMachine) GetCreationTime() *timestamppb.Timestamp {
@@ -31986,7 +31659,7 @@ type VirtualNetwork struct {
 
 func (x *VirtualNetwork) Reset() {
 	*x = VirtualNetwork{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[269]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -31998,7 +31671,7 @@ func (x *VirtualNetwork) String() string {
 func (*VirtualNetwork) ProtoMessage() {}
 
 func (x *VirtualNetwork) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[269]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32011,7 +31684,7 @@ func (x *VirtualNetwork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VirtualNetwork.ProtoReflect.Descriptor instead.
 func (*VirtualNetwork) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{266}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{269}
 }
 
 func (x *VirtualNetwork) GetCreationTime() *timestamppb.Timestamp {
@@ -32136,7 +31809,7 @@ type VirtualSubNetwork struct {
 
 func (x *VirtualSubNetwork) Reset() {
 	*x = VirtualSubNetwork{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -32148,7 +31821,7 @@ func (x *VirtualSubNetwork) String() string {
 func (*VirtualSubNetwork) ProtoMessage() {}
 
 func (x *VirtualSubNetwork) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32161,7 +31834,7 @@ func (x *VirtualSubNetwork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VirtualSubNetwork.ProtoReflect.Descriptor instead.
 func (*VirtualSubNetwork) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{267}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{270}
 }
 
 func (x *VirtualSubNetwork) GetCreationTime() *timestamppb.Timestamp {
@@ -32281,7 +31954,7 @@ type Vulnerability struct {
 
 func (x *Vulnerability) Reset() {
 	*x = Vulnerability{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -32293,7 +31966,7 @@ func (x *Vulnerability) String() string {
 func (*Vulnerability) ProtoMessage() {}
 
 func (x *Vulnerability) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32306,7 +31979,7 @@ func (x *Vulnerability) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Vulnerability.ProtoReflect.Descriptor instead.
 func (*Vulnerability) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{268}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{271}
 }
 
 func (x *Vulnerability) GetCriticality() string {
@@ -32362,7 +32035,7 @@ type WebApplicationFirewall struct {
 
 func (x *WebApplicationFirewall) Reset() {
 	*x = WebApplicationFirewall{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[269]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[272]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -32374,7 +32047,7 @@ func (x *WebApplicationFirewall) String() string {
 func (*WebApplicationFirewall) ProtoMessage() {}
 
 func (x *WebApplicationFirewall) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[269]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[272]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32387,7 +32060,7 @@ func (x *WebApplicationFirewall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebApplicationFirewall.ProtoReflect.Descriptor instead.
 func (*WebApplicationFirewall) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{269}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{272}
 }
 
 func (x *WebApplicationFirewall) GetEnabled() bool {
@@ -32418,7 +32091,7 @@ type Win32 struct {
 
 func (x *Win32) Reset() {
 	*x = Win32{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[273]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -32430,7 +32103,7 @@ func (x *Win32) String() string {
 func (*Win32) ProtoMessage() {}
 
 func (x *Win32) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[273]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32443,7 +32116,7 @@ func (x *Win32) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Win32.ProtoReflect.Descriptor instead.
 func (*Win32) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{270}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{273}
 }
 
 func (x *Win32) GetCreationTime() *timestamppb.Timestamp {
@@ -32540,7 +32213,7 @@ type Workflow struct {
 
 func (x *Workflow) Reset() {
 	*x = Workflow{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[274]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -32552,7 +32225,7 @@ func (x *Workflow) String() string {
 func (*Workflow) ProtoMessage() {}
 
 func (x *Workflow) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[274]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32565,7 +32238,7 @@ func (x *Workflow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Workflow.ProtoReflect.Descriptor instead.
 func (*Workflow) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{271}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{274}
 }
 
 func (x *Workflow) GetCreationTime() *timestamppb.Timestamp {
@@ -32676,7 +32349,7 @@ type ZoneRedundancy struct {
 
 func (x *ZoneRedundancy) Reset() {
 	*x = ZoneRedundancy{}
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[272]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[275]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -32688,7 +32361,7 @@ func (x *ZoneRedundancy) String() string {
 func (*ZoneRedundancy) ProtoMessage() {}
 
 func (x *ZoneRedundancy) ProtoReflect() protoreflect.Message {
-	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[272]
+	mi := &file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[275]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -32701,7 +32374,7 @@ func (x *ZoneRedundancy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ZoneRedundancy.ProtoReflect.Descriptor instead.
 func (*ZoneRedundancy) Descriptor() ([]byte, []int) {
-	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{272}
+	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{275}
 }
 
 func (x *ZoneRedundancy) GetGeoLocations() []*GeoLocation {
@@ -33037,7 +32710,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x16key_exchange_algorithm\x18\xc8t \x01(\tR\x14keyExchangeAlgorithm\x12$\n" +
 	"\rmac_algorithm\x18\xa8\x12 \x01(\tR\fmacAlgorithm\x12&\n" +
 	"\x0esession_cipher\x18\xee, \x01(\tR\rsessionCipher\x129\n" +
-	"\aciphers\x18\xb4A \x03(\v2\x1e.confirmate.ontology.v1.CipherR\aciphers: \x82\xa6\x1d\vCipherSuite\x82\xa6\x1d\rFunctionality\"\x8c\x1c\n" +
+	"\aciphers\x18\xb4A \x03(\v2\x1e.confirmate.ontology.v1.CipherR\aciphers: \x82\xa6\x1d\vCipherSuite\x82\xa6\x1d\rFunctionality\" \n" +
+	"\fCloudFeature:\x10\x82\xa6\x1d\fCloudFeature\"\x8c\x1c\n" +
 	"\x0eInfrastructure\x12<\n" +
 	"\aaccount\x18\xc0Y \x01(\v2\x1f.confirmate.ontology.v1.AccountH\x00R\aaccount\x120\n" +
 	"\x03job\x18\x9f\x1f \x01(\v2\x1b.confirmate.ontology.v1.JobH\x00R\x03job\x12?\n" +
@@ -33475,7 +33149,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\x82\xa6\x1d\x06Darwin\x82\xa6\x1d\x1bOperatingSystemArchitecture\x82\xa6\x1d\x04Code\x82\xa6\x1d\bResourceB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xe2\x19\n" +
+	"_parent_id\"\xad\x15\n" +
 	"\x04Data\x12N\n" +
 	"\rconfiguration\x18\xf2/ \x01(\v2%.confirmate.ontology.v1.ConfigurationH\x00R\rconfiguration\x12_\n" +
 	"\x13configuration_group\x18\xee\x88\x01 \x01(\v2*.confirmate.ontology.v1.ConfigurationGroupH\x00R\x12configurationGroup\x12r\n" +
@@ -33501,36 +33175,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"fileHandle\x12k\n" +
 	"\x18machine_learning_dataset\x18\xf8\x0f \x01(\v2..confirmate.ontology.v1.MachineLearningDatasetH\x00R\x16machineLearningDataset\x12e\n" +
 	"\x16machine_learning_model\x18\xa1x \x01(\v2,.confirmate.ontology.v1.MachineLearningModelH\x00R\x14machineLearningModel\x12\xa3\x01\n" +
-	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicy\x12\x7f\n" +
-	"\x1fdata_confidentiality_sdn_policy\x18Ǒ\x01 \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyH\x00R\x1cdataConfidentialitySdnPolicy\x12e\n" +
-	"\x16least_privilege_policy\x18\xc8J \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyH\x00R\x14leastPrivilegePolicy\x12Z\n" +
-	"\x13need_to_know_policy\x18\xe0D \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyH\x00R\x10needToKnowPolicy\x12{\n" +
-	"\x1esdn_function_validation_policy\x18\xf17 \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyH\x00R\x1bsdnFunctionValidationPolicy\x12r\n" +
-	"\x1bseparation_of_duties_policy\x18\xbb1 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyH\x00R\x18separationOfDutiesPolicy\x12=\n" +
+	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicy\x12=\n" +
 	"\band_rule\x18\xda\b \x01(\v2\x1f.confirmate.ontology.v1.AndRuleH\x00R\aandRule\x126\n" +
 	"\x05token\x18\x92) \x01(\v2\x1d.confirmate.ontology.v1.TokenH\x00R\x05token\x126\n" +
 	"\x05value\x18\x8c\x05 \x01(\v2\x1d.confirmate.ontology.v1.ValueH\x00R\x05valueB\x06\n" +
-	"\x04type\"\x9e\x05\n" +
-	"\x1cDataConfidentialitySDNPolicy\x12@\n" +
-	"\rcreation_time\x18\x81y \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xec\x06 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xdb\x18 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12\x1f\n" +
+	"\x04type\"}\n" +
+	"\x1cDataConfidentialitySDNPolicy\x12\x1e\n" +
 	"\n" +
-	"is_defined\x18\xa3\x8c\x01 \x01(\bR\tisDefined\x12Y\n" +
-	"\x06labels\x18\x81u \x03(\v2@.confirmate.ontology.v1.DataConfidentialitySDNPolicy.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xec= \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x84( \x01(\tR\x03raw\x12#\n" +
-	"\n" +
-	"context_id\x18\xc5X \x01(\tH\x00R\tcontextId\x88\x01\x01\x12J\n" +
-	"\rdata_location\x18\xe9\x18 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12'\n" +
-	"\x0fpolicy_rule_ids\x18\xb9, \x03(\tR\rpolicyRuleIds\x12\"\n" +
-	"\tparent_id\x18ł\x01 \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:>\x82\xa6\x1d\x1cDataConfidentialitySDNPolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\r\n" +
-	"\v_context_idB\f\n" +
-	"\n" +
-	"_parent_id\"\xd5\x01\n" +
+	"is_defined\x18\xaf\t \x01(\bR\tisDefined:=\x82\xa6\x1d\x1cDataConfidentialitySDNPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xd5\x01\n" +
 	"\fDataLocation\x12\\\n" +
 	"\x13local_data_location\x18\x99` \x01(\v2).confirmate.ontology.v1.LocalDataLocationH\x00R\x11localDataLocation\x12_\n" +
 	"\x14remote_data_location\x18\xe5i \x01(\v2*.confirmate.ontology.v1.RemoteDataLocationH\x00R\x12remoteDataLocationB\x06\n" +
@@ -33938,7 +33590,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_id\"\xeb2\n" +
+	"\x1d_service_metadata_document_id\"\xa07\n" +
 	"\rFunctionality\x12?\n" +
 	"\bboundary\x18\x8cS \x01(\v2 .confirmate.ontology.v1.BoundaryH\x00R\bboundary\x12\x8a\x01\n" +
 	"#change_and_configuration_management\x18\xc7_ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x00R changeAndConfigurationManagement\x12X\n" +
@@ -34014,7 +33666,12 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"get_secret\x18\xf9\x15 \x01(\v2!.confirmate.ontology.v1.GetSecretH\x00R\tgetSecret\x129\n" +
 	"\x06output\x18\xb78 \x01(\v2\x1e.confirmate.ontology.v1.OutputH\x00R\x06output\x12<\n" +
-	"\apadding\x18\x9dH \x01(\v2\x1f.confirmate.ontology.v1.PaddingH\x00R\apadding\x12B\n" +
+	"\apadding\x18\x9dH \x01(\v2\x1f.confirmate.ontology.v1.PaddingH\x00R\apadding\x12~\n" +
+	"\x1fdata_confidentiality_sdn_policy\x18\x92c \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyH\x00R\x1cdataConfidentialitySdnPolicy\x12e\n" +
+	"\x16least_privilege_policy\x18\xb1u \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyH\x00R\x14leastPrivilegePolicy\x12[\n" +
+	"\x13need_to_know_policy\x18\xb1\x86\x01 \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyH\x00R\x10needToKnowPolicy\x12{\n" +
+	"\x1esdn_function_validation_policy\x18\xe3\x0e \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyH\x00R\x1bsdnFunctionValidationPolicy\x12r\n" +
+	"\x1bseparation_of_duties_policy\x18\x9f\v \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyH\x00R\x18separationOfDutiesPolicy\x12B\n" +
 	"\tprincipal\x18\xad~ \x01(\v2!.confirmate.ontology.v1.PrincipalH\x00R\tprincipal\x12R\n" +
 	"\x0fprotected_asset\x18\xc9S \x01(\v2&.confirmate.ontology.v1.ProtectedAssetH\x00R\x0eprotectedAsset\x12Y\n" +
 	"\x12request_for_change\x18\xdc) \x01(\v2(.confirmate.ontology.v1.RequestForChangeH\x00R\x10requestForChange\x12X\n" +
@@ -34347,27 +34004,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\aenabled\x18\x84J \x01(\bR\aenabled\x12\x19\n" +
 	"\ainbound\x18\xe8\a \x01(\bR\ainbound\x12*\n" +
 	"\x10restricted_ports\x18\xad9 \x01(\tR\x0frestrictedPorts:S\x82\xa6\x1d\n" +
-	"L3Firewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\x85\x05\n" +
-	"\x14LeastPrivilegePolicy\x12@\n" +
-	"\rcreation_time\x18\x8f9 \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xc7l \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xf1D \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12\x1f\n" +
+	"L3Firewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"n\n" +
+	"\x14LeastPrivilegePolicy\x12\x1f\n" +
 	"\n" +
-	"is_defined\x18\x8b\x92\x01 \x01(\bR\tisDefined\x12Q\n" +
-	"\x06labels\x18\xeak \x03(\v28.confirmate.ontology.v1.LeastPrivilegePolicy.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x8e# \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\x95: \x01(\tR\x03raw\x12#\n" +
-	"\n" +
-	"context_id\x18\x96\x1f \x01(\tH\x00R\tcontextId\x88\x01\x01\x12J\n" +
-	"\rdata_location\x18\xe25 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12'\n" +
-	"\x0fpolicy_rule_ids\x18\x95? \x03(\tR\rpolicyRuleIds\x12!\n" +
-	"\tparent_id\x18\x94g \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:6\x82\xa6\x1d\x14LeastPrivilegePolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\r\n" +
-	"\v_context_idB\f\n" +
-	"\n" +
-	"_parent_id\"\xd5\x05\n" +
+	"is_defined\x18\x90\x8d\x01 \x01(\bR\tisDefined:5\x82\xa6\x1d\x14LeastPrivilegePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xd5\x05\n" +
 	"\aLibrary\x12@\n" +
 	"\rcreation_time\x18\xd3] \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
 	"\vdescription\x18\xc3\x13 \x01(\tR\vdescription\x12\x17\n" +
@@ -34724,27 +34364,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"Networking\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_id\"\xfb\x04\n" +
-	"\x10NeedToKnowPolicy\x12@\n" +
-	"\rcreation_time\x18\xf1_ \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xbd4 \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xfcT \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12\x1e\n" +
+	"\x1d_service_metadata_document_id\"f\n" +
+	"\x10NeedToKnowPolicy\x12\x1f\n" +
 	"\n" +
-	"is_defined\x18\xe8Z \x01(\bR\tisDefined\x12N\n" +
-	"\x06labels\x18\x9f\x8a\x01 \x03(\v24.confirmate.ontology.v1.NeedToKnowPolicy.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xac@ \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xb4\x06 \x01(\tR\x03raw\x12#\n" +
-	"\n" +
-	"context_id\x18\xd3A \x01(\tH\x00R\tcontextId\x88\x01\x01\x12K\n" +
-	"\rdata_location\x18ɍ\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12(\n" +
-	"\x0fpolicy_rule_ids\x18܇\x01 \x03(\tR\rpolicyRuleIds\x12!\n" +
-	"\tparent_id\x18\xdc\x12 \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\x10NeedToKnowPolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\r\n" +
-	"\v_context_idB\f\n" +
-	"\n" +
-	"_parent_id\"\xb3\t\n" +
+	"is_defined\x18\xb3\x89\x01 \x01(\bR\tisDefined:1\x82\xa6\x1d\x10NeedToKnowPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xb3\t\n" +
 	"\x10NetworkInterface\x12@\n" +
 	"\rcreation_time\x18\xf9* \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
 	"\vdescription\x18\x85U \x01(\tR\vdescription\x12\x18\n" +
@@ -35025,15 +34648,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0ePasswordPolicy\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
-	"_parent_id\"\xeb\x05\n" +
+	"_parent_id\"\xc7\x04\n" +
+	"\bPolicies\x12~\n" +
+	"\x1fdata_confidentiality_sdn_policy\x18\x92c \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyH\x00R\x1cdataConfidentialitySdnPolicy\x12e\n" +
+	"\x16least_privilege_policy\x18\xb1u \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyH\x00R\x14leastPrivilegePolicy\x12[\n" +
+	"\x13need_to_know_policy\x18\xb1\x86\x01 \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyH\x00R\x10needToKnowPolicy\x12{\n" +
+	"\x1esdn_function_validation_policy\x18\xe3\x0e \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyH\x00R\x1bsdnFunctionValidationPolicy\x12r\n" +
+	"\x1bseparation_of_duties_policy\x18\x9f\v \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyH\x00R\x18separationOfDutiesPolicyB\x06\n" +
+	"\x04type\"\xb6\x01\n" +
 	"\x06Policy\x12\xa3\x01\n" +
-	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicy\x12\x7f\n" +
-	"\x1fdata_confidentiality_sdn_policy\x18Ǒ\x01 \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyH\x00R\x1cdataConfidentialitySdnPolicy\x12e\n" +
-	"\x16least_privilege_policy\x18\xc8J \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyH\x00R\x14leastPrivilegePolicy\x12Z\n" +
-	"\x13need_to_know_policy\x18\xe0D \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyH\x00R\x10needToKnowPolicy\x12{\n" +
-	"\x1esdn_function_validation_policy\x18\xf17 \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyH\x00R\x1bsdnFunctionValidationPolicy\x12r\n" +
-	"\x1bseparation_of_duties_policy\x18\xbb1 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyH\x00R\x18separationOfDutiesPolicyB\x06\n" +
-	"\x04type\"\xcb\v\n" +
+	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicyB\x06\n" +
+	"\x04type\"\x97\x0e\n" +
 	"\x0ePolicyDocument\x12@\n" +
 	"\rcreation_time\x18\xe1B \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
 	"\vdescription\x18\x8f\v \x01(\tR\vdescription\x12\x1b\n" +
@@ -35041,29 +34666,28 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x02id\x18\x963 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12K\n" +
 	"\x06labels\x18\xad, \x03(\v22.confirmate.ontology.v1.PolicyDocument.LabelsEntryR\x06labels\x12\x1b\n" +
 	"\x04name\x18\x84\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xae' \x01(\tR\x03raw\x12[\n" +
-	"\x13cryptographic_hashs\x18\xe0d \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12P\n" +
-	"\"data_confidentiality_sdn_policy_id\x18\x80& \x01(\tH\x00R\x1edataConfidentialitySdnPolicyId\x88\x01\x01\x12J\n" +
+	"\x03raw\x18\xae' \x01(\tR\x03raw\x12Q\n" +
+	"\x0fasset_inventory\x18\xf0\x80\x01 \x01(\v2&.confirmate.ontology.v1.AssetInventoryR\x0eassetInventory\x128\n" +
+	"\x06backup\x18\x92\x80\x01 \x01(\v2\x1e.confirmate.ontology.v1.BackupR\x06backup\x12J\n" +
+	"\rcloud_feature\x18\xd6\x0e \x01(\v2$.confirmate.ontology.v1.CloudFeatureR\fcloudFeature\x12[\n" +
+	"\x13cryptographic_hashs\x18\xe0d \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12|\n" +
+	"\x1fdata_confidentiality_sdn_policy\x18\x80& \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyR\x1cdataConfidentialitySdnPolicy\x12J\n" +
 	"\rdata_location\x18\xd2Y \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\x978 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12E\n" +
-	"\vgovernances\x18\x97% \x03(\v2\".confirmate.ontology.v1.GovernanceR\vgovernances\x12?\n" +
-	"\x19least_privilege_policy_id\x18\xf7b \x01(\tH\x01R\x16leastPrivilegePolicyId\x88\x01\x01\x128\n" +
-	"\x16need_to_know_policy_id\x18\x81\x1c \x01(\tH\x02R\x12needToKnowPolicyId\x88\x01\x01\x12\"\n" +
-	"\tparent_id\x18\xa0\x8e\x01 \x01(\tH\x03R\bparentId\x88\x01\x01\x12N\n" +
-	"!sdn_function_validation_policy_id\x18\xa3? \x01(\tH\x04R\x1dsdnFunctionValidationPolicyId\x88\x01\x01\x12L\n" +
+	"\vgovernances\x18\x97% \x03(\v2\".confirmate.ontology.v1.GovernanceR\vgovernances\x12c\n" +
+	"\x16least_privilege_policy\x18\xf7b \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyR\x14leastPrivilegePolicy\x12X\n" +
+	"\x13need_to_know_policy\x18\x81\x1c \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyR\x10needToKnowPolicy\x12\"\n" +
+	"\tparent_id\x18\xa0\x8e\x01 \x01(\tH\x00R\bparentId\x88\x01\x01\x12y\n" +
+	"\x1esdn_function_validation_policy\x18\xa3? \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyR\x1bsdnFunctionValidationPolicy\x12L\n" +
 	"\fvalidated_by\x18\xf4+ \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
-	"\x11security_features\x18\xc8l \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12H\n" +
-	"\x1eseparation_of_duties_policy_id\x18\xa22 \x01(\tH\x05R\x1aseparationOfDutiesPolicyId\x88\x01\x01\x1a9\n" +
+	"\x11security_features\x18\xc8l \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12W\n" +
+	"\x11security_incident\x18\x98\x82\x01 \x01(\v2(.confirmate.ontology.v1.SecurityIncidentR\x10securityIncident\x12p\n" +
+	"\x1bseparation_of_duties_policy\x18\xa22 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyR\x18separationOfDutiesPolicy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\x0ePolicyDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB%\n" +
-	"#_data_confidentiality_sdn_policy_idB\x1c\n" +
-	"\x1a_least_privilege_policy_idB\x19\n" +
-	"\x17_need_to_know_policy_idB\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\x0ePolicyDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
-	"_parent_idB$\n" +
-	"\"_sdn_function_validation_policy_idB!\n" +
-	"\x1f_separation_of_duties_policy_id\"j\n" +
+	"_parent_id\"j\n" +
 	"\x0fPolicyOperation\x12O\n" +
 	"\x0eequality_check\x18\xc67 \x01(\v2%.confirmate.ontology.v1.EqualityCheckH\x00R\requalityCheckB\x06\n" +
 	"\x04type\"S\n" +
@@ -35296,7 +34920,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"_parent_id\"y\n" +
 	"\x10RequestForChange\x12>\n" +
-	"\x1aapproved_before_deployment\x18\xad\x83\x01 \x01(\bR\x18approvedBeforeDeployment:%\x82\xa6\x1d\x10RequestForChange\x82\xa6\x1d\rFunctionality\"\xdc:\n" +
+	"\x1aapproved_before_deployment\x18\xad\x83\x01 \x01(\bR\x18approvedBeforeDeployment:%\x82\xa6\x1d\x10RequestForChange\x82\xa6\x1d\rFunctionality\"\xa76\n" +
 	"\bResource\x12<\n" +
 	"\aaccount\x18\xc0Y \x01(\v2\x1f.confirmate.ontology.v1.AccountH\x00R\aaccount\x120\n" +
 	"\x03job\x18\x9f\x1f \x01(\v2\x1b.confirmate.ontology.v1.JobH\x00R\x03job\x12?\n" +
@@ -35365,12 +34989,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"fileHandle\x12k\n" +
 	"\x18machine_learning_dataset\x18\xf8\x0f \x01(\v2..confirmate.ontology.v1.MachineLearningDatasetH\x00R\x16machineLearningDataset\x12e\n" +
 	"\x16machine_learning_model\x18\xa1x \x01(\v2,.confirmate.ontology.v1.MachineLearningModelH\x00R\x14machineLearningModel\x12\xa3\x01\n" +
-	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicy\x12\x7f\n" +
-	"\x1fdata_confidentiality_sdn_policy\x18Ǒ\x01 \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyH\x00R\x1cdataConfidentialitySdnPolicy\x12e\n" +
-	"\x16least_privilege_policy\x18\xc8J \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyH\x00R\x14leastPrivilegePolicy\x12Z\n" +
-	"\x13need_to_know_policy\x18\xe0D \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyH\x00R\x10needToKnowPolicy\x12{\n" +
-	"\x1esdn_function_validation_policy\x18\xf17 \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyH\x00R\x1bsdnFunctionValidationPolicy\x12r\n" +
-	"\x1bseparation_of_duties_policy\x18\xbb1 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyH\x00R\x18separationOfDutiesPolicy\x12=\n" +
+	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicy\x12=\n" +
 	"\band_rule\x18\xda\b \x01(\v2\x1f.confirmate.ontology.v1.AndRuleH\x00R\aandRule\x126\n" +
 	"\x05token\x18\x92) \x01(\v2\x1d.confirmate.ontology.v1.TokenH\x00R\x05token\x126\n" +
 	"\x05value\x18\x8c\x05 \x01(\v2\x1d.confirmate.ontology.v1.ValueH\x00R\x05value\x129\n" +
@@ -35454,27 +35073,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\fSBOMDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
-	"_parent_id\"\x99\x05\n" +
-	"\x1bSDNFunctionValidationPolicy\x12@\n" +
-	"\rcreation_time\x18\xb7r \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\x82* \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\xaa\x1b \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12\x1e\n" +
+	"_parent_id\"{\n" +
+	"\x1bSDNFunctionValidationPolicy\x12\x1e\n" +
 	"\n" +
-	"is_defined\x18\xc0d \x01(\bR\tisDefined\x12X\n" +
-	"\x06labels\x18\xc5a \x03(\v2?.confirmate.ontology.v1.SDNFunctionValidationPolicy.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\xbdo \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xbe~ \x01(\tR\x03raw\x12#\n" +
-	"\n" +
-	"context_id\x18\xc4\x05 \x01(\tH\x00R\tcontextId\x88\x01\x01\x12J\n" +
-	"\rdata_location\x18\x9ak \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12'\n" +
-	"\x0fpolicy_rule_ids\x18\xceK \x03(\tR\rpolicyRuleIds\x12!\n" +
-	"\tparent_id\x18\x8dD \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\x82\xa6\x1d\x1bSDNFunctionValidationPolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\r\n" +
-	"\v_context_idB\f\n" +
-	"\n" +
-	"_parent_id\"\xab\x01\n" +
+	"is_defined\x18\x89P \x01(\bR\tisDefined:<\x82\xa6\x1d\x1bSDNFunctionValidationPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\xab\x01\n" +
 	"\x10SchemaValidation\x12\x17\n" +
 	"\x06format\x18\x86\r \x01(\tR\x06format\x12\x1e\n" +
 	"\n" +
@@ -35613,31 +35215,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x10verified_commits\x18\xd0~ \x01(\v2'.confirmate.ontology.v1.VerifiedCommitsH\x00R\x0fverifiedCommits\x12^\n" +
 	"\x13explainable_results\x18\xc90 \x01(\v2*.confirmate.ontology.v1.ExplainableResultsH\x00R\x12explainableResults\x12U\n" +
 	"\x10robustness_score\x18\xbce \x01(\v2'.confirmate.ontology.v1.RobustnessScoreH\x00R\x0frobustnessScoreB\x06\n" +
-	"\x04type\"\xda\x01\n" +
+	"\x04type\"(\n" +
+	"\x10SecurityIncident:\x14\x82\xa6\x1d\x10SecurityIncident\"\xda\x01\n" +
 	"\x10SecurityTraining\x127\n" +
 	"\x17annual_update_completed\x18\x8aU \x01(\bR\x15annualUpdateCompleted\x12L\n" +
 	"!successfully_completed_percentage\x18\xfa\x93\x01 \x01(\bR\x1fsuccessfullyCompletedPercentage:?\x82\xa6\x1d\x10SecurityTraining\x82\xa6\x1d\bTraining\x82\xa6\x1d\n" +
-	"Governance\x82\xa6\x1d\rFunctionality\"\x92\x05\n" +
-	"\x18SeparationOfDutiesPolicy\x12@\n" +
-	"\rcreation_time\x18\xd0\t \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
-	"\vdescription\x18\xb7l \x01(\tR\vdescription\x12\x17\n" +
-	"\x02id\x18\x8a' \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x02id\x12\x1e\n" +
+	"Governance\x82\xa6\x1d\rFunctionality\"u\n" +
+	"\x18SeparationOfDutiesPolicy\x12\x1e\n" +
 	"\n" +
-	"is_defined\x18\xdf3 \x01(\bR\tisDefined\x12V\n" +
-	"\x06labels\x18\x89\x91\x01 \x03(\v2<.confirmate.ontology.v1.SeparationOfDutiesPolicy.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\x04name\x18\x8f` \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12\x11\n" +
-	"\x03raw\x18\xebS \x01(\tR\x03raw\x12#\n" +
-	"\n" +
-	"context_id\x18\xcbT \x01(\tH\x00R\tcontextId\x88\x01\x01\x12J\n" +
-	"\rdata_location\x18\x94v \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12(\n" +
-	"\x0fpolicy_rule_ids\x18\xed\x80\x01 \x03(\tR\rpolicyRuleIds\x12!\n" +
-	"\tparent_id\x18\xfbk \x01(\tH\x01R\bparentId\x88\x01\x01\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01::\x82\xa6\x1d\x18SeparationOfDutiesPolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\r\n" +
-	"\v_context_idB\f\n" +
-	"\n" +
-	"_parent_id\"\x8e\a\n" +
+	"is_defined\x18\xc9o \x01(\bR\tisDefined:9\x82\xa6\x1d\x18SeparationOfDutiesPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x8e\a\n" +
 	"\x17ServiceMetadataDocument\x12@\n" +
 	"\rcreation_time\x18\xa5- \x01(\v2\x1a.google.protobuf.TimestampR\fcreationTime\x12!\n" +
 	"\vdescription\x18\xb5\x1d \x01(\tR\vdescription\x12\x1b\n" +
@@ -35959,7 +35545,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP() []b
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescData
 }
 
-var file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes = make([]protoimpl.MessageInfo, 357)
+var file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes = make([]protoimpl.MessageInfo, 355)
 var file_policies_security_metrics_ontology_v1_ontology_proto_goTypes = []any{
 	(*ABAC)(nil),                                     // 0: confirmate.ontology.v1.ABAC
 	(*AccessRestriction)(nil),                        // 1: confirmate.ontology.v1.AccessRestriction
@@ -35997,295 +35583,295 @@ var file_policies_security_metrics_ontology_v1_ontology_proto_goTypes = []any{
 	(*Cipher)(nil),                                   // 33: confirmate.ontology.v1.Cipher
 	(*CipherOperation)(nil),                          // 34: confirmate.ontology.v1.CipherOperation
 	(*CipherSuite)(nil),                              // 35: confirmate.ontology.v1.CipherSuite
-	(*Infrastructure)(nil),                           // 36: confirmate.ontology.v1.Infrastructure
-	(*CloudSDK)(nil),                                 // 37: confirmate.ontology.v1.CloudSDK
-	(*CodeRegion)(nil),                               // 38: confirmate.ontology.v1.CodeRegion
-	(*CodeRepository)(nil),                           // 39: confirmate.ontology.v1.CodeRepository
-	(*CodeSignoff)(nil),                              // 40: confirmate.ontology.v1.CodeSignoff
-	(*Component)(nil),                                // 41: confirmate.ontology.v1.Component
-	(*Compute)(nil),                                  // 42: confirmate.ontology.v1.Compute
-	(*Confidentiality)(nil),                          // 43: confirmate.ontology.v1.Confidentiality
-	(*Configuration)(nil),                            // 44: confirmate.ontology.v1.Configuration
-	(*ConfigurationDocument)(nil),                    // 45: confirmate.ontology.v1.ConfigurationDocument
-	(*ConfigurationGroup)(nil),                       // 46: confirmate.ontology.v1.ConfigurationGroup
-	(*ConfigurationGroupSource)(nil),                 // 47: confirmate.ontology.v1.ConfigurationGroupSource
-	(*ConfigurationOperation)(nil),                   // 48: confirmate.ontology.v1.ConfigurationOperation
-	(*ConfigurationOption)(nil),                      // 49: confirmate.ontology.v1.ConfigurationOption
-	(*ConfigurationOptionSource)(nil),                // 50: confirmate.ontology.v1.ConfigurationOptionSource
-	(*ConfigurationSource)(nil),                      // 51: confirmate.ontology.v1.ConfigurationSource
-	(*ContactPerson)(nil),                            // 52: confirmate.ontology.v1.ContactPerson
-	(*Container)(nil),                                // 53: confirmate.ontology.v1.Container
-	(*ContainerImage)(nil),                           // 54: confirmate.ontology.v1.ContainerImage
-	(*ContainerOrchestration)(nil),                   // 55: confirmate.ontology.v1.ContainerOrchestration
-	(*ContainerRegistry)(nil),                        // 56: confirmate.ontology.v1.ContainerRegistry
-	(*Context)(nil),                                  // 57: confirmate.ontology.v1.Context
-	(*CoordinatedVulnerabilityDisclosurePolicy)(nil), // 58: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
-	(*Core)(nil),                                     // 59: confirmate.ontology.v1.Core
-	(*CreateEncryptedDisk)(nil),                      // 60: confirmate.ontology.v1.CreateEncryptedDisk
-	(*CreateSecret)(nil),                             // 61: confirmate.ontology.v1.CreateSecret
-	(*Credential)(nil),                               // 62: confirmate.ontology.v1.Credential
-	(*CryptographicHash)(nil),                        // 63: confirmate.ontology.v1.CryptographicHash
-	(*CryptographicOperation)(nil),                   // 64: confirmate.ontology.v1.CryptographicOperation
-	(*CustomerKeyEncryption)(nil),                    // 65: confirmate.ontology.v1.CustomerKeyEncryption
-	(*CyberSecurityRiskAssessmentDocument)(nil),      // 66: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
-	(*DDoSProtection)(nil),                           // 67: confirmate.ontology.v1.DDoSProtection
-	(*Darwin)(nil),                                   // 68: confirmate.ontology.v1.Darwin
-	(*Data)(nil),                                     // 69: confirmate.ontology.v1.Data
-	(*DataConfidentialitySDNPolicy)(nil),             // 70: confirmate.ontology.v1.DataConfidentialitySDNPolicy
-	(*DataLocation)(nil),                             // 71: confirmate.ontology.v1.DataLocation
-	(*DatabaseConnect)(nil),                          // 72: confirmate.ontology.v1.DatabaseConnect
-	(*DatabaseOperation)(nil),                        // 73: confirmate.ontology.v1.DatabaseOperation
-	(*DatabaseQuery)(nil),                            // 74: confirmate.ontology.v1.DatabaseQuery
-	(*DatabaseService)(nil),                          // 75: confirmate.ontology.v1.DatabaseService
-	(*DatabaseStorage)(nil),                          // 76: confirmate.ontology.v1.DatabaseStorage
-	(*DeAllocate)(nil),                               // 77: confirmate.ontology.v1.DeAllocate
-	(*Decryption)(nil),                               // 78: confirmate.ontology.v1.Decryption
-	(*DeviceProvisioningService)(nil),                // 79: confirmate.ontology.v1.DeviceProvisioningService
-	(*DiskEncryption)(nil),                           // 80: confirmate.ontology.v1.DiskEncryption
-	(*DiskEncryptionOperation)(nil),                  // 81: confirmate.ontology.v1.DiskEncryptionOperation
-	(*DistributionOfUpdatesDocument)(nil),            // 82: confirmate.ontology.v1.DistributionOfUpdatesDocument
-	(*Document)(nil),                                 // 83: confirmate.ontology.v1.Document
-	(*DocumentDatabaseService)(nil),                  // 84: confirmate.ontology.v1.DocumentDatabaseService
-	(*DynamicLoading)(nil),                           // 85: confirmate.ontology.v1.DynamicLoading
-	(*DynamicLoadingOperation)(nil),                  // 86: confirmate.ontology.v1.DynamicLoadingOperation
-	(*EUDeclarationOfConformity)(nil),                // 87: confirmate.ontology.v1.EUDeclarationOfConformity
-	(*Encryption)(nil),                               // 88: confirmate.ontology.v1.Encryption
-	(*EncryptionInUse)(nil),                          // 89: confirmate.ontology.v1.EncryptionInUse
-	(*EncryptionOperation)(nil),                      // 90: confirmate.ontology.v1.EncryptionOperation
-	(*EntryPoint)(nil),                               // 91: confirmate.ontology.v1.EntryPoint
-	(*EqualityCheck)(nil),                            // 92: confirmate.ontology.v1.EqualityCheck
-	(*Error)(nil),                                    // 93: confirmate.ontology.v1.Error
-	(*ExitBoundaryOperation)(nil),                    // 94: confirmate.ontology.v1.ExitBoundaryOperation
-	(*ExplainableResults)(nil),                       // 95: confirmate.ontology.v1.ExplainableResults
-	(*File)(nil),                                     // 96: confirmate.ontology.v1.File
-	(*FileHandle)(nil),                               // 97: confirmate.ontology.v1.FileHandle
-	(*FileLikeObject)(nil),                           // 98: confirmate.ontology.v1.FileLikeObject
-	(*FileOperation)(nil),                            // 99: confirmate.ontology.v1.FileOperation
-	(*FileStorage)(nil),                              // 100: confirmate.ontology.v1.FileStorage
-	(*FileStorageService)(nil),                       // 101: confirmate.ontology.v1.FileStorageService
-	(*Firewall)(nil),                                 // 102: confirmate.ontology.v1.Firewall
-	(*Framework)(nil),                                // 103: confirmate.ontology.v1.Framework
-	(*Function)(nil),                                 // 104: confirmate.ontology.v1.Function
-	(*FunctionService)(nil),                          // 105: confirmate.ontology.v1.FunctionService
-	(*Functionality)(nil),                            // 106: confirmate.ontology.v1.Functionality
-	(*GenericDocument)(nil),                          // 107: confirmate.ontology.v1.GenericDocument
-	(*GenericNetworkService)(nil),                    // 108: confirmate.ontology.v1.GenericNetworkService
-	(*GeoLocation)(nil),                              // 109: confirmate.ontology.v1.GeoLocation
-	(*GeoRedundancy)(nil),                            // 110: confirmate.ontology.v1.GeoRedundancy
-	(*GetCurrentTimeOperation)(nil),                  // 111: confirmate.ontology.v1.GetCurrentTimeOperation
-	(*GetSecret)(nil),                                // 112: confirmate.ontology.v1.GetSecret
-	(*Governance)(nil),                               // 113: confirmate.ontology.v1.Governance
-	(*Hardware)(nil),                                 // 114: confirmate.ontology.v1.Hardware
-	(*HashOperation)(nil),                            // 115: confirmate.ontology.v1.HashOperation
-	(*Http)(nil),                                     // 116: confirmate.ontology.v1.Http
-	(*HttpClient)(nil),                               // 117: confirmate.ontology.v1.HttpClient
-	(*HttpClientLibrary)(nil),                        // 118: confirmate.ontology.v1.HttpClientLibrary
-	(*HttpClientOperation)(nil),                      // 119: confirmate.ontology.v1.HttpClientOperation
-	(*HttpEndpoint)(nil),                             // 120: confirmate.ontology.v1.HttpEndpoint
-	(*HttpEndpointOperation)(nil),                    // 121: confirmate.ontology.v1.HttpEndpointOperation
-	(*HttpRequest)(nil),                              // 122: confirmate.ontology.v1.HttpRequest
-	(*HttpRequestContext)(nil),                       // 123: confirmate.ontology.v1.HttpRequestContext
-	(*HttpRequestHandler)(nil),                       // 124: confirmate.ontology.v1.HttpRequestHandler
-	(*HttpRequestHandlerOperation)(nil),              // 125: confirmate.ontology.v1.HttpRequestHandlerOperation
-	(*HttpServer)(nil),                               // 126: confirmate.ontology.v1.HttpServer
-	(*HybridCipher)(nil),                             // 127: confirmate.ontology.v1.HybridCipher
-	(*Identifiable)(nil),                             // 128: confirmate.ontology.v1.Identifiable
-	(*Identity)(nil),                                 // 129: confirmate.ontology.v1.Identity
-	(*Image)(nil),                                    // 130: confirmate.ontology.v1.Image
-	(*Immutability)(nil),                             // 131: confirmate.ontology.v1.Immutability
-	(*InitializationVector)(nil),                     // 132: confirmate.ontology.v1.InitializationVector
-	(*Input)(nil),                                    // 133: confirmate.ontology.v1.Input
-	(*InputValidationOperation)(nil),                 // 134: confirmate.ontology.v1.InputValidationOperation
-	(*InstallUpdateOperation)(nil),                   // 135: confirmate.ontology.v1.InstallUpdateOperation
-	(*Integrity)(nil),                                // 136: confirmate.ontology.v1.Integrity
-	(*IoT)(nil),                                      // 137: confirmate.ontology.v1.IoT
-	(*IssueJwt)(nil),                                 // 138: confirmate.ontology.v1.IssueJwt
-	(*Job)(nil),                                      // 139: confirmate.ontology.v1.Job
-	(*JwtAuthentication)(nil),                        // 140: confirmate.ontology.v1.JwtAuthentication
-	(*TokenBasedAuthentication)(nil),                 // 141: confirmate.ontology.v1.TokenBasedAuthentication
-	(*Key)(nil),                                      // 142: confirmate.ontology.v1.Key
-	(*KeyDerivationFunction)(nil),                    // 143: confirmate.ontology.v1.KeyDerivationFunction
-	(*KeyValueDatabaseService)(nil),                  // 144: confirmate.ontology.v1.KeyValueDatabaseService
-	(*KeyVault)(nil),                                 // 145: confirmate.ontology.v1.KeyVault
-	(*L3Firewall)(nil),                               // 146: confirmate.ontology.v1.L3Firewall
-	(*LeastPrivilegePolicy)(nil),                     // 147: confirmate.ontology.v1.LeastPrivilegePolicy
-	(*Library)(nil),                                  // 148: confirmate.ontology.v1.Library
-	(*LibraryEntryPoint)(nil),                        // 149: confirmate.ontology.v1.LibraryEntryPoint
-	(*LoadBalancer)(nil),                             // 150: confirmate.ontology.v1.LoadBalancer
-	(*LoadConfiguration)(nil),                        // 151: confirmate.ontology.v1.LoadConfiguration
-	(*LoadLibrary)(nil),                              // 152: confirmate.ontology.v1.LoadLibrary
-	(*LoadSymbol)(nil),                               // 153: confirmate.ontology.v1.LoadSymbol
-	(*LocalAttestation)(nil),                         // 154: confirmate.ontology.v1.LocalAttestation
-	(*LocalDataLocation)(nil),                        // 155: confirmate.ontology.v1.LocalDataLocation
-	(*LocalEntryPoint)(nil),                          // 156: confirmate.ontology.v1.LocalEntryPoint
-	(*LocalRedundancy)(nil),                          // 157: confirmate.ontology.v1.LocalRedundancy
-	(*LogDocument)(nil),                              // 158: confirmate.ontology.v1.LogDocument
-	(*LogGet)(nil),                                   // 159: confirmate.ontology.v1.LogGet
-	(*LogOperation)(nil),                             // 160: confirmate.ontology.v1.LogOperation
-	(*LogOutput)(nil),                                // 161: confirmate.ontology.v1.LogOutput
-	(*LogWrite)(nil),                                 // 162: confirmate.ontology.v1.LogWrite
-	(*Logger)(nil),                                   // 163: confirmate.ontology.v1.Logger
-	(*Logging)(nil),                                  // 164: confirmate.ontology.v1.Logging
-	(*LoggingService)(nil),                           // 165: confirmate.ontology.v1.LoggingService
-	(*MachineLearning)(nil),                          // 166: confirmate.ontology.v1.MachineLearning
-	(*MachineLearningDataset)(nil),                   // 167: confirmate.ontology.v1.MachineLearningDataset
-	(*MachineLearningModel)(nil),                     // 168: confirmate.ontology.v1.MachineLearningModel
-	(*MachineLearningService)(nil),                   // 169: confirmate.ontology.v1.MachineLearningService
-	(*Main)(nil),                                     // 170: confirmate.ontology.v1.Main
-	(*MalwareProtection)(nil),                        // 171: confirmate.ontology.v1.MalwareProtection
-	(*ManagedKeyEncryption)(nil),                     // 172: confirmate.ontology.v1.ManagedKeyEncryption
-	(*Memory)(nil),                                   // 173: confirmate.ontology.v1.Memory
-	(*MemoryOperation)(nil),                          // 174: confirmate.ontology.v1.MemoryOperation
-	(*MessageAuthenticationCode)(nil),                // 175: confirmate.ontology.v1.MessageAuthenticationCode
-	(*MessagingHub)(nil),                             // 176: confirmate.ontology.v1.MessagingHub
-	(*CodeModule)(nil),                               // 177: confirmate.ontology.v1.CodeModule
-	(*MonitoringProcedure)(nil),                      // 178: confirmate.ontology.v1.MonitoringProcedure
-	(*MultiFactorAuthentiation)(nil),                 // 179: confirmate.ontology.v1.MultiFactorAuthentiation
-	(*MultiModalDatabaseService)(nil),                // 180: confirmate.ontology.v1.MultiModalDatabaseService
-	(*NeedToKnowPolicy)(nil),                         // 181: confirmate.ontology.v1.NeedToKnowPolicy
-	(*NetworkInterface)(nil),                         // 182: confirmate.ontology.v1.NetworkInterface
-	(*NetworkSecurityGroup)(nil),                     // 183: confirmate.ontology.v1.NetworkSecurityGroup
-	(*NetworkService)(nil),                           // 184: confirmate.ontology.v1.NetworkService
-	(*Networking)(nil),                               // 185: confirmate.ontology.v1.Networking
-	(*NoAuthentication)(nil),                         // 186: confirmate.ontology.v1.NoAuthentication
-	(*OSLogging)(nil),                                // 187: confirmate.ontology.v1.OSLogging
-	(*OTPBasedAuthentication)(nil),                   // 188: confirmate.ontology.v1.OTPBasedAuthentication
-	(*ObjectStorage)(nil),                            // 189: confirmate.ontology.v1.ObjectStorage
-	(*ObjectStorageRequest)(nil),                     // 190: confirmate.ontology.v1.ObjectStorageRequest
-	(*ObjectStorageService)(nil),                     // 191: confirmate.ontology.v1.ObjectStorageService
-	(*OperatingSystemArchitecture)(nil),              // 192: confirmate.ontology.v1.OperatingSystemArchitecture
-	(*Operation)(nil),                                // 193: confirmate.ontology.v1.Operation
-	(*Output)(nil),                                   // 194: confirmate.ontology.v1.Output
-	(*POSIX)(nil),                                    // 195: confirmate.ontology.v1.POSIX
-	(*Package)(nil),                                  // 196: confirmate.ontology.v1.Package
-	(*Padding)(nil),                                  // 197: confirmate.ontology.v1.Padding
-	(*PasswordBasedAuthentication)(nil),              // 198: confirmate.ontology.v1.PasswordBasedAuthentication
-	(*PasswordPolicy)(nil),                           // 199: confirmate.ontology.v1.PasswordPolicy
-	(*Policy)(nil),                                   // 200: confirmate.ontology.v1.Policy
-	(*PolicyDocument)(nil),                           // 201: confirmate.ontology.v1.PolicyDocument
-	(*PolicyOperation)(nil),                          // 202: confirmate.ontology.v1.PolicyOperation
-	(*PolicyRule)(nil),                               // 203: confirmate.ontology.v1.PolicyRule
-	(*Principal)(nil),                                // 204: confirmate.ontology.v1.Principal
-	(*ProtectedAsset)(nil),                           // 205: confirmate.ontology.v1.ProtectedAsset
-	(*Product)(nil),                                  // 206: confirmate.ontology.v1.Product
-	(*ProductionAndMonitoringProcessDocument)(nil),   // 207: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
-	(*ProtectedAssetOperation)(nil),                  // 208: confirmate.ontology.v1.ProtectedAssetOperation
-	(*ProvideConfiguration)(nil),                     // 209: confirmate.ontology.v1.ProvideConfiguration
-	(*ProvideConfigurationGroup)(nil),                // 210: confirmate.ontology.v1.ProvideConfigurationGroup
-	(*ProvideConfigurationOption)(nil),               // 211: confirmate.ontology.v1.ProvideConfigurationOption
-	(*QPU)(nil),                                      // 212: confirmate.ontology.v1.QPU
-	(*RBAC)(nil),                                     // 213: confirmate.ontology.v1.RBAC
-	(*RateLimiting)(nil),                             // 214: confirmate.ontology.v1.RateLimiting
-	(*ReadConfigurationGroup)(nil),                   // 215: confirmate.ontology.v1.ReadConfigurationGroup
-	(*ReadConfigurationOption)(nil),                  // 216: confirmate.ontology.v1.ReadConfigurationOption
-	(*Redundancy)(nil),                               // 217: confirmate.ontology.v1.Redundancy
-	(*RegisterConfigurationGroup)(nil),               // 218: confirmate.ontology.v1.RegisterConfigurationGroup
-	(*RegisterConfigurationOption)(nil),              // 219: confirmate.ontology.v1.RegisterConfigurationOption
-	(*RegisterHttpEndpoint)(nil),                     // 220: confirmate.ontology.v1.RegisterHttpEndpoint
-	(*RelationalDatabaseService)(nil),                // 221: confirmate.ontology.v1.RelationalDatabaseService
-	(*Reliability)(nil),                              // 222: confirmate.ontology.v1.Reliability
-	(*RemoteAttestation)(nil),                        // 223: confirmate.ontology.v1.RemoteAttestation
-	(*RemoteDataLocation)(nil),                       // 224: confirmate.ontology.v1.RemoteDataLocation
-	(*RemoteEntryPoint)(nil),                         // 225: confirmate.ontology.v1.RemoteEntryPoint
-	(*ReportDocument)(nil),                           // 226: confirmate.ontology.v1.ReportDocument
-	(*RequestForChange)(nil),                         // 227: confirmate.ontology.v1.RequestForChange
-	(*Resource)(nil),                                 // 228: confirmate.ontology.v1.Resource
-	(*ResourceGroup)(nil),                            // 229: confirmate.ontology.v1.ResourceGroup
-	(*ResourceLogging)(nil),                          // 230: confirmate.ontology.v1.ResourceLogging
-	(*ResourceType)(nil),                             // 231: confirmate.ontology.v1.ResourceType
-	(*RobustnessScore)(nil),                          // 232: confirmate.ontology.v1.RobustnessScore
-	(*RoleAssignment)(nil),                           // 233: confirmate.ontology.v1.RoleAssignment
-	(*SBOMDocument)(nil),                             // 234: confirmate.ontology.v1.SBOMDocument
-	(*SDNFunctionValidationPolicy)(nil),              // 235: confirmate.ontology.v1.SDNFunctionValidationPolicy
-	(*SchemaValidation)(nil),                         // 236: confirmate.ontology.v1.SchemaValidation
-	(*Secret)(nil),                                   // 237: confirmate.ontology.v1.Secret
-	(*SecretOperation)(nil),                          // 238: confirmate.ontology.v1.SecretOperation
-	(*SecurityAdvisoryDocument)(nil),                 // 239: confirmate.ontology.v1.SecurityAdvisoryDocument
-	(*SecurityAdvisoryFeed)(nil),                     // 240: confirmate.ontology.v1.SecurityAdvisoryFeed
-	(*SecurityAdvisoryService)(nil),                  // 241: confirmate.ontology.v1.SecurityAdvisoryService
-	(*SecurityFeature)(nil),                          // 242: confirmate.ontology.v1.SecurityFeature
-	(*SecurityTraining)(nil),                         // 243: confirmate.ontology.v1.SecurityTraining
-	(*SeparationOfDutiesPolicy)(nil),                 // 244: confirmate.ontology.v1.SeparationOfDutiesPolicy
-	(*ServiceMetadataDocument)(nil),                  // 245: confirmate.ontology.v1.ServiceMetadataDocument
-	(*DocumentSignature)(nil),                        // 246: confirmate.ontology.v1.DocumentSignature
-	(*SignedCommits)(nil),                            // 247: confirmate.ontology.v1.SignedCommits
-	(*SingleSignOn)(nil),                             // 248: confirmate.ontology.v1.SingleSignOn
-	(*Code)(nil),                                     // 249: confirmate.ontology.v1.Code
-	(*SourceCodeFile)(nil),                           // 250: confirmate.ontology.v1.SourceCodeFile
-	(*Storage)(nil),                                  // 251: confirmate.ontology.v1.Storage
-	(*StorageService)(nil),                           // 252: confirmate.ontology.v1.StorageService
-	(*SymmetricCipher)(nil),                          // 253: confirmate.ontology.v1.SymmetricCipher
-	(*Time)(nil),                                     // 254: confirmate.ontology.v1.Time
-	(*Token)(nil),                                    // 255: confirmate.ontology.v1.Token
-	(*Training)(nil),                                 // 256: confirmate.ontology.v1.Training
-	(*TransportEncryption)(nil),                      // 257: confirmate.ontology.v1.TransportEncryption
-	(*UnlockEncryptedDisk)(nil),                      // 258: confirmate.ontology.v1.UnlockEncryptedDisk
-	(*UsageStatistics)(nil),                          // 259: confirmate.ontology.v1.UsageStatistics
-	(*UserInformationAndIntructionDocument)(nil),     // 260: confirmate.ontology.v1.UserInformationAndIntructionDocument
-	(*VMImage)(nil),                                  // 261: confirmate.ontology.v1.VMImage
-	(*ValidateJwt)(nil),                              // 262: confirmate.ontology.v1.ValidateJwt
-	(*Value)(nil),                                    // 263: confirmate.ontology.v1.Value
-	(*VerifiedCommits)(nil),                          // 264: confirmate.ontology.v1.VerifiedCommits
-	(*VirtualMachine)(nil),                           // 265: confirmate.ontology.v1.VirtualMachine
-	(*VirtualNetwork)(nil),                           // 266: confirmate.ontology.v1.VirtualNetwork
-	(*VirtualSubNetwork)(nil),                        // 267: confirmate.ontology.v1.VirtualSubNetwork
-	(*Vulnerability)(nil),                            // 268: confirmate.ontology.v1.Vulnerability
-	(*WebApplicationFirewall)(nil),                   // 269: confirmate.ontology.v1.WebApplicationFirewall
-	(*Win32)(nil),                                    // 270: confirmate.ontology.v1.Win32
-	(*Workflow)(nil),                                 // 271: confirmate.ontology.v1.Workflow
-	(*ZoneRedundancy)(nil),                           // 272: confirmate.ontology.v1.ZoneRedundancy
-	nil,                                              // 273: confirmate.ontology.v1.Account.LabelsEntry
-	nil,                                              // 274: confirmate.ontology.v1.Agnostic.LabelsEntry
-	nil,                                              // 275: confirmate.ontology.v1.AndRule.LabelsEntry
-	nil,                                              // 276: confirmate.ontology.v1.Application.LabelsEntry
-	nil,                                              // 277: confirmate.ontology.v1.BlockStorage.LabelsEntry
-	nil,                                              // 278: confirmate.ontology.v1.Certificate.LabelsEntry
-	nil,                                              // 279: confirmate.ontology.v1.CodeRepository.LabelsEntry
-	nil,                                              // 280: confirmate.ontology.v1.Configuration.LabelsEntry
-	nil,                                              // 281: confirmate.ontology.v1.ConfigurationDocument.LabelsEntry
-	nil,                                              // 282: confirmate.ontology.v1.ConfigurationGroup.LabelsEntry
-	nil,                                              // 283: confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntry
-	nil,                                              // 284: confirmate.ontology.v1.ConfigurationOption.LabelsEntry
-	nil,                                              // 285: confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntry
-	nil,                                              // 286: confirmate.ontology.v1.ConfigurationSource.LabelsEntry
-	nil,                                              // 287: confirmate.ontology.v1.Container.LabelsEntry
-	nil,                                              // 288: confirmate.ontology.v1.ContainerImage.LabelsEntry
-	nil,                                              // 289: confirmate.ontology.v1.ContainerOrchestration.LabelsEntry
-	nil,                                              // 290: confirmate.ontology.v1.ContainerRegistry.LabelsEntry
-	nil,                                              // 291: confirmate.ontology.v1.Context.LabelsEntry
-	nil,                                              // 292: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.LabelsEntry
-	nil,                                              // 293: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntry
-	nil,                                              // 294: confirmate.ontology.v1.Darwin.LabelsEntry
-	nil,                                              // 295: confirmate.ontology.v1.DataConfidentialitySDNPolicy.LabelsEntry
-	nil,                                              // 296: confirmate.ontology.v1.DatabaseStorage.LabelsEntry
-	nil,                                              // 297: confirmate.ontology.v1.DeviceProvisioningService.LabelsEntry
-	nil,                                              // 298: confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntry
-	nil,                                              // 299: confirmate.ontology.v1.DocumentDatabaseService.LabelsEntry
-	nil,                                              // 300: confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntry
-	nil,                                              // 301: confirmate.ontology.v1.File.LabelsEntry
-	nil,                                              // 302: confirmate.ontology.v1.FileHandle.LabelsEntry
-	nil,                                              // 303: confirmate.ontology.v1.FileStorage.LabelsEntry
-	nil,                                              // 304: confirmate.ontology.v1.FileStorageService.LabelsEntry
-	nil,                                              // 305: confirmate.ontology.v1.Function.LabelsEntry
-	nil,                                              // 306: confirmate.ontology.v1.FunctionService.LabelsEntry
-	nil,                                              // 307: confirmate.ontology.v1.GenericNetworkService.LabelsEntry
-	nil,                                              // 308: confirmate.ontology.v1.Identity.LabelsEntry
-	nil,                                              // 309: confirmate.ontology.v1.Job.LabelsEntry
-	nil,                                              // 310: confirmate.ontology.v1.Key.LabelsEntry
-	nil,                                              // 311: confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntry
-	nil,                                              // 312: confirmate.ontology.v1.KeyVault.LabelsEntry
-	nil,                                              // 313: confirmate.ontology.v1.LeastPrivilegePolicy.LabelsEntry
-	nil,                                              // 314: confirmate.ontology.v1.Library.LabelsEntry
-	nil,                                              // 315: confirmate.ontology.v1.LoadBalancer.LabelsEntry
-	nil,                                              // 316: confirmate.ontology.v1.LogDocument.LabelsEntry
-	nil,                                              // 317: confirmate.ontology.v1.LoggingService.LabelsEntry
-	nil,                                              // 318: confirmate.ontology.v1.MachineLearningDataset.LabelsEntry
-	nil,                                              // 319: confirmate.ontology.v1.MachineLearningModel.LabelsEntry
-	nil,                                              // 320: confirmate.ontology.v1.MachineLearningService.LabelsEntry
-	nil,                                              // 321: confirmate.ontology.v1.Memory.LabelsEntry
-	nil,                                              // 322: confirmate.ontology.v1.MessagingHub.LabelsEntry
-	nil,                                              // 323: confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntry
-	nil,                                              // 324: confirmate.ontology.v1.NeedToKnowPolicy.LabelsEntry
+	(*CloudFeature)(nil),                             // 36: confirmate.ontology.v1.CloudFeature
+	(*Infrastructure)(nil),                           // 37: confirmate.ontology.v1.Infrastructure
+	(*CloudSDK)(nil),                                 // 38: confirmate.ontology.v1.CloudSDK
+	(*CodeRegion)(nil),                               // 39: confirmate.ontology.v1.CodeRegion
+	(*CodeRepository)(nil),                           // 40: confirmate.ontology.v1.CodeRepository
+	(*CodeSignoff)(nil),                              // 41: confirmate.ontology.v1.CodeSignoff
+	(*Component)(nil),                                // 42: confirmate.ontology.v1.Component
+	(*Compute)(nil),                                  // 43: confirmate.ontology.v1.Compute
+	(*Confidentiality)(nil),                          // 44: confirmate.ontology.v1.Confidentiality
+	(*Configuration)(nil),                            // 45: confirmate.ontology.v1.Configuration
+	(*ConfigurationDocument)(nil),                    // 46: confirmate.ontology.v1.ConfigurationDocument
+	(*ConfigurationGroup)(nil),                       // 47: confirmate.ontology.v1.ConfigurationGroup
+	(*ConfigurationGroupSource)(nil),                 // 48: confirmate.ontology.v1.ConfigurationGroupSource
+	(*ConfigurationOperation)(nil),                   // 49: confirmate.ontology.v1.ConfigurationOperation
+	(*ConfigurationOption)(nil),                      // 50: confirmate.ontology.v1.ConfigurationOption
+	(*ConfigurationOptionSource)(nil),                // 51: confirmate.ontology.v1.ConfigurationOptionSource
+	(*ConfigurationSource)(nil),                      // 52: confirmate.ontology.v1.ConfigurationSource
+	(*ContactPerson)(nil),                            // 53: confirmate.ontology.v1.ContactPerson
+	(*Container)(nil),                                // 54: confirmate.ontology.v1.Container
+	(*ContainerImage)(nil),                           // 55: confirmate.ontology.v1.ContainerImage
+	(*ContainerOrchestration)(nil),                   // 56: confirmate.ontology.v1.ContainerOrchestration
+	(*ContainerRegistry)(nil),                        // 57: confirmate.ontology.v1.ContainerRegistry
+	(*Context)(nil),                                  // 58: confirmate.ontology.v1.Context
+	(*CoordinatedVulnerabilityDisclosurePolicy)(nil), // 59: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
+	(*Core)(nil),                                     // 60: confirmate.ontology.v1.Core
+	(*CreateEncryptedDisk)(nil),                      // 61: confirmate.ontology.v1.CreateEncryptedDisk
+	(*CreateSecret)(nil),                             // 62: confirmate.ontology.v1.CreateSecret
+	(*Credential)(nil),                               // 63: confirmate.ontology.v1.Credential
+	(*CryptographicHash)(nil),                        // 64: confirmate.ontology.v1.CryptographicHash
+	(*CryptographicOperation)(nil),                   // 65: confirmate.ontology.v1.CryptographicOperation
+	(*CustomerKeyEncryption)(nil),                    // 66: confirmate.ontology.v1.CustomerKeyEncryption
+	(*CyberSecurityRiskAssessmentDocument)(nil),      // 67: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
+	(*DDoSProtection)(nil),                           // 68: confirmate.ontology.v1.DDoSProtection
+	(*Darwin)(nil),                                   // 69: confirmate.ontology.v1.Darwin
+	(*Data)(nil),                                     // 70: confirmate.ontology.v1.Data
+	(*DataConfidentialitySDNPolicy)(nil),             // 71: confirmate.ontology.v1.DataConfidentialitySDNPolicy
+	(*DataLocation)(nil),                             // 72: confirmate.ontology.v1.DataLocation
+	(*DatabaseConnect)(nil),                          // 73: confirmate.ontology.v1.DatabaseConnect
+	(*DatabaseOperation)(nil),                        // 74: confirmate.ontology.v1.DatabaseOperation
+	(*DatabaseQuery)(nil),                            // 75: confirmate.ontology.v1.DatabaseQuery
+	(*DatabaseService)(nil),                          // 76: confirmate.ontology.v1.DatabaseService
+	(*DatabaseStorage)(nil),                          // 77: confirmate.ontology.v1.DatabaseStorage
+	(*DeAllocate)(nil),                               // 78: confirmate.ontology.v1.DeAllocate
+	(*Decryption)(nil),                               // 79: confirmate.ontology.v1.Decryption
+	(*DeviceProvisioningService)(nil),                // 80: confirmate.ontology.v1.DeviceProvisioningService
+	(*DiskEncryption)(nil),                           // 81: confirmate.ontology.v1.DiskEncryption
+	(*DiskEncryptionOperation)(nil),                  // 82: confirmate.ontology.v1.DiskEncryptionOperation
+	(*DistributionOfUpdatesDocument)(nil),            // 83: confirmate.ontology.v1.DistributionOfUpdatesDocument
+	(*Document)(nil),                                 // 84: confirmate.ontology.v1.Document
+	(*DocumentDatabaseService)(nil),                  // 85: confirmate.ontology.v1.DocumentDatabaseService
+	(*DynamicLoading)(nil),                           // 86: confirmate.ontology.v1.DynamicLoading
+	(*DynamicLoadingOperation)(nil),                  // 87: confirmate.ontology.v1.DynamicLoadingOperation
+	(*EUDeclarationOfConformity)(nil),                // 88: confirmate.ontology.v1.EUDeclarationOfConformity
+	(*Encryption)(nil),                               // 89: confirmate.ontology.v1.Encryption
+	(*EncryptionInUse)(nil),                          // 90: confirmate.ontology.v1.EncryptionInUse
+	(*EncryptionOperation)(nil),                      // 91: confirmate.ontology.v1.EncryptionOperation
+	(*EntryPoint)(nil),                               // 92: confirmate.ontology.v1.EntryPoint
+	(*EqualityCheck)(nil),                            // 93: confirmate.ontology.v1.EqualityCheck
+	(*Error)(nil),                                    // 94: confirmate.ontology.v1.Error
+	(*ExitBoundaryOperation)(nil),                    // 95: confirmate.ontology.v1.ExitBoundaryOperation
+	(*ExplainableResults)(nil),                       // 96: confirmate.ontology.v1.ExplainableResults
+	(*File)(nil),                                     // 97: confirmate.ontology.v1.File
+	(*FileHandle)(nil),                               // 98: confirmate.ontology.v1.FileHandle
+	(*FileLikeObject)(nil),                           // 99: confirmate.ontology.v1.FileLikeObject
+	(*FileOperation)(nil),                            // 100: confirmate.ontology.v1.FileOperation
+	(*FileStorage)(nil),                              // 101: confirmate.ontology.v1.FileStorage
+	(*FileStorageService)(nil),                       // 102: confirmate.ontology.v1.FileStorageService
+	(*Firewall)(nil),                                 // 103: confirmate.ontology.v1.Firewall
+	(*Framework)(nil),                                // 104: confirmate.ontology.v1.Framework
+	(*Function)(nil),                                 // 105: confirmate.ontology.v1.Function
+	(*FunctionService)(nil),                          // 106: confirmate.ontology.v1.FunctionService
+	(*Functionality)(nil),                            // 107: confirmate.ontology.v1.Functionality
+	(*GenericDocument)(nil),                          // 108: confirmate.ontology.v1.GenericDocument
+	(*GenericNetworkService)(nil),                    // 109: confirmate.ontology.v1.GenericNetworkService
+	(*GeoLocation)(nil),                              // 110: confirmate.ontology.v1.GeoLocation
+	(*GeoRedundancy)(nil),                            // 111: confirmate.ontology.v1.GeoRedundancy
+	(*GetCurrentTimeOperation)(nil),                  // 112: confirmate.ontology.v1.GetCurrentTimeOperation
+	(*GetSecret)(nil),                                // 113: confirmate.ontology.v1.GetSecret
+	(*Governance)(nil),                               // 114: confirmate.ontology.v1.Governance
+	(*Hardware)(nil),                                 // 115: confirmate.ontology.v1.Hardware
+	(*HashOperation)(nil),                            // 116: confirmate.ontology.v1.HashOperation
+	(*Http)(nil),                                     // 117: confirmate.ontology.v1.Http
+	(*HttpClient)(nil),                               // 118: confirmate.ontology.v1.HttpClient
+	(*HttpClientLibrary)(nil),                        // 119: confirmate.ontology.v1.HttpClientLibrary
+	(*HttpClientOperation)(nil),                      // 120: confirmate.ontology.v1.HttpClientOperation
+	(*HttpEndpoint)(nil),                             // 121: confirmate.ontology.v1.HttpEndpoint
+	(*HttpEndpointOperation)(nil),                    // 122: confirmate.ontology.v1.HttpEndpointOperation
+	(*HttpRequest)(nil),                              // 123: confirmate.ontology.v1.HttpRequest
+	(*HttpRequestContext)(nil),                       // 124: confirmate.ontology.v1.HttpRequestContext
+	(*HttpRequestHandler)(nil),                       // 125: confirmate.ontology.v1.HttpRequestHandler
+	(*HttpRequestHandlerOperation)(nil),              // 126: confirmate.ontology.v1.HttpRequestHandlerOperation
+	(*HttpServer)(nil),                               // 127: confirmate.ontology.v1.HttpServer
+	(*HybridCipher)(nil),                             // 128: confirmate.ontology.v1.HybridCipher
+	(*Identifiable)(nil),                             // 129: confirmate.ontology.v1.Identifiable
+	(*Identity)(nil),                                 // 130: confirmate.ontology.v1.Identity
+	(*Image)(nil),                                    // 131: confirmate.ontology.v1.Image
+	(*Immutability)(nil),                             // 132: confirmate.ontology.v1.Immutability
+	(*InitializationVector)(nil),                     // 133: confirmate.ontology.v1.InitializationVector
+	(*Input)(nil),                                    // 134: confirmate.ontology.v1.Input
+	(*InputValidationOperation)(nil),                 // 135: confirmate.ontology.v1.InputValidationOperation
+	(*InstallUpdateOperation)(nil),                   // 136: confirmate.ontology.v1.InstallUpdateOperation
+	(*Integrity)(nil),                                // 137: confirmate.ontology.v1.Integrity
+	(*IoT)(nil),                                      // 138: confirmate.ontology.v1.IoT
+	(*IssueJwt)(nil),                                 // 139: confirmate.ontology.v1.IssueJwt
+	(*Job)(nil),                                      // 140: confirmate.ontology.v1.Job
+	(*JwtAuthentication)(nil),                        // 141: confirmate.ontology.v1.JwtAuthentication
+	(*TokenBasedAuthentication)(nil),                 // 142: confirmate.ontology.v1.TokenBasedAuthentication
+	(*Key)(nil),                                      // 143: confirmate.ontology.v1.Key
+	(*KeyDerivationFunction)(nil),                    // 144: confirmate.ontology.v1.KeyDerivationFunction
+	(*KeyValueDatabaseService)(nil),                  // 145: confirmate.ontology.v1.KeyValueDatabaseService
+	(*KeyVault)(nil),                                 // 146: confirmate.ontology.v1.KeyVault
+	(*L3Firewall)(nil),                               // 147: confirmate.ontology.v1.L3Firewall
+	(*LeastPrivilegePolicy)(nil),                     // 148: confirmate.ontology.v1.LeastPrivilegePolicy
+	(*Library)(nil),                                  // 149: confirmate.ontology.v1.Library
+	(*LibraryEntryPoint)(nil),                        // 150: confirmate.ontology.v1.LibraryEntryPoint
+	(*LoadBalancer)(nil),                             // 151: confirmate.ontology.v1.LoadBalancer
+	(*LoadConfiguration)(nil),                        // 152: confirmate.ontology.v1.LoadConfiguration
+	(*LoadLibrary)(nil),                              // 153: confirmate.ontology.v1.LoadLibrary
+	(*LoadSymbol)(nil),                               // 154: confirmate.ontology.v1.LoadSymbol
+	(*LocalAttestation)(nil),                         // 155: confirmate.ontology.v1.LocalAttestation
+	(*LocalDataLocation)(nil),                        // 156: confirmate.ontology.v1.LocalDataLocation
+	(*LocalEntryPoint)(nil),                          // 157: confirmate.ontology.v1.LocalEntryPoint
+	(*LocalRedundancy)(nil),                          // 158: confirmate.ontology.v1.LocalRedundancy
+	(*LogDocument)(nil),                              // 159: confirmate.ontology.v1.LogDocument
+	(*LogGet)(nil),                                   // 160: confirmate.ontology.v1.LogGet
+	(*LogOperation)(nil),                             // 161: confirmate.ontology.v1.LogOperation
+	(*LogOutput)(nil),                                // 162: confirmate.ontology.v1.LogOutput
+	(*LogWrite)(nil),                                 // 163: confirmate.ontology.v1.LogWrite
+	(*Logger)(nil),                                   // 164: confirmate.ontology.v1.Logger
+	(*Logging)(nil),                                  // 165: confirmate.ontology.v1.Logging
+	(*LoggingService)(nil),                           // 166: confirmate.ontology.v1.LoggingService
+	(*MachineLearning)(nil),                          // 167: confirmate.ontology.v1.MachineLearning
+	(*MachineLearningDataset)(nil),                   // 168: confirmate.ontology.v1.MachineLearningDataset
+	(*MachineLearningModel)(nil),                     // 169: confirmate.ontology.v1.MachineLearningModel
+	(*MachineLearningService)(nil),                   // 170: confirmate.ontology.v1.MachineLearningService
+	(*Main)(nil),                                     // 171: confirmate.ontology.v1.Main
+	(*MalwareProtection)(nil),                        // 172: confirmate.ontology.v1.MalwareProtection
+	(*ManagedKeyEncryption)(nil),                     // 173: confirmate.ontology.v1.ManagedKeyEncryption
+	(*Memory)(nil),                                   // 174: confirmate.ontology.v1.Memory
+	(*MemoryOperation)(nil),                          // 175: confirmate.ontology.v1.MemoryOperation
+	(*MessageAuthenticationCode)(nil),                // 176: confirmate.ontology.v1.MessageAuthenticationCode
+	(*MessagingHub)(nil),                             // 177: confirmate.ontology.v1.MessagingHub
+	(*CodeModule)(nil),                               // 178: confirmate.ontology.v1.CodeModule
+	(*MonitoringProcedure)(nil),                      // 179: confirmate.ontology.v1.MonitoringProcedure
+	(*MultiFactorAuthentiation)(nil),                 // 180: confirmate.ontology.v1.MultiFactorAuthentiation
+	(*MultiModalDatabaseService)(nil),                // 181: confirmate.ontology.v1.MultiModalDatabaseService
+	(*NeedToKnowPolicy)(nil),                         // 182: confirmate.ontology.v1.NeedToKnowPolicy
+	(*NetworkInterface)(nil),                         // 183: confirmate.ontology.v1.NetworkInterface
+	(*NetworkSecurityGroup)(nil),                     // 184: confirmate.ontology.v1.NetworkSecurityGroup
+	(*NetworkService)(nil),                           // 185: confirmate.ontology.v1.NetworkService
+	(*Networking)(nil),                               // 186: confirmate.ontology.v1.Networking
+	(*NoAuthentication)(nil),                         // 187: confirmate.ontology.v1.NoAuthentication
+	(*OSLogging)(nil),                                // 188: confirmate.ontology.v1.OSLogging
+	(*OTPBasedAuthentication)(nil),                   // 189: confirmate.ontology.v1.OTPBasedAuthentication
+	(*ObjectStorage)(nil),                            // 190: confirmate.ontology.v1.ObjectStorage
+	(*ObjectStorageRequest)(nil),                     // 191: confirmate.ontology.v1.ObjectStorageRequest
+	(*ObjectStorageService)(nil),                     // 192: confirmate.ontology.v1.ObjectStorageService
+	(*OperatingSystemArchitecture)(nil),              // 193: confirmate.ontology.v1.OperatingSystemArchitecture
+	(*Operation)(nil),                                // 194: confirmate.ontology.v1.Operation
+	(*Output)(nil),                                   // 195: confirmate.ontology.v1.Output
+	(*POSIX)(nil),                                    // 196: confirmate.ontology.v1.POSIX
+	(*Package)(nil),                                  // 197: confirmate.ontology.v1.Package
+	(*Padding)(nil),                                  // 198: confirmate.ontology.v1.Padding
+	(*PasswordBasedAuthentication)(nil),              // 199: confirmate.ontology.v1.PasswordBasedAuthentication
+	(*PasswordPolicy)(nil),                           // 200: confirmate.ontology.v1.PasswordPolicy
+	(*Policies)(nil),                                 // 201: confirmate.ontology.v1.Policies
+	(*Policy)(nil),                                   // 202: confirmate.ontology.v1.Policy
+	(*PolicyDocument)(nil),                           // 203: confirmate.ontology.v1.PolicyDocument
+	(*PolicyOperation)(nil),                          // 204: confirmate.ontology.v1.PolicyOperation
+	(*PolicyRule)(nil),                               // 205: confirmate.ontology.v1.PolicyRule
+	(*Principal)(nil),                                // 206: confirmate.ontology.v1.Principal
+	(*ProtectedAsset)(nil),                           // 207: confirmate.ontology.v1.ProtectedAsset
+	(*Product)(nil),                                  // 208: confirmate.ontology.v1.Product
+	(*ProductionAndMonitoringProcessDocument)(nil),   // 209: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
+	(*ProtectedAssetOperation)(nil),                  // 210: confirmate.ontology.v1.ProtectedAssetOperation
+	(*ProvideConfiguration)(nil),                     // 211: confirmate.ontology.v1.ProvideConfiguration
+	(*ProvideConfigurationGroup)(nil),                // 212: confirmate.ontology.v1.ProvideConfigurationGroup
+	(*ProvideConfigurationOption)(nil),               // 213: confirmate.ontology.v1.ProvideConfigurationOption
+	(*QPU)(nil),                                      // 214: confirmate.ontology.v1.QPU
+	(*RBAC)(nil),                                     // 215: confirmate.ontology.v1.RBAC
+	(*RateLimiting)(nil),                             // 216: confirmate.ontology.v1.RateLimiting
+	(*ReadConfigurationGroup)(nil),                   // 217: confirmate.ontology.v1.ReadConfigurationGroup
+	(*ReadConfigurationOption)(nil),                  // 218: confirmate.ontology.v1.ReadConfigurationOption
+	(*Redundancy)(nil),                               // 219: confirmate.ontology.v1.Redundancy
+	(*RegisterConfigurationGroup)(nil),               // 220: confirmate.ontology.v1.RegisterConfigurationGroup
+	(*RegisterConfigurationOption)(nil),              // 221: confirmate.ontology.v1.RegisterConfigurationOption
+	(*RegisterHttpEndpoint)(nil),                     // 222: confirmate.ontology.v1.RegisterHttpEndpoint
+	(*RelationalDatabaseService)(nil),                // 223: confirmate.ontology.v1.RelationalDatabaseService
+	(*Reliability)(nil),                              // 224: confirmate.ontology.v1.Reliability
+	(*RemoteAttestation)(nil),                        // 225: confirmate.ontology.v1.RemoteAttestation
+	(*RemoteDataLocation)(nil),                       // 226: confirmate.ontology.v1.RemoteDataLocation
+	(*RemoteEntryPoint)(nil),                         // 227: confirmate.ontology.v1.RemoteEntryPoint
+	(*ReportDocument)(nil),                           // 228: confirmate.ontology.v1.ReportDocument
+	(*RequestForChange)(nil),                         // 229: confirmate.ontology.v1.RequestForChange
+	(*Resource)(nil),                                 // 230: confirmate.ontology.v1.Resource
+	(*ResourceGroup)(nil),                            // 231: confirmate.ontology.v1.ResourceGroup
+	(*ResourceLogging)(nil),                          // 232: confirmate.ontology.v1.ResourceLogging
+	(*ResourceType)(nil),                             // 233: confirmate.ontology.v1.ResourceType
+	(*RobustnessScore)(nil),                          // 234: confirmate.ontology.v1.RobustnessScore
+	(*RoleAssignment)(nil),                           // 235: confirmate.ontology.v1.RoleAssignment
+	(*SBOMDocument)(nil),                             // 236: confirmate.ontology.v1.SBOMDocument
+	(*SDNFunctionValidationPolicy)(nil),              // 237: confirmate.ontology.v1.SDNFunctionValidationPolicy
+	(*SchemaValidation)(nil),                         // 238: confirmate.ontology.v1.SchemaValidation
+	(*Secret)(nil),                                   // 239: confirmate.ontology.v1.Secret
+	(*SecretOperation)(nil),                          // 240: confirmate.ontology.v1.SecretOperation
+	(*SecurityAdvisoryDocument)(nil),                 // 241: confirmate.ontology.v1.SecurityAdvisoryDocument
+	(*SecurityAdvisoryFeed)(nil),                     // 242: confirmate.ontology.v1.SecurityAdvisoryFeed
+	(*SecurityAdvisoryService)(nil),                  // 243: confirmate.ontology.v1.SecurityAdvisoryService
+	(*SecurityFeature)(nil),                          // 244: confirmate.ontology.v1.SecurityFeature
+	(*SecurityIncident)(nil),                         // 245: confirmate.ontology.v1.SecurityIncident
+	(*SecurityTraining)(nil),                         // 246: confirmate.ontology.v1.SecurityTraining
+	(*SeparationOfDutiesPolicy)(nil),                 // 247: confirmate.ontology.v1.SeparationOfDutiesPolicy
+	(*ServiceMetadataDocument)(nil),                  // 248: confirmate.ontology.v1.ServiceMetadataDocument
+	(*DocumentSignature)(nil),                        // 249: confirmate.ontology.v1.DocumentSignature
+	(*SignedCommits)(nil),                            // 250: confirmate.ontology.v1.SignedCommits
+	(*SingleSignOn)(nil),                             // 251: confirmate.ontology.v1.SingleSignOn
+	(*Code)(nil),                                     // 252: confirmate.ontology.v1.Code
+	(*SourceCodeFile)(nil),                           // 253: confirmate.ontology.v1.SourceCodeFile
+	(*Storage)(nil),                                  // 254: confirmate.ontology.v1.Storage
+	(*StorageService)(nil),                           // 255: confirmate.ontology.v1.StorageService
+	(*SymmetricCipher)(nil),                          // 256: confirmate.ontology.v1.SymmetricCipher
+	(*Time)(nil),                                     // 257: confirmate.ontology.v1.Time
+	(*Token)(nil),                                    // 258: confirmate.ontology.v1.Token
+	(*Training)(nil),                                 // 259: confirmate.ontology.v1.Training
+	(*TransportEncryption)(nil),                      // 260: confirmate.ontology.v1.TransportEncryption
+	(*UnlockEncryptedDisk)(nil),                      // 261: confirmate.ontology.v1.UnlockEncryptedDisk
+	(*UsageStatistics)(nil),                          // 262: confirmate.ontology.v1.UsageStatistics
+	(*UserInformationAndIntructionDocument)(nil),     // 263: confirmate.ontology.v1.UserInformationAndIntructionDocument
+	(*VMImage)(nil),                                  // 264: confirmate.ontology.v1.VMImage
+	(*ValidateJwt)(nil),                              // 265: confirmate.ontology.v1.ValidateJwt
+	(*Value)(nil),                                    // 266: confirmate.ontology.v1.Value
+	(*VerifiedCommits)(nil),                          // 267: confirmate.ontology.v1.VerifiedCommits
+	(*VirtualMachine)(nil),                           // 268: confirmate.ontology.v1.VirtualMachine
+	(*VirtualNetwork)(nil),                           // 269: confirmate.ontology.v1.VirtualNetwork
+	(*VirtualSubNetwork)(nil),                        // 270: confirmate.ontology.v1.VirtualSubNetwork
+	(*Vulnerability)(nil),                            // 271: confirmate.ontology.v1.Vulnerability
+	(*WebApplicationFirewall)(nil),                   // 272: confirmate.ontology.v1.WebApplicationFirewall
+	(*Win32)(nil),                                    // 273: confirmate.ontology.v1.Win32
+	(*Workflow)(nil),                                 // 274: confirmate.ontology.v1.Workflow
+	(*ZoneRedundancy)(nil),                           // 275: confirmate.ontology.v1.ZoneRedundancy
+	nil,                                              // 276: confirmate.ontology.v1.Account.LabelsEntry
+	nil,                                              // 277: confirmate.ontology.v1.Agnostic.LabelsEntry
+	nil,                                              // 278: confirmate.ontology.v1.AndRule.LabelsEntry
+	nil,                                              // 279: confirmate.ontology.v1.Application.LabelsEntry
+	nil,                                              // 280: confirmate.ontology.v1.BlockStorage.LabelsEntry
+	nil,                                              // 281: confirmate.ontology.v1.Certificate.LabelsEntry
+	nil,                                              // 282: confirmate.ontology.v1.CodeRepository.LabelsEntry
+	nil,                                              // 283: confirmate.ontology.v1.Configuration.LabelsEntry
+	nil,                                              // 284: confirmate.ontology.v1.ConfigurationDocument.LabelsEntry
+	nil,                                              // 285: confirmate.ontology.v1.ConfigurationGroup.LabelsEntry
+	nil,                                              // 286: confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntry
+	nil,                                              // 287: confirmate.ontology.v1.ConfigurationOption.LabelsEntry
+	nil,                                              // 288: confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntry
+	nil,                                              // 289: confirmate.ontology.v1.ConfigurationSource.LabelsEntry
+	nil,                                              // 290: confirmate.ontology.v1.Container.LabelsEntry
+	nil,                                              // 291: confirmate.ontology.v1.ContainerImage.LabelsEntry
+	nil,                                              // 292: confirmate.ontology.v1.ContainerOrchestration.LabelsEntry
+	nil,                                              // 293: confirmate.ontology.v1.ContainerRegistry.LabelsEntry
+	nil,                                              // 294: confirmate.ontology.v1.Context.LabelsEntry
+	nil,                                              // 295: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.LabelsEntry
+	nil,                                              // 296: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntry
+	nil,                                              // 297: confirmate.ontology.v1.Darwin.LabelsEntry
+	nil,                                              // 298: confirmate.ontology.v1.DatabaseStorage.LabelsEntry
+	nil,                                              // 299: confirmate.ontology.v1.DeviceProvisioningService.LabelsEntry
+	nil,                                              // 300: confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntry
+	nil,                                              // 301: confirmate.ontology.v1.DocumentDatabaseService.LabelsEntry
+	nil,                                              // 302: confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntry
+	nil,                                              // 303: confirmate.ontology.v1.File.LabelsEntry
+	nil,                                              // 304: confirmate.ontology.v1.FileHandle.LabelsEntry
+	nil,                                              // 305: confirmate.ontology.v1.FileStorage.LabelsEntry
+	nil,                                              // 306: confirmate.ontology.v1.FileStorageService.LabelsEntry
+	nil,                                              // 307: confirmate.ontology.v1.Function.LabelsEntry
+	nil,                                              // 308: confirmate.ontology.v1.FunctionService.LabelsEntry
+	nil,                                              // 309: confirmate.ontology.v1.GenericNetworkService.LabelsEntry
+	nil,                                              // 310: confirmate.ontology.v1.Identity.LabelsEntry
+	nil,                                              // 311: confirmate.ontology.v1.Job.LabelsEntry
+	nil,                                              // 312: confirmate.ontology.v1.Key.LabelsEntry
+	nil,                                              // 313: confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntry
+	nil,                                              // 314: confirmate.ontology.v1.KeyVault.LabelsEntry
+	nil,                                              // 315: confirmate.ontology.v1.Library.LabelsEntry
+	nil,                                              // 316: confirmate.ontology.v1.LoadBalancer.LabelsEntry
+	nil,                                              // 317: confirmate.ontology.v1.LogDocument.LabelsEntry
+	nil,                                              // 318: confirmate.ontology.v1.LoggingService.LabelsEntry
+	nil,                                              // 319: confirmate.ontology.v1.MachineLearningDataset.LabelsEntry
+	nil,                                              // 320: confirmate.ontology.v1.MachineLearningModel.LabelsEntry
+	nil,                                              // 321: confirmate.ontology.v1.MachineLearningService.LabelsEntry
+	nil,                                              // 322: confirmate.ontology.v1.Memory.LabelsEntry
+	nil,                                              // 323: confirmate.ontology.v1.MessagingHub.LabelsEntry
+	nil,                                              // 324: confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntry
 	nil,                                              // 325: confirmate.ontology.v1.NetworkInterface.LabelsEntry
 	nil,                                              // 326: confirmate.ontology.v1.NetworkSecurityGroup.LabelsEntry
 	nil,                                              // 327: confirmate.ontology.v1.ObjectStorage.LabelsEntry
@@ -36302,1294 +35888,1281 @@ var file_policies_security_metrics_ontology_v1_ontology_proto_goTypes = []any{
 	nil,                                              // 338: confirmate.ontology.v1.ResourceGroup.LabelsEntry
 	nil,                                              // 339: confirmate.ontology.v1.RoleAssignment.LabelsEntry
 	nil,                                              // 340: confirmate.ontology.v1.SBOMDocument.LabelsEntry
-	nil,                                              // 341: confirmate.ontology.v1.SDNFunctionValidationPolicy.LabelsEntry
-	nil,                                              // 342: confirmate.ontology.v1.Secret.LabelsEntry
-	nil,                                              // 343: confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntry
-	nil,                                              // 344: confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntry
-	nil,                                              // 345: confirmate.ontology.v1.SeparationOfDutiesPolicy.LabelsEntry
-	nil,                                              // 346: confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntry
-	nil,                                              // 347: confirmate.ontology.v1.SourceCodeFile.LabelsEntry
-	nil,                                              // 348: confirmate.ontology.v1.Token.LabelsEntry
-	nil,                                              // 349: confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntry
-	nil,                                              // 350: confirmate.ontology.v1.VMImage.LabelsEntry
-	nil,                                              // 351: confirmate.ontology.v1.Value.LabelsEntry
-	nil,                                              // 352: confirmate.ontology.v1.VirtualMachine.LabelsEntry
-	nil,                                              // 353: confirmate.ontology.v1.VirtualNetwork.LabelsEntry
-	nil,                                              // 354: confirmate.ontology.v1.VirtualSubNetwork.LabelsEntry
-	nil,                                              // 355: confirmate.ontology.v1.Win32.LabelsEntry
-	nil,                                              // 356: confirmate.ontology.v1.Workflow.LabelsEntry
-	(*timestamppb.Timestamp)(nil),                    // 357: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                      // 358: google.protobuf.Duration
-	(*descriptorpb.MessageOptions)(nil),              // 359: google.protobuf.MessageOptions
+	nil,                                              // 341: confirmate.ontology.v1.Secret.LabelsEntry
+	nil,                                              // 342: confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntry
+	nil,                                              // 343: confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntry
+	nil,                                              // 344: confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntry
+	nil,                                              // 345: confirmate.ontology.v1.SourceCodeFile.LabelsEntry
+	nil,                                              // 346: confirmate.ontology.v1.Token.LabelsEntry
+	nil,                                              // 347: confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntry
+	nil,                                              // 348: confirmate.ontology.v1.VMImage.LabelsEntry
+	nil,                                              // 349: confirmate.ontology.v1.Value.LabelsEntry
+	nil,                                              // 350: confirmate.ontology.v1.VirtualMachine.LabelsEntry
+	nil,                                              // 351: confirmate.ontology.v1.VirtualNetwork.LabelsEntry
+	nil,                                              // 352: confirmate.ontology.v1.VirtualSubNetwork.LabelsEntry
+	nil,                                              // 353: confirmate.ontology.v1.Win32.LabelsEntry
+	nil,                                              // 354: confirmate.ontology.v1.Workflow.LabelsEntry
+	(*timestamppb.Timestamp)(nil),                    // 355: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                      // 356: google.protobuf.Duration
+	(*descriptorpb.MessageOptions)(nil),              // 357: google.protobuf.MessageOptions
 }
 var file_policies_security_metrics_ontology_v1_ontology_proto_depIdxs = []int32{
-	146,  // 0: confirmate.ontology.v1.AccessRestriction.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
-	269,  // 1: confirmate.ontology.v1.AccessRestriction.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
-	214,  // 2: confirmate.ontology.v1.AccessRestriction.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
-	357,  // 3: confirmate.ontology.v1.Account.creation_time:type_name -> google.protobuf.Timestamp
-	273,  // 4: confirmate.ontology.v1.Account.labels:type_name -> confirmate.ontology.v1.Account.LabelsEntry
+	147,  // 0: confirmate.ontology.v1.AccessRestriction.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
+	272,  // 1: confirmate.ontology.v1.AccessRestriction.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
+	216,  // 2: confirmate.ontology.v1.AccessRestriction.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
+	355,  // 3: confirmate.ontology.v1.Account.creation_time:type_name -> google.protobuf.Timestamp
+	276,  // 4: confirmate.ontology.v1.Account.labels:type_name -> confirmate.ontology.v1.Account.LabelsEntry
 	10,   // 5: confirmate.ontology.v1.Account.asset_inventory:type_name -> confirmate.ontology.v1.AssetInventory
 	31,   // 6: confirmate.ontology.v1.Account.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 7: confirmate.ontology.v1.Account.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 8: confirmate.ontology.v1.Account.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 9: confirmate.ontology.v1.Account.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 10: confirmate.ontology.v1.Account.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 11: confirmate.ontology.v1.Account.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	358,  // 12: confirmate.ontology.v1.ActivityLogging.retention_period:type_name -> google.protobuf.Duration
-	357,  // 13: confirmate.ontology.v1.Agnostic.creation_time:type_name -> google.protobuf.Timestamp
-	274,  // 14: confirmate.ontology.v1.Agnostic.labels:type_name -> confirmate.ontology.v1.Agnostic.LabelsEntry
-	106,  // 15: confirmate.ontology.v1.Agnostic.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	38,   // 16: confirmate.ontology.v1.Allocate.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 17: confirmate.ontology.v1.AndRule.creation_time:type_name -> google.protobuf.Timestamp
-	275,  // 18: confirmate.ontology.v1.AndRule.labels:type_name -> confirmate.ontology.v1.AndRule.LabelsEntry
-	71,   // 19: confirmate.ontology.v1.AndRule.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	110,  // 7: confirmate.ontology.v1.Account.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 8: confirmate.ontology.v1.Account.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 9: confirmate.ontology.v1.Account.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 10: confirmate.ontology.v1.Account.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 11: confirmate.ontology.v1.Account.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	356,  // 12: confirmate.ontology.v1.ActivityLogging.retention_period:type_name -> google.protobuf.Duration
+	355,  // 13: confirmate.ontology.v1.Agnostic.creation_time:type_name -> google.protobuf.Timestamp
+	277,  // 14: confirmate.ontology.v1.Agnostic.labels:type_name -> confirmate.ontology.v1.Agnostic.LabelsEntry
+	107,  // 15: confirmate.ontology.v1.Agnostic.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	39,   // 16: confirmate.ontology.v1.Allocate.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 17: confirmate.ontology.v1.AndRule.creation_time:type_name -> google.protobuf.Timestamp
+	278,  // 18: confirmate.ontology.v1.AndRule.labels:type_name -> confirmate.ontology.v1.AndRule.LabelsEntry
+	72,   // 19: confirmate.ontology.v1.AndRule.data_location:type_name -> confirmate.ontology.v1.DataLocation
 	9,    // 20: confirmate.ontology.v1.AnomalyDetection.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
-	357,  // 21: confirmate.ontology.v1.Application.creation_time:type_name -> google.protobuf.Timestamp
-	276,  // 22: confirmate.ontology.v1.Application.labels:type_name -> confirmate.ontology.v1.Application.LabelsEntry
+	355,  // 21: confirmate.ontology.v1.Application.creation_time:type_name -> google.protobuf.Timestamp
+	279,  // 22: confirmate.ontology.v1.Application.labels:type_name -> confirmate.ontology.v1.Application.LabelsEntry
 	20,   // 23: confirmate.ontology.v1.Application.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
-	106,  // 24: confirmate.ontology.v1.Application.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	358,  // 25: confirmate.ontology.v1.ApplicationLogging.retention_period:type_name -> google.protobuf.Duration
-	197,  // 26: confirmate.ontology.v1.AsymmetricCipher.padding:type_name -> confirmate.ontology.v1.Padding
-	65,   // 27: confirmate.ontology.v1.AtRestEncryption.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
-	80,   // 28: confirmate.ontology.v1.AtRestEncryption.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
-	172,  // 29: confirmate.ontology.v1.AtRestEncryption.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
-	154,  // 30: confirmate.ontology.v1.Attestation.local_attestation:type_name -> confirmate.ontology.v1.LocalAttestation
-	223,  // 31: confirmate.ontology.v1.Attestation.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	107,  // 24: confirmate.ontology.v1.Application.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	356,  // 25: confirmate.ontology.v1.ApplicationLogging.retention_period:type_name -> google.protobuf.Duration
+	198,  // 26: confirmate.ontology.v1.AsymmetricCipher.padding:type_name -> confirmate.ontology.v1.Padding
+	66,   // 27: confirmate.ontology.v1.AtRestEncryption.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
+	81,   // 28: confirmate.ontology.v1.AtRestEncryption.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
+	173,  // 29: confirmate.ontology.v1.AtRestEncryption.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
+	155,  // 30: confirmate.ontology.v1.Attestation.local_attestation:type_name -> confirmate.ontology.v1.LocalAttestation
+	225,  // 31: confirmate.ontology.v1.Attestation.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
 	7,    // 32: confirmate.ontology.v1.Auditing.anomaly_detection:type_name -> confirmate.ontology.v1.AnomalyDetection
 	10,   // 33: confirmate.ontology.v1.Auditing.asset_inventory:type_name -> confirmate.ontology.v1.AssetInventory
-	40,   // 34: confirmate.ontology.v1.Auditing.code_signoff:type_name -> confirmate.ontology.v1.CodeSignoff
+	41,   // 34: confirmate.ontology.v1.Auditing.code_signoff:type_name -> confirmate.ontology.v1.CodeSignoff
 	3,    // 35: confirmate.ontology.v1.Auditing.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
 	9,    // 36: confirmate.ontology.v1.Auditing.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
 	26,   // 37: confirmate.ontology.v1.Auditing.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
-	187,  // 38: confirmate.ontology.v1.Auditing.os_logging:type_name -> confirmate.ontology.v1.OSLogging
-	230,  // 39: confirmate.ontology.v1.Auditing.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	171,  // 40: confirmate.ontology.v1.Auditing.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	259,  // 41: confirmate.ontology.v1.Auditing.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	188,  // 38: confirmate.ontology.v1.Auditing.os_logging:type_name -> confirmate.ontology.v1.OSLogging
+	232,  // 39: confirmate.ontology.v1.Auditing.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	172,  // 40: confirmate.ontology.v1.Auditing.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	262,  // 41: confirmate.ontology.v1.Auditing.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
 	17,   // 42: confirmate.ontology.v1.Authenticate.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	38,   // 43: confirmate.ontology.v1.Authenticate.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 43: confirmate.ontology.v1.Authenticate.code_region:type_name -> confirmate.ontology.v1.CodeRegion
 	15,   // 44: confirmate.ontology.v1.AuthenticationOperation.authenticate:type_name -> confirmate.ontology.v1.Authenticate
 	19,   // 45: confirmate.ontology.v1.AuthenticationOperation.authorize_jwt:type_name -> confirmate.ontology.v1.AuthorizeJwt
-	138,  // 46: confirmate.ontology.v1.AuthenticationOperation.issue_jwt:type_name -> confirmate.ontology.v1.IssueJwt
-	262,  // 47: confirmate.ontology.v1.AuthenticationOperation.validate_jwt:type_name -> confirmate.ontology.v1.ValidateJwt
+	139,  // 46: confirmate.ontology.v1.AuthenticationOperation.issue_jwt:type_name -> confirmate.ontology.v1.IssueJwt
+	265,  // 47: confirmate.ontology.v1.AuthenticationOperation.validate_jwt:type_name -> confirmate.ontology.v1.ValidateJwt
 	30,   // 48: confirmate.ontology.v1.Authenticity.certificate_based_authentication:type_name -> confirmate.ontology.v1.CertificateBasedAuthentication
-	140,  // 49: confirmate.ontology.v1.Authenticity.jwt_authentication:type_name -> confirmate.ontology.v1.JwtAuthentication
-	179,  // 50: confirmate.ontology.v1.Authenticity.multi_factor_authentiation:type_name -> confirmate.ontology.v1.MultiFactorAuthentiation
-	186,  // 51: confirmate.ontology.v1.Authenticity.no_authentication:type_name -> confirmate.ontology.v1.NoAuthentication
-	188,  // 52: confirmate.ontology.v1.Authenticity.otp_based_authentication:type_name -> confirmate.ontology.v1.OTPBasedAuthentication
-	198,  // 53: confirmate.ontology.v1.Authenticity.password_based_authentication:type_name -> confirmate.ontology.v1.PasswordBasedAuthentication
-	248,  // 54: confirmate.ontology.v1.Authenticity.single_sign_on:type_name -> confirmate.ontology.v1.SingleSignOn
+	141,  // 49: confirmate.ontology.v1.Authenticity.jwt_authentication:type_name -> confirmate.ontology.v1.JwtAuthentication
+	180,  // 50: confirmate.ontology.v1.Authenticity.multi_factor_authentiation:type_name -> confirmate.ontology.v1.MultiFactorAuthentiation
+	187,  // 51: confirmate.ontology.v1.Authenticity.no_authentication:type_name -> confirmate.ontology.v1.NoAuthentication
+	189,  // 52: confirmate.ontology.v1.Authenticity.otp_based_authentication:type_name -> confirmate.ontology.v1.OTPBasedAuthentication
+	199,  // 53: confirmate.ontology.v1.Authenticity.password_based_authentication:type_name -> confirmate.ontology.v1.PasswordBasedAuthentication
+	251,  // 54: confirmate.ontology.v1.Authenticity.single_sign_on:type_name -> confirmate.ontology.v1.SingleSignOn
 	0,    // 55: confirmate.ontology.v1.Authorization.abac:type_name -> confirmate.ontology.v1.ABAC
-	146,  // 56: confirmate.ontology.v1.Authorization.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
-	269,  // 57: confirmate.ontology.v1.Authorization.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
-	214,  // 58: confirmate.ontology.v1.Authorization.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
-	213,  // 59: confirmate.ontology.v1.Authorization.rbac:type_name -> confirmate.ontology.v1.RBAC
+	147,  // 56: confirmate.ontology.v1.Authorization.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
+	272,  // 57: confirmate.ontology.v1.Authorization.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
+	216,  // 58: confirmate.ontology.v1.Authorization.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
+	215,  // 59: confirmate.ontology.v1.Authorization.rbac:type_name -> confirmate.ontology.v1.RBAC
 	17,   // 60: confirmate.ontology.v1.AuthorizeJwt.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	38,   // 61: confirmate.ontology.v1.AuthorizeJwt.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	358,  // 62: confirmate.ontology.v1.AutomaticUpdates.interval:type_name -> google.protobuf.Duration
+	39,   // 61: confirmate.ontology.v1.AuthorizeJwt.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	356,  // 62: confirmate.ontology.v1.AutomaticUpdates.interval:type_name -> google.protobuf.Duration
 	23,   // 63: confirmate.ontology.v1.Availability.backup:type_name -> confirmate.ontology.v1.Backup
-	67,   // 64: confirmate.ontology.v1.Availability.d_do_s_protection:type_name -> confirmate.ontology.v1.DDoSProtection
-	109,  // 65: confirmate.ontology.v1.Availability.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	110,  // 66: confirmate.ontology.v1.Availability.geo_redundancy:type_name -> confirmate.ontology.v1.GeoRedundancy
-	157,  // 67: confirmate.ontology.v1.Availability.local_redundancy:type_name -> confirmate.ontology.v1.LocalRedundancy
-	272,  // 68: confirmate.ontology.v1.Availability.zone_redundancy:type_name -> confirmate.ontology.v1.ZoneRedundancy
-	358,  // 69: confirmate.ontology.v1.Backup.interval:type_name -> google.protobuf.Duration
-	358,  // 70: confirmate.ontology.v1.Backup.retention_period:type_name -> google.protobuf.Duration
-	257,  // 71: confirmate.ontology.v1.Backup.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	357,  // 72: confirmate.ontology.v1.BlockStorage.creation_time:type_name -> google.protobuf.Timestamp
-	277,  // 73: confirmate.ontology.v1.BlockStorage.labels:type_name -> confirmate.ontology.v1.BlockStorage.LabelsEntry
+	68,   // 64: confirmate.ontology.v1.Availability.d_do_s_protection:type_name -> confirmate.ontology.v1.DDoSProtection
+	110,  // 65: confirmate.ontology.v1.Availability.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	111,  // 66: confirmate.ontology.v1.Availability.geo_redundancy:type_name -> confirmate.ontology.v1.GeoRedundancy
+	158,  // 67: confirmate.ontology.v1.Availability.local_redundancy:type_name -> confirmate.ontology.v1.LocalRedundancy
+	275,  // 68: confirmate.ontology.v1.Availability.zone_redundancy:type_name -> confirmate.ontology.v1.ZoneRedundancy
+	356,  // 69: confirmate.ontology.v1.Backup.interval:type_name -> google.protobuf.Duration
+	356,  // 70: confirmate.ontology.v1.Backup.retention_period:type_name -> google.protobuf.Duration
+	260,  // 71: confirmate.ontology.v1.Backup.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	355,  // 72: confirmate.ontology.v1.BlockStorage.creation_time:type_name -> google.protobuf.Timestamp
+	280,  // 73: confirmate.ontology.v1.BlockStorage.labels:type_name -> confirmate.ontology.v1.BlockStorage.LabelsEntry
 	3,    // 74: confirmate.ontology.v1.BlockStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
 	12,   // 75: confirmate.ontology.v1.BlockStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
 	23,   // 76: confirmate.ontology.v1.BlockStorage.backups:type_name -> confirmate.ontology.v1.Backup
 	31,   // 77: confirmate.ontology.v1.BlockStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 78: confirmate.ontology.v1.BlockStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	131,  // 79: confirmate.ontology.v1.BlockStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
-	164,  // 80: confirmate.ontology.v1.BlockStorage.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 81: confirmate.ontology.v1.BlockStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 82: confirmate.ontology.v1.BlockStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	230,  // 83: confirmate.ontology.v1.BlockStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 84: confirmate.ontology.v1.BlockStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	38,   // 85: confirmate.ontology.v1.BlockStorageOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	358,  // 86: confirmate.ontology.v1.BootLogging.retention_period:type_name -> google.protobuf.Duration
-	139,  // 87: confirmate.ontology.v1.CICDService.job:type_name -> confirmate.ontology.v1.Job
-	271,  // 88: confirmate.ontology.v1.CICDService.workflow:type_name -> confirmate.ontology.v1.Workflow
-	357,  // 89: confirmate.ontology.v1.Certificate.creation_time:type_name -> google.protobuf.Timestamp
-	357,  // 90: confirmate.ontology.v1.Certificate.expiration_date:type_name -> google.protobuf.Timestamp
-	278,  // 91: confirmate.ontology.v1.Certificate.labels:type_name -> confirmate.ontology.v1.Certificate.LabelsEntry
-	357,  // 92: confirmate.ontology.v1.Certificate.not_before_date:type_name -> google.protobuf.Timestamp
+	110,  // 78: confirmate.ontology.v1.BlockStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	132,  // 79: confirmate.ontology.v1.BlockStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
+	165,  // 80: confirmate.ontology.v1.BlockStorage.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 81: confirmate.ontology.v1.BlockStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 82: confirmate.ontology.v1.BlockStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	232,  // 83: confirmate.ontology.v1.BlockStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 84: confirmate.ontology.v1.BlockStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	39,   // 85: confirmate.ontology.v1.BlockStorageOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	356,  // 86: confirmate.ontology.v1.BootLogging.retention_period:type_name -> google.protobuf.Duration
+	140,  // 87: confirmate.ontology.v1.CICDService.job:type_name -> confirmate.ontology.v1.Job
+	274,  // 88: confirmate.ontology.v1.CICDService.workflow:type_name -> confirmate.ontology.v1.Workflow
+	355,  // 89: confirmate.ontology.v1.Certificate.creation_time:type_name -> google.protobuf.Timestamp
+	355,  // 90: confirmate.ontology.v1.Certificate.expiration_date:type_name -> google.protobuf.Timestamp
+	281,  // 91: confirmate.ontology.v1.Certificate.labels:type_name -> confirmate.ontology.v1.Certificate.LabelsEntry
+	355,  // 92: confirmate.ontology.v1.Certificate.not_before_date:type_name -> google.protobuf.Timestamp
 	31,   // 93: confirmate.ontology.v1.Certificate.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 94: confirmate.ontology.v1.Certificate.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	36,   // 95: confirmate.ontology.v1.Certificate.used_by_multiple:type_name -> confirmate.ontology.v1.Infrastructure
-	164,  // 96: confirmate.ontology.v1.Certificate.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 97: confirmate.ontology.v1.Certificate.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 98: confirmate.ontology.v1.Certificate.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 99: confirmate.ontology.v1.Certificate.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	227,  // 100: confirmate.ontology.v1.ChangeAndConfigurationManagement.request_for_change:type_name -> confirmate.ontology.v1.RequestForChange
-	38,   // 101: confirmate.ontology.v1.CheckAccess.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	205,  // 102: confirmate.ontology.v1.CheckAccess.protected_asset:type_name -> confirmate.ontology.v1.ProtectedAsset
+	110,  // 94: confirmate.ontology.v1.Certificate.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	37,   // 95: confirmate.ontology.v1.Certificate.used_by_multiple:type_name -> confirmate.ontology.v1.Infrastructure
+	165,  // 96: confirmate.ontology.v1.Certificate.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 97: confirmate.ontology.v1.Certificate.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 98: confirmate.ontology.v1.Certificate.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 99: confirmate.ontology.v1.Certificate.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	229,  // 100: confirmate.ontology.v1.ChangeAndConfigurationManagement.request_for_change:type_name -> confirmate.ontology.v1.RequestForChange
+	39,   // 101: confirmate.ontology.v1.CheckAccess.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	207,  // 102: confirmate.ontology.v1.CheckAccess.protected_asset:type_name -> confirmate.ontology.v1.ProtectedAsset
 	11,   // 103: confirmate.ontology.v1.Cipher.asymmetric_cipher:type_name -> confirmate.ontology.v1.AsymmetricCipher
-	127,  // 104: confirmate.ontology.v1.Cipher.hybrid_cipher:type_name -> confirmate.ontology.v1.HybridCipher
-	253,  // 105: confirmate.ontology.v1.Cipher.symmetric_cipher:type_name -> confirmate.ontology.v1.SymmetricCipher
-	78,   // 106: confirmate.ontology.v1.CipherOperation.decryption:type_name -> confirmate.ontology.v1.Decryption
+	128,  // 104: confirmate.ontology.v1.Cipher.hybrid_cipher:type_name -> confirmate.ontology.v1.HybridCipher
+	256,  // 105: confirmate.ontology.v1.Cipher.symmetric_cipher:type_name -> confirmate.ontology.v1.SymmetricCipher
+	79,   // 106: confirmate.ontology.v1.CipherOperation.decryption:type_name -> confirmate.ontology.v1.Decryption
 	33,   // 107: confirmate.ontology.v1.CipherSuite.ciphers:type_name -> confirmate.ontology.v1.Cipher
 	2,    // 108: confirmate.ontology.v1.Infrastructure.account:type_name -> confirmate.ontology.v1.Account
-	139,  // 109: confirmate.ontology.v1.Infrastructure.job:type_name -> confirmate.ontology.v1.Job
-	271,  // 110: confirmate.ontology.v1.Infrastructure.workflow:type_name -> confirmate.ontology.v1.Workflow
-	39,   // 111: confirmate.ontology.v1.Infrastructure.code_repository:type_name -> confirmate.ontology.v1.CodeRepository
-	53,   // 112: confirmate.ontology.v1.Infrastructure.container:type_name -> confirmate.ontology.v1.Container
-	104,  // 113: confirmate.ontology.v1.Infrastructure.function:type_name -> confirmate.ontology.v1.Function
-	212,  // 114: confirmate.ontology.v1.Infrastructure.qpu:type_name -> confirmate.ontology.v1.QPU
-	265,  // 115: confirmate.ontology.v1.Infrastructure.virtual_machine:type_name -> confirmate.ontology.v1.VirtualMachine
-	55,   // 116: confirmate.ontology.v1.Infrastructure.container_orchestration:type_name -> confirmate.ontology.v1.ContainerOrchestration
-	56,   // 117: confirmate.ontology.v1.Infrastructure.container_registry:type_name -> confirmate.ontology.v1.ContainerRegistry
+	140,  // 109: confirmate.ontology.v1.Infrastructure.job:type_name -> confirmate.ontology.v1.Job
+	274,  // 110: confirmate.ontology.v1.Infrastructure.workflow:type_name -> confirmate.ontology.v1.Workflow
+	40,   // 111: confirmate.ontology.v1.Infrastructure.code_repository:type_name -> confirmate.ontology.v1.CodeRepository
+	54,   // 112: confirmate.ontology.v1.Infrastructure.container:type_name -> confirmate.ontology.v1.Container
+	105,  // 113: confirmate.ontology.v1.Infrastructure.function:type_name -> confirmate.ontology.v1.Function
+	214,  // 114: confirmate.ontology.v1.Infrastructure.qpu:type_name -> confirmate.ontology.v1.QPU
+	268,  // 115: confirmate.ontology.v1.Infrastructure.virtual_machine:type_name -> confirmate.ontology.v1.VirtualMachine
+	56,   // 116: confirmate.ontology.v1.Infrastructure.container_orchestration:type_name -> confirmate.ontology.v1.ContainerOrchestration
+	57,   // 117: confirmate.ontology.v1.Infrastructure.container_registry:type_name -> confirmate.ontology.v1.ContainerRegistry
 	29,   // 118: confirmate.ontology.v1.Infrastructure.certificate:type_name -> confirmate.ontology.v1.Certificate
-	142,  // 119: confirmate.ontology.v1.Infrastructure.key:type_name -> confirmate.ontology.v1.Key
-	237,  // 120: confirmate.ontology.v1.Infrastructure.secret:type_name -> confirmate.ontology.v1.Secret
-	129,  // 121: confirmate.ontology.v1.Infrastructure.identity:type_name -> confirmate.ontology.v1.Identity
-	233,  // 122: confirmate.ontology.v1.Infrastructure.role_assignment:type_name -> confirmate.ontology.v1.RoleAssignment
-	54,   // 123: confirmate.ontology.v1.Infrastructure.container_image:type_name -> confirmate.ontology.v1.ContainerImage
-	261,  // 124: confirmate.ontology.v1.Infrastructure.vm_image:type_name -> confirmate.ontology.v1.VMImage
-	79,   // 125: confirmate.ontology.v1.Infrastructure.device_provisioning_service:type_name -> confirmate.ontology.v1.DeviceProvisioningService
-	176,  // 126: confirmate.ontology.v1.Infrastructure.messaging_hub:type_name -> confirmate.ontology.v1.MessagingHub
-	145,  // 127: confirmate.ontology.v1.Infrastructure.key_vault:type_name -> confirmate.ontology.v1.KeyVault
-	182,  // 128: confirmate.ontology.v1.Infrastructure.network_interface:type_name -> confirmate.ontology.v1.NetworkInterface
-	183,  // 129: confirmate.ontology.v1.Infrastructure.network_security_group:type_name -> confirmate.ontology.v1.NetworkSecurityGroup
-	105,  // 130: confirmate.ontology.v1.Infrastructure.function_service:type_name -> confirmate.ontology.v1.FunctionService
-	108,  // 131: confirmate.ontology.v1.Infrastructure.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
-	150,  // 132: confirmate.ontology.v1.Infrastructure.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
-	165,  // 133: confirmate.ontology.v1.Infrastructure.logging_service:type_name -> confirmate.ontology.v1.LoggingService
-	169,  // 134: confirmate.ontology.v1.Infrastructure.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
-	241,  // 135: confirmate.ontology.v1.Infrastructure.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
-	84,   // 136: confirmate.ontology.v1.Infrastructure.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
-	144,  // 137: confirmate.ontology.v1.Infrastructure.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
-	180,  // 138: confirmate.ontology.v1.Infrastructure.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
-	221,  // 139: confirmate.ontology.v1.Infrastructure.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
-	101,  // 140: confirmate.ontology.v1.Infrastructure.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
-	191,  // 141: confirmate.ontology.v1.Infrastructure.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
-	266,  // 142: confirmate.ontology.v1.Infrastructure.virtual_network:type_name -> confirmate.ontology.v1.VirtualNetwork
-	267,  // 143: confirmate.ontology.v1.Infrastructure.virtual_sub_network:type_name -> confirmate.ontology.v1.VirtualSubNetwork
-	199,  // 144: confirmate.ontology.v1.Infrastructure.password_policy:type_name -> confirmate.ontology.v1.PasswordPolicy
-	229,  // 145: confirmate.ontology.v1.Infrastructure.resource_group:type_name -> confirmate.ontology.v1.ResourceGroup
+	143,  // 119: confirmate.ontology.v1.Infrastructure.key:type_name -> confirmate.ontology.v1.Key
+	239,  // 120: confirmate.ontology.v1.Infrastructure.secret:type_name -> confirmate.ontology.v1.Secret
+	130,  // 121: confirmate.ontology.v1.Infrastructure.identity:type_name -> confirmate.ontology.v1.Identity
+	235,  // 122: confirmate.ontology.v1.Infrastructure.role_assignment:type_name -> confirmate.ontology.v1.RoleAssignment
+	55,   // 123: confirmate.ontology.v1.Infrastructure.container_image:type_name -> confirmate.ontology.v1.ContainerImage
+	264,  // 124: confirmate.ontology.v1.Infrastructure.vm_image:type_name -> confirmate.ontology.v1.VMImage
+	80,   // 125: confirmate.ontology.v1.Infrastructure.device_provisioning_service:type_name -> confirmate.ontology.v1.DeviceProvisioningService
+	177,  // 126: confirmate.ontology.v1.Infrastructure.messaging_hub:type_name -> confirmate.ontology.v1.MessagingHub
+	146,  // 127: confirmate.ontology.v1.Infrastructure.key_vault:type_name -> confirmate.ontology.v1.KeyVault
+	183,  // 128: confirmate.ontology.v1.Infrastructure.network_interface:type_name -> confirmate.ontology.v1.NetworkInterface
+	184,  // 129: confirmate.ontology.v1.Infrastructure.network_security_group:type_name -> confirmate.ontology.v1.NetworkSecurityGroup
+	106,  // 130: confirmate.ontology.v1.Infrastructure.function_service:type_name -> confirmate.ontology.v1.FunctionService
+	109,  // 131: confirmate.ontology.v1.Infrastructure.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
+	151,  // 132: confirmate.ontology.v1.Infrastructure.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
+	166,  // 133: confirmate.ontology.v1.Infrastructure.logging_service:type_name -> confirmate.ontology.v1.LoggingService
+	170,  // 134: confirmate.ontology.v1.Infrastructure.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
+	243,  // 135: confirmate.ontology.v1.Infrastructure.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
+	85,   // 136: confirmate.ontology.v1.Infrastructure.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
+	145,  // 137: confirmate.ontology.v1.Infrastructure.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
+	181,  // 138: confirmate.ontology.v1.Infrastructure.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
+	223,  // 139: confirmate.ontology.v1.Infrastructure.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
+	102,  // 140: confirmate.ontology.v1.Infrastructure.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
+	192,  // 141: confirmate.ontology.v1.Infrastructure.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
+	269,  // 142: confirmate.ontology.v1.Infrastructure.virtual_network:type_name -> confirmate.ontology.v1.VirtualNetwork
+	270,  // 143: confirmate.ontology.v1.Infrastructure.virtual_sub_network:type_name -> confirmate.ontology.v1.VirtualSubNetwork
+	200,  // 144: confirmate.ontology.v1.Infrastructure.password_policy:type_name -> confirmate.ontology.v1.PasswordPolicy
+	231,  // 145: confirmate.ontology.v1.Infrastructure.resource_group:type_name -> confirmate.ontology.v1.ResourceGroup
 	24,   // 146: confirmate.ontology.v1.Infrastructure.block_storage:type_name -> confirmate.ontology.v1.BlockStorage
-	76,   // 147: confirmate.ontology.v1.Infrastructure.database_storage:type_name -> confirmate.ontology.v1.DatabaseStorage
-	100,  // 148: confirmate.ontology.v1.Infrastructure.file_storage:type_name -> confirmate.ontology.v1.FileStorage
-	189,  // 149: confirmate.ontology.v1.Infrastructure.object_storage:type_name -> confirmate.ontology.v1.ObjectStorage
-	357,  // 150: confirmate.ontology.v1.CodeRepository.creation_time:type_name -> google.protobuf.Timestamp
-	279,  // 151: confirmate.ontology.v1.CodeRepository.labels:type_name -> confirmate.ontology.v1.CodeRepository.LabelsEntry
+	77,   // 147: confirmate.ontology.v1.Infrastructure.database_storage:type_name -> confirmate.ontology.v1.DatabaseStorage
+	101,  // 148: confirmate.ontology.v1.Infrastructure.file_storage:type_name -> confirmate.ontology.v1.FileStorage
+	190,  // 149: confirmate.ontology.v1.Infrastructure.object_storage:type_name -> confirmate.ontology.v1.ObjectStorage
+	355,  // 150: confirmate.ontology.v1.CodeRepository.creation_time:type_name -> google.protobuf.Timestamp
+	282,  // 151: confirmate.ontology.v1.CodeRepository.labels:type_name -> confirmate.ontology.v1.CodeRepository.LabelsEntry
 	31,   // 152: confirmate.ontology.v1.CodeRepository.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	40,   // 153: confirmate.ontology.v1.CodeRepository.code_signoff:type_name -> confirmate.ontology.v1.CodeSignoff
-	109,  // 154: confirmate.ontology.v1.CodeRepository.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 155: confirmate.ontology.v1.CodeRepository.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 156: confirmate.ontology.v1.CodeRepository.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 157: confirmate.ontology.v1.CodeRepository.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	247,  // 158: confirmate.ontology.v1.CodeRepository.signed_commits:type_name -> confirmate.ontology.v1.SignedCommits
-	259,  // 159: confirmate.ontology.v1.CodeRepository.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	264,  // 160: confirmate.ontology.v1.CodeRepository.verified_commits:type_name -> confirmate.ontology.v1.VerifiedCommits
+	41,   // 153: confirmate.ontology.v1.CodeRepository.code_signoff:type_name -> confirmate.ontology.v1.CodeSignoff
+	110,  // 154: confirmate.ontology.v1.CodeRepository.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 155: confirmate.ontology.v1.CodeRepository.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 156: confirmate.ontology.v1.CodeRepository.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 157: confirmate.ontology.v1.CodeRepository.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	250,  // 158: confirmate.ontology.v1.CodeRepository.signed_commits:type_name -> confirmate.ontology.v1.SignedCommits
+	262,  // 159: confirmate.ontology.v1.CodeRepository.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	267,  // 160: confirmate.ontology.v1.CodeRepository.verified_commits:type_name -> confirmate.ontology.v1.VerifiedCommits
 	8,    // 161: confirmate.ontology.v1.Component.application:type_name -> confirmate.ontology.v1.Application
-	148,  // 162: confirmate.ontology.v1.Component.library:type_name -> confirmate.ontology.v1.Library
-	53,   // 163: confirmate.ontology.v1.Compute.container:type_name -> confirmate.ontology.v1.Container
-	104,  // 164: confirmate.ontology.v1.Compute.function:type_name -> confirmate.ontology.v1.Function
-	212,  // 165: confirmate.ontology.v1.Compute.qpu:type_name -> confirmate.ontology.v1.QPU
-	265,  // 166: confirmate.ontology.v1.Compute.virtual_machine:type_name -> confirmate.ontology.v1.VirtualMachine
-	65,   // 167: confirmate.ontology.v1.Confidentiality.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
-	80,   // 168: confirmate.ontology.v1.Confidentiality.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
-	172,  // 169: confirmate.ontology.v1.Confidentiality.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
-	257,  // 170: confirmate.ontology.v1.Confidentiality.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	89,   // 171: confirmate.ontology.v1.Confidentiality.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
-	357,  // 172: confirmate.ontology.v1.Configuration.creation_time:type_name -> google.protobuf.Timestamp
-	280,  // 173: confirmate.ontology.v1.Configuration.labels:type_name -> confirmate.ontology.v1.Configuration.LabelsEntry
-	71,   // 174: confirmate.ontology.v1.Configuration.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 175: confirmate.ontology.v1.ConfigurationDocument.creation_time:type_name -> google.protobuf.Timestamp
-	281,  // 176: confirmate.ontology.v1.ConfigurationDocument.labels:type_name -> confirmate.ontology.v1.ConfigurationDocument.LabelsEntry
-	63,   // 177: confirmate.ontology.v1.ConfigurationDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 178: confirmate.ontology.v1.ConfigurationDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 179: confirmate.ontology.v1.ConfigurationDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 180: confirmate.ontology.v1.ConfigurationDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 181: confirmate.ontology.v1.ConfigurationDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	357,  // 182: confirmate.ontology.v1.ConfigurationGroup.creation_time:type_name -> google.protobuf.Timestamp
-	282,  // 183: confirmate.ontology.v1.ConfigurationGroup.labels:type_name -> confirmate.ontology.v1.ConfigurationGroup.LabelsEntry
-	71,   // 184: confirmate.ontology.v1.ConfigurationGroup.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 185: confirmate.ontology.v1.ConfigurationGroupSource.creation_time:type_name -> google.protobuf.Timestamp
-	283,  // 186: confirmate.ontology.v1.ConfigurationGroupSource.labels:type_name -> confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntry
-	71,   // 187: confirmate.ontology.v1.ConfigurationGroupSource.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	151,  // 188: confirmate.ontology.v1.ConfigurationOperation.load_configuration:type_name -> confirmate.ontology.v1.LoadConfiguration
-	209,  // 189: confirmate.ontology.v1.ConfigurationOperation.provide_configuration:type_name -> confirmate.ontology.v1.ProvideConfiguration
-	210,  // 190: confirmate.ontology.v1.ConfigurationOperation.provide_configuration_group:type_name -> confirmate.ontology.v1.ProvideConfigurationGroup
-	211,  // 191: confirmate.ontology.v1.ConfigurationOperation.provide_configuration_option:type_name -> confirmate.ontology.v1.ProvideConfigurationOption
-	215,  // 192: confirmate.ontology.v1.ConfigurationOperation.read_configuration_group:type_name -> confirmate.ontology.v1.ReadConfigurationGroup
-	216,  // 193: confirmate.ontology.v1.ConfigurationOperation.read_configuration_option:type_name -> confirmate.ontology.v1.ReadConfigurationOption
-	218,  // 194: confirmate.ontology.v1.ConfigurationOperation.register_configuration_group:type_name -> confirmate.ontology.v1.RegisterConfigurationGroup
-	219,  // 195: confirmate.ontology.v1.ConfigurationOperation.register_configuration_option:type_name -> confirmate.ontology.v1.RegisterConfigurationOption
-	357,  // 196: confirmate.ontology.v1.ConfigurationOption.creation_time:type_name -> google.protobuf.Timestamp
-	284,  // 197: confirmate.ontology.v1.ConfigurationOption.labels:type_name -> confirmate.ontology.v1.ConfigurationOption.LabelsEntry
-	71,   // 198: confirmate.ontology.v1.ConfigurationOption.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 199: confirmate.ontology.v1.ConfigurationOptionSource.creation_time:type_name -> google.protobuf.Timestamp
-	285,  // 200: confirmate.ontology.v1.ConfigurationOptionSource.labels:type_name -> confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntry
-	71,   // 201: confirmate.ontology.v1.ConfigurationOptionSource.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 202: confirmate.ontology.v1.ConfigurationSource.creation_time:type_name -> google.protobuf.Timestamp
-	286,  // 203: confirmate.ontology.v1.ConfigurationSource.labels:type_name -> confirmate.ontology.v1.ConfigurationSource.LabelsEntry
-	71,   // 204: confirmate.ontology.v1.ConfigurationSource.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 205: confirmate.ontology.v1.Container.creation_time:type_name -> google.protobuf.Timestamp
-	287,  // 206: confirmate.ontology.v1.Container.labels:type_name -> confirmate.ontology.v1.Container.LabelsEntry
+	149,  // 162: confirmate.ontology.v1.Component.library:type_name -> confirmate.ontology.v1.Library
+	54,   // 163: confirmate.ontology.v1.Compute.container:type_name -> confirmate.ontology.v1.Container
+	105,  // 164: confirmate.ontology.v1.Compute.function:type_name -> confirmate.ontology.v1.Function
+	214,  // 165: confirmate.ontology.v1.Compute.qpu:type_name -> confirmate.ontology.v1.QPU
+	268,  // 166: confirmate.ontology.v1.Compute.virtual_machine:type_name -> confirmate.ontology.v1.VirtualMachine
+	66,   // 167: confirmate.ontology.v1.Confidentiality.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
+	81,   // 168: confirmate.ontology.v1.Confidentiality.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
+	173,  // 169: confirmate.ontology.v1.Confidentiality.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
+	260,  // 170: confirmate.ontology.v1.Confidentiality.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	90,   // 171: confirmate.ontology.v1.Confidentiality.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
+	355,  // 172: confirmate.ontology.v1.Configuration.creation_time:type_name -> google.protobuf.Timestamp
+	283,  // 173: confirmate.ontology.v1.Configuration.labels:type_name -> confirmate.ontology.v1.Configuration.LabelsEntry
+	72,   // 174: confirmate.ontology.v1.Configuration.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 175: confirmate.ontology.v1.ConfigurationDocument.creation_time:type_name -> google.protobuf.Timestamp
+	284,  // 176: confirmate.ontology.v1.ConfigurationDocument.labels:type_name -> confirmate.ontology.v1.ConfigurationDocument.LabelsEntry
+	64,   // 177: confirmate.ontology.v1.ConfigurationDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 178: confirmate.ontology.v1.ConfigurationDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 179: confirmate.ontology.v1.ConfigurationDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 180: confirmate.ontology.v1.ConfigurationDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 181: confirmate.ontology.v1.ConfigurationDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	355,  // 182: confirmate.ontology.v1.ConfigurationGroup.creation_time:type_name -> google.protobuf.Timestamp
+	285,  // 183: confirmate.ontology.v1.ConfigurationGroup.labels:type_name -> confirmate.ontology.v1.ConfigurationGroup.LabelsEntry
+	72,   // 184: confirmate.ontology.v1.ConfigurationGroup.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 185: confirmate.ontology.v1.ConfigurationGroupSource.creation_time:type_name -> google.protobuf.Timestamp
+	286,  // 186: confirmate.ontology.v1.ConfigurationGroupSource.labels:type_name -> confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntry
+	72,   // 187: confirmate.ontology.v1.ConfigurationGroupSource.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	152,  // 188: confirmate.ontology.v1.ConfigurationOperation.load_configuration:type_name -> confirmate.ontology.v1.LoadConfiguration
+	211,  // 189: confirmate.ontology.v1.ConfigurationOperation.provide_configuration:type_name -> confirmate.ontology.v1.ProvideConfiguration
+	212,  // 190: confirmate.ontology.v1.ConfigurationOperation.provide_configuration_group:type_name -> confirmate.ontology.v1.ProvideConfigurationGroup
+	213,  // 191: confirmate.ontology.v1.ConfigurationOperation.provide_configuration_option:type_name -> confirmate.ontology.v1.ProvideConfigurationOption
+	217,  // 192: confirmate.ontology.v1.ConfigurationOperation.read_configuration_group:type_name -> confirmate.ontology.v1.ReadConfigurationGroup
+	218,  // 193: confirmate.ontology.v1.ConfigurationOperation.read_configuration_option:type_name -> confirmate.ontology.v1.ReadConfigurationOption
+	220,  // 194: confirmate.ontology.v1.ConfigurationOperation.register_configuration_group:type_name -> confirmate.ontology.v1.RegisterConfigurationGroup
+	221,  // 195: confirmate.ontology.v1.ConfigurationOperation.register_configuration_option:type_name -> confirmate.ontology.v1.RegisterConfigurationOption
+	355,  // 196: confirmate.ontology.v1.ConfigurationOption.creation_time:type_name -> google.protobuf.Timestamp
+	287,  // 197: confirmate.ontology.v1.ConfigurationOption.labels:type_name -> confirmate.ontology.v1.ConfigurationOption.LabelsEntry
+	72,   // 198: confirmate.ontology.v1.ConfigurationOption.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 199: confirmate.ontology.v1.ConfigurationOptionSource.creation_time:type_name -> google.protobuf.Timestamp
+	288,  // 200: confirmate.ontology.v1.ConfigurationOptionSource.labels:type_name -> confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntry
+	72,   // 201: confirmate.ontology.v1.ConfigurationOptionSource.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 202: confirmate.ontology.v1.ConfigurationSource.creation_time:type_name -> google.protobuf.Timestamp
+	289,  // 203: confirmate.ontology.v1.ConfigurationSource.labels:type_name -> confirmate.ontology.v1.ConfigurationSource.LabelsEntry
+	72,   // 204: confirmate.ontology.v1.ConfigurationSource.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 205: confirmate.ontology.v1.Container.creation_time:type_name -> google.protobuf.Timestamp
+	290,  // 206: confirmate.ontology.v1.Container.labels:type_name -> confirmate.ontology.v1.Container.LabelsEntry
 	31,   // 207: confirmate.ontology.v1.Container.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	89,   // 208: confirmate.ontology.v1.Container.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
-	109,  // 209: confirmate.ontology.v1.Container.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 210: confirmate.ontology.v1.Container.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 211: confirmate.ontology.v1.Container.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 212: confirmate.ontology.v1.Container.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	223,  // 213: confirmate.ontology.v1.Container.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
-	230,  // 214: confirmate.ontology.v1.Container.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 215: confirmate.ontology.v1.Container.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 216: confirmate.ontology.v1.ContainerImage.creation_time:type_name -> google.protobuf.Timestamp
-	288,  // 217: confirmate.ontology.v1.ContainerImage.labels:type_name -> confirmate.ontology.v1.ContainerImage.LabelsEntry
+	90,   // 208: confirmate.ontology.v1.Container.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
+	110,  // 209: confirmate.ontology.v1.Container.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 210: confirmate.ontology.v1.Container.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 211: confirmate.ontology.v1.Container.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 212: confirmate.ontology.v1.Container.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	225,  // 213: confirmate.ontology.v1.Container.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	232,  // 214: confirmate.ontology.v1.Container.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 215: confirmate.ontology.v1.Container.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 216: confirmate.ontology.v1.ContainerImage.creation_time:type_name -> google.protobuf.Timestamp
+	291,  // 217: confirmate.ontology.v1.ContainerImage.labels:type_name -> confirmate.ontology.v1.ContainerImage.LabelsEntry
 	31,   // 218: confirmate.ontology.v1.ContainerImage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 219: confirmate.ontology.v1.ContainerImage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 220: confirmate.ontology.v1.ContainerImage.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 221: confirmate.ontology.v1.ContainerImage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 222: confirmate.ontology.v1.ContainerImage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 223: confirmate.ontology.v1.ContainerImage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 224: confirmate.ontology.v1.ContainerOrchestration.creation_time:type_name -> google.protobuf.Timestamp
-	289,  // 225: confirmate.ontology.v1.ContainerOrchestration.labels:type_name -> confirmate.ontology.v1.ContainerOrchestration.LabelsEntry
+	110,  // 219: confirmate.ontology.v1.ContainerImage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 220: confirmate.ontology.v1.ContainerImage.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 221: confirmate.ontology.v1.ContainerImage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 222: confirmate.ontology.v1.ContainerImage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 223: confirmate.ontology.v1.ContainerImage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 224: confirmate.ontology.v1.ContainerOrchestration.creation_time:type_name -> google.protobuf.Timestamp
+	292,  // 225: confirmate.ontology.v1.ContainerOrchestration.labels:type_name -> confirmate.ontology.v1.ContainerOrchestration.LabelsEntry
 	31,   // 226: confirmate.ontology.v1.ContainerOrchestration.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 227: confirmate.ontology.v1.ContainerOrchestration.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 228: confirmate.ontology.v1.ContainerOrchestration.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 229: confirmate.ontology.v1.ContainerOrchestration.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 230: confirmate.ontology.v1.ContainerOrchestration.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	230,  // 231: confirmate.ontology.v1.ContainerOrchestration.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 232: confirmate.ontology.v1.ContainerOrchestration.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 233: confirmate.ontology.v1.ContainerRegistry.creation_time:type_name -> google.protobuf.Timestamp
-	290,  // 234: confirmate.ontology.v1.ContainerRegistry.labels:type_name -> confirmate.ontology.v1.ContainerRegistry.LabelsEntry
+	110,  // 227: confirmate.ontology.v1.ContainerOrchestration.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 228: confirmate.ontology.v1.ContainerOrchestration.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 229: confirmate.ontology.v1.ContainerOrchestration.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 230: confirmate.ontology.v1.ContainerOrchestration.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	232,  // 231: confirmate.ontology.v1.ContainerOrchestration.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 232: confirmate.ontology.v1.ContainerOrchestration.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 233: confirmate.ontology.v1.ContainerRegistry.creation_time:type_name -> google.protobuf.Timestamp
+	293,  // 234: confirmate.ontology.v1.ContainerRegistry.labels:type_name -> confirmate.ontology.v1.ContainerRegistry.LabelsEntry
 	31,   // 235: confirmate.ontology.v1.ContainerRegistry.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 236: confirmate.ontology.v1.ContainerRegistry.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 237: confirmate.ontology.v1.ContainerRegistry.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 238: confirmate.ontology.v1.ContainerRegistry.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 239: confirmate.ontology.v1.ContainerRegistry.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 240: confirmate.ontology.v1.ContainerRegistry.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 241: confirmate.ontology.v1.Context.creation_time:type_name -> google.protobuf.Timestamp
-	291,  // 242: confirmate.ontology.v1.Context.labels:type_name -> confirmate.ontology.v1.Context.LabelsEntry
-	71,   // 243: confirmate.ontology.v1.Context.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 244: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.creation_time:type_name -> google.protobuf.Timestamp
-	292,  // 245: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.labels:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.LabelsEntry
-	71,   // 246: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	37,   // 247: confirmate.ontology.v1.Core.cloud_sdk:type_name -> confirmate.ontology.v1.CloudSDK
-	118,  // 248: confirmate.ontology.v1.Core.http_client_library:type_name -> confirmate.ontology.v1.HttpClientLibrary
-	126,  // 249: confirmate.ontology.v1.Core.http_server:type_name -> confirmate.ontology.v1.HttpServer
-	163,  // 250: confirmate.ontology.v1.Core.logger:type_name -> confirmate.ontology.v1.Logger
-	231,  // 251: confirmate.ontology.v1.Core.resource_type:type_name -> confirmate.ontology.v1.ResourceType
-	38,   // 252: confirmate.ontology.v1.CreateEncryptedDisk.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	80,   // 253: confirmate.ontology.v1.CreateEncryptedDisk.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
-	38,   // 254: confirmate.ontology.v1.CreateSecret.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	110,  // 236: confirmate.ontology.v1.ContainerRegistry.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 237: confirmate.ontology.v1.ContainerRegistry.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 238: confirmate.ontology.v1.ContainerRegistry.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 239: confirmate.ontology.v1.ContainerRegistry.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 240: confirmate.ontology.v1.ContainerRegistry.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 241: confirmate.ontology.v1.Context.creation_time:type_name -> google.protobuf.Timestamp
+	294,  // 242: confirmate.ontology.v1.Context.labels:type_name -> confirmate.ontology.v1.Context.LabelsEntry
+	72,   // 243: confirmate.ontology.v1.Context.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 244: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.creation_time:type_name -> google.protobuf.Timestamp
+	295,  // 245: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.labels:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.LabelsEntry
+	72,   // 246: confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	38,   // 247: confirmate.ontology.v1.Core.cloud_sdk:type_name -> confirmate.ontology.v1.CloudSDK
+	119,  // 248: confirmate.ontology.v1.Core.http_client_library:type_name -> confirmate.ontology.v1.HttpClientLibrary
+	127,  // 249: confirmate.ontology.v1.Core.http_server:type_name -> confirmate.ontology.v1.HttpServer
+	164,  // 250: confirmate.ontology.v1.Core.logger:type_name -> confirmate.ontology.v1.Logger
+	233,  // 251: confirmate.ontology.v1.Core.resource_type:type_name -> confirmate.ontology.v1.ResourceType
+	39,   // 252: confirmate.ontology.v1.CreateEncryptedDisk.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	81,   // 253: confirmate.ontology.v1.CreateEncryptedDisk.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
+	39,   // 254: confirmate.ontology.v1.CreateSecret.code_region:type_name -> confirmate.ontology.v1.CodeRegion
 	29,   // 255: confirmate.ontology.v1.Credential.certificate:type_name -> confirmate.ontology.v1.Certificate
-	142,  // 256: confirmate.ontology.v1.Credential.key:type_name -> confirmate.ontology.v1.Key
-	237,  // 257: confirmate.ontology.v1.Credential.secret:type_name -> confirmate.ontology.v1.Secret
-	93,   // 258: confirmate.ontology.v1.CryptographicHash.errors:type_name -> confirmate.ontology.v1.Error
-	115,  // 259: confirmate.ontology.v1.CryptographicOperation.hash_operation:type_name -> confirmate.ontology.v1.HashOperation
+	143,  // 256: confirmate.ontology.v1.Credential.key:type_name -> confirmate.ontology.v1.Key
+	239,  // 257: confirmate.ontology.v1.Credential.secret:type_name -> confirmate.ontology.v1.Secret
+	94,   // 258: confirmate.ontology.v1.CryptographicHash.errors:type_name -> confirmate.ontology.v1.Error
+	116,  // 259: confirmate.ontology.v1.CryptographicOperation.hash_operation:type_name -> confirmate.ontology.v1.HashOperation
 	33,   // 260: confirmate.ontology.v1.CustomerKeyEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
-	357,  // 261: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.creation_time:type_name -> google.protobuf.Timestamp
-	293,  // 262: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.labels:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntry
-	63,   // 263: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 264: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 265: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 266: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 267: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	357,  // 268: confirmate.ontology.v1.Darwin.creation_time:type_name -> google.protobuf.Timestamp
-	294,  // 269: confirmate.ontology.v1.Darwin.labels:type_name -> confirmate.ontology.v1.Darwin.LabelsEntry
-	106,  // 270: confirmate.ontology.v1.Darwin.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	44,   // 271: confirmate.ontology.v1.Data.configuration:type_name -> confirmate.ontology.v1.Configuration
-	46,   // 272: confirmate.ontology.v1.Data.configuration_group:type_name -> confirmate.ontology.v1.ConfigurationGroup
-	47,   // 273: confirmate.ontology.v1.Data.configuration_group_source:type_name -> confirmate.ontology.v1.ConfigurationGroupSource
-	49,   // 274: confirmate.ontology.v1.Data.configuration_option:type_name -> confirmate.ontology.v1.ConfigurationOption
-	50,   // 275: confirmate.ontology.v1.Data.configuration_option_source:type_name -> confirmate.ontology.v1.ConfigurationOptionSource
-	51,   // 276: confirmate.ontology.v1.Data.configuration_source:type_name -> confirmate.ontology.v1.ConfigurationSource
-	57,   // 277: confirmate.ontology.v1.Data.context:type_name -> confirmate.ontology.v1.Context
-	45,   // 278: confirmate.ontology.v1.Data.configuration_document:type_name -> confirmate.ontology.v1.ConfigurationDocument
-	66,   // 279: confirmate.ontology.v1.Data.cyber_security_risk_assessment_document:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
-	82,   // 280: confirmate.ontology.v1.Data.distribution_of_updates_document:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument
-	87,   // 281: confirmate.ontology.v1.Data.eu_declaration_of_conformity:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity
-	226,  // 282: confirmate.ontology.v1.Data.report_document:type_name -> confirmate.ontology.v1.ReportDocument
-	158,  // 283: confirmate.ontology.v1.Data.log_document:type_name -> confirmate.ontology.v1.LogDocument
-	201,  // 284: confirmate.ontology.v1.Data.policy_document:type_name -> confirmate.ontology.v1.PolicyDocument
-	207,  // 285: confirmate.ontology.v1.Data.production_and_monitoring_process_document:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
-	234,  // 286: confirmate.ontology.v1.Data.sbom_document:type_name -> confirmate.ontology.v1.SBOMDocument
-	239,  // 287: confirmate.ontology.v1.Data.security_advisory_document:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument
-	245,  // 288: confirmate.ontology.v1.Data.service_metadata_document:type_name -> confirmate.ontology.v1.ServiceMetadataDocument
-	260,  // 289: confirmate.ontology.v1.Data.user_information_and_intruction_document:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument
-	96,   // 290: confirmate.ontology.v1.Data.file:type_name -> confirmate.ontology.v1.File
-	97,   // 291: confirmate.ontology.v1.Data.file_handle:type_name -> confirmate.ontology.v1.FileHandle
-	167,  // 292: confirmate.ontology.v1.Data.machine_learning_dataset:type_name -> confirmate.ontology.v1.MachineLearningDataset
-	168,  // 293: confirmate.ontology.v1.Data.machine_learning_model:type_name -> confirmate.ontology.v1.MachineLearningModel
-	58,   // 294: confirmate.ontology.v1.Data.coordinated_vulnerability_disclosure_policy:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
-	70,   // 295: confirmate.ontology.v1.Data.data_confidentiality_sdn_policy:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy
-	147,  // 296: confirmate.ontology.v1.Data.least_privilege_policy:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy
-	181,  // 297: confirmate.ontology.v1.Data.need_to_know_policy:type_name -> confirmate.ontology.v1.NeedToKnowPolicy
-	235,  // 298: confirmate.ontology.v1.Data.sdn_function_validation_policy:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy
-	244,  // 299: confirmate.ontology.v1.Data.separation_of_duties_policy:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy
-	6,    // 300: confirmate.ontology.v1.Data.and_rule:type_name -> confirmate.ontology.v1.AndRule
-	255,  // 301: confirmate.ontology.v1.Data.token:type_name -> confirmate.ontology.v1.Token
-	263,  // 302: confirmate.ontology.v1.Data.value:type_name -> confirmate.ontology.v1.Value
-	357,  // 303: confirmate.ontology.v1.DataConfidentialitySDNPolicy.creation_time:type_name -> google.protobuf.Timestamp
-	295,  // 304: confirmate.ontology.v1.DataConfidentialitySDNPolicy.labels:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy.LabelsEntry
-	71,   // 305: confirmate.ontology.v1.DataConfidentialitySDNPolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	155,  // 306: confirmate.ontology.v1.DataLocation.local_data_location:type_name -> confirmate.ontology.v1.LocalDataLocation
-	224,  // 307: confirmate.ontology.v1.DataLocation.remote_data_location:type_name -> confirmate.ontology.v1.RemoteDataLocation
-	38,   // 308: confirmate.ontology.v1.DatabaseConnect.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	72,   // 309: confirmate.ontology.v1.DatabaseOperation.database_connect:type_name -> confirmate.ontology.v1.DatabaseConnect
-	74,   // 310: confirmate.ontology.v1.DatabaseOperation.database_query:type_name -> confirmate.ontology.v1.DatabaseQuery
-	38,   // 311: confirmate.ontology.v1.DatabaseQuery.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	84,   // 312: confirmate.ontology.v1.DatabaseService.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
-	144,  // 313: confirmate.ontology.v1.DatabaseService.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
-	180,  // 314: confirmate.ontology.v1.DatabaseService.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
-	221,  // 315: confirmate.ontology.v1.DatabaseService.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
-	357,  // 316: confirmate.ontology.v1.DatabaseStorage.creation_time:type_name -> google.protobuf.Timestamp
-	296,  // 317: confirmate.ontology.v1.DatabaseStorage.labels:type_name -> confirmate.ontology.v1.DatabaseStorage.LabelsEntry
-	3,    // 318: confirmate.ontology.v1.DatabaseStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	12,   // 319: confirmate.ontology.v1.DatabaseStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
-	23,   // 320: confirmate.ontology.v1.DatabaseStorage.backups:type_name -> confirmate.ontology.v1.Backup
-	31,   // 321: confirmate.ontology.v1.DatabaseStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 322: confirmate.ontology.v1.DatabaseStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	131,  // 323: confirmate.ontology.v1.DatabaseStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
-	164,  // 324: confirmate.ontology.v1.DatabaseStorage.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 325: confirmate.ontology.v1.DatabaseStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 326: confirmate.ontology.v1.DatabaseStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	230,  // 327: confirmate.ontology.v1.DatabaseStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 328: confirmate.ontology.v1.DatabaseStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	38,   // 329: confirmate.ontology.v1.DeAllocate.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	33,   // 330: confirmate.ontology.v1.Decryption.cipher:type_name -> confirmate.ontology.v1.Cipher
-	38,   // 331: confirmate.ontology.v1.Decryption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 332: confirmate.ontology.v1.DeviceProvisioningService.creation_time:type_name -> google.protobuf.Timestamp
-	297,  // 333: confirmate.ontology.v1.DeviceProvisioningService.labels:type_name -> confirmate.ontology.v1.DeviceProvisioningService.LabelsEntry
-	31,   // 334: confirmate.ontology.v1.DeviceProvisioningService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 335: confirmate.ontology.v1.DeviceProvisioningService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 336: confirmate.ontology.v1.DeviceProvisioningService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 337: confirmate.ontology.v1.DeviceProvisioningService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 338: confirmate.ontology.v1.DeviceProvisioningService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 339: confirmate.ontology.v1.DeviceProvisioningService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	24,   // 340: confirmate.ontology.v1.DiskEncryption.used_by:type_name -> confirmate.ontology.v1.BlockStorage
-	33,   // 341: confirmate.ontology.v1.DiskEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
-	60,   // 342: confirmate.ontology.v1.DiskEncryptionOperation.create_encrypted_disk:type_name -> confirmate.ontology.v1.CreateEncryptedDisk
-	258,  // 343: confirmate.ontology.v1.DiskEncryptionOperation.unlock_encrypted_disk:type_name -> confirmate.ontology.v1.UnlockEncryptedDisk
-	357,  // 344: confirmate.ontology.v1.DistributionOfUpdatesDocument.creation_time:type_name -> google.protobuf.Timestamp
-	298,  // 345: confirmate.ontology.v1.DistributionOfUpdatesDocument.labels:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntry
-	63,   // 346: confirmate.ontology.v1.DistributionOfUpdatesDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 347: confirmate.ontology.v1.DistributionOfUpdatesDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 348: confirmate.ontology.v1.DistributionOfUpdatesDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 349: confirmate.ontology.v1.DistributionOfUpdatesDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 350: confirmate.ontology.v1.DistributionOfUpdatesDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	45,   // 351: confirmate.ontology.v1.Document.configuration_document:type_name -> confirmate.ontology.v1.ConfigurationDocument
-	66,   // 352: confirmate.ontology.v1.Document.cyber_security_risk_assessment_document:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
-	82,   // 353: confirmate.ontology.v1.Document.distribution_of_updates_document:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument
-	87,   // 354: confirmate.ontology.v1.Document.eu_declaration_of_conformity:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity
-	226,  // 355: confirmate.ontology.v1.Document.report_document:type_name -> confirmate.ontology.v1.ReportDocument
-	158,  // 356: confirmate.ontology.v1.Document.log_document:type_name -> confirmate.ontology.v1.LogDocument
-	201,  // 357: confirmate.ontology.v1.Document.policy_document:type_name -> confirmate.ontology.v1.PolicyDocument
-	207,  // 358: confirmate.ontology.v1.Document.production_and_monitoring_process_document:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
-	234,  // 359: confirmate.ontology.v1.Document.sbom_document:type_name -> confirmate.ontology.v1.SBOMDocument
-	239,  // 360: confirmate.ontology.v1.Document.security_advisory_document:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument
-	245,  // 361: confirmate.ontology.v1.Document.service_metadata_document:type_name -> confirmate.ontology.v1.ServiceMetadataDocument
-	260,  // 362: confirmate.ontology.v1.Document.user_information_and_intruction_document:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument
-	357,  // 363: confirmate.ontology.v1.DocumentDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
-	299,  // 364: confirmate.ontology.v1.DocumentDatabaseService.labels:type_name -> confirmate.ontology.v1.DocumentDatabaseService.LabelsEntry
-	3,    // 365: confirmate.ontology.v1.DocumentDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	7,    // 366: confirmate.ontology.v1.DocumentDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
-	31,   // 367: confirmate.ontology.v1.DocumentDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 368: confirmate.ontology.v1.DocumentDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 369: confirmate.ontology.v1.DocumentDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 370: confirmate.ontology.v1.DocumentDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 371: confirmate.ontology.v1.DocumentDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 372: confirmate.ontology.v1.DocumentDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 373: confirmate.ontology.v1.DocumentDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 374: confirmate.ontology.v1.DocumentDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	152,  // 375: confirmate.ontology.v1.DynamicLoadingOperation.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
-	153,  // 376: confirmate.ontology.v1.DynamicLoadingOperation.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
-	357,  // 377: confirmate.ontology.v1.EUDeclarationOfConformity.creation_time:type_name -> google.protobuf.Timestamp
-	300,  // 378: confirmate.ontology.v1.EUDeclarationOfConformity.labels:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntry
-	63,   // 379: confirmate.ontology.v1.EUDeclarationOfConformity.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 380: confirmate.ontology.v1.EUDeclarationOfConformity.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 381: confirmate.ontology.v1.EUDeclarationOfConformity.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 382: confirmate.ontology.v1.EUDeclarationOfConformity.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 383: confirmate.ontology.v1.EUDeclarationOfConformity.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	65,   // 384: confirmate.ontology.v1.Encryption.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
-	80,   // 385: confirmate.ontology.v1.Encryption.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
-	172,  // 386: confirmate.ontology.v1.Encryption.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
-	257,  // 387: confirmate.ontology.v1.Encryption.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	38,   // 388: confirmate.ontology.v1.EncryptionOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	88,   // 389: confirmate.ontology.v1.EncryptionOperation.encryption:type_name -> confirmate.ontology.v1.Encryption
-	149,  // 390: confirmate.ontology.v1.EntryPoint.library_entry_point:type_name -> confirmate.ontology.v1.LibraryEntryPoint
-	170,  // 391: confirmate.ontology.v1.EntryPoint.main:type_name -> confirmate.ontology.v1.Main
-	120,  // 392: confirmate.ontology.v1.EntryPoint.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	38,   // 393: confirmate.ontology.v1.EqualityCheck.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	204,  // 394: confirmate.ontology.v1.EqualityCheck.left_principal:type_name -> confirmate.ontology.v1.Principal
-	204,  // 395: confirmate.ontology.v1.EqualityCheck.right_principal:type_name -> confirmate.ontology.v1.Principal
-	27,   // 396: confirmate.ontology.v1.ExitBoundaryOperation.boundary:type_name -> confirmate.ontology.v1.Boundary
-	38,   // 397: confirmate.ontology.v1.ExitBoundaryOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 398: confirmate.ontology.v1.File.creation_time:type_name -> google.protobuf.Timestamp
-	301,  // 399: confirmate.ontology.v1.File.labels:type_name -> confirmate.ontology.v1.File.LabelsEntry
-	71,   // 400: confirmate.ontology.v1.File.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 401: confirmate.ontology.v1.FileHandle.creation_time:type_name -> google.protobuf.Timestamp
-	302,  // 402: confirmate.ontology.v1.FileHandle.labels:type_name -> confirmate.ontology.v1.FileHandle.LabelsEntry
-	71,   // 403: confirmate.ontology.v1.FileHandle.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	96,   // 404: confirmate.ontology.v1.FileLikeObject.file:type_name -> confirmate.ontology.v1.File
-	97,   // 405: confirmate.ontology.v1.FileLikeObject.file_handle:type_name -> confirmate.ontology.v1.FileHandle
-	38,   // 406: confirmate.ontology.v1.FileOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 407: confirmate.ontology.v1.FileStorage.creation_time:type_name -> google.protobuf.Timestamp
-	303,  // 408: confirmate.ontology.v1.FileStorage.labels:type_name -> confirmate.ontology.v1.FileStorage.LabelsEntry
-	3,    // 409: confirmate.ontology.v1.FileStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	12,   // 410: confirmate.ontology.v1.FileStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
-	23,   // 411: confirmate.ontology.v1.FileStorage.backups:type_name -> confirmate.ontology.v1.Backup
-	31,   // 412: confirmate.ontology.v1.FileStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 413: confirmate.ontology.v1.FileStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	131,  // 414: confirmate.ontology.v1.FileStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
-	164,  // 415: confirmate.ontology.v1.FileStorage.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 416: confirmate.ontology.v1.FileStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 417: confirmate.ontology.v1.FileStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	230,  // 418: confirmate.ontology.v1.FileStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 419: confirmate.ontology.v1.FileStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 420: confirmate.ontology.v1.FileStorageService.creation_time:type_name -> google.protobuf.Timestamp
-	304,  // 421: confirmate.ontology.v1.FileStorageService.labels:type_name -> confirmate.ontology.v1.FileStorageService.LabelsEntry
-	3,    // 422: confirmate.ontology.v1.FileStorageService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	31,   // 423: confirmate.ontology.v1.FileStorageService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 424: confirmate.ontology.v1.FileStorageService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 425: confirmate.ontology.v1.FileStorageService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 426: confirmate.ontology.v1.FileStorageService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 427: confirmate.ontology.v1.FileStorageService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 428: confirmate.ontology.v1.FileStorageService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 429: confirmate.ontology.v1.FileStorageService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 430: confirmate.ontology.v1.FileStorageService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	146,  // 431: confirmate.ontology.v1.Firewall.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
-	269,  // 432: confirmate.ontology.v1.Firewall.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
-	37,   // 433: confirmate.ontology.v1.Framework.cloud_sdk:type_name -> confirmate.ontology.v1.CloudSDK
-	118,  // 434: confirmate.ontology.v1.Framework.http_client_library:type_name -> confirmate.ontology.v1.HttpClientLibrary
-	126,  // 435: confirmate.ontology.v1.Framework.http_server:type_name -> confirmate.ontology.v1.HttpServer
-	163,  // 436: confirmate.ontology.v1.Framework.logger:type_name -> confirmate.ontology.v1.Logger
-	357,  // 437: confirmate.ontology.v1.Function.creation_time:type_name -> google.protobuf.Timestamp
-	305,  // 438: confirmate.ontology.v1.Function.labels:type_name -> confirmate.ontology.v1.Function.LabelsEntry
-	31,   // 439: confirmate.ontology.v1.Function.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	89,   // 440: confirmate.ontology.v1.Function.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
-	109,  // 441: confirmate.ontology.v1.Function.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 442: confirmate.ontology.v1.Function.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 443: confirmate.ontology.v1.Function.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 444: confirmate.ontology.v1.Function.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	223,  // 445: confirmate.ontology.v1.Function.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
-	230,  // 446: confirmate.ontology.v1.Function.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 447: confirmate.ontology.v1.Function.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 448: confirmate.ontology.v1.FunctionService.creation_time:type_name -> google.protobuf.Timestamp
-	306,  // 449: confirmate.ontology.v1.FunctionService.labels:type_name -> confirmate.ontology.v1.FunctionService.LabelsEntry
-	31,   // 450: confirmate.ontology.v1.FunctionService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 451: confirmate.ontology.v1.FunctionService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 452: confirmate.ontology.v1.FunctionService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 453: confirmate.ontology.v1.FunctionService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 454: confirmate.ontology.v1.FunctionService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 455: confirmate.ontology.v1.FunctionService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 456: confirmate.ontology.v1.FunctionService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	27,   // 457: confirmate.ontology.v1.Functionality.boundary:type_name -> confirmate.ontology.v1.Boundary
-	31,   // 458: confirmate.ontology.v1.Functionality.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	11,   // 459: confirmate.ontology.v1.Functionality.asymmetric_cipher:type_name -> confirmate.ontology.v1.AsymmetricCipher
-	127,  // 460: confirmate.ontology.v1.Functionality.hybrid_cipher:type_name -> confirmate.ontology.v1.HybridCipher
-	253,  // 461: confirmate.ontology.v1.Functionality.symmetric_cipher:type_name -> confirmate.ontology.v1.SymmetricCipher
-	35,   // 462: confirmate.ontology.v1.Functionality.cipher_suite:type_name -> confirmate.ontology.v1.CipherSuite
-	38,   // 463: confirmate.ontology.v1.Functionality.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	155,  // 464: confirmate.ontology.v1.Functionality.local_data_location:type_name -> confirmate.ontology.v1.LocalDataLocation
-	224,  // 465: confirmate.ontology.v1.Functionality.remote_data_location:type_name -> confirmate.ontology.v1.RemoteDataLocation
-	85,   // 466: confirmate.ontology.v1.Functionality.dynamic_loading:type_name -> confirmate.ontology.v1.DynamicLoading
-	149,  // 467: confirmate.ontology.v1.Functionality.library_entry_point:type_name -> confirmate.ontology.v1.LibraryEntryPoint
-	170,  // 468: confirmate.ontology.v1.Functionality.main:type_name -> confirmate.ontology.v1.Main
-	120,  // 469: confirmate.ontology.v1.Functionality.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	93,   // 470: confirmate.ontology.v1.Functionality.error:type_name -> confirmate.ontology.v1.Error
-	52,   // 471: confirmate.ontology.v1.Functionality.contact_person:type_name -> confirmate.ontology.v1.ContactPerson
-	178,  // 472: confirmate.ontology.v1.Functionality.monitoring_procedure:type_name -> confirmate.ontology.v1.MonitoringProcedure
-	22,   // 473: confirmate.ontology.v1.Functionality.awareness_training:type_name -> confirmate.ontology.v1.AwarenessTraining
-	243,  // 474: confirmate.ontology.v1.Functionality.security_training:type_name -> confirmate.ontology.v1.SecurityTraining
-	117,  // 475: confirmate.ontology.v1.Functionality.http_client:type_name -> confirmate.ontology.v1.HttpClient
-	123,  // 476: confirmate.ontology.v1.Functionality.http_request_context:type_name -> confirmate.ontology.v1.HttpRequestContext
-	124,  // 477: confirmate.ontology.v1.Functionality.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
-	132,  // 478: confirmate.ontology.v1.Functionality.initialization_vector:type_name -> confirmate.ontology.v1.InitializationVector
-	133,  // 479: confirmate.ontology.v1.Functionality.input:type_name -> confirmate.ontology.v1.Input
-	143,  // 480: confirmate.ontology.v1.Functionality.key_derivation_function:type_name -> confirmate.ontology.v1.KeyDerivationFunction
-	175,  // 481: confirmate.ontology.v1.Functionality.message_authentication_code:type_name -> confirmate.ontology.v1.MessageAuthenticationCode
-	15,   // 482: confirmate.ontology.v1.Functionality.authenticate:type_name -> confirmate.ontology.v1.Authenticate
-	19,   // 483: confirmate.ontology.v1.Functionality.authorize_jwt:type_name -> confirmate.ontology.v1.AuthorizeJwt
-	138,  // 484: confirmate.ontology.v1.Functionality.issue_jwt:type_name -> confirmate.ontology.v1.IssueJwt
-	262,  // 485: confirmate.ontology.v1.Functionality.validate_jwt:type_name -> confirmate.ontology.v1.ValidateJwt
-	25,   // 486: confirmate.ontology.v1.Functionality.block_storage_operation:type_name -> confirmate.ontology.v1.BlockStorageOperation
-	78,   // 487: confirmate.ontology.v1.Functionality.decryption:type_name -> confirmate.ontology.v1.Decryption
-	151,  // 488: confirmate.ontology.v1.Functionality.load_configuration:type_name -> confirmate.ontology.v1.LoadConfiguration
-	209,  // 489: confirmate.ontology.v1.Functionality.provide_configuration:type_name -> confirmate.ontology.v1.ProvideConfiguration
-	210,  // 490: confirmate.ontology.v1.Functionality.provide_configuration_group:type_name -> confirmate.ontology.v1.ProvideConfigurationGroup
-	211,  // 491: confirmate.ontology.v1.Functionality.provide_configuration_option:type_name -> confirmate.ontology.v1.ProvideConfigurationOption
-	215,  // 492: confirmate.ontology.v1.Functionality.read_configuration_group:type_name -> confirmate.ontology.v1.ReadConfigurationGroup
-	216,  // 493: confirmate.ontology.v1.Functionality.read_configuration_option:type_name -> confirmate.ontology.v1.ReadConfigurationOption
-	218,  // 494: confirmate.ontology.v1.Functionality.register_configuration_group:type_name -> confirmate.ontology.v1.RegisterConfigurationGroup
-	219,  // 495: confirmate.ontology.v1.Functionality.register_configuration_option:type_name -> confirmate.ontology.v1.RegisterConfigurationOption
-	115,  // 496: confirmate.ontology.v1.Functionality.hash_operation:type_name -> confirmate.ontology.v1.HashOperation
-	72,   // 497: confirmate.ontology.v1.Functionality.database_connect:type_name -> confirmate.ontology.v1.DatabaseConnect
-	74,   // 498: confirmate.ontology.v1.Functionality.database_query:type_name -> confirmate.ontology.v1.DatabaseQuery
-	60,   // 499: confirmate.ontology.v1.Functionality.create_encrypted_disk:type_name -> confirmate.ontology.v1.CreateEncryptedDisk
-	258,  // 500: confirmate.ontology.v1.Functionality.unlock_encrypted_disk:type_name -> confirmate.ontology.v1.UnlockEncryptedDisk
-	90,   // 501: confirmate.ontology.v1.Functionality.encryption_operation:type_name -> confirmate.ontology.v1.EncryptionOperation
-	94,   // 502: confirmate.ontology.v1.Functionality.exit_boundary_operation:type_name -> confirmate.ontology.v1.ExitBoundaryOperation
-	99,   // 503: confirmate.ontology.v1.Functionality.file_operation:type_name -> confirmate.ontology.v1.FileOperation
-	111,  // 504: confirmate.ontology.v1.Functionality.get_current_time_operation:type_name -> confirmate.ontology.v1.GetCurrentTimeOperation
-	122,  // 505: confirmate.ontology.v1.Functionality.http_request:type_name -> confirmate.ontology.v1.HttpRequest
-	121,  // 506: confirmate.ontology.v1.Functionality.http_endpoint_operation:type_name -> confirmate.ontology.v1.HttpEndpointOperation
-	220,  // 507: confirmate.ontology.v1.Functionality.register_http_endpoint:type_name -> confirmate.ontology.v1.RegisterHttpEndpoint
-	134,  // 508: confirmate.ontology.v1.Functionality.input_validation_operation:type_name -> confirmate.ontology.v1.InputValidationOperation
-	135,  // 509: confirmate.ontology.v1.Functionality.install_update_operation:type_name -> confirmate.ontology.v1.InstallUpdateOperation
-	159,  // 510: confirmate.ontology.v1.Functionality.log_get:type_name -> confirmate.ontology.v1.LogGet
-	162,  // 511: confirmate.ontology.v1.Functionality.log_write:type_name -> confirmate.ontology.v1.LogWrite
-	161,  // 512: confirmate.ontology.v1.Functionality.log_output:type_name -> confirmate.ontology.v1.LogOutput
-	5,    // 513: confirmate.ontology.v1.Functionality.allocate:type_name -> confirmate.ontology.v1.Allocate
-	77,   // 514: confirmate.ontology.v1.Functionality.de_allocate:type_name -> confirmate.ontology.v1.DeAllocate
-	152,  // 515: confirmate.ontology.v1.Functionality.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
-	153,  // 516: confirmate.ontology.v1.Functionality.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
-	190,  // 517: confirmate.ontology.v1.Functionality.object_storage_request:type_name -> confirmate.ontology.v1.ObjectStorageRequest
-	92,   // 518: confirmate.ontology.v1.Functionality.equality_check:type_name -> confirmate.ontology.v1.EqualityCheck
-	32,   // 519: confirmate.ontology.v1.Functionality.check_access:type_name -> confirmate.ontology.v1.CheckAccess
-	61,   // 520: confirmate.ontology.v1.Functionality.create_secret:type_name -> confirmate.ontology.v1.CreateSecret
-	112,  // 521: confirmate.ontology.v1.Functionality.get_secret:type_name -> confirmate.ontology.v1.GetSecret
-	194,  // 522: confirmate.ontology.v1.Functionality.output:type_name -> confirmate.ontology.v1.Output
-	197,  // 523: confirmate.ontology.v1.Functionality.padding:type_name -> confirmate.ontology.v1.Padding
-	204,  // 524: confirmate.ontology.v1.Functionality.principal:type_name -> confirmate.ontology.v1.Principal
-	205,  // 525: confirmate.ontology.v1.Functionality.protected_asset:type_name -> confirmate.ontology.v1.ProtectedAsset
-	227,  // 526: confirmate.ontology.v1.Functionality.request_for_change:type_name -> confirmate.ontology.v1.RequestForChange
-	236,  // 527: confirmate.ontology.v1.Functionality.schema_validation:type_name -> confirmate.ontology.v1.SchemaValidation
-	240,  // 528: confirmate.ontology.v1.Functionality.security_advisory_feed:type_name -> confirmate.ontology.v1.SecurityAdvisoryFeed
-	254,  // 529: confirmate.ontology.v1.Functionality.time:type_name -> confirmate.ontology.v1.Time
-	268,  // 530: confirmate.ontology.v1.Functionality.vulnerability:type_name -> confirmate.ontology.v1.Vulnerability
-	226,  // 531: confirmate.ontology.v1.GenericDocument.report_document:type_name -> confirmate.ontology.v1.ReportDocument
-	357,  // 532: confirmate.ontology.v1.GenericNetworkService.creation_time:type_name -> google.protobuf.Timestamp
-	307,  // 533: confirmate.ontology.v1.GenericNetworkService.labels:type_name -> confirmate.ontology.v1.GenericNetworkService.LabelsEntry
-	31,   // 534: confirmate.ontology.v1.GenericNetworkService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 535: confirmate.ontology.v1.GenericNetworkService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 536: confirmate.ontology.v1.GenericNetworkService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 537: confirmate.ontology.v1.GenericNetworkService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 538: confirmate.ontology.v1.GenericNetworkService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 539: confirmate.ontology.v1.GenericNetworkService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 540: confirmate.ontology.v1.GenericNetworkService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	109,  // 541: confirmate.ontology.v1.GeoRedundancy.geo_locations:type_name -> confirmate.ontology.v1.GeoLocation
-	38,   // 542: confirmate.ontology.v1.GetCurrentTimeOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	254,  // 543: confirmate.ontology.v1.GetCurrentTimeOperation.time:type_name -> confirmate.ontology.v1.Time
-	38,   // 544: confirmate.ontology.v1.GetSecret.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	52,   // 545: confirmate.ontology.v1.Governance.contact_person:type_name -> confirmate.ontology.v1.ContactPerson
-	178,  // 546: confirmate.ontology.v1.Governance.monitoring_procedure:type_name -> confirmate.ontology.v1.MonitoringProcedure
-	22,   // 547: confirmate.ontology.v1.Governance.awareness_training:type_name -> confirmate.ontology.v1.AwarenessTraining
-	243,  // 548: confirmate.ontology.v1.Governance.security_training:type_name -> confirmate.ontology.v1.SecurityTraining
-	173,  // 549: confirmate.ontology.v1.Hardware.memory:type_name -> confirmate.ontology.v1.Memory
-	38,   // 550: confirmate.ontology.v1.HashOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	242,  // 551: confirmate.ontology.v1.HashOperation.security_feature:type_name -> confirmate.ontology.v1.SecurityFeature
-	117,  // 552: confirmate.ontology.v1.Http.http_client:type_name -> confirmate.ontology.v1.HttpClient
-	123,  // 553: confirmate.ontology.v1.Http.http_request_context:type_name -> confirmate.ontology.v1.HttpRequestContext
-	124,  // 554: confirmate.ontology.v1.Http.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
-	17,   // 555: confirmate.ontology.v1.HttpClient.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	257,  // 556: confirmate.ontology.v1.HttpClient.uses:type_name -> confirmate.ontology.v1.TransportEncryption
-	122,  // 557: confirmate.ontology.v1.HttpClientOperation.http_request:type_name -> confirmate.ontology.v1.HttpRequest
-	17,   // 558: confirmate.ontology.v1.HttpEndpoint.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	18,   // 559: confirmate.ontology.v1.HttpEndpoint.authorization:type_name -> confirmate.ontology.v1.Authorization
-	123,  // 560: confirmate.ontology.v1.HttpEndpoint.http_request_context:type_name -> confirmate.ontology.v1.HttpRequestContext
-	214,  // 561: confirmate.ontology.v1.HttpEndpoint.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
-	257,  // 562: confirmate.ontology.v1.HttpEndpoint.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	38,   // 563: confirmate.ontology.v1.HttpEndpointOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	116,  // 564: confirmate.ontology.v1.HttpEndpointOperation.http:type_name -> confirmate.ontology.v1.Http
-	38,   // 565: confirmate.ontology.v1.HttpRequest.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	117,  // 566: confirmate.ontology.v1.HttpRequest.http_client:type_name -> confirmate.ontology.v1.HttpClient
-	120,  // 567: confirmate.ontology.v1.HttpRequest.http_endpoints:type_name -> confirmate.ontology.v1.HttpEndpoint
-	120,  // 568: confirmate.ontology.v1.HttpRequestHandler.http_endpoints:type_name -> confirmate.ontology.v1.HttpEndpoint
-	220,  // 569: confirmate.ontology.v1.HttpRequestHandlerOperation.register_http_endpoint:type_name -> confirmate.ontology.v1.RegisterHttpEndpoint
-	124,  // 570: confirmate.ontology.v1.HttpServer.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
-	11,   // 571: confirmate.ontology.v1.HybridCipher.uses:type_name -> confirmate.ontology.v1.AsymmetricCipher
-	143,  // 572: confirmate.ontology.v1.HybridCipher.key_derivation_function:type_name -> confirmate.ontology.v1.KeyDerivationFunction
-	175,  // 573: confirmate.ontology.v1.HybridCipher.message_authentication_code:type_name -> confirmate.ontology.v1.MessageAuthenticationCode
-	197,  // 574: confirmate.ontology.v1.HybridCipher.padding:type_name -> confirmate.ontology.v1.Padding
-	253,  // 575: confirmate.ontology.v1.HybridCipher.symmetric_cipher:type_name -> confirmate.ontology.v1.SymmetricCipher
-	129,  // 576: confirmate.ontology.v1.Identifiable.identity:type_name -> confirmate.ontology.v1.Identity
-	233,  // 577: confirmate.ontology.v1.Identifiable.role_assignment:type_name -> confirmate.ontology.v1.RoleAssignment
-	357,  // 578: confirmate.ontology.v1.Identity.creation_time:type_name -> google.protobuf.Timestamp
-	308,  // 579: confirmate.ontology.v1.Identity.labels:type_name -> confirmate.ontology.v1.Identity.LabelsEntry
-	357,  // 580: confirmate.ontology.v1.Identity.last_activity:type_name -> google.protobuf.Timestamp
-	18,   // 581: confirmate.ontology.v1.Identity.authorization:type_name -> confirmate.ontology.v1.Authorization
-	31,   // 582: confirmate.ontology.v1.Identity.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 583: confirmate.ontology.v1.Identity.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 584: confirmate.ontology.v1.Identity.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 585: confirmate.ontology.v1.Identity.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 586: confirmate.ontology.v1.Identity.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 587: confirmate.ontology.v1.Identity.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	54,   // 588: confirmate.ontology.v1.Image.container_image:type_name -> confirmate.ontology.v1.ContainerImage
-	261,  // 589: confirmate.ontology.v1.Image.vm_image:type_name -> confirmate.ontology.v1.VMImage
-	38,   // 590: confirmate.ontology.v1.InputValidationOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	133,  // 591: confirmate.ontology.v1.InputValidationOperation.input:type_name -> confirmate.ontology.v1.Input
-	194,  // 592: confirmate.ontology.v1.InputValidationOperation.output:type_name -> confirmate.ontology.v1.Output
-	20,   // 593: confirmate.ontology.v1.InstallUpdateOperation.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
-	38,   // 594: confirmate.ontology.v1.InstallUpdateOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	154,  // 595: confirmate.ontology.v1.Integrity.local_attestation:type_name -> confirmate.ontology.v1.LocalAttestation
-	223,  // 596: confirmate.ontology.v1.Integrity.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
-	20,   // 597: confirmate.ontology.v1.Integrity.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
-	63,   // 598: confirmate.ontology.v1.Integrity.cryptographic_hash:type_name -> confirmate.ontology.v1.CryptographicHash
-	131,  // 599: confirmate.ontology.v1.Integrity.immutability:type_name -> confirmate.ontology.v1.Immutability
-	246,  // 600: confirmate.ontology.v1.Integrity.document_signature:type_name -> confirmate.ontology.v1.DocumentSignature
-	247,  // 601: confirmate.ontology.v1.Integrity.signed_commits:type_name -> confirmate.ontology.v1.SignedCommits
-	264,  // 602: confirmate.ontology.v1.Integrity.verified_commits:type_name -> confirmate.ontology.v1.VerifiedCommits
-	79,   // 603: confirmate.ontology.v1.IoT.device_provisioning_service:type_name -> confirmate.ontology.v1.DeviceProvisioningService
-	176,  // 604: confirmate.ontology.v1.IoT.messaging_hub:type_name -> confirmate.ontology.v1.MessagingHub
-	17,   // 605: confirmate.ontology.v1.IssueJwt.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	38,   // 606: confirmate.ontology.v1.IssueJwt.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 607: confirmate.ontology.v1.Job.creation_time:type_name -> google.protobuf.Timestamp
-	309,  // 608: confirmate.ontology.v1.Job.labels:type_name -> confirmate.ontology.v1.Job.LabelsEntry
-	31,   // 609: confirmate.ontology.v1.Job.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 610: confirmate.ontology.v1.Job.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 611: confirmate.ontology.v1.Job.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 612: confirmate.ontology.v1.Job.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 613: confirmate.ontology.v1.Job.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 614: confirmate.ontology.v1.Job.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	140,  // 615: confirmate.ontology.v1.TokenBasedAuthentication.jwt_authentication:type_name -> confirmate.ontology.v1.JwtAuthentication
-	357,  // 616: confirmate.ontology.v1.Key.creation_time:type_name -> google.protobuf.Timestamp
-	357,  // 617: confirmate.ontology.v1.Key.expiration_date:type_name -> google.protobuf.Timestamp
-	310,  // 618: confirmate.ontology.v1.Key.labels:type_name -> confirmate.ontology.v1.Key.LabelsEntry
-	357,  // 619: confirmate.ontology.v1.Key.not_before_date:type_name -> google.protobuf.Timestamp
-	31,   // 620: confirmate.ontology.v1.Key.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 621: confirmate.ontology.v1.Key.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	36,   // 622: confirmate.ontology.v1.Key.used_by_multiple:type_name -> confirmate.ontology.v1.Infrastructure
-	164,  // 623: confirmate.ontology.v1.Key.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 624: confirmate.ontology.v1.Key.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 625: confirmate.ontology.v1.Key.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 626: confirmate.ontology.v1.Key.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	133,  // 627: confirmate.ontology.v1.KeyDerivationFunction.input:type_name -> confirmate.ontology.v1.Input
-	357,  // 628: confirmate.ontology.v1.KeyValueDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
-	311,  // 629: confirmate.ontology.v1.KeyValueDatabaseService.labels:type_name -> confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntry
-	3,    // 630: confirmate.ontology.v1.KeyValueDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	7,    // 631: confirmate.ontology.v1.KeyValueDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
-	31,   // 632: confirmate.ontology.v1.KeyValueDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 633: confirmate.ontology.v1.KeyValueDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 634: confirmate.ontology.v1.KeyValueDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 635: confirmate.ontology.v1.KeyValueDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 636: confirmate.ontology.v1.KeyValueDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 637: confirmate.ontology.v1.KeyValueDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 638: confirmate.ontology.v1.KeyValueDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 639: confirmate.ontology.v1.KeyValueDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 640: confirmate.ontology.v1.KeyVault.creation_time:type_name -> google.protobuf.Timestamp
-	312,  // 641: confirmate.ontology.v1.KeyVault.labels:type_name -> confirmate.ontology.v1.KeyVault.LabelsEntry
-	31,   // 642: confirmate.ontology.v1.KeyVault.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 643: confirmate.ontology.v1.KeyVault.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 644: confirmate.ontology.v1.KeyVault.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 645: confirmate.ontology.v1.KeyVault.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 646: confirmate.ontology.v1.KeyVault.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 647: confirmate.ontology.v1.KeyVault.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 648: confirmate.ontology.v1.LeastPrivilegePolicy.creation_time:type_name -> google.protobuf.Timestamp
-	313,  // 649: confirmate.ontology.v1.LeastPrivilegePolicy.labels:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy.LabelsEntry
-	71,   // 650: confirmate.ontology.v1.LeastPrivilegePolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 651: confirmate.ontology.v1.Library.creation_time:type_name -> google.protobuf.Timestamp
-	314,  // 652: confirmate.ontology.v1.Library.labels:type_name -> confirmate.ontology.v1.Library.LabelsEntry
-	106,  // 653: confirmate.ontology.v1.Library.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	268,  // 654: confirmate.ontology.v1.Library.vulnerabilities:type_name -> confirmate.ontology.v1.Vulnerability
-	192,  // 655: confirmate.ontology.v1.LibraryEntryPoint.used_by:type_name -> confirmate.ontology.v1.OperatingSystemArchitecture
-	357,  // 656: confirmate.ontology.v1.LoadBalancer.creation_time:type_name -> google.protobuf.Timestamp
-	315,  // 657: confirmate.ontology.v1.LoadBalancer.labels:type_name -> confirmate.ontology.v1.LoadBalancer.LabelsEntry
-	1,    // 658: confirmate.ontology.v1.LoadBalancer.access_restriction:type_name -> confirmate.ontology.v1.AccessRestriction
-	31,   // 659: confirmate.ontology.v1.LoadBalancer.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 660: confirmate.ontology.v1.LoadBalancer.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 661: confirmate.ontology.v1.LoadBalancer.http_endpoints:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 662: confirmate.ontology.v1.LoadBalancer.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 663: confirmate.ontology.v1.LoadBalancer.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 664: confirmate.ontology.v1.LoadBalancer.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 665: confirmate.ontology.v1.LoadBalancer.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 666: confirmate.ontology.v1.LoadBalancer.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	38,   // 667: confirmate.ontology.v1.LoadConfiguration.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	38,   // 668: confirmate.ontology.v1.LoadLibrary.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	91,   // 669: confirmate.ontology.v1.LoadLibrary.entry_points:type_name -> confirmate.ontology.v1.EntryPoint
-	38,   // 670: confirmate.ontology.v1.LoadSymbol.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	12,   // 671: confirmate.ontology.v1.LocalDataLocation.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
-	149,  // 672: confirmate.ontology.v1.LocalEntryPoint.library_entry_point:type_name -> confirmate.ontology.v1.LibraryEntryPoint
-	170,  // 673: confirmate.ontology.v1.LocalEntryPoint.main:type_name -> confirmate.ontology.v1.Main
-	109,  // 674: confirmate.ontology.v1.LocalRedundancy.geo_locations:type_name -> confirmate.ontology.v1.GeoLocation
-	357,  // 675: confirmate.ontology.v1.LogDocument.creation_time:type_name -> google.protobuf.Timestamp
-	316,  // 676: confirmate.ontology.v1.LogDocument.labels:type_name -> confirmate.ontology.v1.LogDocument.LabelsEntry
-	63,   // 677: confirmate.ontology.v1.LogDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 678: confirmate.ontology.v1.LogDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 679: confirmate.ontology.v1.LogDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 680: confirmate.ontology.v1.LogDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 681: confirmate.ontology.v1.LogDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	38,   // 682: confirmate.ontology.v1.LogGet.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	164,  // 683: confirmate.ontology.v1.LogGet.logging:type_name -> confirmate.ontology.v1.Logging
-	159,  // 684: confirmate.ontology.v1.LogOperation.log_get:type_name -> confirmate.ontology.v1.LogGet
-	162,  // 685: confirmate.ontology.v1.LogOperation.log_write:type_name -> confirmate.ontology.v1.LogWrite
-	38,   // 686: confirmate.ontology.v1.LogOutput.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	164,  // 687: confirmate.ontology.v1.LogOutput.logging:type_name -> confirmate.ontology.v1.Logging
-	38,   // 688: confirmate.ontology.v1.LogWrite.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	164,  // 689: confirmate.ontology.v1.LogWrite.logging:type_name -> confirmate.ontology.v1.Logging
-	3,    // 690: confirmate.ontology.v1.Logging.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	9,    // 691: confirmate.ontology.v1.Logging.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
-	26,   // 692: confirmate.ontology.v1.Logging.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
-	187,  // 693: confirmate.ontology.v1.Logging.os_logging:type_name -> confirmate.ontology.v1.OSLogging
-	230,  // 694: confirmate.ontology.v1.Logging.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	357,  // 695: confirmate.ontology.v1.LoggingService.creation_time:type_name -> google.protobuf.Timestamp
-	317,  // 696: confirmate.ontology.v1.LoggingService.labels:type_name -> confirmate.ontology.v1.LoggingService.LabelsEntry
-	31,   // 697: confirmate.ontology.v1.LoggingService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 698: confirmate.ontology.v1.LoggingService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 699: confirmate.ontology.v1.LoggingService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 700: confirmate.ontology.v1.LoggingService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 701: confirmate.ontology.v1.LoggingService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 702: confirmate.ontology.v1.LoggingService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 703: confirmate.ontology.v1.LoggingService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	167,  // 704: confirmate.ontology.v1.MachineLearning.machine_learning_dataset:type_name -> confirmate.ontology.v1.MachineLearningDataset
-	168,  // 705: confirmate.ontology.v1.MachineLearning.machine_learning_model:type_name -> confirmate.ontology.v1.MachineLearningModel
-	357,  // 706: confirmate.ontology.v1.MachineLearningDataset.creation_time:type_name -> google.protobuf.Timestamp
-	318,  // 707: confirmate.ontology.v1.MachineLearningDataset.labels:type_name -> confirmate.ontology.v1.MachineLearningDataset.LabelsEntry
-	71,   // 708: confirmate.ontology.v1.MachineLearningDataset.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 709: confirmate.ontology.v1.MachineLearningModel.creation_time:type_name -> google.protobuf.Timestamp
-	319,  // 710: confirmate.ontology.v1.MachineLearningModel.labels:type_name -> confirmate.ontology.v1.MachineLearningModel.LabelsEntry
-	71,   // 711: confirmate.ontology.v1.MachineLearningModel.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	268,  // 712: confirmate.ontology.v1.MachineLearningModel.vulnerabilities:type_name -> confirmate.ontology.v1.Vulnerability
-	357,  // 713: confirmate.ontology.v1.MachineLearningService.creation_time:type_name -> google.protobuf.Timestamp
-	320,  // 714: confirmate.ontology.v1.MachineLearningService.labels:type_name -> confirmate.ontology.v1.MachineLearningService.LabelsEntry
-	31,   // 715: confirmate.ontology.v1.MachineLearningService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 716: confirmate.ontology.v1.MachineLearningService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 717: confirmate.ontology.v1.MachineLearningService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 718: confirmate.ontology.v1.MachineLearningService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 719: confirmate.ontology.v1.MachineLearningService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 720: confirmate.ontology.v1.MachineLearningService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 721: confirmate.ontology.v1.MachineLearningService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	192,  // 722: confirmate.ontology.v1.Main.used_by:type_name -> confirmate.ontology.v1.OperatingSystemArchitecture
-	358,  // 723: confirmate.ontology.v1.MalwareProtection.duration_since_active:type_name -> google.protobuf.Duration
-	9,    // 724: confirmate.ontology.v1.MalwareProtection.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
-	33,   // 725: confirmate.ontology.v1.ManagedKeyEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
-	357,  // 726: confirmate.ontology.v1.Memory.creation_time:type_name -> google.protobuf.Timestamp
-	321,  // 727: confirmate.ontology.v1.Memory.labels:type_name -> confirmate.ontology.v1.Memory.LabelsEntry
-	5,    // 728: confirmate.ontology.v1.MemoryOperation.allocate:type_name -> confirmate.ontology.v1.Allocate
-	77,   // 729: confirmate.ontology.v1.MemoryOperation.de_allocate:type_name -> confirmate.ontology.v1.DeAllocate
-	152,  // 730: confirmate.ontology.v1.MemoryOperation.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
-	153,  // 731: confirmate.ontology.v1.MemoryOperation.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
-	133,  // 732: confirmate.ontology.v1.MessageAuthenticationCode.input:type_name -> confirmate.ontology.v1.Input
-	357,  // 733: confirmate.ontology.v1.MessagingHub.creation_time:type_name -> google.protobuf.Timestamp
-	322,  // 734: confirmate.ontology.v1.MessagingHub.labels:type_name -> confirmate.ontology.v1.MessagingHub.LabelsEntry
-	31,   // 735: confirmate.ontology.v1.MessagingHub.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 736: confirmate.ontology.v1.MessagingHub.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 737: confirmate.ontology.v1.MessagingHub.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 738: confirmate.ontology.v1.MessagingHub.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 739: confirmate.ontology.v1.MessagingHub.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 740: confirmate.ontology.v1.MessagingHub.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	196,  // 741: confirmate.ontology.v1.CodeModule.package:type_name -> confirmate.ontology.v1.Package
-	250,  // 742: confirmate.ontology.v1.CodeModule.source_code_file:type_name -> confirmate.ontology.v1.SourceCodeFile
-	17,   // 743: confirmate.ontology.v1.MultiFactorAuthentiation.authenticities:type_name -> confirmate.ontology.v1.Authenticity
-	357,  // 744: confirmate.ontology.v1.MultiModalDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
-	323,  // 745: confirmate.ontology.v1.MultiModalDatabaseService.labels:type_name -> confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntry
-	3,    // 746: confirmate.ontology.v1.MultiModalDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	7,    // 747: confirmate.ontology.v1.MultiModalDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
-	31,   // 748: confirmate.ontology.v1.MultiModalDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 749: confirmate.ontology.v1.MultiModalDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 750: confirmate.ontology.v1.MultiModalDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 751: confirmate.ontology.v1.MultiModalDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 752: confirmate.ontology.v1.MultiModalDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 753: confirmate.ontology.v1.MultiModalDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 754: confirmate.ontology.v1.MultiModalDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 755: confirmate.ontology.v1.MultiModalDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 756: confirmate.ontology.v1.NeedToKnowPolicy.creation_time:type_name -> google.protobuf.Timestamp
-	324,  // 757: confirmate.ontology.v1.NeedToKnowPolicy.labels:type_name -> confirmate.ontology.v1.NeedToKnowPolicy.LabelsEntry
-	71,   // 758: confirmate.ontology.v1.NeedToKnowPolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 759: confirmate.ontology.v1.NetworkInterface.creation_time:type_name -> google.protobuf.Timestamp
-	325,  // 760: confirmate.ontology.v1.NetworkInterface.labels:type_name -> confirmate.ontology.v1.NetworkInterface.LabelsEntry
-	1,    // 761: confirmate.ontology.v1.NetworkInterface.access_restriction:type_name -> confirmate.ontology.v1.AccessRestriction
-	31,   // 762: confirmate.ontology.v1.NetworkInterface.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 763: confirmate.ontology.v1.NetworkInterface.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 764: confirmate.ontology.v1.NetworkInterface.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 765: confirmate.ontology.v1.NetworkInterface.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 766: confirmate.ontology.v1.NetworkInterface.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 767: confirmate.ontology.v1.NetworkInterface.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 768: confirmate.ontology.v1.NetworkSecurityGroup.creation_time:type_name -> google.protobuf.Timestamp
-	326,  // 769: confirmate.ontology.v1.NetworkSecurityGroup.labels:type_name -> confirmate.ontology.v1.NetworkSecurityGroup.LabelsEntry
-	31,   // 770: confirmate.ontology.v1.NetworkSecurityGroup.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 771: confirmate.ontology.v1.NetworkSecurityGroup.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 772: confirmate.ontology.v1.NetworkSecurityGroup.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 773: confirmate.ontology.v1.NetworkSecurityGroup.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 774: confirmate.ontology.v1.NetworkSecurityGroup.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 775: confirmate.ontology.v1.NetworkSecurityGroup.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	105,  // 776: confirmate.ontology.v1.NetworkService.function_service:type_name -> confirmate.ontology.v1.FunctionService
-	108,  // 777: confirmate.ontology.v1.NetworkService.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
-	150,  // 778: confirmate.ontology.v1.NetworkService.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
-	165,  // 779: confirmate.ontology.v1.NetworkService.logging_service:type_name -> confirmate.ontology.v1.LoggingService
-	169,  // 780: confirmate.ontology.v1.NetworkService.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
-	241,  // 781: confirmate.ontology.v1.NetworkService.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
-	84,   // 782: confirmate.ontology.v1.NetworkService.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
-	144,  // 783: confirmate.ontology.v1.NetworkService.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
-	180,  // 784: confirmate.ontology.v1.NetworkService.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
-	221,  // 785: confirmate.ontology.v1.NetworkService.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
-	101,  // 786: confirmate.ontology.v1.NetworkService.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
-	191,  // 787: confirmate.ontology.v1.NetworkService.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
-	182,  // 788: confirmate.ontology.v1.Networking.network_interface:type_name -> confirmate.ontology.v1.NetworkInterface
-	183,  // 789: confirmate.ontology.v1.Networking.network_security_group:type_name -> confirmate.ontology.v1.NetworkSecurityGroup
-	105,  // 790: confirmate.ontology.v1.Networking.function_service:type_name -> confirmate.ontology.v1.FunctionService
-	108,  // 791: confirmate.ontology.v1.Networking.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
-	150,  // 792: confirmate.ontology.v1.Networking.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
-	165,  // 793: confirmate.ontology.v1.Networking.logging_service:type_name -> confirmate.ontology.v1.LoggingService
-	169,  // 794: confirmate.ontology.v1.Networking.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
-	241,  // 795: confirmate.ontology.v1.Networking.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
-	84,   // 796: confirmate.ontology.v1.Networking.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
-	144,  // 797: confirmate.ontology.v1.Networking.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
-	180,  // 798: confirmate.ontology.v1.Networking.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
-	221,  // 799: confirmate.ontology.v1.Networking.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
-	101,  // 800: confirmate.ontology.v1.Networking.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
-	191,  // 801: confirmate.ontology.v1.Networking.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
-	266,  // 802: confirmate.ontology.v1.Networking.virtual_network:type_name -> confirmate.ontology.v1.VirtualNetwork
-	267,  // 803: confirmate.ontology.v1.Networking.virtual_sub_network:type_name -> confirmate.ontology.v1.VirtualSubNetwork
-	358,  // 804: confirmate.ontology.v1.OSLogging.retention_period:type_name -> google.protobuf.Duration
-	357,  // 805: confirmate.ontology.v1.ObjectStorage.creation_time:type_name -> google.protobuf.Timestamp
-	327,  // 806: confirmate.ontology.v1.ObjectStorage.labels:type_name -> confirmate.ontology.v1.ObjectStorage.LabelsEntry
-	3,    // 807: confirmate.ontology.v1.ObjectStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	12,   // 808: confirmate.ontology.v1.ObjectStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
-	23,   // 809: confirmate.ontology.v1.ObjectStorage.backups:type_name -> confirmate.ontology.v1.Backup
-	31,   // 810: confirmate.ontology.v1.ObjectStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 811: confirmate.ontology.v1.ObjectStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	131,  // 812: confirmate.ontology.v1.ObjectStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
-	164,  // 813: confirmate.ontology.v1.ObjectStorage.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 814: confirmate.ontology.v1.ObjectStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 815: confirmate.ontology.v1.ObjectStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	230,  // 816: confirmate.ontology.v1.ObjectStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 817: confirmate.ontology.v1.ObjectStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	38,   // 818: confirmate.ontology.v1.ObjectStorageRequest.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 819: confirmate.ontology.v1.ObjectStorageService.creation_time:type_name -> google.protobuf.Timestamp
-	328,  // 820: confirmate.ontology.v1.ObjectStorageService.labels:type_name -> confirmate.ontology.v1.ObjectStorageService.LabelsEntry
-	3,    // 821: confirmate.ontology.v1.ObjectStorageService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	31,   // 822: confirmate.ontology.v1.ObjectStorageService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 823: confirmate.ontology.v1.ObjectStorageService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 824: confirmate.ontology.v1.ObjectStorageService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 825: confirmate.ontology.v1.ObjectStorageService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 826: confirmate.ontology.v1.ObjectStorageService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 827: confirmate.ontology.v1.ObjectStorageService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 828: confirmate.ontology.v1.ObjectStorageService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 829: confirmate.ontology.v1.ObjectStorageService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	4,    // 830: confirmate.ontology.v1.OperatingSystemArchitecture.agnostic:type_name -> confirmate.ontology.v1.Agnostic
-	68,   // 831: confirmate.ontology.v1.OperatingSystemArchitecture.darwin:type_name -> confirmate.ontology.v1.Darwin
-	195,  // 832: confirmate.ontology.v1.OperatingSystemArchitecture.posix:type_name -> confirmate.ontology.v1.POSIX
-	270,  // 833: confirmate.ontology.v1.OperatingSystemArchitecture.win32:type_name -> confirmate.ontology.v1.Win32
-	15,   // 834: confirmate.ontology.v1.Operation.authenticate:type_name -> confirmate.ontology.v1.Authenticate
-	19,   // 835: confirmate.ontology.v1.Operation.authorize_jwt:type_name -> confirmate.ontology.v1.AuthorizeJwt
-	138,  // 836: confirmate.ontology.v1.Operation.issue_jwt:type_name -> confirmate.ontology.v1.IssueJwt
-	262,  // 837: confirmate.ontology.v1.Operation.validate_jwt:type_name -> confirmate.ontology.v1.ValidateJwt
-	25,   // 838: confirmate.ontology.v1.Operation.block_storage_operation:type_name -> confirmate.ontology.v1.BlockStorageOperation
-	78,   // 839: confirmate.ontology.v1.Operation.decryption:type_name -> confirmate.ontology.v1.Decryption
-	151,  // 840: confirmate.ontology.v1.Operation.load_configuration:type_name -> confirmate.ontology.v1.LoadConfiguration
-	209,  // 841: confirmate.ontology.v1.Operation.provide_configuration:type_name -> confirmate.ontology.v1.ProvideConfiguration
-	210,  // 842: confirmate.ontology.v1.Operation.provide_configuration_group:type_name -> confirmate.ontology.v1.ProvideConfigurationGroup
-	211,  // 843: confirmate.ontology.v1.Operation.provide_configuration_option:type_name -> confirmate.ontology.v1.ProvideConfigurationOption
-	215,  // 844: confirmate.ontology.v1.Operation.read_configuration_group:type_name -> confirmate.ontology.v1.ReadConfigurationGroup
-	216,  // 845: confirmate.ontology.v1.Operation.read_configuration_option:type_name -> confirmate.ontology.v1.ReadConfigurationOption
-	218,  // 846: confirmate.ontology.v1.Operation.register_configuration_group:type_name -> confirmate.ontology.v1.RegisterConfigurationGroup
-	219,  // 847: confirmate.ontology.v1.Operation.register_configuration_option:type_name -> confirmate.ontology.v1.RegisterConfigurationOption
-	115,  // 848: confirmate.ontology.v1.Operation.hash_operation:type_name -> confirmate.ontology.v1.HashOperation
-	72,   // 849: confirmate.ontology.v1.Operation.database_connect:type_name -> confirmate.ontology.v1.DatabaseConnect
-	74,   // 850: confirmate.ontology.v1.Operation.database_query:type_name -> confirmate.ontology.v1.DatabaseQuery
-	60,   // 851: confirmate.ontology.v1.Operation.create_encrypted_disk:type_name -> confirmate.ontology.v1.CreateEncryptedDisk
-	258,  // 852: confirmate.ontology.v1.Operation.unlock_encrypted_disk:type_name -> confirmate.ontology.v1.UnlockEncryptedDisk
-	90,   // 853: confirmate.ontology.v1.Operation.encryption_operation:type_name -> confirmate.ontology.v1.EncryptionOperation
-	94,   // 854: confirmate.ontology.v1.Operation.exit_boundary_operation:type_name -> confirmate.ontology.v1.ExitBoundaryOperation
-	99,   // 855: confirmate.ontology.v1.Operation.file_operation:type_name -> confirmate.ontology.v1.FileOperation
-	111,  // 856: confirmate.ontology.v1.Operation.get_current_time_operation:type_name -> confirmate.ontology.v1.GetCurrentTimeOperation
-	122,  // 857: confirmate.ontology.v1.Operation.http_request:type_name -> confirmate.ontology.v1.HttpRequest
-	121,  // 858: confirmate.ontology.v1.Operation.http_endpoint_operation:type_name -> confirmate.ontology.v1.HttpEndpointOperation
-	220,  // 859: confirmate.ontology.v1.Operation.register_http_endpoint:type_name -> confirmate.ontology.v1.RegisterHttpEndpoint
-	134,  // 860: confirmate.ontology.v1.Operation.input_validation_operation:type_name -> confirmate.ontology.v1.InputValidationOperation
-	135,  // 861: confirmate.ontology.v1.Operation.install_update_operation:type_name -> confirmate.ontology.v1.InstallUpdateOperation
-	159,  // 862: confirmate.ontology.v1.Operation.log_get:type_name -> confirmate.ontology.v1.LogGet
-	162,  // 863: confirmate.ontology.v1.Operation.log_write:type_name -> confirmate.ontology.v1.LogWrite
-	161,  // 864: confirmate.ontology.v1.Operation.log_output:type_name -> confirmate.ontology.v1.LogOutput
-	5,    // 865: confirmate.ontology.v1.Operation.allocate:type_name -> confirmate.ontology.v1.Allocate
-	77,   // 866: confirmate.ontology.v1.Operation.de_allocate:type_name -> confirmate.ontology.v1.DeAllocate
-	152,  // 867: confirmate.ontology.v1.Operation.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
-	153,  // 868: confirmate.ontology.v1.Operation.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
-	190,  // 869: confirmate.ontology.v1.Operation.object_storage_request:type_name -> confirmate.ontology.v1.ObjectStorageRequest
-	92,   // 870: confirmate.ontology.v1.Operation.equality_check:type_name -> confirmate.ontology.v1.EqualityCheck
-	32,   // 871: confirmate.ontology.v1.Operation.check_access:type_name -> confirmate.ontology.v1.CheckAccess
-	61,   // 872: confirmate.ontology.v1.Operation.create_secret:type_name -> confirmate.ontology.v1.CreateSecret
-	112,  // 873: confirmate.ontology.v1.Operation.get_secret:type_name -> confirmate.ontology.v1.GetSecret
-	357,  // 874: confirmate.ontology.v1.POSIX.creation_time:type_name -> google.protobuf.Timestamp
-	329,  // 875: confirmate.ontology.v1.POSIX.labels:type_name -> confirmate.ontology.v1.POSIX.LabelsEntry
-	106,  // 876: confirmate.ontology.v1.POSIX.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	357,  // 877: confirmate.ontology.v1.Package.creation_time:type_name -> google.protobuf.Timestamp
-	330,  // 878: confirmate.ontology.v1.Package.labels:type_name -> confirmate.ontology.v1.Package.LabelsEntry
-	106,  // 879: confirmate.ontology.v1.Package.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	357,  // 880: confirmate.ontology.v1.PasswordPolicy.creation_time:type_name -> google.protobuf.Timestamp
-	331,  // 881: confirmate.ontology.v1.PasswordPolicy.labels:type_name -> confirmate.ontology.v1.PasswordPolicy.LabelsEntry
-	31,   // 882: confirmate.ontology.v1.PasswordPolicy.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 883: confirmate.ontology.v1.PasswordPolicy.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 884: confirmate.ontology.v1.PasswordPolicy.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 885: confirmate.ontology.v1.PasswordPolicy.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 886: confirmate.ontology.v1.PasswordPolicy.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 887: confirmate.ontology.v1.PasswordPolicy.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	58,   // 888: confirmate.ontology.v1.Policy.coordinated_vulnerability_disclosure_policy:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
-	70,   // 889: confirmate.ontology.v1.Policy.data_confidentiality_sdn_policy:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy
-	147,  // 890: confirmate.ontology.v1.Policy.least_privilege_policy:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy
-	181,  // 891: confirmate.ontology.v1.Policy.need_to_know_policy:type_name -> confirmate.ontology.v1.NeedToKnowPolicy
-	235,  // 892: confirmate.ontology.v1.Policy.sdn_function_validation_policy:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy
-	244,  // 893: confirmate.ontology.v1.Policy.separation_of_duties_policy:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy
-	357,  // 894: confirmate.ontology.v1.PolicyDocument.creation_time:type_name -> google.protobuf.Timestamp
-	332,  // 895: confirmate.ontology.v1.PolicyDocument.labels:type_name -> confirmate.ontology.v1.PolicyDocument.LabelsEntry
-	63,   // 896: confirmate.ontology.v1.PolicyDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 897: confirmate.ontology.v1.PolicyDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 898: confirmate.ontology.v1.PolicyDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	113,  // 899: confirmate.ontology.v1.PolicyDocument.governances:type_name -> confirmate.ontology.v1.Governance
-	236,  // 900: confirmate.ontology.v1.PolicyDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 901: confirmate.ontology.v1.PolicyDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	92,   // 902: confirmate.ontology.v1.PolicyOperation.equality_check:type_name -> confirmate.ontology.v1.EqualityCheck
+	355,  // 261: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.creation_time:type_name -> google.protobuf.Timestamp
+	296,  // 262: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.labels:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntry
+	64,   // 263: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 264: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 265: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 266: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 267: confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	355,  // 268: confirmate.ontology.v1.Darwin.creation_time:type_name -> google.protobuf.Timestamp
+	297,  // 269: confirmate.ontology.v1.Darwin.labels:type_name -> confirmate.ontology.v1.Darwin.LabelsEntry
+	107,  // 270: confirmate.ontology.v1.Darwin.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	45,   // 271: confirmate.ontology.v1.Data.configuration:type_name -> confirmate.ontology.v1.Configuration
+	47,   // 272: confirmate.ontology.v1.Data.configuration_group:type_name -> confirmate.ontology.v1.ConfigurationGroup
+	48,   // 273: confirmate.ontology.v1.Data.configuration_group_source:type_name -> confirmate.ontology.v1.ConfigurationGroupSource
+	50,   // 274: confirmate.ontology.v1.Data.configuration_option:type_name -> confirmate.ontology.v1.ConfigurationOption
+	51,   // 275: confirmate.ontology.v1.Data.configuration_option_source:type_name -> confirmate.ontology.v1.ConfigurationOptionSource
+	52,   // 276: confirmate.ontology.v1.Data.configuration_source:type_name -> confirmate.ontology.v1.ConfigurationSource
+	58,   // 277: confirmate.ontology.v1.Data.context:type_name -> confirmate.ontology.v1.Context
+	46,   // 278: confirmate.ontology.v1.Data.configuration_document:type_name -> confirmate.ontology.v1.ConfigurationDocument
+	67,   // 279: confirmate.ontology.v1.Data.cyber_security_risk_assessment_document:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
+	83,   // 280: confirmate.ontology.v1.Data.distribution_of_updates_document:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument
+	88,   // 281: confirmate.ontology.v1.Data.eu_declaration_of_conformity:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity
+	228,  // 282: confirmate.ontology.v1.Data.report_document:type_name -> confirmate.ontology.v1.ReportDocument
+	159,  // 283: confirmate.ontology.v1.Data.log_document:type_name -> confirmate.ontology.v1.LogDocument
+	203,  // 284: confirmate.ontology.v1.Data.policy_document:type_name -> confirmate.ontology.v1.PolicyDocument
+	209,  // 285: confirmate.ontology.v1.Data.production_and_monitoring_process_document:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
+	236,  // 286: confirmate.ontology.v1.Data.sbom_document:type_name -> confirmate.ontology.v1.SBOMDocument
+	241,  // 287: confirmate.ontology.v1.Data.security_advisory_document:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument
+	248,  // 288: confirmate.ontology.v1.Data.service_metadata_document:type_name -> confirmate.ontology.v1.ServiceMetadataDocument
+	263,  // 289: confirmate.ontology.v1.Data.user_information_and_intruction_document:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument
+	97,   // 290: confirmate.ontology.v1.Data.file:type_name -> confirmate.ontology.v1.File
+	98,   // 291: confirmate.ontology.v1.Data.file_handle:type_name -> confirmate.ontology.v1.FileHandle
+	168,  // 292: confirmate.ontology.v1.Data.machine_learning_dataset:type_name -> confirmate.ontology.v1.MachineLearningDataset
+	169,  // 293: confirmate.ontology.v1.Data.machine_learning_model:type_name -> confirmate.ontology.v1.MachineLearningModel
+	59,   // 294: confirmate.ontology.v1.Data.coordinated_vulnerability_disclosure_policy:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
+	6,    // 295: confirmate.ontology.v1.Data.and_rule:type_name -> confirmate.ontology.v1.AndRule
+	258,  // 296: confirmate.ontology.v1.Data.token:type_name -> confirmate.ontology.v1.Token
+	266,  // 297: confirmate.ontology.v1.Data.value:type_name -> confirmate.ontology.v1.Value
+	156,  // 298: confirmate.ontology.v1.DataLocation.local_data_location:type_name -> confirmate.ontology.v1.LocalDataLocation
+	226,  // 299: confirmate.ontology.v1.DataLocation.remote_data_location:type_name -> confirmate.ontology.v1.RemoteDataLocation
+	39,   // 300: confirmate.ontology.v1.DatabaseConnect.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	73,   // 301: confirmate.ontology.v1.DatabaseOperation.database_connect:type_name -> confirmate.ontology.v1.DatabaseConnect
+	75,   // 302: confirmate.ontology.v1.DatabaseOperation.database_query:type_name -> confirmate.ontology.v1.DatabaseQuery
+	39,   // 303: confirmate.ontology.v1.DatabaseQuery.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	85,   // 304: confirmate.ontology.v1.DatabaseService.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
+	145,  // 305: confirmate.ontology.v1.DatabaseService.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
+	181,  // 306: confirmate.ontology.v1.DatabaseService.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
+	223,  // 307: confirmate.ontology.v1.DatabaseService.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
+	355,  // 308: confirmate.ontology.v1.DatabaseStorage.creation_time:type_name -> google.protobuf.Timestamp
+	298,  // 309: confirmate.ontology.v1.DatabaseStorage.labels:type_name -> confirmate.ontology.v1.DatabaseStorage.LabelsEntry
+	3,    // 310: confirmate.ontology.v1.DatabaseStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	12,   // 311: confirmate.ontology.v1.DatabaseStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
+	23,   // 312: confirmate.ontology.v1.DatabaseStorage.backups:type_name -> confirmate.ontology.v1.Backup
+	31,   // 313: confirmate.ontology.v1.DatabaseStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 314: confirmate.ontology.v1.DatabaseStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	132,  // 315: confirmate.ontology.v1.DatabaseStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
+	165,  // 316: confirmate.ontology.v1.DatabaseStorage.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 317: confirmate.ontology.v1.DatabaseStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 318: confirmate.ontology.v1.DatabaseStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	232,  // 319: confirmate.ontology.v1.DatabaseStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 320: confirmate.ontology.v1.DatabaseStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	39,   // 321: confirmate.ontology.v1.DeAllocate.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	33,   // 322: confirmate.ontology.v1.Decryption.cipher:type_name -> confirmate.ontology.v1.Cipher
+	39,   // 323: confirmate.ontology.v1.Decryption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 324: confirmate.ontology.v1.DeviceProvisioningService.creation_time:type_name -> google.protobuf.Timestamp
+	299,  // 325: confirmate.ontology.v1.DeviceProvisioningService.labels:type_name -> confirmate.ontology.v1.DeviceProvisioningService.LabelsEntry
+	31,   // 326: confirmate.ontology.v1.DeviceProvisioningService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 327: confirmate.ontology.v1.DeviceProvisioningService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 328: confirmate.ontology.v1.DeviceProvisioningService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 329: confirmate.ontology.v1.DeviceProvisioningService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 330: confirmate.ontology.v1.DeviceProvisioningService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 331: confirmate.ontology.v1.DeviceProvisioningService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	24,   // 332: confirmate.ontology.v1.DiskEncryption.used_by:type_name -> confirmate.ontology.v1.BlockStorage
+	33,   // 333: confirmate.ontology.v1.DiskEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
+	61,   // 334: confirmate.ontology.v1.DiskEncryptionOperation.create_encrypted_disk:type_name -> confirmate.ontology.v1.CreateEncryptedDisk
+	261,  // 335: confirmate.ontology.v1.DiskEncryptionOperation.unlock_encrypted_disk:type_name -> confirmate.ontology.v1.UnlockEncryptedDisk
+	355,  // 336: confirmate.ontology.v1.DistributionOfUpdatesDocument.creation_time:type_name -> google.protobuf.Timestamp
+	300,  // 337: confirmate.ontology.v1.DistributionOfUpdatesDocument.labels:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntry
+	64,   // 338: confirmate.ontology.v1.DistributionOfUpdatesDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 339: confirmate.ontology.v1.DistributionOfUpdatesDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 340: confirmate.ontology.v1.DistributionOfUpdatesDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 341: confirmate.ontology.v1.DistributionOfUpdatesDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 342: confirmate.ontology.v1.DistributionOfUpdatesDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	46,   // 343: confirmate.ontology.v1.Document.configuration_document:type_name -> confirmate.ontology.v1.ConfigurationDocument
+	67,   // 344: confirmate.ontology.v1.Document.cyber_security_risk_assessment_document:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
+	83,   // 345: confirmate.ontology.v1.Document.distribution_of_updates_document:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument
+	88,   // 346: confirmate.ontology.v1.Document.eu_declaration_of_conformity:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity
+	228,  // 347: confirmate.ontology.v1.Document.report_document:type_name -> confirmate.ontology.v1.ReportDocument
+	159,  // 348: confirmate.ontology.v1.Document.log_document:type_name -> confirmate.ontology.v1.LogDocument
+	203,  // 349: confirmate.ontology.v1.Document.policy_document:type_name -> confirmate.ontology.v1.PolicyDocument
+	209,  // 350: confirmate.ontology.v1.Document.production_and_monitoring_process_document:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
+	236,  // 351: confirmate.ontology.v1.Document.sbom_document:type_name -> confirmate.ontology.v1.SBOMDocument
+	241,  // 352: confirmate.ontology.v1.Document.security_advisory_document:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument
+	248,  // 353: confirmate.ontology.v1.Document.service_metadata_document:type_name -> confirmate.ontology.v1.ServiceMetadataDocument
+	263,  // 354: confirmate.ontology.v1.Document.user_information_and_intruction_document:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument
+	355,  // 355: confirmate.ontology.v1.DocumentDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
+	301,  // 356: confirmate.ontology.v1.DocumentDatabaseService.labels:type_name -> confirmate.ontology.v1.DocumentDatabaseService.LabelsEntry
+	3,    // 357: confirmate.ontology.v1.DocumentDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	7,    // 358: confirmate.ontology.v1.DocumentDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
+	31,   // 359: confirmate.ontology.v1.DocumentDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 360: confirmate.ontology.v1.DocumentDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 361: confirmate.ontology.v1.DocumentDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 362: confirmate.ontology.v1.DocumentDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 363: confirmate.ontology.v1.DocumentDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 364: confirmate.ontology.v1.DocumentDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 365: confirmate.ontology.v1.DocumentDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 366: confirmate.ontology.v1.DocumentDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	153,  // 367: confirmate.ontology.v1.DynamicLoadingOperation.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
+	154,  // 368: confirmate.ontology.v1.DynamicLoadingOperation.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
+	355,  // 369: confirmate.ontology.v1.EUDeclarationOfConformity.creation_time:type_name -> google.protobuf.Timestamp
+	302,  // 370: confirmate.ontology.v1.EUDeclarationOfConformity.labels:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntry
+	64,   // 371: confirmate.ontology.v1.EUDeclarationOfConformity.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 372: confirmate.ontology.v1.EUDeclarationOfConformity.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 373: confirmate.ontology.v1.EUDeclarationOfConformity.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 374: confirmate.ontology.v1.EUDeclarationOfConformity.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 375: confirmate.ontology.v1.EUDeclarationOfConformity.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	66,   // 376: confirmate.ontology.v1.Encryption.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
+	81,   // 377: confirmate.ontology.v1.Encryption.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
+	173,  // 378: confirmate.ontology.v1.Encryption.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
+	260,  // 379: confirmate.ontology.v1.Encryption.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	39,   // 380: confirmate.ontology.v1.EncryptionOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	89,   // 381: confirmate.ontology.v1.EncryptionOperation.encryption:type_name -> confirmate.ontology.v1.Encryption
+	150,  // 382: confirmate.ontology.v1.EntryPoint.library_entry_point:type_name -> confirmate.ontology.v1.LibraryEntryPoint
+	171,  // 383: confirmate.ontology.v1.EntryPoint.main:type_name -> confirmate.ontology.v1.Main
+	121,  // 384: confirmate.ontology.v1.EntryPoint.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	39,   // 385: confirmate.ontology.v1.EqualityCheck.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	206,  // 386: confirmate.ontology.v1.EqualityCheck.left_principal:type_name -> confirmate.ontology.v1.Principal
+	206,  // 387: confirmate.ontology.v1.EqualityCheck.right_principal:type_name -> confirmate.ontology.v1.Principal
+	27,   // 388: confirmate.ontology.v1.ExitBoundaryOperation.boundary:type_name -> confirmate.ontology.v1.Boundary
+	39,   // 389: confirmate.ontology.v1.ExitBoundaryOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 390: confirmate.ontology.v1.File.creation_time:type_name -> google.protobuf.Timestamp
+	303,  // 391: confirmate.ontology.v1.File.labels:type_name -> confirmate.ontology.v1.File.LabelsEntry
+	72,   // 392: confirmate.ontology.v1.File.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 393: confirmate.ontology.v1.FileHandle.creation_time:type_name -> google.protobuf.Timestamp
+	304,  // 394: confirmate.ontology.v1.FileHandle.labels:type_name -> confirmate.ontology.v1.FileHandle.LabelsEntry
+	72,   // 395: confirmate.ontology.v1.FileHandle.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	97,   // 396: confirmate.ontology.v1.FileLikeObject.file:type_name -> confirmate.ontology.v1.File
+	98,   // 397: confirmate.ontology.v1.FileLikeObject.file_handle:type_name -> confirmate.ontology.v1.FileHandle
+	39,   // 398: confirmate.ontology.v1.FileOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 399: confirmate.ontology.v1.FileStorage.creation_time:type_name -> google.protobuf.Timestamp
+	305,  // 400: confirmate.ontology.v1.FileStorage.labels:type_name -> confirmate.ontology.v1.FileStorage.LabelsEntry
+	3,    // 401: confirmate.ontology.v1.FileStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	12,   // 402: confirmate.ontology.v1.FileStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
+	23,   // 403: confirmate.ontology.v1.FileStorage.backups:type_name -> confirmate.ontology.v1.Backup
+	31,   // 404: confirmate.ontology.v1.FileStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 405: confirmate.ontology.v1.FileStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	132,  // 406: confirmate.ontology.v1.FileStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
+	165,  // 407: confirmate.ontology.v1.FileStorage.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 408: confirmate.ontology.v1.FileStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 409: confirmate.ontology.v1.FileStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	232,  // 410: confirmate.ontology.v1.FileStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 411: confirmate.ontology.v1.FileStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 412: confirmate.ontology.v1.FileStorageService.creation_time:type_name -> google.protobuf.Timestamp
+	306,  // 413: confirmate.ontology.v1.FileStorageService.labels:type_name -> confirmate.ontology.v1.FileStorageService.LabelsEntry
+	3,    // 414: confirmate.ontology.v1.FileStorageService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	31,   // 415: confirmate.ontology.v1.FileStorageService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 416: confirmate.ontology.v1.FileStorageService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 417: confirmate.ontology.v1.FileStorageService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 418: confirmate.ontology.v1.FileStorageService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 419: confirmate.ontology.v1.FileStorageService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 420: confirmate.ontology.v1.FileStorageService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 421: confirmate.ontology.v1.FileStorageService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 422: confirmate.ontology.v1.FileStorageService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	147,  // 423: confirmate.ontology.v1.Firewall.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
+	272,  // 424: confirmate.ontology.v1.Firewall.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
+	38,   // 425: confirmate.ontology.v1.Framework.cloud_sdk:type_name -> confirmate.ontology.v1.CloudSDK
+	119,  // 426: confirmate.ontology.v1.Framework.http_client_library:type_name -> confirmate.ontology.v1.HttpClientLibrary
+	127,  // 427: confirmate.ontology.v1.Framework.http_server:type_name -> confirmate.ontology.v1.HttpServer
+	164,  // 428: confirmate.ontology.v1.Framework.logger:type_name -> confirmate.ontology.v1.Logger
+	355,  // 429: confirmate.ontology.v1.Function.creation_time:type_name -> google.protobuf.Timestamp
+	307,  // 430: confirmate.ontology.v1.Function.labels:type_name -> confirmate.ontology.v1.Function.LabelsEntry
+	31,   // 431: confirmate.ontology.v1.Function.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	90,   // 432: confirmate.ontology.v1.Function.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
+	110,  // 433: confirmate.ontology.v1.Function.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 434: confirmate.ontology.v1.Function.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 435: confirmate.ontology.v1.Function.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 436: confirmate.ontology.v1.Function.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	225,  // 437: confirmate.ontology.v1.Function.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	232,  // 438: confirmate.ontology.v1.Function.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 439: confirmate.ontology.v1.Function.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 440: confirmate.ontology.v1.FunctionService.creation_time:type_name -> google.protobuf.Timestamp
+	308,  // 441: confirmate.ontology.v1.FunctionService.labels:type_name -> confirmate.ontology.v1.FunctionService.LabelsEntry
+	31,   // 442: confirmate.ontology.v1.FunctionService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 443: confirmate.ontology.v1.FunctionService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 444: confirmate.ontology.v1.FunctionService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 445: confirmate.ontology.v1.FunctionService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 446: confirmate.ontology.v1.FunctionService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 447: confirmate.ontology.v1.FunctionService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 448: confirmate.ontology.v1.FunctionService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	27,   // 449: confirmate.ontology.v1.Functionality.boundary:type_name -> confirmate.ontology.v1.Boundary
+	31,   // 450: confirmate.ontology.v1.Functionality.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	11,   // 451: confirmate.ontology.v1.Functionality.asymmetric_cipher:type_name -> confirmate.ontology.v1.AsymmetricCipher
+	128,  // 452: confirmate.ontology.v1.Functionality.hybrid_cipher:type_name -> confirmate.ontology.v1.HybridCipher
+	256,  // 453: confirmate.ontology.v1.Functionality.symmetric_cipher:type_name -> confirmate.ontology.v1.SymmetricCipher
+	35,   // 454: confirmate.ontology.v1.Functionality.cipher_suite:type_name -> confirmate.ontology.v1.CipherSuite
+	39,   // 455: confirmate.ontology.v1.Functionality.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	156,  // 456: confirmate.ontology.v1.Functionality.local_data_location:type_name -> confirmate.ontology.v1.LocalDataLocation
+	226,  // 457: confirmate.ontology.v1.Functionality.remote_data_location:type_name -> confirmate.ontology.v1.RemoteDataLocation
+	86,   // 458: confirmate.ontology.v1.Functionality.dynamic_loading:type_name -> confirmate.ontology.v1.DynamicLoading
+	150,  // 459: confirmate.ontology.v1.Functionality.library_entry_point:type_name -> confirmate.ontology.v1.LibraryEntryPoint
+	171,  // 460: confirmate.ontology.v1.Functionality.main:type_name -> confirmate.ontology.v1.Main
+	121,  // 461: confirmate.ontology.v1.Functionality.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	94,   // 462: confirmate.ontology.v1.Functionality.error:type_name -> confirmate.ontology.v1.Error
+	53,   // 463: confirmate.ontology.v1.Functionality.contact_person:type_name -> confirmate.ontology.v1.ContactPerson
+	179,  // 464: confirmate.ontology.v1.Functionality.monitoring_procedure:type_name -> confirmate.ontology.v1.MonitoringProcedure
+	22,   // 465: confirmate.ontology.v1.Functionality.awareness_training:type_name -> confirmate.ontology.v1.AwarenessTraining
+	246,  // 466: confirmate.ontology.v1.Functionality.security_training:type_name -> confirmate.ontology.v1.SecurityTraining
+	118,  // 467: confirmate.ontology.v1.Functionality.http_client:type_name -> confirmate.ontology.v1.HttpClient
+	124,  // 468: confirmate.ontology.v1.Functionality.http_request_context:type_name -> confirmate.ontology.v1.HttpRequestContext
+	125,  // 469: confirmate.ontology.v1.Functionality.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
+	133,  // 470: confirmate.ontology.v1.Functionality.initialization_vector:type_name -> confirmate.ontology.v1.InitializationVector
+	134,  // 471: confirmate.ontology.v1.Functionality.input:type_name -> confirmate.ontology.v1.Input
+	144,  // 472: confirmate.ontology.v1.Functionality.key_derivation_function:type_name -> confirmate.ontology.v1.KeyDerivationFunction
+	176,  // 473: confirmate.ontology.v1.Functionality.message_authentication_code:type_name -> confirmate.ontology.v1.MessageAuthenticationCode
+	15,   // 474: confirmate.ontology.v1.Functionality.authenticate:type_name -> confirmate.ontology.v1.Authenticate
+	19,   // 475: confirmate.ontology.v1.Functionality.authorize_jwt:type_name -> confirmate.ontology.v1.AuthorizeJwt
+	139,  // 476: confirmate.ontology.v1.Functionality.issue_jwt:type_name -> confirmate.ontology.v1.IssueJwt
+	265,  // 477: confirmate.ontology.v1.Functionality.validate_jwt:type_name -> confirmate.ontology.v1.ValidateJwt
+	25,   // 478: confirmate.ontology.v1.Functionality.block_storage_operation:type_name -> confirmate.ontology.v1.BlockStorageOperation
+	79,   // 479: confirmate.ontology.v1.Functionality.decryption:type_name -> confirmate.ontology.v1.Decryption
+	152,  // 480: confirmate.ontology.v1.Functionality.load_configuration:type_name -> confirmate.ontology.v1.LoadConfiguration
+	211,  // 481: confirmate.ontology.v1.Functionality.provide_configuration:type_name -> confirmate.ontology.v1.ProvideConfiguration
+	212,  // 482: confirmate.ontology.v1.Functionality.provide_configuration_group:type_name -> confirmate.ontology.v1.ProvideConfigurationGroup
+	213,  // 483: confirmate.ontology.v1.Functionality.provide_configuration_option:type_name -> confirmate.ontology.v1.ProvideConfigurationOption
+	217,  // 484: confirmate.ontology.v1.Functionality.read_configuration_group:type_name -> confirmate.ontology.v1.ReadConfigurationGroup
+	218,  // 485: confirmate.ontology.v1.Functionality.read_configuration_option:type_name -> confirmate.ontology.v1.ReadConfigurationOption
+	220,  // 486: confirmate.ontology.v1.Functionality.register_configuration_group:type_name -> confirmate.ontology.v1.RegisterConfigurationGroup
+	221,  // 487: confirmate.ontology.v1.Functionality.register_configuration_option:type_name -> confirmate.ontology.v1.RegisterConfigurationOption
+	116,  // 488: confirmate.ontology.v1.Functionality.hash_operation:type_name -> confirmate.ontology.v1.HashOperation
+	73,   // 489: confirmate.ontology.v1.Functionality.database_connect:type_name -> confirmate.ontology.v1.DatabaseConnect
+	75,   // 490: confirmate.ontology.v1.Functionality.database_query:type_name -> confirmate.ontology.v1.DatabaseQuery
+	61,   // 491: confirmate.ontology.v1.Functionality.create_encrypted_disk:type_name -> confirmate.ontology.v1.CreateEncryptedDisk
+	261,  // 492: confirmate.ontology.v1.Functionality.unlock_encrypted_disk:type_name -> confirmate.ontology.v1.UnlockEncryptedDisk
+	91,   // 493: confirmate.ontology.v1.Functionality.encryption_operation:type_name -> confirmate.ontology.v1.EncryptionOperation
+	95,   // 494: confirmate.ontology.v1.Functionality.exit_boundary_operation:type_name -> confirmate.ontology.v1.ExitBoundaryOperation
+	100,  // 495: confirmate.ontology.v1.Functionality.file_operation:type_name -> confirmate.ontology.v1.FileOperation
+	112,  // 496: confirmate.ontology.v1.Functionality.get_current_time_operation:type_name -> confirmate.ontology.v1.GetCurrentTimeOperation
+	123,  // 497: confirmate.ontology.v1.Functionality.http_request:type_name -> confirmate.ontology.v1.HttpRequest
+	122,  // 498: confirmate.ontology.v1.Functionality.http_endpoint_operation:type_name -> confirmate.ontology.v1.HttpEndpointOperation
+	222,  // 499: confirmate.ontology.v1.Functionality.register_http_endpoint:type_name -> confirmate.ontology.v1.RegisterHttpEndpoint
+	135,  // 500: confirmate.ontology.v1.Functionality.input_validation_operation:type_name -> confirmate.ontology.v1.InputValidationOperation
+	136,  // 501: confirmate.ontology.v1.Functionality.install_update_operation:type_name -> confirmate.ontology.v1.InstallUpdateOperation
+	160,  // 502: confirmate.ontology.v1.Functionality.log_get:type_name -> confirmate.ontology.v1.LogGet
+	163,  // 503: confirmate.ontology.v1.Functionality.log_write:type_name -> confirmate.ontology.v1.LogWrite
+	162,  // 504: confirmate.ontology.v1.Functionality.log_output:type_name -> confirmate.ontology.v1.LogOutput
+	5,    // 505: confirmate.ontology.v1.Functionality.allocate:type_name -> confirmate.ontology.v1.Allocate
+	78,   // 506: confirmate.ontology.v1.Functionality.de_allocate:type_name -> confirmate.ontology.v1.DeAllocate
+	153,  // 507: confirmate.ontology.v1.Functionality.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
+	154,  // 508: confirmate.ontology.v1.Functionality.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
+	191,  // 509: confirmate.ontology.v1.Functionality.object_storage_request:type_name -> confirmate.ontology.v1.ObjectStorageRequest
+	93,   // 510: confirmate.ontology.v1.Functionality.equality_check:type_name -> confirmate.ontology.v1.EqualityCheck
+	32,   // 511: confirmate.ontology.v1.Functionality.check_access:type_name -> confirmate.ontology.v1.CheckAccess
+	62,   // 512: confirmate.ontology.v1.Functionality.create_secret:type_name -> confirmate.ontology.v1.CreateSecret
+	113,  // 513: confirmate.ontology.v1.Functionality.get_secret:type_name -> confirmate.ontology.v1.GetSecret
+	195,  // 514: confirmate.ontology.v1.Functionality.output:type_name -> confirmate.ontology.v1.Output
+	198,  // 515: confirmate.ontology.v1.Functionality.padding:type_name -> confirmate.ontology.v1.Padding
+	71,   // 516: confirmate.ontology.v1.Functionality.data_confidentiality_sdn_policy:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy
+	148,  // 517: confirmate.ontology.v1.Functionality.least_privilege_policy:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy
+	182,  // 518: confirmate.ontology.v1.Functionality.need_to_know_policy:type_name -> confirmate.ontology.v1.NeedToKnowPolicy
+	237,  // 519: confirmate.ontology.v1.Functionality.sdn_function_validation_policy:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy
+	247,  // 520: confirmate.ontology.v1.Functionality.separation_of_duties_policy:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy
+	206,  // 521: confirmate.ontology.v1.Functionality.principal:type_name -> confirmate.ontology.v1.Principal
+	207,  // 522: confirmate.ontology.v1.Functionality.protected_asset:type_name -> confirmate.ontology.v1.ProtectedAsset
+	229,  // 523: confirmate.ontology.v1.Functionality.request_for_change:type_name -> confirmate.ontology.v1.RequestForChange
+	238,  // 524: confirmate.ontology.v1.Functionality.schema_validation:type_name -> confirmate.ontology.v1.SchemaValidation
+	242,  // 525: confirmate.ontology.v1.Functionality.security_advisory_feed:type_name -> confirmate.ontology.v1.SecurityAdvisoryFeed
+	257,  // 526: confirmate.ontology.v1.Functionality.time:type_name -> confirmate.ontology.v1.Time
+	271,  // 527: confirmate.ontology.v1.Functionality.vulnerability:type_name -> confirmate.ontology.v1.Vulnerability
+	228,  // 528: confirmate.ontology.v1.GenericDocument.report_document:type_name -> confirmate.ontology.v1.ReportDocument
+	355,  // 529: confirmate.ontology.v1.GenericNetworkService.creation_time:type_name -> google.protobuf.Timestamp
+	309,  // 530: confirmate.ontology.v1.GenericNetworkService.labels:type_name -> confirmate.ontology.v1.GenericNetworkService.LabelsEntry
+	31,   // 531: confirmate.ontology.v1.GenericNetworkService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 532: confirmate.ontology.v1.GenericNetworkService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 533: confirmate.ontology.v1.GenericNetworkService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 534: confirmate.ontology.v1.GenericNetworkService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 535: confirmate.ontology.v1.GenericNetworkService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 536: confirmate.ontology.v1.GenericNetworkService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 537: confirmate.ontology.v1.GenericNetworkService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	110,  // 538: confirmate.ontology.v1.GeoRedundancy.geo_locations:type_name -> confirmate.ontology.v1.GeoLocation
+	39,   // 539: confirmate.ontology.v1.GetCurrentTimeOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	257,  // 540: confirmate.ontology.v1.GetCurrentTimeOperation.time:type_name -> confirmate.ontology.v1.Time
+	39,   // 541: confirmate.ontology.v1.GetSecret.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	53,   // 542: confirmate.ontology.v1.Governance.contact_person:type_name -> confirmate.ontology.v1.ContactPerson
+	179,  // 543: confirmate.ontology.v1.Governance.monitoring_procedure:type_name -> confirmate.ontology.v1.MonitoringProcedure
+	22,   // 544: confirmate.ontology.v1.Governance.awareness_training:type_name -> confirmate.ontology.v1.AwarenessTraining
+	246,  // 545: confirmate.ontology.v1.Governance.security_training:type_name -> confirmate.ontology.v1.SecurityTraining
+	174,  // 546: confirmate.ontology.v1.Hardware.memory:type_name -> confirmate.ontology.v1.Memory
+	39,   // 547: confirmate.ontology.v1.HashOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	244,  // 548: confirmate.ontology.v1.HashOperation.security_feature:type_name -> confirmate.ontology.v1.SecurityFeature
+	118,  // 549: confirmate.ontology.v1.Http.http_client:type_name -> confirmate.ontology.v1.HttpClient
+	124,  // 550: confirmate.ontology.v1.Http.http_request_context:type_name -> confirmate.ontology.v1.HttpRequestContext
+	125,  // 551: confirmate.ontology.v1.Http.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
+	17,   // 552: confirmate.ontology.v1.HttpClient.authenticity:type_name -> confirmate.ontology.v1.Authenticity
+	260,  // 553: confirmate.ontology.v1.HttpClient.uses:type_name -> confirmate.ontology.v1.TransportEncryption
+	123,  // 554: confirmate.ontology.v1.HttpClientOperation.http_request:type_name -> confirmate.ontology.v1.HttpRequest
+	17,   // 555: confirmate.ontology.v1.HttpEndpoint.authenticity:type_name -> confirmate.ontology.v1.Authenticity
+	18,   // 556: confirmate.ontology.v1.HttpEndpoint.authorization:type_name -> confirmate.ontology.v1.Authorization
+	124,  // 557: confirmate.ontology.v1.HttpEndpoint.http_request_context:type_name -> confirmate.ontology.v1.HttpRequestContext
+	216,  // 558: confirmate.ontology.v1.HttpEndpoint.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
+	260,  // 559: confirmate.ontology.v1.HttpEndpoint.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	39,   // 560: confirmate.ontology.v1.HttpEndpointOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	117,  // 561: confirmate.ontology.v1.HttpEndpointOperation.http:type_name -> confirmate.ontology.v1.Http
+	39,   // 562: confirmate.ontology.v1.HttpRequest.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	118,  // 563: confirmate.ontology.v1.HttpRequest.http_client:type_name -> confirmate.ontology.v1.HttpClient
+	121,  // 564: confirmate.ontology.v1.HttpRequest.http_endpoints:type_name -> confirmate.ontology.v1.HttpEndpoint
+	121,  // 565: confirmate.ontology.v1.HttpRequestHandler.http_endpoints:type_name -> confirmate.ontology.v1.HttpEndpoint
+	222,  // 566: confirmate.ontology.v1.HttpRequestHandlerOperation.register_http_endpoint:type_name -> confirmate.ontology.v1.RegisterHttpEndpoint
+	125,  // 567: confirmate.ontology.v1.HttpServer.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
+	11,   // 568: confirmate.ontology.v1.HybridCipher.uses:type_name -> confirmate.ontology.v1.AsymmetricCipher
+	144,  // 569: confirmate.ontology.v1.HybridCipher.key_derivation_function:type_name -> confirmate.ontology.v1.KeyDerivationFunction
+	176,  // 570: confirmate.ontology.v1.HybridCipher.message_authentication_code:type_name -> confirmate.ontology.v1.MessageAuthenticationCode
+	198,  // 571: confirmate.ontology.v1.HybridCipher.padding:type_name -> confirmate.ontology.v1.Padding
+	256,  // 572: confirmate.ontology.v1.HybridCipher.symmetric_cipher:type_name -> confirmate.ontology.v1.SymmetricCipher
+	130,  // 573: confirmate.ontology.v1.Identifiable.identity:type_name -> confirmate.ontology.v1.Identity
+	235,  // 574: confirmate.ontology.v1.Identifiable.role_assignment:type_name -> confirmate.ontology.v1.RoleAssignment
+	355,  // 575: confirmate.ontology.v1.Identity.creation_time:type_name -> google.protobuf.Timestamp
+	310,  // 576: confirmate.ontology.v1.Identity.labels:type_name -> confirmate.ontology.v1.Identity.LabelsEntry
+	355,  // 577: confirmate.ontology.v1.Identity.last_activity:type_name -> google.protobuf.Timestamp
+	18,   // 578: confirmate.ontology.v1.Identity.authorization:type_name -> confirmate.ontology.v1.Authorization
+	31,   // 579: confirmate.ontology.v1.Identity.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 580: confirmate.ontology.v1.Identity.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 581: confirmate.ontology.v1.Identity.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 582: confirmate.ontology.v1.Identity.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 583: confirmate.ontology.v1.Identity.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 584: confirmate.ontology.v1.Identity.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	55,   // 585: confirmate.ontology.v1.Image.container_image:type_name -> confirmate.ontology.v1.ContainerImage
+	264,  // 586: confirmate.ontology.v1.Image.vm_image:type_name -> confirmate.ontology.v1.VMImage
+	39,   // 587: confirmate.ontology.v1.InputValidationOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	134,  // 588: confirmate.ontology.v1.InputValidationOperation.input:type_name -> confirmate.ontology.v1.Input
+	195,  // 589: confirmate.ontology.v1.InputValidationOperation.output:type_name -> confirmate.ontology.v1.Output
+	20,   // 590: confirmate.ontology.v1.InstallUpdateOperation.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
+	39,   // 591: confirmate.ontology.v1.InstallUpdateOperation.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	155,  // 592: confirmate.ontology.v1.Integrity.local_attestation:type_name -> confirmate.ontology.v1.LocalAttestation
+	225,  // 593: confirmate.ontology.v1.Integrity.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	20,   // 594: confirmate.ontology.v1.Integrity.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
+	64,   // 595: confirmate.ontology.v1.Integrity.cryptographic_hash:type_name -> confirmate.ontology.v1.CryptographicHash
+	132,  // 596: confirmate.ontology.v1.Integrity.immutability:type_name -> confirmate.ontology.v1.Immutability
+	249,  // 597: confirmate.ontology.v1.Integrity.document_signature:type_name -> confirmate.ontology.v1.DocumentSignature
+	250,  // 598: confirmate.ontology.v1.Integrity.signed_commits:type_name -> confirmate.ontology.v1.SignedCommits
+	267,  // 599: confirmate.ontology.v1.Integrity.verified_commits:type_name -> confirmate.ontology.v1.VerifiedCommits
+	80,   // 600: confirmate.ontology.v1.IoT.device_provisioning_service:type_name -> confirmate.ontology.v1.DeviceProvisioningService
+	177,  // 601: confirmate.ontology.v1.IoT.messaging_hub:type_name -> confirmate.ontology.v1.MessagingHub
+	17,   // 602: confirmate.ontology.v1.IssueJwt.authenticity:type_name -> confirmate.ontology.v1.Authenticity
+	39,   // 603: confirmate.ontology.v1.IssueJwt.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 604: confirmate.ontology.v1.Job.creation_time:type_name -> google.protobuf.Timestamp
+	311,  // 605: confirmate.ontology.v1.Job.labels:type_name -> confirmate.ontology.v1.Job.LabelsEntry
+	31,   // 606: confirmate.ontology.v1.Job.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 607: confirmate.ontology.v1.Job.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 608: confirmate.ontology.v1.Job.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 609: confirmate.ontology.v1.Job.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 610: confirmate.ontology.v1.Job.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 611: confirmate.ontology.v1.Job.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	141,  // 612: confirmate.ontology.v1.TokenBasedAuthentication.jwt_authentication:type_name -> confirmate.ontology.v1.JwtAuthentication
+	355,  // 613: confirmate.ontology.v1.Key.creation_time:type_name -> google.protobuf.Timestamp
+	355,  // 614: confirmate.ontology.v1.Key.expiration_date:type_name -> google.protobuf.Timestamp
+	312,  // 615: confirmate.ontology.v1.Key.labels:type_name -> confirmate.ontology.v1.Key.LabelsEntry
+	355,  // 616: confirmate.ontology.v1.Key.not_before_date:type_name -> google.protobuf.Timestamp
+	31,   // 617: confirmate.ontology.v1.Key.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 618: confirmate.ontology.v1.Key.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	37,   // 619: confirmate.ontology.v1.Key.used_by_multiple:type_name -> confirmate.ontology.v1.Infrastructure
+	165,  // 620: confirmate.ontology.v1.Key.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 621: confirmate.ontology.v1.Key.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 622: confirmate.ontology.v1.Key.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 623: confirmate.ontology.v1.Key.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	134,  // 624: confirmate.ontology.v1.KeyDerivationFunction.input:type_name -> confirmate.ontology.v1.Input
+	355,  // 625: confirmate.ontology.v1.KeyValueDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
+	313,  // 626: confirmate.ontology.v1.KeyValueDatabaseService.labels:type_name -> confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntry
+	3,    // 627: confirmate.ontology.v1.KeyValueDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	7,    // 628: confirmate.ontology.v1.KeyValueDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
+	31,   // 629: confirmate.ontology.v1.KeyValueDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 630: confirmate.ontology.v1.KeyValueDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 631: confirmate.ontology.v1.KeyValueDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 632: confirmate.ontology.v1.KeyValueDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 633: confirmate.ontology.v1.KeyValueDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 634: confirmate.ontology.v1.KeyValueDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 635: confirmate.ontology.v1.KeyValueDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 636: confirmate.ontology.v1.KeyValueDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 637: confirmate.ontology.v1.KeyVault.creation_time:type_name -> google.protobuf.Timestamp
+	314,  // 638: confirmate.ontology.v1.KeyVault.labels:type_name -> confirmate.ontology.v1.KeyVault.LabelsEntry
+	31,   // 639: confirmate.ontology.v1.KeyVault.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 640: confirmate.ontology.v1.KeyVault.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 641: confirmate.ontology.v1.KeyVault.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 642: confirmate.ontology.v1.KeyVault.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 643: confirmate.ontology.v1.KeyVault.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 644: confirmate.ontology.v1.KeyVault.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 645: confirmate.ontology.v1.Library.creation_time:type_name -> google.protobuf.Timestamp
+	315,  // 646: confirmate.ontology.v1.Library.labels:type_name -> confirmate.ontology.v1.Library.LabelsEntry
+	107,  // 647: confirmate.ontology.v1.Library.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	271,  // 648: confirmate.ontology.v1.Library.vulnerabilities:type_name -> confirmate.ontology.v1.Vulnerability
+	193,  // 649: confirmate.ontology.v1.LibraryEntryPoint.used_by:type_name -> confirmate.ontology.v1.OperatingSystemArchitecture
+	355,  // 650: confirmate.ontology.v1.LoadBalancer.creation_time:type_name -> google.protobuf.Timestamp
+	316,  // 651: confirmate.ontology.v1.LoadBalancer.labels:type_name -> confirmate.ontology.v1.LoadBalancer.LabelsEntry
+	1,    // 652: confirmate.ontology.v1.LoadBalancer.access_restriction:type_name -> confirmate.ontology.v1.AccessRestriction
+	31,   // 653: confirmate.ontology.v1.LoadBalancer.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 654: confirmate.ontology.v1.LoadBalancer.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 655: confirmate.ontology.v1.LoadBalancer.http_endpoints:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 656: confirmate.ontology.v1.LoadBalancer.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 657: confirmate.ontology.v1.LoadBalancer.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 658: confirmate.ontology.v1.LoadBalancer.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 659: confirmate.ontology.v1.LoadBalancer.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 660: confirmate.ontology.v1.LoadBalancer.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	39,   // 661: confirmate.ontology.v1.LoadConfiguration.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 662: confirmate.ontology.v1.LoadLibrary.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	92,   // 663: confirmate.ontology.v1.LoadLibrary.entry_points:type_name -> confirmate.ontology.v1.EntryPoint
+	39,   // 664: confirmate.ontology.v1.LoadSymbol.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	12,   // 665: confirmate.ontology.v1.LocalDataLocation.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
+	150,  // 666: confirmate.ontology.v1.LocalEntryPoint.library_entry_point:type_name -> confirmate.ontology.v1.LibraryEntryPoint
+	171,  // 667: confirmate.ontology.v1.LocalEntryPoint.main:type_name -> confirmate.ontology.v1.Main
+	110,  // 668: confirmate.ontology.v1.LocalRedundancy.geo_locations:type_name -> confirmate.ontology.v1.GeoLocation
+	355,  // 669: confirmate.ontology.v1.LogDocument.creation_time:type_name -> google.protobuf.Timestamp
+	317,  // 670: confirmate.ontology.v1.LogDocument.labels:type_name -> confirmate.ontology.v1.LogDocument.LabelsEntry
+	64,   // 671: confirmate.ontology.v1.LogDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 672: confirmate.ontology.v1.LogDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 673: confirmate.ontology.v1.LogDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 674: confirmate.ontology.v1.LogDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 675: confirmate.ontology.v1.LogDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	39,   // 676: confirmate.ontology.v1.LogGet.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	165,  // 677: confirmate.ontology.v1.LogGet.logging:type_name -> confirmate.ontology.v1.Logging
+	160,  // 678: confirmate.ontology.v1.LogOperation.log_get:type_name -> confirmate.ontology.v1.LogGet
+	163,  // 679: confirmate.ontology.v1.LogOperation.log_write:type_name -> confirmate.ontology.v1.LogWrite
+	39,   // 680: confirmate.ontology.v1.LogOutput.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	165,  // 681: confirmate.ontology.v1.LogOutput.logging:type_name -> confirmate.ontology.v1.Logging
+	39,   // 682: confirmate.ontology.v1.LogWrite.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	165,  // 683: confirmate.ontology.v1.LogWrite.logging:type_name -> confirmate.ontology.v1.Logging
+	3,    // 684: confirmate.ontology.v1.Logging.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	9,    // 685: confirmate.ontology.v1.Logging.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
+	26,   // 686: confirmate.ontology.v1.Logging.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
+	188,  // 687: confirmate.ontology.v1.Logging.os_logging:type_name -> confirmate.ontology.v1.OSLogging
+	232,  // 688: confirmate.ontology.v1.Logging.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	355,  // 689: confirmate.ontology.v1.LoggingService.creation_time:type_name -> google.protobuf.Timestamp
+	318,  // 690: confirmate.ontology.v1.LoggingService.labels:type_name -> confirmate.ontology.v1.LoggingService.LabelsEntry
+	31,   // 691: confirmate.ontology.v1.LoggingService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 692: confirmate.ontology.v1.LoggingService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 693: confirmate.ontology.v1.LoggingService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 694: confirmate.ontology.v1.LoggingService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 695: confirmate.ontology.v1.LoggingService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 696: confirmate.ontology.v1.LoggingService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 697: confirmate.ontology.v1.LoggingService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	168,  // 698: confirmate.ontology.v1.MachineLearning.machine_learning_dataset:type_name -> confirmate.ontology.v1.MachineLearningDataset
+	169,  // 699: confirmate.ontology.v1.MachineLearning.machine_learning_model:type_name -> confirmate.ontology.v1.MachineLearningModel
+	355,  // 700: confirmate.ontology.v1.MachineLearningDataset.creation_time:type_name -> google.protobuf.Timestamp
+	319,  // 701: confirmate.ontology.v1.MachineLearningDataset.labels:type_name -> confirmate.ontology.v1.MachineLearningDataset.LabelsEntry
+	72,   // 702: confirmate.ontology.v1.MachineLearningDataset.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 703: confirmate.ontology.v1.MachineLearningModel.creation_time:type_name -> google.protobuf.Timestamp
+	320,  // 704: confirmate.ontology.v1.MachineLearningModel.labels:type_name -> confirmate.ontology.v1.MachineLearningModel.LabelsEntry
+	72,   // 705: confirmate.ontology.v1.MachineLearningModel.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	271,  // 706: confirmate.ontology.v1.MachineLearningModel.vulnerabilities:type_name -> confirmate.ontology.v1.Vulnerability
+	355,  // 707: confirmate.ontology.v1.MachineLearningService.creation_time:type_name -> google.protobuf.Timestamp
+	321,  // 708: confirmate.ontology.v1.MachineLearningService.labels:type_name -> confirmate.ontology.v1.MachineLearningService.LabelsEntry
+	31,   // 709: confirmate.ontology.v1.MachineLearningService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 710: confirmate.ontology.v1.MachineLearningService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 711: confirmate.ontology.v1.MachineLearningService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 712: confirmate.ontology.v1.MachineLearningService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 713: confirmate.ontology.v1.MachineLearningService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 714: confirmate.ontology.v1.MachineLearningService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 715: confirmate.ontology.v1.MachineLearningService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	193,  // 716: confirmate.ontology.v1.Main.used_by:type_name -> confirmate.ontology.v1.OperatingSystemArchitecture
+	356,  // 717: confirmate.ontology.v1.MalwareProtection.duration_since_active:type_name -> google.protobuf.Duration
+	9,    // 718: confirmate.ontology.v1.MalwareProtection.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
+	33,   // 719: confirmate.ontology.v1.ManagedKeyEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
+	355,  // 720: confirmate.ontology.v1.Memory.creation_time:type_name -> google.protobuf.Timestamp
+	322,  // 721: confirmate.ontology.v1.Memory.labels:type_name -> confirmate.ontology.v1.Memory.LabelsEntry
+	5,    // 722: confirmate.ontology.v1.MemoryOperation.allocate:type_name -> confirmate.ontology.v1.Allocate
+	78,   // 723: confirmate.ontology.v1.MemoryOperation.de_allocate:type_name -> confirmate.ontology.v1.DeAllocate
+	153,  // 724: confirmate.ontology.v1.MemoryOperation.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
+	154,  // 725: confirmate.ontology.v1.MemoryOperation.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
+	134,  // 726: confirmate.ontology.v1.MessageAuthenticationCode.input:type_name -> confirmate.ontology.v1.Input
+	355,  // 727: confirmate.ontology.v1.MessagingHub.creation_time:type_name -> google.protobuf.Timestamp
+	323,  // 728: confirmate.ontology.v1.MessagingHub.labels:type_name -> confirmate.ontology.v1.MessagingHub.LabelsEntry
+	31,   // 729: confirmate.ontology.v1.MessagingHub.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 730: confirmate.ontology.v1.MessagingHub.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 731: confirmate.ontology.v1.MessagingHub.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 732: confirmate.ontology.v1.MessagingHub.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 733: confirmate.ontology.v1.MessagingHub.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 734: confirmate.ontology.v1.MessagingHub.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	197,  // 735: confirmate.ontology.v1.CodeModule.package:type_name -> confirmate.ontology.v1.Package
+	253,  // 736: confirmate.ontology.v1.CodeModule.source_code_file:type_name -> confirmate.ontology.v1.SourceCodeFile
+	17,   // 737: confirmate.ontology.v1.MultiFactorAuthentiation.authenticities:type_name -> confirmate.ontology.v1.Authenticity
+	355,  // 738: confirmate.ontology.v1.MultiModalDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
+	324,  // 739: confirmate.ontology.v1.MultiModalDatabaseService.labels:type_name -> confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntry
+	3,    // 740: confirmate.ontology.v1.MultiModalDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	7,    // 741: confirmate.ontology.v1.MultiModalDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
+	31,   // 742: confirmate.ontology.v1.MultiModalDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 743: confirmate.ontology.v1.MultiModalDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 744: confirmate.ontology.v1.MultiModalDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 745: confirmate.ontology.v1.MultiModalDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 746: confirmate.ontology.v1.MultiModalDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 747: confirmate.ontology.v1.MultiModalDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 748: confirmate.ontology.v1.MultiModalDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 749: confirmate.ontology.v1.MultiModalDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 750: confirmate.ontology.v1.NetworkInterface.creation_time:type_name -> google.protobuf.Timestamp
+	325,  // 751: confirmate.ontology.v1.NetworkInterface.labels:type_name -> confirmate.ontology.v1.NetworkInterface.LabelsEntry
+	1,    // 752: confirmate.ontology.v1.NetworkInterface.access_restriction:type_name -> confirmate.ontology.v1.AccessRestriction
+	31,   // 753: confirmate.ontology.v1.NetworkInterface.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 754: confirmate.ontology.v1.NetworkInterface.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 755: confirmate.ontology.v1.NetworkInterface.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 756: confirmate.ontology.v1.NetworkInterface.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 757: confirmate.ontology.v1.NetworkInterface.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 758: confirmate.ontology.v1.NetworkInterface.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 759: confirmate.ontology.v1.NetworkSecurityGroup.creation_time:type_name -> google.protobuf.Timestamp
+	326,  // 760: confirmate.ontology.v1.NetworkSecurityGroup.labels:type_name -> confirmate.ontology.v1.NetworkSecurityGroup.LabelsEntry
+	31,   // 761: confirmate.ontology.v1.NetworkSecurityGroup.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 762: confirmate.ontology.v1.NetworkSecurityGroup.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 763: confirmate.ontology.v1.NetworkSecurityGroup.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 764: confirmate.ontology.v1.NetworkSecurityGroup.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 765: confirmate.ontology.v1.NetworkSecurityGroup.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 766: confirmate.ontology.v1.NetworkSecurityGroup.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	106,  // 767: confirmate.ontology.v1.NetworkService.function_service:type_name -> confirmate.ontology.v1.FunctionService
+	109,  // 768: confirmate.ontology.v1.NetworkService.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
+	151,  // 769: confirmate.ontology.v1.NetworkService.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
+	166,  // 770: confirmate.ontology.v1.NetworkService.logging_service:type_name -> confirmate.ontology.v1.LoggingService
+	170,  // 771: confirmate.ontology.v1.NetworkService.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
+	243,  // 772: confirmate.ontology.v1.NetworkService.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
+	85,   // 773: confirmate.ontology.v1.NetworkService.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
+	145,  // 774: confirmate.ontology.v1.NetworkService.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
+	181,  // 775: confirmate.ontology.v1.NetworkService.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
+	223,  // 776: confirmate.ontology.v1.NetworkService.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
+	102,  // 777: confirmate.ontology.v1.NetworkService.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
+	192,  // 778: confirmate.ontology.v1.NetworkService.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
+	183,  // 779: confirmate.ontology.v1.Networking.network_interface:type_name -> confirmate.ontology.v1.NetworkInterface
+	184,  // 780: confirmate.ontology.v1.Networking.network_security_group:type_name -> confirmate.ontology.v1.NetworkSecurityGroup
+	106,  // 781: confirmate.ontology.v1.Networking.function_service:type_name -> confirmate.ontology.v1.FunctionService
+	109,  // 782: confirmate.ontology.v1.Networking.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
+	151,  // 783: confirmate.ontology.v1.Networking.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
+	166,  // 784: confirmate.ontology.v1.Networking.logging_service:type_name -> confirmate.ontology.v1.LoggingService
+	170,  // 785: confirmate.ontology.v1.Networking.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
+	243,  // 786: confirmate.ontology.v1.Networking.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
+	85,   // 787: confirmate.ontology.v1.Networking.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
+	145,  // 788: confirmate.ontology.v1.Networking.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
+	181,  // 789: confirmate.ontology.v1.Networking.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
+	223,  // 790: confirmate.ontology.v1.Networking.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
+	102,  // 791: confirmate.ontology.v1.Networking.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
+	192,  // 792: confirmate.ontology.v1.Networking.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
+	269,  // 793: confirmate.ontology.v1.Networking.virtual_network:type_name -> confirmate.ontology.v1.VirtualNetwork
+	270,  // 794: confirmate.ontology.v1.Networking.virtual_sub_network:type_name -> confirmate.ontology.v1.VirtualSubNetwork
+	356,  // 795: confirmate.ontology.v1.OSLogging.retention_period:type_name -> google.protobuf.Duration
+	355,  // 796: confirmate.ontology.v1.ObjectStorage.creation_time:type_name -> google.protobuf.Timestamp
+	327,  // 797: confirmate.ontology.v1.ObjectStorage.labels:type_name -> confirmate.ontology.v1.ObjectStorage.LabelsEntry
+	3,    // 798: confirmate.ontology.v1.ObjectStorage.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	12,   // 799: confirmate.ontology.v1.ObjectStorage.at_rest_encryption:type_name -> confirmate.ontology.v1.AtRestEncryption
+	23,   // 800: confirmate.ontology.v1.ObjectStorage.backups:type_name -> confirmate.ontology.v1.Backup
+	31,   // 801: confirmate.ontology.v1.ObjectStorage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 802: confirmate.ontology.v1.ObjectStorage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	132,  // 803: confirmate.ontology.v1.ObjectStorage.immutability:type_name -> confirmate.ontology.v1.Immutability
+	165,  // 804: confirmate.ontology.v1.ObjectStorage.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 805: confirmate.ontology.v1.ObjectStorage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 806: confirmate.ontology.v1.ObjectStorage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	232,  // 807: confirmate.ontology.v1.ObjectStorage.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 808: confirmate.ontology.v1.ObjectStorage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	39,   // 809: confirmate.ontology.v1.ObjectStorageRequest.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 810: confirmate.ontology.v1.ObjectStorageService.creation_time:type_name -> google.protobuf.Timestamp
+	328,  // 811: confirmate.ontology.v1.ObjectStorageService.labels:type_name -> confirmate.ontology.v1.ObjectStorageService.LabelsEntry
+	3,    // 812: confirmate.ontology.v1.ObjectStorageService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	31,   // 813: confirmate.ontology.v1.ObjectStorageService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 814: confirmate.ontology.v1.ObjectStorageService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 815: confirmate.ontology.v1.ObjectStorageService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 816: confirmate.ontology.v1.ObjectStorageService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 817: confirmate.ontology.v1.ObjectStorageService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 818: confirmate.ontology.v1.ObjectStorageService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 819: confirmate.ontology.v1.ObjectStorageService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 820: confirmate.ontology.v1.ObjectStorageService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	4,    // 821: confirmate.ontology.v1.OperatingSystemArchitecture.agnostic:type_name -> confirmate.ontology.v1.Agnostic
+	69,   // 822: confirmate.ontology.v1.OperatingSystemArchitecture.darwin:type_name -> confirmate.ontology.v1.Darwin
+	196,  // 823: confirmate.ontology.v1.OperatingSystemArchitecture.posix:type_name -> confirmate.ontology.v1.POSIX
+	273,  // 824: confirmate.ontology.v1.OperatingSystemArchitecture.win32:type_name -> confirmate.ontology.v1.Win32
+	15,   // 825: confirmate.ontology.v1.Operation.authenticate:type_name -> confirmate.ontology.v1.Authenticate
+	19,   // 826: confirmate.ontology.v1.Operation.authorize_jwt:type_name -> confirmate.ontology.v1.AuthorizeJwt
+	139,  // 827: confirmate.ontology.v1.Operation.issue_jwt:type_name -> confirmate.ontology.v1.IssueJwt
+	265,  // 828: confirmate.ontology.v1.Operation.validate_jwt:type_name -> confirmate.ontology.v1.ValidateJwt
+	25,   // 829: confirmate.ontology.v1.Operation.block_storage_operation:type_name -> confirmate.ontology.v1.BlockStorageOperation
+	79,   // 830: confirmate.ontology.v1.Operation.decryption:type_name -> confirmate.ontology.v1.Decryption
+	152,  // 831: confirmate.ontology.v1.Operation.load_configuration:type_name -> confirmate.ontology.v1.LoadConfiguration
+	211,  // 832: confirmate.ontology.v1.Operation.provide_configuration:type_name -> confirmate.ontology.v1.ProvideConfiguration
+	212,  // 833: confirmate.ontology.v1.Operation.provide_configuration_group:type_name -> confirmate.ontology.v1.ProvideConfigurationGroup
+	213,  // 834: confirmate.ontology.v1.Operation.provide_configuration_option:type_name -> confirmate.ontology.v1.ProvideConfigurationOption
+	217,  // 835: confirmate.ontology.v1.Operation.read_configuration_group:type_name -> confirmate.ontology.v1.ReadConfigurationGroup
+	218,  // 836: confirmate.ontology.v1.Operation.read_configuration_option:type_name -> confirmate.ontology.v1.ReadConfigurationOption
+	220,  // 837: confirmate.ontology.v1.Operation.register_configuration_group:type_name -> confirmate.ontology.v1.RegisterConfigurationGroup
+	221,  // 838: confirmate.ontology.v1.Operation.register_configuration_option:type_name -> confirmate.ontology.v1.RegisterConfigurationOption
+	116,  // 839: confirmate.ontology.v1.Operation.hash_operation:type_name -> confirmate.ontology.v1.HashOperation
+	73,   // 840: confirmate.ontology.v1.Operation.database_connect:type_name -> confirmate.ontology.v1.DatabaseConnect
+	75,   // 841: confirmate.ontology.v1.Operation.database_query:type_name -> confirmate.ontology.v1.DatabaseQuery
+	61,   // 842: confirmate.ontology.v1.Operation.create_encrypted_disk:type_name -> confirmate.ontology.v1.CreateEncryptedDisk
+	261,  // 843: confirmate.ontology.v1.Operation.unlock_encrypted_disk:type_name -> confirmate.ontology.v1.UnlockEncryptedDisk
+	91,   // 844: confirmate.ontology.v1.Operation.encryption_operation:type_name -> confirmate.ontology.v1.EncryptionOperation
+	95,   // 845: confirmate.ontology.v1.Operation.exit_boundary_operation:type_name -> confirmate.ontology.v1.ExitBoundaryOperation
+	100,  // 846: confirmate.ontology.v1.Operation.file_operation:type_name -> confirmate.ontology.v1.FileOperation
+	112,  // 847: confirmate.ontology.v1.Operation.get_current_time_operation:type_name -> confirmate.ontology.v1.GetCurrentTimeOperation
+	123,  // 848: confirmate.ontology.v1.Operation.http_request:type_name -> confirmate.ontology.v1.HttpRequest
+	122,  // 849: confirmate.ontology.v1.Operation.http_endpoint_operation:type_name -> confirmate.ontology.v1.HttpEndpointOperation
+	222,  // 850: confirmate.ontology.v1.Operation.register_http_endpoint:type_name -> confirmate.ontology.v1.RegisterHttpEndpoint
+	135,  // 851: confirmate.ontology.v1.Operation.input_validation_operation:type_name -> confirmate.ontology.v1.InputValidationOperation
+	136,  // 852: confirmate.ontology.v1.Operation.install_update_operation:type_name -> confirmate.ontology.v1.InstallUpdateOperation
+	160,  // 853: confirmate.ontology.v1.Operation.log_get:type_name -> confirmate.ontology.v1.LogGet
+	163,  // 854: confirmate.ontology.v1.Operation.log_write:type_name -> confirmate.ontology.v1.LogWrite
+	162,  // 855: confirmate.ontology.v1.Operation.log_output:type_name -> confirmate.ontology.v1.LogOutput
+	5,    // 856: confirmate.ontology.v1.Operation.allocate:type_name -> confirmate.ontology.v1.Allocate
+	78,   // 857: confirmate.ontology.v1.Operation.de_allocate:type_name -> confirmate.ontology.v1.DeAllocate
+	153,  // 858: confirmate.ontology.v1.Operation.load_library:type_name -> confirmate.ontology.v1.LoadLibrary
+	154,  // 859: confirmate.ontology.v1.Operation.load_symbol:type_name -> confirmate.ontology.v1.LoadSymbol
+	191,  // 860: confirmate.ontology.v1.Operation.object_storage_request:type_name -> confirmate.ontology.v1.ObjectStorageRequest
+	93,   // 861: confirmate.ontology.v1.Operation.equality_check:type_name -> confirmate.ontology.v1.EqualityCheck
+	32,   // 862: confirmate.ontology.v1.Operation.check_access:type_name -> confirmate.ontology.v1.CheckAccess
+	62,   // 863: confirmate.ontology.v1.Operation.create_secret:type_name -> confirmate.ontology.v1.CreateSecret
+	113,  // 864: confirmate.ontology.v1.Operation.get_secret:type_name -> confirmate.ontology.v1.GetSecret
+	355,  // 865: confirmate.ontology.v1.POSIX.creation_time:type_name -> google.protobuf.Timestamp
+	329,  // 866: confirmate.ontology.v1.POSIX.labels:type_name -> confirmate.ontology.v1.POSIX.LabelsEntry
+	107,  // 867: confirmate.ontology.v1.POSIX.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	355,  // 868: confirmate.ontology.v1.Package.creation_time:type_name -> google.protobuf.Timestamp
+	330,  // 869: confirmate.ontology.v1.Package.labels:type_name -> confirmate.ontology.v1.Package.LabelsEntry
+	107,  // 870: confirmate.ontology.v1.Package.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	355,  // 871: confirmate.ontology.v1.PasswordPolicy.creation_time:type_name -> google.protobuf.Timestamp
+	331,  // 872: confirmate.ontology.v1.PasswordPolicy.labels:type_name -> confirmate.ontology.v1.PasswordPolicy.LabelsEntry
+	31,   // 873: confirmate.ontology.v1.PasswordPolicy.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 874: confirmate.ontology.v1.PasswordPolicy.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 875: confirmate.ontology.v1.PasswordPolicy.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 876: confirmate.ontology.v1.PasswordPolicy.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 877: confirmate.ontology.v1.PasswordPolicy.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 878: confirmate.ontology.v1.PasswordPolicy.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	71,   // 879: confirmate.ontology.v1.Policies.data_confidentiality_sdn_policy:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy
+	148,  // 880: confirmate.ontology.v1.Policies.least_privilege_policy:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy
+	182,  // 881: confirmate.ontology.v1.Policies.need_to_know_policy:type_name -> confirmate.ontology.v1.NeedToKnowPolicy
+	237,  // 882: confirmate.ontology.v1.Policies.sdn_function_validation_policy:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy
+	247,  // 883: confirmate.ontology.v1.Policies.separation_of_duties_policy:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy
+	59,   // 884: confirmate.ontology.v1.Policy.coordinated_vulnerability_disclosure_policy:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
+	355,  // 885: confirmate.ontology.v1.PolicyDocument.creation_time:type_name -> google.protobuf.Timestamp
+	332,  // 886: confirmate.ontology.v1.PolicyDocument.labels:type_name -> confirmate.ontology.v1.PolicyDocument.LabelsEntry
+	10,   // 887: confirmate.ontology.v1.PolicyDocument.asset_inventory:type_name -> confirmate.ontology.v1.AssetInventory
+	23,   // 888: confirmate.ontology.v1.PolicyDocument.backup:type_name -> confirmate.ontology.v1.Backup
+	36,   // 889: confirmate.ontology.v1.PolicyDocument.cloud_feature:type_name -> confirmate.ontology.v1.CloudFeature
+	64,   // 890: confirmate.ontology.v1.PolicyDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	71,   // 891: confirmate.ontology.v1.PolicyDocument.data_confidentiality_sdn_policy:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy
+	72,   // 892: confirmate.ontology.v1.PolicyDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 893: confirmate.ontology.v1.PolicyDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	114,  // 894: confirmate.ontology.v1.PolicyDocument.governances:type_name -> confirmate.ontology.v1.Governance
+	148,  // 895: confirmate.ontology.v1.PolicyDocument.least_privilege_policy:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy
+	182,  // 896: confirmate.ontology.v1.PolicyDocument.need_to_know_policy:type_name -> confirmate.ontology.v1.NeedToKnowPolicy
+	237,  // 897: confirmate.ontology.v1.PolicyDocument.sdn_function_validation_policy:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy
+	238,  // 898: confirmate.ontology.v1.PolicyDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 899: confirmate.ontology.v1.PolicyDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	245,  // 900: confirmate.ontology.v1.PolicyDocument.security_incident:type_name -> confirmate.ontology.v1.SecurityIncident
+	247,  // 901: confirmate.ontology.v1.PolicyDocument.separation_of_duties_policy:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy
+	93,   // 902: confirmate.ontology.v1.PolicyOperation.equality_check:type_name -> confirmate.ontology.v1.EqualityCheck
 	6,    // 903: confirmate.ontology.v1.PolicyRule.and_rule:type_name -> confirmate.ontology.v1.AndRule
-	228,  // 904: confirmate.ontology.v1.ProtectedAsset.protects:type_name -> confirmate.ontology.v1.Resource
-	357,  // 905: confirmate.ontology.v1.Product.creation_time:type_name -> google.protobuf.Timestamp
+	230,  // 904: confirmate.ontology.v1.ProtectedAsset.protects:type_name -> confirmate.ontology.v1.Resource
+	355,  // 905: confirmate.ontology.v1.Product.creation_time:type_name -> google.protobuf.Timestamp
 	333,  // 906: confirmate.ontology.v1.Product.labels:type_name -> confirmate.ontology.v1.Product.LabelsEntry
-	357,  // 907: confirmate.ontology.v1.Product.support_ends:type_name -> google.protobuf.Timestamp
-	52,   // 908: confirmate.ontology.v1.Product.contact_person:type_name -> confirmate.ontology.v1.ContactPerson
-	113,  // 909: confirmate.ontology.v1.Product.governances:type_name -> confirmate.ontology.v1.Governance
-	357,  // 910: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.creation_time:type_name -> google.protobuf.Timestamp
+	355,  // 907: confirmate.ontology.v1.Product.support_ends:type_name -> google.protobuf.Timestamp
+	53,   // 908: confirmate.ontology.v1.Product.contact_person:type_name -> confirmate.ontology.v1.ContactPerson
+	114,  // 909: confirmate.ontology.v1.Product.governances:type_name -> confirmate.ontology.v1.Governance
+	355,  // 910: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.creation_time:type_name -> google.protobuf.Timestamp
 	334,  // 911: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.labels:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.LabelsEntry
-	63,   // 912: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 913: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 914: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 915: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 916: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	64,   // 912: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 913: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 914: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 915: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 916: confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
 	32,   // 917: confirmate.ontology.v1.ProtectedAssetOperation.check_access:type_name -> confirmate.ontology.v1.CheckAccess
-	38,   // 918: confirmate.ontology.v1.ProvideConfiguration.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	38,   // 919: confirmate.ontology.v1.ProvideConfigurationGroup.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	38,   // 920: confirmate.ontology.v1.ProvideConfigurationOption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 921: confirmate.ontology.v1.QPU.creation_time:type_name -> google.protobuf.Timestamp
+	39,   // 918: confirmate.ontology.v1.ProvideConfiguration.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 919: confirmate.ontology.v1.ProvideConfigurationGroup.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 920: confirmate.ontology.v1.ProvideConfigurationOption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 921: confirmate.ontology.v1.QPU.creation_time:type_name -> google.protobuf.Timestamp
 	335,  // 922: confirmate.ontology.v1.QPU.labels:type_name -> confirmate.ontology.v1.QPU.LabelsEntry
 	31,   // 923: confirmate.ontology.v1.QPU.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	89,   // 924: confirmate.ontology.v1.QPU.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
-	109,  // 925: confirmate.ontology.v1.QPU.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 926: confirmate.ontology.v1.QPU.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 927: confirmate.ontology.v1.QPU.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 928: confirmate.ontology.v1.QPU.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	223,  // 929: confirmate.ontology.v1.QPU.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
-	230,  // 930: confirmate.ontology.v1.QPU.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 931: confirmate.ontology.v1.QPU.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	38,   // 932: confirmate.ontology.v1.ReadConfigurationGroup.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	38,   // 933: confirmate.ontology.v1.ReadConfigurationOption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	110,  // 934: confirmate.ontology.v1.Redundancy.geo_redundancy:type_name -> confirmate.ontology.v1.GeoRedundancy
-	157,  // 935: confirmate.ontology.v1.Redundancy.local_redundancy:type_name -> confirmate.ontology.v1.LocalRedundancy
-	272,  // 936: confirmate.ontology.v1.Redundancy.zone_redundancy:type_name -> confirmate.ontology.v1.ZoneRedundancy
-	38,   // 937: confirmate.ontology.v1.RegisterConfigurationGroup.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	38,   // 938: confirmate.ontology.v1.RegisterConfigurationOption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	38,   // 939: confirmate.ontology.v1.RegisterHttpEndpoint.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	120,  // 940: confirmate.ontology.v1.RegisterHttpEndpoint.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	124,  // 941: confirmate.ontology.v1.RegisterHttpEndpoint.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
-	357,  // 942: confirmate.ontology.v1.RelationalDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
+	90,   // 924: confirmate.ontology.v1.QPU.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
+	110,  // 925: confirmate.ontology.v1.QPU.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 926: confirmate.ontology.v1.QPU.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 927: confirmate.ontology.v1.QPU.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 928: confirmate.ontology.v1.QPU.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	225,  // 929: confirmate.ontology.v1.QPU.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	232,  // 930: confirmate.ontology.v1.QPU.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 931: confirmate.ontology.v1.QPU.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	39,   // 932: confirmate.ontology.v1.ReadConfigurationGroup.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 933: confirmate.ontology.v1.ReadConfigurationOption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	111,  // 934: confirmate.ontology.v1.Redundancy.geo_redundancy:type_name -> confirmate.ontology.v1.GeoRedundancy
+	158,  // 935: confirmate.ontology.v1.Redundancy.local_redundancy:type_name -> confirmate.ontology.v1.LocalRedundancy
+	275,  // 936: confirmate.ontology.v1.Redundancy.zone_redundancy:type_name -> confirmate.ontology.v1.ZoneRedundancy
+	39,   // 937: confirmate.ontology.v1.RegisterConfigurationGroup.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 938: confirmate.ontology.v1.RegisterConfigurationOption.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	39,   // 939: confirmate.ontology.v1.RegisterHttpEndpoint.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	121,  // 940: confirmate.ontology.v1.RegisterHttpEndpoint.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	125,  // 941: confirmate.ontology.v1.RegisterHttpEndpoint.http_request_handler:type_name -> confirmate.ontology.v1.HttpRequestHandler
+	355,  // 942: confirmate.ontology.v1.RelationalDatabaseService.creation_time:type_name -> google.protobuf.Timestamp
 	336,  // 943: confirmate.ontology.v1.RelationalDatabaseService.labels:type_name -> confirmate.ontology.v1.RelationalDatabaseService.LabelsEntry
 	3,    // 944: confirmate.ontology.v1.RelationalDatabaseService.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
 	7,    // 945: confirmate.ontology.v1.RelationalDatabaseService.anomaly_detections:type_name -> confirmate.ontology.v1.AnomalyDetection
 	31,   // 946: confirmate.ontology.v1.RelationalDatabaseService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 947: confirmate.ontology.v1.RelationalDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	120,  // 948: confirmate.ontology.v1.RelationalDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	164,  // 949: confirmate.ontology.v1.RelationalDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 950: confirmate.ontology.v1.RelationalDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 951: confirmate.ontology.v1.RelationalDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	257,  // 952: confirmate.ontology.v1.RelationalDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 953: confirmate.ontology.v1.RelationalDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	95,   // 954: confirmate.ontology.v1.Reliability.explainable_results:type_name -> confirmate.ontology.v1.ExplainableResults
-	232,  // 955: confirmate.ontology.v1.Reliability.robustness_score:type_name -> confirmate.ontology.v1.RobustnessScore
-	357,  // 956: confirmate.ontology.v1.RemoteAttestation.creation_time:type_name -> google.protobuf.Timestamp
+	110,  // 947: confirmate.ontology.v1.RelationalDatabaseService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	121,  // 948: confirmate.ontology.v1.RelationalDatabaseService.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	165,  // 949: confirmate.ontology.v1.RelationalDatabaseService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 950: confirmate.ontology.v1.RelationalDatabaseService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 951: confirmate.ontology.v1.RelationalDatabaseService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	260,  // 952: confirmate.ontology.v1.RelationalDatabaseService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 953: confirmate.ontology.v1.RelationalDatabaseService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	96,   // 954: confirmate.ontology.v1.Reliability.explainable_results:type_name -> confirmate.ontology.v1.ExplainableResults
+	234,  // 955: confirmate.ontology.v1.Reliability.robustness_score:type_name -> confirmate.ontology.v1.RobustnessScore
+	355,  // 956: confirmate.ontology.v1.RemoteAttestation.creation_time:type_name -> google.protobuf.Timestamp
 	17,   // 957: confirmate.ontology.v1.RemoteDataLocation.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	257,  // 958: confirmate.ontology.v1.RemoteDataLocation.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	120,  // 959: confirmate.ontology.v1.RemoteEntryPoint.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
-	357,  // 960: confirmate.ontology.v1.ReportDocument.creation_time:type_name -> google.protobuf.Timestamp
+	260,  // 958: confirmate.ontology.v1.RemoteDataLocation.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	121,  // 959: confirmate.ontology.v1.RemoteEntryPoint.http_endpoint:type_name -> confirmate.ontology.v1.HttpEndpoint
+	355,  // 960: confirmate.ontology.v1.ReportDocument.creation_time:type_name -> google.protobuf.Timestamp
 	337,  // 961: confirmate.ontology.v1.ReportDocument.labels:type_name -> confirmate.ontology.v1.ReportDocument.LabelsEntry
-	63,   // 962: confirmate.ontology.v1.ReportDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 963: confirmate.ontology.v1.ReportDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 964: confirmate.ontology.v1.ReportDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 965: confirmate.ontology.v1.ReportDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 966: confirmate.ontology.v1.ReportDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	64,   // 962: confirmate.ontology.v1.ReportDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 963: confirmate.ontology.v1.ReportDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 964: confirmate.ontology.v1.ReportDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 965: confirmate.ontology.v1.ReportDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 966: confirmate.ontology.v1.ReportDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
 	2,    // 967: confirmate.ontology.v1.Resource.account:type_name -> confirmate.ontology.v1.Account
-	139,  // 968: confirmate.ontology.v1.Resource.job:type_name -> confirmate.ontology.v1.Job
-	271,  // 969: confirmate.ontology.v1.Resource.workflow:type_name -> confirmate.ontology.v1.Workflow
-	39,   // 970: confirmate.ontology.v1.Resource.code_repository:type_name -> confirmate.ontology.v1.CodeRepository
-	53,   // 971: confirmate.ontology.v1.Resource.container:type_name -> confirmate.ontology.v1.Container
-	104,  // 972: confirmate.ontology.v1.Resource.function:type_name -> confirmate.ontology.v1.Function
-	212,  // 973: confirmate.ontology.v1.Resource.qpu:type_name -> confirmate.ontology.v1.QPU
-	265,  // 974: confirmate.ontology.v1.Resource.virtual_machine:type_name -> confirmate.ontology.v1.VirtualMachine
-	55,   // 975: confirmate.ontology.v1.Resource.container_orchestration:type_name -> confirmate.ontology.v1.ContainerOrchestration
-	56,   // 976: confirmate.ontology.v1.Resource.container_registry:type_name -> confirmate.ontology.v1.ContainerRegistry
+	140,  // 968: confirmate.ontology.v1.Resource.job:type_name -> confirmate.ontology.v1.Job
+	274,  // 969: confirmate.ontology.v1.Resource.workflow:type_name -> confirmate.ontology.v1.Workflow
+	40,   // 970: confirmate.ontology.v1.Resource.code_repository:type_name -> confirmate.ontology.v1.CodeRepository
+	54,   // 971: confirmate.ontology.v1.Resource.container:type_name -> confirmate.ontology.v1.Container
+	105,  // 972: confirmate.ontology.v1.Resource.function:type_name -> confirmate.ontology.v1.Function
+	214,  // 973: confirmate.ontology.v1.Resource.qpu:type_name -> confirmate.ontology.v1.QPU
+	268,  // 974: confirmate.ontology.v1.Resource.virtual_machine:type_name -> confirmate.ontology.v1.VirtualMachine
+	56,   // 975: confirmate.ontology.v1.Resource.container_orchestration:type_name -> confirmate.ontology.v1.ContainerOrchestration
+	57,   // 976: confirmate.ontology.v1.Resource.container_registry:type_name -> confirmate.ontology.v1.ContainerRegistry
 	29,   // 977: confirmate.ontology.v1.Resource.certificate:type_name -> confirmate.ontology.v1.Certificate
-	142,  // 978: confirmate.ontology.v1.Resource.key:type_name -> confirmate.ontology.v1.Key
-	237,  // 979: confirmate.ontology.v1.Resource.secret:type_name -> confirmate.ontology.v1.Secret
-	129,  // 980: confirmate.ontology.v1.Resource.identity:type_name -> confirmate.ontology.v1.Identity
-	233,  // 981: confirmate.ontology.v1.Resource.role_assignment:type_name -> confirmate.ontology.v1.RoleAssignment
-	54,   // 982: confirmate.ontology.v1.Resource.container_image:type_name -> confirmate.ontology.v1.ContainerImage
-	261,  // 983: confirmate.ontology.v1.Resource.vm_image:type_name -> confirmate.ontology.v1.VMImage
-	79,   // 984: confirmate.ontology.v1.Resource.device_provisioning_service:type_name -> confirmate.ontology.v1.DeviceProvisioningService
-	176,  // 985: confirmate.ontology.v1.Resource.messaging_hub:type_name -> confirmate.ontology.v1.MessagingHub
-	145,  // 986: confirmate.ontology.v1.Resource.key_vault:type_name -> confirmate.ontology.v1.KeyVault
-	182,  // 987: confirmate.ontology.v1.Resource.network_interface:type_name -> confirmate.ontology.v1.NetworkInterface
-	183,  // 988: confirmate.ontology.v1.Resource.network_security_group:type_name -> confirmate.ontology.v1.NetworkSecurityGroup
-	105,  // 989: confirmate.ontology.v1.Resource.function_service:type_name -> confirmate.ontology.v1.FunctionService
-	108,  // 990: confirmate.ontology.v1.Resource.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
-	150,  // 991: confirmate.ontology.v1.Resource.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
-	165,  // 992: confirmate.ontology.v1.Resource.logging_service:type_name -> confirmate.ontology.v1.LoggingService
-	169,  // 993: confirmate.ontology.v1.Resource.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
-	241,  // 994: confirmate.ontology.v1.Resource.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
-	84,   // 995: confirmate.ontology.v1.Resource.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
-	144,  // 996: confirmate.ontology.v1.Resource.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
-	180,  // 997: confirmate.ontology.v1.Resource.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
-	221,  // 998: confirmate.ontology.v1.Resource.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
-	101,  // 999: confirmate.ontology.v1.Resource.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
-	191,  // 1000: confirmate.ontology.v1.Resource.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
-	266,  // 1001: confirmate.ontology.v1.Resource.virtual_network:type_name -> confirmate.ontology.v1.VirtualNetwork
-	267,  // 1002: confirmate.ontology.v1.Resource.virtual_sub_network:type_name -> confirmate.ontology.v1.VirtualSubNetwork
-	199,  // 1003: confirmate.ontology.v1.Resource.password_policy:type_name -> confirmate.ontology.v1.PasswordPolicy
-	229,  // 1004: confirmate.ontology.v1.Resource.resource_group:type_name -> confirmate.ontology.v1.ResourceGroup
+	143,  // 978: confirmate.ontology.v1.Resource.key:type_name -> confirmate.ontology.v1.Key
+	239,  // 979: confirmate.ontology.v1.Resource.secret:type_name -> confirmate.ontology.v1.Secret
+	130,  // 980: confirmate.ontology.v1.Resource.identity:type_name -> confirmate.ontology.v1.Identity
+	235,  // 981: confirmate.ontology.v1.Resource.role_assignment:type_name -> confirmate.ontology.v1.RoleAssignment
+	55,   // 982: confirmate.ontology.v1.Resource.container_image:type_name -> confirmate.ontology.v1.ContainerImage
+	264,  // 983: confirmate.ontology.v1.Resource.vm_image:type_name -> confirmate.ontology.v1.VMImage
+	80,   // 984: confirmate.ontology.v1.Resource.device_provisioning_service:type_name -> confirmate.ontology.v1.DeviceProvisioningService
+	177,  // 985: confirmate.ontology.v1.Resource.messaging_hub:type_name -> confirmate.ontology.v1.MessagingHub
+	146,  // 986: confirmate.ontology.v1.Resource.key_vault:type_name -> confirmate.ontology.v1.KeyVault
+	183,  // 987: confirmate.ontology.v1.Resource.network_interface:type_name -> confirmate.ontology.v1.NetworkInterface
+	184,  // 988: confirmate.ontology.v1.Resource.network_security_group:type_name -> confirmate.ontology.v1.NetworkSecurityGroup
+	106,  // 989: confirmate.ontology.v1.Resource.function_service:type_name -> confirmate.ontology.v1.FunctionService
+	109,  // 990: confirmate.ontology.v1.Resource.generic_network_service:type_name -> confirmate.ontology.v1.GenericNetworkService
+	151,  // 991: confirmate.ontology.v1.Resource.load_balancer:type_name -> confirmate.ontology.v1.LoadBalancer
+	166,  // 992: confirmate.ontology.v1.Resource.logging_service:type_name -> confirmate.ontology.v1.LoggingService
+	170,  // 993: confirmate.ontology.v1.Resource.machine_learning_service:type_name -> confirmate.ontology.v1.MachineLearningService
+	243,  // 994: confirmate.ontology.v1.Resource.security_advisory_service:type_name -> confirmate.ontology.v1.SecurityAdvisoryService
+	85,   // 995: confirmate.ontology.v1.Resource.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
+	145,  // 996: confirmate.ontology.v1.Resource.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
+	181,  // 997: confirmate.ontology.v1.Resource.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
+	223,  // 998: confirmate.ontology.v1.Resource.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
+	102,  // 999: confirmate.ontology.v1.Resource.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
+	192,  // 1000: confirmate.ontology.v1.Resource.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
+	269,  // 1001: confirmate.ontology.v1.Resource.virtual_network:type_name -> confirmate.ontology.v1.VirtualNetwork
+	270,  // 1002: confirmate.ontology.v1.Resource.virtual_sub_network:type_name -> confirmate.ontology.v1.VirtualSubNetwork
+	200,  // 1003: confirmate.ontology.v1.Resource.password_policy:type_name -> confirmate.ontology.v1.PasswordPolicy
+	231,  // 1004: confirmate.ontology.v1.Resource.resource_group:type_name -> confirmate.ontology.v1.ResourceGroup
 	24,   // 1005: confirmate.ontology.v1.Resource.block_storage:type_name -> confirmate.ontology.v1.BlockStorage
-	76,   // 1006: confirmate.ontology.v1.Resource.database_storage:type_name -> confirmate.ontology.v1.DatabaseStorage
-	100,  // 1007: confirmate.ontology.v1.Resource.file_storage:type_name -> confirmate.ontology.v1.FileStorage
-	189,  // 1008: confirmate.ontology.v1.Resource.object_storage:type_name -> confirmate.ontology.v1.ObjectStorage
-	44,   // 1009: confirmate.ontology.v1.Resource.configuration:type_name -> confirmate.ontology.v1.Configuration
-	46,   // 1010: confirmate.ontology.v1.Resource.configuration_group:type_name -> confirmate.ontology.v1.ConfigurationGroup
-	47,   // 1011: confirmate.ontology.v1.Resource.configuration_group_source:type_name -> confirmate.ontology.v1.ConfigurationGroupSource
-	49,   // 1012: confirmate.ontology.v1.Resource.configuration_option:type_name -> confirmate.ontology.v1.ConfigurationOption
-	50,   // 1013: confirmate.ontology.v1.Resource.configuration_option_source:type_name -> confirmate.ontology.v1.ConfigurationOptionSource
-	51,   // 1014: confirmate.ontology.v1.Resource.configuration_source:type_name -> confirmate.ontology.v1.ConfigurationSource
-	57,   // 1015: confirmate.ontology.v1.Resource.context:type_name -> confirmate.ontology.v1.Context
-	45,   // 1016: confirmate.ontology.v1.Resource.configuration_document:type_name -> confirmate.ontology.v1.ConfigurationDocument
-	66,   // 1017: confirmate.ontology.v1.Resource.cyber_security_risk_assessment_document:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
-	82,   // 1018: confirmate.ontology.v1.Resource.distribution_of_updates_document:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument
-	87,   // 1019: confirmate.ontology.v1.Resource.eu_declaration_of_conformity:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity
-	226,  // 1020: confirmate.ontology.v1.Resource.report_document:type_name -> confirmate.ontology.v1.ReportDocument
-	158,  // 1021: confirmate.ontology.v1.Resource.log_document:type_name -> confirmate.ontology.v1.LogDocument
-	201,  // 1022: confirmate.ontology.v1.Resource.policy_document:type_name -> confirmate.ontology.v1.PolicyDocument
-	207,  // 1023: confirmate.ontology.v1.Resource.production_and_monitoring_process_document:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
-	234,  // 1024: confirmate.ontology.v1.Resource.sbom_document:type_name -> confirmate.ontology.v1.SBOMDocument
-	239,  // 1025: confirmate.ontology.v1.Resource.security_advisory_document:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument
-	245,  // 1026: confirmate.ontology.v1.Resource.service_metadata_document:type_name -> confirmate.ontology.v1.ServiceMetadataDocument
-	260,  // 1027: confirmate.ontology.v1.Resource.user_information_and_intruction_document:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument
-	96,   // 1028: confirmate.ontology.v1.Resource.file:type_name -> confirmate.ontology.v1.File
-	97,   // 1029: confirmate.ontology.v1.Resource.file_handle:type_name -> confirmate.ontology.v1.FileHandle
-	167,  // 1030: confirmate.ontology.v1.Resource.machine_learning_dataset:type_name -> confirmate.ontology.v1.MachineLearningDataset
-	168,  // 1031: confirmate.ontology.v1.Resource.machine_learning_model:type_name -> confirmate.ontology.v1.MachineLearningModel
-	58,   // 1032: confirmate.ontology.v1.Resource.coordinated_vulnerability_disclosure_policy:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
-	70,   // 1033: confirmate.ontology.v1.Resource.data_confidentiality_sdn_policy:type_name -> confirmate.ontology.v1.DataConfidentialitySDNPolicy
-	147,  // 1034: confirmate.ontology.v1.Resource.least_privilege_policy:type_name -> confirmate.ontology.v1.LeastPrivilegePolicy
-	181,  // 1035: confirmate.ontology.v1.Resource.need_to_know_policy:type_name -> confirmate.ontology.v1.NeedToKnowPolicy
-	235,  // 1036: confirmate.ontology.v1.Resource.sdn_function_validation_policy:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy
-	244,  // 1037: confirmate.ontology.v1.Resource.separation_of_duties_policy:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy
-	6,    // 1038: confirmate.ontology.v1.Resource.and_rule:type_name -> confirmate.ontology.v1.AndRule
-	255,  // 1039: confirmate.ontology.v1.Resource.token:type_name -> confirmate.ontology.v1.Token
-	263,  // 1040: confirmate.ontology.v1.Resource.value:type_name -> confirmate.ontology.v1.Value
-	173,  // 1041: confirmate.ontology.v1.Resource.memory:type_name -> confirmate.ontology.v1.Memory
-	206,  // 1042: confirmate.ontology.v1.Resource.product:type_name -> confirmate.ontology.v1.Product
-	8,    // 1043: confirmate.ontology.v1.Resource.application:type_name -> confirmate.ontology.v1.Application
-	148,  // 1044: confirmate.ontology.v1.Resource.library:type_name -> confirmate.ontology.v1.Library
-	196,  // 1045: confirmate.ontology.v1.Resource.package:type_name -> confirmate.ontology.v1.Package
-	250,  // 1046: confirmate.ontology.v1.Resource.source_code_file:type_name -> confirmate.ontology.v1.SourceCodeFile
-	4,    // 1047: confirmate.ontology.v1.Resource.agnostic:type_name -> confirmate.ontology.v1.Agnostic
-	68,   // 1048: confirmate.ontology.v1.Resource.darwin:type_name -> confirmate.ontology.v1.Darwin
-	195,  // 1049: confirmate.ontology.v1.Resource.posix:type_name -> confirmate.ontology.v1.POSIX
-	270,  // 1050: confirmate.ontology.v1.Resource.win32:type_name -> confirmate.ontology.v1.Win32
-	357,  // 1051: confirmate.ontology.v1.ResourceGroup.creation_time:type_name -> google.protobuf.Timestamp
-	338,  // 1052: confirmate.ontology.v1.ResourceGroup.labels:type_name -> confirmate.ontology.v1.ResourceGroup.LabelsEntry
-	31,   // 1053: confirmate.ontology.v1.ResourceGroup.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1054: confirmate.ontology.v1.ResourceGroup.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1055: confirmate.ontology.v1.ResourceGroup.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1056: confirmate.ontology.v1.ResourceGroup.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1057: confirmate.ontology.v1.ResourceGroup.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1058: confirmate.ontology.v1.ResourceGroup.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	358,  // 1059: confirmate.ontology.v1.ResourceLogging.retention_period:type_name -> google.protobuf.Duration
-	357,  // 1060: confirmate.ontology.v1.RoleAssignment.creation_time:type_name -> google.protobuf.Timestamp
-	339,  // 1061: confirmate.ontology.v1.RoleAssignment.labels:type_name -> confirmate.ontology.v1.RoleAssignment.LabelsEntry
-	18,   // 1062: confirmate.ontology.v1.RoleAssignment.authorization:type_name -> confirmate.ontology.v1.Authorization
-	31,   // 1063: confirmate.ontology.v1.RoleAssignment.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1064: confirmate.ontology.v1.RoleAssignment.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1065: confirmate.ontology.v1.RoleAssignment.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1066: confirmate.ontology.v1.RoleAssignment.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1067: confirmate.ontology.v1.RoleAssignment.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1068: confirmate.ontology.v1.RoleAssignment.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 1069: confirmate.ontology.v1.SBOMDocument.creation_time:type_name -> google.protobuf.Timestamp
-	340,  // 1070: confirmate.ontology.v1.SBOMDocument.labels:type_name -> confirmate.ontology.v1.SBOMDocument.LabelsEntry
-	63,   // 1071: confirmate.ontology.v1.SBOMDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 1072: confirmate.ontology.v1.SBOMDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 1073: confirmate.ontology.v1.SBOMDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 1074: confirmate.ontology.v1.SBOMDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 1075: confirmate.ontology.v1.SBOMDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	357,  // 1076: confirmate.ontology.v1.SDNFunctionValidationPolicy.creation_time:type_name -> google.protobuf.Timestamp
-	341,  // 1077: confirmate.ontology.v1.SDNFunctionValidationPolicy.labels:type_name -> confirmate.ontology.v1.SDNFunctionValidationPolicy.LabelsEntry
-	71,   // 1078: confirmate.ontology.v1.SDNFunctionValidationPolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	93,   // 1079: confirmate.ontology.v1.SchemaValidation.errors:type_name -> confirmate.ontology.v1.Error
-	357,  // 1080: confirmate.ontology.v1.Secret.creation_time:type_name -> google.protobuf.Timestamp
-	357,  // 1081: confirmate.ontology.v1.Secret.expiration_date:type_name -> google.protobuf.Timestamp
-	342,  // 1082: confirmate.ontology.v1.Secret.labels:type_name -> confirmate.ontology.v1.Secret.LabelsEntry
-	357,  // 1083: confirmate.ontology.v1.Secret.not_before_date:type_name -> google.protobuf.Timestamp
-	31,   // 1084: confirmate.ontology.v1.Secret.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	33,   // 1085: confirmate.ontology.v1.Secret.based_on:type_name -> confirmate.ontology.v1.Cipher
-	109,  // 1086: confirmate.ontology.v1.Secret.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	36,   // 1087: confirmate.ontology.v1.Secret.used_by_multiple:type_name -> confirmate.ontology.v1.Infrastructure
-	164,  // 1088: confirmate.ontology.v1.Secret.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1089: confirmate.ontology.v1.Secret.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1090: confirmate.ontology.v1.Secret.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1091: confirmate.ontology.v1.Secret.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	61,   // 1092: confirmate.ontology.v1.SecretOperation.create_secret:type_name -> confirmate.ontology.v1.CreateSecret
-	112,  // 1093: confirmate.ontology.v1.SecretOperation.get_secret:type_name -> confirmate.ontology.v1.GetSecret
-	357,  // 1094: confirmate.ontology.v1.SecurityAdvisoryDocument.creation_time:type_name -> google.protobuf.Timestamp
-	343,  // 1095: confirmate.ontology.v1.SecurityAdvisoryDocument.labels:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntry
-	63,   // 1096: confirmate.ontology.v1.SecurityAdvisoryDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 1097: confirmate.ontology.v1.SecurityAdvisoryDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 1098: confirmate.ontology.v1.SecurityAdvisoryDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 1099: confirmate.ontology.v1.SecurityAdvisoryDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 1100: confirmate.ontology.v1.SecurityAdvisoryDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	268,  // 1101: confirmate.ontology.v1.SecurityAdvisoryDocument.vulnerabilities:type_name -> confirmate.ontology.v1.Vulnerability
-	357,  // 1102: confirmate.ontology.v1.SecurityAdvisoryService.creation_time:type_name -> google.protobuf.Timestamp
-	344,  // 1103: confirmate.ontology.v1.SecurityAdvisoryService.labels:type_name -> confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntry
-	31,   // 1104: confirmate.ontology.v1.SecurityAdvisoryService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1105: confirmate.ontology.v1.SecurityAdvisoryService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1106: confirmate.ontology.v1.SecurityAdvisoryService.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1107: confirmate.ontology.v1.SecurityAdvisoryService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1108: confirmate.ontology.v1.SecurityAdvisoryService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	240,  // 1109: confirmate.ontology.v1.SecurityAdvisoryService.security_advisory_feeds:type_name -> confirmate.ontology.v1.SecurityAdvisoryFeed
-	257,  // 1110: confirmate.ontology.v1.SecurityAdvisoryService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	259,  // 1111: confirmate.ontology.v1.SecurityAdvisoryService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	7,    // 1112: confirmate.ontology.v1.SecurityFeature.anomaly_detection:type_name -> confirmate.ontology.v1.AnomalyDetection
-	10,   // 1113: confirmate.ontology.v1.SecurityFeature.asset_inventory:type_name -> confirmate.ontology.v1.AssetInventory
-	40,   // 1114: confirmate.ontology.v1.SecurityFeature.code_signoff:type_name -> confirmate.ontology.v1.CodeSignoff
-	3,    // 1115: confirmate.ontology.v1.SecurityFeature.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	9,    // 1116: confirmate.ontology.v1.SecurityFeature.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
-	26,   // 1117: confirmate.ontology.v1.SecurityFeature.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
-	187,  // 1118: confirmate.ontology.v1.SecurityFeature.os_logging:type_name -> confirmate.ontology.v1.OSLogging
-	230,  // 1119: confirmate.ontology.v1.SecurityFeature.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	171,  // 1120: confirmate.ontology.v1.SecurityFeature.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	259,  // 1121: confirmate.ontology.v1.SecurityFeature.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	30,   // 1122: confirmate.ontology.v1.SecurityFeature.certificate_based_authentication:type_name -> confirmate.ontology.v1.CertificateBasedAuthentication
-	140,  // 1123: confirmate.ontology.v1.SecurityFeature.jwt_authentication:type_name -> confirmate.ontology.v1.JwtAuthentication
-	179,  // 1124: confirmate.ontology.v1.SecurityFeature.multi_factor_authentiation:type_name -> confirmate.ontology.v1.MultiFactorAuthentiation
-	186,  // 1125: confirmate.ontology.v1.SecurityFeature.no_authentication:type_name -> confirmate.ontology.v1.NoAuthentication
-	188,  // 1126: confirmate.ontology.v1.SecurityFeature.otp_based_authentication:type_name -> confirmate.ontology.v1.OTPBasedAuthentication
-	198,  // 1127: confirmate.ontology.v1.SecurityFeature.password_based_authentication:type_name -> confirmate.ontology.v1.PasswordBasedAuthentication
-	248,  // 1128: confirmate.ontology.v1.SecurityFeature.single_sign_on:type_name -> confirmate.ontology.v1.SingleSignOn
-	0,    // 1129: confirmate.ontology.v1.SecurityFeature.abac:type_name -> confirmate.ontology.v1.ABAC
-	146,  // 1130: confirmate.ontology.v1.SecurityFeature.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
-	269,  // 1131: confirmate.ontology.v1.SecurityFeature.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
-	214,  // 1132: confirmate.ontology.v1.SecurityFeature.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
-	213,  // 1133: confirmate.ontology.v1.SecurityFeature.rbac:type_name -> confirmate.ontology.v1.RBAC
-	23,   // 1134: confirmate.ontology.v1.SecurityFeature.backup:type_name -> confirmate.ontology.v1.Backup
-	67,   // 1135: confirmate.ontology.v1.SecurityFeature.d_do_s_protection:type_name -> confirmate.ontology.v1.DDoSProtection
-	109,  // 1136: confirmate.ontology.v1.SecurityFeature.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	110,  // 1137: confirmate.ontology.v1.SecurityFeature.geo_redundancy:type_name -> confirmate.ontology.v1.GeoRedundancy
-	157,  // 1138: confirmate.ontology.v1.SecurityFeature.local_redundancy:type_name -> confirmate.ontology.v1.LocalRedundancy
-	272,  // 1139: confirmate.ontology.v1.SecurityFeature.zone_redundancy:type_name -> confirmate.ontology.v1.ZoneRedundancy
-	65,   // 1140: confirmate.ontology.v1.SecurityFeature.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
-	80,   // 1141: confirmate.ontology.v1.SecurityFeature.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
-	172,  // 1142: confirmate.ontology.v1.SecurityFeature.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
-	257,  // 1143: confirmate.ontology.v1.SecurityFeature.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
-	89,   // 1144: confirmate.ontology.v1.SecurityFeature.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
-	154,  // 1145: confirmate.ontology.v1.SecurityFeature.local_attestation:type_name -> confirmate.ontology.v1.LocalAttestation
-	223,  // 1146: confirmate.ontology.v1.SecurityFeature.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
-	20,   // 1147: confirmate.ontology.v1.SecurityFeature.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
-	63,   // 1148: confirmate.ontology.v1.SecurityFeature.cryptographic_hash:type_name -> confirmate.ontology.v1.CryptographicHash
-	131,  // 1149: confirmate.ontology.v1.SecurityFeature.immutability:type_name -> confirmate.ontology.v1.Immutability
-	246,  // 1150: confirmate.ontology.v1.SecurityFeature.document_signature:type_name -> confirmate.ontology.v1.DocumentSignature
-	247,  // 1151: confirmate.ontology.v1.SecurityFeature.signed_commits:type_name -> confirmate.ontology.v1.SignedCommits
-	264,  // 1152: confirmate.ontology.v1.SecurityFeature.verified_commits:type_name -> confirmate.ontology.v1.VerifiedCommits
-	95,   // 1153: confirmate.ontology.v1.SecurityFeature.explainable_results:type_name -> confirmate.ontology.v1.ExplainableResults
-	232,  // 1154: confirmate.ontology.v1.SecurityFeature.robustness_score:type_name -> confirmate.ontology.v1.RobustnessScore
-	357,  // 1155: confirmate.ontology.v1.SeparationOfDutiesPolicy.creation_time:type_name -> google.protobuf.Timestamp
-	345,  // 1156: confirmate.ontology.v1.SeparationOfDutiesPolicy.labels:type_name -> confirmate.ontology.v1.SeparationOfDutiesPolicy.LabelsEntry
-	71,   // 1157: confirmate.ontology.v1.SeparationOfDutiesPolicy.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 1158: confirmate.ontology.v1.ServiceMetadataDocument.creation_time:type_name -> google.protobuf.Timestamp
-	346,  // 1159: confirmate.ontology.v1.ServiceMetadataDocument.labels:type_name -> confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntry
-	63,   // 1160: confirmate.ontology.v1.ServiceMetadataDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 1161: confirmate.ontology.v1.ServiceMetadataDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 1162: confirmate.ontology.v1.ServiceMetadataDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 1163: confirmate.ontology.v1.ServiceMetadataDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 1164: confirmate.ontology.v1.ServiceMetadataDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	93,   // 1165: confirmate.ontology.v1.DocumentSignature.errors:type_name -> confirmate.ontology.v1.Error
-	8,    // 1166: confirmate.ontology.v1.Code.application:type_name -> confirmate.ontology.v1.Application
-	148,  // 1167: confirmate.ontology.v1.Code.library:type_name -> confirmate.ontology.v1.Library
-	196,  // 1168: confirmate.ontology.v1.Code.package:type_name -> confirmate.ontology.v1.Package
-	250,  // 1169: confirmate.ontology.v1.Code.source_code_file:type_name -> confirmate.ontology.v1.SourceCodeFile
-	4,    // 1170: confirmate.ontology.v1.Code.agnostic:type_name -> confirmate.ontology.v1.Agnostic
-	68,   // 1171: confirmate.ontology.v1.Code.darwin:type_name -> confirmate.ontology.v1.Darwin
-	195,  // 1172: confirmate.ontology.v1.Code.posix:type_name -> confirmate.ontology.v1.POSIX
-	270,  // 1173: confirmate.ontology.v1.Code.win32:type_name -> confirmate.ontology.v1.Win32
-	357,  // 1174: confirmate.ontology.v1.SourceCodeFile.creation_time:type_name -> google.protobuf.Timestamp
-	347,  // 1175: confirmate.ontology.v1.SourceCodeFile.labels:type_name -> confirmate.ontology.v1.SourceCodeFile.LabelsEntry
-	106,  // 1176: confirmate.ontology.v1.SourceCodeFile.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	24,   // 1177: confirmate.ontology.v1.Storage.block_storage:type_name -> confirmate.ontology.v1.BlockStorage
-	76,   // 1178: confirmate.ontology.v1.Storage.database_storage:type_name -> confirmate.ontology.v1.DatabaseStorage
-	100,  // 1179: confirmate.ontology.v1.Storage.file_storage:type_name -> confirmate.ontology.v1.FileStorage
-	189,  // 1180: confirmate.ontology.v1.Storage.object_storage:type_name -> confirmate.ontology.v1.ObjectStorage
-	84,   // 1181: confirmate.ontology.v1.StorageService.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
-	144,  // 1182: confirmate.ontology.v1.StorageService.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
-	180,  // 1183: confirmate.ontology.v1.StorageService.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
-	221,  // 1184: confirmate.ontology.v1.StorageService.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
-	101,  // 1185: confirmate.ontology.v1.StorageService.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
-	191,  // 1186: confirmate.ontology.v1.StorageService.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
-	132,  // 1187: confirmate.ontology.v1.SymmetricCipher.initialization_vector:type_name -> confirmate.ontology.v1.InitializationVector
-	197,  // 1188: confirmate.ontology.v1.SymmetricCipher.padding:type_name -> confirmate.ontology.v1.Padding
-	357,  // 1189: confirmate.ontology.v1.Token.creation_time:type_name -> google.protobuf.Timestamp
-	348,  // 1190: confirmate.ontology.v1.Token.labels:type_name -> confirmate.ontology.v1.Token.LabelsEntry
-	71,   // 1191: confirmate.ontology.v1.Token.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	22,   // 1192: confirmate.ontology.v1.Training.awareness_training:type_name -> confirmate.ontology.v1.AwarenessTraining
-	243,  // 1193: confirmate.ontology.v1.Training.security_training:type_name -> confirmate.ontology.v1.SecurityTraining
-	33,   // 1194: confirmate.ontology.v1.TransportEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
-	35,   // 1195: confirmate.ontology.v1.TransportEncryption.cipher_suites:type_name -> confirmate.ontology.v1.CipherSuite
-	38,   // 1196: confirmate.ontology.v1.UnlockEncryptedDisk.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	80,   // 1197: confirmate.ontology.v1.UnlockEncryptedDisk.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
-	357,  // 1198: confirmate.ontology.v1.UserInformationAndIntructionDocument.creation_time:type_name -> google.protobuf.Timestamp
-	349,  // 1199: confirmate.ontology.v1.UserInformationAndIntructionDocument.labels:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntry
-	63,   // 1200: confirmate.ontology.v1.UserInformationAndIntructionDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
-	71,   // 1201: confirmate.ontology.v1.UserInformationAndIntructionDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	246,  // 1202: confirmate.ontology.v1.UserInformationAndIntructionDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
-	236,  // 1203: confirmate.ontology.v1.UserInformationAndIntructionDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
-	242,  // 1204: confirmate.ontology.v1.UserInformationAndIntructionDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
-	357,  // 1205: confirmate.ontology.v1.VMImage.creation_time:type_name -> google.protobuf.Timestamp
-	350,  // 1206: confirmate.ontology.v1.VMImage.labels:type_name -> confirmate.ontology.v1.VMImage.LabelsEntry
-	31,   // 1207: confirmate.ontology.v1.VMImage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1208: confirmate.ontology.v1.VMImage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1209: confirmate.ontology.v1.VMImage.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1210: confirmate.ontology.v1.VMImage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1211: confirmate.ontology.v1.VMImage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1212: confirmate.ontology.v1.VMImage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	17,   // 1213: confirmate.ontology.v1.ValidateJwt.authenticity:type_name -> confirmate.ontology.v1.Authenticity
-	38,   // 1214: confirmate.ontology.v1.ValidateJwt.code_region:type_name -> confirmate.ontology.v1.CodeRegion
-	357,  // 1215: confirmate.ontology.v1.Value.creation_time:type_name -> google.protobuf.Timestamp
-	351,  // 1216: confirmate.ontology.v1.Value.labels:type_name -> confirmate.ontology.v1.Value.LabelsEntry
-	71,   // 1217: confirmate.ontology.v1.Value.data_location:type_name -> confirmate.ontology.v1.DataLocation
-	357,  // 1218: confirmate.ontology.v1.VirtualMachine.creation_time:type_name -> google.protobuf.Timestamp
-	352,  // 1219: confirmate.ontology.v1.VirtualMachine.labels:type_name -> confirmate.ontology.v1.VirtualMachine.LabelsEntry
-	3,    // 1220: confirmate.ontology.v1.VirtualMachine.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
-	20,   // 1221: confirmate.ontology.v1.VirtualMachine.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
-	26,   // 1222: confirmate.ontology.v1.VirtualMachine.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
-	31,   // 1223: confirmate.ontology.v1.VirtualMachine.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	89,   // 1224: confirmate.ontology.v1.VirtualMachine.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
-	109,  // 1225: confirmate.ontology.v1.VirtualMachine.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1226: confirmate.ontology.v1.VirtualMachine.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1227: confirmate.ontology.v1.VirtualMachine.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	187,  // 1228: confirmate.ontology.v1.VirtualMachine.os_logging:type_name -> confirmate.ontology.v1.OSLogging
-	217,  // 1229: confirmate.ontology.v1.VirtualMachine.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	223,  // 1230: confirmate.ontology.v1.VirtualMachine.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
-	230,  // 1231: confirmate.ontology.v1.VirtualMachine.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
-	259,  // 1232: confirmate.ontology.v1.VirtualMachine.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 1233: confirmate.ontology.v1.VirtualNetwork.creation_time:type_name -> google.protobuf.Timestamp
-	353,  // 1234: confirmate.ontology.v1.VirtualNetwork.labels:type_name -> confirmate.ontology.v1.VirtualNetwork.LabelsEntry
-	31,   // 1235: confirmate.ontology.v1.VirtualNetwork.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1236: confirmate.ontology.v1.VirtualNetwork.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1237: confirmate.ontology.v1.VirtualNetwork.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1238: confirmate.ontology.v1.VirtualNetwork.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1239: confirmate.ontology.v1.VirtualNetwork.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1240: confirmate.ontology.v1.VirtualNetwork.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 1241: confirmate.ontology.v1.VirtualSubNetwork.creation_time:type_name -> google.protobuf.Timestamp
-	354,  // 1242: confirmate.ontology.v1.VirtualSubNetwork.labels:type_name -> confirmate.ontology.v1.VirtualSubNetwork.LabelsEntry
-	31,   // 1243: confirmate.ontology.v1.VirtualSubNetwork.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1244: confirmate.ontology.v1.VirtualSubNetwork.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1245: confirmate.ontology.v1.VirtualSubNetwork.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1246: confirmate.ontology.v1.VirtualSubNetwork.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1247: confirmate.ontology.v1.VirtualSubNetwork.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1248: confirmate.ontology.v1.VirtualSubNetwork.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	357,  // 1249: confirmate.ontology.v1.Win32.creation_time:type_name -> google.protobuf.Timestamp
-	355,  // 1250: confirmate.ontology.v1.Win32.labels:type_name -> confirmate.ontology.v1.Win32.LabelsEntry
-	106,  // 1251: confirmate.ontology.v1.Win32.functionalities:type_name -> confirmate.ontology.v1.Functionality
-	357,  // 1252: confirmate.ontology.v1.Workflow.creation_time:type_name -> google.protobuf.Timestamp
-	356,  // 1253: confirmate.ontology.v1.Workflow.labels:type_name -> confirmate.ontology.v1.Workflow.LabelsEntry
-	31,   // 1254: confirmate.ontology.v1.Workflow.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
-	109,  // 1255: confirmate.ontology.v1.Workflow.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
-	164,  // 1256: confirmate.ontology.v1.Workflow.loggings:type_name -> confirmate.ontology.v1.Logging
-	171,  // 1257: confirmate.ontology.v1.Workflow.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
-	217,  // 1258: confirmate.ontology.v1.Workflow.redundancies:type_name -> confirmate.ontology.v1.Redundancy
-	259,  // 1259: confirmate.ontology.v1.Workflow.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
-	109,  // 1260: confirmate.ontology.v1.ZoneRedundancy.geo_locations:type_name -> confirmate.ontology.v1.GeoLocation
-	359,  // 1261: confirmate.ontology.v1.resource_type_names:extendee -> google.protobuf.MessageOptions
-	1262, // [1262:1262] is the sub-list for method output_type
-	1262, // [1262:1262] is the sub-list for method input_type
-	1262, // [1262:1262] is the sub-list for extension type_name
-	1261, // [1261:1262] is the sub-list for extension extendee
-	0,    // [0:1261] is the sub-list for field type_name
+	77,   // 1006: confirmate.ontology.v1.Resource.database_storage:type_name -> confirmate.ontology.v1.DatabaseStorage
+	101,  // 1007: confirmate.ontology.v1.Resource.file_storage:type_name -> confirmate.ontology.v1.FileStorage
+	190,  // 1008: confirmate.ontology.v1.Resource.object_storage:type_name -> confirmate.ontology.v1.ObjectStorage
+	45,   // 1009: confirmate.ontology.v1.Resource.configuration:type_name -> confirmate.ontology.v1.Configuration
+	47,   // 1010: confirmate.ontology.v1.Resource.configuration_group:type_name -> confirmate.ontology.v1.ConfigurationGroup
+	48,   // 1011: confirmate.ontology.v1.Resource.configuration_group_source:type_name -> confirmate.ontology.v1.ConfigurationGroupSource
+	50,   // 1012: confirmate.ontology.v1.Resource.configuration_option:type_name -> confirmate.ontology.v1.ConfigurationOption
+	51,   // 1013: confirmate.ontology.v1.Resource.configuration_option_source:type_name -> confirmate.ontology.v1.ConfigurationOptionSource
+	52,   // 1014: confirmate.ontology.v1.Resource.configuration_source:type_name -> confirmate.ontology.v1.ConfigurationSource
+	58,   // 1015: confirmate.ontology.v1.Resource.context:type_name -> confirmate.ontology.v1.Context
+	46,   // 1016: confirmate.ontology.v1.Resource.configuration_document:type_name -> confirmate.ontology.v1.ConfigurationDocument
+	67,   // 1017: confirmate.ontology.v1.Resource.cyber_security_risk_assessment_document:type_name -> confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument
+	83,   // 1018: confirmate.ontology.v1.Resource.distribution_of_updates_document:type_name -> confirmate.ontology.v1.DistributionOfUpdatesDocument
+	88,   // 1019: confirmate.ontology.v1.Resource.eu_declaration_of_conformity:type_name -> confirmate.ontology.v1.EUDeclarationOfConformity
+	228,  // 1020: confirmate.ontology.v1.Resource.report_document:type_name -> confirmate.ontology.v1.ReportDocument
+	159,  // 1021: confirmate.ontology.v1.Resource.log_document:type_name -> confirmate.ontology.v1.LogDocument
+	203,  // 1022: confirmate.ontology.v1.Resource.policy_document:type_name -> confirmate.ontology.v1.PolicyDocument
+	209,  // 1023: confirmate.ontology.v1.Resource.production_and_monitoring_process_document:type_name -> confirmate.ontology.v1.ProductionAndMonitoringProcessDocument
+	236,  // 1024: confirmate.ontology.v1.Resource.sbom_document:type_name -> confirmate.ontology.v1.SBOMDocument
+	241,  // 1025: confirmate.ontology.v1.Resource.security_advisory_document:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument
+	248,  // 1026: confirmate.ontology.v1.Resource.service_metadata_document:type_name -> confirmate.ontology.v1.ServiceMetadataDocument
+	263,  // 1027: confirmate.ontology.v1.Resource.user_information_and_intruction_document:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument
+	97,   // 1028: confirmate.ontology.v1.Resource.file:type_name -> confirmate.ontology.v1.File
+	98,   // 1029: confirmate.ontology.v1.Resource.file_handle:type_name -> confirmate.ontology.v1.FileHandle
+	168,  // 1030: confirmate.ontology.v1.Resource.machine_learning_dataset:type_name -> confirmate.ontology.v1.MachineLearningDataset
+	169,  // 1031: confirmate.ontology.v1.Resource.machine_learning_model:type_name -> confirmate.ontology.v1.MachineLearningModel
+	59,   // 1032: confirmate.ontology.v1.Resource.coordinated_vulnerability_disclosure_policy:type_name -> confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicy
+	6,    // 1033: confirmate.ontology.v1.Resource.and_rule:type_name -> confirmate.ontology.v1.AndRule
+	258,  // 1034: confirmate.ontology.v1.Resource.token:type_name -> confirmate.ontology.v1.Token
+	266,  // 1035: confirmate.ontology.v1.Resource.value:type_name -> confirmate.ontology.v1.Value
+	174,  // 1036: confirmate.ontology.v1.Resource.memory:type_name -> confirmate.ontology.v1.Memory
+	208,  // 1037: confirmate.ontology.v1.Resource.product:type_name -> confirmate.ontology.v1.Product
+	8,    // 1038: confirmate.ontology.v1.Resource.application:type_name -> confirmate.ontology.v1.Application
+	149,  // 1039: confirmate.ontology.v1.Resource.library:type_name -> confirmate.ontology.v1.Library
+	197,  // 1040: confirmate.ontology.v1.Resource.package:type_name -> confirmate.ontology.v1.Package
+	253,  // 1041: confirmate.ontology.v1.Resource.source_code_file:type_name -> confirmate.ontology.v1.SourceCodeFile
+	4,    // 1042: confirmate.ontology.v1.Resource.agnostic:type_name -> confirmate.ontology.v1.Agnostic
+	69,   // 1043: confirmate.ontology.v1.Resource.darwin:type_name -> confirmate.ontology.v1.Darwin
+	196,  // 1044: confirmate.ontology.v1.Resource.posix:type_name -> confirmate.ontology.v1.POSIX
+	273,  // 1045: confirmate.ontology.v1.Resource.win32:type_name -> confirmate.ontology.v1.Win32
+	355,  // 1046: confirmate.ontology.v1.ResourceGroup.creation_time:type_name -> google.protobuf.Timestamp
+	338,  // 1047: confirmate.ontology.v1.ResourceGroup.labels:type_name -> confirmate.ontology.v1.ResourceGroup.LabelsEntry
+	31,   // 1048: confirmate.ontology.v1.ResourceGroup.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1049: confirmate.ontology.v1.ResourceGroup.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1050: confirmate.ontology.v1.ResourceGroup.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1051: confirmate.ontology.v1.ResourceGroup.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1052: confirmate.ontology.v1.ResourceGroup.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1053: confirmate.ontology.v1.ResourceGroup.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	356,  // 1054: confirmate.ontology.v1.ResourceLogging.retention_period:type_name -> google.protobuf.Duration
+	355,  // 1055: confirmate.ontology.v1.RoleAssignment.creation_time:type_name -> google.protobuf.Timestamp
+	339,  // 1056: confirmate.ontology.v1.RoleAssignment.labels:type_name -> confirmate.ontology.v1.RoleAssignment.LabelsEntry
+	18,   // 1057: confirmate.ontology.v1.RoleAssignment.authorization:type_name -> confirmate.ontology.v1.Authorization
+	31,   // 1058: confirmate.ontology.v1.RoleAssignment.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1059: confirmate.ontology.v1.RoleAssignment.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1060: confirmate.ontology.v1.RoleAssignment.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1061: confirmate.ontology.v1.RoleAssignment.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1062: confirmate.ontology.v1.RoleAssignment.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1063: confirmate.ontology.v1.RoleAssignment.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 1064: confirmate.ontology.v1.SBOMDocument.creation_time:type_name -> google.protobuf.Timestamp
+	340,  // 1065: confirmate.ontology.v1.SBOMDocument.labels:type_name -> confirmate.ontology.v1.SBOMDocument.LabelsEntry
+	64,   // 1066: confirmate.ontology.v1.SBOMDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 1067: confirmate.ontology.v1.SBOMDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 1068: confirmate.ontology.v1.SBOMDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 1069: confirmate.ontology.v1.SBOMDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 1070: confirmate.ontology.v1.SBOMDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	94,   // 1071: confirmate.ontology.v1.SchemaValidation.errors:type_name -> confirmate.ontology.v1.Error
+	355,  // 1072: confirmate.ontology.v1.Secret.creation_time:type_name -> google.protobuf.Timestamp
+	355,  // 1073: confirmate.ontology.v1.Secret.expiration_date:type_name -> google.protobuf.Timestamp
+	341,  // 1074: confirmate.ontology.v1.Secret.labels:type_name -> confirmate.ontology.v1.Secret.LabelsEntry
+	355,  // 1075: confirmate.ontology.v1.Secret.not_before_date:type_name -> google.protobuf.Timestamp
+	31,   // 1076: confirmate.ontology.v1.Secret.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	33,   // 1077: confirmate.ontology.v1.Secret.based_on:type_name -> confirmate.ontology.v1.Cipher
+	110,  // 1078: confirmate.ontology.v1.Secret.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	37,   // 1079: confirmate.ontology.v1.Secret.used_by_multiple:type_name -> confirmate.ontology.v1.Infrastructure
+	165,  // 1080: confirmate.ontology.v1.Secret.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1081: confirmate.ontology.v1.Secret.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1082: confirmate.ontology.v1.Secret.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1083: confirmate.ontology.v1.Secret.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	62,   // 1084: confirmate.ontology.v1.SecretOperation.create_secret:type_name -> confirmate.ontology.v1.CreateSecret
+	113,  // 1085: confirmate.ontology.v1.SecretOperation.get_secret:type_name -> confirmate.ontology.v1.GetSecret
+	355,  // 1086: confirmate.ontology.v1.SecurityAdvisoryDocument.creation_time:type_name -> google.protobuf.Timestamp
+	342,  // 1087: confirmate.ontology.v1.SecurityAdvisoryDocument.labels:type_name -> confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntry
+	64,   // 1088: confirmate.ontology.v1.SecurityAdvisoryDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 1089: confirmate.ontology.v1.SecurityAdvisoryDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 1090: confirmate.ontology.v1.SecurityAdvisoryDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 1091: confirmate.ontology.v1.SecurityAdvisoryDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 1092: confirmate.ontology.v1.SecurityAdvisoryDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	271,  // 1093: confirmate.ontology.v1.SecurityAdvisoryDocument.vulnerabilities:type_name -> confirmate.ontology.v1.Vulnerability
+	355,  // 1094: confirmate.ontology.v1.SecurityAdvisoryService.creation_time:type_name -> google.protobuf.Timestamp
+	343,  // 1095: confirmate.ontology.v1.SecurityAdvisoryService.labels:type_name -> confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntry
+	31,   // 1096: confirmate.ontology.v1.SecurityAdvisoryService.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1097: confirmate.ontology.v1.SecurityAdvisoryService.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1098: confirmate.ontology.v1.SecurityAdvisoryService.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1099: confirmate.ontology.v1.SecurityAdvisoryService.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1100: confirmate.ontology.v1.SecurityAdvisoryService.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	242,  // 1101: confirmate.ontology.v1.SecurityAdvisoryService.security_advisory_feeds:type_name -> confirmate.ontology.v1.SecurityAdvisoryFeed
+	260,  // 1102: confirmate.ontology.v1.SecurityAdvisoryService.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	262,  // 1103: confirmate.ontology.v1.SecurityAdvisoryService.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	7,    // 1104: confirmate.ontology.v1.SecurityFeature.anomaly_detection:type_name -> confirmate.ontology.v1.AnomalyDetection
+	10,   // 1105: confirmate.ontology.v1.SecurityFeature.asset_inventory:type_name -> confirmate.ontology.v1.AssetInventory
+	41,   // 1106: confirmate.ontology.v1.SecurityFeature.code_signoff:type_name -> confirmate.ontology.v1.CodeSignoff
+	3,    // 1107: confirmate.ontology.v1.SecurityFeature.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	9,    // 1108: confirmate.ontology.v1.SecurityFeature.application_logging:type_name -> confirmate.ontology.v1.ApplicationLogging
+	26,   // 1109: confirmate.ontology.v1.SecurityFeature.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
+	188,  // 1110: confirmate.ontology.v1.SecurityFeature.os_logging:type_name -> confirmate.ontology.v1.OSLogging
+	232,  // 1111: confirmate.ontology.v1.SecurityFeature.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	172,  // 1112: confirmate.ontology.v1.SecurityFeature.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	262,  // 1113: confirmate.ontology.v1.SecurityFeature.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	30,   // 1114: confirmate.ontology.v1.SecurityFeature.certificate_based_authentication:type_name -> confirmate.ontology.v1.CertificateBasedAuthentication
+	141,  // 1115: confirmate.ontology.v1.SecurityFeature.jwt_authentication:type_name -> confirmate.ontology.v1.JwtAuthentication
+	180,  // 1116: confirmate.ontology.v1.SecurityFeature.multi_factor_authentiation:type_name -> confirmate.ontology.v1.MultiFactorAuthentiation
+	187,  // 1117: confirmate.ontology.v1.SecurityFeature.no_authentication:type_name -> confirmate.ontology.v1.NoAuthentication
+	189,  // 1118: confirmate.ontology.v1.SecurityFeature.otp_based_authentication:type_name -> confirmate.ontology.v1.OTPBasedAuthentication
+	199,  // 1119: confirmate.ontology.v1.SecurityFeature.password_based_authentication:type_name -> confirmate.ontology.v1.PasswordBasedAuthentication
+	251,  // 1120: confirmate.ontology.v1.SecurityFeature.single_sign_on:type_name -> confirmate.ontology.v1.SingleSignOn
+	0,    // 1121: confirmate.ontology.v1.SecurityFeature.abac:type_name -> confirmate.ontology.v1.ABAC
+	147,  // 1122: confirmate.ontology.v1.SecurityFeature.l3_firewall:type_name -> confirmate.ontology.v1.L3Firewall
+	272,  // 1123: confirmate.ontology.v1.SecurityFeature.web_application_firewall:type_name -> confirmate.ontology.v1.WebApplicationFirewall
+	216,  // 1124: confirmate.ontology.v1.SecurityFeature.rate_limiting:type_name -> confirmate.ontology.v1.RateLimiting
+	215,  // 1125: confirmate.ontology.v1.SecurityFeature.rbac:type_name -> confirmate.ontology.v1.RBAC
+	23,   // 1126: confirmate.ontology.v1.SecurityFeature.backup:type_name -> confirmate.ontology.v1.Backup
+	68,   // 1127: confirmate.ontology.v1.SecurityFeature.d_do_s_protection:type_name -> confirmate.ontology.v1.DDoSProtection
+	110,  // 1128: confirmate.ontology.v1.SecurityFeature.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	111,  // 1129: confirmate.ontology.v1.SecurityFeature.geo_redundancy:type_name -> confirmate.ontology.v1.GeoRedundancy
+	158,  // 1130: confirmate.ontology.v1.SecurityFeature.local_redundancy:type_name -> confirmate.ontology.v1.LocalRedundancy
+	275,  // 1131: confirmate.ontology.v1.SecurityFeature.zone_redundancy:type_name -> confirmate.ontology.v1.ZoneRedundancy
+	66,   // 1132: confirmate.ontology.v1.SecurityFeature.customer_key_encryption:type_name -> confirmate.ontology.v1.CustomerKeyEncryption
+	81,   // 1133: confirmate.ontology.v1.SecurityFeature.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
+	173,  // 1134: confirmate.ontology.v1.SecurityFeature.managed_key_encryption:type_name -> confirmate.ontology.v1.ManagedKeyEncryption
+	260,  // 1135: confirmate.ontology.v1.SecurityFeature.transport_encryption:type_name -> confirmate.ontology.v1.TransportEncryption
+	90,   // 1136: confirmate.ontology.v1.SecurityFeature.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
+	155,  // 1137: confirmate.ontology.v1.SecurityFeature.local_attestation:type_name -> confirmate.ontology.v1.LocalAttestation
+	225,  // 1138: confirmate.ontology.v1.SecurityFeature.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	20,   // 1139: confirmate.ontology.v1.SecurityFeature.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
+	64,   // 1140: confirmate.ontology.v1.SecurityFeature.cryptographic_hash:type_name -> confirmate.ontology.v1.CryptographicHash
+	132,  // 1141: confirmate.ontology.v1.SecurityFeature.immutability:type_name -> confirmate.ontology.v1.Immutability
+	249,  // 1142: confirmate.ontology.v1.SecurityFeature.document_signature:type_name -> confirmate.ontology.v1.DocumentSignature
+	250,  // 1143: confirmate.ontology.v1.SecurityFeature.signed_commits:type_name -> confirmate.ontology.v1.SignedCommits
+	267,  // 1144: confirmate.ontology.v1.SecurityFeature.verified_commits:type_name -> confirmate.ontology.v1.VerifiedCommits
+	96,   // 1145: confirmate.ontology.v1.SecurityFeature.explainable_results:type_name -> confirmate.ontology.v1.ExplainableResults
+	234,  // 1146: confirmate.ontology.v1.SecurityFeature.robustness_score:type_name -> confirmate.ontology.v1.RobustnessScore
+	355,  // 1147: confirmate.ontology.v1.ServiceMetadataDocument.creation_time:type_name -> google.protobuf.Timestamp
+	344,  // 1148: confirmate.ontology.v1.ServiceMetadataDocument.labels:type_name -> confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntry
+	64,   // 1149: confirmate.ontology.v1.ServiceMetadataDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 1150: confirmate.ontology.v1.ServiceMetadataDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 1151: confirmate.ontology.v1.ServiceMetadataDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 1152: confirmate.ontology.v1.ServiceMetadataDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 1153: confirmate.ontology.v1.ServiceMetadataDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	94,   // 1154: confirmate.ontology.v1.DocumentSignature.errors:type_name -> confirmate.ontology.v1.Error
+	8,    // 1155: confirmate.ontology.v1.Code.application:type_name -> confirmate.ontology.v1.Application
+	149,  // 1156: confirmate.ontology.v1.Code.library:type_name -> confirmate.ontology.v1.Library
+	197,  // 1157: confirmate.ontology.v1.Code.package:type_name -> confirmate.ontology.v1.Package
+	253,  // 1158: confirmate.ontology.v1.Code.source_code_file:type_name -> confirmate.ontology.v1.SourceCodeFile
+	4,    // 1159: confirmate.ontology.v1.Code.agnostic:type_name -> confirmate.ontology.v1.Agnostic
+	69,   // 1160: confirmate.ontology.v1.Code.darwin:type_name -> confirmate.ontology.v1.Darwin
+	196,  // 1161: confirmate.ontology.v1.Code.posix:type_name -> confirmate.ontology.v1.POSIX
+	273,  // 1162: confirmate.ontology.v1.Code.win32:type_name -> confirmate.ontology.v1.Win32
+	355,  // 1163: confirmate.ontology.v1.SourceCodeFile.creation_time:type_name -> google.protobuf.Timestamp
+	345,  // 1164: confirmate.ontology.v1.SourceCodeFile.labels:type_name -> confirmate.ontology.v1.SourceCodeFile.LabelsEntry
+	107,  // 1165: confirmate.ontology.v1.SourceCodeFile.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	24,   // 1166: confirmate.ontology.v1.Storage.block_storage:type_name -> confirmate.ontology.v1.BlockStorage
+	77,   // 1167: confirmate.ontology.v1.Storage.database_storage:type_name -> confirmate.ontology.v1.DatabaseStorage
+	101,  // 1168: confirmate.ontology.v1.Storage.file_storage:type_name -> confirmate.ontology.v1.FileStorage
+	190,  // 1169: confirmate.ontology.v1.Storage.object_storage:type_name -> confirmate.ontology.v1.ObjectStorage
+	85,   // 1170: confirmate.ontology.v1.StorageService.document_database_service:type_name -> confirmate.ontology.v1.DocumentDatabaseService
+	145,  // 1171: confirmate.ontology.v1.StorageService.key_value_database_service:type_name -> confirmate.ontology.v1.KeyValueDatabaseService
+	181,  // 1172: confirmate.ontology.v1.StorageService.multi_modal_database_service:type_name -> confirmate.ontology.v1.MultiModalDatabaseService
+	223,  // 1173: confirmate.ontology.v1.StorageService.relational_database_service:type_name -> confirmate.ontology.v1.RelationalDatabaseService
+	102,  // 1174: confirmate.ontology.v1.StorageService.file_storage_service:type_name -> confirmate.ontology.v1.FileStorageService
+	192,  // 1175: confirmate.ontology.v1.StorageService.object_storage_service:type_name -> confirmate.ontology.v1.ObjectStorageService
+	133,  // 1176: confirmate.ontology.v1.SymmetricCipher.initialization_vector:type_name -> confirmate.ontology.v1.InitializationVector
+	198,  // 1177: confirmate.ontology.v1.SymmetricCipher.padding:type_name -> confirmate.ontology.v1.Padding
+	355,  // 1178: confirmate.ontology.v1.Token.creation_time:type_name -> google.protobuf.Timestamp
+	346,  // 1179: confirmate.ontology.v1.Token.labels:type_name -> confirmate.ontology.v1.Token.LabelsEntry
+	72,   // 1180: confirmate.ontology.v1.Token.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	22,   // 1181: confirmate.ontology.v1.Training.awareness_training:type_name -> confirmate.ontology.v1.AwarenessTraining
+	246,  // 1182: confirmate.ontology.v1.Training.security_training:type_name -> confirmate.ontology.v1.SecurityTraining
+	33,   // 1183: confirmate.ontology.v1.TransportEncryption.based_on:type_name -> confirmate.ontology.v1.Cipher
+	35,   // 1184: confirmate.ontology.v1.TransportEncryption.cipher_suites:type_name -> confirmate.ontology.v1.CipherSuite
+	39,   // 1185: confirmate.ontology.v1.UnlockEncryptedDisk.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	81,   // 1186: confirmate.ontology.v1.UnlockEncryptedDisk.disk_encryption:type_name -> confirmate.ontology.v1.DiskEncryption
+	355,  // 1187: confirmate.ontology.v1.UserInformationAndIntructionDocument.creation_time:type_name -> google.protobuf.Timestamp
+	347,  // 1188: confirmate.ontology.v1.UserInformationAndIntructionDocument.labels:type_name -> confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntry
+	64,   // 1189: confirmate.ontology.v1.UserInformationAndIntructionDocument.cryptographic_hashs:type_name -> confirmate.ontology.v1.CryptographicHash
+	72,   // 1190: confirmate.ontology.v1.UserInformationAndIntructionDocument.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	249,  // 1191: confirmate.ontology.v1.UserInformationAndIntructionDocument.document_signatures:type_name -> confirmate.ontology.v1.DocumentSignature
+	238,  // 1192: confirmate.ontology.v1.UserInformationAndIntructionDocument.validated_by:type_name -> confirmate.ontology.v1.SchemaValidation
+	244,  // 1193: confirmate.ontology.v1.UserInformationAndIntructionDocument.security_features:type_name -> confirmate.ontology.v1.SecurityFeature
+	355,  // 1194: confirmate.ontology.v1.VMImage.creation_time:type_name -> google.protobuf.Timestamp
+	348,  // 1195: confirmate.ontology.v1.VMImage.labels:type_name -> confirmate.ontology.v1.VMImage.LabelsEntry
+	31,   // 1196: confirmate.ontology.v1.VMImage.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1197: confirmate.ontology.v1.VMImage.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1198: confirmate.ontology.v1.VMImage.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1199: confirmate.ontology.v1.VMImage.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1200: confirmate.ontology.v1.VMImage.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1201: confirmate.ontology.v1.VMImage.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	17,   // 1202: confirmate.ontology.v1.ValidateJwt.authenticity:type_name -> confirmate.ontology.v1.Authenticity
+	39,   // 1203: confirmate.ontology.v1.ValidateJwt.code_region:type_name -> confirmate.ontology.v1.CodeRegion
+	355,  // 1204: confirmate.ontology.v1.Value.creation_time:type_name -> google.protobuf.Timestamp
+	349,  // 1205: confirmate.ontology.v1.Value.labels:type_name -> confirmate.ontology.v1.Value.LabelsEntry
+	72,   // 1206: confirmate.ontology.v1.Value.data_location:type_name -> confirmate.ontology.v1.DataLocation
+	355,  // 1207: confirmate.ontology.v1.VirtualMachine.creation_time:type_name -> google.protobuf.Timestamp
+	350,  // 1208: confirmate.ontology.v1.VirtualMachine.labels:type_name -> confirmate.ontology.v1.VirtualMachine.LabelsEntry
+	3,    // 1209: confirmate.ontology.v1.VirtualMachine.activity_logging:type_name -> confirmate.ontology.v1.ActivityLogging
+	20,   // 1210: confirmate.ontology.v1.VirtualMachine.automatic_updates:type_name -> confirmate.ontology.v1.AutomaticUpdates
+	26,   // 1211: confirmate.ontology.v1.VirtualMachine.boot_logging:type_name -> confirmate.ontology.v1.BootLogging
+	31,   // 1212: confirmate.ontology.v1.VirtualMachine.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	90,   // 1213: confirmate.ontology.v1.VirtualMachine.encryption_in_use:type_name -> confirmate.ontology.v1.EncryptionInUse
+	110,  // 1214: confirmate.ontology.v1.VirtualMachine.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1215: confirmate.ontology.v1.VirtualMachine.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1216: confirmate.ontology.v1.VirtualMachine.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	188,  // 1217: confirmate.ontology.v1.VirtualMachine.os_logging:type_name -> confirmate.ontology.v1.OSLogging
+	219,  // 1218: confirmate.ontology.v1.VirtualMachine.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	225,  // 1219: confirmate.ontology.v1.VirtualMachine.remote_attestation:type_name -> confirmate.ontology.v1.RemoteAttestation
+	232,  // 1220: confirmate.ontology.v1.VirtualMachine.resource_logging:type_name -> confirmate.ontology.v1.ResourceLogging
+	262,  // 1221: confirmate.ontology.v1.VirtualMachine.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 1222: confirmate.ontology.v1.VirtualNetwork.creation_time:type_name -> google.protobuf.Timestamp
+	351,  // 1223: confirmate.ontology.v1.VirtualNetwork.labels:type_name -> confirmate.ontology.v1.VirtualNetwork.LabelsEntry
+	31,   // 1224: confirmate.ontology.v1.VirtualNetwork.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1225: confirmate.ontology.v1.VirtualNetwork.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1226: confirmate.ontology.v1.VirtualNetwork.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1227: confirmate.ontology.v1.VirtualNetwork.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1228: confirmate.ontology.v1.VirtualNetwork.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1229: confirmate.ontology.v1.VirtualNetwork.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 1230: confirmate.ontology.v1.VirtualSubNetwork.creation_time:type_name -> google.protobuf.Timestamp
+	352,  // 1231: confirmate.ontology.v1.VirtualSubNetwork.labels:type_name -> confirmate.ontology.v1.VirtualSubNetwork.LabelsEntry
+	31,   // 1232: confirmate.ontology.v1.VirtualSubNetwork.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1233: confirmate.ontology.v1.VirtualSubNetwork.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1234: confirmate.ontology.v1.VirtualSubNetwork.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1235: confirmate.ontology.v1.VirtualSubNetwork.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1236: confirmate.ontology.v1.VirtualSubNetwork.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1237: confirmate.ontology.v1.VirtualSubNetwork.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	355,  // 1238: confirmate.ontology.v1.Win32.creation_time:type_name -> google.protobuf.Timestamp
+	353,  // 1239: confirmate.ontology.v1.Win32.labels:type_name -> confirmate.ontology.v1.Win32.LabelsEntry
+	107,  // 1240: confirmate.ontology.v1.Win32.functionalities:type_name -> confirmate.ontology.v1.Functionality
+	355,  // 1241: confirmate.ontology.v1.Workflow.creation_time:type_name -> google.protobuf.Timestamp
+	354,  // 1242: confirmate.ontology.v1.Workflow.labels:type_name -> confirmate.ontology.v1.Workflow.LabelsEntry
+	31,   // 1243: confirmate.ontology.v1.Workflow.change_and_configuration_management:type_name -> confirmate.ontology.v1.ChangeAndConfigurationManagement
+	110,  // 1244: confirmate.ontology.v1.Workflow.geo_location:type_name -> confirmate.ontology.v1.GeoLocation
+	165,  // 1245: confirmate.ontology.v1.Workflow.loggings:type_name -> confirmate.ontology.v1.Logging
+	172,  // 1246: confirmate.ontology.v1.Workflow.malware_protection:type_name -> confirmate.ontology.v1.MalwareProtection
+	219,  // 1247: confirmate.ontology.v1.Workflow.redundancies:type_name -> confirmate.ontology.v1.Redundancy
+	262,  // 1248: confirmate.ontology.v1.Workflow.usage_statistics:type_name -> confirmate.ontology.v1.UsageStatistics
+	110,  // 1249: confirmate.ontology.v1.ZoneRedundancy.geo_locations:type_name -> confirmate.ontology.v1.GeoLocation
+	357,  // 1250: confirmate.ontology.v1.resource_type_names:extendee -> google.protobuf.MessageOptions
+	1251, // [1251:1251] is the sub-list for method output_type
+	1251, // [1251:1251] is the sub-list for method input_type
+	1251, // [1251:1251] is the sub-list for extension type_name
+	1250, // [1250:1251] is the sub-list for extension extendee
+	0,    // [0:1250] is the sub-list for field type_name
 }
 
 func init() { file_policies_security_metrics_ontology_v1_ontology_proto_init() }
@@ -37675,7 +37248,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[34].OneofWrappers = []any{
 		(*CipherOperation_Decryption)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[36].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[37].OneofWrappers = []any{
 		(*Infrastructure_Account)(nil),
 		(*Infrastructure_Job)(nil),
 		(*Infrastructure_Workflow)(nil),
@@ -37719,29 +37292,29 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Infrastructure_FileStorage)(nil),
 		(*Infrastructure_ObjectStorage)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[39].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42].OneofWrappers = []any{
 		(*Component_Application)(nil),
 		(*Component_Library)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43].OneofWrappers = []any{
 		(*Compute_Container)(nil),
 		(*Compute_Function)(nil),
 		(*Compute_Qpu)(nil),
 		(*Compute_VirtualMachine)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44].OneofWrappers = []any{
 		(*Confidentiality_CustomerKeyEncryption)(nil),
 		(*Confidentiality_DiskEncryption)(nil),
 		(*Confidentiality_ManagedKeyEncryption)(nil),
 		(*Confidentiality_TransportEncryption)(nil),
 		(*Confidentiality_EncryptionInUse)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[45].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[46].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[47].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[48].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[48].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[49].OneofWrappers = []any{
 		(*ConfigurationOperation_LoadConfiguration)(nil),
 		(*ConfigurationOperation_ProvideConfiguration)(nil),
 		(*ConfigurationOperation_ProvideConfigurationGroup)(nil),
@@ -37751,35 +37324,35 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*ConfigurationOperation_RegisterConfigurationGroup)(nil),
 		(*ConfigurationOperation_RegisterConfigurationOption)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[49].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[50].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[51].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[53].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[52].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[54].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[55].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[56].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[57].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[58].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[59].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[59].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[60].OneofWrappers = []any{
 		(*Core_CloudSdk)(nil),
 		(*Core_HttpClientLibrary)(nil),
 		(*Core_HttpServer)(nil),
 		(*Core_Logger)(nil),
 		(*Core_ResourceType)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[61].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[62].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[62].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[63].OneofWrappers = []any{
 		(*Credential_Certificate)(nil),
 		(*Credential_Key)(nil),
 		(*Credential_Secret)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[64].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65].OneofWrappers = []any{
 		(*CryptographicOperation_HashOperation)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[66].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[68].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[69].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[67].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[69].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[70].OneofWrappers = []any{
 		(*Data_Configuration)(nil),
 		(*Data_ConfigurationGroup)(nil),
 		(*Data_ConfigurationGroupSource)(nil),
@@ -37804,43 +37377,37 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Data_MachineLearningDataset)(nil),
 		(*Data_MachineLearningModel)(nil),
 		(*Data_CoordinatedVulnerabilityDisclosurePolicy)(nil),
-		(*Data_DataConfidentialitySdnPolicy)(nil),
-		(*Data_LeastPrivilegePolicy)(nil),
-		(*Data_NeedToKnowPolicy)(nil),
-		(*Data_SdnFunctionValidationPolicy)(nil),
-		(*Data_SeparationOfDutiesPolicy)(nil),
 		(*Data_AndRule)(nil),
 		(*Data_Token)(nil),
 		(*Data_Value)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[70].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[71].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[72].OneofWrappers = []any{
 		(*DataLocation_LocalDataLocation)(nil),
 		(*DataLocation_RemoteDataLocation)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[72].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[73].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74].OneofWrappers = []any{
 		(*DatabaseOperation_DatabaseConnect)(nil),
 		(*DatabaseOperation_DatabaseQuery)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[74].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[75].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[75].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[76].OneofWrappers = []any{
 		(*DatabaseService_DocumentDatabaseService)(nil),
 		(*DatabaseService_KeyValueDatabaseService)(nil),
 		(*DatabaseService_MultiModalDatabaseService)(nil),
 		(*DatabaseService_RelationalDatabaseService)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[76].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[77].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[78].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[79].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[80].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[81].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[81].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[82].OneofWrappers = []any{
 		(*DiskEncryptionOperation_CreateEncryptedDisk)(nil),
 		(*DiskEncryptionOperation_UnlockEncryptedDisk)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[82].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[83].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[83].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[84].OneofWrappers = []any{
 		(*Document_ConfigurationDocument)(nil),
 		(*Document_CyberSecurityRiskAssessmentDocument)(nil),
 		(*Document_DistributionOfUpdatesDocument)(nil),
@@ -37854,47 +37421,47 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Document_ServiceMetadataDocument)(nil),
 		(*Document_UserInformationAndIntructionDocument)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[84].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[86].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[85].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[87].OneofWrappers = []any{
 		(*DynamicLoadingOperation_LoadLibrary)(nil),
 		(*DynamicLoadingOperation_LoadSymbol)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[87].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[88].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[88].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[89].OneofWrappers = []any{
 		(*Encryption_CustomerKeyEncryption)(nil),
 		(*Encryption_DiskEncryption)(nil),
 		(*Encryption_ManagedKeyEncryption)(nil),
 		(*Encryption_TransportEncryption)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[90].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[91].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[91].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92].OneofWrappers = []any{
 		(*EntryPoint_LibraryEntryPoint)(nil),
 		(*EntryPoint_Main)(nil),
 		(*EntryPoint_HttpEndpoint)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[92].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[93].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[97].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[98].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[98].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99].OneofWrappers = []any{
 		(*FileLikeObject_File)(nil),
 		(*FileLikeObject_FileHandle)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[102].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[102].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[103].OneofWrappers = []any{
 		(*Firewall_L3Firewall)(nil),
 		(*Firewall_WebApplicationFirewall)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[103].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[104].OneofWrappers = []any{
 		(*Framework_CloudSdk)(nil),
 		(*Framework_HttpClientLibrary)(nil),
 		(*Framework_HttpServer)(nil),
 		(*Framework_Logger)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[104].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[105].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[106].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[106].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[107].OneofWrappers = []any{
 		(*Functionality_Boundary)(nil),
 		(*Functionality_ChangeAndConfigurationManagement)(nil),
 		(*Functionality_AsymmetricCipher)(nil),
@@ -37962,6 +37529,11 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Functionality_GetSecret)(nil),
 		(*Functionality_Output)(nil),
 		(*Functionality_Padding)(nil),
+		(*Functionality_DataConfidentialitySdnPolicy)(nil),
+		(*Functionality_LeastPrivilegePolicy)(nil),
+		(*Functionality_NeedToKnowPolicy)(nil),
+		(*Functionality_SdnFunctionValidationPolicy)(nil),
+		(*Functionality_SeparationOfDutiesPolicy)(nil),
 		(*Functionality_Principal)(nil),
 		(*Functionality_ProtectedAsset)(nil),
 		(*Functionality_RequestForChange)(nil),
@@ -37970,42 +37542,42 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Functionality_Time)(nil),
 		(*Functionality_Vulnerability)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[107].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[108].OneofWrappers = []any{
 		(*GenericDocument_ReportDocument)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[108].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[113].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[109].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[113].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114].OneofWrappers = []any{
 		(*Governance_ContactPerson)(nil),
 		(*Governance_MonitoringProcedure)(nil),
 		(*Governance_AwarenessTraining)(nil),
 		(*Governance_SecurityTraining)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115].OneofWrappers = []any{
 		(*Hardware_Memory)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[117].OneofWrappers = []any{
 		(*Http_HttpClient)(nil),
 		(*Http_HttpRequestContext)(nil),
 		(*Http_HttpRequestHandler)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[119].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[120].OneofWrappers = []any{
 		(*HttpClientOperation_HttpRequest)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[124].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[126].OneofWrappers = []any{
 		(*HttpRequestHandlerOperation_RegisterHttpEndpoint)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129].OneofWrappers = []any{
 		(*Identifiable_Identity)(nil),
 		(*Identifiable_RoleAssignment)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131].OneofWrappers = []any{
 		(*Image_ContainerImage)(nil),
 		(*Image_VmImage)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[136].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137].OneofWrappers = []any{
 		(*Integrity_LocalAttestation)(nil),
 		(*Integrity_RemoteAttestation)(nil),
 		(*Integrity_AutomaticUpdates)(nil),
@@ -38015,68 +37587,66 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Integrity_SignedCommits)(nil),
 		(*Integrity_VerifiedCommits)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[138].OneofWrappers = []any{
 		(*IoT_DeviceProvisioningService)(nil),
 		(*IoT_MessagingHub)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[140].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142].OneofWrappers = []any{
 		(*TokenBasedAuthentication_JwtAuthentication)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[144].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[143].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[145].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[147].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[148].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[146].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[152].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[156].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[157].OneofWrappers = []any{
 		(*LocalEntryPoint_LibraryEntryPoint)(nil),
 		(*LocalEntryPoint_Main)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[158].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[160].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[159].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[161].OneofWrappers = []any{
 		(*LogOperation_LogGet)(nil),
 		(*LogOperation_LogWrite)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[164].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165].OneofWrappers = []any{
 		(*Logging_ActivityLogging)(nil),
 		(*Logging_ApplicationLogging)(nil),
 		(*Logging_BootLogging)(nil),
 		(*Logging_OsLogging)(nil),
 		(*Logging_ResourceLogging)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[165].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[166].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[166].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167].OneofWrappers = []any{
 		(*MachineLearning_MachineLearningDataset)(nil),
 		(*MachineLearning_MachineLearningModel)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[167].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[168].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[169].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[173].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175].OneofWrappers = []any{
 		(*MemoryOperation_Allocate)(nil),
 		(*MemoryOperation_DeAllocate)(nil),
 		(*MemoryOperation_LoadLibrary)(nil),
 		(*MemoryOperation_LoadSymbol)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[177].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[178].OneofWrappers = []any{
 		(*CodeModule_Package)(nil),
 		(*CodeModule_SourceCodeFile)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[180].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[181].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[182].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[183].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[184].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185].OneofWrappers = []any{
 		(*NetworkService_FunctionService)(nil),
 		(*NetworkService_GenericNetworkService)(nil),
 		(*NetworkService_LoadBalancer)(nil),
@@ -38090,7 +37660,7 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*NetworkService_FileStorageService)(nil),
 		(*NetworkService_ObjectStorageService)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[185].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[186].OneofWrappers = []any{
 		(*Networking_NetworkInterface)(nil),
 		(*Networking_NetworkSecurityGroup)(nil),
 		(*Networking_FunctionService)(nil),
@@ -38108,16 +37678,16 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Networking_VirtualNetwork)(nil),
 		(*Networking_VirtualSubNetwork)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[189].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[190].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[191].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[192].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193].OneofWrappers = []any{
 		(*OperatingSystemArchitecture_Agnostic)(nil),
 		(*OperatingSystemArchitecture_Darwin)(nil),
 		(*OperatingSystemArchitecture_Posix)(nil),
 		(*OperatingSystemArchitecture_Win32)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[193].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[194].OneofWrappers = []any{
 		(*Operation_Authenticate)(nil),
 		(*Operation_AuthorizeJwt)(nil),
 		(*Operation_IssueJwt)(nil),
@@ -38159,53 +37729,55 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Operation_CreateSecret)(nil),
 		(*Operation_GetSecret)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[195].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[196].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[199].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200].OneofWrappers = []any{
-		(*Policy_CoordinatedVulnerabilityDisclosurePolicy)(nil),
-		(*Policy_DataConfidentialitySdnPolicy)(nil),
-		(*Policy_LeastPrivilegePolicy)(nil),
-		(*Policy_NeedToKnowPolicy)(nil),
-		(*Policy_SdnFunctionValidationPolicy)(nil),
-		(*Policy_SeparationOfDutiesPolicy)(nil),
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[197].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[200].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201].OneofWrappers = []any{
+		(*Policies_DataConfidentialitySdnPolicy)(nil),
+		(*Policies_LeastPrivilegePolicy)(nil),
+		(*Policies_NeedToKnowPolicy)(nil),
+		(*Policies_SdnFunctionValidationPolicy)(nil),
+		(*Policies_SeparationOfDutiesPolicy)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[201].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[202].OneofWrappers = []any{
+		(*Policy_CoordinatedVulnerabilityDisclosurePolicy)(nil),
+	}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[204].OneofWrappers = []any{
 		(*PolicyOperation_EqualityCheck)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[203].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[205].OneofWrappers = []any{
 		(*PolicyRule_AndRule)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[206].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[207].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[209].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210].OneofWrappers = []any{
 		(*ProtectedAssetOperation_CheckAccess)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[209].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[211].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[212].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[215].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[216].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[213].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[214].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[217].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219].OneofWrappers = []any{
 		(*Redundancy_GeoRedundancy)(nil),
 		(*Redundancy_LocalRedundancy)(nil),
 		(*Redundancy_ZoneRedundancy)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[218].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[219].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[220].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[221].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[222].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[223].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224].OneofWrappers = []any{
 		(*Reliability_ExplainableResults)(nil),
 		(*Reliability_RobustnessScore)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[225].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[227].OneofWrappers = []any{
 		(*RemoteEntryPoint_HttpEndpoint)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[228].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[230].OneofWrappers = []any{
 		(*Resource_Account)(nil),
 		(*Resource_Job)(nil),
 		(*Resource_Workflow)(nil),
@@ -38272,11 +37844,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Resource_MachineLearningDataset)(nil),
 		(*Resource_MachineLearningModel)(nil),
 		(*Resource_CoordinatedVulnerabilityDisclosurePolicy)(nil),
-		(*Resource_DataConfidentialitySdnPolicy)(nil),
-		(*Resource_LeastPrivilegePolicy)(nil),
-		(*Resource_NeedToKnowPolicy)(nil),
-		(*Resource_SdnFunctionValidationPolicy)(nil),
-		(*Resource_SeparationOfDutiesPolicy)(nil),
 		(*Resource_AndRule)(nil),
 		(*Resource_Token)(nil),
 		(*Resource_Value)(nil),
@@ -38291,18 +37858,17 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Resource_Posix)(nil),
 		(*Resource_Win32)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[229].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[233].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[234].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[231].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[235].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[237].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[238].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[236].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[240].OneofWrappers = []any{
 		(*SecretOperation_CreateSecret)(nil),
 		(*SecretOperation_GetSecret)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[239].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[241].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[242].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[243].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[244].OneofWrappers = []any{
 		(*SecurityFeature_AnomalyDetection)(nil),
 		(*SecurityFeature_AssetInventory)(nil),
 		(*SecurityFeature_CodeSignoff)(nil),
@@ -38347,9 +37913,8 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*SecurityFeature_ExplainableResults)(nil),
 		(*SecurityFeature_RobustnessScore)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[244].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[245].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[249].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[248].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252].OneofWrappers = []any{
 		(*Code_Application)(nil),
 		(*Code_Library)(nil),
 		(*Code_Package)(nil),
@@ -38359,14 +37924,14 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Code_Posix)(nil),
 		(*Code_Win32)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[250].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[251].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[253].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[254].OneofWrappers = []any{
 		(*Storage_BlockStorage)(nil),
 		(*Storage_DatabaseStorage)(nil),
 		(*Storage_FileStorage)(nil),
 		(*Storage_ObjectStorage)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[252].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255].OneofWrappers = []any{
 		(*StorageService_DocumentDatabaseService)(nil),
 		(*StorageService_KeyValueDatabaseService)(nil),
 		(*StorageService_MultiModalDatabaseService)(nil),
@@ -38374,27 +37939,27 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*StorageService_FileStorageService)(nil),
 		(*StorageService_ObjectStorageService)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[255].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[256].OneofWrappers = []any{
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[258].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[259].OneofWrappers = []any{
 		(*Training_AwarenessTraining)(nil),
 		(*Training_SecurityTraining)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[257].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[260].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[261].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[263].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[265].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[269].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[273].OneofWrappers = []any{}
+	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[274].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc), len(file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   357,
+			NumMessages:   355,
 			NumExtensions: 1,
 			NumServices:   0,
 		},

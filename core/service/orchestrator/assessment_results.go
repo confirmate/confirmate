@@ -166,6 +166,10 @@ func (svc *Service) ListAssessmentResults(
 				args = append(args, id)
 			}
 		}
+		if req.Msg.Filter.EvidenceId != nil {
+			whereClauses = append(whereClauses, "evidence_id = ?")
+			args = append(args, req.Msg.Filter.GetEvidenceId())
+		}
 	}
 
 	// Combine all WHERE clauses with AND

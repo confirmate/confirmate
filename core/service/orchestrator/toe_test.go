@@ -113,7 +113,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
 				count, err = db.Count(&orchestrator.UserPermission{},
 					"user_id = ? AND object_id = ? AND object_type = ? AND permission = ?",
-					orchestratortest.MockUserIssuer1+"|"+orchestratortest.MockUserId1,
+					orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
 					res.Msg.Id,
 					orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 					orchestrator.UserPermission_PERMISSION_ADMIN,
