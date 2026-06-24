@@ -31,14 +31,30 @@ jobs:
       - name: Check proto and generated files
         shell: bash
         run: |
+          # Print available branches and remote heads for debugging
+          echo "Branches available:"
+          git branch -a
+          echo "Remote heads:"
+          git ls-remote --heads
+
           # Set correct base ref for diff
           BASE_REF="main"
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             BASE_REF="${{ github.base_ref }}"
           fi
+          echo "Using BASE_REF: $BASE_REF"
+
+          # Fetch base branch
+          git fetch origin $BASE_REF
+
+          # Show changed files for debugging
+          echo "Changed files since origin/$BASE_REF:"
+          git diff --name-only origin/$BASE_REF...HEAD
 
           # Get changed proto files
           CHANGED_PROTOS=$(git diff --name-only origin/$BASE_REF...HEAD | grep '^core/api/.*\.proto$' || true)
+          echo "Changed proto files: $CHANGED_PROTOS"
+
           for proto in $CHANGED_PROTOS; do
             dir=$(dirname "$proto")
             base=$(basename "$proto" .proto)
