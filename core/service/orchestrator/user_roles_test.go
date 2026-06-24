@@ -34,7 +34,7 @@ func TestProvisionCurrentUser_PopulatesRoles(t *testing.T) {
 		},
 		Roles: []orchestrator.Role{
 			orchestrator.Role_ROLE_ADMIN,
-			orchestrator.Role_ROLE_AUDITOR,
+			orchestrator.Role_ROLE_LEAD_AUDITOR,
 		},
 	})
 
@@ -46,7 +46,7 @@ func TestProvisionCurrentUser_PopulatesRoles(t *testing.T) {
 	assert.NoError(t, db.Get(&got, "id = ?", userId))
 	assert.Equal(t, []orchestrator.Role{
 		orchestrator.Role_ROLE_ADMIN,
-		orchestrator.Role_ROLE_AUDITOR,
+		orchestrator.Role_ROLE_LEAD_AUDITOR,
 	}, got.Roles)
 }
 
@@ -68,7 +68,7 @@ func TestProvisionCurrentUser_UpdatesRolesOnReprovisioning(t *testing.T) {
 			Subject: "bob",
 			Issuer:  "https://idp.example",
 		},
-		Roles: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
+		Roles: []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
 	})
 
 	_, err := provisionCurrentUser(ctx, svc)
@@ -76,5 +76,5 @@ func TestProvisionCurrentUser_UpdatesRolesOnReprovisioning(t *testing.T) {
 
 	var got orchestrator.User
 	assert.NoError(t, db.Get(&got, "id = ?", orchestratortest.GetConfirmateUserID("https://idp.example", "bob")))
-	assert.Equal(t, []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR}, got.Roles)
+	assert.Equal(t, []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR}, got.Roles)
 }

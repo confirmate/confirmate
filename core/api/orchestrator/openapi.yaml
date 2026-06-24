@@ -1737,8 +1737,11 @@ paths:
                         - ROLE_EXPERT_COMPLIANCE_MANAGER
                         - ROLE_INTERNAL_CONTROL_OWNER
                         - ROLE_TECHNICAL_IMPLEMENTER
-                        - ROLE_AUDITOR
+                        - ROLE_INTERNAL_AUDITOR
+                        - ROLE_LEAD_AUDITOR
+                        - ROLE_TECHNICAL_AUDITOR
                         - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        - ROLE_UI_ADMIN
                     type: string
                     format: enum
                 - name: filter.enabled
@@ -2877,8 +2880,11 @@ components:
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
                             - ROLE_INTERNAL_CONTROL_OWNER
                             - ROLE_TECHNICAL_IMPLEMENTER
-                            - ROLE_AUDITOR
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
                             - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
                         type: string
                         format: enum
         ListUsersResponse:
@@ -3224,8 +3230,11 @@ components:
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
                             - ROLE_INTERNAL_CONTROL_OWNER
                             - ROLE_TECHNICAL_IMPLEMENTER
-                            - ROLE_AUDITOR
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
                             - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
                         type: string
                         format: enum
                     description: Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
