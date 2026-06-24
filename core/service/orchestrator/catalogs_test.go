@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
@@ -927,12 +928,14 @@ func TestService_GetControl(t *testing.T) {
 							Name:            orchestratortest.MockSubControlName1,
 							ShortName:       orchestratortest.MockSubControlShortName1,
 							ParentControlId: new(orchestratortest.MockControlId1),
+							Metrics:         []*assessment.Metric{orchestratortest.MockMetric1},
 						},
 						{
 							Id:              orchestratortest.MockSubControlId2,
 							Name:            orchestratortest.MockSubControlName2,
 							ShortName:       orchestratortest.MockSubControlShortName2,
 							ParentControlId: new(orchestratortest.MockControlId1),
+							Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
 						},
 					},
 				}
