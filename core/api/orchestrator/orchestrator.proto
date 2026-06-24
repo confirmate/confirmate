@@ -1121,7 +1121,7 @@ message ListAssessmentResultsRequest {
     optional string tool_id = 5 [(buf.validate.field).string.min_len = 1];
     // Optional. List only assessment result from a specific list of IDs.
     repeated string assessment_result_ids = 6 [(buf.validate.field).repeated.items.string.min_len = 1];
-    // Optional. List only assessment result from a specific evidence ID.
+    // Optional. List only assessment results from a specific evidence ID.
     optional string evidence_id = 7 [(buf.validate.field).string.uuid = true];
   }
   optional Filter filter = 1;
