@@ -100,7 +100,7 @@ type Metric struct {
 	Version string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
 	// Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
 	Comments string `protobuf:"bytes,5,opt,name=comments,proto3" json:"comments,omitempty"`
-	// Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository.
+	// Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics repository.
 	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
 	// The implementation of this metric. This ensures that we are modelling an
 	// association between a Metric and its MetricImplementation.
