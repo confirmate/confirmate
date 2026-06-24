@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -45,7 +46,7 @@ func TestGetConfirmateUserIDFromClaims(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got string, _ ...any) bool {
-				expected := "testIssuer|testSubject"
+				expected := orchestratortest.GetConfirmateUserID("testIssuer", "testSubject")
 
 				return assert.Equal(t, expected, got)
 			},

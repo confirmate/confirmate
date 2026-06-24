@@ -119,7 +119,7 @@ func (svc *Service) GetCurrentUser(
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
 	}
 
-	userId := claims.Issuer + "|" + claims.Subject
+	userId := auth.GetConfirmateUserIDFromClaims(claims)
 	err = svc.db.Get(&user, "id = ?", userId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
 		return nil, err
@@ -339,7 +339,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	// JIT-provision the user using a read-then-update approach to avoid overwriting existing
 	// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
 	// by the OIDC specification, ensuring uniqueness across identity providers.
-	userId = claims.Issuer + "|" + claims.Subject
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
 	user = &orchestrator.User{}
 	err = svc.db.Get(user, "id = ?", userId)
 
