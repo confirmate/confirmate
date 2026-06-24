@@ -54,7 +54,7 @@ service Orchestrator {
   // Updates the assessment tool given by the passed id
   rpc UpdateAssessmentTool(UpdateAssessmentToolRequest) returns (AssessmentTool) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/assessment_tools/{tool.id}"
+      put: "/v1/orchestrator/assessment_tools/{tool.id}"
       body: "tool"
     };
   }
@@ -113,7 +113,7 @@ service Orchestrator {
   // Updates an existing metric
   rpc UpdateMetric(UpdateMetricRequest) returns (confirmate.assessment.v1.Metric) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/metrics/{metric.id}"
+      put: "/v1/orchestrator/metrics/{metric.id}"
       body: "metric"
     };
   }
@@ -144,7 +144,7 @@ service Orchestrator {
   // Registers a new target of evaluation
   rpc UpdateTargetOfEvaluation(UpdateTargetOfEvaluationRequest) returns (TargetOfEvaluation) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
+      put: "/v1/orchestrator/targets_of_evaluation/{target_of_evaluation.id}"
       body: "target_of_evaluation"
     };
   }
@@ -244,7 +244,7 @@ service Orchestrator {
   // Updates an existing certificate
   rpc UpdateCertificate(UpdateCertificateRequest) returns (Certificate) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/certificates/{certificate.id}"
+      put: "/v1/orchestrator/certificates/{certificate.id}"
       body: "certificate"
     };
   }
@@ -282,7 +282,7 @@ service Orchestrator {
   // Updates an existing certificate
   rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
-      put : "/v1/orchestrator/catalogs/{catalog.id}"
+      put: "/v1/orchestrator/catalogs/{catalog.id}"
       body: "catalog"
     };
   }
@@ -350,16 +350,14 @@ service Orchestrator {
   // Upserts a specific user permission identified by object and user.
   rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
     option (google.api.http) = {
-      put : "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}"
+      put: "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}"
       body: "*"
     };
   }
 
   // Removes a specific user permission identified by object ID, object type and user ID.
   rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/users/permissions/{object_type}/{object_id}/users/{user_id}"
-    };
+    option (google.api.http) = {delete: "/v1/users/permissions/{object_type}/{object_id}/users/{user_id}"};
   }
 
   // Returns information about the currently authenticated user
@@ -380,7 +378,7 @@ service Orchestrator {
   // Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
   rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
     option (google.api.http) = {
-      get                : "/v1/users/permissions"
+      get: "/v1/users/permissions"
       additional_bindings: {get: "/v1/users/permissions/{filter.object_type}/{filter.object_id}"}
       additional_bindings: {get: "/v1/users/permissions/{filter.object_type}/{filter.object_id}/users/{filter.user_id}"}
     };
@@ -547,15 +545,15 @@ message ListEvaluationResultsRequest {
   // Optional. Latest results grouped by control_id.
   optional bool latest_by_control_id = 2;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListEvaluationResultsResponse {
-  repeated confirmate.evaluation.v1.EvaluationResult results         = 1;
-  string                                             next_page_token = 2;
+  repeated confirmate.evaluation.v1.EvaluationResult results = 1;
+  string next_page_token = 2;
 }
 
 message CreateMetricRequest {
@@ -1123,6 +1121,8 @@ message ListAssessmentResultsRequest {
     optional string tool_id = 5 [(buf.validate.field).string.min_len = 1];
     // Optional. List only assessment result from a specific list of IDs.
     repeated string assessment_result_ids = 6 [(buf.validate.field).repeated.items.string.min_len = 1];
+    // Optional. List only assessment results from a specific evidence ID.
+    optional string evidence_id = 7 [(buf.validate.field).string.uuid = true];
   }
   optional Filter filter = 1;
   // Optional. Latest results grouped by resource_id and metric_id.
@@ -1413,41 +1413,35 @@ message ListUsersRequest {
 
   optional Filter filter = 1;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListUsersResponse {
-  repeated User users           = 1;
-  string        next_page_token = 2;
+  repeated User users = 1;
+  string next_page_token = 2;
 }
 
 message ListUserPermissionsRequest {
   message Filter {
     // Optional. Filter by a specific user ID to list all permissions for that user.
-    optional string user_id = 1 [
-      (buf.validate.field).string.min_len = 1
-    ];
+    optional string user_id = 1 [(buf.validate.field).string.min_len = 1];
 
     // Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
-    optional string object_id = 2 [
-      (buf.validate.field).string.uuid = true
-    ];
+    optional string object_id = 2 [(buf.validate.field).string.uuid = true];
 
     // Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
-    optional ObjectType object_type = 3 [
-      (buf.validate.field).enum.defined_only = true
-    ];
+    optional ObjectType object_type = 3 [(buf.validate.field).enum.defined_only = true];
   }
 
   optional Filter filter = 1;
 
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  string order_by   = 12;
-  bool   asc        = 13;
+  string order_by = 12;
+  bool asc = 13;
 }
 
 message ListUserPermissionsResponse {
@@ -1457,9 +1451,9 @@ message ListUserPermissionsResponse {
 }
 
 message ListUserRolesRequest {
-  int32  page_size  = 10;
+  int32 page_size = 10;
   string page_token = 11;
-  bool   asc        = 13;
+  bool asc = 13;
 }
 
 message ListUserRolesResponse {
