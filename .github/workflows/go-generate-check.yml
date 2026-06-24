@@ -1,17 +1,17 @@
 name: Proto generated files check
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        types: [opened, synchronize, reopened]
-        paths:
-          - 'core/api/**/*.proto'
-          - 'core/api/**/*.pb.go'
-          - 'core/api/**/openapi.yaml'
-          - 'core/api/**/*.connect.go'
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'core/api/**/*.proto'
+      - 'core/api/**/*.pb.go'
+      - 'core/api/**/openapi.yaml'
+      - 'core/api/**/*.connect.go'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,16 +28,25 @@ jobs:
       - name: Fetch main branch
         run: git fetch origin main
 
-
       - name: Check proto and generated files
         shell: bash
         run: |
+          # Get changed proto files
           CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^core/api/.*\.proto$' || true)
           for proto in $CHANGED_PROTOS; do
             dir=$(dirname "$proto")
             base=$(basename "$proto" .proto)
 
-            # Always check pb.go
+            # Special case: metric.proto (only check if pb.go file was updated)
+            if [[ "$proto" == "core/api/assessment/metric.proto" ]]; then
+              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
+                echo "❌ $proto changed, but $dir/$base.pb.go was not updated."
+                exit 1
+              fi
+              continue
+            fi
+
+            # Always check pb.go file
             if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
               echo "❌ $proto changed, but $dir/$base.pb.go was not updated."
               exit 1
