@@ -16,6 +16,8 @@
 package orchestratortest
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"strconv"
 
 	"confirmate.io/core/api/assessment"
@@ -588,7 +590,7 @@ var (
 		},
 	}
 	MockUser1 = &orchestrator.User{
-		Id:        MockUserIssuer1 + "|" + MockUserId1,
+		Id:        GetConfirmateUserID(MockUserIssuer1, MockUserId1),
 		Username:  new("testuser"),
 		Email:     new("email-1"),
 		FirstName: new("Test"),
@@ -596,7 +598,7 @@ var (
 	}
 
 	MockUser2 = &orchestrator.User{
-		Id:        MockUserIssuer1 + "|" + MockUserId2,
+		Id:        GetConfirmateUserID(MockUserIssuer1, MockUserId2),
 		Username:  new("testuser 2"),
 		Email:     new("email-2"),
 		FirstName: new("Test"),
@@ -604,21 +606,21 @@ var (
 	}
 
 	MockUserPermissionsToEAdmin = &orchestrator.UserPermission{
-		UserId:     MockUserIssuer1 + "|" + MockUserId1,
+		UserId:     GetConfirmateUserID(MockUserIssuer1, MockUserId1),
 		ObjectId:   MockToeId1,
 		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 		Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
 	}
 
 	MockUserPermissionsToEContributor = &orchestrator.UserPermission{
-		UserId:     MockUserIssuer1 + "|" + MockUserId1,
+		UserId:     GetConfirmateUserID(MockUserIssuer1, MockUserId1),
 		ObjectId:   MockToeId1,
 		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
 		Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
 	}
 
 	MockUserPermissionsAuditScopeAdmin = &orchestrator.UserPermission{
-		UserId:     MockUserIssuer1 + "|" + MockUserId1,
+		UserId:     GetConfirmateUserID(MockUserIssuer1, MockUserId1),
 		ObjectId:   MockScopeId1,
 		ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
 		Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
@@ -672,4 +674,13 @@ func NewMockAssessmentResultForConcurrentStream(streamID int) *assessment.Assess
 			},
 		},
 	}
+}
+
+// GetConfirmateUserID generates a Confirmate user ID based on the issuer and subject. This function is only for the mocking of users in tests and should not be used in production code, where the user ID should be generated based on the actual claims of the authenticated user.
+func GetConfirmateUserID(issuer, subject string) string {
+	// Hash the issuer URL so the URL itself is not stored directly.
+	h := md5.Sum([]byte(issuer))
+	hashedIssuer := hex.EncodeToString(h[:])
+
+	return hashedIssuer + "-" + subject
 }
