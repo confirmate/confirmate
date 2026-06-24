@@ -18,11 +18,13 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/log"
 	"confirmate.io/core/service"
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -57,6 +59,11 @@ func (svc *Service) StoreEvaluationResult(_ context.Context, req *connect.Reques
 	err = svc.db.Create(eval)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
+	}
+
+	// Best-effort: update the certificate lifecycle state for this audit scope.
+	if lcErr := svc.updateCertificateLifecycle(eval.AuditScopeId); lcErr != nil {
+		slog.Warn("lifecycle manager failed to update certificate state", log.Err(lcErr), "audit_scope_id", eval.AuditScopeId)
 	}
 
 	res = connect.NewResponse(eval)

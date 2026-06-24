@@ -420,12 +420,14 @@ var (
 		Name:                 MockCertifiateName1,
 		Description:          MockCertificateDescription1,
 		TargetOfEvaluationId: MockToeId1,
+		AuditScopeId:         MockScopeId1,
 	}
 	MockCertificate2 = &orchestrator.Certificate{
 		Id:                   MockCertificateId2,
 		Name:                 MockCertifiateName2,
 		Description:          MockCertificateDescription2,
 		TargetOfEvaluationId: MockToeId2,
+		AuditScopeId:         MockScopeId2,
 	}
 
 	// Mock Assessment Tools
