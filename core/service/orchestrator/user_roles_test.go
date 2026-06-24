@@ -76,5 +76,5 @@ func TestProvisionCurrentUser_UpdatesRolesOnReprovisioning(t *testing.T) {
 
 	var got orchestrator.User
 	assert.NoError(t, db.Get(&got, "id = ?", orchestratortest.GetConfirmateUserID("https://idp.example", "bob")))
-	assert.Equal(t, []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR}, got.Roles)
+	assert.Equal(t, []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR}, got.Roles)
 }
