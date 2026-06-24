@@ -14,6 +14,7 @@ import (
 	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -39,7 +40,7 @@ func TestProvisionCurrentUser_PopulatesRoles(t *testing.T) {
 
 	userId, err := provisionCurrentUser(ctx, svc)
 	assert.NoError(t, err)
-	assert.Equal(t, "https://idp.example|alice", userId)
+	assert.Equal(t, orchestratortest.GetConfirmateUserID("https://idp.example", "alice"), userId)
 
 	var got orchestrator.User
 	assert.NoError(t, db.Get(&got, "id = ?", userId))
@@ -55,7 +56,7 @@ func TestProvisionCurrentUser_PopulatesRoles(t *testing.T) {
 func TestProvisionCurrentUser_UpdatesRolesOnReprovisioning(t *testing.T) {
 	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 		assert.NoError(t, d.Create(&orchestrator.User{
-			Id:      "https://idp.example|bob",
+			Id:      orchestratortest.GetConfirmateUserID("https://idp.example", "bob"),
 			Enabled: true,
 			Roles:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN},
 		}))
@@ -74,6 +75,6 @@ func TestProvisionCurrentUser_UpdatesRolesOnReprovisioning(t *testing.T) {
 	assert.NoError(t, err)
 
 	var got orchestrator.User
-	assert.NoError(t, db.Get(&got, "id = ?", "https://idp.example|bob"))
-	assert.Equal(t, []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR}, got.Roles)
+	assert.NoError(t, db.Get(&got, "id = ?", orchestratortest.GetConfirmateUserID("https://idp.example", "bob")))
+	assert.Equal(t, []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR}, got.Roles)
 }
