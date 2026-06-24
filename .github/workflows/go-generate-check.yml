@@ -31,60 +31,26 @@ jobs:
       - name: Check proto and generated files
         shell: bash
         run: |
-          # Print available branches and remote heads for debugging
-          echo "Branches available:"
-          git branch -a
-          echo "Remote heads:"
-          git ls-remote --heads
-
-          # Set correct base ref for diff
-          BASE_REF="main"
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE_REF="${{ github.base_ref }}"
-          fi
-          echo "Using BASE_REF: $BASE_REF"
-
-          # Fetch base branch
-          git fetch origin $BASE_REF
-
-          # Show changed files for debugging
-          echo "Changed files since origin/$BASE_REF:"
-          git diff --name-only origin/$BASE_REF...HEAD
-
-          # Get changed proto files
-          CHANGED_PROTOS=$(git diff --name-only origin/$BASE_REF...HEAD | grep '^core/api/.*\.proto$' || true)
-          echo "Changed proto files: $CHANGED_PROTOS"
-
+          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^core/api/.*\.proto$' || true)
           for proto in $CHANGED_PROTOS; do
             dir=$(dirname "$proto")
             base=$(basename "$proto" .proto)
 
-            # Special case: metric.proto (check pb.go and openapi.yaml, but NOT connect.go)
-            if [[ "$proto" == "core/api/assessment/metric.proto" ]]; then
-              if ! git diff --name-only origin/$BASE_REF...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
-                echo "❌ $proto changed, but $dir/$base.pb.go was not updated."
-                exit 1
-              fi
-              if ! git diff --name-only origin/$BASE_REF...HEAD | grep -q "^$dir/openapi\.yaml$"; then
-                echo "❌ $proto changed, but $dir/openapi.yaml was not updated."
-                exit 1
-              fi
-              continue
-            fi
-
-            # Always check pb.go file
-            if ! git diff --name-only origin/$BASE_REF...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
+            # Always check pb.go
+            if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
               echo "❌ $proto changed, but $dir/$base.pb.go was not updated."
               exit 1
             fi
 
-            # Only require .connect.go and openapi.yaml if not in core/api/common
-            if [[ "$dir" != "core/api/common" ]]; then
-              if ! git diff --name-only origin/$BASE_REF...HEAD | grep -q "^$dir/${base}connect/$base\.connect\.go$"; then
+            # Skip connect.go and openapi.yaml for:
+            # 1. Anything in 'core/api/common'
+            # 2. The specific file 'core/api/assessment/metric.proto'
+            if [[ "$dir" != "core/api/common" && "$proto" != "core/api/assessment/metric.proto" ]]; then
+              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/${base}connect/$base\.connect\.go$"; then
                 echo "❌ $proto changed, but $dir/${base}connect/$base.connect.go was not updated."
                 exit 1
               fi
-              if ! git diff --name-only origin/$BASE_REF...HEAD | grep -q "^$dir/openapi\.yaml$"; then
+              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/openapi\.yaml$"; then
                 echo "❌ $proto changed, but $dir/openapi.yaml was not updated."
                 exit 1
               fi
