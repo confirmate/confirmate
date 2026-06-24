@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.14-1-g6f9910d4
+    version: core/v0.2.14-5-gd200e72
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -47,6 +47,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.evidenceId
+                  in: query
+                  description: Optional. List only assessment result from a specific evidence ID.
+                  schema:
+                    type: string
                 - name: latestByResourceId
                   in: query
                   description: Optional. Latest results grouped by resource_id and metric_id.
@@ -1732,8 +1737,11 @@ paths:
                         - ROLE_EXPERT_COMPLIANCE_MANAGER
                         - ROLE_INTERNAL_CONTROL_OWNER
                         - ROLE_TECHNICAL_IMPLEMENTER
-                        - ROLE_AUDITOR
+                        - ROLE_INTERNAL_AUDITOR
+                        - ROLE_LEAD_AUDITOR
+                        - ROLE_TECHNICAL_AUDITOR
                         - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        - ROLE_UI_ADMIN
                     type: string
                     format: enum
                 - name: filter.enabled
@@ -2872,8 +2880,11 @@ components:
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
                             - ROLE_INTERNAL_CONTROL_OWNER
                             - ROLE_TECHNICAL_IMPLEMENTER
-                            - ROLE_AUDITOR
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
                             - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
                         type: string
                         format: enum
         ListUsersResponse:
@@ -3219,8 +3230,11 @@ components:
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
                             - ROLE_INTERNAL_CONTROL_OWNER
                             - ROLE_TECHNICAL_IMPLEMENTER
-                            - ROLE_AUDITOR
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
                             - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
                         type: string
                         format: enum
                     description: Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
