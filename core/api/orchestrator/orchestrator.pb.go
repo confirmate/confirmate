@@ -5618,7 +5618,7 @@ type ListAssessmentResultsRequest_Filter struct {
 	ToolId *string `protobuf:"bytes,5,opt,name=tool_id,json=toolId,proto3,oneof" json:"tool_id,omitempty"`
 	// Optional. List only assessment result from a specific list of IDs.
 	AssessmentResultIds []string `protobuf:"bytes,6,rep,name=assessment_result_ids,json=assessmentResultIds,proto3" json:"assessment_result_ids,omitempty"`
-	// Optional. List only assessment result from a specific evidence ID.
+	// Optional. List only assessment results from a specific evidence ID.
 	EvidenceId    *string `protobuf:"bytes,7,opt,name=evidence_id,json=evidenceId,proto3,oneof" json:"evidence_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

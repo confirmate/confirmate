@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.14-5-gd200e72
+    version: core/v0.2.14-25-ga698f64
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -49,7 +49,7 @@ paths:
                         type: string
                 - name: filter.evidenceId
                   in: query
-                  description: Optional. List only assessment result from a specific evidence ID.
+                  description: Optional. List only assessment results from a specific evidence ID.
                   schema:
                     type: string
                 - name: latestByResourceId
@@ -2913,16 +2913,16 @@ components:
                     description: Required. The name of the metric.
                 description:
                     type: string
-                    description: The description of the metric
+                    description: The description of the metric.
                 version:
                     type: string
-                    description: The version of this metric
+                    description: The version of this metric.
                 comments:
                     type: string
                     description: Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
                 category:
                     type: string
-                    description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
+                    description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics repository.
                 implementation:
                     allOf:
                         - $ref: '#/components/schemas/MetricImplementation'
@@ -2947,7 +2947,7 @@ components:
             properties:
                 operator:
                     type: string
-                    description: The operator to compare the metric, such as == or >
+                    description: The operator to compare the metric, such as "==" or ">"
                 targetValue:
                     allOf:
                         - $ref: '#/components/schemas/GoogleProtobufValue'
@@ -2964,7 +2964,7 @@ components:
                     description: The metric this configuration belongs to
                 targetOfEvaluationId:
                     type: string
-                    description: The target of evaluation this configuration belongs to
+                    description: The target of evaluation this configuration belongs to.
             description: Defines the operator and a target value for an individual metric
         MetricImplementation:
             required:
