@@ -60,6 +60,10 @@ func (*denyAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, [
 	return false, nil
 }
 
+func (*denyAuthorizationStrategy) AllowedUserPermission(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
 func TestCheckAccess(t *testing.T) {
 	tests := []struct {
 		name  string
