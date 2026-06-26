@@ -201,11 +201,10 @@ func (svc *Service) ListUserPermissions(
 		permissions []*orchestrator.UserPermission
 		conds       []any
 		npt         string
-		// allowed     bool
-		query     []string
-		args      []any
-		all       bool
-		objectIds []string
+		query       []string
+		args        []any
+		all         bool
+		objectIds   []string
 	)
 
 	// Validate request
@@ -224,24 +223,21 @@ func (svc *Service) ListUserPermissions(
 
 	}
 
-	// if len(objectIds) > 0 {
-	// 	query = append(query, "object_id IN (?)")
-	// 	args = append(args, objectIds)
-	// }
-
 	// Add query for object IDs to filter results by access permissions and user ID.
 	if !all && len(objectIds) > 0 {
 		// Add a condition to filter by object IDs if the user has access to specific objects.
 		query = append(query, "object_id IN (?)")
 		args = append(args, objectIds)
-		// Add a condition to filter by user ID; get the user ID from the JWT claims in the context.
-		query = append(query, "user_id = ?")
+
+		// Get user ID from the JWT claims in the context
 		claims, ok := auth.ClaimsFromContext(ctx)
 		if !ok || claims == nil {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
 		}
-
 		userId := auth.GetConfirmateUserIDFromClaims(claims)
+
+		// Add a condition to filter by user ID
+		query = append(query, "user_id = ?")
 		args = append(args, userId)
 	}
 
@@ -351,7 +347,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	)
 
 	claims, ok = auth.ClaimsFromContext(ctx)
-	if !ok || claims == nil || /*claims.Issuer == "" ||*/ claims.Subject == "" {
+	if !ok || claims == nil || claims.Issuer == "" || claims.Subject == "" {
 		return "", nil
 	}
 

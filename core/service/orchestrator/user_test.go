@@ -549,21 +549,21 @@ func TestService_ListUserPermissions(t *testing.T) {
 		want    assert.Want[*connect.Response[orchestrator.ListUserPermissionsResponse]]
 		wantErr assert.WantErr
 	}{
-		// {
-		// 	name: "err: database error",
-		// 	args: args{
-		// 		userId: "non-existent-user-id",
-		// 	},
-		// 	fields: fields{
-		// 		db:    persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, joinTables),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
-		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-		// 		return assert.IsConnectError(t, err, connect.CodeInternal) &&
-		// 			assert.ErrorContains(t, err, "database error:")
-		// 	},
-		// },
+		{
+			name: "err: database error",
+			args: args{
+				userId: "non-existent-user-id",
+			},
+			fields: fields{
+				db:    persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "database error:")
+			},
+		},
 		{
 			name: "authorization error - deny strategy",
 			args: args{
