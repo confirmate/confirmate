@@ -201,9 +201,11 @@ func (svc *Service) ListUserPermissions(
 		permissions []*orchestrator.UserPermission
 		conds       []any
 		npt         string
-		allowed     bool
-		query       []string
-		args        []any
+		// allowed     bool
+		query     []string
+		args      []any
+		all       bool
+		objectIds []string
 	)
 
 	// Validate request
@@ -211,13 +213,36 @@ func (svc *Service) ListUserPermissions(
 		return nil, err
 	}
 
-	// Only admins may list permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+	// Retrieve list of all allowed UserPermission IDs for the user to filter results by access permissions.
+	all, objectIds = svc.authz.AllowedUserPermission(ctx)
+	if !all && len(objectIds) == 0 {
+		// User has no access to any objects (ToE or Audit Scope), so return an empty list without querying the database.
+		return connect.NewResponse(&orchestrator.ListUserPermissionsResponse{
+			UserPermissions: []*orchestrator.UserPermission{},
+			NextPageToken:   "",
+		}), nil
+
 	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
+
+	// if len(objectIds) > 0 {
+	// 	query = append(query, "object_id IN (?)")
+	// 	args = append(args, objectIds)
+	// }
+
+	// Add query for object IDs to filter results by access permissions and user ID.
+	if !all && len(objectIds) > 0 {
+		// Add a condition to filter by object IDs if the user has access to specific objects.
+		query = append(query, "object_id IN (?)")
+		args = append(args, objectIds)
+		// Add a condition to filter by user ID; get the user ID from the JWT claims in the context.
+		query = append(query, "user_id = ?")
+		claims, ok := auth.ClaimsFromContext(ctx)
+		if !ok || claims == nil {
+			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
+		}
+
+		userId := auth.GetConfirmateUserIDFromClaims(claims)
+		args = append(args, userId)
 	}
 
 	// Set default ordering
@@ -227,7 +252,8 @@ func (svc *Service) ListUserPermissions(
 	}
 
 	// Build filter conditions
-	if userId := req.Msg.GetFilter().GetUserId(); userId != "" {
+	// If the user ID is specified in the request filter and the user has access to all objects, add a condition to filter by user ID. Otherwise, if the user has only access to specific objects, the user ID condition is already added above.
+	if userId := req.Msg.GetFilter().GetUserId(); userId != "" && all {
 		query = append(query, "user_id = ?")
 		args = append(args, userId)
 	}
@@ -325,7 +351,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	)
 
 	claims, ok = auth.ClaimsFromContext(ctx)
-	if !ok || claims == nil || claims.Issuer == "" || claims.Subject == "" {
+	if !ok || claims == nil || /*claims.Issuer == "" ||*/ claims.Subject == "" {
 		return "", nil
 	}
 
