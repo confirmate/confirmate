@@ -41,7 +41,7 @@ func (ps DBPermissionStore) PermissionForObjects(_ context.Context, userID strin
 		err             error
 	)
 
-	types := []orchestrator.ObjectType{orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION}
+	types := []orchestrator.ObjectType{objectType}
 
 	if objectType == orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION {
 		if objectType == orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION {
