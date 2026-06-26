@@ -168,7 +168,7 @@ func (svc *Service) ListAuditScopes(
 	// Retrieve list of all allowed Audit Scope IDs for the user to filter results by access permissions.
 	all, auditScopeIds = svc.authz.AllowedAuditScopes(ctx)
 	if !all && len(auditScopeIds) == 0 {
-		// User has no access to any ToE, return empty result
+		// User has no access to any Audit Scope, return empty result
 		return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
 			AuditScopes:   []*orchestrator.AuditScope{},
 			NextPageToken: "",
