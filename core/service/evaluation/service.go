@@ -671,6 +671,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metri
 
 	// Add metric of control to the metrics list
 	metrics = append(metrics, control.Metrics...)
+	slog.Debug("metrics for control", slog.String("control id", controlId), slog.Int("number of metrics", len(control.Metrics)))
 
 	// Add sub-control metrics to the metric list if exist
 	if len(control.Controls) != 0 {
@@ -680,8 +681,10 @@ func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metri
 			err = fmt.Errorf("error getting metrics from sub-controls: %w", err)
 			return
 		}
+		slog.Debug("metrics for sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(subControlMetrics)))
 
 		metrics = append(metrics, subControlMetrics...)
+		slog.Debug("total metrics for control and sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(metrics)))
 	}
 
 	return
