@@ -294,6 +294,8 @@ func (svc *Service) ListControls(
 		}
 	}
 
+	whereClauses = append(whereClauses, "parent_control_id IS NULL") // Only top-level controls
+
 	// Combine all WHERE clauses with AND
 	if len(whereClauses) > 0 {
 		where = strings.Join(whereClauses, " AND ")
@@ -304,7 +306,6 @@ func (svc *Service) ListControls(
 	// Prepare preloads and combine with any WHERE clauses/args.
 	opts := []any{
 		persistence.WithPreload("Controls.Metrics"),
-		persistence.WithPreload("Metrics"),
 	}
 	if where != "" {
 		// first the SQL WHERE clause, followed by its arguments

@@ -72,7 +72,9 @@ const (
 	MockControlName2            = "Mock Control 2"
 	MockControlShortName1       = "control-1"
 	MockControlShortName2       = "control-2"
-	MockSubControlId1           = "00000000-0000-0000-0005-000000000011"
+	MockControl1SubControlId1   = "00000000-0000-0000-0005-000000000011"
+	MockControl1SubControlId2   = "00000000-0000-0000-0005-000000000012"
+	MockControl2SubControlId1   = "00000000-0000-0000-0005-000000000021"
 	MockSubControlName1         = "Mock Sub-Control 1"
 	MockSubControlId2           = "00000000-0000-0000-0005-000000000012"
 	MockSubControlName2         = "Mock Sub-Control 2"
@@ -252,34 +254,22 @@ var (
 						ShortName: MockControlShortName1,
 						Controls: []*orchestrator.Control{
 							{
-								Id:              MockSubControlId1,
+								Id:              MockControl1SubControlId1,
 								Name:            MockSubControlName1,
 								ShortName:       MockSubControlShortName1,
 								Metrics:         []*assessment.Metric{MockMetric1},
 								ParentControlId: new(MockControlId1),
+								AssuranceLevel:  new("high"),
 							},
 							{
-								Id:              MockSubControlId2,
+								Id:              MockControl1SubControlId2,
 								Name:            MockSubControlName2,
 								ShortName:       MockSubControlShortName2,
 								Metrics:         []*assessment.Metric{MockMetric2},
 								ParentControlId: new(MockControlId1),
+								AssuranceLevel:  new("medium"),
 							},
 						},
-					},
-					{
-						Id:              MockSubControlId1,
-						Name:            MockSubControlName1,
-						ShortName:       MockSubControlShortName1,
-						Metrics:         []*assessment.Metric{MockMetric1},
-						ParentControlId: new(MockControlId1),
-					},
-					{
-						Id:              MockSubControlId2,
-						Name:            MockSubControlName2,
-						ShortName:       MockSubControlShortName2,
-						Metrics:         []*assessment.Metric{MockMetric2},
-						ParentControlId: new(MockControlId1),
 					},
 				},
 			},
@@ -293,20 +283,13 @@ var (
 						ShortName: MockControlShortName2,
 						Controls: []*orchestrator.Control{
 							{
-								Id:              MockSubControlId1,
-								Name:            MockSubControlName1,
+								Id:              MockControl2SubControlId1,
+								Name:            MockSubControlName2,
 								ShortName:       MockSubControlShortName1,
 								Metrics:         []*assessment.Metric{MockMetric1},
 								ParentControlId: new(MockControlId2),
 							},
 						},
-					},
-					{
-						Id:              MockSubControlId1,
-						Name:            MockSubControlName1,
-						ShortName:       MockSubControlShortName1,
-						Metrics:         []*assessment.Metric{MockMetric1},
-						ParentControlId: new(MockControlId2),
 					},
 				},
 			},
@@ -329,20 +312,13 @@ var (
 						ShortName: MockControlShortName2,
 						Controls: []*orchestrator.Control{
 							{
-								Id:              MockSubControlId1,
+								Id:              MockControl2SubControlId1,
 								Name:            MockSubControlName1,
 								ShortName:       MockSubControlShortName1,
 								Metrics:         []*assessment.Metric{MockMetric2},
 								ParentControlId: new(MockControlId2),
 							},
 						},
-					},
-					{
-						Id:              MockSubControlId1,
-						Name:            MockSubControlName1,
-						ShortName:       MockSubControlShortName1,
-						Metrics:         []*assessment.Metric{MockMetric2},
-						ParentControlId: new(MockControlId2),
 					},
 				},
 			},
@@ -402,7 +378,7 @@ var (
 		Controls:  []*orchestrator.Control{MockSubControl1},
 	}
 	MockSubControl1 = &orchestrator.Control{
-		Id:              MockSubControlId1,
+		Id:              MockControl2SubControlId1,
 		Name:            MockSubControlName1,
 		ShortName:       MockSubControlShortName1,
 		Metrics:         []*assessment.Metric{MockMetric1},
