@@ -572,6 +572,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		return
 	}
 
+	slog.Debug("evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()), slog.Int("number of metrics", len(metrics)))
 	if len(metrics) != 0 {
 		// Get latest assessment_results by resource_id filtered by
 		// * target of evaluation id
@@ -663,6 +664,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metrics []*assessment.Metric, err error) {
 	var subControlMetrics []*assessment.Metric
 
+	slog.Debug("Start getAllMetricsFromControl()", slog.String("catalog id", catalogId), slog.String("control id", controlId))
 	control, err := svc.getControl(catalogId, controlId)
 	if err != nil {
 		err = fmt.Errorf("could not get control for control id {%s}: %w", controlId, err)
@@ -686,6 +688,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metri
 		metrics = append(metrics, subControlMetrics...)
 		slog.Debug("total metrics for control and sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(metrics)))
 	}
+	slog.Debug("End getAllMetricsFromControl()", slog.String("catalog id", catalogId), slog.String("control id", controlId))
 
 	return
 }
