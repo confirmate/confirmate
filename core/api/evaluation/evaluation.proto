@@ -23,7 +23,7 @@ service Evaluation {
     option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/stop"};
   }
 
-  // ListEvaluationJobs returns a list of Evaluation processes currently running. Part of the public API, also exposed as REST.
+  // ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
   rpc ListEvaluationJobs(ListEvaluationJobsRequest) returns (ListEvaluationJobsResponse) {
     option (google.api.http) = {get: "/v1/evaluation/evaluate"};
   }
@@ -136,9 +136,13 @@ enum EvaluationStatus {
 message EvaluationJob {
   string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
 
-  string audit_scope_name = 2 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.Timestamp started_at = 2 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 
-  google.protobuf.Timestamp started_at = 3 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  // interval in minutes the evaluation executes periodically. The default interval is set to 5 minutes.
+  int32 interval = 3 [(buf.validate.field).int32.gt = 0];
 
-  int32 interval = 4 [(buf.validate.field).int32.gt = 0];
+  // the number of times the job has finished running
+  int32 run_count = 4;
+
+  google.protobuf.Timestamp last_run = 5 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
 }

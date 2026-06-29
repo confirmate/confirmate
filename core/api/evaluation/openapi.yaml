@@ -5,13 +5,13 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Confirmate's assessment results
-    version: core/v0.2.15-3-g934b370
+    version: core/v0.2.15-4-g5bc46d6
 paths:
     /v1/evaluation/evaluate:
         get:
             tags:
                 - Evaluation
-            description: ListEvaluationJobs returns a list of Evaluation processes currently running. Part of the public API, also exposed as REST.
+            description: ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
             operationId: Evaluation_ListEvaluationJobs
             parameters:
                 - name: filter.auditScopeId
@@ -99,14 +99,19 @@ components:
             properties:
                 auditScopeId:
                     type: string
-                auditScopeName:
-                    type: string
                 startedAt:
                     type: string
                     format: date-time
                 interval:
                     type: integer
                     format: int32
+                runCount:
+                    type: integer
+                    description: the number of times the job has finished running
+                    format: int32
+                lastRun:
+                    type: string
+                    format: date-time
         GoogleProtobufAny:
             type: object
             properties:

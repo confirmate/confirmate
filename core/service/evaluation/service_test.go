@@ -2135,3 +2135,131 @@ func TestService_StartEvaluation(t *testing.T) {
 		})
 	}
 }
+
+func TestService_ListEvaluationJobs(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		scheduler          *gocron.Scheduler
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		req     *connect.Request[evaluation.ListEvaluationJobsRequest]
+		want    assert.Want[*connect.Response[evaluation.ListEvaluationJobsResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: validation error - invalid audit scope id",
+			fields: fields{
+				orchestratorClient: nil,
+				scheduler:          gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{
+				Filter: &evaluation.ListEvaluationJobsRequest_Filter{
+					AuditScopeId: new("invalid-uuid"),
+				},
+			}),
+			want: assert.Nil[*connect.Response[evaluation.ListEvaluationJobsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "filter.audit_scope_id: must be a valid UUID")
+			},
+		},
+		{
+			name: "happy path: filter by audit scope id",
+			fields: func() fields {
+				// Create test server that returns an Audit Scope
+				handler := &mockOrchestratorHandler{
+					auditScope: evaluationtest.MockAuditScope1,
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler: func() *gocron.Scheduler {
+						s := gocron.NewScheduler(time.Local)
+						_, err := s.Every(1).Day().Tag("00000000-0000-0000-0000-000000000001").Do(func() { fmt.Println("Job 1") })
+						assert.NoError(t, err)
+						_, err = s.Every(2).Day().Tag("00000000-0000-0000-0000-000000000002").Do(func() { fmt.Println("Job 2") })
+						assert.NoError(t, err)
+						return s
+					}(),
+				}
+			}(),
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{
+				Filter: &evaluation.ListEvaluationJobsRequest_Filter{
+					AuditScopeId: new("00000000-0000-0000-0000-000000000002"),
+				},
+			}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				want1 := &evaluation.EvaluationJob{
+					AuditScopeId: "00000000-0000-0000-0000-000000000002",
+					Interval:     2,
+				}
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.GetEvaluationJobs()))
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetLastRun())
+				assert.Equal(t, 0, got.Msg.GetEvaluationJobs()[0].GetRunCount())
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetStartedAt())
+				return assert.Equal(t, want1, got.Msg.GetEvaluationJobs()[0], protocmp.IgnoreFields(&evaluation.EvaluationJob{}, "last_run", "run_count", "started_at"))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path",
+			fields: func() fields {
+				// Create test server that returns an Audit Scope
+				handler := &mockOrchestratorHandler{
+					auditScope: evaluationtest.MockAuditScope1,
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler: func() *gocron.Scheduler {
+						s := gocron.NewScheduler(time.Local)
+						_, err := s.Every(1).Day().Tag("00000000-0000-0000-0000-000000000001").Do(func() { fmt.Println("Job 1") })
+						assert.NoError(t, err)
+						_, err = s.Every(2).Day().Tag("00000000-0000-0000-0000-000000000002").Do(func() { fmt.Println("Job 2") })
+						assert.NoError(t, err)
+						return s
+					}(),
+				}
+			}(),
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				want1 := &evaluation.EvaluationJob{
+					AuditScopeId: "00000000-0000-0000-0000-000000000001",
+					Interval:     1,
+				}
+				assert.NotNil(t, got)
+				assert.Equal(t, 2, len(got.Msg.GetEvaluationJobs()))
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetLastRun())
+				assert.Equal(t, 0, got.Msg.GetEvaluationJobs()[0].GetRunCount())
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetStartedAt())
+				return assert.Equal(t, want1, got.Msg.GetEvaluationJobs()[0], protocmp.IgnoreFields(&evaluation.EvaluationJob{}, "last_run", "run_count", "started_at"))
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				scheduler:          tt.fields.scheduler,
+			}
+			got, gotErr := svc.ListEvaluationJobs(context.Background(), tt.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
+		})
+	}
+}

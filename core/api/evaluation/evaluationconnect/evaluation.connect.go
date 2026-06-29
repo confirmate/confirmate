@@ -51,7 +51,7 @@ type EvaluationClient interface {
 	// StopEvaluation stops the evaluation for the given audit scope.
 	// Part of the public API, also exposed as REST.
 	StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error)
-	// ListEvaluationJobs returns a list of Evaluation processes currently running. Part of the public API, also exposed as REST.
+	// ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
 	ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error)
 }
 
@@ -116,7 +116,7 @@ type EvaluationHandler interface {
 	// StopEvaluation stops the evaluation for the given audit scope.
 	// Part of the public API, also exposed as REST.
 	StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error)
-	// ListEvaluationJobs returns a list of Evaluation processes currently running. Part of the public API, also exposed as REST.
+	// ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
 	ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error)
 }
 

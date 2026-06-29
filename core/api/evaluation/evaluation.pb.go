@@ -499,13 +499,15 @@ func (x *EvaluationResult) GetData() []byte {
 }
 
 type EvaluationJob struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	AuditScopeId   string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
-	AuditScopeName string                 `protobuf:"bytes,2,opt,name=audit_scope_name,json=auditScopeName,proto3" json:"audit_scope_name,omitempty"`
-	StartedAt      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	Interval       int32                  `protobuf:"varint,4,opt,name=interval,proto3" json:"interval,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	StartedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	Interval     int32                  `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	// the number of times the job has finished running
+	RunCount      int32                  `protobuf:"varint,4,opt,name=run_count,json=runCount,proto3" json:"run_count,omitempty"`
+	LastRun       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_run,json=lastRun,proto3" json:"last_run,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EvaluationJob) Reset() {
@@ -545,13 +547,6 @@ func (x *EvaluationJob) GetAuditScopeId() string {
 	return ""
 }
 
-func (x *EvaluationJob) GetAuditScopeName() string {
-	if x != nil {
-		return x.AuditScopeName
-	}
-	return ""
-}
-
 func (x *EvaluationJob) GetStartedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartedAt
@@ -564,6 +559,20 @@ func (x *EvaluationJob) GetInterval() int32 {
 		return x.Interval
 	}
 	return 0
+}
+
+func (x *EvaluationJob) GetRunCount() int32 {
+	if x != nil {
+		return x.RunCount
+	}
+	return 0
+}
+
+func (x *EvaluationJob) GetLastRun() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastRun
+	}
+	return nil
 }
 
 type ListEvaluationJobsRequest_Filter struct {
@@ -655,13 +664,14 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\n" +
 	"\b_commentB\x0e\n" +
 	"\f_valid_untilB\a\n" +
-	"\x05_dataJ\x04\b\x05\x10\x06\"\x85\x02\n" +
+	"\x05_dataJ\x04\b\x05\x10\x06\"\xd9\x02\n" +
 	"\rEvaluationJob\x12.\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x121\n" +
-	"\x10audit_scope_name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0eauditScopeName\x12l\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12l\n" +
 	"\n" +
-	"started_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tstartedAt\x12#\n" +
-	"\binterval\x18\x04 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\binterval*\xf2\x01\n" +
+	"started_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tstartedAt\x12#\n" +
+	"\binterval\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\binterval\x12\x1b\n" +
+	"\trun_count\x18\x04 \x01(\x05R\brunCount\x12h\n" +
+	"\blast_run\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\alastRun*\xf2\x01\n" +
 	"\x10EvaluationStatus\x12!\n" +
 	"\x1dEVALUATION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bEVALUATION_STATUS_COMPLIANT\x10\x01\x12(\n" +
@@ -710,17 +720,18 @@ var file_api_evaluation_evaluation_proto_depIdxs = []int32{
 	10, // 3: confirmate.evaluation.v1.EvaluationResult.timestamp:type_name -> google.protobuf.Timestamp
 	10, // 4: confirmate.evaluation.v1.EvaluationResult.valid_until:type_name -> google.protobuf.Timestamp
 	10, // 5: confirmate.evaluation.v1.EvaluationJob.started_at:type_name -> google.protobuf.Timestamp
-	1,  // 6: confirmate.evaluation.v1.Evaluation.StartEvaluation:input_type -> confirmate.evaluation.v1.StartEvaluationRequest
-	3,  // 7: confirmate.evaluation.v1.Evaluation.StopEvaluation:input_type -> confirmate.evaluation.v1.StopEvaluationRequest
-	5,  // 8: confirmate.evaluation.v1.Evaluation.ListEvaluationJobs:input_type -> confirmate.evaluation.v1.ListEvaluationJobsRequest
-	2,  // 9: confirmate.evaluation.v1.Evaluation.StartEvaluation:output_type -> confirmate.evaluation.v1.StartEvaluationResponse
-	4,  // 10: confirmate.evaluation.v1.Evaluation.StopEvaluation:output_type -> confirmate.evaluation.v1.StopEvaluationResponse
-	6,  // 11: confirmate.evaluation.v1.Evaluation.ListEvaluationJobs:output_type -> confirmate.evaluation.v1.ListEvaluationJobsResponse
-	9,  // [9:12] is the sub-list for method output_type
-	6,  // [6:9] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	10, // 6: confirmate.evaluation.v1.EvaluationJob.last_run:type_name -> google.protobuf.Timestamp
+	1,  // 7: confirmate.evaluation.v1.Evaluation.StartEvaluation:input_type -> confirmate.evaluation.v1.StartEvaluationRequest
+	3,  // 8: confirmate.evaluation.v1.Evaluation.StopEvaluation:input_type -> confirmate.evaluation.v1.StopEvaluationRequest
+	5,  // 9: confirmate.evaluation.v1.Evaluation.ListEvaluationJobs:input_type -> confirmate.evaluation.v1.ListEvaluationJobsRequest
+	2,  // 10: confirmate.evaluation.v1.Evaluation.StartEvaluation:output_type -> confirmate.evaluation.v1.StartEvaluationResponse
+	4,  // 11: confirmate.evaluation.v1.Evaluation.StopEvaluation:output_type -> confirmate.evaluation.v1.StopEvaluationResponse
+	6,  // 12: confirmate.evaluation.v1.Evaluation.ListEvaluationJobs:output_type -> confirmate.evaluation.v1.ListEvaluationJobsResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_api_evaluation_evaluation_proto_init() }
