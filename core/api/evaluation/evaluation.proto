@@ -22,6 +22,11 @@ service Evaluation {
   rpc StopEvaluation(StopEvaluationRequest) returns (StopEvaluationResponse) {
     option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/stop"};
   }
+
+  // ListEvaluationJobs returns a list of Evaluation processes currently running. Part of the public API, also exposed as REST.
+  rpc ListEvaluationJobs(ListEvaluationJobsRequest) returns (ListEvaluationJobsResponse) {
+    option (google.api.http) = {get: "/v1/evaluation/evaluate"};
+  }
 }
 
 message StartEvaluationRequest {
@@ -39,7 +44,6 @@ message StartEvaluationResponse {
   bool successful = 1;
 }
 
-
 message StopEvaluationRequest {
   string audit_scope_id = 1 [
     (buf.validate.field).string.uuid = true,
@@ -48,6 +52,19 @@ message StopEvaluationRequest {
 }
 
 message StopEvaluationResponse {}
+
+message ListEvaluationJobsRequest {
+  message Filter {
+    // Optional, if provided, filters the evaluation jobs by the given audit scope ID.
+    optional string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+  }
+
+  optional Filter filter = 1;
+}
+
+message ListEvaluationJobsResponse {
+  repeated EvaluationJob evaluation_jobs = 1;
+}
 
 // A evaluation result resource, representing the result after evaluating the
 // target of evaluation with a specific control target_of_evaluation_id, category_name and
@@ -114,4 +131,14 @@ enum EvaluationStatus {
   EVALUATION_STATUS_NOT_COMPLIANT = 3;
   EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY = 4;
   EVALUATION_STATUS_PENDING = 10;
+}
+
+message EvaluationJob {
+  string audit_scope_id = 1 [(buf.validate.field).string.uuid = true];
+
+  string audit_scope_name = 2 [(buf.validate.field).string.min_len = 1];
+
+  google.protobuf.Timestamp started_at = 3 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+
+  int32 interval = 4 [(buf.validate.field).int32.gt = 0];
 }
