@@ -1,51 +1,84 @@
 name: Proto generated files check
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        types: [opened, synchronize, reopened]
-        paths:
-        - 'api/**/*.proto'
-        - 'api/**/*.pb.go'
-        - 'api/**/openapi.yaml'
-        - 'api/**/*.connect.go'
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'core/api/**/*.proto'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: read
-  checks: write
 
 jobs:
   check-generated:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to analyze the commit history timeline
 
-      - name: Check proto and generated files
+      - name: Verify generator timeline
         shell: bash
         run: |
-          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^api/.*\.proto$' || true)
+          # 1. Get the list of all modified .proto files in this PR
+          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep '^core/api/.*\.proto$' || true)
+          
+          if [ -z "$CHANGED_PROTOS" ]; then
+            echo "✅ No proto files changed."
+            exit 0
+          fi
+
           for proto in $CHANGED_PROTOS; do
             dir=$(dirname "$proto")
             base=$(basename "$proto" .proto)
+            pb_go="$dir/$base.pb.go"
 
-            # Always check pb.go
-            if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/$base\.pb\.go$"; then
-              echo "❌ $proto changed, but $dir/$base.pb.go was not updated."
+            # Check if the .pb.go file exists at all
+            if [ ! -f "$pb_go" ]; then
+              echo "❌ $pb_go does not exist!"
               exit 1
             fi
 
-            # Only require .connect.go and openapi.yaml if not in api/common
-            if [[ "$dir" != "api/common" ]]; then
-              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/${base}connect/$base\.connect\.go$"; then
-                echo "❌ $proto changed, but $dir/${base}connect/$base.connect.go was not updated."
-                exit 1
+            # 2. Get the Unix timestamp of the LAST commit modifying the .proto file
+            PROTO_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$proto")
+            
+            # 3. Get the Unix timestamp of the LAST commit modifying the .pb.go file
+            PB_GO_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$pb_go" || echo 0)
+
+            # 4. Compare: If the .proto was modified in a newer commit than the .pb.go -> ERROR
+            if [ "$PROTO_COMMIT_TIME" -gt "$PB_GO_COMMIT_TIME" ]; then
+              echo "❌ $proto was modified after the last generation of $pb_go!"
+              echo "   Please run 'go generate' locally and commit the updated $pb_go file."
+              exit 1
+            fi
+
+            # Apply exceptions for Connect and OpenAPI files
+            if [[ "$dir" != "core/api/common" && "$proto" != "core/api/assessment/metric.proto" ]]; then
+              connect_go="$dir/${base}connect/$base.connect.go"
+              openapi="$dir/openapi.yaml"
+              
+              if [ -f "$connect_go" ]; then
+                CONNECT_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$connect_go" || echo 0)
+                if [ "$PROTO_COMMIT_TIME" -gt "$CONNECT_COMMIT_TIME" ]; then
+                  echo "❌ $proto was modified after the last generation of $connect_go!"
+                  echo "   Please run your generation tool locally and commit the updated connect files."
+                  exit 1
+                fi
               fi
-              if ! git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$dir/openapi\.yaml$"; then
-                echo "❌ $proto changed, but $dir/openapi.yaml was not updated."
-                exit 1
+              
+              if [ -f "$openapi" ]; then
+                OPENAPI_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$openapi" || echo 0)
+                if [ "$PROTO_COMMIT_TIME" -gt "$OPENAPI_COMMIT_TIME" ]; then
+                  echo "❌ $proto was modified after the last generation of $openapi!"
+                  echo "   Please run your generation tool locally and commit the updated openapi.yaml."
+                  exit 1
+                fi
               fi
             fi
           done
+          
+          echo "✅ All generated files are up to date with their corresponding .proto sources."

@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.2.13-12-g98f0a8b
+    version: core/v0.2.14-25-ga698f64
 paths:
     /v1/assessment/evidences:
         post:
@@ -640,6 +640,10 @@ components:
                     items:
                         $ref: '#/components/schemas/Cipher'
             description: CipherSuite is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        CloudFeature:
+            type: object
+            properties: {}
+            description: CloudFeature is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         CodeRegion:
             type: object
             properties:
@@ -1328,34 +1332,8 @@ components:
         DataConfidentialitySDNPolicy:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
                 isDefined:
                     type: boolean
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                contextId:
-                    type: string
-                dataLocation:
-                    $ref: '#/components/schemas/DataLocation'
-                policyRuleIds:
-                    type: array
-                    items:
-                        type: string
-                parentId:
-                    type: string
             description: |-
                 DataConfidentialitySDNPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing data confidentiality requirements for Software Defined Networking (SDN). isDefined: whether this policy section is present and defined.
@@ -2243,6 +2221,16 @@ components:
                     $ref: '#/components/schemas/Output'
                 padding:
                     $ref: '#/components/schemas/Padding'
+                dataConfidentialitySdnPolicy:
+                    $ref: '#/components/schemas/DataConfidentialitySDNPolicy'
+                leastPrivilegePolicy:
+                    $ref: '#/components/schemas/LeastPrivilegePolicy'
+                needToKnowPolicy:
+                    $ref: '#/components/schemas/NeedToKnowPolicy'
+                sdnFunctionValidationPolicy:
+                    $ref: '#/components/schemas/SDNFunctionValidationPolicy'
+                separationOfDutiesPolicy:
+                    $ref: '#/components/schemas/SeparationOfDutiesPolicy'
                 principal:
                     $ref: '#/components/schemas/Principal'
                 protectedAsset:
@@ -3289,34 +3277,8 @@ components:
         LeastPrivilegePolicy:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
                 isDefined:
                     type: boolean
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                contextId:
-                    type: string
-                dataLocation:
-                    $ref: '#/components/schemas/DataLocation'
-                policyRuleIds:
-                    type: array
-                    items:
-                        type: string
-                parentId:
-                    type: string
             description: |-
                 LeastPrivilegePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing least privilege requirements. isDefined: whether this policy section is present and defined.
@@ -4017,34 +3979,8 @@ components:
         NeedToKnowPolicy:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
                 isDefined:
                     type: boolean
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                contextId:
-                    type: string
-                dataLocation:
-                    $ref: '#/components/schemas/DataLocation'
-                policyRuleIds:
-                    type: array
-                    items:
-                        type: string
-                parentId:
-                    type: string
             description: |-
                 NeedToKnowPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing need-to-know access control requirements. isDefined: whether this policy section is present and defined.
@@ -4486,12 +4422,18 @@ components:
                 raw:
                     type: string
                     description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                assetInventory:
+                    $ref: '#/components/schemas/AssetInventory'
+                backup:
+                    $ref: '#/components/schemas/Backup'
+                cloudFeature:
+                    $ref: '#/components/schemas/CloudFeature'
                 cryptographicHashs:
                     type: array
                     items:
                         $ref: '#/components/schemas/CryptographicHash'
-                dataConfidentialitySdnPolicyId:
-                    type: string
+                dataConfidentialitySdnPolicy:
+                    $ref: '#/components/schemas/DataConfidentialitySDNPolicy'
                 dataLocation:
                     $ref: '#/components/schemas/DataLocation'
                 documentSignatures:
@@ -4502,22 +4444,24 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Governance'
-                leastPrivilegePolicyId:
-                    type: string
-                needToKnowPolicyId:
-                    type: string
+                leastPrivilegePolicy:
+                    $ref: '#/components/schemas/LeastPrivilegePolicy'
+                needToKnowPolicy:
+                    $ref: '#/components/schemas/NeedToKnowPolicy'
                 parentId:
                     type: string
-                sdnFunctionValidationPolicyId:
-                    type: string
+                sdnFunctionValidationPolicy:
+                    $ref: '#/components/schemas/SDNFunctionValidationPolicy'
                 validatedBy:
                     $ref: '#/components/schemas/SchemaValidation'
                 securityFeatures:
                     type: array
                     items:
                         $ref: '#/components/schemas/SecurityFeature'
-                separationOfDutiesPolicyId:
-                    type: string
+                securityIncident:
+                    $ref: '#/components/schemas/SecurityIncident'
+                separationOfDutiesPolicy:
+                    $ref: '#/components/schemas/SeparationOfDutiesPolicy'
             description: PolicyDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Principal:
             type: object
@@ -5110,16 +5054,6 @@ components:
                     $ref: '#/components/schemas/MachineLearningModel'
                 coordinatedVulnerabilityDisclosurePolicy:
                     $ref: '#/components/schemas/CoordinatedVulnerabilityDisclosurePolicy'
-                dataConfidentialitySdnPolicy:
-                    $ref: '#/components/schemas/DataConfidentialitySDNPolicy'
-                leastPrivilegePolicy:
-                    $ref: '#/components/schemas/LeastPrivilegePolicy'
-                needToKnowPolicy:
-                    $ref: '#/components/schemas/NeedToKnowPolicy'
-                sdnFunctionValidationPolicy:
-                    $ref: '#/components/schemas/SDNFunctionValidationPolicy'
-                separationOfDutiesPolicy:
-                    $ref: '#/components/schemas/SeparationOfDutiesPolicy'
                 andRule:
                     $ref: '#/components/schemas/AndRule'
                 token:
@@ -5298,34 +5232,8 @@ components:
         SDNFunctionValidationPolicy:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
                 isDefined:
                     type: boolean
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                contextId:
-                    type: string
-                dataLocation:
-                    $ref: '#/components/schemas/DataLocation'
-                policyRuleIds:
-                    type: array
-                    items:
-                        type: string
-                parentId:
-                    type: string
             description: |-
                 SDNFunctionValidationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing validation and testing requirements for SDN functions. isDefined: whether this policy section is present and defined.
@@ -5608,6 +5516,10 @@ components:
                 robustnessScore:
                     $ref: '#/components/schemas/RobustnessScore'
             description: SecurityFeature is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
+        SecurityIncident:
+            type: object
+            properties: {}
+            description: SecurityIncident is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         SecurityTraining:
             type: object
             properties:
@@ -5619,34 +5531,8 @@ components:
         SeparationOfDutiesPolicy:
             type: object
             properties:
-                creationTime:
-                    type: string
-                    format: date-time
-                description:
-                    type: string
-                id:
-                    type: string
                 isDefined:
                     type: boolean
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                name:
-                    type: string
-                raw:
-                    type: string
-                    description: The raw field contains the raw information that is used to fill in the fields of the ontology.
-                contextId:
-                    type: string
-                dataLocation:
-                    $ref: '#/components/schemas/DataLocation'
-                policyRuleIds:
-                    type: array
-                    items:
-                        type: string
-                parentId:
-                    type: string
             description: |-
                 SeparationOfDutiesPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a policy section within a [PolicyDocument] describing separation of duties requirements. isDefined: whether this policy section is present and defined.

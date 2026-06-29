@@ -5618,8 +5618,10 @@ type ListAssessmentResultsRequest_Filter struct {
 	ToolId *string `protobuf:"bytes,5,opt,name=tool_id,json=toolId,proto3,oneof" json:"tool_id,omitempty"`
 	// Optional. List only assessment result from a specific list of IDs.
 	AssessmentResultIds []string `protobuf:"bytes,6,rep,name=assessment_result_ids,json=assessmentResultIds,proto3" json:"assessment_result_ids,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Optional. List only assessment results from a specific evidence ID.
+	EvidenceId    *string `protobuf:"bytes,7,opt,name=evidence_id,json=evidenceId,proto3,oneof" json:"evidence_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAssessmentResultsRequest_Filter) Reset() {
@@ -5692,6 +5694,13 @@ func (x *ListAssessmentResultsRequest_Filter) GetAssessmentResultIds() []string 
 		return x.AssessmentResultIds
 	}
 	return nil
+}
+
+func (x *ListAssessmentResultsRequest_Filter) GetEvidenceId() string {
+	if x != nil && x.EvidenceId != nil {
+		return *x.EvidenceId
+	}
+	return ""
 }
 
 type ListAuditScopesRequest_Filter struct {
@@ -6226,7 +6235,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x12audit_trail_events\x18\v \x03(\v2+.confirmate.orchestrator.v1.AuditTrailEventB?\x9a\x84\x9e\x03:gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\"R\x10auditTrailEventsB\x12\n" +
 	"\x10_assurance_levelJ\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\b\x10\tR\areadersR\fcontributorsR\x06admins\"6\n" +
 	"\x1aGetAssessmentResultRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xbb\x05\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xfb\x05\n" +
 	"\x1cListAssessmentResultsRequest\x12\\\n" +
 	"\x06filter\x18\x01 \x01(\v2?.confirmate.orchestrator.v1.ListAssessmentResultsRequest.FilterH\x00R\x06filter\x88\x01\x01\x126\n" +
 	"\x15latest_by_resource_id\x18\x02 \x01(\bH\x01R\x12latestByResourceId\x88\x01\x01\x12\x1b\n" +
@@ -6235,7 +6244,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xf6\x02\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xb6\x03\n" +
 	"\x06Filter\x12D\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x14targetOfEvaluationId\x88\x01\x01\x12!\n" +
 	"\tcompliant\x18\x02 \x01(\bH\x01R\tcompliant\x88\x01\x01\x12+\n" +
@@ -6243,14 +6252,17 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"metric_ids\x18\x03 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\tmetricIds\x12)\n" +
 	"\tmetric_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x02R\bmetricId\x88\x01\x01\x12%\n" +
 	"\atool_id\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x03R\x06toolId\x88\x01\x01\x12@\n" +
-	"\x15assessment_result_ids\x18\x06 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x13assessmentResultIdsB\x1a\n" +
+	"\x15assessment_result_ids\x18\x06 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x13assessmentResultIds\x12.\n" +
+	"\vevidence_id\x18\a \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x04R\n" +
+	"evidenceId\x88\x01\x01B\x1a\n" +
 	"\x18_target_of_evaluation_idB\f\n" +
 	"\n" +
 	"_compliantB\f\n" +
 	"\n" +
 	"_metric_idB\n" +
 	"\n" +
-	"\b_tool_idB\t\n" +
+	"\b_tool_idB\x0e\n" +
+	"\f_evidence_idB\t\n" +
 	"\a_filterB\x18\n" +
 	"\x16_latest_by_resource_id\"\x8d\x01\n" +
 	"\x1dListAssessmentResultsResponse\x12D\n" +
