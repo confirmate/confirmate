@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 	"testing"
 	"time"
 
@@ -2200,6 +2201,7 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 					AuditScopeId: "00000000-0000-0000-0000-000000000002",
 					Interval:     2,
 				}
+
 				assert.NotNil(t, got)
 				assert.Equal(t, 1, len(got.Msg.GetEvaluationJobs()))
 				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetLastRun())
@@ -2240,6 +2242,12 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 					AuditScopeId: "00000000-0000-0000-0000-000000000001",
 					Interval:     1,
 				}
+
+				// Sort the jobs by AuditScopeId to ensure consistent ordering for the test
+				sort.SliceStable(got.Msg.GetEvaluationJobs(), func(i, j int) bool {
+					return got.Msg.GetEvaluationJobs()[i].GetAuditScopeId() < got.Msg.GetEvaluationJobs()[j].GetAuditScopeId()
+				})
+
 				assert.NotNil(t, got)
 				assert.Equal(t, 2, len(got.Msg.GetEvaluationJobs()))
 				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetLastRun())
