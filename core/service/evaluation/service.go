@@ -558,7 +558,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 
 	// TODO(lebogg): Why we don't return an error here?
 	if auditScope == nil || control == nil {
-		slog.Error("input is missing")
+		slog.Error("audit_scope and/or control is missing")
 		return
 	}
 
