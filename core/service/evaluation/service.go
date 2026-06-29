@@ -739,6 +739,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	if len(controls) == 0 {
 		return fmt.Errorf("no controls for catalog '%s' available", catalogId)
 	}
+	slog.Debug("number of controls in map", slog.Int("controls", len(controls)))
 
 	// Store controls in map
 	svc.catalogsMutex.Lock()
