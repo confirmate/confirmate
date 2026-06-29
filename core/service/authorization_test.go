@@ -27,12 +27,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// var (
-// 	// Used by persistencetest.NewInMemoryDB to auto-migrate schema for tests.
-// 	types      = []any{}
-// 	joinTables = []any{}
-// )
-
 type fakePermissionStore struct {
 	ids []string
 	err error
@@ -43,7 +37,16 @@ func (f *fakePermissionStore) HasPermission(ctx context.Context, userId string, 
 }
 
 func (f *fakePermissionStore) PermissionForObjects(ctx context.Context, userId string, permission orchestrator.UserPermission_Permission, reqType orchestrator.RequestType, objectType orchestrator.ObjectType) ([]string, error) {
-	return f.ids, f.err
+	switch objectType {
+	case orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION:
+		return f.ids, f.err
+	case orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE:
+		return f.ids, f.err
+	case orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION:
+		return f.ids, f.err
+	}
+
+	return nil, errors.New("unsupported object type")
 }
 
 type denyAuthorizationStrategy struct{}
@@ -94,7 +97,7 @@ func TestCheckAccess(t *testing.T) {
 	}
 }
 
-func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
+func TestAuthorizationStrategyPermissionStore_CheckAccess(t *testing.T) {
 	type args struct {
 		ctx            context.Context
 		userId         string
@@ -266,6 +269,52 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 			},
 		},
 		{
+			name: "happy path: req type List, object type is AuditScope",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_LIST,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: []string{"auditScope-1", "auditScope-2"},
+					err: nil,
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: func(t *testing.T, got []string, _ ...any) bool {
+				return assert.Equal(t, []string{"auditScope-1", "auditScope-2"}, got)
+			},
+		},
+		{
+			name: "happy path: req type List, object type is UserPermission",
+			args: args{
+				ctx:            context.Background(),
+				userId:         "user-1",
+				reqType:        orchestrator.RequestType_REQUEST_TYPE_LIST,
+				userPermission: orchestrator.UserPermission_PERMISSION_READER,
+				resourceId:     "resource-1",
+				objectType:     orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION,
+			},
+			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
+				Permissions: &fakePermissionStore{
+					ids: []string{"auditScope-1", "auditScope-2"},
+					err: nil,
+				},
+			}},
+			wantAllowed: func(t *testing.T, got bool, _ ...any) bool {
+				return assert.False(t, got)
+			},
+			wantResourceIDs: func(t *testing.T, got []string, _ ...any) bool {
+				return assert.Equal(t, []string{"auditScope-1", "auditScope-2"}, got)
+			},
+		},
+		{
 			name: "happy path: req type Created",
 			args: args{
 				ctx:            context.Background(),
@@ -277,7 +326,7 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 			},
 			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
 				Permissions: &fakePermissionStore{
-					ids: []string{"resource-1", "resource-2"},
+					ids: []string{"toe-1", "toe-2"},
 					err: nil,
 				},
 			}},
@@ -298,7 +347,7 @@ func TestAuthorizationStrategyJWT_CheckAccess(t *testing.T) {
 			},
 			fields: fields{strategy: &AuthorizationStrategyPermissionStore{
 				Permissions: &fakePermissionStore{
-					ids: []string{"resource-1"},
+					ids: []string{"toe-1"},
 					err: nil,
 				},
 			}},
