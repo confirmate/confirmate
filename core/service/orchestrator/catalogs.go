@@ -289,7 +289,7 @@ func (svc *Service) ListControls(
 			args = append(args, req.Msg.Filter.GetCategoryName())
 		}
 		if req.Msg.Filter.AssuranceLevels != nil {
-			whereClauses = append(whereClauses, "assurace_levels = ?")
+			whereClauses = append(whereClauses, "assurance_levels = ?")
 			args = append(args, req.Msg.Filter.GetAssuranceLevels())
 		}
 	}
