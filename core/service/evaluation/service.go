@@ -720,6 +720,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	}
 
 	// Get controls for given catalog
+	// TODO(anatheka): Shouldn´t we use the ListControlsInScope endpoint?
 	controls, err = api.ListAllPaginated(context.Background(), &orchestrator.ListControlsRequest{
 		Filter: &orchestrator.ListControlsRequest_Filter{CatalogId: &catalogId},
 	}, func(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
@@ -755,7 +756,8 @@ func (svc *Service) cacheControls(catalogId string) error {
 func (svc *Service) getControl(catalogId, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
 		return nil, errors.New("catalog id is missing")
-	} else if controlId == "" {
+	}
+	if controlId == "" {
 		return nil, errors.New("control id is missing")
 	}
 
