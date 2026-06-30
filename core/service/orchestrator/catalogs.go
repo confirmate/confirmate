@@ -305,7 +305,7 @@ func (svc *Service) ListControls(
 
 	// Prepare preloads and combine with any WHERE clauses/args.
 	opts := []any{
-		persistence.WithPreload("Controls.Metrics"),
+		persistence.WithPreload("Controls.Controls"),
 	}
 	if where != "" {
 		// first the SQL WHERE clause, followed by its arguments
