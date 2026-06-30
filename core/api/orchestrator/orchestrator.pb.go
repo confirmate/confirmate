@@ -4282,7 +4282,10 @@ type Certificate struct {
 	Cab                  string                 `protobuf:"bytes,8,opt,name=cab,proto3" json:"cab,omitempty"`
 	Description          string                 `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
 	// A list of states at specific times
-	States        []*State `protobuf:"bytes,10,rep,name=states,proto3" json:"states,omitempty" gorm:"constraint:OnDelete:CASCADE"`
+	States []*State `protobuf:"bytes,10,rep,name=states,proto3" json:"states,omitempty" gorm:"constraint:OnDelete:CASCADE"`
+	// The audit scope this certificate is associated with. The lifecycle manager
+	// keeps the certificate state in sync with the evaluation results of this scope.
+	AuditScopeId  string `protobuf:"bytes,11,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4385,6 +4388,13 @@ func (x *Certificate) GetStates() []*State {
 		return x.States
 	}
 	return nil
+}
+
+func (x *Certificate) GetAuditScopeId() string {
+	if x != nil {
+		return x.AuditScopeId
+	}
+	return ""
 }
 
 // A state of a certificate at a given time
@@ -6377,7 +6387,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\vcertificate\x18\x01 \x01(\v2'.confirmate.orchestrator.v1.CertificateB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\vcertificate\"M\n" +
 	"\x18RemoveCertificateRequest\x121\n" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"\xb2\x03\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"\xe5\x03\n" +
 	"\vCertificate\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
@@ -6392,7 +6402,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x03cab\x18\b \x01(\tR\x03cab\x12 \n" +
 	"\vdescription\x18\t \x01(\tR\vdescription\x12b\n" +
 	"\x06states\x18\n" +
-	" \x03(\v2!.confirmate.orchestrator.v1.StateB'\x9a\x84\x9e\x03\"gorm:\"constraint:OnDelete:CASCADE\"R\x06states\"\x8b\x01\n" +
+	" \x03(\v2!.confirmate.orchestrator.v1.StateB'\x9a\x84\x9e\x03\"gorm:\"constraint:OnDelete:CASCADE\"R\x06states\x121\n" +
+	"\x0eaudit_scope_id\x18\v \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x8b\x01\n" +
 	"\x05State\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x17\n" +
