@@ -2204,6 +2204,7 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 						assert.NoError(t, err)
 						return s
 					}(),
+					authz: &service.AuthorizationStrategyAllowAll{},
 				}
 			}(),
 			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{
