@@ -436,12 +436,16 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		ignored             []string
 	)
 
+	slog.Debug("Start evaluate Control()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
+
 	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
 	// Gather a list of sub control IDs that we have manual results for and thus we are ignoring
 	ignored = make([]string, 0, len(manual))
 	for _, result := range manual {
 		ignored = append(ignored, result.ControlId)
 	}
+
+	slog.Debug("EvaluateControl", slog.Int("len(control.Controls)", len(control.Controls)), slog.Int("len(manual)", len(manual)), slog.Int("len(ignored)", len(ignored)))
 
 	// Filter relevant controls
 	for _, sub := range control.Controls {
@@ -544,6 +548,8 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		slog.String("control id", control.Id),
 		slog.String("target of evaluation id", auditScope.TargetOfEvaluationId),
 		slog.String("status", result.Status.String()))
+
+	slog.Debug("Stop evaluate Control()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	return
 }
