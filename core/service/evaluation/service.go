@@ -334,11 +334,15 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		cancel   context.CancelFunc
 	)
 
+	slog.Debug("Start evaluateCatalog()", slog.String("audit_scope_id", auditScope.GetId()))
+
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
 	controls = slices.Collect(maps.Values(svc.catalogControls[auditScope.CatalogId]))
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
 		return strings.Compare(a.Id, b.Id)
 	})
+
+	slog.Debug("evaluateCatalog()", slog.Int("len(controls)", len(controls)))
 
 	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
@@ -363,17 +367,22 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		return err
 	}
 
+	slog.Debug("evaluateCatalog()", slog.Int("len(assessment_results)", len(results)))
+
 	manual = make(map[string][]*evaluation.EvaluationResult)
 
 	// Gather a list of controls, we are ignoring
 	ignored = make([]string, 0, len(results))
 	for _, result := range results {
+		slog.Debug("evaluateCatalog()", slog.String("parent_control_id", result.GetParentControlId()), slog.String("control_id", result.GetControlId()))
 		if result.GetParentControlId() != "" {
 			manual[*result.ParentControlId] = append(manual[*result.ParentControlId], result)
 		} else {
 			ignored = append(ignored, result.ControlId)
 		}
 	}
+
+	slog.Debug("evaluateCatalog()", slog.Int("len(manual)", len(manual)), slog.Int("len(ignored)", len(ignored)))
 
 	// Filter relevant controls (only parent controls)
 	for _, c := range controls {
@@ -436,7 +445,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		ignored             []string
 	)
 
-	slog.Debug("Start evaluate Control()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
+	slog.Debug("Start evaluateControl()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
 	// Gather a list of sub control IDs that we have manual results for and thus we are ignoring
