@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"sort"
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
@@ -572,10 +573,10 @@ func TestService_ListUserPermissions(t *testing.T) {
 				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &denyAuthorizationStrategy{},
 			},
-			want: assert.Nil[*connect.Response[orchestrator.ListUserPermissionsResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], msgAndArgs ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.UserPermissions))
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: with allow-all authorization strategy",
@@ -775,11 +776,124 @@ func TestService_ListUserPermissions(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: list UserPermission with authorization strategy 'permission store' without admin token. Should return only the permissions that the user has access to.",
+			args: args{
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Issuer:  orchestratortest.MockUserIssuer1,
+						Subject: *orchestratortest.MockUser1.Username,
+					},
+					PreferredUsername: "testuser",
+				}),
+			},
+			fields: func() fields {
+				db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// UserID1, ToE1, ADMIN
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+					// UserID2, ToE1, READER
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser2.GetUsername()),
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					}))
+					// UserID1, AuditScope1, ADMIN
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+					// UserID1, AuditScope2, CONTRIBUTOR
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope2.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+					}))
+					// UserID2, AuditScope1, ADMIN
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser2.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+					// UserID2, AuditScope2, READER
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser2.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope2.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					}))
+				})
+
+				return fields{
+					db: db,
+					authz: &service.AuthorizationStrategyPermissionStore{
+						Permissions: service.DBPermissionStore{
+							DB: db,
+						},
+					},
+				}
+			}(),
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				// List UserPermission for UserID1, should return only the permissions that UserID1 has access to:
+				// * UserID1, ToE1, READER
+				// * UserID1, AuditScope1, ADMIN
+				// * UserID1, AuditScope2, CONTRIBUTOR
+				want := []*orchestrator.UserPermission{
+					{
+						// UserID1, ToE1, ADMIN
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					},
+					{
+						// UserID1, AuditScope1, ADMIN
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					},
+					{
+						// UserID1, AuditScope2, CONTRIBUTOR
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope2.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+					},
+				}
+
+				// We sort the got.Msg.UserPermissions slice by ObjectId to ensure the order is consistent for comparison
+				sort.Slice(got.Msg.UserPermissions, func(i, j int) bool {
+					if got.Msg.UserPermissions[i].ObjectId != got.Msg.UserPermissions[j].ObjectId {
+						return got.Msg.UserPermissions[i].ObjectId < got.Msg.UserPermissions[j].ObjectId
+					}
+					return got.Msg.UserPermissions[i].ObjectType < got.Msg.UserPermissions[j].ObjectType
+				})
+
+				assert.NotNil(t, got)
+				assert.Equal(t, 3, len(got.Msg.UserPermissions))
+				return assert.Equal(t, want, got.Msg.UserPermissions)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
+			svc := &Service{
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
+			}
 
 			req := &orchestrator.ListUserPermissionsRequest{
 				Filter: &orchestrator.ListUserPermissionsRequest_Filter{},
