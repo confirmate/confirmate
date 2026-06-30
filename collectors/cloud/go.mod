@@ -161,12 +161,12 @@ require (
 )
 
 // runtime dependencies (OpenStack)
-require github.com/gophercloud/gophercloud/v2 v2.12.0
+require github.com/gophercloud/gophercloud/v2 v2.13.0
 
 // runtime dependencies (security)
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
-	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 )
 
