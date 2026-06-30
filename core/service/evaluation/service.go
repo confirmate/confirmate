@@ -555,6 +555,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		status      evaluation.EvaluationStatus
 		resultIds   []string
 	)
+	slog.Debug("Start evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	// TODO(lebogg): Why we don't return an error here?
 	if auditScope == nil || control == nil {
@@ -653,6 +654,8 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		slog.String("control id", control.Id),
 		slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
 		slog.String("status", eval.Status.String()))
+
+	slog.Debug("Stop evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	return
 }
