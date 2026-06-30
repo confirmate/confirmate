@@ -397,6 +397,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 			continue
 		}
 
+		// TODO(anatheka): Should we call here the controls_in_scope and then check if the control is relevant for the evaluation?
 		if c.IsRelevantFor(auditScope, catalog) {
 			relevant = append(relevant, c)
 		}
@@ -409,7 +410,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	)
 
 	// We are using a timeout of half the interval, so that we are not running into overlapping executions
-	ctx, cancel = context.WithTimeout(ctx, time.Duration(interval)*time.Minute/2)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(interval)*time.Minute/2)
 	defer cancel()
 
 	g, gctx := errgroup.WithContext(ctx)
@@ -447,7 +448,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	)
 
 	slog.Debug("Start evaluateControl()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
-
+	slog.Debug("evaluateControl()", slog.Any("control", control))
 	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
 	// Gather a list of sub control IDs that we have manual results for and thus we are ignoring
 	ignored = make([]string, 0, len(manual))
