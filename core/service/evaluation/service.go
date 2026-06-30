@@ -448,14 +448,14 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	slog.Debug("EvaluateControl", slog.Int("len(control.Controls)", len(control.Controls)), slog.Int("len(manual)", len(manual)), slog.Int("len(ignored)", len(ignored)))
 
 	// Filter relevant controls
-	for _, sub := range control.Controls {
+	for _, subControl := range control.Controls {
 		// If we ignore the control, we can skip it
-		if slices.Contains(ignored, sub.Id) {
+		if slices.Contains(ignored, subControl.Id) {
 			continue
 		}
 
-		if sub.IsRelevantFor(auditScope, catalog) {
-			relevant = append(relevant, sub)
+		if subControl.IsRelevantFor(auditScope, catalog) {
+			relevant = append(relevant, subControl)
 		}
 	}
 
