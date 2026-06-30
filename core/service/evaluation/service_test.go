@@ -2141,6 +2141,7 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 	type fields struct {
 		orchestratorClient orchestratorconnect.OrchestratorClient
 		scheduler          *gocron.Scheduler
+		authz              service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -2164,6 +2165,20 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
 					assert.ErrorContains(t, err, "filter.audit_scope_id: must be a valid UUID")
+			},
+		},
+		{
+			name: "err: validation error - authZ error",
+			fields: fields{
+				orchestratorClient: nil,
+				scheduler:          gocron.NewScheduler(time.Local),
+				authz:              &denyAuthorizationStrategy{},
+			},
+			req:  connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: assert.Nil[*connect.Response[evaluation.ListEvaluationJobsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied) &&
+					assert.ErrorContains(t, err, "permission_denied: access denied")
 			},
 		},
 		{
@@ -2263,6 +2278,7 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 			svc := Service{
 				orchestratorClient: tt.fields.orchestratorClient,
 				scheduler:          tt.fields.scheduler,
+				authz:              tt.fields.authz,
 			}
 			got, gotErr := svc.ListEvaluationJobs(context.Background(), tt.req)
 
