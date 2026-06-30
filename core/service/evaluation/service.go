@@ -212,6 +212,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		slog.Error("could not cache controls", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not cache controls"))
 	}
+	slog.Debug("cached controls for catalog", slog.String("catalog id", auditScope.GetCatalogId()), slog.Int("number of controls", len(svc.catalogControls[auditScope.GetCatalogId()])))
 
 	// Retrieve the catalog
 	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
