@@ -382,8 +382,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		}
 	}
 
-	slog.Debug("evaluateCatalog()", slog.Int("len(
-)", len(manual)), slog.Int("len(ignored)", len(ignored)))
+	slog.Debug("evaluateCatalog()", slog.Int("len(manual)", len(manual)), slog.Int("len(ignored)", len(ignored)))
 
 	// Filter relevant controls (only parent controls)
 	for _, c := range controls {
