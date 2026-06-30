@@ -261,6 +261,94 @@ func (*StopEvaluationResponse) Descriptor() ([]byte, []int) {
 	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{3}
 }
 
+type ListEvaluationJobsRequest struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Filter        *ListEvaluationJobsRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListEvaluationJobsRequest) Reset() {
+	*x = ListEvaluationJobsRequest{}
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEvaluationJobsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEvaluationJobsRequest) ProtoMessage() {}
+
+func (x *ListEvaluationJobsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEvaluationJobsRequest.ProtoReflect.Descriptor instead.
+func (*ListEvaluationJobsRequest) Descriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListEvaluationJobsRequest) GetFilter() *ListEvaluationJobsRequest_Filter {
+	if x != nil {
+		return x.Filter
+	}
+	return nil
+}
+
+type ListEvaluationJobsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	EvaluationJobs []*EvaluationJob       `protobuf:"bytes,1,rep,name=evaluation_jobs,json=evaluationJobs,proto3" json:"evaluation_jobs,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListEvaluationJobsResponse) Reset() {
+	*x = ListEvaluationJobsResponse{}
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEvaluationJobsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEvaluationJobsResponse) ProtoMessage() {}
+
+func (x *ListEvaluationJobsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEvaluationJobsResponse.ProtoReflect.Descriptor instead.
+func (*ListEvaluationJobsResponse) Descriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListEvaluationJobsResponse) GetEvaluationJobs() []*EvaluationJob {
+	if x != nil {
+		return x.EvaluationJobs
+	}
+	return nil
+}
+
 // A evaluation result resource, representing the result after evaluating the
 // target of evaluation with a specific control target_of_evaluation_id, category_name and
 // catalog_id are necessary to get the corresponding AuditScope
@@ -298,7 +386,7 @@ type EvaluationResult struct {
 
 func (x *EvaluationResult) Reset() {
 	*x = EvaluationResult{}
-	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -310,7 +398,7 @@ func (x *EvaluationResult) String() string {
 func (*EvaluationResult) ProtoMessage() {}
 
 func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
-	mi := &file_api_evaluation_evaluation_proto_msgTypes[4]
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +411,7 @@ func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluationResult.ProtoReflect.Descriptor instead.
 func (*EvaluationResult) Descriptor() ([]byte, []int) {
-	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{4}
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *EvaluationResult) GetId() string {
@@ -410,6 +498,128 @@ func (x *EvaluationResult) GetData() []byte {
 	return nil
 }
 
+type EvaluationJob struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	StartedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	Interval     int32                  `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	// the number of times the job has finished running
+	RunCount      int32                  `protobuf:"varint,4,opt,name=run_count,json=runCount,proto3" json:"run_count,omitempty"`
+	LastRun       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_run,json=lastRun,proto3" json:"last_run,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EvaluationJob) Reset() {
+	*x = EvaluationJob{}
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EvaluationJob) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EvaluationJob) ProtoMessage() {}
+
+func (x *EvaluationJob) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EvaluationJob.ProtoReflect.Descriptor instead.
+func (*EvaluationJob) Descriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *EvaluationJob) GetAuditScopeId() string {
+	if x != nil {
+		return x.AuditScopeId
+	}
+	return ""
+}
+
+func (x *EvaluationJob) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
+}
+
+func (x *EvaluationJob) GetInterval() int32 {
+	if x != nil {
+		return x.Interval
+	}
+	return 0
+}
+
+func (x *EvaluationJob) GetRunCount() int32 {
+	if x != nil {
+		return x.RunCount
+	}
+	return 0
+}
+
+func (x *EvaluationJob) GetLastRun() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastRun
+	}
+	return nil
+}
+
+type ListEvaluationJobsRequest_Filter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional, if provided, filters the evaluation jobs by the given audit scope ID.
+	AuditScopeId  *string `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListEvaluationJobsRequest_Filter) Reset() {
+	*x = ListEvaluationJobsRequest_Filter{}
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEvaluationJobsRequest_Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEvaluationJobsRequest_Filter) ProtoMessage() {}
+
+func (x *ListEvaluationJobsRequest_Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_api_evaluation_evaluation_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEvaluationJobsRequest_Filter.ProtoReflect.Descriptor instead.
+func (*ListEvaluationJobsRequest_Filter) Descriptor() ([]byte, []int) {
+	return file_api_evaluation_evaluation_proto_rawDescGZIP(), []int{4, 0}
+}
+
+func (x *ListEvaluationJobsRequest_Filter) GetAuditScopeId() string {
+	if x != nil && x.AuditScopeId != nil {
+		return *x.AuditScopeId
+	}
+	return ""
+}
+
 var File_api_evaluation_evaluation_proto protoreflect.FileDescriptor
 
 const file_api_evaluation_evaluation_proto_rawDesc = "" +
@@ -425,7 +635,15 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"successful\"J\n" +
 	"\x15StopEvaluationRequest\x121\n" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x18\n" +
-	"\x16StopEvaluationResponse\"\xd7\x06\n" +
+	"\x16StopEvaluationResponse\"\xd1\x01\n" +
+	"\x19ListEvaluationJobsRequest\x12W\n" +
+	"\x06filter\x18\x01 \x01(\v2:.confirmate.evaluation.v1.ListEvaluationJobsRequest.FilterH\x00R\x06filter\x88\x01\x01\x1aP\n" +
+	"\x06Filter\x123\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\fauditScopeId\x88\x01\x01B\x11\n" +
+	"\x0f_audit_scope_idB\t\n" +
+	"\a_filter\"n\n" +
+	"\x1aListEvaluationJobsResponse\x12P\n" +
+	"\x0fevaluation_jobs\x18\x01 \x03(\v2'.confirmate.evaluation.v1.EvaluationJobR\x0eevaluationJobs\"\xd7\x06\n" +
 	"\x10EvaluationResult\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12?\n" +
 	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12.\n" +
@@ -446,7 +664,14 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\n" +
 	"\b_commentB\x0e\n" +
 	"\f_valid_untilB\a\n" +
-	"\x05_dataJ\x04\b\x05\x10\x06*\xf2\x01\n" +
+	"\x05_dataJ\x04\b\x05\x10\x06\"\xd9\x02\n" +
+	"\rEvaluationJob\x12.\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12l\n" +
+	"\n" +
+	"started_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tstartedAt\x12#\n" +
+	"\binterval\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\binterval\x12\x1b\n" +
+	"\trun_count\x18\x04 \x01(\x05R\brunCount\x12h\n" +
+	"\blast_run\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\alastRun*\xf2\x01\n" +
 	"\x10EvaluationStatus\x12!\n" +
 	"\x1dEVALUATION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bEVALUATION_STATUS_COMPLIANT\x10\x01\x12(\n" +
@@ -454,11 +679,12 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\x1fEVALUATION_STATUS_NOT_COMPLIANT\x10\x03\x12,\n" +
 	"(EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY\x10\x04\x12\x1d\n" +
 	"\x19EVALUATION_STATUS_PENDING\x10\n" +
-	"2\xea\x02\n" +
+	"2\x8d\x04\n" +
 	"\n" +
 	"Evaluation\x12\xae\x01\n" +
 	"\x0fStartEvaluation\x120.confirmate.evaluation.v1.StartEvaluationRequest\x1a1.confirmate.evaluation.v1.StartEvaluationResponse\"6\x82\xd3\xe4\x93\x020\"./v1/evaluation/evaluate/{audit_scope_id}/start\x12\xaa\x01\n" +
-	"\x0eStopEvaluation\x12/.confirmate.evaluation.v1.StopEvaluationRequest\x1a0.confirmate.evaluation.v1.StopEvaluationResponse\"5\x82\xd3\xe4\x93\x02/\"-/v1/evaluation/evaluate/{audit_scope_id}/stopB#Z!confirmate.io/core/api/evaluationb\x06proto3"
+	"\x0eStopEvaluation\x12/.confirmate.evaluation.v1.StopEvaluationRequest\x1a0.confirmate.evaluation.v1.StopEvaluationResponse\"5\x82\xd3\xe4\x93\x02/\"-/v1/evaluation/evaluate/{audit_scope_id}/stop\x12\xa0\x01\n" +
+	"\x12ListEvaluationJobs\x123.confirmate.evaluation.v1.ListEvaluationJobsRequest\x1a4.confirmate.evaluation.v1.ListEvaluationJobsResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/evaluation/evaluateB#Z!confirmate.io/core/api/evaluationb\x06proto3"
 
 var (
 	file_api_evaluation_evaluation_proto_rawDescOnce sync.Once
@@ -473,29 +699,39 @@ func file_api_evaluation_evaluation_proto_rawDescGZIP() []byte {
 }
 
 var file_api_evaluation_evaluation_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_evaluation_evaluation_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_api_evaluation_evaluation_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_api_evaluation_evaluation_proto_goTypes = []any{
-	(EvaluationStatus)(0),           // 0: confirmate.evaluation.v1.EvaluationStatus
-	(*StartEvaluationRequest)(nil),  // 1: confirmate.evaluation.v1.StartEvaluationRequest
-	(*StartEvaluationResponse)(nil), // 2: confirmate.evaluation.v1.StartEvaluationResponse
-	(*StopEvaluationRequest)(nil),   // 3: confirmate.evaluation.v1.StopEvaluationRequest
-	(*StopEvaluationResponse)(nil),  // 4: confirmate.evaluation.v1.StopEvaluationResponse
-	(*EvaluationResult)(nil),        // 5: confirmate.evaluation.v1.EvaluationResult
-	(*timestamppb.Timestamp)(nil),   // 6: google.protobuf.Timestamp
+	(EvaluationStatus)(0),                    // 0: confirmate.evaluation.v1.EvaluationStatus
+	(*StartEvaluationRequest)(nil),           // 1: confirmate.evaluation.v1.StartEvaluationRequest
+	(*StartEvaluationResponse)(nil),          // 2: confirmate.evaluation.v1.StartEvaluationResponse
+	(*StopEvaluationRequest)(nil),            // 3: confirmate.evaluation.v1.StopEvaluationRequest
+	(*StopEvaluationResponse)(nil),           // 4: confirmate.evaluation.v1.StopEvaluationResponse
+	(*ListEvaluationJobsRequest)(nil),        // 5: confirmate.evaluation.v1.ListEvaluationJobsRequest
+	(*ListEvaluationJobsResponse)(nil),       // 6: confirmate.evaluation.v1.ListEvaluationJobsResponse
+	(*EvaluationResult)(nil),                 // 7: confirmate.evaluation.v1.EvaluationResult
+	(*EvaluationJob)(nil),                    // 8: confirmate.evaluation.v1.EvaluationJob
+	(*ListEvaluationJobsRequest_Filter)(nil), // 9: confirmate.evaluation.v1.ListEvaluationJobsRequest.Filter
+	(*timestamppb.Timestamp)(nil),            // 10: google.protobuf.Timestamp
 }
 var file_api_evaluation_evaluation_proto_depIdxs = []int32{
-	0, // 0: confirmate.evaluation.v1.EvaluationResult.status:type_name -> confirmate.evaluation.v1.EvaluationStatus
-	6, // 1: confirmate.evaluation.v1.EvaluationResult.timestamp:type_name -> google.protobuf.Timestamp
-	6, // 2: confirmate.evaluation.v1.EvaluationResult.valid_until:type_name -> google.protobuf.Timestamp
-	1, // 3: confirmate.evaluation.v1.Evaluation.StartEvaluation:input_type -> confirmate.evaluation.v1.StartEvaluationRequest
-	3, // 4: confirmate.evaluation.v1.Evaluation.StopEvaluation:input_type -> confirmate.evaluation.v1.StopEvaluationRequest
-	2, // 5: confirmate.evaluation.v1.Evaluation.StartEvaluation:output_type -> confirmate.evaluation.v1.StartEvaluationResponse
-	4, // 6: confirmate.evaluation.v1.Evaluation.StopEvaluation:output_type -> confirmate.evaluation.v1.StopEvaluationResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9,  // 0: confirmate.evaluation.v1.ListEvaluationJobsRequest.filter:type_name -> confirmate.evaluation.v1.ListEvaluationJobsRequest.Filter
+	8,  // 1: confirmate.evaluation.v1.ListEvaluationJobsResponse.evaluation_jobs:type_name -> confirmate.evaluation.v1.EvaluationJob
+	0,  // 2: confirmate.evaluation.v1.EvaluationResult.status:type_name -> confirmate.evaluation.v1.EvaluationStatus
+	10, // 3: confirmate.evaluation.v1.EvaluationResult.timestamp:type_name -> google.protobuf.Timestamp
+	10, // 4: confirmate.evaluation.v1.EvaluationResult.valid_until:type_name -> google.protobuf.Timestamp
+	10, // 5: confirmate.evaluation.v1.EvaluationJob.started_at:type_name -> google.protobuf.Timestamp
+	10, // 6: confirmate.evaluation.v1.EvaluationJob.last_run:type_name -> google.protobuf.Timestamp
+	1,  // 7: confirmate.evaluation.v1.Evaluation.StartEvaluation:input_type -> confirmate.evaluation.v1.StartEvaluationRequest
+	3,  // 8: confirmate.evaluation.v1.Evaluation.StopEvaluation:input_type -> confirmate.evaluation.v1.StopEvaluationRequest
+	5,  // 9: confirmate.evaluation.v1.Evaluation.ListEvaluationJobs:input_type -> confirmate.evaluation.v1.ListEvaluationJobsRequest
+	2,  // 10: confirmate.evaluation.v1.Evaluation.StartEvaluation:output_type -> confirmate.evaluation.v1.StartEvaluationResponse
+	4,  // 11: confirmate.evaluation.v1.Evaluation.StopEvaluation:output_type -> confirmate.evaluation.v1.StopEvaluationResponse
+	6,  // 12: confirmate.evaluation.v1.Evaluation.ListEvaluationJobs:output_type -> confirmate.evaluation.v1.ListEvaluationJobsResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_api_evaluation_evaluation_proto_init() }
@@ -505,13 +741,15 @@ func file_api_evaluation_evaluation_proto_init() {
 	}
 	file_api_evaluation_evaluation_proto_msgTypes[0].OneofWrappers = []any{}
 	file_api_evaluation_evaluation_proto_msgTypes[4].OneofWrappers = []any{}
+	file_api_evaluation_evaluation_proto_msgTypes[6].OneofWrappers = []any{}
+	file_api_evaluation_evaluation_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_evaluation_evaluation_proto_rawDesc), len(file_api_evaluation_evaluation_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
