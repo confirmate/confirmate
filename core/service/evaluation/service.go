@@ -212,6 +212,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		slog.Error("could not cache controls", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not cache controls"))
 	}
+	slog.Debug("cached controls for catalog", slog.String("catalog id", auditScope.GetCatalogId()), slog.Int("number of controls", len(svc.catalogControls[auditScope.GetCatalogId()])))
 
 	// Retrieve the catalog
 	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
@@ -242,9 +243,9 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		return nil, err
 	}
 
-	slog.Info("Scheduled to evaluate audit scope '%s' every %d minutes...",
+	slog.Info("Scheduled to evaluate audit scope",
 		slog.String("audit scope", auditScope.GetId()),
-		slog.Int("interval", interval),
+		slog.Int("interval (in minutes)", interval),
 	)
 
 	res = connect.NewResponse(&evaluation.StartEvaluationResponse{
@@ -334,11 +335,15 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		cancel   context.CancelFunc
 	)
 
+	slog.Debug("Start evaluateCatalog()", slog.String("audit_scope_id", auditScope.GetId()))
+
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
 	controls = slices.Collect(maps.Values(svc.catalogControls[auditScope.CatalogId]))
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
 		return strings.Compare(a.Id, b.Id)
 	})
+
+	slog.Debug("evaluateCatalog()", slog.Int("len(controls)", len(controls)))
 
 	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
@@ -363,11 +368,14 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		return err
 	}
 
+	slog.Debug("evaluateCatalog()", slog.Int("len(evaluation_results)", len(results)))
+
 	manual = make(map[string][]*evaluation.EvaluationResult)
 
 	// Gather a list of controls, we are ignoring
 	ignored = make([]string, 0, len(results))
 	for _, result := range results {
+		slog.Debug("evaluateCatalog()", slog.String("parent_control_id", result.GetParentControlId()), slog.String("control_id", result.GetControlId()))
 		if result.GetParentControlId() != "" {
 			manual[*result.ParentControlId] = append(manual[*result.ParentControlId], result)
 		} else {
@@ -375,7 +383,9 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		}
 	}
 
-	// Filter relevant controls
+	slog.Debug("evaluateCatalog()", slog.Int("len(manual)", len(manual)), slog.Int("len(ignored)", len(ignored)))
+
+	// Filter relevant controls (only parent controls)
 	for _, c := range controls {
 		// Only parent controls
 		if c.ParentControlId != nil {
@@ -387,6 +397,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 			continue
 		}
 
+		// TODO(anatheka): Should we call here the controls_in_scope and then check if the control is relevant for the evaluation?
 		if c.IsRelevantFor(auditScope, catalog) {
 			relevant = append(relevant, c)
 		}
@@ -399,7 +410,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	)
 
 	// We are using a timeout of half the interval, so that we are not running into overlapping executions
-	ctx, cancel = context.WithTimeout(ctx, time.Duration(interval)*time.Minute/2)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(interval)*time.Minute/2)
 	defer cancel()
 
 	g, gctx := errgroup.WithContext(ctx)
@@ -436,6 +447,8 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		ignored             []string
 	)
 
+	slog.Debug("Start evaluateControl()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
+	slog.Debug("evaluateControl()", slog.Any("control", control))
 	// TODO(lebogg): Don't think this is 100% correct. 1st) if all sub controls are manually evaluated we would ignore all of them and status would be still pending according to our logic below and 2nd) In theory, we could also have manual NON-complaint results. These would be then ignored but shouldn't be.
 	// Gather a list of sub control IDs that we have manual results for and thus we are ignoring
 	ignored = make([]string, 0, len(manual))
@@ -443,15 +456,17 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		ignored = append(ignored, result.ControlId)
 	}
 
+	slog.Debug("EvaluateControl", slog.Int("len(control.Controls)", len(control.Controls)), slog.Int("len(manual)", len(manual)), slog.Int("len(ignored)", len(ignored)))
+
 	// Filter relevant controls
-	for _, sub := range control.Controls {
+	for _, subControl := range control.Controls {
 		// If we ignore the control, we can skip it
-		if slices.Contains(ignored, sub.Id) {
+		if slices.Contains(ignored, subControl.Id) {
 			continue
 		}
 
-		if sub.IsRelevantFor(auditScope, catalog) {
-			relevant = append(relevant, sub)
+		if subControl.IsRelevantFor(auditScope, catalog) {
+			relevant = append(relevant, subControl)
 		}
 	}
 
@@ -545,6 +560,8 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		slog.String("target of evaluation id", auditScope.TargetOfEvaluationId),
 		slog.String("status", result.Status.String()))
 
+	slog.Debug("Stop evaluate Control()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
+
 	return
 }
 
@@ -555,10 +572,11 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		status      evaluation.EvaluationStatus
 		resultIds   []string
 	)
+	slog.Debug("Start evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	// TODO(lebogg): Why we don't return an error here?
 	if auditScope == nil || control == nil {
-		slog.Error("input is missing")
+		slog.Error("audit_scope and/or control is missing")
 		return
 	}
 
@@ -572,6 +590,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		return
 	}
 
+	slog.Debug("evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()), slog.Int("number of metrics", len(metrics)))
 	if len(metrics) != 0 {
 		// Get latest assessment_results by resource_id filtered by
 		// * target of evaluation id
@@ -653,6 +672,8 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
 		slog.String("status", eval.Status.String()))
 
+	slog.Debug("Stop evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
+
 	return
 }
 
@@ -663,6 +684,7 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metrics []*assessment.Metric, err error) {
 	var subControlMetrics []*assessment.Metric
 
+	slog.Debug("Start getAllMetricsFromControl()", slog.String("catalog id", catalogId), slog.String("control id", controlId))
 	control, err := svc.getControl(catalogId, controlId)
 	if err != nil {
 		err = fmt.Errorf("could not get control for control id {%s}: %w", controlId, err)
@@ -671,6 +693,7 @@ func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metri
 
 	// Add metric of control to the metrics list
 	metrics = append(metrics, control.Metrics...)
+	slog.Debug("metrics for control", slog.String("control id", controlId), slog.Int("number of metrics", len(control.Metrics)))
 
 	// Add sub-control metrics to the metric list if exist
 	if len(control.Controls) != 0 {
@@ -680,9 +703,12 @@ func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metri
 			err = fmt.Errorf("error getting metrics from sub-controls: %w", err)
 			return
 		}
+		slog.Debug("metrics for sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(subControlMetrics)))
 
 		metrics = append(metrics, subControlMetrics...)
+		slog.Debug("total metrics for control and sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(metrics)))
 	}
+	slog.Debug("End getAllMetricsFromControl()", slog.String("catalog id", catalogId), slog.String("control id", controlId))
 
 	return
 }
@@ -720,6 +746,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	}
 
 	// Get controls for given catalog
+	// TODO(anatheka): Shouldn´t we use the ListControlsInScope endpoint?
 	controls, err = api.ListAllPaginated(context.Background(), &orchestrator.ListControlsRequest{
 		Filter: &orchestrator.ListControlsRequest_Filter{CatalogId: &catalogId},
 	}, func(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
@@ -738,6 +765,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	if len(controls) == 0 {
 		return fmt.Errorf("no controls for catalog '%s' available", catalogId)
 	}
+	slog.Debug("number of controls in map", slog.Int("controls", len(controls)))
 
 	// Store controls in map
 	svc.catalogsMutex.Lock()
@@ -755,7 +783,8 @@ func (svc *Service) cacheControls(catalogId string) error {
 func (svc *Service) getControl(catalogId, controlId string) (control *orchestrator.Control, err error) {
 	if catalogId == "" {
 		return nil, errors.New("catalog id is missing")
-	} else if controlId == "" {
+	}
+	if controlId == "" {
 		return nil, errors.New("control id is missing")
 	}
 

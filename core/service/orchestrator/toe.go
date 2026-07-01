@@ -59,7 +59,7 @@ func (svc *Service) CreateTargetOfEvaluation(
 		UpdatedAt:         now,
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
