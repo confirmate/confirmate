@@ -63,7 +63,7 @@ func (svc *Service) CreateCatalog(
 	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -171,7 +171,7 @@ func (svc *Service) UpdateCatalog(
 	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -285,12 +285,10 @@ func (svc *Service) ListControls(
 			args = append(args, req.Msg.Filter.GetCatalogId())
 		}
 		if req.Msg.Filter.CategoryName != nil {
-			whereClauses = append(whereClauses, "category_name = ?")
-			args = append(args, req.Msg.Filter.GetCategoryName())
+			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by category name is not yet implemented"))
 		}
-		if req.Msg.Filter.AssuranceLevels != nil {
-			whereClauses = append(whereClauses, "assurance_levels = ?")
-			args = append(args, req.Msg.Filter.GetAssuranceLevels())
+		if req.Msg.Filter.GetAssuranceLevels() != "" {
+			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by assurance levels is not yet implemented"))
 		}
 	}
 

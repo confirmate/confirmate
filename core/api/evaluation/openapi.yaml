@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Confirmate's assessment results
-    version: core/v0.2.14-25-ga698f64
+    version: core/v0.2.15-11-g1ba5d6a
 paths:
     /v1/evaluation/evaluate/{auditScopeId}/start:
         post:

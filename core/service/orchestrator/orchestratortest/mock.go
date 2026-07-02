@@ -252,6 +252,7 @@ var (
 						Id:        MockControlId1,
 						Name:      MockControlName1,
 						ShortName: MockControlShortName1,
+						CatalogId: MockCatalogId1,
 						Controls: []*orchestrator.Control{
 							{
 								Id:              MockControl1SubControlId1,
@@ -260,6 +261,7 @@ var (
 								Metrics:         []*assessment.Metric{MockMetric1},
 								ParentControlId: new(MockControlId1),
 								AssuranceLevel:  new("high"),
+								CatalogId:       MockCatalogId1,
 							},
 							{
 								Id:              MockControl1SubControlId2,
@@ -268,6 +270,7 @@ var (
 								Metrics:         []*assessment.Metric{MockMetric2},
 								ParentControlId: new(MockControlId1),
 								AssuranceLevel:  new("medium"),
+								CatalogId:       MockCatalogId1,
 							},
 						},
 					},
@@ -281,6 +284,7 @@ var (
 						Id:        MockControlId2,
 						Name:      MockControlName2,
 						ShortName: MockControlShortName2,
+						CatalogId: MockCatalogId1,
 						Controls: []*orchestrator.Control{
 							{
 								Id:              MockControl2SubControlId1,
@@ -288,6 +292,7 @@ var (
 								ShortName:       MockSubControlShortName1,
 								Metrics:         []*assessment.Metric{MockMetric1},
 								ParentControlId: new(MockControlId2),
+								CatalogId:       MockCatalogId1,
 							},
 						},
 					},
@@ -310,6 +315,7 @@ var (
 						Id:        MockControlId2,
 						Name:      MockControlName2,
 						ShortName: MockControlShortName2,
+						CatalogId: MockCatalogId2,
 						Controls: []*orchestrator.Control{
 							{
 								Id:              MockControl2SubControlId1,
@@ -317,6 +323,7 @@ var (
 								ShortName:       MockSubControlShortName1,
 								Metrics:         []*assessment.Metric{MockMetric2},
 								ParentControlId: new(MockControlId2),
+								CatalogId:       MockCatalogId2,
 							},
 						},
 					},
@@ -335,6 +342,7 @@ var (
 				Controls: []*orchestrator.Control{
 					{
 						Id:              MockControlId1,
+						CatalogId:       MockCatalogId1,
 						ParentControlId: new(MockControlId1),
 					},
 				},
@@ -346,6 +354,7 @@ var (
 				Controls: []*orchestrator.Control{
 					{
 						Id:              MockControlId2,
+						CatalogId:       MockCatalogId1,
 						ParentControlId: new(MockControlId2),
 					},
 				},

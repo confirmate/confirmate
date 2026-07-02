@@ -1042,6 +1042,12 @@ message Control {
 
   // FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
   repeated ControlInScope controls_in_scope = 13 [(tagger.tags) = "gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\""];
+
+  // Catalog ID of the catalog this control belongs to.
+  string catalog_id = 14 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 // AuditScopeStatus represents the lifecycle status of an audit scope.
@@ -1293,7 +1299,7 @@ message ListControlsRequest {
     // Optional. Lists only controls with the specified category.
     optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
-    repeated string assurance_levels = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
+    optional string assurance_levels = 3 [(buf.validate.field).string.min_len = 1];
   }
   optional Filter filter = 3;
 
