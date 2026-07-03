@@ -1299,7 +1299,7 @@ message ListControlsRequest {
     // Optional. Lists only controls with the specified category.
     optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
-    optional string assurance_levels = 3 [(buf.validate.field).string.min_len = 1];
+    repeated string assurance_levels = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
   }
   optional Filter filter = 3;
 

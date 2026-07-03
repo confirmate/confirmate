@@ -287,7 +287,7 @@ func (svc *Service) ListControls(
 		if req.Msg.Filter.CategoryName != nil {
 			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by category name is not yet implemented"))
 		}
-		if req.Msg.Filter.GetAssuranceLevels() != "" {
+		if req.Msg.Filter.AssuranceLevels != nil && len(req.Msg.Filter.AssuranceLevels) > 0 {
 			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by assurance levels is not yet implemented"))
 		}
 	}
