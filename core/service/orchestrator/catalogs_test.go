@@ -90,8 +90,10 @@ func TestService_CreateCatalog(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := orchestratortest.MockCatalog1
+				normalizeCatalogControls(want)
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
+					assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -206,35 +208,10 @@ func TestService_GetCatalog(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
-				want := &orchestrator.Catalog{
-					Id:          orchestratortest.MockCatalogId1,
-					Name:        orchestratortest.MockCatalogName1,
-					Description: orchestratortest.MockCatalogDescription1,
-					Categories: []*orchestrator.Category{
-						{
-							Name:      orchestratortest.MockCategoryName1,
-							CatalogId: orchestratortest.MockCatalogId1,
-							Controls: []*orchestrator.Control{
-								{
-									Id:        orchestratortest.MockControlId1,
-									Name:      orchestratortest.MockControlName1,
-									ShortName: orchestratortest.MockControlShortName1,
-								},
-							},
-						},
-						{
-							Name:      orchestratortest.MockCategoryName2,
-							CatalogId: orchestratortest.MockCatalogId1,
-							Controls: []*orchestrator.Control{
-								{
-									Id:        orchestratortest.MockControlId2,
-									Name:      orchestratortest.MockControlName2,
-									ShortName: orchestratortest.MockControlShortName2,
-								},
-							},
-						},
-					},
-				}
+				want := orchestratortest.MockCatalog1
+				want.Categories[0].Controls[0].Controls = []*orchestrator.Control{}
+				want.Categories[1].Controls[0].Controls = []*orchestrator.Control{}
+
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, want, got.Msg)
 			},
@@ -758,6 +735,7 @@ func TestService_GetCategory(t *testing.T) {
 							Id:        orchestratortest.MockControlId1,
 							Name:      orchestratortest.MockControlName1,
 							ShortName: orchestratortest.MockControlShortName1,
+							CatalogId: orchestratortest.MockCatalogId1,
 						},
 					},
 				}
@@ -865,7 +843,7 @@ func TestService_ListControls(t *testing.T) {
 			args: args{
 				req: &orchestrator.ListControlsRequest{
 					Filter: &orchestrator.ListControlsRequest_Filter{
-						AssuranceLevels: new("high"),
+						AssuranceLevels: []string{"high"},
 					},
 				},
 			},
@@ -1070,10 +1048,12 @@ func TestService_GetControl(t *testing.T) {
 					Id:        orchestratortest.MockControlId1,
 					Name:      orchestratortest.MockControlName1,
 					ShortName: orchestratortest.MockControlShortName1,
+					CatalogId: orchestratortest.MockCatalogId1,
 					Controls: []*orchestrator.Control{
 						{
 							Id:              orchestratortest.MockControl1SubControlId1,
 							Name:            orchestratortest.MockSubControlName1,
+							CatalogId:       orchestratortest.MockCatalogId1,
 							ShortName:       orchestratortest.MockSubControlShortName1,
 							ParentControlId: new(orchestratortest.MockControlId1),
 							Metrics:         []*assessment.Metric{orchestratortest.MockMetric1},
@@ -1082,6 +1062,7 @@ func TestService_GetControl(t *testing.T) {
 						{
 							Id:              orchestratortest.MockControl1SubControlId2,
 							Name:            orchestratortest.MockSubControlName2,
+							CatalogId:       orchestratortest.MockCatalogId1,
 							ShortName:       orchestratortest.MockSubControlShortName2,
 							ParentControlId: new(orchestratortest.MockControlId1),
 							Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
