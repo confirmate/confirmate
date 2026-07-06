@@ -1347,6 +1347,12 @@ message Certificate {
   string description = 9;
   // A list of states at specific times
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
+  // The audit scope this certificate is associated with. The lifecycle manager
+  // keeps the certificate state in sync with the evaluation results of this scope.
+  string audit_scope_id = 11 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 // A state of a certificate at a given time
