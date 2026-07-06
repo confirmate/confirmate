@@ -413,8 +413,12 @@ func TestService_GetTargetOfEvaluation(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{
 					Permissions: service.DBPermissionStore{
 						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
-							assert.NoError(t, err)
+							assert.NoError(t, d.Create(orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+								Permission: orchestrator.UserPermission_PERMISSION_READER,
+							}))
 						}),
 					},
 				},

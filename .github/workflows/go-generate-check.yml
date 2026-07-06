@@ -65,7 +65,6 @@ jobs:
                   exit 1
                 fi
               fi
-            fi
           done
           
           echo "✅ All generated files are up to date with their corresponding .proto sources."

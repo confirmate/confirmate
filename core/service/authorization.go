@@ -40,6 +40,7 @@ type AuthorizationStrategy interface {
 	) (bool, []string)
 	AllowedTargetOfEvaluations(ctx context.Context) (all bool, toeIds []string)
 	AllowedAuditScopes(ctx context.Context) (all bool, auditScopeIds []string)
+	AllowedUserPermission(ctx context.Context) (all bool, userPermissions []string)
 }
 
 // CheckAccess checks access via the configured strategy.
@@ -111,6 +112,8 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 		orchestrator.ObjectType_OBJECT_TYPE_EVALUATION_RESULT,
 		orchestrator.ObjectType_OBJECT_TYPE_CONTROL_IN_SCOPE:
 		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE
+	case orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION:
+		objectTypeUsed = orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION
 	default:
 		slog.Debug("Unsupported object type for permission check", "objectType", objectType)
 		return false, nil
@@ -161,6 +164,39 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	}
 
 	return allowed, nil
+}
+
+// AllowedUserPermission returns a list of UserPermission IDs the user has access to, or all if the user has access to all UserPermissions.
+func (a *AuthorizationStrategyPermissionStore) AllowedUserPermission(ctx context.Context) (all bool, userPermissions []string) {
+	var (
+		claims *auth.OAuthClaims
+		ok     bool
+		userId string
+	)
+	if a == nil {
+		return false, nil
+	}
+
+	// Check admin claim to allow access to all.
+	if claims, ok = auth.ClaimsFromContext(ctx); ok && claims.IsAdmin() {
+		return true, nil
+	}
+
+	// Get user ID
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
+
+	userPermissions, err := a.Permissions.PermissionForObjects(ctx,
+		userId,
+		orchestrator.UserPermission_PERMISSION_READER,
+		orchestrator.RequestType_REQUEST_TYPE_LIST,
+		orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION,
+	)
+	if err != nil {
+		slog.Error("permission lookup failed for User Permissions", "userId", userId, "err", err)
+		return false, nil
+	}
+
+	return false, userPermissions
 }
 
 // AllowedTargetOfEvaluations returns a list of Target of Evaluation IDs the user has access to, or all if the user has access to all ToEs.
@@ -241,6 +277,11 @@ func (*AuthorizationStrategyAllowAll) CheckAccess(_ context.Context,
 	_ orchestrator.ObjectType) (ok bool, resourceIDs []string,
 ) {
 	// Keep this strategy permissive by design.
+	return true, nil
+}
+
+// AllowedUserPermission returns true and nil, allowing access to all UserPermissions.
+func (a *AuthorizationStrategyAllowAll) AllowedUserPermission(_ context.Context) (all bool, userPermissions []string) {
 	return true, nil
 }
 
