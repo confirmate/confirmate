@@ -2633,8 +2633,10 @@ type Control struct {
 	ShortName string `protobuf:"bytes,12,opt,name=short_name,json=shortName,proto3" json:"short_name,omitempty"`
 	// FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
 	ControlsInScope []*ControlInScope `protobuf:"bytes,13,rep,name=controls_in_scope,json=controlsInScope,proto3" json:"controls_in_scope,omitempty" gorm:"foreignKey:ControlId;constraint:OnDelete:RESTRICT"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Catalog ID of the catalog this control belongs to.
+	CatalogId     string `protobuf:"bytes,14,opt,name=catalog_id,json=catalogId,proto3" json:"catalog_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Control) Reset() {
@@ -2728,6 +2730,13 @@ func (x *Control) GetControlsInScope() []*ControlInScope {
 		return x.ControlsInScope
 	}
 	return nil
+}
+
+func (x *Control) GetCatalogId() string {
+	if x != nil {
+		return x.CatalogId
+	}
+	return ""
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -6203,7 +6212,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\tcatalogId\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\xdf\x01\n" +
-	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\x90\x06\n" +
+	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\xbb\x06\n" +
 	"\aControl\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tB\x03\xe0A\x02R\x04name\x12 \n" +
@@ -6214,7 +6223,10 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"short_name\x18\f \x01(\tB\x03\xe0A\x02R\tshortName\x12\x95\x01\n" +
-	"\x11controls_in_scope\x18\r \x03(\v2*.confirmate.orchestrator.v1.ControlInScopeB=\x9a\x84\x9e\x038gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\"R\x0fcontrolsInScopeB\x14\n" +
+	"\x11controls_in_scope\x18\r \x03(\v2*.confirmate.orchestrator.v1.ControlInScopeB=\x9a\x84\x9e\x038gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\"R\x0fcontrolsInScope\x12)\n" +
+	"\n" +
+	"catalog_id\x18\x0e \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcatalogIdB\x14\n" +
 	"\x12_parent_control_idB\x12\n" +
 	"\x10_assurance_levelJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\t\x10\n" +
 	"J\x04\b\n" +

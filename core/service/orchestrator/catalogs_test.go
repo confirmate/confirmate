@@ -90,8 +90,10 @@ func TestService_CreateCatalog(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := orchestratortest.MockCatalog1
+				normalizeCatalogControls(want)
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, orchestratortest.MockCatalog1, got.Msg)
+					assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -179,6 +181,9 @@ func TestService_CreateCatalog(t *testing.T) {
 }
 
 func TestService_GetCatalog(t *testing.T) {
+	catalog1 := orchestratortest.MockCatalog1
+	normalizeCatalogControls(catalog1)
+
 	type args struct {
 		req *orchestrator.GetCatalogRequest
 	}
@@ -201,7 +206,7 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
+					err := d.Create(catalog1)
 					assert.NoError(t, err)
 				}),
 			},
@@ -219,6 +224,8 @@ func TestService_GetCatalog(t *testing.T) {
 									Id:        orchestratortest.MockControlId1,
 									Name:      orchestratortest.MockControlName1,
 									ShortName: orchestratortest.MockControlShortName1,
+									CatalogId: orchestratortest.MockCatalogId1,
+									Controls:  []*orchestrator.Control{},
 								},
 							},
 						},
@@ -230,6 +237,8 @@ func TestService_GetCatalog(t *testing.T) {
 									Id:        orchestratortest.MockControlId2,
 									Name:      orchestratortest.MockControlName2,
 									ShortName: orchestratortest.MockControlShortName2,
+									CatalogId: orchestratortest.MockCatalogId1,
+									Controls:  []*orchestrator.Control{},
 								},
 							},
 						},
@@ -758,6 +767,7 @@ func TestService_GetCategory(t *testing.T) {
 							Id:        orchestratortest.MockControlId1,
 							Name:      orchestratortest.MockControlName1,
 							ShortName: orchestratortest.MockControlShortName1,
+							CatalogId: orchestratortest.MockCatalogId1,
 						},
 					},
 				}
@@ -829,11 +839,7 @@ func TestService_ListControls(t *testing.T) {
 		{
 			name: "db error - not found",
 			args: args{
-				req: &orchestrator.ListControlsRequest{
-					Filter: &orchestrator.ListControlsRequest_Filter{
-						CatalogId: &orchestratortest.MockCatalog1.Id,
-					},
-				},
+				req: &orchestrator.ListControlsRequest{},
 			},
 			fields: fields{
 				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
@@ -842,6 +848,114 @@ func TestService_ListControls(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
+		},
+		{
+			name: "error: filter by category_name",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CategoryName: new(orchestratortest.MockCategoryName1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeUnimplemented) &&
+					assert.ErrorContains(t, err, "filtering by category name is not yet implemented")
+			},
+		},
+		{
+			name: "error: filter by assurance_level",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						AssuranceLevels: []string{"high"},
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeUnimplemented) &&
+					assert.ErrorContains(t, err, "filtering by assurance levels is not yet implemented")
+			},
+		},
+		{
+			name: "happy path: with filter catalog id",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CatalogId: new(orchestratortest.MockCatalogId1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCatalog2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
+				want := []*orchestrator.Control{
+					{
+						Id:        orchestratortest.MockControlId1,
+						Name:      orchestratortest.MockControlName1,
+						ShortName: orchestratortest.MockControlShortName1,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl1SubControlId1,
+								Name:            orchestratortest.MockSubControlName1,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								AssuranceLevel:  new("high"),
+								ParentControlId: new(orchestratortest.MockControlId1),
+							},
+							{
+								Id:              orchestratortest.MockControl1SubControlId2,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName2,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								AssuranceLevel:  new("medium"),
+								ParentControlId: new(orchestratortest.MockControlId1),
+							},
+						},
+					},
+					{
+
+						Id:        orchestratortest.MockControlId2,
+						Name:      orchestratortest.MockControlName2,
+						ShortName: orchestratortest.MockControlShortName2,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl2SubControlId1,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								ParentControlId: new(orchestratortest.MockControlId2),
+								CatalogId:       orchestratortest.MockCatalogId1,
+							},
+						},
+					},
+				}
+
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 2, len(got.Msg.Controls)) && assert.Equal(t, want, got.Msg.Controls)
+			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: list all",
@@ -857,13 +971,57 @@ func TestService_ListControls(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
+				want := []*orchestrator.Control{
+					{
+						Id:        orchestratortest.MockControlId1,
+						Name:      orchestratortest.MockControlName1,
+						ShortName: orchestratortest.MockControlShortName1,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:        orchestratortest.MockControl1SubControlId1,
+								CatalogId: orchestratortest.MockCatalogId1,
+								Name:      orchestratortest.MockSubControlName1,
+								ShortName: orchestratortest.MockSubControlShortName1,
+								// Metrics:         ,
+								ParentControlId: new(orchestratortest.MockControlId1),
+								AssuranceLevel:  new("high"),
+							},
+							{
+								Id:        orchestratortest.MockControl1SubControlId2,
+								CatalogId: orchestratortest.MockCatalogId1,
+								Name:      orchestratortest.MockSubControlName2,
+								ShortName: orchestratortest.MockSubControlShortName2,
+								// Metrics:         []*assessment.Metric{MockMetric2},
+								ParentControlId: new(orchestratortest.MockControlId1),
+								AssuranceLevel:  new("medium"),
+							},
+						},
+					},
+					{
+						Id:        orchestratortest.MockControlId2,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Name:      orchestratortest.MockControlName2,
+						ShortName: orchestratortest.MockControlShortName2,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl2SubControlId1,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								ParentControlId: new(orchestratortest.MockControlId2),
+							},
+						},
+					},
+				}
+
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 4, len(got.Msg.Controls))
+				assert.Equal(t, 2, len(got.Msg.Controls))
+				return assert.Equal(t, want, got.Msg.Controls)
 			},
 			wantErr: assert.NoError,
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
@@ -922,20 +1080,25 @@ func TestService_GetControl(t *testing.T) {
 					Id:        orchestratortest.MockControlId1,
 					Name:      orchestratortest.MockControlName1,
 					ShortName: orchestratortest.MockControlShortName1,
+					CatalogId: orchestratortest.MockCatalogId1,
 					Controls: []*orchestrator.Control{
 						{
-							Id:              orchestratortest.MockSubControlId1,
+							Id:              orchestratortest.MockControl1SubControlId1,
 							Name:            orchestratortest.MockSubControlName1,
+							CatalogId:       orchestratortest.MockCatalogId1,
 							ShortName:       orchestratortest.MockSubControlShortName1,
 							ParentControlId: new(orchestratortest.MockControlId1),
 							Metrics:         []*assessment.Metric{orchestratortest.MockMetric1},
+							AssuranceLevel:  new("high"),
 						},
 						{
-							Id:              orchestratortest.MockSubControlId2,
+							Id:              orchestratortest.MockControl1SubControlId2,
 							Name:            orchestratortest.MockSubControlName2,
+							CatalogId:       orchestratortest.MockCatalogId1,
 							ShortName:       orchestratortest.MockSubControlShortName2,
 							ParentControlId: new(orchestratortest.MockControlId1),
 							Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
+							AssuranceLevel:  new("medium"),
 						},
 					},
 				}
@@ -1287,7 +1450,7 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 					catalog := catalogs[0]
 					assert.Equal(t, 1, len(catalog.Categories))
 					category := catalog.Categories[0]
-					assert.Equal(t, 2, len(category.Controls))
+					assert.Equal(t, 1, len(category.Controls))
 					var control *orchestrator.Control
 					for _, candidate := range category.Controls {
 						if candidate.ParentControlId == nil {

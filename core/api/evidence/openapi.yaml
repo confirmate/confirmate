@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.15-12-g250161f
+    version: core/v0.2.15-25-g8885487
 paths:
     /v1/evidence/graph/edges:
         get:
