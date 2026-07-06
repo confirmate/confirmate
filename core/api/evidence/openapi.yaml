@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.15-16-g5029cf69
+    version: core/v0.2.15-20-g30df187e
 paths:
     /v1/evidence/graph/edges:
         get:
@@ -3626,6 +3626,8 @@ components:
                     type: array
                     items:
                         type: string
+                nextPageToken:
+                    type: string
         LoadBalancer:
             type: object
             properties:

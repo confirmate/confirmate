@@ -381,7 +381,6 @@ func TestService_StoreEvidence(t *testing.T) {
 			svc = &Service{
 				db:              tt.fields.db,
 				channelEvidence: make(chan *evidence.Evidence, defaultEvidenceQueueSize),
-				toolIds:         make(map[string]struct{}),
 			}
 
 			res, err = svc.StoreEvidence(tt.args.ctx, tt.args.req)
@@ -480,9 +479,8 @@ func TestService_StoreEvidences(t *testing.T) {
 
 			// Initialize service directly with DB from test fields
 			svc = &Service{
-				db:      tt.fields.db,
-				cfg:     DefaultConfig,
-				toolIds: make(map[string]struct{}),
+				db:  tt.fields.db,
+				cfg: DefaultConfig,
 			}
 			svc.cfg.AssessmentAddress = assessmentSrv.URL
 			svc.cfg.AssessmentHTTPClient = assessmentSrv.Client()
@@ -611,7 +609,6 @@ func TestService_StoreEvidences_SendErrors(t *testing.T) {
 			svc := &Service{
 				db:              tt.fields.db,
 				channelEvidence: make(chan *evidence.Evidence, 1),
-				toolIds:         make(map[string]struct{}),
 			}
 
 			stream := &fakeEvidenceStream{
@@ -914,26 +911,38 @@ func TestService_ListSupportedResourceTypes(t *testing.T) {
 
 // TestService_ListTools covers the empty-cache case and population via StoreEvidence.
 func TestService_ListTools(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	type args struct {
+		ctx context.Context
+		req *connect.Request[evidence.ListToolsRequest]
+	}
 	tests := []struct {
-		name      string
-		evidences []*evidence.Evidence
-		req       *connect.Request[evidence.ListToolsRequest]
-		want      assert.Want[*connect.Response[evidence.ListToolsResponse]]
-		wantErr   assert.WantErr
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evidence.ListToolsResponse]]
+		wantErr assert.WantErr
 	}{
 		{
-			name:      "error - nil request",
-			evidences: nil,
-			req:       nil,
-			want:      assert.Nil[*connect.Response[evidence.ListToolsResponse]],
+			name: "error - nil request",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[evidence.ListToolsResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
 			},
 		},
 		{
-			name:      "happy path - empty cache returns empty list",
-			evidences: nil,
-			req:       &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			name: "happy path - empty cache returns empty list",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
 			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
 				return assert.Equal(t, 0, len(got.Msg.ToolIds))
@@ -942,25 +951,34 @@ func TestService_ListTools(t *testing.T) {
 		},
 		{
 			name: "happy path - deduplicates same tool across multiple evidences",
-			evidences: []*evidence.Evidence{
-				evidencetest.MockEvidenceListA, // tool-a
-				evidencetest.MockEvidenceListB, // tool-a (same tool, different ToE)
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
 			},
-			req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListA)) // tool-a
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListB)) // tool-a (same tool, different ToE)
+				}),
+			},
 			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
-				return assert.Equal(t, 1, len(got.Msg.ToolIds))
+				return assert.Equal(t, 1, len(got.Msg.ToolIds)) &&
+					assert.Equal(t, evidencetest.MockEvidenceListA.ToolId, got.Msg.ToolIds[0])
 			},
 			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path - returns all distinct tool ids",
-			evidences: []*evidence.Evidence{
-				evidencetest.MockEvidenceListA, // tool-a
-				evidencetest.MockEvidenceListB, // tool-a
-				evidencetest.MockEvidenceListC, // tool-b
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
 			},
-			req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListA)) // tool-a
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListB)) // tool-a (same tool, different ToE)
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListC)) // tool-b
+				}),
+			},
 			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
 				if !assert.Equal(t, 2, len(got.Msg.ToolIds)) {
@@ -977,16 +995,10 @@ func TestService_ListTools(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				toolIds: make(map[string]struct{}),
+				db: tt.fields.db,
 			}
 
-			for _, ev := range tt.evidences {
-				svc.toolIdsMu.Lock()
-				svc.toolIds[ev.ToolId] = struct{}{}
-				svc.toolIdsMu.Unlock()
-			}
-
-			res, err := svc.ListTools(context.Background(), tt.req)
+			res, err := svc.ListTools(tt.args.ctx, tt.args.req)
 			tt.wantErr(t, err)
 			tt.want(t, res)
 		})
