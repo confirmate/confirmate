@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.15-25-g8885487
+    version: core/v0.2.15-15-g97e68af
 paths:
     /v1/evidence/graph/edges:
         get:
@@ -379,6 +379,10 @@ components:
                         $ref: '#/components/schemas/Functionality'
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: |-
                 Agnostic is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents an agnostic architecture, which is not tied to a specific operating system.
@@ -476,6 +480,10 @@ components:
                         type: string
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: |-
                 Application is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  This encapsulates the whole (source) code of an application.
@@ -1543,6 +1551,10 @@ components:
                         $ref: '#/components/schemas/Functionality'
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: |-
                 Darwin is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a Darwin architecture, commonly found on macOS systems. macOS is a certified. [UNIX](https://www.opengroup.org/openbrand/register/apple.htm) and is (mostly) POSIX compatible.
@@ -2458,6 +2470,8 @@ components:
                     $ref: '#/components/schemas/SchemaValidation'
                 securityAdvisoryFeed:
                     $ref: '#/components/schemas/SecurityAdvisoryFeed'
+                securityIncident:
+                    $ref: '#/components/schemas/SecurityIncident'
                 time:
                     $ref: '#/components/schemas/Time'
                 vulnerability:
@@ -3550,6 +3564,10 @@ components:
                         type: string
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
                 vulnerabilities:
                     type: array
                     items:
@@ -3608,6 +3626,8 @@ components:
                     type: array
                     items:
                         type: string
+                nextPageToken:
+                    type: string
         LoadBalancer:
             type: object
             properties:
@@ -4578,6 +4598,10 @@ components:
                         $ref: '#/components/schemas/Functionality'
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: |-
                 POSIX is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a POSIX architecture, commonly found on Linux systems.
@@ -4612,6 +4636,10 @@ components:
                         $ref: '#/components/schemas/Functionality'
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: |-
                 Package is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a grouping of (source) code into logical unit, for example a package for a namespace.
@@ -5814,6 +5842,8 @@ components:
                     $ref: '#/components/schemas/LocalAttestation'
                 remoteAttestation:
                     $ref: '#/components/schemas/RemoteAttestation'
+                softwareAttestation:
+                    $ref: '#/components/schemas/SoftwareAttestation'
                 automaticUpdates:
                     $ref: '#/components/schemas/AutomaticUpdates'
                 cryptographicHash:
@@ -5833,7 +5863,11 @@ components:
             description: SecurityFeature is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
         SecurityIncident:
             type: object
-            properties: {}
+            properties:
+                team:
+                    type: array
+                    items:
+                        type: string
             description: SecurityIncident is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         SecurityTraining:
             type: object
@@ -5918,6 +5952,12 @@ components:
                     description: Maximum password rotation interval in months
                     format: int32
             description: SingleSignOn is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        SoftwareAttestation:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+            description: SoftwareAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         SourceCodeFile:
             type: object
             properties:
@@ -5949,6 +5989,10 @@ components:
                         $ref: '#/components/schemas/Functionality'
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: SourceCodeFile is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Status:
             type: object
@@ -6408,6 +6452,10 @@ components:
                         $ref: '#/components/schemas/Functionality'
                 parentId:
                     type: string
+                softwareAttestations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SoftwareAttestation'
             description: |-
                 Win32 is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a Win32 architecture, commonly found on Windows systems.

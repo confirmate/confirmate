@@ -205,7 +205,7 @@ func (svc *Service) RemoveCatalog(
 		return nil, err
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)

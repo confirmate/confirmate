@@ -65,6 +65,10 @@ type DB interface {
 	// Count retrieves the count of records in the database that match the provided conditions.
 	Count(r any, conds ...any) (count int64, err error)
 
+	// Pluck retrieves distinct values for a single column from the database, scanning results
+	// into dest. Optional conds are applied as WHERE conditions.
+	Pluck(model any, column string, dest any, conds ...any) (err error)
+
 	// Raw executes a raw SQL query and scans the result into the provided destination. Returns an error
 	// if the query fails.
 	Raw(r any, query string, args ...any) (err error)

@@ -142,4 +142,5 @@ message ListToolsRequest {}
 
 message ListToolsResponse {
   repeated string tool_ids = 1;
+  string next_page_token = 2;
 }
