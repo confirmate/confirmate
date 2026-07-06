@@ -159,6 +159,12 @@ func (s *gormDB) Count(r any, conds ...any) (count int64, err error) {
 // Advanced and customizable operations
 // ================================================================================================
 
+// Pluck retrieves distinct values for a single column from the database.
+func (s *gormDB) Pluck(model any, column string, dest any, conds ...any) (err error) {
+	db := applyWhere(s.DB.Model(model).Distinct(column), conds...)
+	return db.Pluck(column, dest).Error
+}
+
 // Raw executes a raw SQL query and scans the result into the provided destination. Returns an error
 // if the query fails.
 func (s *gormDB) Raw(r any, query string, args ...any) (err error) {
