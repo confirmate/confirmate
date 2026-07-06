@@ -590,7 +590,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path: user is not authorized to view any results for the specified target of evaluation",
+			name: "happy path: user is not authorized to view any results for the specified audit scope",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -680,15 +680,25 @@ func TestService_ListAuditScopes(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{
 					Permissions: service.DBPermissionStore{
 						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
-							assert.NoError(t, err)
+							assert.NoError(t, d.Create(orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockScopeId1,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+								Permission: orchestrator.UserPermission_PERMISSION_READER,
+							}))
+							assert.NoError(t, d.Create(orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockScopeId2,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+								Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+							}))
 						}),
 					},
 				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, 1, len(got.Msg.AuditScopes)) &&
+					assert.Equal(t, 2, len(got.Msg.AuditScopes)) &&
 					assert.Equal(t, orchestratortest.MockAuditScope1, got.Msg.AuditScopes[0])
 			},
 			wantErr: assert.NoError,
