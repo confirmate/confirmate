@@ -42,7 +42,7 @@ func (svc *Service) Subscribe(
 		return err
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return connect.NewError(connect.CodeInternal, err)

@@ -43,6 +43,10 @@ func (*denyAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orc
 	return false, nil
 }
 
+func (*denyAuthorizationStrategy) AllowedUserPermission(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
 func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(_ context.Context) (bool, []string) {
 	return false, nil
 }

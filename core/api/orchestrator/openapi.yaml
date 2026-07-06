@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.15-8-g42ed1b5
+    version: core/v0.2.15-25-g8885487
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2522,6 +2522,7 @@ components:
                 - controls
                 - metrics
                 - shortName
+                - catalogId
             type: object
             properties:
                 id:
@@ -2564,6 +2565,9 @@ components:
                     items:
                         $ref: '#/components/schemas/ControlInScope'
                     description: 'FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).'
+                catalogId:
+                    type: string
+                    description: Catalog ID of the catalog this control belongs to.
             description: |-
                 Control represents a certain Control that needs to be fulfilled. It could be
                  a Control in a certification catalog. It follows the OSCAL model. A
@@ -2848,7 +2852,6 @@ components:
                     type: string
         ListTargetsOfEvaluationResponse:
             required:
-                - targetsOfEvaluation
                 - targetsOfEvaluation
             type: object
             properties:
