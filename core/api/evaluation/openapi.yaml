@@ -5,8 +5,33 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Confirmate's assessment results
-    version: core/v0.2.15-12-g250161f
+    version: core/v0.2.15-25-g8885487
 paths:
+    /v1/evaluation/evaluate:
+        get:
+            tags:
+                - Evaluation
+            description: ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
+            operationId: Evaluation_ListEvaluationJobs
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional, if provided, filters the evaluation jobs by the given audit scope ID.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEvaluationJobsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/evaluation/evaluate/{auditScopeId}/start:
         post:
             tags:
@@ -69,6 +94,25 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        EvaluationJob:
+            type: object
+            properties:
+                auditScopeId:
+                    type: string
+                startedAt:
+                    type: string
+                    format: date-time
+                interval:
+                    type: integer
+                    description: interval in minutes the evaluation executes periodically. The default interval is set to 5 minutes.
+                    format: int32
+                runCount:
+                    type: integer
+                    description: the number of times the job has finished running
+                    format: int32
+                lastRun:
+                    type: string
+                    format: date-time
         GoogleProtobufAny:
             type: object
             properties:
@@ -77,6 +121,13 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ListEvaluationJobsResponse:
+            type: object
+            properties:
+                evaluationJobs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EvaluationJob'
         StartEvaluationResponse:
             type: object
             properties:

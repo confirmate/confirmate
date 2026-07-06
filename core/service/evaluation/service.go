@@ -290,6 +290,49 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	return
 }
 
+// ListEvaluationJobs lists all running evaluation jobs.
+func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request[evaluation.ListEvaluationJobsRequest]) (res *connect.Response[evaluation.ListEvaluationJobsResponse], err error) {
+	var (
+		jobs           []*gocron.Job
+		allowed        bool
+		evaluationJobs = make([]*evaluation.EvaluationJob, 0)
+	)
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	// Get all jobs from the scheduler
+	jobs = svc.scheduler.Jobs()
+
+	for _, job := range jobs {
+		if job.Tags()[0] != req.Msg.GetFilter().GetAuditScopeId() && req.Msg.GetFilter().GetAuditScopeId() != "" {
+			continue
+		}
+		evaluationJobs = append(evaluationJobs, &evaluation.EvaluationJob{
+			AuditScopeId: job.Tags()[0],
+			RunCount:     int32(job.FinishedRunCount()),
+			LastRun:      timestamppb.New(job.LastRun()),
+			Interval:     int32(job.ScheduledInterval()),
+			StartedAt:    timestamppb.New(job.LastRun()),
+		})
+	}
+
+	return connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
+		EvaluationJobs: evaluationJobs,
+	}), nil
+}
+
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
 // interval. It returns an buf connect error that can be used directly by the caller
 func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) (err error) {
