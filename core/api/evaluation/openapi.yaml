@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Confirmate's assessment results
-    version: core/v0.2.15-4-g5bc46d6
+    version: core/v0.2.15-8-g42ed1b5
 paths:
     /v1/evaluation/evaluate:
         get:
@@ -104,6 +104,7 @@ components:
                     format: date-time
                 interval:
                     type: integer
+                    description: interval in minutes the evaluation executes periodically. The default interval is set to 5 minutes.
                     format: int32
                 runCount:
                     type: integer

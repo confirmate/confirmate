@@ -502,7 +502,8 @@ type EvaluationJob struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	StartedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	Interval     int32                  `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	// interval in minutes the evaluation executes periodically. The default interval is set to 5 minutes.
+	Interval int32 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
 	// the number of times the job has finished running
 	RunCount      int32                  `protobuf:"varint,4,opt,name=run_count,json=runCount,proto3" json:"run_count,omitempty"`
 	LastRun       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_run,json=lastRun,proto3" json:"last_run,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
