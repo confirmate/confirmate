@@ -2853,7 +2853,6 @@ components:
         ListTargetsOfEvaluationResponse:
             required:
                 - targetsOfEvaluation
-                - targetsOfEvaluation
             type: object
             properties:
                 targetsOfEvaluation:

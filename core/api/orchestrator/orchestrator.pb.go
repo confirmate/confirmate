@@ -6070,9 +6070,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\"\xb5\x01\n" +
-	"\x1fListTargetsOfEvaluationResponse\x12j\n" +
-	"\x15targets_of_evaluation\x18\x01 \x03(\v2..confirmate.orchestrator.v1.TargetOfEvaluationB\x06\xe0A\x02\xe0A\x02R\x13targetsOfEvaluation\x12&\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\"\xb2\x01\n" +
+	"\x1fListTargetsOfEvaluationResponse\x12g\n" +
+	"\x15targets_of_evaluation\x18\x01 \x03(\v2..confirmate.orchestrator.v1.TargetOfEvaluationB\x03\xe0A\x02R\x13targetsOfEvaluation\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"l\n" +
 	"&GetTargetOfEvaluationStatisticsRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\"\x9e\x02\n" +
