@@ -453,31 +453,18 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.ListToolsRequest]) (
 	res *connect.Response[evidence.ListToolsResponse], err error) {
 
-	var (
-		toolIds []string
-		args    []any
-	)
+	var toolIds []string
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	// Use PostgreSQL DISTINCT to get unique tool IDs from the evidence table
-	var query string
-	query = `
-		SELECT DISTINCT tool_id
-		FROM evidences
-		ORDER BY tool_id DESC
-	`
-
-	err = svc.db.Raw(&toolIds, query, args...)
+	err = svc.db.Pluck(&evidence.Evidence{}, "tool_id", &toolIds)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
 
-	// Since we used raw SQL, we need to handle pagination differently
-	// For now, return all results without pagination support
 	res = connect.NewResponse(&evidence.ListToolsResponse{
 		ToolIds:       toolIds,
 		NextPageToken: "",
