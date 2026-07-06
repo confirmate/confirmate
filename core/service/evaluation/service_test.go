@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 	"testing"
 	"time"
 
@@ -53,6 +54,10 @@ func (*denyAuthorizationStrategy) AllowedTargetOfEvaluations(_ context.Context) 
 }
 
 func (*denyAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
+func (*denyAuthorizationStrategy) AllowedUserPermission(_ context.Context) (bool, []string) {
 	return false, nil
 }
 
@@ -1607,7 +1612,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 
 				// Control with one metric.
 				ctrl := &orchestrator.Control{
-					Id:   orchestratortest.MockSubControlId1,
+					Id:   orchestratortest.MockControl2SubControlId1,
 					Name: "Mock Subcontrol 1",
 					Metrics: []*assessment.Metric{
 						{Id: orchestratortest.MockMetricId1},
@@ -1631,7 +1636,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					CatalogId:            orchestratortest.MockCatalogId1,
 				},
 				control: &orchestrator.Control{
-					Id:   orchestratortest.MockSubControlId1,
+					Id:   orchestratortest.MockControl2SubControlId1,
 					Name: "Mock Subcontrol 1",
 					Metrics: []*assessment.Metric{
 						{Id: orchestratortest.MockMetricId1},
@@ -1647,7 +1652,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1671,7 +1676,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1733,7 +1738,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      new(orchestratortest.MockControlId1),
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1758,7 +1763,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      new(orchestratortest.MockControlId1),
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1817,7 +1822,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      orchestratortest.MockSubControl1.ParentControlId,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
@@ -1839,7 +1844,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      orchestratortest.MockSubControl1.ParentControlId,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
@@ -2132,6 +2137,158 @@ func TestService_StartEvaluation(t *testing.T) {
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)
 			tt.wantSvc(t, &svc)
+		})
+	}
+}
+
+func TestService_ListEvaluationJobs(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		scheduler          *gocron.Scheduler
+		authz              service.AuthorizationStrategy
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		req     *connect.Request[evaluation.ListEvaluationJobsRequest]
+		want    assert.Want[*connect.Response[evaluation.ListEvaluationJobsResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: validation error - invalid audit scope id",
+			fields: fields{
+				orchestratorClient: nil,
+				scheduler:          gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{
+				Filter: &evaluation.ListEvaluationJobsRequest_Filter{
+					AuditScopeId: new("invalid-uuid"),
+				},
+			}),
+			want: assert.Nil[*connect.Response[evaluation.ListEvaluationJobsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "filter.audit_scope_id: must be a valid UUID")
+			},
+		},
+		{
+			name: "err: validation error - authZ error",
+			fields: fields{
+				orchestratorClient: nil,
+				scheduler:          gocron.NewScheduler(time.Local),
+				authz:              &denyAuthorizationStrategy{},
+			},
+			req:  connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: assert.Nil[*connect.Response[evaluation.ListEvaluationJobsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied) &&
+					assert.ErrorContains(t, err, "permission_denied: access denied")
+			},
+		},
+		{
+			name: "happy path: filter by audit scope id",
+			fields: func() fields {
+				// Create test server that returns an Audit Scope
+				handler := &mockOrchestratorHandler{
+					auditScope: evaluationtest.MockAuditScope1,
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler: func() *gocron.Scheduler {
+						s := gocron.NewScheduler(time.Local)
+						_, err := s.Every(1).Day().Tag("00000000-0000-0000-0000-000000000001").Do(func() { fmt.Println("Job 1") })
+						assert.NoError(t, err)
+						_, err = s.Every(2).Day().Tag("00000000-0000-0000-0000-000000000002").Do(func() { fmt.Println("Job 2") })
+						assert.NoError(t, err)
+						return s
+					}(),
+					authz: &service.AuthorizationStrategyAllowAll{},
+				}
+			}(),
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{
+				Filter: &evaluation.ListEvaluationJobsRequest_Filter{
+					AuditScopeId: new("00000000-0000-0000-0000-000000000002"),
+				},
+			}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				want1 := &evaluation.EvaluationJob{
+					AuditScopeId: "00000000-0000-0000-0000-000000000002",
+					Interval:     2,
+				}
+
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.GetEvaluationJobs()))
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetLastRun())
+				assert.Equal(t, 0, got.Msg.GetEvaluationJobs()[0].GetRunCount())
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetStartedAt())
+				return assert.Equal(t, want1, got.Msg.GetEvaluationJobs()[0], protocmp.IgnoreFields(&evaluation.EvaluationJob{}, "last_run", "run_count", "started_at"))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path",
+			fields: func() fields {
+				// Create test server that returns an Audit Scope
+				handler := &mockOrchestratorHandler{
+					auditScope: evaluationtest.MockAuditScope1,
+				}
+				_, testSrv := servertest.NewTestConnectServer(
+					t,
+					server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+				)
+				t.Cleanup(testSrv.Close)
+
+				return fields{
+					orchestratorClient: newOrchestratorClientForTest(testSrv),
+					scheduler: func() *gocron.Scheduler {
+						s := gocron.NewScheduler(time.Local)
+						_, err := s.Every(1).Day().Tag("00000000-0000-0000-0000-000000000001").Do(func() { fmt.Println("Job 1") })
+						assert.NoError(t, err)
+						_, err = s.Every(2).Day().Tag("00000000-0000-0000-0000-000000000002").Do(func() { fmt.Println("Job 2") })
+						assert.NoError(t, err)
+						return s
+					}(),
+				}
+			}(),
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				want1 := &evaluation.EvaluationJob{
+					AuditScopeId: "00000000-0000-0000-0000-000000000001",
+					Interval:     1,
+				}
+
+				// Sort the jobs by AuditScopeId to ensure consistent ordering for the test
+				sort.SliceStable(got.Msg.GetEvaluationJobs(), func(i, j int) bool {
+					return got.Msg.GetEvaluationJobs()[i].GetAuditScopeId() < got.Msg.GetEvaluationJobs()[j].GetAuditScopeId()
+				})
+
+				assert.NotNil(t, got)
+				assert.Equal(t, 2, len(got.Msg.GetEvaluationJobs()))
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetLastRun())
+				assert.Equal(t, 0, got.Msg.GetEvaluationJobs()[0].GetRunCount())
+				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetStartedAt())
+				return assert.Equal(t, want1, got.Msg.GetEvaluationJobs()[0], protocmp.IgnoreFields(&evaluation.EvaluationJob{}, "last_run", "run_count", "started_at"))
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				scheduler:          tt.fields.scheduler,
+				authz:              tt.fields.authz,
+			}
+			got, gotErr := svc.ListEvaluationJobs(context.Background(), tt.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
 		})
 	}
 }
