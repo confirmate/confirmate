@@ -22,6 +22,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
@@ -62,7 +63,7 @@ func (svc *Service) CreateCatalog(
 	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -170,7 +171,7 @@ func (svc *Service) UpdateCatalog(
 	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
 	normalizeCatalogControls(catalog)
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -258,8 +259,12 @@ func (svc *Service) ListControls(
 	req *connect.Request[orchestrator.ListControlsRequest],
 ) (res *connect.Response[orchestrator.ListControlsResponse], err error) {
 	var (
-		controls []*orchestrator.Control
-		npt      string
+		controls     []*orchestrator.Control
+		npt          string
+		conds        []any
+		whereClauses []string
+		args         []any
+		where        string
 	)
 
 	// Validate the request
@@ -273,13 +278,45 @@ func (svc *Service) ListControls(
 		req.Msg.Asc = true
 	}
 
+	// Apply filters if provided
+	if req.Msg.Filter != nil {
+		if req.Msg.Filter.CatalogId != nil {
+			whereClauses = append(whereClauses, "catalog_id = ?")
+			args = append(args, req.Msg.Filter.GetCatalogId())
+		}
+		if req.Msg.Filter.CategoryName != nil {
+			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by category name is not yet implemented"))
+		}
+		if req.Msg.Filter.AssuranceLevels != nil && len(req.Msg.Filter.AssuranceLevels) > 0 {
+			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by assurance levels is not yet implemented"))
+		}
+	}
+
+	whereClauses = append(whereClauses, "parent_control_id IS NULL") // Only top-level controls
+
+	// Combine all WHERE clauses with AND
+	if len(whereClauses) > 0 {
+		where = strings.Join(whereClauses, " AND ")
+		conds = append(conds, where)
+		conds = append(conds, args...)
+	}
+
+	// Prepare preloads and combine with any WHERE clauses/args.
+	opts := []any{
+		persistence.WithPreload("Controls.Controls"),
+	}
+	if where != "" {
+		// first the SQL WHERE clause, followed by its arguments
+		opts = append(opts, where)
+		opts = append(opts, args...)
+	}
+
 	// Preload Metrics and sub-Controls (with their own Metrics) so callers —
 	// notably the evaluation service — can walk a control's full subtree and
 	// resolve every metric ID without making per-control round trips.
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
 		req.Msg, svc.db, service.DefaultPaginationOpts,
-		persistence.WithPreload("Metrics"),
-		persistence.WithPreload("Controls.Metrics"),
+		opts...,
 	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -390,6 +427,8 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 	return catalogs, nil
 }
 
+// normalizeCatalogControls normalizes the controls in a catalog by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
+// Note: The flattenControls function is commented out, as it is not currently used in the normalization process.
 func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 	if catalog == nil {
 		return
@@ -397,10 +436,11 @@ func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 
 	for _, category := range catalog.Categories {
 		normalizeControls(category.GetControls(), nil)
-		category.Controls = flattenControls(category.GetControls())
+		// category.Controls = flattenControls(category.GetControls())
 	}
 }
 
+// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
 func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control) {
 	for _, control := range controls {
 		if control.GetShortName() == "" {
@@ -420,24 +460,25 @@ func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Co
 	}
 }
 
-func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
-	var (
-		flat    []*orchestrator.Control
-		visited = make(map[string]struct{})
-	)
+// // flattenControls flattens a list of controls into a single-level list, preserving the original order and avoiding duplicates.
+// func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
+// 	var (
+// 		flat    []*orchestrator.Control
+// 		visited = make(map[string]struct{})
+// 	)
 
-	var walk func(items []*orchestrator.Control)
-	walk = func(items []*orchestrator.Control) {
-		for _, control := range items {
-			if _, ok := visited[control.GetId()]; !ok {
-				visited[control.GetId()] = struct{}{}
-				flat = append(flat, control)
-			}
-			walk(control.GetControls())
-		}
-	}
+// 	var walk func(items []*orchestrator.Control)
+// 	walk = func(items []*orchestrator.Control) {
+// 		for _, control := range items {
+// 			if _, ok := visited[control.GetId()]; !ok {
+// 				visited[control.GetId()] = struct{}{}
+// 				flat = append(flat, control)
+// 			}
+// 			walk(control.GetControls())
+// 		}
+// 	}
 
-	walk(controls)
+// 	walk(controls)
 
-	return flat
-}
+// 	return flat
+// }

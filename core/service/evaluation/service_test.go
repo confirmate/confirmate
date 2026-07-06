@@ -56,6 +56,10 @@ func (*denyAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, [
 	return false, nil
 }
 
+func (*denyAuthorizationStrategy) AllowedUserPermission(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
 func TestNewService(t *testing.T) {
 	type args struct {
 		opts []service.Option[Service]
@@ -1607,7 +1611,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 
 				// Control with one metric.
 				ctrl := &orchestrator.Control{
-					Id:   orchestratortest.MockSubControlId1,
+					Id:   orchestratortest.MockControl2SubControlId1,
 					Name: "Mock Subcontrol 1",
 					Metrics: []*assessment.Metric{
 						{Id: orchestratortest.MockMetricId1},
@@ -1631,7 +1635,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 					CatalogId:            orchestratortest.MockCatalogId1,
 				},
 				control: &orchestrator.Control{
-					Id:   orchestratortest.MockSubControlId1,
+					Id:   orchestratortest.MockControl2SubControlId1,
 					Name: "Mock Subcontrol 1",
 					Metrics: []*assessment.Metric{
 						{Id: orchestratortest.MockMetricId1},
@@ -1647,7 +1651,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1671,7 +1675,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      nil,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
@@ -1733,7 +1737,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      new(orchestratortest.MockControlId1),
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1758,7 +1762,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: evaluationtest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      new(orchestratortest.MockControlId1),
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -1817,7 +1821,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      orchestratortest.MockSubControl1.ParentControlId,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
@@ -1839,7 +1843,7 @@ func TestService_evaluateSubcontrol(t *testing.T) {
 				want := &evaluation.EvaluationResult{
 					TargetOfEvaluationId: orchestratortest.MockToeId1,
 					AuditScopeId:         evaluationtest.MockAuditScopeId1,
-					ControlId:            orchestratortest.MockSubControlId1,
+					ControlId:            orchestratortest.MockControl2SubControlId1,
 					ControlCatalogId:     orchestratortest.MockCatalogId1,
 					ParentControlId:      orchestratortest.MockSubControl1.ParentControlId,
 					Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
