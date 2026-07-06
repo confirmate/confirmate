@@ -693,6 +693,7 @@ func (*ListToolsRequest) Descriptor() ([]byte, []int) {
 type ListToolsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ToolIds       []string               `protobuf:"bytes,1,rep,name=tool_ids,json=toolIds,proto3" json:"tool_ids,omitempty"`
+	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -732,6 +733,13 @@ func (x *ListToolsResponse) GetToolIds() []string {
 		return x.ToolIds
 	}
 	return nil
+}
+
+func (x *ListToolsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
 }
 
 type ListResourcesRequest_Filter struct {
@@ -849,9 +857,10 @@ const file_api_evidence_evidence_store_proto_rawDesc = "" +
 	"\x15ListResourcesResponse\x12G\n" +
 	"\aresults\x18\x01 \x03(\v2(.confirmate.evidence.v1.ResourceSnapshotB\x03\xe0A\x02R\aresults\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x12\n" +
-	"\x10ListToolsRequest\".\n" +
+	"\x10ListToolsRequest\"V\n" +
 	"\x11ListToolsResponse\x12\x19\n" +
-	"\btool_ids\x18\x01 \x03(\tR\atoolIds*d\n" +
+	"\btool_ids\x18\x01 \x03(\tR\atoolIds\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*d\n" +
 	"\x0eEvidenceStatus\x12\x1f\n" +
 	"\x1bEVIDENCE_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12EVIDENCE_STATUS_OK\x10\x01\x12\x19\n" +
