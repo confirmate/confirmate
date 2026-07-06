@@ -370,7 +370,7 @@ func TestService_ListControlsInScope(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path: list all: cfadmin=true",
+			name: "happy path: list IsAdminToken=true",
 			args: args{
 				req: &orchestrator.ListControlsInScopeRequest{},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
