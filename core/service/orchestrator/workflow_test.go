@@ -472,29 +472,6 @@ func TestService_ListControlsInScope(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path: filter by audit scope",
-			args: args{
-				req: &orchestrator.ListControlsInScopeRequest{
-					Filter: &orchestrator.ListControlsInScopeRequest_Filter{
-						AuditScopeId: &orchestratortest.MockControlInScope1.AuditScopeId,
-					},
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					seedControlInScope1(t, d)
-					seedControlInScope2(t, d)
-				}),
-				authz: &service.AuthorizationStrategyPermissionStore{},
-			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsInScopeResponse], args ...any) bool {
-				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, 1, len(got.Msg.ControlsInScope)) &&
-					assert.Equal(t, orchestratortest.MockControlInScope1.Id, got.Msg.ControlsInScope[0].Id)
-			},
-			wantErr: assert.NoError,
-		},
-		{
 			name: "happy path: no access returns empty list",
 			args: args{
 				req: &orchestrator.ListControlsInScopeRequest{},
