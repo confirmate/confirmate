@@ -370,20 +370,104 @@ func TestService_ListControlsInScope(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path: list all",
+			name: "happy path: list all: cfadmin=true",
 			args: args{
 				req: &orchestrator.ListControlsInScopeRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					seedControlInScope1(t, d)
 					seedControlInScope2(t, d)
 				}),
-				authz: &service.AuthorizationStrategyAllowAll{},
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsInScopeResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
 					assert.Equal(t, 2, len(got.Msg.ControlsInScope))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: list all: cfadmin=false and permission for audit_scope_1",
+			args: args{
+				req: &orchestrator.ListControlsInScopeRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					seedControlInScope1(t, d)
+					seedControlInScope2(t, d)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsInScopeResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.ControlsInScope)) &&
+					assert.Equal(t, orchestratortest.MockControlInScope1, got.Msg.ControlsInScope[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: list all: cfadmin=false,permission for audit_scope_1 and filter by audit_scope",
+			args: args{
+				req: &orchestrator.ListControlsInScopeRequest{
+					Filter: &orchestrator.ListControlsInScopeRequest_Filter{
+						AuditScopeId: new(orchestratortest.MockScopeId1),
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					seedControlInScope1(t, d)
+					seedControlInScope2(t, d)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsInScopeResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.ControlsInScope)) &&
+					assert.Equal(t, orchestratortest.MockControlInScope1, got.Msg.ControlsInScope[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -401,7 +485,7 @@ func TestService_ListControlsInScope(t *testing.T) {
 					seedControlInScope1(t, d)
 					seedControlInScope2(t, d)
 				}),
-				authz: &service.AuthorizationStrategyAllowAll{},
+				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsInScopeResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
