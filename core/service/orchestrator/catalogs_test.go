@@ -181,6 +181,9 @@ func TestService_CreateCatalog(t *testing.T) {
 }
 
 func TestService_GetCatalog(t *testing.T) {
+	catalog1 := orchestratortest.MockCatalog1
+	normalizeCatalogControls(catalog1)
+
 	type args struct {
 		req *orchestrator.GetCatalogRequest
 	}
@@ -203,15 +206,44 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
+					err := d.Create(catalog1)
 					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
-				want := orchestratortest.MockCatalog1
-				want.Categories[0].Controls[0].Controls = []*orchestrator.Control{}
-				want.Categories[1].Controls[0].Controls = []*orchestrator.Control{}
-
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalogId1,
+					Name:        orchestratortest.MockCatalogName1,
+					Description: orchestratortest.MockCatalogDescription1,
+					Categories: []*orchestrator.Category{
+						{
+							Name:      orchestratortest.MockCategoryName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+							Controls: []*orchestrator.Control{
+								{
+									Id:        orchestratortest.MockControlId1,
+									Name:      orchestratortest.MockControlName1,
+									ShortName: orchestratortest.MockControlShortName1,
+									CatalogId: orchestratortest.MockCatalogId1,
+									Controls:  []*orchestrator.Control{},
+								},
+							},
+						},
+						{
+							Name:      orchestratortest.MockCategoryName2,
+							CatalogId: orchestratortest.MockCatalogId1,
+							Controls: []*orchestrator.Control{
+								{
+									Id:        orchestratortest.MockControlId2,
+									Name:      orchestratortest.MockControlName2,
+									ShortName: orchestratortest.MockControlShortName2,
+									CatalogId: orchestratortest.MockCatalogId1,
+									Controls:  []*orchestrator.Control{},
+								},
+							},
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, want, got.Msg)
 			},
@@ -1418,7 +1450,7 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 					catalog := catalogs[0]
 					assert.Equal(t, 1, len(catalog.Categories))
 					category := catalog.Categories[0]
-					assert.Equal(t, 2, len(category.Controls))
+					assert.Equal(t, 1, len(category.Controls))
 					var control *orchestrator.Control
 					for _, candidate := range category.Controls {
 						if candidate.ParentControlId == nil {

@@ -427,6 +427,8 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 	return catalogs, nil
 }
 
+// normalizeCatalogControls normalizes the controls in a catalog by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
+// Note: The flattenControls function is commented out, as it is not currently used in the normalization process.
 func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 	if catalog == nil {
 		return
@@ -434,10 +436,11 @@ func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 
 	for _, category := range catalog.Categories {
 		normalizeControls(category.GetControls(), nil)
-		category.Controls = flattenControls(category.GetControls())
+		// category.Controls = flattenControls(category.GetControls())
 	}
 }
 
+// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
 func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control) {
 	for _, control := range controls {
 		if control.GetShortName() == "" {
@@ -457,24 +460,25 @@ func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Co
 	}
 }
 
-func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
-	var (
-		flat    []*orchestrator.Control
-		visited = make(map[string]struct{})
-	)
+// // flattenControls flattens a list of controls into a single-level list, preserving the original order and avoiding duplicates.
+// func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
+// 	var (
+// 		flat    []*orchestrator.Control
+// 		visited = make(map[string]struct{})
+// 	)
 
-	var walk func(items []*orchestrator.Control)
-	walk = func(items []*orchestrator.Control) {
-		for _, control := range items {
-			if _, ok := visited[control.GetId()]; !ok {
-				visited[control.GetId()] = struct{}{}
-				flat = append(flat, control)
-			}
-			walk(control.GetControls())
-		}
-	}
+// 	var walk func(items []*orchestrator.Control)
+// 	walk = func(items []*orchestrator.Control) {
+// 		for _, control := range items {
+// 			if _, ok := visited[control.GetId()]; !ok {
+// 				visited[control.GetId()] = struct{}{}
+// 				flat = append(flat, control)
+// 			}
+// 			walk(control.GetControls())
+// 		}
+// 	}
 
-	walk(controls)
+// 	walk(controls)
 
-	return flat
-}
+// 	return flat
+// }
