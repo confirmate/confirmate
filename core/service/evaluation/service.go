@@ -615,13 +615,14 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		status      evaluation.EvaluationStatus
 		resultIds   []string
 	)
-	slog.Debug("Start evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	// TODO(lebogg): Why we don't return an error here?
 	if auditScope == nil || control == nil {
 		slog.Error("audit_scope and/or control is missing")
 		return
 	}
+
+	slog.Debug("Start evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	// Get metrics from control and sub-controls
 	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.Id)
