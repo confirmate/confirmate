@@ -1137,37 +1137,6 @@ func TestService_GetControl(t *testing.T) {
 }
 
 func TestService_loadCatalogs(t *testing.T) {
-
-	testCatalog := &orchestrator.Catalog{
-		Id:          orchestratortest.MockCatalogId2,
-		Name:        orchestratortest.MockCatalogName2,
-		Description: orchestratortest.MockCatalogDescription2,
-		Categories: []*orchestrator.Category{
-			{
-				Name:      orchestratortest.MockCategoryName2,
-				CatalogId: orchestratortest.MockCatalogId2,
-				Controls: []*orchestrator.Control{
-					{
-						Id:        orchestratortest.MockControlId2,
-						Name:      orchestratortest.MockControlName2,
-						ShortName: orchestratortest.MockControlShortName2,
-						CatalogId: "new catalog id for testing",
-						Controls: []*orchestrator.Control{
-							{
-								Id:              orchestratortest.MockControl2SubControlId1,
-								Name:            orchestratortest.MockSubControlName1,
-								ShortName:       orchestratortest.MockSubControlShortName1,
-								Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
-								ParentControlId: new(orchestratortest.MockControlId2),
-								CatalogId:       "new catalog id for testing",
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
 	type fields struct {
 		db persistence.DB
 	}
@@ -1182,7 +1151,7 @@ func TestService_loadCatalogs(t *testing.T) {
 		wantDB           assert.Want[persistence.DB]
 	}{
 		{
-			name: "load from custom function",
+			name: "error: load from custom function and catalog exists already",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
@@ -1191,58 +1160,21 @@ func TestService_loadCatalogs(t *testing.T) {
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return []*orchestrator.Catalog{
-					testCatalog,
+					orchestratortest.MockCatalog2,
 				}, nil
 			},
-			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				// catalog and controls for testing the entries in the database
-				// testCatalog is the catalog that is expected to be in the database after loading
-				testCatalog2 := testCatalog
-				testCatalog2.Categories[0].Controls = nil
-				// testControl is the control that is expected to be in the database after loading
-				testControl := &orchestrator.Control{
-					Id:        orchestratortest.MockControlId2,
-					Name:      orchestratortest.MockControlName2,
-					ShortName: orchestratortest.MockControlShortName2,
-					CatalogId: "new catalog id for testing",
-					Controls: []*orchestrator.Control{
-						{
-							Id:              orchestratortest.MockControl2SubControlId1,
-							Name:            orchestratortest.MockSubControlName1,
-							ShortName:       orchestratortest.MockSubControlShortName1,
-							ParentControlId: new(orchestratortest.MockControlId2),
-							CatalogId:       "new catalog id for testing",
-						},
-					},
-				}
-				// testSubcontrol is the subcontrol that is expected to be in the database after loading
-				testSubcontrol := &orchestrator.Control{
-					Id:              orchestratortest.MockControl2SubControlId1,
-					Name:            orchestratortest.MockSubControlName1,
-					ShortName:       orchestratortest.MockSubControlShortName1,
-					Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
-					ParentControlId: new(orchestratortest.MockControlId2),
-					CatalogId:       "new catalog id for testing",
-				}
-
-				// Get the catalog, control, and subcontrol from the database
-				catalogFromDB := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
-				controlFromDB := assert.InDB[orchestrator.Control](t, db, orchestratortest.MockControlId2)
-				subcontrolFromDB := assert.InDB[orchestrator.Control](t, db, orchestratortest.MockControl2SubControlId1)
-
-				// Check that the catalog, control, and subcontrol are not nil and match the expected values
-				assert.NotNil(t, catalogFromDB)
-				assert.Equal(t, testCatalog, catalogFromDB)
-				assert.Equal(t, testControl, controlFromDB)
-				assert.Equal(t, testSubcontrol, subcontrolFromDB)
-				return true
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "could not save catalog")
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
 			name:            "load from default folder with valid catalogs",
 			loadDefaultCats: true,
-			catalogsPath:    "",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			catalogsPath: "",
 			setupFiles: func(t *testing.T, dir string) {
 				catalog := []*orchestrator.Catalog{
 					{
@@ -1263,7 +1195,10 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 		},
 		{
-			name:            "load from custom function",
+			name: "load from custom function",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return []*orchestrator.Catalog{
@@ -1282,6 +1217,9 @@ func TestService_loadCatalogs(t *testing.T) {
 		{
 			name:            "load from both default folder and custom function",
 			loadDefaultCats: true,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			setupFiles: func(t *testing.T, dir string) {
 				catalog := []*orchestrator.Catalog{
 					{
@@ -1311,11 +1249,17 @@ func TestService_loadCatalogs(t *testing.T) {
 		{
 			name:            "empty folder and no custom function",
 			loadDefaultCats: true,
-			wantErr:         assert.NoError,
-			wantDB:          assert.NotNil[persistence.DB],
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "custom function returns error",
+			name: "custom function returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return nil, errors.New("custom error")
@@ -1326,7 +1270,10 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "invalid catalogs path",
+			name: "invalid catalogs path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: true,
 			catalogsPath:    "/nonexistent/path",
 			wantErr: func(t *testing.T, err error, args ...any) bool {
