@@ -119,7 +119,7 @@ func (svc *Service) GetCurrentUser(
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
 	}
 
-	userId := claims.Issuer + "|" + claims.Subject
+	userId := auth.GetConfirmateUserIDFromClaims(claims)
 	err = svc.db.Get(&user, "id = ?", userId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
 		return nil, err
@@ -325,7 +325,8 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	)
 
 	claims, ok = auth.ClaimsFromContext(ctx)
-	if !ok || claims == nil || claims.Issuer == "" || claims.Subject == "" {
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
+	if !ok || claims == nil || userId == "" {
 		return "", nil
 	}
 
@@ -337,9 +338,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	}
 
 	// JIT-provision the user using a read-then-update approach to avoid overwriting existing
-	// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
-	// by the OIDC specification, ensuring uniqueness across identity providers.
-	userId = claims.Issuer + "|" + claims.Subject
+	// fields (e.g. enabled status) on every request.
 	user = &orchestrator.User{}
 	err = svc.db.Get(user, "id = ?", userId)
 
@@ -362,14 +361,22 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	} else if err != nil {
 		return "", fmt.Errorf("failed to look up user: %w", err)
 	} else {
-		// User exists: update only identity fields and last_access to preserve other persisted
-		// fields such as enabled status.
-		user.Username = new(claims.PreferredUsername)
-		user.FirstName = new(claims.GivenName)
-		user.LastName = new(claims.FamilyName)
-		user.Email = new(claims.Email)
-		user.Roles = claims.Roles
+		// User exists: update only identity fields that are non-empty in the claims, to avoid
+		// overwriting seeded values (e.g. FirstName/LastName) with empty JWT claims.
 		user.LastAccess = timestamppb.Now()
+		if claims.PreferredUsername != "" {
+			user.Username = new(claims.PreferredUsername)
+		}
+		if claims.GivenName != "" {
+			user.FirstName = new(claims.GivenName)
+		}
+		if claims.FamilyName != "" {
+			user.LastName = new(claims.FamilyName)
+		}
+		if claims.Email != "" {
+			user.Email = new(claims.Email)
+		}
+		user.Roles = claims.Roles
 		err = svc.db.Save(user)
 		if err != nil {
 			return "", fmt.Errorf("failed to update user: %w", err)

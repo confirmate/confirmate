@@ -75,9 +75,13 @@ func (claims *OAuthClaims) HasRole(role orchestrator.Role) bool {
 }
 
 // GetConfirmateUserIDFromClaims constructs a unique user ID from the claims. It combines the issuer and subject
+// when both are present; falls back to subject alone when the token has no issuer (e.g. oauth2go embedded server).
 func GetConfirmateUserIDFromClaims(claims *OAuthClaims) string {
-	if claims == nil || claims.RegisteredClaims.Issuer == "" || claims.RegisteredClaims.Subject == "" {
+	if claims == nil || claims.RegisteredClaims.Subject == "" {
 		return ""
+	}
+	if claims.RegisteredClaims.Issuer == "" {
+		return claims.RegisteredClaims.Subject
 	}
 	return claims.RegisteredClaims.Issuer + "|" + claims.RegisteredClaims.Subject
 }
