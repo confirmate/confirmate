@@ -453,6 +453,69 @@ func (x *ControlInScopeTransitionEvent) GetToState() ControlInScopeState {
 	return ControlInScopeState_CONTROL_IN_SCOPE_STATE_UNSPECIFIED
 }
 
+// ControlInScopeAssigneeChangedEvent is emitted when the assignee of a ControlInScope changes.
+type ControlInScopeAssigneeChangedEvent struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ControlInScopeId string                 `protobuf:"bytes,1,opt,name=control_in_scope_id,json=controlInScopeId,proto3" json:"control_in_scope_id,omitempty"`
+	// previous_assignee_id is empty when there was no prior assignee.
+	PreviousAssigneeId *string `protobuf:"bytes,2,opt,name=previous_assignee_id,json=previousAssigneeId,proto3,oneof" json:"previous_assignee_id,omitempty"`
+	// new_assignee_id is empty when the assignee is removed.
+	NewAssigneeId *string `protobuf:"bytes,3,opt,name=new_assignee_id,json=newAssigneeId,proto3,oneof" json:"new_assignee_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ControlInScopeAssigneeChangedEvent) Reset() {
+	*x = ControlInScopeAssigneeChangedEvent{}
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ControlInScopeAssigneeChangedEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ControlInScopeAssigneeChangedEvent) ProtoMessage() {}
+
+func (x *ControlInScopeAssigneeChangedEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ControlInScopeAssigneeChangedEvent.ProtoReflect.Descriptor instead.
+func (*ControlInScopeAssigneeChangedEvent) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ControlInScopeAssigneeChangedEvent) GetControlInScopeId() string {
+	if x != nil {
+		return x.ControlInScopeId
+	}
+	return ""
+}
+
+func (x *ControlInScopeAssigneeChangedEvent) GetPreviousAssigneeId() string {
+	if x != nil && x.PreviousAssigneeId != nil {
+		return *x.PreviousAssigneeId
+	}
+	return ""
+}
+
+func (x *ControlInScopeAssigneeChangedEvent) GetNewAssigneeId() string {
+	if x != nil && x.NewAssigneeId != nil {
+		return *x.NewAssigneeId
+	}
+	return ""
+}
+
 type CreateControlInScopeRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	AuditScopeId string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
@@ -461,14 +524,16 @@ type CreateControlInScopeRequest struct {
 	// It is required here so the server can avoid a round-trip fetch of the AuditScope.
 	TargetOfEvaluationId string `protobuf:"bytes,4,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	// AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
-	AssigneeId    *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	AssigneeId *string `protobuf:"bytes,3,opt,name=assignee_id,json=assigneeId,proto3,oneof" json:"assignee_id,omitempty"`
+	// Comment explains why this control is being brought into scope.
+	Comment       *string `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateControlInScopeRequest) Reset() {
 	*x = CreateControlInScopeRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -480,7 +545,7 @@ func (x *CreateControlInScopeRequest) String() string {
 func (*CreateControlInScopeRequest) ProtoMessage() {}
 
 func (x *CreateControlInScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[4]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -493,7 +558,7 @@ func (x *CreateControlInScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateControlInScopeRequest.ProtoReflect.Descriptor instead.
 func (*CreateControlInScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{4}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateControlInScopeRequest) GetAuditScopeId() string {
@@ -524,6 +589,13 @@ func (x *CreateControlInScopeRequest) GetAssigneeId() string {
 	return ""
 }
 
+func (x *CreateControlInScopeRequest) GetComment() string {
+	if x != nil && x.Comment != nil {
+		return *x.Comment
+	}
+	return ""
+}
+
 type GetControlInScopeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -533,7 +605,7 @@ type GetControlInScopeRequest struct {
 
 func (x *GetControlInScopeRequest) Reset() {
 	*x = GetControlInScopeRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -545,7 +617,7 @@ func (x *GetControlInScopeRequest) String() string {
 func (*GetControlInScopeRequest) ProtoMessage() {}
 
 func (x *GetControlInScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[5]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -558,7 +630,7 @@ func (x *GetControlInScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetControlInScopeRequest.ProtoReflect.Descriptor instead.
 func (*GetControlInScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{5}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetControlInScopeRequest) GetId() string {
@@ -581,7 +653,7 @@ type ListControlsInScopeRequest struct {
 
 func (x *ListControlsInScopeRequest) Reset() {
 	*x = ListControlsInScopeRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -593,7 +665,7 @@ func (x *ListControlsInScopeRequest) String() string {
 func (*ListControlsInScopeRequest) ProtoMessage() {}
 
 func (x *ListControlsInScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[6]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -606,7 +678,7 @@ func (x *ListControlsInScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListControlsInScopeRequest.ProtoReflect.Descriptor instead.
 func (*ListControlsInScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{6}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListControlsInScopeRequest) GetFilter() *ListControlsInScopeRequest_Filter {
@@ -654,7 +726,7 @@ type ListControlsInScopeResponse struct {
 
 func (x *ListControlsInScopeResponse) Reset() {
 	*x = ListControlsInScopeResponse{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -666,7 +738,7 @@ func (x *ListControlsInScopeResponse) String() string {
 func (*ListControlsInScopeResponse) ProtoMessage() {}
 
 func (x *ListControlsInScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[7]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -679,7 +751,7 @@ func (x *ListControlsInScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListControlsInScopeResponse.ProtoReflect.Descriptor instead.
 func (*ListControlsInScopeResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{7}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListControlsInScopeResponse) GetControlsInScope() []*ControlInScope {
@@ -708,7 +780,7 @@ type UpdateControlInScopeRequest struct {
 
 func (x *UpdateControlInScopeRequest) Reset() {
 	*x = UpdateControlInScopeRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -720,7 +792,7 @@ func (x *UpdateControlInScopeRequest) String() string {
 func (*UpdateControlInScopeRequest) ProtoMessage() {}
 
 func (x *UpdateControlInScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[8]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -733,7 +805,7 @@ func (x *UpdateControlInScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateControlInScopeRequest.ProtoReflect.Descriptor instead.
 func (*UpdateControlInScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{8}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateControlInScopeRequest) GetId() string {
@@ -769,7 +841,7 @@ type TransitionControlInScopeStateRequest struct {
 
 func (x *TransitionControlInScopeStateRequest) Reset() {
 	*x = TransitionControlInScopeStateRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +853,7 @@ func (x *TransitionControlInScopeStateRequest) String() string {
 func (*TransitionControlInScopeStateRequest) ProtoMessage() {}
 
 func (x *TransitionControlInScopeStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[9]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +866,7 @@ func (x *TransitionControlInScopeStateRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use TransitionControlInScopeStateRequest.ProtoReflect.Descriptor instead.
 func (*TransitionControlInScopeStateRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{9}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *TransitionControlInScopeStateRequest) GetId() string {
@@ -819,15 +891,17 @@ func (x *TransitionControlInScopeStateRequest) GetComment() string {
 }
 
 type RemoveControlInScopeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Comment explains why this control is being removed from scope.
+	Comment       *string `protobuf:"bytes,2,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RemoveControlInScopeRequest) Reset() {
 	*x = RemoveControlInScopeRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +913,7 @@ func (x *RemoveControlInScopeRequest) String() string {
 func (*RemoveControlInScopeRequest) ProtoMessage() {}
 
 func (x *RemoveControlInScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[10]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,12 +926,19 @@ func (x *RemoveControlInScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveControlInScopeRequest.ProtoReflect.Descriptor instead.
 func (*RemoveControlInScopeRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{10}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RemoveControlInScopeRequest) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *RemoveControlInScopeRequest) GetComment() string {
+	if x != nil && x.Comment != nil {
+		return *x.Comment
 	}
 	return ""
 }
@@ -875,7 +956,7 @@ type ListAuditTrailEventsRequest struct {
 
 func (x *ListAuditTrailEventsRequest) Reset() {
 	*x = ListAuditTrailEventsRequest{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[11]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -887,7 +968,7 @@ func (x *ListAuditTrailEventsRequest) String() string {
 func (*ListAuditTrailEventsRequest) ProtoMessage() {}
 
 func (x *ListAuditTrailEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[11]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -900,7 +981,7 @@ func (x *ListAuditTrailEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditTrailEventsRequest.ProtoReflect.Descriptor instead.
 func (*ListAuditTrailEventsRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{11}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListAuditTrailEventsRequest) GetFilter() *ListAuditTrailEventsRequest_Filter {
@@ -948,7 +1029,7 @@ type ListAuditTrailEventsResponse struct {
 
 func (x *ListAuditTrailEventsResponse) Reset() {
 	*x = ListAuditTrailEventsResponse{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[12]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -960,7 +1041,7 @@ func (x *ListAuditTrailEventsResponse) String() string {
 func (*ListAuditTrailEventsResponse) ProtoMessage() {}
 
 func (x *ListAuditTrailEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[12]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -973,7 +1054,7 @@ func (x *ListAuditTrailEventsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditTrailEventsResponse.ProtoReflect.Descriptor instead.
 func (*ListAuditTrailEventsResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{12}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListAuditTrailEventsResponse) GetAuditTrailEvents() []*AuditTrailEvent {
@@ -1004,7 +1085,7 @@ type ListControlsInScopeRequest_Filter struct {
 
 func (x *ListControlsInScopeRequest_Filter) Reset() {
 	*x = ListControlsInScopeRequest_Filter{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[13]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1016,7 +1097,7 @@ func (x *ListControlsInScopeRequest_Filter) String() string {
 func (*ListControlsInScopeRequest_Filter) ProtoMessage() {}
 
 func (x *ListControlsInScopeRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[13]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1029,7 +1110,7 @@ func (x *ListControlsInScopeRequest_Filter) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListControlsInScopeRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListControlsInScopeRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{6, 0}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *ListControlsInScopeRequest_Filter) GetAuditScopeId() string {
@@ -1067,7 +1148,7 @@ type ListAuditTrailEventsRequest_Filter struct {
 
 func (x *ListAuditTrailEventsRequest_Filter) Reset() {
 	*x = ListAuditTrailEventsRequest_Filter{}
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[14]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1079,7 +1160,7 @@ func (x *ListAuditTrailEventsRequest_Filter) String() string {
 func (*ListAuditTrailEventsRequest_Filter) ProtoMessage() {}
 
 func (x *ListAuditTrailEventsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_workflow_proto_msgTypes[14]
+	mi := &file_api_orchestrator_workflow_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1092,7 +1173,7 @@ func (x *ListAuditTrailEventsRequest_Filter) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListAuditTrailEventsRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListAuditTrailEventsRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{11, 0}
+	return file_api_orchestrator_workflow_proto_rawDescGZIP(), []int{12, 0}
 }
 
 func (x *ListAuditTrailEventsRequest_Filter) GetAuditScopeId() string {
@@ -1158,15 +1239,24 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x12N\n" +
 	"\n" +
 	"from_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\tfromState\x12J\n" +
-	"\bto_state\x18\x03 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\atoState\"\xf6\x01\n" +
+	"\bto_state\x18\x03 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateR\atoState\"\xe4\x01\n" +
+	"\"ControlInScopeAssigneeChangedEvent\x12-\n" +
+	"\x13control_in_scope_id\x18\x01 \x01(\tR\x10controlInScopeId\x125\n" +
+	"\x14previous_assignee_id\x18\x02 \x01(\tH\x00R\x12previousAssigneeId\x88\x01\x01\x12+\n" +
+	"\x0fnew_assignee_id\x18\x03 \x01(\tH\x01R\rnewAssigneeId\x88\x01\x01B\x17\n" +
+	"\x15_previous_assignee_idB\x12\n" +
+	"\x10_new_assignee_id\"\xa1\x02\n" +
 	"\x1bCreateControlInScopeRequest\x121\n" +
 	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12*\n" +
 	"\n" +
 	"control_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\tcontrolId\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x04 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12$\n" +
 	"\vassignee_id\x18\x03 \x01(\tH\x00R\n" +
-	"assigneeId\x88\x01\x01B\x0e\n" +
-	"\f_assignee_id\"7\n" +
+	"assigneeId\x88\x01\x01\x12\x1d\n" +
+	"\acomment\x18\x05 \x01(\tH\x01R\acomment\x88\x01\x01B\x0e\n" +
+	"\f_assignee_idB\n" +
+	"\n" +
+	"\b_comment\"7\n" +
 	"\x18GetControlInScopeRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xd5\x03\n" +
 	"\x1aListControlsInScopeRequest\x12Z\n" +
@@ -1200,9 +1290,12 @@ const file_api_orchestrator_workflow_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12Y\n" +
 	"\bto_state\x18\x02 \x01(\x0e2/.confirmate.orchestrator.v1.ControlInScopeStateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\atoState\x12$\n" +
 	"\acomment\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\":\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\acomment\"e\n" +
 	"\x1bRemoveControlInScopeRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xc4\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1d\n" +
+	"\acomment\x18\x02 \x01(\tH\x00R\acomment\x88\x01\x01B\n" +
+	"\n" +
+	"\b_comment\"\xc4\x03\n" +
 	"\x1bListAuditTrailEventsRequest\x12[\n" +
 	"\x06filter\x18\x01 \x01(\v2>.confirmate.orchestrator.v1.ListAuditTrailEventsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
@@ -1243,39 +1336,40 @@ func file_api_orchestrator_workflow_proto_rawDescGZIP() []byte {
 }
 
 var file_api_orchestrator_workflow_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_orchestrator_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_api_orchestrator_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_api_orchestrator_workflow_proto_goTypes = []any{
 	(ControlInScopeState)(0),                     // 0: confirmate.orchestrator.v1.ControlInScopeState
 	(*ControlInScope)(nil),                       // 1: confirmate.orchestrator.v1.ControlInScope
 	(*AuditTrailEvent)(nil),                      // 2: confirmate.orchestrator.v1.AuditTrailEvent
 	(*ControlScopingEvent)(nil),                  // 3: confirmate.orchestrator.v1.ControlScopingEvent
 	(*ControlInScopeTransitionEvent)(nil),        // 4: confirmate.orchestrator.v1.ControlInScopeTransitionEvent
-	(*CreateControlInScopeRequest)(nil),          // 5: confirmate.orchestrator.v1.CreateControlInScopeRequest
-	(*GetControlInScopeRequest)(nil),             // 6: confirmate.orchestrator.v1.GetControlInScopeRequest
-	(*ListControlsInScopeRequest)(nil),           // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest
-	(*ListControlsInScopeResponse)(nil),          // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse
-	(*UpdateControlInScopeRequest)(nil),          // 9: confirmate.orchestrator.v1.UpdateControlInScopeRequest
-	(*TransitionControlInScopeStateRequest)(nil), // 10: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
-	(*RemoveControlInScopeRequest)(nil),          // 11: confirmate.orchestrator.v1.RemoveControlInScopeRequest
-	(*ListAuditTrailEventsRequest)(nil),          // 12: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
-	(*ListAuditTrailEventsResponse)(nil),         // 13: confirmate.orchestrator.v1.ListAuditTrailEventsResponse
-	(*ListControlsInScopeRequest_Filter)(nil),    // 14: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
-	(*ListAuditTrailEventsRequest_Filter)(nil),   // 15: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
-	(*timestamppb.Timestamp)(nil),                // 16: google.protobuf.Timestamp
-	(*anypb.Any)(nil),                            // 17: google.protobuf.Any
+	(*ControlInScopeAssigneeChangedEvent)(nil),   // 5: confirmate.orchestrator.v1.ControlInScopeAssigneeChangedEvent
+	(*CreateControlInScopeRequest)(nil),          // 6: confirmate.orchestrator.v1.CreateControlInScopeRequest
+	(*GetControlInScopeRequest)(nil),             // 7: confirmate.orchestrator.v1.GetControlInScopeRequest
+	(*ListControlsInScopeRequest)(nil),           // 8: confirmate.orchestrator.v1.ListControlsInScopeRequest
+	(*ListControlsInScopeResponse)(nil),          // 9: confirmate.orchestrator.v1.ListControlsInScopeResponse
+	(*UpdateControlInScopeRequest)(nil),          // 10: confirmate.orchestrator.v1.UpdateControlInScopeRequest
+	(*TransitionControlInScopeStateRequest)(nil), // 11: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
+	(*RemoveControlInScopeRequest)(nil),          // 12: confirmate.orchestrator.v1.RemoveControlInScopeRequest
+	(*ListAuditTrailEventsRequest)(nil),          // 13: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
+	(*ListAuditTrailEventsResponse)(nil),         // 14: confirmate.orchestrator.v1.ListAuditTrailEventsResponse
+	(*ListControlsInScopeRequest_Filter)(nil),    // 15: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
+	(*ListAuditTrailEventsRequest_Filter)(nil),   // 16: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
+	(*timestamppb.Timestamp)(nil),                // 17: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                            // 18: google.protobuf.Any
 }
 var file_api_orchestrator_workflow_proto_depIdxs = []int32{
 	0,  // 0: confirmate.orchestrator.v1.ControlInScope.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
-	16, // 1: confirmate.orchestrator.v1.ControlInScope.created_at:type_name -> google.protobuf.Timestamp
-	16, // 2: confirmate.orchestrator.v1.ControlInScope.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 3: confirmate.orchestrator.v1.AuditTrailEvent.created_at:type_name -> google.protobuf.Timestamp
-	17, // 4: confirmate.orchestrator.v1.AuditTrailEvent.event_data:type_name -> google.protobuf.Any
+	17, // 1: confirmate.orchestrator.v1.ControlInScope.created_at:type_name -> google.protobuf.Timestamp
+	17, // 2: confirmate.orchestrator.v1.ControlInScope.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 3: confirmate.orchestrator.v1.AuditTrailEvent.created_at:type_name -> google.protobuf.Timestamp
+	18, // 4: confirmate.orchestrator.v1.AuditTrailEvent.event_data:type_name -> google.protobuf.Any
 	0,  // 5: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.from_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
 	0,  // 6: confirmate.orchestrator.v1.ControlInScopeTransitionEvent.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
-	14, // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
+	15, // 7: confirmate.orchestrator.v1.ListControlsInScopeRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter
 	1,  // 8: confirmate.orchestrator.v1.ListControlsInScopeResponse.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
 	0,  // 9: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest.to_state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
-	15, // 10: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
+	16, // 10: confirmate.orchestrator.v1.ListAuditTrailEventsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest.Filter
 	2,  // 11: confirmate.orchestrator.v1.ListAuditTrailEventsResponse.audit_trail_events:type_name -> confirmate.orchestrator.v1.AuditTrailEvent
 	0,  // 12: confirmate.orchestrator.v1.ListControlsInScopeRequest.Filter.state:type_name -> confirmate.orchestrator.v1.ControlInScopeState
 	13, // [13:13] is the sub-list for method output_type
@@ -1293,18 +1387,20 @@ func file_api_orchestrator_workflow_proto_init() {
 	file_api_orchestrator_workflow_proto_msgTypes[0].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[1].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[4].OneofWrappers = []any{}
-	file_api_orchestrator_workflow_proto_msgTypes[6].OneofWrappers = []any{}
-	file_api_orchestrator_workflow_proto_msgTypes[8].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[5].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[7].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[9].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[11].OneofWrappers = []any{}
-	file_api_orchestrator_workflow_proto_msgTypes[13].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[12].OneofWrappers = []any{}
 	file_api_orchestrator_workflow_proto_msgTypes[14].OneofWrappers = []any{}
+	file_api_orchestrator_workflow_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_workflow_proto_rawDesc), len(file_api_orchestrator_workflow_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

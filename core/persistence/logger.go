@@ -21,9 +21,8 @@ import (
 	"log/slog"
 	"time"
 
-	"gorm.io/gorm/logger"
-
 	"confirmate.io/core/log"
+	"gorm.io/gorm/logger"
 )
 
 // slogGormLogger integrates GORM's logger with slog.
@@ -58,7 +57,6 @@ func (l *slogGormLogger) Error(ctx context.Context, msg string, data ...interfac
 // Trace logs SQL queries at TRACE level only.
 // This ensures SQL queries don't clutter DEBUG or INFO-level logs in production.
 func (l *slogGormLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
-	// Only log if TRACE level is enabled
 	if !slog.Default().Enabled(ctx, log.LevelTrace.Level()) {
 		return
 	}
@@ -67,17 +65,8 @@ func (l *slogGormLogger) Trace(ctx context.Context, begin time.Time, fc func() (
 	sql, rows := fc()
 
 	if err != nil {
-		slog.LogAttrs(ctx, log.LevelTrace.Level(), "SQL query failed",
-			slog.Duration("elapsed", elapsed),
-			slog.String("sql", sql),
-			slog.Int64("rows", rows),
-			log.Err(err),
-		)
+		slog.Log(ctx, log.LevelTrace.Level(), "SQL", "rows", rows, "elapsed", elapsed, "error", err, "sql", sql)
 	} else {
-		slog.LogAttrs(ctx, log.LevelTrace.Level(), "SQL query",
-			slog.Duration("elapsed", elapsed),
-			slog.String("sql", sql),
-			slog.Int64("rows", rows),
-		)
+		slog.Log(ctx, log.LevelTrace.Level(), "SQL", "rows", rows, "elapsed", elapsed, "sql", sql)
 	}
 }

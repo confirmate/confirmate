@@ -156,7 +156,7 @@ func (svc *Service) CreateControlInScope(
 		if err = tx.Create(cis); err != nil {
 			return service.HandleDatabaseError(err)
 		}
-		return createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
+		return createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, req.Msg.GetComment(),
 			&orchestrator.ControlScopingEvent{
 				ControlInScopeId: cis.Id,
 				ControlId:        cis.ControlId,
@@ -295,11 +295,25 @@ func (svc *Service) UpdateControlInScope(
 		return nil, service.ErrPermissionDenied
 	}
 
+	prevAssigneeId := existing.AssigneeId
 	existing.AssigneeId = req.Msg.AssigneeId
 	existing.ImplementationDetails = req.Msg.ImplementationDetails
 	existing.UpdatedAt = timestamppb.Now()
 
-	err = svc.db.Update(&existing, "id = ?", existing.Id)
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		if err := tx.Update(&existing, "id = ?", existing.Id); err != nil {
+			return service.HandleDatabaseError(err, service.ErrNotFound("control in scope"))
+		}
+		if prevAssigneeId != req.Msg.AssigneeId {
+			return createAuditTrailEvent(tx, actorFromContext(ctx), existing.AuditScopeId, existing.Id, "",
+				&orchestrator.ControlInScopeAssigneeChangedEvent{
+					ControlInScopeId:   existing.Id,
+					PreviousAssigneeId: prevAssigneeId,
+					NewAssigneeId:      req.Msg.AssigneeId,
+				})
+		}
+		return nil
+	})
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control in scope")); err != nil {
 		return nil, err
 	}
@@ -402,18 +416,35 @@ func (svc *Service) RemoveControlInScope(
 		return nil, service.ErrPermissionDenied
 	}
 
+	actor := actorFromContext(ctx)
 	err = svc.db.Transaction(func(tx persistence.DB) error {
-		// control_in_scope_id is intentionally empty: the ControlInScope record is deleted
-		// in this same transaction, so linking to it would create a dangling reference.
-		if err = createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, "", "",
-			&orchestrator.ControlScopingEvent{
-				ControlId:    cis.ControlId,
-				AuditScopeId: cis.AuditScopeId,
-				InScope:      false,
-			}); err != nil {
+		// Cascade: removing a parent control from scope also removes every
+		// descendant ControlInScope record so the subtree state stays consistent
+		// — a sub-control can't be "in scope" while its parent isn't.
+		victims, err := collectControlInScopeSubtree(tx, cis.AuditScopeId, cis.ControlId)
+		if err != nil {
 			return err
 		}
-		return tx.Delete(&cis, "id = ?", cis.Id)
+		victims = append([]*orchestrator.ControlInScope{&cis}, victims...)
+		for _, victim := range victims {
+			var ctrl orchestrator.Control
+			_ = tx.Get(&ctrl, persistence.WithoutPreload(), "id = ?", victim.ControlId)
+			// control_in_scope_id is intentionally empty: the ControlInScope record
+			// is deleted in this same transaction, so linking to it would create a
+			// dangling reference.
+				if err := createAuditTrailEvent(tx, actor, victim.AuditScopeId, "", req.Msg.GetComment(),
+				&orchestrator.ControlScopingEvent{
+					ControlId:    victim.ControlId,
+					AuditScopeId: victim.AuditScopeId,
+					InScope:      false,
+				}); err != nil {
+				return err
+			}
+			if err := tx.Delete(&orchestrator.ControlInScope{}, "id = ?", victim.Id); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -423,6 +454,44 @@ func (svc *Service) RemoveControlInScope(
 	return
 }
 
+// collectControlInScopeSubtree returns every ControlInScope record under the
+// given audit scope whose Control is a descendant of rootControlId, by walking
+// the Control.parent_control_id chain breadth-first. The root record itself is
+// not included.
+func collectControlInScopeSubtree(db persistence.DB, auditScopeId, rootControlId string) ([]*orchestrator.ControlInScope, error) {
+	var (
+		queue       = []string{rootControlId}
+		descendants []*orchestrator.ControlInScope
+		visited     = map[string]struct{}{rootControlId: {}}
+	)
+
+	for len(queue) > 0 {
+		parent := queue[0]
+		queue = queue[1:]
+
+		var children []*orchestrator.Control
+		if err := db.List(&children, "id", true, 0, -1, "parent_control_id = ?", parent); err != nil {
+			return nil, fmt.Errorf("list child controls of %q: %w", parent, err)
+		}
+		for _, c := range children {
+			if _, seen := visited[c.Id]; seen {
+				continue
+			}
+			visited[c.Id] = struct{}{}
+			queue = append(queue, c.Id)
+
+			var cis []*orchestrator.ControlInScope
+			if err := db.List(&cis, "id", true, 0, -1,
+				"audit_scope_id = ? AND control_id = ?", auditScopeId, c.Id); err != nil {
+				return nil, fmt.Errorf("list controls in scope for %q: %w", c.Id, err)
+			}
+			descendants = append(descendants, cis...)
+		}
+	}
+
+	return descendants, nil
+}
+
 // ListAuditTrailEvents lists audit trail events, optionally filtered by audit scope.
 func (svc *Service) ListAuditTrailEvents(
 	ctx context.Context,
@@ -430,10 +499,11 @@ func (svc *Service) ListAuditTrailEvents(
 ) (res *connect.Response[orchestrator.ListAuditTrailEventsResponse], err error) {
 	var (
 		events   []*orchestrator.AuditTrailEvent
-		conds    []any
 		npt      string
 		all      bool
 		scopeIds []string
+		query    []string
+		args     []any
 	)
 
 	if err = service.Validate(req); err != nil {
@@ -441,7 +511,7 @@ func (svc *Service) ListAuditTrailEvents(
 	}
 
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "time"
+		req.Msg.OrderBy = "created_at"
 		req.Msg.Asc = false
 	}
 
@@ -453,22 +523,31 @@ func (svc *Service) ListAuditTrailEvents(
 	}
 
 	if !all {
-		conds = append(conds, "audit_scope_id IN ?", scopeIds)
+		query = append(query, "audit_scope_id IN ?")
+		args = append(args, scopeIds)
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
 		if f.AuditScopeId != nil {
-			conds = append(conds, "audit_scope_id = ?", f.GetAuditScopeId())
+			query = append(query, "audit_scope_id = ?")
+			args = append(args, f.GetAuditScopeId())
 		}
 		if f.ControlInScopeId != nil {
-			conds = append(conds, "control_in_scope_id = ?", f.GetControlInScopeId())
+			query = append(query, "control_in_scope_id = ?")
+			args = append(args, f.GetControlInScopeId())
 		}
 		if f.ActorId != nil {
-			conds = append(conds, "actor_id = ?", f.GetActorId())
+			query = append(query, "actor_id = ?")
+			args = append(args, f.GetActorId())
 		}
 	}
 
-	events, npt, err = service.PaginateStorage[*orchestrator.AuditTrailEvent](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	var conds []any
+	if len(query) > 0 {
+		conds = persistence.BuildConds(query, args)
+	}
+
+	events, npt, err = service.PaginateStorage[*orchestrator.AuditTrailEvent](req.Msg, svc.db, service.DefaultPaginationOpts, append(conds, persistence.WithoutPreload())...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}

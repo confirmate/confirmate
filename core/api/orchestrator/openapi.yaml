@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.13-12-g98f0a8b
+    version: 0.0.1
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -996,6 +996,11 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
+                - name: comment
+                  in: query
+                  description: Comment explains why this control is being removed from scope.
                   schema:
                     type: string
             responses:
@@ -2084,8 +2089,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    ? /v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}
-    :   put:
+    /v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}:
+        put:
             tags:
                 - Orchestrator
             description: Upserts a specific user permission identified by object and user.
@@ -2106,16 +2111,11 @@ paths:
                   required: true
                   schema:
                     type: string
-                - name: user_permission.permission
-                  in: path
-                  required: true
-                  schema:
-                    type: string
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UpsertUserPermissionRequest'
+                            $ref: '#/components/schemas/UserPermission'
                 required: true
             responses:
                 "200":
@@ -2510,8 +2510,10 @@ components:
         Control:
             required:
                 - id
+                - name
                 - controls
                 - metrics
+                - shortName
             type: object
             properties:
                 id:
@@ -2628,6 +2630,9 @@ components:
                 assigneeId:
                     type: string
                     description: AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+                comment:
+                    type: string
+                    description: Comment explains why this control is being brought into scope.
         Dependency:
             type: object
             properties:
@@ -3175,13 +3180,6 @@ components:
                 implementationDetails:
                     type: string
                     description: ImplementationDetails contains free-form notes about how the control is being addressed.
-        UpsertUserPermissionRequest:
-            required:
-                - userPermission
-            type: object
-            properties:
-                userPermission:
-                    $ref: '#/components/schemas/UserPermission'
         UpsertUserPermissionResponse:
             type: object
             properties:

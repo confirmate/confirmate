@@ -140,6 +140,15 @@ message ControlInScopeTransitionEvent {
   ControlInScopeState to_state            = 3;
 }
 
+// ControlInScopeAssigneeChangedEvent is emitted when the assignee of a ControlInScope changes.
+message ControlInScopeAssigneeChangedEvent {
+  string control_in_scope_id = 1;
+  // previous_assignee_id is empty when there was no prior assignee.
+  optional string previous_assignee_id = 2;
+  // new_assignee_id is empty when the assignee is removed.
+  optional string new_assignee_id = 3;
+}
+
 // ── Request / Response messages ──────────────────────────────────────────────
 
 message CreateControlInScopeRequest {
@@ -162,6 +171,9 @@ message CreateControlInScopeRequest {
 
   // AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
   optional string assignee_id = 3;
+
+  // Comment explains why this control is being brought into scope.
+  optional string comment = 5;
 }
 
 message GetControlInScopeRequest {
@@ -231,6 +243,9 @@ message RemoveControlInScopeRequest {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  // Comment explains why this control is being removed from scope.
+  optional string comment = 2;
 }
 
 message ListAuditTrailEventsRequest {
