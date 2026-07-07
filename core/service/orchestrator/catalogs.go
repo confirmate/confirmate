@@ -273,7 +273,16 @@ func (svc *Service) ListControls(
 		req.Msg.Asc = true
 	}
 
-	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, persistence.WithoutPreload())
+	// Only return top-level controls; children are preloaded two levels deep.
+	// catalog_id is not yet a DB column in this branch, so catalog filtering
+	// is left to the caller (the UI buckets controls by category, which is
+	// already catalog-scoped).
+	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
+		req.Msg, svc.db, service.DefaultPaginationOpts,
+		persistence.WithPreload("Metrics"),
+		persistence.WithPreload("Controls.Metrics"),
+		"parent_control_id IS NULL",
+	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
