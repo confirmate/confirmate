@@ -36,6 +36,8 @@ const (
 	DefaultOAuth2LoginPassword   = "confirmate"
 	DefaultOAuth2CLIClientID     = "cli"
 	DefaultOAuth2CLIRedirectURI  = "http://localhost:10000/callback"
+	DefaultOAuth2UIClientID      = "ui"
+	DefaultOAuth2UIRedirectURI   = "http://localhost:5173/auth/callback"
 	DefaultOAuth2ServiceClientID = "confirmate"
 	DefaultOAuth2ServiceSecret   = "confirmate"
 )
@@ -66,6 +68,7 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 
 		opts = append(opts,
 			oauth2.WithClient(DefaultOAuth2CLIClientID, "", DefaultOAuth2CLIRedirectURI),
+			oauth2.WithClient(DefaultOAuth2UIClientID, "", DefaultOAuth2UIRedirectURI),
 			oauth2.WithClient(DefaultOAuth2ServiceClientID, DefaultOAuth2ServiceSecret, ""),
 			login.WithLoginPage(
 				login.WithBaseURL("/v1/auth"),

@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"runtime/debug"
@@ -44,6 +45,9 @@ type Service struct {
 
 	// authz defines our authorization strategy for target-of-evaluation scoped access.
 	authz service.AuthorizationStrategy
+
+	// seedUsers are pre-created at startup (e.g. demo users from the embedded OAuth2 server).
+	seedUsers []*orchestrator.User
 
 	// subscribers is a map of subscribers for change events
 	subscribers      map[int64]*subscriber
@@ -91,6 +95,14 @@ type Config struct {
 
 	// PersistenceConfig is the configuration for the persistence layer. If not set, defaults will be used.
 	PersistenceConfig persistence.Config
+}
+
+// WithSeedUsers registers users that will be created in the database at startup if they do not
+// already exist. Intended for demo / embedded-OAuth2 setups where users are known ahead of time.
+func WithSeedUsers(users []*orchestrator.User) service.Option[Service] {
+	return func(svc *Service) {
+		svc.seedUsers = users
+	}
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -163,6 +175,18 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 
 	if err = svc.loadMetrics(); err != nil {
 		slog.Warn("Could not load metrics, continuing with empty metric list", log.Err(err))
+	}
+
+	// Pre-create seed users (e.g. demo users) if they don't already exist.
+	for _, u := range svc.seedUsers {
+		var existing orchestrator.User
+		if err = svc.db.Get(&existing, "id = ?", u.Id); errors.Is(err, persistence.ErrRecordNotFound) {
+			if err = svc.db.Create(u); err != nil {
+				return nil, fmt.Errorf("could not seed user %s: %w", u.Id, err)
+			}
+		} else if err != nil {
+			return nil, fmt.Errorf("could not check seed user %s: %w", u.Id, err)
+		}
 	}
 
 	// Create default target of evaluation if enabled and none exists
