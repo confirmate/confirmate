@@ -388,7 +388,7 @@ func (svc *Service) loadCatalogs() (err error) {
 		for _, catalog := range catalogs {
 			err = svc.db.Create(catalog)
 			if err != nil {
-				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), log.Err(err))
+				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()), log.Err(err))
 				tmpErr = errors.New("could not save catalog(s)")
 			}
 		}
