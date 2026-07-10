@@ -53,70 +53,77 @@ const (
 
 // Mock strings for consistent testing
 const (
-	MockCatalogId1              = "catalog-1"
-	MockCatalogId2              = "catalog-2"
-	MockCatalogId3              = "catalog-3"
-	MockCatalogName1            = "Mock Catalog 1"
-	MockCatalogName2            = "Mock Catalog 2"
-	MockCatalogName3            = "Mock Catalog 3"
-	MockCatalogDescription1     = "Mock catalog description 1"
-	MockCatalogDescription2     = "Mock catalog description 2"
-	MockCatalogDescription3     = "Mock catalog description 3"
-	MockCategoryName1           = "category-1"
-	MockCategoryName2           = "category-2"
-	MockCompliantComment        = "Resource is compliant"
-	MockNotCompliantComment     = "Resource is not compliant"
-	MockControlId1              = "00000000-0000-0000-0005-000000000001"
-	MockControlId2              = "00000000-0000-0000-0005-000000000002"
-	MockControlName1            = "Mock Control 1"
-	MockControlName2            = "Mock Control 2"
-	MockControlShortName1       = "control-1"
-	MockControlShortName2       = "control-2"
-	MockControl1SubControlId1   = "00000000-0000-0000-0005-000000000011"
-	MockControl1SubControlId2   = "00000000-0000-0000-0005-000000000012"
-	MockControl2SubControlId1   = "00000000-0000-0000-0005-000000000021"
-	MockSubControlName1         = "Mock Sub-Control 1"
-	MockSubControlId2           = "00000000-0000-0000-0005-000000000012"
-	MockSubControlName2         = "Mock Sub-Control 2"
-	MockSubControlShortName1    = "subcontrol-1"
-	MockSubControlShortName2    = "subcontrol-2"
-	MockCertificateId1          = "certificate-1"
-	MockCertificateId2          = "certificate-2"
-	MockCertifiateName1         = "Mock Certificate 1"
-	MockCertifiateName2         = "Mock Certificate 2"
-	MockCertificateDescription1 = "Mock certificate description 1"
-	MockCertificateDescription2 = "Mock certificate description 2"
-	MockDefaultVersion          = "v1"
-	MockMetricDescription1      = "Mock Metric Description 1"
-	MockMetricDescription2      = "Mock Metric Description 2"
-	MockMetricDescription3      = "Mock Metric Description 3"
-	MockMetricName1             = "Mock Metric 1"
-	MockMetricName2             = "Mock Metric 2"
-	MockMetricName3             = "Mock Metric 3"
-	MockMetricName4             = "Mock Metric 4"
-	MockMetricIdDefault         = "metric-default"
-	MockResourceId1             = "resource-1"
-	MockResourceId2             = "resource-2"
-	MockResourceIdNew           = "resource-new"
-	MockResourceId3             = "resource-3"
-	MockScopeName1              = "Mock Audit Scope 1"
-	MockScopeName2              = "Mock Audit Scope 2"
-	MockTestCategory            = "test-category"
-	MockToolId1                 = "tool-1"
-	MockToolId2                 = "tool-2"
-	MockToolName1               = "Mock Tool 1"
-	MockToolName2               = "Mock Tool 2"
-	MockToolDescription1        = "Mock assessment tool"
-	MockToolDescription2        = "Mock assessment tool"
-	MockToolIdConcurrent        = "tool-concurrent"
-	MockUserIssuer1             = "test-issuer"
-	MockOrgName1                = "Mock Organization 1"
-	MockOrgStreet1              = "Mock Street 1"
-	MockOrgCity1                = "Mock City 1"
-	MockOrgZip1                 = "12345"
-	MockOrgCountry1             = "DE"
-	MockOrgContactEmail1        = "contact@mock-org.example"
-	MockOrgWebsite1             = "https://mock-org.example"
+	MockCatalogId1                    = "catalog-1"
+	MockCatalogId2                    = "catalog-2"
+	MockCatalogId3                    = "catalog-3"
+	MockCatalogName1                  = "Mock Catalog 1"
+	MockCatalogName2                  = "Mock Catalog 2"
+	MockCatalogName3                  = "Mock Catalog 3"
+	MockCatalogDescription1           = "Mock catalog description 1"
+	MockCatalogDescription2           = "Mock catalog description 2"
+	MockCatalogDescription3           = "Mock catalog description 3"
+	MockCategoryName1                 = "category-1"
+	MockCategoryName2                 = "category-2"
+	MockCategoryName31                = "category-3-1"
+	MockControlId31                   = "00000000-0000-0000-0005-000000000031"
+	MockControlName31                 = "Mock Control 3-1"
+	MockControlShortName31            = "control-3-1"
+	MockControl31SubControlId1        = "00000000-0000-0000-0005-000000000311"
+	MockControl31SubControlName1      = "Mock Sub-Control 3-1-1"
+	MockControl31SubControlShortName1 = "subcontrol-3-1-1"
+	MockCompliantComment              = "Resource is compliant"
+	MockNotCompliantComment           = "Resource is not compliant"
+	MockControlId1                    = "00000000-0000-0000-0005-000000000001"
+	MockControlId2                    = "00000000-0000-0000-0005-000000000002"
+	MockControlName1                  = "Mock Control 1"
+	MockControlName2                  = "Mock Control 2"
+	MockControlShortName1             = "control-1"
+	MockControlShortName2             = "control-2"
+	MockControl1SubControlId1         = "00000000-0000-0000-0005-000000000011"
+	MockControl1SubControlId2         = "00000000-0000-0000-0005-000000000012"
+	MockControl2SubControlId1         = "00000000-0000-0000-0005-000000000021"
+	MockSubControlName1               = "Mock Sub-Control 1"
+	MockSubControlId2                 = "00000000-0000-0000-0005-000000000012"
+	MockSubControlName2               = "Mock Sub-Control 2"
+	MockSubControlShortName1          = "subcontrol-1"
+	MockSubControlShortName2          = "subcontrol-2"
+	MockCertificateId1                = "certificate-1"
+	MockCertificateId2                = "certificate-2"
+	MockCertifiateName1               = "Mock Certificate 1"
+	MockCertifiateName2               = "Mock Certificate 2"
+	MockCertificateDescription1       = "Mock certificate description 1"
+	MockCertificateDescription2       = "Mock certificate description 2"
+	MockDefaultVersion                = "v1"
+	MockMetricDescription1            = "Mock Metric Description 1"
+	MockMetricDescription2            = "Mock Metric Description 2"
+	MockMetricDescription3            = "Mock Metric Description 3"
+	MockMetricName1                   = "Mock Metric 1"
+	MockMetricName2                   = "Mock Metric 2"
+	MockMetricName3                   = "Mock Metric 3"
+	MockMetricName4                   = "Mock Metric 4"
+	MockMetricIdDefault               = "metric-default"
+	MockResourceId1                   = "resource-1"
+	MockResourceId2                   = "resource-2"
+	MockResourceIdNew                 = "resource-new"
+	MockResourceId3                   = "resource-3"
+	MockScopeName1                    = "Mock Audit Scope 1"
+	MockScopeName2                    = "Mock Audit Scope 2"
+	MockTestCategory                  = "test-category"
+	MockToolId1                       = "tool-1"
+	MockToolId2                       = "tool-2"
+	MockToolName1                     = "Mock Tool 1"
+	MockToolName2                     = "Mock Tool 2"
+	MockToolDescription1              = "Mock assessment tool"
+	MockToolDescription2              = "Mock assessment tool"
+	MockToolIdConcurrent              = "tool-concurrent"
+	MockUserIssuer1                   = "test-issuer"
+	MockOrgName1                      = "Mock Organization 1"
+	MockOrgStreet1                    = "Mock Street 1"
+	MockOrgCity1                      = "Mock City 1"
+	MockOrgZip1                       = "12345"
+	MockOrgCountry1                   = "DE"
+	MockOrgContactEmail1              = "contact@mock-org.example"
+	MockOrgWebsite1                   = "https://mock-org.example"
 )
 
 var (
@@ -331,6 +338,38 @@ var (
 			},
 		},
 	}
+
+	// MockCatalog3 contains 1 Category with 1 control and 1 sub-control with one metric
+	MockCatalog3 = &orchestrator.Catalog{
+		Id:          MockCatalogId3,
+		Name:        MockCatalogName3,
+		Description: MockCatalogDescription3,
+		Categories: []*orchestrator.Category{
+			{
+				Name:      MockCategoryName31,
+				CatalogId: MockCatalogId3,
+				Controls: []*orchestrator.Control{
+					{
+						Id:        MockControlId31,
+						Name:      MockControlName31,
+						ShortName: MockControlShortName31,
+						CatalogId: MockCatalogId3,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              MockControl31SubControlId1,
+								Name:            MockControl31SubControlName1,
+								ShortName:       MockControl31SubControlShortName1,
+								Metrics:         []*assessment.Metric{MockMetric2},
+								ParentControlId: new(MockControlId31),
+								CatalogId:       MockCatalogId3,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
 	MockFullCatalog = &orchestrator.Catalog{
 		Id:          MockCatalogId1,
 		Name:        "Mock Catalog 1",
