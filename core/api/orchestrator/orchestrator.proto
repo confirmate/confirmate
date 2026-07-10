@@ -1297,6 +1297,8 @@ message ListControlsRequest {
     optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
     repeated string assurance_levels = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
+    // Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+    optional bool full = 4;
   }
   optional Filter filter = 3;
 
