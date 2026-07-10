@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.15-15-g97e68af
+    version: core/v0.2.16-3-g24a503b
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -791,6 +791,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.full
+                  in: query
+                  description: Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+                  schema:
+                    type: boolean
                 - name: pageSize
                   in: query
                   schema:

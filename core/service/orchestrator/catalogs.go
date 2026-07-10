@@ -266,6 +266,7 @@ func (svc *Service) ListControls(
 		whereClauses []string
 		args         []any
 		where        string
+		fullCatalog  bool
 	)
 
 	// Validate the request
@@ -288,9 +289,11 @@ func (svc *Service) ListControls(
 		if req.Msg.Filter.CategoryName != nil {
 			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by category name is not yet implemented"))
 		}
-		if req.Msg.Filter.AssuranceLevels != nil && len(req.Msg.Filter.AssuranceLevels) > 0 {
+		if len(req.Msg.Filter.AssuranceLevels) > 0 {
 			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by assurance levels is not yet implemented"))
 		}
+
+		fullCatalog = req.Msg.Filter.GetFull()
 	}
 
 	whereClauses = append(whereClauses, "parent_control_id IS NULL") // Only top-level controls
@@ -302,25 +305,25 @@ func (svc *Service) ListControls(
 		conds = append(conds, args...)
 	}
 
-	// Prepare preloads and combine with any WHERE clauses/args.
-	opts := []any{
-		persistence.WithPreload("Controls.Controls"),
-	}
-	if where != "" {
-		// first the SQL WHERE clause, followed by its arguments
-		opts = append(opts, where)
-		opts = append(opts, args...)
-	}
-
-	// Preload Metrics and sub-Controls (with their own Metrics) so callers —
-	// notably the evaluation service — can walk a control's full subtree and
-	// resolve every metric ID without making per-control round trips.
+	// Paginate the controls based on the request and conditions
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
-		req.Msg, svc.db, service.DefaultPaginationOpts,
-		opts...,
+		req.Msg,
+		svc.db,
+		service.DefaultPaginationOpts,
+		conds...,
 	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
+	}
+
+	// If fullCatalog is requested, load the full control tree for each top-level control.
+	for _, control := range controls {
+		err = svc.loadControlTree(control, fullCatalog)
+		if err != nil {
+			if err = service.HandleDatabaseError(err); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	res = connect.NewResponse(&orchestrator.ListControlsResponse{
@@ -328,6 +331,53 @@ func (svc *Service) ListControls(
 		NextPageToken: npt,
 	})
 	return
+}
+
+// loadControlTree recursively loads the full control tree for a given control, including its sub-controls and optionally its metrics if it is a leaf control. It populates the `Controls` field of the provided control with its child controls and, if `withLeafMetrics` is true, it also loads the metrics for leaf controls.
+func (svc *Service) loadControlTree(ctrl *orchestrator.Control, withLeafMetrics bool) error {
+	var children []*orchestrator.Control
+
+	err := svc.db.List(
+		&children,
+		"short_name",
+		true,
+		0,
+		-1,
+		persistence.WithPreload(""),
+		"parent_control_id = ?",
+		ctrl.Id,
+	)
+	if err != nil {
+		return err
+	}
+
+	ctrl.Controls = children
+
+	if len(children) == 0 {
+		if withLeafMetrics {
+			var loaded orchestrator.Control
+			err := svc.db.Get(
+				&loaded,
+				persistence.WithPreload("Metrics"),
+				"id = ?",
+				ctrl.Id,
+			)
+			if err != nil {
+				return err
+			}
+			ctrl.Metrics = loaded.Metrics
+		}
+		return nil
+	}
+
+	for _, child := range children {
+		err := svc.loadControlTree(child, withLeafMetrics)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // GetControl retrieves a control by its unique control ID. If present, it also includes a list of

@@ -5774,8 +5774,10 @@ type ListControlsRequest_Filter struct {
 	CategoryName *string `protobuf:"bytes,2,opt,name=category_name,json=categoryName,proto3,oneof" json:"category_name,omitempty"`
 	// Optional. Lists only controls with the specified assurance levels.
 	AssuranceLevels []string `protobuf:"bytes,3,rep,name=assurance_levels,json=assuranceLevels,proto3" json:"assurance_levels,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+	Full          *bool `protobuf:"varint,4,opt,name=full,proto3,oneof" json:"full,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListControlsRequest_Filter) Reset() {
@@ -5827,6 +5829,13 @@ func (x *ListControlsRequest_Filter) GetAssuranceLevels() []string {
 		return x.AssuranceLevels
 	}
 	return nil
+}
+
+func (x *ListControlsRequest_Filter) GetFull() bool {
+	if x != nil && x.Full != nil {
+		return *x.Full
+	}
+	return false
 }
 
 type ListUsersRequest_Filter struct {
@@ -6365,7 +6374,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x11GetControlRequest\x12)\n" +
 	"\n" +
 	"control_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcontrolId\"\x91\x03\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcontrolId\"\xb3\x03\n" +
 	"\x13ListControlsRequest\x12S\n" +
 	"\x06filter\x18\x03 \x01(\v26.confirmate.orchestrator.v1.ListControlsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
@@ -6373,14 +6382,16 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xb0\x01\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xd2\x01\n" +
 	"\x06Filter\x12\"\n" +
 	"\n" +
 	"catalog_id\x18\x01 \x01(\tH\x00R\tcatalogId\x88\x01\x01\x12(\n" +
 	"\rcategory_name\x18\x02 \x01(\tH\x01R\fcategoryName\x88\x01\x01\x127\n" +
-	"\x10assurance_levels\x18\x03 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x0fassuranceLevelsB\r\n" +
+	"\x10assurance_levels\x18\x03 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x0fassuranceLevels\x12\x17\n" +
+	"\x04full\x18\x04 \x01(\bH\x02R\x04full\x88\x01\x01B\r\n" +
 	"\v_catalog_idB\x10\n" +
-	"\x0e_category_nameB\t\n" +
+	"\x0e_category_nameB\a\n" +
+	"\x05_fullB\t\n" +
 	"\a_filter\"\x7f\n" +
 	"\x14ListControlsResponse\x12?\n" +
 	"\bcontrols\x18\x01 \x03(\v2#.confirmate.orchestrator.v1.ControlR\bcontrols\x12&\n" +
