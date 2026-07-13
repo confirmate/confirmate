@@ -235,20 +235,37 @@ func (svc *Service) ListControlsInScope(
 			ControlsInScope: []*orchestrator.ControlInScope{},
 		}), nil
 	}
+	// Collect all conditions as a single WHERE string; GORM only treats the
+	// first string argument as a clause and everything after it as arguments,
+	// so appending multiple "column = ?" strings silently drops all but the
+	// first condition.
+	var (
+		query []string
+		args  []any
+	)
+
 	if !all {
-		conds = append(conds, "audit_scope_id IN ?", scopeIds)
+		query = append(query, "audit_scope_id IN ?")
+		args = append(args, scopeIds)
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
 		if f.AuditScopeId != nil {
-			conds = append(conds, "audit_scope_id = ?", f.GetAuditScopeId())
+			query = append(query, "audit_scope_id = ?")
+			args = append(args, f.GetAuditScopeId())
 		}
 		if f.State != nil {
-			conds = append(conds, "state = ?", f.GetState())
+			query = append(query, "state = ?")
+			args = append(args, f.GetState())
 		}
 		if f.AssigneeId != nil {
-			conds = append(conds, "assignee_id = ?", f.GetAssigneeId())
+			query = append(query, "assignee_id = ?")
+			args = append(args, f.GetAssigneeId())
 		}
+	}
+
+	if len(query) > 0 {
+		conds = persistence.BuildConds(query, args)
 	}
 
 	records, npt, err = service.PaginateStorage[*orchestrator.ControlInScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
@@ -452,20 +469,35 @@ func (svc *Service) ListAuditTrailEvents(
 		}), nil
 	}
 
+	// See ListControlsInScope: conditions must be joined into a single WHERE
+	// string, otherwise GORM drops all but the first one.
+	var (
+		query []string
+		args  []any
+	)
+
 	if !all {
-		conds = append(conds, "audit_scope_id IN ?", scopeIds)
+		query = append(query, "audit_scope_id IN ?")
+		args = append(args, scopeIds)
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
 		if f.AuditScopeId != nil {
-			conds = append(conds, "audit_scope_id = ?", f.GetAuditScopeId())
+			query = append(query, "audit_scope_id = ?")
+			args = append(args, f.GetAuditScopeId())
 		}
 		if f.ControlInScopeId != nil {
-			conds = append(conds, "control_in_scope_id = ?", f.GetControlInScopeId())
+			query = append(query, "control_in_scope_id = ?")
+			args = append(args, f.GetControlInScopeId())
 		}
 		if f.ActorId != nil {
-			conds = append(conds, "actor_id = ?", f.GetActorId())
+			query = append(query, "actor_id = ?")
+			args = append(args, f.GetActorId())
 		}
+	}
+
+	if len(query) > 0 {
+		conds = persistence.BuildConds(query, args)
 	}
 
 	events, npt, err = service.PaginateStorage[*orchestrator.AuditTrailEvent](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
