@@ -20,9 +20,16 @@
                 "description": "Regular vulnerability scanning must be performed",
                 "metrics": [
                   {
-                    "id": "1fe2ae30-dc7b-4e40-bcfc-53a1d0b414b5"
+                    "id": "VulnerabilityScanReportUpdated"
+                  },
+                  {
+                    "id": "NoKnownVulnerabilities"
+                  },
+                  {
+                    "id": "VulnerabilitiesNotExploitable"
                   }
-                ]
+                ],
+                "name": "Vulnerability Scanning"
               }
             ]
           },
@@ -36,9 +43,10 @@
                 "description": "Secure configuration must be enforced by default",
                 "metrics": [
                   {
-                    "id": "021ea258-39f8-4e0a-b6eb-36fe5fbaf1b7"
+                    "id": "SecureConfigurationEnforced"
                   }
-                ]
+                ],
+                "name": "Secure Default Configuration"
               }
             ]
           },
@@ -52,27 +60,30 @@
                 "description": "Automatic updates must check for updates within appropriate intervals",
                 "metrics": [
                   {
-                    "id": "28cbd415-d031-4704-ba63-cea8c9cd7d6a"
+                    "id": "AutomaticUpdatesInterval"
                   }
-                ]
+                ],
+                "name": "Update Check Interval"
               },
               {
                 "id": "CRA-I-1.1.4.2",
                 "description": "Automatic updates must be enabled by default",
                 "metrics": [
                   {
-                    "id": "9fb574ac-10ca-4bd7-ab00-f49675b4e6de"
+                    "id": "AutomaticUpdatesEnabled"
                   }
-                ]
+                ],
+                "name": "Automatic Updates by Default"
               },
               {
                 "id": "CRA-I-1.1.4.3",
                 "description": "Users must be able to postpone updates and receive notifications",
                 "metrics": [
                   {
-                    "id": "8723d4e4-7513-4e43-a4ca-2d561cddebec"
+                    "id": "PostponeAlertOptionEnabled"
                   }
-                ]
+                ],
+                "name": "User Update Control"
               }
             ]
           },
@@ -86,45 +97,50 @@
                 "description": "Access control mechanisms must be implemented at critical points",
                 "metrics": [
                   {
-                    "id": "3f5502ec-d5fb-4fd3-99d2-165c093f0211"
+                    "id": "AccessControlMechanismsImplemented"
                   }
-                ]
+                ],
+                "name": "Access Control Mechanisms"
               },
               {
                 "id": "CRA-I-1.1.5.2",
                 "description": "Password policies must be enabled for identity management",
                 "metrics": [
                   {
-                    "id": "3d4a6413-5d6b-4664-8910-5e4739df4217"
+                    "id": "IdentityPasswordPolicyEnabled"
                   }
-                ]
+                ],
+                "name": "Password Policies"
               },
               {
                 "id": "CRA-I-1.1.5.3",
                 "description": "Unauthorized access attempts must be reported",
                 "metrics": [
                   {
-                    "id": "a2e3934f-239b-4fda-90f5-db50dc96023d"
+                    "id": "UnauthorizedAccessReported"
                   }
-                ]
+                ],
+                "name": "Unauthorized Access Reporting"
               },
               {
                 "id": "CRA-I-1.1.5.4",
                 "description": "Multi-factor authentication must be enabled for administrative access",
                 "metrics": [
                   {
-                    "id": "a9b83395-3e92-4abc-96cd-b024504cb39b"
+                    "id": "AdminMFAEnabled"
                   }
-                ]
+                ],
+                "name": "Multi-Factor Authentication"
               },
               {
                 "id": "CRA-I-1.1.5.5",
                 "description": "Anomaly detection mechanisms must be enabled",
                 "metrics": [
                   {
-                    "id": "cd3dc393-5ca1-4ea2-a75e-f75499f5c77c"
+                    "id": "AnomalyDetectionEnabled"
                   }
-                ]
+                ],
+                "name": "Anomaly Detection"
               }
             ]
           },
@@ -138,27 +154,30 @@
                 "description": "Data at rest must be encrypted",
                 "metrics": [
                   {
-                    "id": "ec2952ab-d71e-4046-bc0d-991d65397bc5"
+                    "id": "AtRestEncryptionEnabled"
                   }
-                ]
+                ],
+                "name": "Encryption at Rest"
               },
               {
                 "id": "CRA-I-1.1.6.2",
                 "description": "Strong cryptographic algorithms must be used",
                 "metrics": [
                   {
-                    "id": "06ef4588-2097-4601-bb5f-992674f994b0"
+                    "id": "StrongCryptographicHash"
                   }
-                ]
+                ],
+                "name": "Cryptographic Algorithm Strength"
               },
               {
                 "id": "CRA-I-1.1.6.3",
                 "description": "Data in transit must be encrypted",
                 "metrics": [
                   {
-                    "id": "13de67df-56e9-45b5-b092-270178a8ea11"
+                    "id": "TransportEncryptionEnabled"
                   }
-                ]
+                ],
+                "name": "Encryption in Transit"
               }
             ]
           },
@@ -172,18 +191,20 @@
                 "description": "Secure protocols must be enabled for data transmission",
                 "metrics": [
                   {
-                    "id": "13de67df-56e9-45b5-b092-270178a8ea11"
+                    "id": "TransportEncryptionEnabled"
                   }
-                ]
+                ],
+                "name": "Secure Transmission Protocols"
               },
               {
                 "id": "CRA-I-1.1.7.2",
                 "description": "Password policies must be enforced",
                 "metrics": [
                   {
-                    "id": "3d4a6413-5d6b-4664-8910-5e4739df4217"
+                    "id": "IdentityPasswordPolicyEnabled"
                   }
-                ]
+                ],
+                "name": "Password Policy Enforcement"
               }
             ]
           },
@@ -197,18 +218,20 @@
                 "description": "Data minimization techniques must be enabled",
                 "metrics": [
                   {
-                    "id": "a4d7c4a5-05fa-427c-8cb8-b30cb81a1963"
+                    "id": "DataMinimisationTechniquesEnabled"
                   }
-                ]
+                ],
+                "name": "Data Minimization"
               },
               {
                 "id": "CRA-I-1.1.8.2",
                 "description": "Automated deletion of data must be configured",
                 "metrics": [
                   {
-                    "id": "8816f0d1-31a6-4e6e-a2c4-f1905a9c4fe9"
+                    "id": "AutomatedDeletionOfDataEnabled"
                   }
-                ]
+                ],
+                "name": "Automated Data Deletion"
               }
             ]
           },
@@ -222,9 +245,10 @@
                 "description": "DDoS protection mechanisms must be activated",
                 "metrics": [
                   {
-                    "id": "a5689fb6-7f3d-43f4-be17-4caa3f9c82f4"
+                    "id": "DDOSMechanismActivated"
                   }
-                ]
+                ],
+                "name": "DDoS Protection"
               }
             ]
           },
@@ -238,9 +262,10 @@
                 "description": "Standard protocols must be listed and only required interfaces enabled",
                 "metrics": [
                   {
-                    "id": "b5a8d8e1-8f0d-479c-8a7f-591b33626a15"
+                    "id": "StandardProtocolsListed"
                   }
-                ]
+                ],
+                "name": "Interface and Protocol Inventory"
               }
             ]
           },
@@ -254,18 +279,20 @@
                 "description": "Risk assessment must be mapped to services and controls",
                 "metrics": [
                   {
-                    "id": "aaa83510-d4fd-495c-9697-b8eb9662dd32"
+                    "id": "RiskAssessmentMappingtoServicesandControl"
                   }
-                ]
+                ],
+                "name": "Risk Assessment Mapping"
               },
               {
                 "id": "CRA-I-1.1.11.2",
                 "description": "Only required interfaces and protocols must be enabled",
                 "metrics": [
                   {
-                    "id": "b5a8d8e1-8f0d-479c-8a7f-591b33626a15"
+                    "id": "StandardProtocolsListed"
                   }
-                ]
+                ],
+                "name": "Minimal Attack Surface"
               }
             ]
           },
@@ -279,9 +306,10 @@
                 "description": "Backup mechanisms must be enabled for critical data flows",
                 "metrics": [
                   {
-                    "id": "0435c183-1f01-4372-a133-de337d2cc13c"
+                    "id": "BackupEnabled"
                   }
-                ]
+                ],
+                "name": "Critical Data Backup"
               }
             ]
           },
@@ -295,36 +323,40 @@
                 "description": "Activity logging must be enabled for security-relevant activities",
                 "metrics": [
                   {
-                    "id": "6b097abe-da65-4ce1-8ed8-2da3bbb0d2c2"
+                    "id": "ActivityLoggingEnabled"
                   }
-                ]
+                ],
+                "name": "Security Activity Logging"
               },
               {
                 "id": "CRA-I-1.1.13.2",
                 "description": "Identity activity must be tracked and available",
                 "metrics": [
                   {
-                    "id": "23a48bc3-5534-4e17-8615-b5d497a6bd56"
+                    "id": "IdentityRecentActivity"
                   }
-                ]
+                ],
+                "name": "Identity Activity Tracking"
               },
               {
                 "id": "CRA-I-1.1.13.3",
                 "description": "Logging opt-out mechanism must be available to users",
                 "metrics": [
                   {
-                    "id": "f73bab3d-4641-43c3-93ec-0b8b56c99e0d"
+                    "id": "LoggingOptOutMechanismAvailable"
                   }
-                ]
+                ],
+                "name": "Logging Opt-Out"
               },
               {
                 "id": "CRA-I-1.1.13.4",
                 "description": "Security data must be available to users",
                 "metrics": [
                   {
-                    "id": "080a1f0f-00e4-48dc-9af0-ceb8e16d9672"
+                    "id": "SecurityDataAvailableToUser"
                   }
-                ]
+                ],
+                "name": "Security Data Access"
               }
             ]
           },
@@ -338,9 +370,10 @@
                 "description": "Secure data deletion mechanism must be activated",
                 "metrics": [
                   {
-                    "id": "0c6e4889-5cba-4875-ac1a-a09e3d98514f"
+                    "id": "SecureDataDeletionMechanismActivated"
                   }
-                ]
+                ],
+                "name": "Secure Data Deletion"
               }
             ]
           }
