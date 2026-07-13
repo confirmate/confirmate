@@ -751,6 +751,7 @@ func (svc *Service) cacheControls(catalogId string) error {
 	controls, err = api.ListAllPaginated(context.Background(), &orchestrator.ListControlsRequest{
 		Filter: &orchestrator.ListControlsRequest_Filter{
 			CatalogId: &catalogId,
+			Full:      new(true),
 		},
 	}, func(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
 		res, err := svc.orchestratorClient.ListControls(ctx, connect.NewRequest(req))
