@@ -1282,8 +1282,8 @@ func TestCreateAuditScope_AutoCreatesControlsInScope(t *testing.T) {
 	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 		// Seed catalog, 2 controls, and a category that links to both via the many2many join.
 		assert.NoError(t, d.Create(&orchestrator.Catalog{Id: catalogId, Name: "Test Catalog"}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl1Id, ShortName: "C-01", Name: "Control 1"}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl2Id, ShortName: "C-02", Name: "Control 2"}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl1Id, ShortName: "C-01", Name: "Control 1", CatalogId: catalogId}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl2Id, ShortName: "C-02", Name: "Control 2", CatalogId: catalogId}))
 		// Create the category with both controls referenced — GORM inserts the join table rows.
 		assert.NoError(t, d.Create(&orchestrator.Category{
 			Name:      "Cat1",
