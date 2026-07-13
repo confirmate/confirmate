@@ -792,7 +792,9 @@ func (svc *Service) cacheControls(catalogId string) error {
 	// Get controls for given catalog
 	// TODO(anatheka): Shouldn´t we use the ListControlsInScope endpoint?
 	controls, err = api.ListAllPaginated(context.Background(), &orchestrator.ListControlsRequest{
-		Filter: &orchestrator.ListControlsRequest_Filter{CatalogId: &catalogId},
+		Filter: &orchestrator.ListControlsRequest_Filter{
+			CatalogId: &catalogId,
+		},
 	}, func(ctx context.Context, req *orchestrator.ListControlsRequest) (*orchestrator.ListControlsResponse, error) {
 		res, err := svc.orchestratorClient.ListControls(ctx, connect.NewRequest(req))
 		if err != nil {

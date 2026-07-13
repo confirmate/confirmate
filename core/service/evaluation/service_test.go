@@ -474,7 +474,8 @@ func TestService_cacheControls(t *testing.T) {
 			},
 			wantSvc: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
 				assert.Equal(t, 1, len(got.catalogControls))
-				return assert.Equal(t, 4, len(got.catalogControls[orchestratortest.MockCatalogId1]))
+				assert.Equal(t, 4, len(got.catalogControls[orchestratortest.MockCatalogId1]))
+				return assert.Equal(t, orchestratortest.MockControl1, got.catalogControls[orchestratortest.MockCatalogId1][orchestratortest.MockControlId1])
 			},
 			wantErr: assert.NoError,
 		},

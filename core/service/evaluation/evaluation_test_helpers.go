@@ -377,8 +377,10 @@ func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockO
 func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 	// Return 4 controls as expected by the test
 	control1 := &orchestrator.Control{
-		Id:   orchestratortest.MockControlId1,
-		Name: "Mock Control 1",
+		Id:        orchestratortest.MockControlId1,
+		Name:      "Mock Control 1",
+		ShortName: orchestratortest.MockControlShortName1,
+		Controls:  []*orchestrator.Control{orchestratortest.MockSubControl1},
 	}
 	control2 := &orchestrator.Control{
 		Id:   orchestratortest.MockControlId2,
