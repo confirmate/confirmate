@@ -104,7 +104,12 @@ service Resources {
   // ListGraphEdges returns the edges (relationship) between resources in our
   // resource graph.
   rpc ListGraphEdges(ListGraphEdgesRequest) returns (ListGraphEdgesResponse) {
-    option (google.api.http) = {get: "/v1/evidence/graph/edges"};
+    // Path lives under /graph/ rather than /resources/edges so it does not
+    // collide with the parameterized UpdateResource path
+    // (/v1/evidence_store/resources/{resource.id}). The Vanguard transcoder
+    // otherwise treats "edges" as a value for {resource.id} and only matches
+    // the POST verb.
+    option (google.api.http) = {get: "/v1/evidence_store/graph/edges"};
   }
 }
 
