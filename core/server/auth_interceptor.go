@@ -53,6 +53,15 @@ type AuthConfig struct {
 	// not exposed as an option — per-IdP behavior is configured via
 	// [WithRoleClaimPaths], not via the mapper.
 	roleMapper roleMapper
+
+	// fallbackIssuer is used as the JWT issuer (iss) claim when the token
+	// itself does not carry one. This is needed for the embedded OAuth 2.0
+	// server, whose tokens (in oauth2go v0.16.0) omit the iss claim even
+	// though [WithPublicURL] is configured. Without an issuer,
+	// [auth.GetConfirmateUserIDFromClaims] cannot construct a stable user
+	// ID that matches seeded demo users. When non-empty, it is substituted
+	// for a missing iss during claim re-hydration in [parseToken].
+	fallbackIssuer string
 }
 
 // roleMapper translates a raw role string from the JWT into the typed
@@ -95,6 +104,17 @@ func WithJWKS(url string) AuthOption {
 func WithPublicKey(publicKey *ecdsa.PublicKey) AuthOption {
 	return func(c *AuthConfig) {
 		c.publicKey = publicKey
+	}
+}
+
+// WithFallbackIssuer configures a fallback issuer that is substituted for
+// the JWT iss claim when the token carries none. This keeps
+// [auth.GetConfirmateUserIDFromClaims] working with tokens issued by the
+// embedded OAuth 2.0 server, which (as of oauth2go v0.16.0) omits the iss
+// claim.
+func WithFallbackIssuer(issuer string) AuthOption {
+	return func(c *AuthConfig) {
+		c.fallbackIssuer = issuer
 	}
 }
 
@@ -258,6 +278,15 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 	claims = &auth.OAuthClaims{}
 	if b, mErr := json.Marshal(raw); mErr == nil {
 		_ = json.Unmarshal(b, claims)
+	}
+
+	// The embedded OAuth 2.0 server (oauth2go v0.16.0) omits the iss claim
+	// in issued tokens. Fall back to the configured issuer so downstream code
+	// (e.g. [auth.GetConfirmateUserIDFromClaims]) can construct a stable user
+	// ID matching seeded demo users. External IdPs that set iss themselves are
+	// unaffected.
+	if claims.RegisteredClaims.Issuer == "" && ai.cfg.fallbackIssuer != "" {
+		claims.RegisteredClaims.Issuer = ai.cfg.fallbackIssuer
 	}
 
 	// Normalize roles from configured claim paths into claims.Roles. The raw
