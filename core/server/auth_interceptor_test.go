@@ -214,6 +214,9 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 		invalidJWKSToken      = mustSignES256Token(t, mustECDSAKeyPairPrivateOnly(t), kid, jwt.MapClaims{"sub": "other"})
 		validPublicKeyToken   = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "pk-user"})
 		roleAdminToken        = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "pk-role-admin", "roles": []string{"ROLE_ADMIN"}})
+		noIssuerToken         = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "alice"})
+		withIssuerToken       = mustSignES256Token(t, privateKey, kid, jwt.MapClaims{"sub": "alice", "iss": "https://idp.example.com"})
+		fallbackIssuer        = "http://localhost:8080/v1/auth"
 	)
 
 	tests := []struct {
@@ -268,6 +271,36 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.ErrorContains(t, err, "no public key configured", msgAndArgs...)
 			},
+		},
+		{
+			name:   "fallback issuer applied when iss is missing",
+			args:   args{token: noIssuerToken},
+			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey), WithFallbackIssuer(fallbackIssuer))},
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "alice", got.Subject) &&
+					assert.Equal(t, fallbackIssuer, got.Issuer)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name:   "fallback issuer not overwritten when iss is present",
+			args:   args{token: withIssuerToken},
+			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey), WithFallbackIssuer(fallbackIssuer))},
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "alice", got.Subject) &&
+					assert.Equal(t, "https://idp.example.com", got.Issuer)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name:   "no fallback issuer leaves iss empty",
+			args:   args{token: noIssuerToken},
+			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "alice", got.Subject) &&
+					assert.Equal(t, "", got.Issuer)
+			},
+			wantErr: assert.NoError,
 		},
 	}
 
