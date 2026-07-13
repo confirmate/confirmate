@@ -25,12 +25,14 @@ import (
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evaluation/evaluationconnect"
 	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/evaluation"
 	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
@@ -94,6 +96,7 @@ var ConfirmateCommand = &cli.Command{
 		newDBFlags(true),
 		assessmentFlags,
 		evidenceFlags,
+		evaluationFlags,
 		oauthServerFlags,
 		orchestratorFlags,
 	),
@@ -106,13 +109,16 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		orchestratorOptions []service.Option[orchestrator.Service]
 		assessmentOptions   []service.Option[assessment.Service]
 		evidenceOptions     []service.Option[evidence.Service]
+		evaluationOptions   []service.Option[evaluation.Service]
 		jwksURL             string
 		orchestratorOpts    []service.Option[orchestrator.Service]
 		assessmentOpts      []service.Option[assessment.Service]
 		evidenceOpts        []service.Option[evidence.Service]
+		evaluationOpts      []service.Option[evaluation.Service]
 		orchestratorSvc     orchestratorconnect.OrchestratorHandler
 		assessmentSvc       assessmentconnect.AssessmentHandler
 		evidenceSvc         *evidence.Service
+		evaluationSvc       evaluationconnect.EvaluationHandler
 		orchestratorClient  *http.Client
 		apiPort             uint16
 		credentials         *clientcredentials.Config
@@ -132,6 +138,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
 		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
+		evaluationOptions = append(evaluationOptions, evaluation.WithAuthorizationStrategyPermissionStore())
 	}
 
 	interceptors = append(interceptors, &server.LoggingInterceptor{})
@@ -217,6 +224,28 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		return err
 	}
 
+	// Evaluation service configuration
+	evaluationOpts = append([]service.Option[evaluation.Service]{
+		evaluation.WithConfig(evaluation.Config{
+			OrchestratorAddress: fmt.Sprintf("http://localhost:%d", apiPort),
+			OrchestratorClient:  orchestratorClient,
+			ServiceOAuth2Config: credentials,
+		}),
+	}, evaluationOptions...)
+
+	evaluationSvc, err = evaluation.NewService(evaluationOpts...)
+	if err != nil {
+		return err
+	}
+
+	// Wire up the evaluation service's scope-change callback so that
+	// adding/removing controls from scope triggers an immediate re-evaluation.
+	if evalSvc, ok := evaluationSvc.(*evaluation.Service); ok {
+		if orchSvc, ok := orchestratorSvc.(*orchestrator.Service); ok {
+			orchSvc.SetScopeChangeCallback(evalSvc.OnScopeChanged())
+		}
+	}
+
 	// Server options configuration including CORS, logging, handler and gRPC reflection
 	serverOpts = []server.Option{
 		server.WithConfig(server.Config{
@@ -243,6 +272,10 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		)),
 		server.WithHandler(evidenceconnect.NewResourcesHandler(
 			evidenceSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(evaluationconnect.NewEvaluationHandler(
+			evaluationSvc,
 			connect.WithInterceptors(interceptors...),
 		)),
 		server.WithReflection(),

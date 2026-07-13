@@ -45,6 +45,12 @@ type Service struct {
 	// authz defines our authorization strategy for target-of-evaluation scoped access.
 	authz service.AuthorizationStrategy
 
+	// scopeChangeCallback is invoked when a control is added/removed from scope,
+	// allowing the evaluation service to trigger an immediate re-evaluation. In
+	// the combined server this is an in-process call; a deployment with separate
+	// services can register a callback that goes through the evaluation RPC API.
+	scopeChangeCallback func(ctx context.Context, auditScopeId string) error
+
 	// subscribers is a map of subscribers for change events
 	subscribers      map[int64]*subscriber
 	subscribersMutex sync.RWMutex
@@ -91,6 +97,13 @@ type Config struct {
 
 	// PersistenceConfig is the configuration for the persistence layer. If not set, defaults will be used.
 	PersistenceConfig persistence.Config
+}
+
+// SetScopeChangeCallback registers a callback that is invoked when a control is
+// added to or removed from an audit scope. This allows the evaluation service
+// to trigger an immediate re-evaluation of the affected audit scope via RPC.
+func (svc *Service) SetScopeChangeCallback(fn func(ctx context.Context, auditScopeId string) error) {
+	svc.scopeChangeCallback = fn
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
