@@ -1,0 +1,15 @@
+# Confirmate UI — pre-built static files served via a simple Node static server with proxy
+FROM mcr.microsoft.com/devcontainers/typescript-node:0-18
+
+WORKDIR /app
+
+COPY ui/build ./static
+COPY deploy/ui-server.mjs ./server.mjs
+
+ENV PORT=80
+ENV API_BASE=http://core:8080
+ENV STATIC_DIR=/app/static
+
+EXPOSE 80
+
+CMD ["node", "server.mjs"]

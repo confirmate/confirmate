@@ -1,0 +1,143 @@
+[
+  {
+    "id": "BCSG_Catalog",
+    "name": "Basic Confirmate Security Guidelines",
+    "description": "A lightweight security catalog reusing existing assessment metrics for baseline compliance checks. Demonstrates metric reuse across catalogs.",
+    "short_name": "BCSG",
+    "all_in_scope": false,
+    "categories": [
+      {
+        "name": "Access Control & Authentication",
+        "description": "Basic access control and authentication requirements.",
+        "controls": [
+          {
+            "id": "BCSG-1",
+            "name": "Access Control Mechanisms",
+            "description": "The product must implement access control mechanisms for all critical functionalities.",
+            "controls": [
+              {
+                "id": "BCSG-1.1",
+                "name": "Authorization Checks",
+                "description": "All endpoints must have authorization checks on their path.",
+                "metrics": [
+                  { "id": "AccessControlMechanismsImplemented" }
+                ]
+              },
+              {
+                "id": "BCSG-1.2",
+                "name": "Password Policy",
+                "description": "A strong password policy must be enforced.",
+                "metrics": [
+                  { "id": "IdentityPasswordPolicyEnabled" }
+                ]
+              },
+              {
+                "id": "BCSG-1.3",
+                "name": "Multi-Factor Authentication",
+                "description": "MFA must be available for administrative accounts.",
+                "metrics": [
+                  { "id": "AdminMFAEnabled" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Data Protection",
+        "description": "Requirements for protecting data at rest and in transit.",
+        "controls": [
+          {
+            "id": "BCSG-2",
+            "name": "Encryption",
+            "description": "Data must be encrypted at rest and in transit.",
+            "controls": [
+              {
+                "id": "BCSG-2.1",
+                "name": "Encryption at Rest",
+                "description": "Sensitive data must be encrypted at rest.",
+                "metrics": [
+                  { "id": "AtRestEncryptionEnabled" }
+                ]
+              },
+              {
+                "id": "BCSG-2.2",
+                "name": "Encryption in Transit",
+                "description": "All external communication must use strong encryption.",
+                "metrics": [
+                  { "id": "TransportEncryptionEnabled" }
+                ]
+              },
+              {
+                "id": "BCSG-2.3",
+                "name": "Cryptographic Algorithm Strength",
+                "description": "Only strong cryptographic algorithms must be used.",
+                "metrics": [
+                  { "id": "StrongCryptographicHash" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Security Updates",
+        "description": "Requirements for keeping the product up to date.",
+        "controls": [
+          {
+            "id": "BCSG-3",
+            "name": "Update Management",
+            "description": "The product must support security updates.",
+            "controls": [
+              {
+                "id": "BCSG-3.1",
+                "name": "Automatic Updates",
+                "description": "Automatic updates must be enabled by default.",
+                "metrics": [
+                  { "id": "AutomaticUpdatesEnabled" }
+                ]
+              },
+              {
+                "id": "BCSG-3.2",
+                "name": "Update Check Interval",
+                "description": "The product must check for updates at appropriate intervals.",
+                "metrics": [
+                  { "id": "AutomaticUpdatesInterval" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Logging & Monitoring",
+        "description": "Requirements for security logging and monitoring.",
+        "controls": [
+          {
+            "id": "BCSG-4",
+            "name": "Security Logging",
+            "description": "Security-relevant events must be logged.",
+            "controls": [
+              {
+                "id": "BCSG-4.1",
+                "name": "Activity Logging",
+                "description": "Security activities must be logged.",
+                "metrics": [
+                  { "id": "ActivityLoggingEnabled" }
+                ]
+              },
+              {
+                "id": "BCSG-4.2",
+                "name": "Identity Activity Tracking",
+                "description": "Identity-related activities must be tracked.",
+                "metrics": [
+                  { "id": "IdentityRecentActivity" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
