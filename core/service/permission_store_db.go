@@ -24,7 +24,7 @@ func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, obje
 
 	count, err = ps.DB.Count(
 		&userPermission,
-		"user_id = ? AND object_type = ? AND object_id = ? AND permission IN (?)",
+		"user_id = ? AND object_type = ? AND object_id = ? AND permission IN ?",
 		userId, objectType, objectId, allowedPermissions(permission),
 	)
 	if err != nil {
