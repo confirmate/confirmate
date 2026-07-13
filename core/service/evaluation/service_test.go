@@ -577,17 +577,23 @@ func TestService_getControl(t *testing.T) {
 				// We need to truncate the metric from the control because the control is only returned with its
 				// sub-control but without the sub-control's metric.
 				// TODO(oxisto): Use ignore fields instead
-				wantControl := orchestratortest.MockControl1
-				tmpMetrics := wantControl.Controls[0].Metrics
-				wantControl.Controls[0].Metrics = nil
-
-				if !assert.Equal(t, wantControl, got) {
-					t.Errorf("Service.GetControl() = %v, want %v", got, wantControl)
-					wantControl.Controls[0].Metrics = tmpMetrics
-					return false
+				wantControl := &orchestrator.Control{
+					Id:        orchestratortest.MockControlId1,
+					Name:      orchestratortest.MockControlName1,
+					ShortName: orchestratortest.MockControlShortName1,
+					Controls:  []*orchestrator.Control{orchestratortest.MockSubControl1},
 				}
+				assert.Equal(t, wantControl, got)
+				// tmpMetrics := wantControl.Controls[0].Metrics
+				// wantControl.Controls[0].Metrics = nil
 
-				wantControl.Controls[0].Metrics = tmpMetrics
+				// if !assert.Equal(t, wantControl, got) {
+				// 	t.Errorf("Service.GetControl() = %v, want %v", got, wantControl)
+				// 	wantControl.Controls[0].Metrics = tmpMetrics
+				// 	return false
+				// }
+
+				// wantControl.Controls[0].Metrics = tmpMetrics
 				return true
 			},
 			wantErr: assert.NoError,
