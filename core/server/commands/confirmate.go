@@ -79,6 +79,12 @@ var oauthServerFlags = []cli.Flag{
 		Value:   server.DefaultOAuth2KeySaveOnCreate,
 		Sources: envVarSources("oauth2-key-save-on-create"),
 	},
+	&cli.StringFlag{
+		Name:    "demo-seed-file",
+		Usage:   "Path to a JSON file with demo seed data (audit scopes, etc.) loaded at startup",
+		Value:   "",
+		Sources: envVarSources("demo-seed-file"),
+	},
 }
 
 // ConfirmateCommand starts the full framework: orchestrator, assessment, and evidence store services on one server.
@@ -134,8 +140,25 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
 		}
 
+		authOpts := authInterceptorOptions(cmd, jwksURL)
+
+		if cmd.Bool("oauth2-embedded") {
+			// If a seed file is provided and defines users, use them as the demo user set.
+			if seedFile := cmd.String("demo-seed-file"); seedFile != "" {
+				if sf, err := server.LoadDemoSeedFile(seedFile); err == nil && len(sf.Users) > 0 {
+					server.DefaultDemoUsers = sf.Users
+				}
+			}
+			issuer := server.NormalizeOAuthPublicURL(cmd.String("oauth2-public-url"), cmd.Uint16("api-port"))
+			// The embedded OAuth 2.0 server (oauth2go v0.16.0) omits the iss
+			// claim in issued tokens. Fall back to the configured public URL so
+			// GetConfirmateUserIDFromClaims produces IDs matching seeded users.
+			authOpts = append(authOpts, server.WithFallbackIssuer(issuer))
+			orchestratorOptions = append(orchestratorOptions, orchestrator.WithSeedUsers(server.DemoOrchestratorUsers(issuer)))
+		}
+
 		// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
-		interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
+		interceptors = append(interceptors, server.NewAuthInterceptor(authOpts...))
 		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
 		evaluationOptions = append(evaluationOptions, evaluation.WithAuthorizationStrategyPermissionStore())

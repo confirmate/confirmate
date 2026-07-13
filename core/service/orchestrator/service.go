@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"runtime/debug"
@@ -45,6 +46,13 @@ type Service struct {
 	// authz defines our authorization strategy for target-of-evaluation scoped access.
 	authz service.AuthorizationStrategy
 
+	// seedUsers are pre-created at startup (e.g. demo users from the embedded OAuth2 server).
+	seedUsers []*orchestrator.User
+
+	// seedFunc is an optional callback invoked after startup seeding completes. It receives the
+	// default ToE (or nil if none was created) and may create additional demo data.
+	seedFunc func(db persistence.DB, toe *orchestrator.TargetOfEvaluation) error
+
 	// scopeChangeCallback is invoked when a control is added/removed from scope,
 	// allowing the evaluation service to trigger an immediate re-evaluation. In
 	// the combined server this is an in-process call; a deployment with separate
@@ -65,8 +73,8 @@ type subscriber struct {
 
 // DefaultConfig is the default configuration for the orchestrator [Service].
 var DefaultConfig = Config{
-	DefaultCatalogsPath:             "./policies/security-metrics/catalogs",
-	DefaultMetricsPath:              "./policies/security-metrics/metrics",
+	DefaultCatalogsPath:             "./core/policies/security-metrics/catalogs",
+	DefaultMetricsPath:              "./core/policies/security-metrics/metrics",
 	CreateDefaultTargetOfEvaluation: true,
 	LoadDefaultCatalogs:             true,
 	LoadDefaultMetrics:              true,
@@ -99,11 +107,28 @@ type Config struct {
 	PersistenceConfig persistence.Config
 }
 
+// WithSeedUsers registers users that will be created in the database at startup if they do not
+// already exist. Intended for demo / embedded-OAuth2 setups where users are known ahead of time.
+func WithSeedUsers(users []*orchestrator.User) service.Option[Service] {
+	return func(svc *Service) {
+		svc.seedUsers = users
+	}
+}
+
 // SetScopeChangeCallback registers a callback that is invoked when a control is
 // added to or removed from an audit scope. This allows the evaluation service
 // to trigger an immediate re-evaluation of the affected audit scope via RPC.
 func (svc *Service) SetScopeChangeCallback(fn func(ctx context.Context, auditScopeId string) error) {
 	svc.scopeChangeCallback = fn
+}
+
+// WithSeedFunc registers a callback that is invoked once after all startup seeding completes
+// (users, default ToE, permissions). It receives the default ToE (nil if none was created) and
+// may create any additional demo data. The callback must be idempotent — it runs on every start.
+func WithSeedFunc(fn func(db persistence.DB, toe *orchestrator.TargetOfEvaluation) error) service.Option[Service] {
+	return func(svc *Service) {
+		svc.seedFunc = fn
+	}
 }
 
 // WithConfig sets the service configuration, overriding the default configuration.
@@ -178,10 +203,50 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 		slog.Warn("Could not load metrics, continuing with empty metric list", log.Err(err))
 	}
 
+	// Pre-create seed users (e.g. demo users) if they don't already exist.
+	for _, u := range svc.seedUsers {
+		var existing orchestrator.User
+		if err = svc.db.Get(&existing, "id = ?", u.Id); errors.Is(err, persistence.ErrRecordNotFound) {
+			if err = svc.db.Create(u); err != nil {
+				return nil, fmt.Errorf("could not seed user %s: %w", u.Id, err)
+			}
+		} else if err != nil {
+			return nil, fmt.Errorf("could not check seed user %s: %w", u.Id, err)
+		}
+	}
+
 	// Create default target of evaluation if enabled and none exists
+	var defaultToE *orchestrator.TargetOfEvaluation
 	if svc.cfg.CreateDefaultTargetOfEvaluation {
-		if _, err = svc.CreateDefaultTargetOfEvaluation(); err != nil {
+		if defaultToE, err = svc.CreateDefaultTargetOfEvaluation(); err != nil {
 			return nil, fmt.Errorf("could not create default target of evaluation: %w", err)
+		}
+		// Grant seeded users access to the default ToE. Admins get ADMIN, everyone else CONTRIBUTOR.
+		if defaultToE != nil {
+			for _, u := range svc.seedUsers {
+				level := orchestrator.UserPermission_PERMISSION_CONTRIBUTOR
+				for _, r := range u.Roles {
+					if r == orchestrator.Role_ROLE_ADMIN {
+						level = orchestrator.UserPermission_PERMISSION_ADMIN
+						break
+					}
+				}
+				perm := &orchestrator.UserPermission{
+					UserId:     u.Id,
+					ObjectId:   defaultToE.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+					Permission: level,
+				}
+				if err = svc.db.Save(perm); err != nil {
+					return nil, fmt.Errorf("could not seed permission for user %s: %w", u.Id, err)
+				}
+			}
+		}
+	}
+
+	if svc.seedFunc != nil {
+		if err = svc.seedFunc(svc.db, defaultToE); err != nil {
+			return nil, fmt.Errorf("seed function failed: %w", err)
 		}
 	}
 

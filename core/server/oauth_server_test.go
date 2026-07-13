@@ -121,7 +121,7 @@ func TestNormalizeOAuthPublicURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var got string
 
-			got = normalizeOAuthPublicURL(tt.publicURL, tt.port)
+			got = NormalizeOAuthPublicURL(tt.publicURL, tt.port)
 			assert.Equal(t, tt.want, got)
 		})
 	}

@@ -35,9 +35,10 @@ import (
 // hop has to authenticate as the service client, and the orchestrator's
 // authorizer has to recognize that client as admin.
 func TestConfirmate_AuthEnabled_EvidenceProducesAssessmentResults(t *testing.T) {
-	// The assessment service's Rego loader resolves policy bundles relative to
-	// the current working directory (./policies/security-metrics/...). Chdir
-	// into the core/ root so the bundled metrics submodule is discoverable.
+	// The assessment service's Rego loader hard-codes "./policies/security-metrics/..."
+	// relative to the current working directory. Run the test with cwd = core/
+	// (so policies/security-metrics/ resolves) and override the orchestrator's
+	// metric/catalog paths to match.
 	_, thisFile, _, _ := runtime.Caller(0)
 	t.Chdir(filepath.Join(filepath.Dir(thisFile), "..", ".."))
 
@@ -57,6 +58,8 @@ func TestConfirmate_AuthEnabled_EvidenceProducesAssessmentResults(t *testing.T) 
 			"--oauth2-key-path", keyPath,
 			"--oauth2-key-password", "test",
 			"--log-level", "ERROR",
+			"--metrics-default-path", "./policies/security-metrics/metrics",
+			"--catalogs-default-path", "./policies/security-metrics/catalogs",
 			// All service-to-service hops default to localhost:8080 — point them
 			// at the test's random port instead.
 			"--auth-jwks-url", baseURL + "/v1/auth/certs",
@@ -178,4 +181,3 @@ func loadBalancerEvidence() *evidence.Evidence {
 		},
 	}
 }
-
