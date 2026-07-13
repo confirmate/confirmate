@@ -37,6 +37,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 const (
@@ -75,6 +76,7 @@ type Config struct {
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
 	evidenceconnect.UnimplementedEvidenceStoreHandler
+	evidenceconnect.UnimplementedResourcesHandler
 
 	db  persistence.DB
 	cfg Config
@@ -247,7 +249,7 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("evidence stored",
+	slog.Debug("Evidence stored",
 		slog.String("evidence_id", req.Msg.Evidence.Id),
 		slog.String("tool_id", req.Msg.Evidence.ToolId),
 		slog.String("target_of_evaluation_id", req.Msg.Evidence.TargetOfEvaluationId))
@@ -264,26 +266,26 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		req.Msg.Evidence.GetToolId(),
 	)
 	if err != nil {
-		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not convert resource (proto to DB): %w", err))
 	}
-	// Persist the latest state of the resource; Save already uses the primary key.
+	// Persist the latest snapshot of the resource; Save already uses the primary key.
 	err = svc.db.Save(r)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("resource upserted for evidence",
+	slog.Debug("Resource snapshot upserted for evidence",
 		slog.String("resource_id", r.Id),
 		slog.String("resource_type", r.ResourceType),
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
 
-	// Send evidence to the channel for further processing and acknowledge receipt, without waiting for the processing to finish. This allows the sender to continue
-	// without waiting for the evidence to be processed.
+	// Send evidence to the channel for further processing and acknowledge receipt, without waiting
+	// for the processing to finish. This allows the sender to continue without waiting for the
+	// evidence to be processed.
 	svc.channelEvidence <- req.Msg.Evidence
 
-	slog.Debug("received and handled store evidence request",
+	slog.Debug("Received and handled store evidence request",
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
@@ -520,6 +522,70 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
+
+	return
+}
+
+// ListGraphEdges returns edges between resources derived via [ontology.Related], which finds all
+// _id/_ids fields on each concrete ontology resource and matches them against known resource IDs.
+// This implements the [evidenceconnect.ResourcesHandler.ListGraphEdges] RPC method.
+func (svc *Service) ListGraphEdges(_ context.Context, req *connect.Request[evidence.ListGraphEdgesRequest]) (
+	res *connect.Response[evidence.ListGraphEdgesResponse], err error) {
+	var (
+		snapshots []*evidence.ResourceSnapshot
+		edges     []*evidence.GraphEdge
+	)
+
+	// Validate request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	if err = svc.db.List(&snapshots, "id", true, 0, -1); err != nil {
+		return nil, service.HandleDatabaseError(err)
+	}
+
+	// Build a set of all known resource IDs for fast lookup.
+	ids := make(map[string]struct{}, len(snapshots))
+	for _, s := range snapshots {
+		ids[s.Id] = struct{}{}
+	}
+
+	seen := make(map[string]struct{})
+
+	for _, s := range snapshots {
+		if s.Resource == nil {
+			continue
+		}
+		// The ontology Resource is a oneof — ranging over it visits only the set concrete field.
+		s.Resource.ProtoReflect().Range(func(_ protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+			concrete, ok := v.Message().Interface().(ontology.IsResource)
+			if !ok {
+				return true
+			}
+			for _, rel := range ontology.Related(concrete) {
+				if _, ok := ids[rel.Value]; !ok {
+					continue
+				}
+				edgeID := s.Id + "→" + rel.Value
+				if _, dup := seen[edgeID]; dup {
+					continue
+				}
+				seen[edgeID] = struct{}{}
+				edges = append(edges, &evidence.GraphEdge{
+					Id:     edgeID,
+					Source: s.Id,
+					Target: rel.Value,
+					Type:   rel.Property,
+				})
+			}
+			return true
+		})
+	}
+
+	res = connect.NewResponse(&evidence.ListGraphEdgesResponse{
+		Edges: edges,
+	})
 
 	return
 }
