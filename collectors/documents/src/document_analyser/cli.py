@@ -290,8 +290,47 @@ def main(argv: list[str] | None = None) -> int:
     except FileNotFoundError as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
-    except Exception as exc:  # pragma: no cover - defensive
-        sys.stderr.write(f"Unexpected error during analysis: {exc}\n")
+    except ConnectionError as exc:
+        sys.stderr.write(
+            f"Connection error: Could not connect to the LLM at {config.base_url or 'default endpoint'}.\n"
+            f"Details: {exc}\n"
+            f"Make sure DOC_ANALYSER_BASE_URL and DOC_ANALYSER_API_KEY are set correctly.\n"
+        )
+        return 1
+    except TimeoutError as exc:
+        sys.stderr.write(
+            f"Timeout: The LLM at {config.base_url or 'default endpoint'} did not respond in time.\n"
+            f"Details: {exc}\n"
+        )
+        return 1
+    except Exception as exc:
+        exc_type = type(exc).__name__
+        exc_msg = str(exc)
+        if "connection" in exc_msg.lower() or "connect" in exc_msg.lower():
+            sys.stderr.write(
+                f"Connection error: Could not reach the LLM at {config.base_url or 'default endpoint'}.\n"
+                f"Details: {exc_msg}\n"
+                f"Make sure DOC_ANALYSER_BASE_URL and DOC_ANALYSER_API_KEY are set correctly.\n"
+                f"If using a self-signed certificate, set INSECURE_TLS=1.\n"
+            )
+        elif "auth" in exc_msg.lower() or "401" in exc_msg or "403" in exc_msg:
+            sys.stderr.write(
+                f"Authentication error: The LLM rejected the API key.\n"
+                f"Details: {exc_msg}\n"
+                f"Make sure DOC_ANALYSER_API_KEY (or OPENAI_API_KEY) is set correctly.\n"
+            )
+        elif "model" in exc_msg.lower() or "404" in exc_msg:
+            sys.stderr.write(
+                f"Model error: The model '{config.model}' was not found at {config.base_url or 'default endpoint'}.\n"
+                f"Details: {exc_msg}\n"
+                f"Make sure DOC_ANALYSER_MODEL is set to a valid model name.\n"
+            )
+        else:
+            sys.stderr.write(
+                f"Unexpected error ({exc_type}): {exc_msg}\n"
+                f"LLM endpoint: {config.base_url or 'default'}\n"
+                f"Model: {config.model}\n"
+            )
         return 1
 
     if push_enabled:
