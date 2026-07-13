@@ -452,8 +452,9 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		slog.Int("number of relevant controls for the audit scope", len(relevant)),
 	)
 
-	// We are using a timeout of half the interval, so that we are not running into overlapping executions
-	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(interval)*time.Minute/2)
+	// We are using a timeout equal to the interval, so that we reduce premature cancellations
+	// while still aiming to avoid overlapping executions.
+	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(interval)*time.Minute)
 	defer cancel()
 
 	g, gctx := errgroup.WithContext(ctx)
