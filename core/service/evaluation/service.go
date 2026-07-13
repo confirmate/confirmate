@@ -486,7 +486,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		result              *evaluation.EvaluationResult
 		evaluationResults   []*evaluation.EvaluationResult
 		assessmentResultIds = []string{}
-		relevant            []*orchestrator.Control
+		relevantSubcontrol  []*orchestrator.Control
 		ignored             []string
 	)
 
@@ -509,7 +509,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		}
 
 		if subControl.IsRelevantFor(auditScope, catalog) {
-			relevant = append(relevant, subControl)
+			relevantSubcontrol = append(relevantSubcontrol, subControl)
 		}
 	}
 
@@ -517,14 +517,14 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 		slog.String("target of evaluation id", auditScope.TargetOfEvaluationId),
 		slog.String("catalog id", auditScope.CatalogId),
 		slog.String("control id", control.Id),
-		slog.Int("number of relevant controls for the audit scope", len(relevant)))
+		slog.Int("number of relevant controls for the audit scope", len(relevantSubcontrol)))
 
 	// Prepare the results slice
-	evaluationResults = make([]*evaluation.EvaluationResult, len(relevant)+len(manual))
+	evaluationResults = make([]*evaluation.EvaluationResult, len(relevantSubcontrol)+len(manual))
 
 	// evaluate all subcontrols in parallel
 	g, gctx := errgroup.WithContext(ctx)
-	for i, sub := range relevant {
+	for i, sub := range relevantSubcontrol {
 		g.Go(func() error {
 			r, err := svc.evaluateSubcontrol(gctx, auditScope, sub)
 			if err != nil {
@@ -543,7 +543,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	}
 
 	// Copy the manual results
-	copy(evaluationResults[len(relevant):], manual)
+	copy(evaluationResults[len(relevantSubcontrol):], manual)
 
 	for _, r := range evaluationResults {
 		// Special case: If the evaluation result of the parent control was set to "COMPLIANT MANUALLY", the whole
@@ -625,13 +625,12 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	slog.Debug("Start evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()))
 
 	// Get metrics from control and sub-controls
-	metrics, err := svc.getAllMetricsFromControl(auditScope.GetCatalogId(), control.Id)
-	if err != nil {
+	metrics := getMetricsFromControl(control)
+	if len(metrics) == 0 {
 		slog.Error("could not get metrics for",
 			slog.String("control id", control.Id),
 			slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
 			log.Err(err))
-		return
 	}
 
 	slog.Debug("evaluateSubcontrol()", slog.String("control id", control.Id), slog.String("audit_scope_id", auditScope.GetId()), slog.Int("number of metrics", len(metrics)))
@@ -721,60 +720,17 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 	return
 }
 
-// getAllMetricsFromControl returns all metrics from a given controlId.
-//
-// For now a control has either sub-controls or metrics. If the control has sub-controls, get also all metrics from the
-// sub-controls.
-func (svc *Service) getAllMetricsFromControl(catalogId, controlId string) (metrics []*assessment.Metric, err error) {
-	var subControlMetrics []*assessment.Metric
-
-	slog.Debug("Start getAllMetricsFromControl()", slog.String("catalog id", catalogId), slog.String("control id", controlId))
-	control, err := svc.getControl(catalogId, controlId)
-	if err != nil {
-		err = fmt.Errorf("could not get control for control id {%s}: %w", controlId, err)
-		return
-	}
-
+// getMetricsFromControl returns all metrics from a given control. If the control has sub-controls, get also all metrics from the sub-controls.
+func getMetricsFromControl(control *orchestrator.Control) (metrics []*assessment.Metric) {
 	// Add metric of control to the metrics list
 	metrics = append(metrics, control.Metrics...)
-	slog.Debug("metrics for control", slog.String("control id", controlId), slog.Int("number of metrics", len(control.Metrics)))
 
-	// Add sub-control metrics to the metric list if exist
-	if len(control.Controls) != 0 {
-		// Get the metrics from the next sub-control
-		subControlMetrics, err = svc.getMetricsFromSubcontrols(catalogId, control)
-		if err != nil {
-			err = fmt.Errorf("error getting metrics from sub-controls: %w", err)
-			return
-		}
-		slog.Debug("metrics for sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(subControlMetrics)))
-
-		metrics = append(metrics, subControlMetrics...)
-		slog.Debug("total metrics for control and sub-controls", slog.String("control id", controlId), slog.Int("number of metrics", len(metrics)))
-	}
-	slog.Debug("End getAllMetricsFromControl()", slog.String("catalog id", catalogId), slog.String("control id", controlId))
-
-	return
-}
-
-// getMetricsFromSubcontrols returns a list of metrics from the sub-controls.
-func (svc *Service) getMetricsFromSubcontrols(catalogId string, control *orchestrator.Control) (metrics []*assessment.Metric, err error) {
-	var subcontrol *orchestrator.Control
-
-	if control == nil {
-		return nil, errors.New("control is missing")
+	// Add metric of sub-controls to the metrics list if exist
+	for _, subControl := range control.Controls {
+		metrics = append(metrics, subControl.Metrics...)
 	}
 
-	for _, c := range control.Controls {
-		subcontrol, err = svc.getControl(catalogId, c.Id)
-		if err != nil {
-			return
-		}
-
-		metrics = append(metrics, subcontrol.Metrics...)
-	}
-
-	return
+	return metrics
 }
 
 // cacheControls caches the catalog controls for the given catalog.
@@ -823,25 +779,6 @@ func (svc *Service) cacheControls(catalogId string) error {
 	svc.catalogsMutex.Unlock()
 
 	return nil
-}
-
-// getControl returns the control for the given catalogID and controlID.
-func (svc *Service) getControl(catalogId, controlId string) (control *orchestrator.Control, err error) {
-	if catalogId == "" {
-		return nil, errors.New("catalog id is missing")
-	}
-	if controlId == "" {
-		return nil, errors.New("control id is missing")
-	}
-
-	tag := controlId
-
-	control, ok := svc.catalogControls[catalogId][tag]
-	if !ok {
-		return nil, service.ErrNotFound("control")
-	}
-
-	return
 }
 
 // handlePending evaluates the given evaluation result when the current control evaluation status is PENDING
