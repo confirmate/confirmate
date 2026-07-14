@@ -18,7 +18,6 @@ package orchestrator
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -411,8 +410,8 @@ func (svc *Service) GetControl(
 // 2. LoadCatalogsFunc (if provided) for additional custom catalogs
 func (svc *Service) loadCatalogs() (err error) {
 	var (
-		catalogs []*orchestrator.Catalog
-		tmpErr   error
+		catalogs         []*orchestrator.Catalog
+		emptyCatalogList = false
 	)
 
 	// Load default catalogs from folder if enabled
@@ -439,12 +438,17 @@ func (svc *Service) loadCatalogs() (err error) {
 			err = svc.db.Create(catalog)
 			if err != nil {
 				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()), log.Err(err))
-				tmpErr = errors.New("could not save catalog(s)")
+				// Continue to next catalog instead of returning error
+				continue
 			}
+			emptyCatalogList = false
 		}
 	}
 
-	return tmpErr
+	if emptyCatalogList {
+		return fmt.Errorf("No catalogs were loaded.")
+	}
+	return
 }
 
 // loadCatalogsFromFolder loads catalogs from a specified folder.
