@@ -435,10 +435,11 @@ func (svc *Service) loadCatalogs() (err error) {
 	// Save all catalogs to DB (only if we have any)
 	if len(catalogs) > 0 {
 		for _, catalog := range catalogs {
-			err = svc.db.Create(catalog)
-			if err != nil {
-				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()), log.Err(err))
-				// Continue to next catalog instead of returning error
+			// Use a local error variable so a failed create does not leak into the named
+			// return value: an already existing catalog is logged and skipped, not
+			// treated as a load failure.
+			if createErr := svc.db.Create(catalog); createErr != nil {
+				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()), log.Err(createErr))
 				continue
 			}
 			emptyCatalogList = false
