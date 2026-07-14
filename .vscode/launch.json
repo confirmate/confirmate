@@ -12,15 +12,12 @@
             "program": "${workspaceFolder}/core/cmd/confirmate",
             "cwd": "${workspaceFolder}/core",
             "args": [
-                "--db-in-memory=false",
+                "--db-in-memory",
                 "--log-level",
                 "debug",
-                // "--auth-enabled"
-                // "db-host",
-				// "db-port",
-				"--db-name=postgres",
-				"--db-user-name=postgres",
-				"--db-password=postgres",
+                "--auth-enabled",
+                "db-host",
+				"db-port",
             ]
         },
         {
