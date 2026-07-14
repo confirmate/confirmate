@@ -294,6 +294,7 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 	var (
 		jobs           []*gocron.Job
 		allowed        bool
+		scopeIds       []string
 		evaluationJobs = make([]*evaluation.EvaluationJob, 0)
 	)
 
@@ -303,23 +304,38 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	allowed, scopeIds, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if !allowed {
+	if !allowed && len(scopeIds) == 0 {
 		return nil, service.ErrPermissionDenied
+	}
+
+	// Build a set of allowed scope IDs for filtering
+	scopeIdSet := make(map[string]struct{}, len(scopeIds))
+	for _, id := range scopeIds {
+		scopeIdSet[id] = struct{}{}
 	}
 
 	// Get all jobs from the scheduler
 	jobs = svc.scheduler.Jobs()
 
 	for _, job := range jobs {
-		if job.Tags()[0] != req.Msg.GetFilter().GetAuditScopeId() && req.Msg.GetFilter().GetAuditScopeId() != "" {
+		jobScopeId := job.Tags()[0]
+		// Filter by audit scope ID if provided
+		if req.Msg.GetFilter().GetAuditScopeId() != "" && jobScopeId != req.Msg.GetFilter().GetAuditScopeId() {
 			continue
 		}
+		// Filter by permission — if not allowed to see all scopes, only show
+		// jobs for scopes the user has access to
+		if !allowed {
+			if _, ok := scopeIdSet[jobScopeId]; !ok {
+				continue
+			}
+		}
 		evaluationJobs = append(evaluationJobs, &evaluation.EvaluationJob{
-			AuditScopeId: job.Tags()[0],
+			AuditScopeId: jobScopeId,
 			RunCount:     int32(job.FinishedRunCount()),
 			LastRun:      timestamppb.New(job.LastRun()),
 			Interval:     int32(job.ScheduledInterval()),
@@ -327,9 +343,122 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 		})
 	}
 
-	return connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
+	res = connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
 		EvaluationJobs: evaluationJobs,
-	}), nil
+	})
+
+	return
+}
+
+// TriggerEvaluation triggers an immediate evaluation run for the given audit scope.
+// If a scheduled job exists, it runs immediately. If no job exists, a temporary
+// one-shot job is created and executed.
+func (svc *Service) TriggerEvaluation(ctx context.Context, req *connect.Request[evaluation.TriggerEvaluationRequest]) (res *connect.Response[evaluation.TriggerEvaluationResponse], err error) {
+	var allowed bool
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	if err = svc.triggerEvaluation(ctx, req.Msg.GetAuditScopeId()); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&evaluation.TriggerEvaluationResponse{
+		Successful: true,
+	})
+
+	return
+}
+
+// triggerEvaluation runs an immediate evaluation for the given audit scope, either by running an
+// existing scheduled job or as a one-shot run when no job exists. It performs no access checks;
+// those are done by the [Service.TriggerEvaluation] RPC, while internal callers such as
+// [Service.TriggerEvaluationNow] are trusted.
+func (svc *Service) triggerEvaluation(ctx context.Context, auditScopeId string) (err error) {
+	var (
+		jobs          []*gocron.Job
+		auditScope    *orchestrator.AuditScope
+		auditScopeRes *connect.Response[orchestrator.AuditScope]
+		catalog       *orchestrator.Catalog
+		catalogRes    *connect.Response[orchestrator.Catalog]
+	)
+
+	// Check, if a job exists for the given audit scope that we can run immediately
+	jobs, err = svc.scheduler.FindJobsByTag(auditScopeId)
+	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
+		slog.Error("could not find evaluation job", slog.String("audit scope", auditScopeId), log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("could not find evaluation job"))
+	}
+	if len(jobs) > 0 {
+		if err = svc.scheduler.RunByTag(auditScopeId); err != nil {
+			slog.Error("could not trigger evaluation", slog.String("audit scope", auditScopeId), log.Err(err))
+			return connect.NewError(connect.CodeInternal, errors.New("could not trigger evaluation"))
+		}
+		slog.Info("Triggered immediate evaluation", slog.String("audit scope", auditScopeId))
+		return nil
+	}
+
+	// No existing job — fetch the audit scope and catalog and run the evaluation once
+	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+		AuditScopeId: auditScopeId,
+	}))
+	if err != nil {
+		slog.Error("could not get audit scope from orchestrator", log.Err(err))
+		return connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
+	}
+	auditScope = auditScopeRes.Msg
+
+	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
+		CatalogId: auditScope.GetCatalogId(),
+	}))
+	if err != nil {
+		slog.Error("could not get catalog from the orchestrator", log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("could not get catalog from the orchestrator"))
+	}
+	catalog = catalogRes.Msg
+
+	// Get all Controls from Orchestrator for the evaluation
+	if err = svc.cacheControls(auditScope.GetCatalogId()); err != nil {
+		slog.Error("could not cache controls", log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("could not cache controls"))
+	}
+
+	// Make sure that the scheduler is already running, then evaluate the catalog once
+	svc.scheduler.StartAsync()
+	if err = svc.evaluateCatalog(ctx, auditScope, catalog, 1); err != nil {
+		slog.Error("evaluation failed", slog.String("audit scope", auditScopeId), log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("evaluation failed"))
+	}
+
+	slog.Info("Triggered one-shot evaluation", slog.String("audit scope", auditScopeId))
+	return nil
+}
+
+// TriggerEvaluationNow triggers an immediate evaluation run for the given
+// audit scope, bypassing the scheduler interval. This is safe to call
+// concurrently — if no job exists for the scope, a one-shot evaluation is run.
+// It performs no access checks and is intended for internal wiring; external
+// callers go through the [Service.TriggerEvaluation] RPC instead.
+func (svc *Service) TriggerEvaluationNow(ctx context.Context, auditScopeId string) error {
+	return svc.triggerEvaluation(ctx, auditScopeId)
+}
+
+// OnScopeChanged returns a callback that triggers an immediate evaluation
+// when a control's scope changes (added/removed). This can be wired up by
+// the orchestrator to call after scoping operations.
+func (svc *Service) OnScopeChanged() func(ctx context.Context, auditScopeId string) error {
+	return svc.TriggerEvaluationNow
 }
 
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
@@ -370,12 +499,13 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 // fulfilled or not.
 func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) error {
 	var (
-		controls []*orchestrator.Control
-		relevant []*orchestrator.Control
-		ignored  []string
-		manual   map[string][]*evaluation.EvaluationResult
-		err      error
-		cancel   context.CancelFunc
+		controls   []*orchestrator.Control
+		relevant   []*orchestrator.Control
+		ignored    []string
+		manual     map[string][]*evaluation.EvaluationResult
+		inScopeIds map[string]struct{}
+		err        error
+		cancel     context.CancelFunc
 	)
 
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
@@ -383,6 +513,15 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
 		return strings.Compare(a.Id, b.Id)
 	})
+
+	// Fetch ControlInScope records for this audit scope so we can skip
+	// controls that have been explicitly removed from scope.
+	inScopeIds, err = svc.fetchInScopeControlIds(ctx, auditScope.Id)
+	if err != nil {
+		slog.Warn("could not fetch controls in scope, evaluating all controls", log.Err(err))
+		// Fall back to evaluating all controls — treat every control as in scope
+		inScopeIds = nil
+	}
 
 	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
@@ -431,7 +570,13 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 			continue
 		}
 
-		// TODO(anatheka): Should we call here the controls_in_scope and then check if the control is relevant for the evaluation?
+		// Skip controls that are not in scope for this audit scope
+		if inScopeIds != nil {
+			if _, ok := inScopeIds[c.Id]; !ok {
+				continue
+			}
+		}
+
 		if c.IsRelevantFor(auditScope, catalog) {
 			relevant = append(relevant, c)
 		}
@@ -814,4 +959,32 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 	}
 
 	return metricIds
+}
+
+// fetchInScopeControlIds returns a set of control IDs that are currently in
+// scope for the given audit scope. Controls that have been removed from scope
+// (no ControlInScope record) are excluded.
+func (svc *Service) fetchInScopeControlIds(ctx context.Context, auditScopeId string) (map[string]struct{}, error) {
+	cisList, err := api.ListAllPaginated(ctx, &orchestrator.ListControlsInScopeRequest{
+		Filter: &orchestrator.ListControlsInScopeRequest_Filter{
+			AuditScopeId: &auditScopeId,
+		},
+	}, func(ctx context.Context, req *orchestrator.ListControlsInScopeRequest) (*orchestrator.ListControlsInScopeResponse, error) {
+		res, err := svc.orchestratorClient.ListControlsInScope(ctx, connect.NewRequest(req))
+		if err != nil {
+			return nil, err
+		}
+		return res.Msg, nil
+	}, func(res *orchestrator.ListControlsInScopeResponse) []*orchestrator.ControlInScope {
+		return res.ControlsInScope
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make(map[string]struct{}, len(cisList))
+	for _, cis := range cisList {
+		ids[cis.ControlId] = struct{}{}
+	}
+	return ids, nil
 }
