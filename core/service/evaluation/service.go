@@ -982,6 +982,13 @@ func (svc *Service) fetchInScopeControlIds(ctx context.Context, auditScopeId str
 		return nil, err
 	}
 
+	// No ControlInScope records means there is no scoping information for this
+	// audit scope (e.g. it was created before scoping existed) — return nil so
+	// the caller evaluates all controls instead of none.
+	if len(cisList) == 0 {
+		return nil, nil
+	}
+
 	ids := make(map[string]struct{}, len(cisList))
 	for _, cis := range cisList {
 		ids[cis.ControlId] = struct{}{}

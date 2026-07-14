@@ -2039,6 +2039,24 @@ func TestService_TriggerEvaluation(t *testing.T) {
 			},
 		},
 		{
+			name: "err: no job and catalog not found",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithGetCatalogNotFoundError(fmt.Errorf("catalog not found")),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not get catalog from the orchestrator")
+			},
+		},
+		{
 			name: "happy path: one-shot evaluation without existing job",
 			fields: fields{
 				orchestratorClient: newOrchestratorClient(t,
@@ -2047,6 +2065,13 @@ func TestService_TriggerEvaluation(t *testing.T) {
 						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
 					),
 					WithCatalog(evaluationtest.MockCatalog1),
+					// Only control 1 is in scope; control 2 must be skipped during evaluation
+					WithControlsInScope([]*orchestrator.ControlInScope{
+						{
+							AuditScopeId: evaluationtest.MockAuditScopeId1,
+							ControlId:    evaluationtest.MockControl1.Id,
+						},
+					}),
 				),
 				scheduler: gocron.NewScheduler(time.Local),
 				catalogControls: map[string]map[string]*orchestrator.Control{
@@ -2117,5 +2142,13 @@ func TestService_TriggerEvaluation_ExistingJob(t *testing.T) {
 	case <-ran:
 	case <-time.After(5 * time.Second):
 		t.Fatal("triggered job run did not happen")
+	}
+
+	// The scope-change callback must trigger the job in the same way
+	assert.NoError(t, svc.OnScopeChanged()(context.Background(), evaluationtest.MockAuditScopeId1))
+	select {
+	case <-ran:
+	case <-time.After(5 * time.Second):
+		t.Fatal("scope-change triggered job run did not happen")
 	}
 }
