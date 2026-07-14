@@ -16,8 +16,6 @@
                 "--log-level",
                 "debug",
                 "--auth-enabled",
-                "db-host",
-				"db-port",
             ]
         },
         {
