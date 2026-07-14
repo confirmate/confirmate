@@ -168,6 +168,14 @@ func (svc *Service) CreateControlInScope(
 		return nil, err
 	}
 
+	// Trigger an immediate re-evaluation of the audit scope so the newly
+	// in-scope control gets evaluated without waiting for the next interval.
+	if svc.scopeChangeCallback != nil {
+		go func() {
+			_ = svc.scopeChangeCallback(context.Background(), cis.AuditScopeId)
+		}()
+	}
+
 	res = connect.NewResponse(cis)
 	return
 }
@@ -417,6 +425,14 @@ func (svc *Service) RemoveControlInScope(
 	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
+	}
+
+	// Trigger an immediate re-evaluation of the audit scope so the remaining
+	// controls get re-evaluated without the removed control.
+	if svc.scopeChangeCallback != nil {
+		go func() {
+			_ = svc.scopeChangeCallback(context.Background(), cis.AuditScopeId)
+		}()
 	}
 
 	res = connect.NewResponse(&emptypb.Empty{})
