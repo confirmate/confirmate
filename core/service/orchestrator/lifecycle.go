@@ -16,6 +16,7 @@
 package orchestrator
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -23,8 +24,11 @@ import (
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
+	"confirmate.io/core/service"
 
+	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const (
@@ -38,10 +42,29 @@ const (
 	CertificateStateWithdrawn = "withdrawn"
 )
 
+// UpdateCertificateLifecycle re-evaluates the certificate lifecycle state for
+// the given audit scope. It is called by the evaluation component once a full
+// catalog evaluation run has finished, so that the certificate state reflects
+// the results of that run as a whole rather than of a single control.
+func (svc *Service) UpdateCertificateLifecycle(
+	_ context.Context,
+	req *connect.Request[orchestrator.UpdateCertificateLifecycleRequest],
+) (res *connect.Response[emptypb.Empty], err error) {
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	if err = svc.updateCertificateLifecycle(req.Msg.GetAuditScopeId()); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return connect.NewResponse(&emptypb.Empty{}), nil
+}
+
 // updateCertificateLifecycle re-evaluates the certificate state for the given
 // audit scope and appends a new [orchestrator.State] record if the compliance
-// posture has changed. It is called after every StoreEvaluationResult and
-// errors are non-fatal to that operation.
+// posture has changed.
 func (svc *Service) updateCertificateLifecycle(auditScopeId string) error {
 	// Find the certificate linked to this audit scope (with States preloaded).
 	var cert orchestrator.Certificate

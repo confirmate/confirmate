@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.15-25-g8885487
+    version: core/v0.2.15-16-g5029cf69
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -399,6 +399,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_scopes/{auditScopeId}/certificate_lifecycle:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Re-evaluates the certificate lifecycle state for the given audit scope
+                 based on its current evaluation results. This is called by the
+                 evaluation component once a full catalog evaluation run has finished.
+            operationId: Orchestrator_UpdateCertificateLifecycle
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/audit_trail_events:
         get:
             tags:
@@ -633,6 +658,16 @@ paths:
             description: Lists all target certificates
             operationId: Orchestrator_ListCertificates
             parameters:
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: Optional. List only certificates of a specific target of evaluation.
+                  schema:
+                    type: string
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only certificates of a specific audit scope.
+                  schema:
+                    type: string
                 - name: pageSize
                   in: query
                   schema:
@@ -2462,6 +2497,7 @@ components:
                 - id
                 - name
                 - targetOfEvaluationId
+                - auditScopeId
             type: object
             properties:
                 id:
@@ -2487,6 +2523,11 @@ components:
                     items:
                         $ref: '#/components/schemas/State'
                     description: A list of states at specific times
+                auditScopeId:
+                    type: string
+                    description: |-
+                        The audit scope this certificate is associated with. The lifecycle manager
+                         keeps the certificate state in sync with the evaluation results of this scope.
             description: An ISO17021-based certificate
         ComparisonResult:
             required:

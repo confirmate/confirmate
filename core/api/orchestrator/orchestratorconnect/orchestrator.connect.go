@@ -151,6 +151,9 @@ const (
 	// OrchestratorRemoveCertificateProcedure is the fully-qualified name of the Orchestrator's
 	// RemoveCertificate RPC.
 	OrchestratorRemoveCertificateProcedure = "/confirmate.orchestrator.v1.Orchestrator/RemoveCertificate"
+	// OrchestratorUpdateCertificateLifecycleProcedure is the fully-qualified name of the Orchestrator's
+	// UpdateCertificateLifecycle RPC.
+	OrchestratorUpdateCertificateLifecycleProcedure = "/confirmate.orchestrator.v1.Orchestrator/UpdateCertificateLifecycle"
 	// OrchestratorCreateCatalogProcedure is the fully-qualified name of the Orchestrator's
 	// CreateCatalog RPC.
 	OrchestratorCreateCatalogProcedure = "/confirmate.orchestrator.v1.Orchestrator/CreateCatalog"
@@ -313,6 +316,10 @@ type OrchestratorClient interface {
 	UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
 	// Removes a certificate
 	RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error)
+	// Re-evaluates the certificate lifecycle state for the given audit scope
+	// based on its current evaluation results. This is called by the
+	// evaluation component once a full catalog evaluation run has finished.
+	UpdateCertificateLifecycle(context.Context, *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error)
 	// Creates a new security controls catalog
 	CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Lists all security controls catalogs. Each catalog includes a list of its
@@ -599,6 +606,12 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("RemoveCertificate")),
 			connect.WithClientOptions(opts...),
 		),
+		updateCertificateLifecycle: connect.NewClient[orchestrator.UpdateCertificateLifecycleRequest, emptypb.Empty](
+			httpClient,
+			baseURL+OrchestratorUpdateCertificateLifecycleProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("UpdateCertificateLifecycle")),
+			connect.WithClientOptions(opts...),
+		),
 		createCatalog: connect.NewClient[orchestrator.CreateCatalogRequest, orchestrator.Catalog](
 			httpClient,
 			baseURL+OrchestratorCreateCatalogProcedure,
@@ -812,6 +825,7 @@ type orchestratorClient struct {
 	listPublicCertificates          *connect.Client[orchestrator.ListPublicCertificatesRequest, orchestrator.ListPublicCertificatesResponse]
 	updateCertificate               *connect.Client[orchestrator.UpdateCertificateRequest, orchestrator.Certificate]
 	removeCertificate               *connect.Client[orchestrator.RemoveCertificateRequest, emptypb.Empty]
+	updateCertificateLifecycle      *connect.Client[orchestrator.UpdateCertificateLifecycleRequest, emptypb.Empty]
 	createCatalog                   *connect.Client[orchestrator.CreateCatalogRequest, orchestrator.Catalog]
 	listCatalogs                    *connect.Client[orchestrator.ListCatalogsRequest, orchestrator.ListCatalogsResponse]
 	getCatalog                      *connect.Client[orchestrator.GetCatalogRequest, orchestrator.Catalog]
@@ -1014,6 +1028,12 @@ func (c *orchestratorClient) UpdateCertificate(ctx context.Context, req *connect
 // RemoveCertificate calls confirmate.orchestrator.v1.Orchestrator.RemoveCertificate.
 func (c *orchestratorClient) RemoveCertificate(ctx context.Context, req *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error) {
 	return c.removeCertificate.CallUnary(ctx, req)
+}
+
+// UpdateCertificateLifecycle calls
+// confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle.
+func (c *orchestratorClient) UpdateCertificateLifecycle(ctx context.Context, req *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.updateCertificateLifecycle.CallUnary(ctx, req)
 }
 
 // CreateCatalog calls confirmate.orchestrator.v1.Orchestrator.CreateCatalog.
@@ -1240,6 +1260,10 @@ type OrchestratorHandler interface {
 	UpdateCertificate(context.Context, *connect.Request[orchestrator.UpdateCertificateRequest]) (*connect.Response[orchestrator.Certificate], error)
 	// Removes a certificate
 	RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error)
+	// Re-evaluates the certificate lifecycle state for the given audit scope
+	// based on its current evaluation results. This is called by the
+	// evaluation component once a full catalog evaluation run has finished.
+	UpdateCertificateLifecycle(context.Context, *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error)
 	// Creates a new security controls catalog
 	CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error)
 	// Lists all security controls catalogs. Each catalog includes a list of its
@@ -1522,6 +1546,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("RemoveCertificate")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorUpdateCertificateLifecycleHandler := connect.NewUnaryHandler(
+		OrchestratorUpdateCertificateLifecycleProcedure,
+		svc.UpdateCertificateLifecycle,
+		connect.WithSchema(orchestratorMethods.ByName("UpdateCertificateLifecycle")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorCreateCatalogHandler := connect.NewUnaryHandler(
 		OrchestratorCreateCatalogProcedure,
 		svc.CreateCatalog,
@@ -1766,6 +1796,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorUpdateCertificateHandler.ServeHTTP(w, r)
 		case OrchestratorRemoveCertificateProcedure:
 			orchestratorRemoveCertificateHandler.ServeHTTP(w, r)
+		case OrchestratorUpdateCertificateLifecycleProcedure:
+			orchestratorUpdateCertificateLifecycleHandler.ServeHTTP(w, r)
 		case OrchestratorCreateCatalogProcedure:
 			orchestratorCreateCatalogHandler.ServeHTTP(w, r)
 		case OrchestratorListCatalogsProcedure:
@@ -1967,6 +1999,10 @@ func (UnimplementedOrchestratorHandler) UpdateCertificate(context.Context, *conn
 
 func (UnimplementedOrchestratorHandler) RemoveCertificate(context.Context, *connect.Request[orchestrator.RemoveCertificateRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.RemoveCertificate is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) UpdateCertificateLifecycle(context.Context, *connect.Request[orchestrator.UpdateCertificateLifecycleRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) CreateCatalog(context.Context, *connect.Request[orchestrator.CreateCatalogRequest]) (*connect.Response[orchestrator.Catalog], error) {

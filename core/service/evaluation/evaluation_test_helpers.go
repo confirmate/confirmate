@@ -30,6 +30,7 @@ import (
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -63,6 +64,10 @@ type mockOrchestratorHandler struct {
 	// ListUserPermissions support
 	userPermissions          []*orchestrator.UserPermission
 	listUserPermissionsError error
+
+	// UpdateCertificateLifecycle support
+	lifecycleUpdates                []string
+	updateCertificateLifecycleError error
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -232,6 +237,22 @@ func (m *mockOrchestratorHandler) ListUserPermissions(
 	}), nil
 }
 
+// UpdateCertificateLifecycle records the audit scope id it was called with, so tests can verify it was invoked.
+func (m *mockOrchestratorHandler) UpdateCertificateLifecycle(
+	_ context.Context,
+	req *connect.Request[orchestrator.UpdateCertificateLifecycleRequest],
+) (*connect.Response[emptypb.Empty], error) {
+	if m.updateCertificateLifecycleError != nil {
+		return nil, m.updateCertificateLifecycleError
+	}
+
+	m.mu.Lock()
+	m.lifecycleUpdates = append(m.lifecycleUpdates, req.Msg.GetAuditScopeId())
+	m.mu.Unlock()
+
+	return connect.NewResponse(&emptypb.Empty{}), nil
+}
+
 // GetCatalog returns catalog or an error if configured
 func (m *mockOrchestratorHandler) GetCatalog(
 	_ context.Context,
@@ -310,6 +331,29 @@ func newOrchestratorClient(
 	return newOrchestratorClientForTest(testSrv)
 }
 
+// newOrchestratorClientWithHandler is like newOrchestratorClient but also returns the underlying
+// handler, so tests can inspect calls that are not exposed through the client interface (e.g.
+// UpdateCertificateLifecycle).
+func newOrchestratorClientWithHandler(
+	t *testing.T,
+	opts ...func(*mockOrchestratorHandler),
+) (orchestratorconnect.OrchestratorClient, *mockOrchestratorHandler) {
+	t.Helper()
+
+	handler := &mockOrchestratorHandler{}
+	for _, opt := range opts {
+		opt(handler)
+	}
+
+	_, testSrv := servertest.NewTestConnectServer(
+		t,
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(handler)),
+	)
+	t.Cleanup(testSrv.Close)
+
+	return newOrchestratorClientForTest(testSrv), handler
+}
+
 // WithAssessmentResults seeds the handler with assessment results.
 func WithAssessmentResults(results []*assessment.AssessmentResult) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.assessmentResults = results }
@@ -371,6 +415,11 @@ func WithGetCatalogNotFoundError(err error) func(*mockOrchestratorHandler) {
 // WithUserPermissions seeds the handler with user permissions returned by ListUserPermissions.
 func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.userPermissions = permissions }
+}
+
+// WithUpdateCertificateLifecycleError forces UpdateCertificateLifecycle to return the given error.
+func WithUpdateCertificateLifecycleError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.updateCertificateLifecycleError = err }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog

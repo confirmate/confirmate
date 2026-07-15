@@ -536,6 +536,56 @@ func TestService_ListCertificates(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: filtered by target_of_evaluation_id",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{
+					Filter: &orchestrator.ListCertificatesRequest_Filter{
+						TargetOfEvaluationId: &orchestratortest.MockCertificate1.TargetOfEvaluationId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 1, len(got.Msg.Certificates)) &&
+					assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Certificates[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filtered by audit_scope_id",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{
+					Filter: &orchestrator.ListCertificatesRequest_Filter{
+						AuditScopeId: &orchestratortest.MockCertificate2.AuditScopeId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 1, len(got.Msg.Certificates)) &&
+					assert.Equal(t, orchestratortest.MockCertificate2.Id, got.Msg.Certificates[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {

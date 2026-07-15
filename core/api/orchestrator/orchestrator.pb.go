@@ -3387,11 +3387,12 @@ func (x *GetCertificateRequest) GetCertificateId() string {
 }
 
 type ListCertificatesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	OrderBy       string                 `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	Asc           bool                   `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Filter        *ListCertificatesRequest_Filter `protobuf:"bytes,1,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	PageSize      int32                           `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                          `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	OrderBy       string                          `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	Asc           bool                            `protobuf:"varint,13,opt,name=asc,proto3" json:"asc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3424,6 +3425,13 @@ func (x *ListCertificatesRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListCertificatesRequest.ProtoReflect.Descriptor instead.
 func (*ListCertificatesRequest) Descriptor() ([]byte, []int) {
 	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *ListCertificatesRequest) GetFilter() *ListCertificatesRequest_Filter {
+	if x != nil {
+		return x.Filter
+	}
+	return nil
 }
 
 func (x *ListCertificatesRequest) GetPageSize() int32 {
@@ -4278,6 +4286,50 @@ func (x *RemoveCertificateRequest) GetCertificateId() string {
 	return ""
 }
 
+type UpdateCertificateLifecycleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AuditScopeId  string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateCertificateLifecycleRequest) Reset() {
+	*x = UpdateCertificateLifecycleRequest{}
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCertificateLifecycleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCertificateLifecycleRequest) ProtoMessage() {}
+
+func (x *UpdateCertificateLifecycleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCertificateLifecycleRequest.ProtoReflect.Descriptor instead.
+func (*UpdateCertificateLifecycleRequest) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *UpdateCertificateLifecycleRequest) GetAuditScopeId() string {
+	if x != nil {
+		return x.AuditScopeId
+	}
+	return ""
+}
+
 // An ISO17021-based certificate
 type Certificate struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
@@ -4301,7 +4353,7 @@ type Certificate struct {
 
 func (x *Certificate) Reset() {
 	*x = Certificate{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4313,7 +4365,7 @@ func (x *Certificate) String() string {
 func (*Certificate) ProtoMessage() {}
 
 func (x *Certificate) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[67]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4326,7 +4378,7 @@ func (x *Certificate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Certificate.ProtoReflect.Descriptor instead.
 func (*Certificate) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{67}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *Certificate) GetId() string {
@@ -4422,7 +4474,7 @@ type State struct {
 
 func (x *State) Reset() {
 	*x = State{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[68]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4434,7 +4486,7 @@ func (x *State) String() string {
 func (*State) ProtoMessage() {}
 
 func (x *State) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[68]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4447,7 +4499,7 @@ func (x *State) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use State.ProtoReflect.Descriptor instead.
 func (*State) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{68}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *State) GetId() string {
@@ -4494,7 +4546,7 @@ type UpsertUserPermissionRequest struct {
 
 func (x *UpsertUserPermissionRequest) Reset() {
 	*x = UpsertUserPermissionRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[69]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4506,7 +4558,7 @@ func (x *UpsertUserPermissionRequest) String() string {
 func (*UpsertUserPermissionRequest) ProtoMessage() {}
 
 func (x *UpsertUserPermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[69]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4519,7 +4571,7 @@ func (x *UpsertUserPermissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertUserPermissionRequest.ProtoReflect.Descriptor instead.
 func (*UpsertUserPermissionRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{69}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *UpsertUserPermissionRequest) GetUserPermission() *UserPermission {
@@ -4538,7 +4590,7 @@ type UpsertUserPermissionResponse struct {
 
 func (x *UpsertUserPermissionResponse) Reset() {
 	*x = UpsertUserPermissionResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4550,7 +4602,7 @@ func (x *UpsertUserPermissionResponse) String() string {
 func (*UpsertUserPermissionResponse) ProtoMessage() {}
 
 func (x *UpsertUserPermissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[70]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4563,7 +4615,7 @@ func (x *UpsertUserPermissionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertUserPermissionResponse.ProtoReflect.Descriptor instead.
 func (*UpsertUserPermissionResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{70}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *UpsertUserPermissionResponse) GetUserPermission() *UserPermission {
@@ -4584,7 +4636,7 @@ type RemoveUserPermissionRequest struct {
 
 func (x *RemoveUserPermissionRequest) Reset() {
 	*x = RemoveUserPermissionRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[71]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4596,7 +4648,7 @@ func (x *RemoveUserPermissionRequest) String() string {
 func (*RemoveUserPermissionRequest) ProtoMessage() {}
 
 func (x *RemoveUserPermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[71]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4609,7 +4661,7 @@ func (x *RemoveUserPermissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveUserPermissionRequest.ProtoReflect.Descriptor instead.
 func (*RemoveUserPermissionRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{71}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *RemoveUserPermissionRequest) GetUserId() string {
@@ -4641,7 +4693,7 @@ type GetCurrentUserRequest struct {
 
 func (x *GetCurrentUserRequest) Reset() {
 	*x = GetCurrentUserRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[72]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4653,7 +4705,7 @@ func (x *GetCurrentUserRequest) String() string {
 func (*GetCurrentUserRequest) ProtoMessage() {}
 
 func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[72]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4666,7 +4718,7 @@ func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentUserRequest.ProtoReflect.Descriptor instead.
 func (*GetCurrentUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{72}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{73}
 }
 
 type GetUserRequest struct {
@@ -4678,7 +4730,7 @@ type GetUserRequest struct {
 
 func (x *GetUserRequest) Reset() {
 	*x = GetUserRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4690,7 +4742,7 @@ func (x *GetUserRequest) String() string {
 func (*GetUserRequest) ProtoMessage() {}
 
 func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[73]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4703,7 +4755,7 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
 func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{73}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *GetUserRequest) GetUserId() string {
@@ -4726,7 +4778,7 @@ type ListUsersRequest struct {
 
 func (x *ListUsersRequest) Reset() {
 	*x = ListUsersRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4738,7 +4790,7 @@ func (x *ListUsersRequest) String() string {
 func (*ListUsersRequest) ProtoMessage() {}
 
 func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[74]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4751,7 +4803,7 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{74}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *ListUsersRequest) GetFilter() *ListUsersRequest_Filter {
@@ -4799,7 +4851,7 @@ type ListUsersResponse struct {
 
 func (x *ListUsersResponse) Reset() {
 	*x = ListUsersResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4811,7 +4863,7 @@ func (x *ListUsersResponse) String() string {
 func (*ListUsersResponse) ProtoMessage() {}
 
 func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[75]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4824,7 +4876,7 @@ func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
 func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{75}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *ListUsersResponse) GetUsers() []*User {
@@ -4854,7 +4906,7 @@ type ListUserPermissionsRequest struct {
 
 func (x *ListUserPermissionsRequest) Reset() {
 	*x = ListUserPermissionsRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[76]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4866,7 +4918,7 @@ func (x *ListUserPermissionsRequest) String() string {
 func (*ListUserPermissionsRequest) ProtoMessage() {}
 
 func (x *ListUserPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[76]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4879,7 +4931,7 @@ func (x *ListUserPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*ListUserPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{76}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ListUserPermissionsRequest) GetFilter() *ListUserPermissionsRequest_Filter {
@@ -4927,7 +4979,7 @@ type ListUserPermissionsResponse struct {
 
 func (x *ListUserPermissionsResponse) Reset() {
 	*x = ListUserPermissionsResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[77]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4939,7 +4991,7 @@ func (x *ListUserPermissionsResponse) String() string {
 func (*ListUserPermissionsResponse) ProtoMessage() {}
 
 func (x *ListUserPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[77]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4952,7 +5004,7 @@ func (x *ListUserPermissionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserPermissionsResponse.ProtoReflect.Descriptor instead.
 func (*ListUserPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{77}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *ListUserPermissionsResponse) GetUserPermissions() []*UserPermission {
@@ -4980,7 +5032,7 @@ type ListUserRolesRequest struct {
 
 func (x *ListUserRolesRequest) Reset() {
 	*x = ListUserRolesRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[78]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4992,7 +5044,7 @@ func (x *ListUserRolesRequest) String() string {
 func (*ListUserRolesRequest) ProtoMessage() {}
 
 func (x *ListUserRolesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[78]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5005,7 +5057,7 @@ func (x *ListUserRolesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserRolesRequest.ProtoReflect.Descriptor instead.
 func (*ListUserRolesRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{78}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *ListUserRolesRequest) GetPageSize() int32 {
@@ -5038,7 +5090,7 @@ type ListUserRolesResponse struct {
 
 func (x *ListUserRolesResponse) Reset() {
 	*x = ListUserRolesResponse{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[79]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5050,7 +5102,7 @@ func (x *ListUserRolesResponse) String() string {
 func (*ListUserRolesResponse) ProtoMessage() {}
 
 func (x *ListUserRolesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[79]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5063,7 +5115,7 @@ func (x *ListUserRolesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserRolesResponse.ProtoReflect.Descriptor instead.
 func (*ListUserRolesResponse) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{79}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *ListUserRolesResponse) GetRoles() []Role {
@@ -5082,7 +5134,7 @@ type RemoveUserRequest struct {
 
 func (x *RemoveUserRequest) Reset() {
 	*x = RemoveUserRequest{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[80]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5094,7 +5146,7 @@ func (x *RemoveUserRequest) String() string {
 func (*RemoveUserRequest) ProtoMessage() {}
 
 func (x *RemoveUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[80]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5107,7 +5159,7 @@ func (x *RemoveUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveUserRequest.ProtoReflect.Descriptor instead.
 func (*RemoveUserRequest) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{80}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *RemoveUserRequest) GetUserId() string {
@@ -5125,7 +5177,7 @@ type ListAssessmentToolsRequest_Filter struct {
 
 func (x *ListAssessmentToolsRequest_Filter) Reset() {
 	*x = ListAssessmentToolsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[81]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5137,7 +5189,7 @@ func (x *ListAssessmentToolsRequest_Filter) String() string {
 func (*ListAssessmentToolsRequest_Filter) ProtoMessage() {}
 
 func (x *ListAssessmentToolsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[81]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5177,7 +5229,7 @@ type ListEvaluationResultsRequest_Filter struct {
 
 func (x *ListEvaluationResultsRequest_Filter) Reset() {
 	*x = ListEvaluationResultsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[82]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5189,7 +5241,7 @@ func (x *ListEvaluationResultsRequest_Filter) String() string {
 func (*ListEvaluationResultsRequest_Filter) ProtoMessage() {}
 
 func (x *ListEvaluationResultsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[82]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5263,7 +5315,7 @@ type ListMetricsRequest_Filter struct {
 
 func (x *ListMetricsRequest_Filter) Reset() {
 	*x = ListMetricsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[83]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5275,7 +5327,7 @@ func (x *ListMetricsRequest_Filter) String() string {
 func (*ListMetricsRequest_Filter) ProtoMessage() {}
 
 func (x *ListMetricsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[83]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5314,7 +5366,7 @@ type SubscribeRequest_Filter struct {
 
 func (x *SubscribeRequest_Filter) Reset() {
 	*x = SubscribeRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[85]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5326,7 +5378,7 @@ func (x *SubscribeRequest_Filter) String() string {
 func (*SubscribeRequest_Filter) ProtoMessage() {}
 
 func (x *SubscribeRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[85]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5382,7 +5434,7 @@ type TargetOfEvaluation_Metadata struct {
 
 func (x *TargetOfEvaluation_Metadata) Reset() {
 	*x = TargetOfEvaluation_Metadata{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[86]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5394,7 +5446,7 @@ func (x *TargetOfEvaluation_Metadata) String() string {
 func (*TargetOfEvaluation_Metadata) ProtoMessage() {}
 
 func (x *TargetOfEvaluation_Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[86]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5443,7 +5495,7 @@ type TargetOfEvaluation_Organization struct {
 
 func (x *TargetOfEvaluation_Organization) Reset() {
 	*x = TargetOfEvaluation_Organization{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[87]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5455,7 +5507,7 @@ func (x *TargetOfEvaluation_Organization) String() string {
 func (*TargetOfEvaluation_Organization) ProtoMessage() {}
 
 func (x *TargetOfEvaluation_Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[87]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5523,7 +5575,7 @@ type TargetOfEvaluation_Organization_PostalAddress struct {
 
 func (x *TargetOfEvaluation_Organization_PostalAddress) Reset() {
 	*x = TargetOfEvaluation_Organization_PostalAddress{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[89]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5535,7 +5587,7 @@ func (x *TargetOfEvaluation_Organization_PostalAddress) String() string {
 func (*TargetOfEvaluation_Organization_PostalAddress) ProtoMessage() {}
 
 func (x *TargetOfEvaluation_Organization_PostalAddress) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[89]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5589,7 +5641,7 @@ type Catalog_Metadata struct {
 
 func (x *Catalog_Metadata) Reset() {
 	*x = Catalog_Metadata{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[90]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5601,7 +5653,7 @@ func (x *Catalog_Metadata) String() string {
 func (*Catalog_Metadata) ProtoMessage() {}
 
 func (x *Catalog_Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[90]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5645,7 +5697,7 @@ type ListAssessmentResultsRequest_Filter struct {
 
 func (x *ListAssessmentResultsRequest_Filter) Reset() {
 	*x = ListAssessmentResultsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[91]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5657,7 +5709,7 @@ func (x *ListAssessmentResultsRequest_Filter) String() string {
 func (*ListAssessmentResultsRequest_Filter) ProtoMessage() {}
 
 func (x *ListAssessmentResultsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[91]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5734,7 +5786,7 @@ type ListAuditScopesRequest_Filter struct {
 
 func (x *ListAuditScopesRequest_Filter) Reset() {
 	*x = ListAuditScopesRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[92]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5746,7 +5798,7 @@ func (x *ListAuditScopesRequest_Filter) String() string {
 func (*ListAuditScopesRequest_Filter) ProtoMessage() {}
 
 func (x *ListAuditScopesRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[92]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5776,6 +5828,60 @@ func (x *ListAuditScopesRequest_Filter) GetCatalogId() string {
 	return ""
 }
 
+type ListCertificatesRequest_Filter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. List only certificates of a specific target of evaluation.
+	TargetOfEvaluationId *string `protobuf:"bytes,1,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3,oneof" json:"target_of_evaluation_id,omitempty"`
+	// Optional. List only certificates of a specific audit scope.
+	AuditScopeId  *string `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3,oneof" json:"audit_scope_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCertificatesRequest_Filter) Reset() {
+	*x = ListCertificatesRequest_Filter{}
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCertificatesRequest_Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCertificatesRequest_Filter) ProtoMessage() {}
+
+func (x *ListCertificatesRequest_Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCertificatesRequest_Filter.ProtoReflect.Descriptor instead.
+func (*ListCertificatesRequest_Filter) Descriptor() ([]byte, []int) {
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{50, 0}
+}
+
+func (x *ListCertificatesRequest_Filter) GetTargetOfEvaluationId() string {
+	if x != nil && x.TargetOfEvaluationId != nil {
+		return *x.TargetOfEvaluationId
+	}
+	return ""
+}
+
+func (x *ListCertificatesRequest_Filter) GetAuditScopeId() string {
+	if x != nil && x.AuditScopeId != nil {
+		return *x.AuditScopeId
+	}
+	return ""
+}
+
 type ListControlsRequest_Filter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. Lists only controls with the specified catalog.
@@ -5790,7 +5896,7 @@ type ListControlsRequest_Filter struct {
 
 func (x *ListControlsRequest_Filter) Reset() {
 	*x = ListControlsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[93]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5802,7 +5908,7 @@ func (x *ListControlsRequest_Filter) String() string {
 func (*ListControlsRequest_Filter) ProtoMessage() {}
 
 func (x *ListControlsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[93]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5855,7 +5961,7 @@ type ListUsersRequest_Filter struct {
 
 func (x *ListUsersRequest_Filter) Reset() {
 	*x = ListUsersRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[94]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5867,7 +5973,7 @@ func (x *ListUsersRequest_Filter) String() string {
 func (*ListUsersRequest_Filter) ProtoMessage() {}
 
 func (x *ListUsersRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[94]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5880,7 +5986,7 @@ func (x *ListUsersRequest_Filter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListUsersRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{74, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{75, 0}
 }
 
 func (x *ListUsersRequest_Filter) GetRole() Role {
@@ -5925,7 +6031,7 @@ type ListUserPermissionsRequest_Filter struct {
 
 func (x *ListUserPermissionsRequest_Filter) Reset() {
 	*x = ListUserPermissionsRequest_Filter{}
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[96]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5937,7 +6043,7 @@ func (x *ListUserPermissionsRequest_Filter) String() string {
 func (*ListUserPermissionsRequest_Filter) ProtoMessage() {}
 
 func (x *ListUserPermissionsRequest_Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[96]
+	mi := &file_api_orchestrator_orchestrator_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5950,7 +6056,7 @@ func (x *ListUserPermissionsRequest_Filter) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListUserPermissionsRequest_Filter.ProtoReflect.Descriptor instead.
 func (*ListUserPermissionsRequest_Filter) Descriptor() ([]byte, []int) {
-	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{76, 0}
+	return file_api_orchestrator_orchestrator_proto_rawDescGZIP(), []int{77, 0}
 }
 
 func (x *ListUserPermissionsRequest_Filter) GetUserId() string {
@@ -6321,14 +6427,21 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"auditScope\"J\n" +
 	"\x15GetCertificateRequest\x121\n" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"\x82\x01\n" +
-	"\x17ListCertificatesRequest\x12\x1b\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"\x87\x03\n" +
+	"\x17ListCertificatesRequest\x12W\n" +
+	"\x06filter\x18\x01 \x01(\v2:.confirmate.orchestrator.v1.ListCertificatesRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\"\x8f\x01\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\x9e\x01\n" +
+	"\x06Filter\x12:\n" +
+	"\x17target_of_evaluation_id\x18\x01 \x01(\tH\x00R\x14targetOfEvaluationId\x88\x01\x01\x12)\n" +
+	"\x0eaudit_scope_id\x18\x02 \x01(\tH\x01R\fauditScopeId\x88\x01\x01B\x1a\n" +
+	"\x18_target_of_evaluation_idB\x11\n" +
+	"\x0f_audit_scope_idB\t\n" +
+	"\a_filter\"\x8f\x01\n" +
 	"\x18ListCertificatesResponse\x12K\n" +
 	"\fcertificates\x18\x01 \x03(\v2'.confirmate.orchestrator.v1.CertificateR\fcertificates\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x88\x01\n" +
@@ -6399,7 +6512,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\vcertificate\x18\x01 \x01(\v2'.confirmate.orchestrator.v1.CertificateB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\vcertificate\"M\n" +
 	"\x18RemoveCertificateRequest\x121\n" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"\xe5\x03\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"V\n" +
+	"!UpdateCertificateLifecycleRequest\x121\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\xe5\x03\n" +
 	"\vCertificate\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
@@ -6522,7 +6637,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\"AUDIT_SCOPE_STATUS_INTERNAL_REVIEW\x10\x02\x12%\n" +
 	"!AUDIT_SCOPE_STATUS_AUDITOR_REVIEW\x10\x03\x127\n" +
 	"3AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT\x10\x04\x12\x1c\n" +
-	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xe6W\n" +
+	"\x18AUDIT_SCOPE_STATUS_FIXED\x10\x052\xaaY\n" +
 	"\fOrchestrator\x12\xb0\x01\n" +
 	"\x16RegisterAssessmentTool\x129.confirmate.orchestrator.v1.RegisterAssessmentToolRequest\x1a*.confirmate.orchestrator.v1.AssessmentTool\"/\x82\xd3\xe4\x93\x02):\x04tool\"!/v1/orchestrator/assessment_tools\x12\xb1\x01\n" +
 	"\x13ListAssessmentTools\x126.confirmate.orchestrator.v1.ListAssessmentToolsRequest\x1a7.confirmate.orchestrator.v1.ListAssessmentToolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/v1/orchestrator/assessment_tools\x12\xaa\x01\n" +
@@ -6557,7 +6672,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x10ListCertificates\x123.confirmate.orchestrator.v1.ListCertificatesRequest\x1a4.confirmate.orchestrator.v1.ListCertificatesResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/orchestrator/certificates\x12\xbd\x01\n" +
 	"\x16ListPublicCertificates\x129.confirmate.orchestrator.v1.ListPublicCertificatesRequest\x1a:.confirmate.orchestrator.v1.ListPublicCertificatesResponse\",\x82\xd3\xe4\x93\x02&\x12$/v1/orchestrator/public/certificates\x12\xb7\x01\n" +
 	"\x11UpdateCertificate\x124.confirmate.orchestrator.v1.UpdateCertificateRequest\x1a'.confirmate.orchestrator.v1.Certificate\"C\x82\xd3\xe4\x93\x02=:\vcertificate\x1a./v1/orchestrator/certificates/{certificate.id}\x12\x99\x01\n" +
-	"\x11RemoveCertificate\x124.confirmate.orchestrator.v1.RemoveCertificateRequest\x1a\x16.google.protobuf.Empty\"6\x82\xd3\xe4\x93\x020*./v1/orchestrator/certificates/{certificate_id}\x12\x92\x01\n" +
+	"\x11RemoveCertificate\x124.confirmate.orchestrator.v1.RemoveCertificateRequest\x1a\x16.google.protobuf.Empty\"6\x82\xd3\xe4\x93\x020*./v1/orchestrator/certificates/{certificate_id}\x12\xc1\x01\n" +
+	"\x1aUpdateCertificateLifecycle\x12=.confirmate.orchestrator.v1.UpdateCertificateLifecycleRequest\x1a\x16.google.protobuf.Empty\"L\x82\xd3\xe4\x93\x02F\"D/v1/orchestrator/audit_scopes/{audit_scope_id}/certificate_lifecycle\x12\x92\x01\n" +
 	"\rCreateCatalog\x120.confirmate.orchestrator.v1.CreateCatalogRequest\x1a#.confirmate.orchestrator.v1.Catalog\"*\x82\xd3\xe4\x93\x02$:\acatalog\"\x19/v1/orchestrator/catalogs\x12\x94\x01\n" +
 	"\fListCatalogs\x12/.confirmate.orchestrator.v1.ListCatalogsRequest\x1a0.confirmate.orchestrator.v1.ListCatalogsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/orchestrator/catalogs\x12\x90\x01\n" +
 	"\n" +
@@ -6604,7 +6720,7 @@ func file_api_orchestrator_orchestrator_proto_rawDescGZIP() []byte {
 }
 
 var file_api_orchestrator_orchestrator_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_api_orchestrator_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 97)
+var file_api_orchestrator_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 99)
 var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(EventCategory)(0),                                    // 0: confirmate.orchestrator.v1.EventCategory
 	(RequestType)(0),                                      // 1: confirmate.orchestrator.v1.RequestType
@@ -6677,270 +6793,275 @@ var file_api_orchestrator_orchestrator_proto_goTypes = []any{
 	(*ListControlsResponse)(nil),                          // 68: confirmate.orchestrator.v1.ListControlsResponse
 	(*CreateCertificateRequest)(nil),                      // 69: confirmate.orchestrator.v1.CreateCertificateRequest
 	(*RemoveCertificateRequest)(nil),                      // 70: confirmate.orchestrator.v1.RemoveCertificateRequest
-	(*Certificate)(nil),                                   // 71: confirmate.orchestrator.v1.Certificate
-	(*State)(nil),                                         // 72: confirmate.orchestrator.v1.State
-	(*UpsertUserPermissionRequest)(nil),                   // 73: confirmate.orchestrator.v1.UpsertUserPermissionRequest
-	(*UpsertUserPermissionResponse)(nil),                  // 74: confirmate.orchestrator.v1.UpsertUserPermissionResponse
-	(*RemoveUserPermissionRequest)(nil),                   // 75: confirmate.orchestrator.v1.RemoveUserPermissionRequest
-	(*GetCurrentUserRequest)(nil),                         // 76: confirmate.orchestrator.v1.GetCurrentUserRequest
-	(*GetUserRequest)(nil),                                // 77: confirmate.orchestrator.v1.GetUserRequest
-	(*ListUsersRequest)(nil),                              // 78: confirmate.orchestrator.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),                             // 79: confirmate.orchestrator.v1.ListUsersResponse
-	(*ListUserPermissionsRequest)(nil),                    // 80: confirmate.orchestrator.v1.ListUserPermissionsRequest
-	(*ListUserPermissionsResponse)(nil),                   // 81: confirmate.orchestrator.v1.ListUserPermissionsResponse
-	(*ListUserRolesRequest)(nil),                          // 82: confirmate.orchestrator.v1.ListUserRolesRequest
-	(*ListUserRolesResponse)(nil),                         // 83: confirmate.orchestrator.v1.ListUserRolesResponse
-	(*RemoveUserRequest)(nil),                             // 84: confirmate.orchestrator.v1.RemoveUserRequest
-	(*ListAssessmentToolsRequest_Filter)(nil),             // 85: confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
-	(*ListEvaluationResultsRequest_Filter)(nil),           // 86: confirmate.orchestrator.v1.ListEvaluationResultsRequest.Filter
-	(*ListMetricsRequest_Filter)(nil),                     // 87: confirmate.orchestrator.v1.ListMetricsRequest.Filter
-	nil,                                                   // 88: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
-	(*SubscribeRequest_Filter)(nil),                       // 89: confirmate.orchestrator.v1.SubscribeRequest.Filter
-	(*TargetOfEvaluation_Metadata)(nil),                   // 90: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
-	(*TargetOfEvaluation_Organization)(nil),               // 91: confirmate.orchestrator.v1.TargetOfEvaluation.Organization
-	nil,                                                   // 92: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	(*TargetOfEvaluation_Organization_PostalAddress)(nil), // 93: confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddress
-	(*Catalog_Metadata)(nil),                              // 94: confirmate.orchestrator.v1.Catalog.Metadata
-	(*ListAssessmentResultsRequest_Filter)(nil),           // 95: confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
-	(*ListAuditScopesRequest_Filter)(nil),                 // 96: confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
-	(*ListControlsRequest_Filter)(nil),                    // 97: confirmate.orchestrator.v1.ListControlsRequest.Filter
-	(*ListUsersRequest_Filter)(nil),                       // 98: confirmate.orchestrator.v1.ListUsersRequest.Filter
-	nil,                                                   // 99: confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
-	(*ListUserPermissionsRequest_Filter)(nil),             // 100: confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter
-	(*assessment.AssessmentResult)(nil),                   // 101: confirmate.assessment.v1.AssessmentResult
-	(*evaluation.EvaluationResult)(nil),                   // 102: confirmate.evaluation.v1.EvaluationResult
-	(*assessment.Metric)(nil),                             // 103: confirmate.assessment.v1.Metric
-	(*assessment.MetricConfiguration)(nil),                // 104: confirmate.assessment.v1.MetricConfiguration
-	(*assessment.MetricImplementation)(nil),               // 105: confirmate.assessment.v1.MetricImplementation
-	(*timestamppb.Timestamp)(nil),                         // 106: google.protobuf.Timestamp
-	(*User)(nil),                                          // 107: confirmate.orchestrator.v1.User
-	(*ControlInScope)(nil),                                // 108: confirmate.orchestrator.v1.ControlInScope
-	(*AuditTrailEvent)(nil),                               // 109: confirmate.orchestrator.v1.AuditTrailEvent
-	(*UserPermission)(nil),                                // 110: confirmate.orchestrator.v1.UserPermission
-	(ObjectType)(0),                                       // 111: confirmate.orchestrator.v1.ObjectType
-	(Role)(0),                                             // 112: confirmate.orchestrator.v1.Role
-	(*common.GetRuntimeInfoRequest)(nil),                  // 113: confirmate.common.v1.GetRuntimeInfoRequest
-	(*CreateControlInScopeRequest)(nil),                   // 114: confirmate.orchestrator.v1.CreateControlInScopeRequest
-	(*GetControlInScopeRequest)(nil),                      // 115: confirmate.orchestrator.v1.GetControlInScopeRequest
-	(*ListControlsInScopeRequest)(nil),                    // 116: confirmate.orchestrator.v1.ListControlsInScopeRequest
-	(*UpdateControlInScopeRequest)(nil),                   // 117: confirmate.orchestrator.v1.UpdateControlInScopeRequest
-	(*TransitionControlInScopeStateRequest)(nil),          // 118: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
-	(*RemoveControlInScopeRequest)(nil),                   // 119: confirmate.orchestrator.v1.RemoveControlInScopeRequest
-	(*ListAuditTrailEventsRequest)(nil),                   // 120: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
-	(*emptypb.Empty)(nil),                                 // 121: google.protobuf.Empty
-	(*common.Runtime)(nil),                                // 122: confirmate.common.v1.Runtime
-	(*ListControlsInScopeResponse)(nil),                   // 123: confirmate.orchestrator.v1.ListControlsInScopeResponse
-	(*ListAuditTrailEventsResponse)(nil),                  // 124: confirmate.orchestrator.v1.ListAuditTrailEventsResponse
+	(*UpdateCertificateLifecycleRequest)(nil),             // 71: confirmate.orchestrator.v1.UpdateCertificateLifecycleRequest
+	(*Certificate)(nil),                                   // 72: confirmate.orchestrator.v1.Certificate
+	(*State)(nil),                                         // 73: confirmate.orchestrator.v1.State
+	(*UpsertUserPermissionRequest)(nil),                   // 74: confirmate.orchestrator.v1.UpsertUserPermissionRequest
+	(*UpsertUserPermissionResponse)(nil),                  // 75: confirmate.orchestrator.v1.UpsertUserPermissionResponse
+	(*RemoveUserPermissionRequest)(nil),                   // 76: confirmate.orchestrator.v1.RemoveUserPermissionRequest
+	(*GetCurrentUserRequest)(nil),                         // 77: confirmate.orchestrator.v1.GetCurrentUserRequest
+	(*GetUserRequest)(nil),                                // 78: confirmate.orchestrator.v1.GetUserRequest
+	(*ListUsersRequest)(nil),                              // 79: confirmate.orchestrator.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),                             // 80: confirmate.orchestrator.v1.ListUsersResponse
+	(*ListUserPermissionsRequest)(nil),                    // 81: confirmate.orchestrator.v1.ListUserPermissionsRequest
+	(*ListUserPermissionsResponse)(nil),                   // 82: confirmate.orchestrator.v1.ListUserPermissionsResponse
+	(*ListUserRolesRequest)(nil),                          // 83: confirmate.orchestrator.v1.ListUserRolesRequest
+	(*ListUserRolesResponse)(nil),                         // 84: confirmate.orchestrator.v1.ListUserRolesResponse
+	(*RemoveUserRequest)(nil),                             // 85: confirmate.orchestrator.v1.RemoveUserRequest
+	(*ListAssessmentToolsRequest_Filter)(nil),             // 86: confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
+	(*ListEvaluationResultsRequest_Filter)(nil),           // 87: confirmate.orchestrator.v1.ListEvaluationResultsRequest.Filter
+	(*ListMetricsRequest_Filter)(nil),                     // 88: confirmate.orchestrator.v1.ListMetricsRequest.Filter
+	nil,                                                   // 89: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
+	(*SubscribeRequest_Filter)(nil),                       // 90: confirmate.orchestrator.v1.SubscribeRequest.Filter
+	(*TargetOfEvaluation_Metadata)(nil),                   // 91: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
+	(*TargetOfEvaluation_Organization)(nil),               // 92: confirmate.orchestrator.v1.TargetOfEvaluation.Organization
+	nil,                                                   // 93: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
+	(*TargetOfEvaluation_Organization_PostalAddress)(nil), // 94: confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddress
+	(*Catalog_Metadata)(nil),                              // 95: confirmate.orchestrator.v1.Catalog.Metadata
+	(*ListAssessmentResultsRequest_Filter)(nil),           // 96: confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
+	(*ListAuditScopesRequest_Filter)(nil),                 // 97: confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
+	(*ListCertificatesRequest_Filter)(nil),                // 98: confirmate.orchestrator.v1.ListCertificatesRequest.Filter
+	(*ListControlsRequest_Filter)(nil),                    // 99: confirmate.orchestrator.v1.ListControlsRequest.Filter
+	(*ListUsersRequest_Filter)(nil),                       // 100: confirmate.orchestrator.v1.ListUsersRequest.Filter
+	nil,                                                   // 101: confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
+	(*ListUserPermissionsRequest_Filter)(nil),             // 102: confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter
+	(*assessment.AssessmentResult)(nil),                   // 103: confirmate.assessment.v1.AssessmentResult
+	(*evaluation.EvaluationResult)(nil),                   // 104: confirmate.evaluation.v1.EvaluationResult
+	(*assessment.Metric)(nil),                             // 105: confirmate.assessment.v1.Metric
+	(*assessment.MetricConfiguration)(nil),                // 106: confirmate.assessment.v1.MetricConfiguration
+	(*assessment.MetricImplementation)(nil),               // 107: confirmate.assessment.v1.MetricImplementation
+	(*timestamppb.Timestamp)(nil),                         // 108: google.protobuf.Timestamp
+	(*User)(nil),                                          // 109: confirmate.orchestrator.v1.User
+	(*ControlInScope)(nil),                                // 110: confirmate.orchestrator.v1.ControlInScope
+	(*AuditTrailEvent)(nil),                               // 111: confirmate.orchestrator.v1.AuditTrailEvent
+	(*UserPermission)(nil),                                // 112: confirmate.orchestrator.v1.UserPermission
+	(ObjectType)(0),                                       // 113: confirmate.orchestrator.v1.ObjectType
+	(Role)(0),                                             // 114: confirmate.orchestrator.v1.Role
+	(*common.GetRuntimeInfoRequest)(nil),                  // 115: confirmate.common.v1.GetRuntimeInfoRequest
+	(*CreateControlInScopeRequest)(nil),                   // 116: confirmate.orchestrator.v1.CreateControlInScopeRequest
+	(*GetControlInScopeRequest)(nil),                      // 117: confirmate.orchestrator.v1.GetControlInScopeRequest
+	(*ListControlsInScopeRequest)(nil),                    // 118: confirmate.orchestrator.v1.ListControlsInScopeRequest
+	(*UpdateControlInScopeRequest)(nil),                   // 119: confirmate.orchestrator.v1.UpdateControlInScopeRequest
+	(*TransitionControlInScopeStateRequest)(nil),          // 120: confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
+	(*RemoveControlInScopeRequest)(nil),                   // 121: confirmate.orchestrator.v1.RemoveControlInScopeRequest
+	(*ListAuditTrailEventsRequest)(nil),                   // 122: confirmate.orchestrator.v1.ListAuditTrailEventsRequest
+	(*emptypb.Empty)(nil),                                 // 123: google.protobuf.Empty
+	(*common.Runtime)(nil),                                // 124: confirmate.common.v1.Runtime
+	(*ListControlsInScopeResponse)(nil),                   // 125: confirmate.orchestrator.v1.ListControlsInScopeResponse
+	(*ListAuditTrailEventsResponse)(nil),                  // 126: confirmate.orchestrator.v1.ListAuditTrailEventsResponse
 }
 var file_api_orchestrator_orchestrator_proto_depIdxs = []int32{
 	38,  // 0: confirmate.orchestrator.v1.RegisterAssessmentToolRequest.tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	85,  // 1: confirmate.orchestrator.v1.ListAssessmentToolsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
+	86,  // 1: confirmate.orchestrator.v1.ListAssessmentToolsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentToolsRequest.Filter
 	38,  // 2: confirmate.orchestrator.v1.ListAssessmentToolsResponse.tools:type_name -> confirmate.orchestrator.v1.AssessmentTool
 	38,  // 3: confirmate.orchestrator.v1.UpdateAssessmentToolRequest.tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	101, // 4: confirmate.orchestrator.v1.StoreAssessmentResultRequest.result:type_name -> confirmate.assessment.v1.AssessmentResult
-	102, // 5: confirmate.orchestrator.v1.StoreEvaluationResultRequest.result:type_name -> confirmate.evaluation.v1.EvaluationResult
-	86,  // 6: confirmate.orchestrator.v1.ListEvaluationResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListEvaluationResultsRequest.Filter
-	102, // 7: confirmate.orchestrator.v1.ListEvaluationResultsResponse.results:type_name -> confirmate.evaluation.v1.EvaluationResult
-	103, // 8: confirmate.orchestrator.v1.CreateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
-	103, // 9: confirmate.orchestrator.v1.UpdateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
-	87,  // 10: confirmate.orchestrator.v1.ListMetricsRequest.filter:type_name -> confirmate.orchestrator.v1.ListMetricsRequest.Filter
-	103, // 11: confirmate.orchestrator.v1.ListMetricsResponse.metrics:type_name -> confirmate.assessment.v1.Metric
+	103, // 4: confirmate.orchestrator.v1.StoreAssessmentResultRequest.result:type_name -> confirmate.assessment.v1.AssessmentResult
+	104, // 5: confirmate.orchestrator.v1.StoreEvaluationResultRequest.result:type_name -> confirmate.evaluation.v1.EvaluationResult
+	87,  // 6: confirmate.orchestrator.v1.ListEvaluationResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListEvaluationResultsRequest.Filter
+	104, // 7: confirmate.orchestrator.v1.ListEvaluationResultsResponse.results:type_name -> confirmate.evaluation.v1.EvaluationResult
+	105, // 8: confirmate.orchestrator.v1.CreateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
+	105, // 9: confirmate.orchestrator.v1.UpdateMetricRequest.metric:type_name -> confirmate.assessment.v1.Metric
+	88,  // 10: confirmate.orchestrator.v1.ListMetricsRequest.filter:type_name -> confirmate.orchestrator.v1.ListMetricsRequest.Filter
+	105, // 11: confirmate.orchestrator.v1.ListMetricsResponse.metrics:type_name -> confirmate.assessment.v1.Metric
 	39,  // 12: confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
 	39,  // 13: confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
 	39,  // 14: confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse.targets_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
-	104, // 15: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest.configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
-	88,  // 16: confirmate.orchestrator.v1.ListMetricConfigurationResponse.configurations:type_name -> confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
-	105, // 17: confirmate.orchestrator.v1.UpdateMetricImplementationRequest.implementation:type_name -> confirmate.assessment.v1.MetricImplementation
-	89,  // 18: confirmate.orchestrator.v1.SubscribeRequest.filter:type_name -> confirmate.orchestrator.v1.SubscribeRequest.Filter
-	106, // 19: confirmate.orchestrator.v1.ChangeEvent.timestamp:type_name -> google.protobuf.Timestamp
+	106, // 15: confirmate.orchestrator.v1.UpdateMetricConfigurationRequest.configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
+	89,  // 16: confirmate.orchestrator.v1.ListMetricConfigurationResponse.configurations:type_name -> confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry
+	107, // 17: confirmate.orchestrator.v1.UpdateMetricImplementationRequest.implementation:type_name -> confirmate.assessment.v1.MetricImplementation
+	90,  // 18: confirmate.orchestrator.v1.SubscribeRequest.filter:type_name -> confirmate.orchestrator.v1.SubscribeRequest.Filter
+	108, // 19: confirmate.orchestrator.v1.ChangeEvent.timestamp:type_name -> google.protobuf.Timestamp
 	0,   // 20: confirmate.orchestrator.v1.ChangeEvent.category:type_name -> confirmate.orchestrator.v1.EventCategory
 	1,   // 21: confirmate.orchestrator.v1.ChangeEvent.request_type:type_name -> confirmate.orchestrator.v1.RequestType
-	103, // 22: confirmate.orchestrator.v1.ChangeEvent.metric:type_name -> confirmate.assessment.v1.Metric
+	105, // 22: confirmate.orchestrator.v1.ChangeEvent.metric:type_name -> confirmate.assessment.v1.Metric
 	39,  // 23: confirmate.orchestrator.v1.ChangeEvent.target_of_evaluation:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation
 	43,  // 24: confirmate.orchestrator.v1.ChangeEvent.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	101, // 25: confirmate.orchestrator.v1.ChangeEvent.assessment_result:type_name -> confirmate.assessment.v1.AssessmentResult
-	104, // 26: confirmate.orchestrator.v1.ChangeEvent.metric_configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
-	105, // 27: confirmate.orchestrator.v1.ChangeEvent.metric_implementation:type_name -> confirmate.assessment.v1.MetricImplementation
+	103, // 25: confirmate.orchestrator.v1.ChangeEvent.assessment_result:type_name -> confirmate.assessment.v1.AssessmentResult
+	106, // 26: confirmate.orchestrator.v1.ChangeEvent.metric_configuration:type_name -> confirmate.assessment.v1.MetricConfiguration
+	107, // 27: confirmate.orchestrator.v1.ChangeEvent.metric_implementation:type_name -> confirmate.assessment.v1.MetricImplementation
 	38,  // 28: confirmate.orchestrator.v1.ChangeEvent.assessment_tool:type_name -> confirmate.orchestrator.v1.AssessmentTool
-	107, // 29: confirmate.orchestrator.v1.ChangeEvent.user:type_name -> confirmate.orchestrator.v1.User
-	108, // 30: confirmate.orchestrator.v1.ChangeEvent.control_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
-	103, // 31: confirmate.orchestrator.v1.TargetOfEvaluation.configured_metrics:type_name -> confirmate.assessment.v1.Metric
-	106, // 32: confirmate.orchestrator.v1.TargetOfEvaluation.created_at:type_name -> google.protobuf.Timestamp
-	106, // 33: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
-	90,  // 34: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
+	109, // 29: confirmate.orchestrator.v1.ChangeEvent.user:type_name -> confirmate.orchestrator.v1.User
+	110, // 30: confirmate.orchestrator.v1.ChangeEvent.control_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
+	105, // 31: confirmate.orchestrator.v1.TargetOfEvaluation.configured_metrics:type_name -> confirmate.assessment.v1.Metric
+	108, // 32: confirmate.orchestrator.v1.TargetOfEvaluation.created_at:type_name -> google.protobuf.Timestamp
+	108, // 33: confirmate.orchestrator.v1.TargetOfEvaluation.updated_at:type_name -> google.protobuf.Timestamp
+	91,  // 34: confirmate.orchestrator.v1.TargetOfEvaluation.metadata:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata
 	3,   // 35: confirmate.orchestrator.v1.TargetOfEvaluation.target_type:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.TargetType
-	91,  // 36: confirmate.orchestrator.v1.TargetOfEvaluation.organization:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organization
+	92,  // 36: confirmate.orchestrator.v1.TargetOfEvaluation.organization:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organization
 	41,  // 37: confirmate.orchestrator.v1.Catalog.categories:type_name -> confirmate.orchestrator.v1.Category
-	94,  // 38: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
+	95,  // 38: confirmate.orchestrator.v1.Catalog.metadata:type_name -> confirmate.orchestrator.v1.Catalog.Metadata
 	42,  // 39: confirmate.orchestrator.v1.Category.controls:type_name -> confirmate.orchestrator.v1.Control
 	42,  // 40: confirmate.orchestrator.v1.Control.controls:type_name -> confirmate.orchestrator.v1.Control
-	103, // 41: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
-	108, // 42: confirmate.orchestrator.v1.Control.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
+	105, // 41: confirmate.orchestrator.v1.Control.metrics:type_name -> confirmate.assessment.v1.Metric
+	110, // 42: confirmate.orchestrator.v1.Control.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
 	2,   // 43: confirmate.orchestrator.v1.AuditScope.status:type_name -> confirmate.orchestrator.v1.AuditScopeStatus
-	108, // 44: confirmate.orchestrator.v1.AuditScope.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
-	109, // 45: confirmate.orchestrator.v1.AuditScope.audit_trail_events:type_name -> confirmate.orchestrator.v1.AuditTrailEvent
-	95,  // 46: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
-	101, // 47: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
+	110, // 44: confirmate.orchestrator.v1.AuditScope.controls_in_scope:type_name -> confirmate.orchestrator.v1.ControlInScope
+	111, // 45: confirmate.orchestrator.v1.AuditScope.audit_trail_events:type_name -> confirmate.orchestrator.v1.AuditTrailEvent
+	96,  // 46: confirmate.orchestrator.v1.ListAssessmentResultsRequest.filter:type_name -> confirmate.orchestrator.v1.ListAssessmentResultsRequest.Filter
+	103, // 47: confirmate.orchestrator.v1.ListAssessmentResultsResponse.results:type_name -> confirmate.assessment.v1.AssessmentResult
 	43,  // 48: confirmate.orchestrator.v1.CreateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	96,  // 49: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
+	97,  // 49: confirmate.orchestrator.v1.ListAuditScopesRequest.filter:type_name -> confirmate.orchestrator.v1.ListAuditScopesRequest.Filter
 	43,  // 50: confirmate.orchestrator.v1.ListAuditScopesResponse.audit_scopes:type_name -> confirmate.orchestrator.v1.AuditScope
 	43,  // 51: confirmate.orchestrator.v1.UpdateAuditScopeRequest.audit_scope:type_name -> confirmate.orchestrator.v1.AuditScope
-	71,  // 52: confirmate.orchestrator.v1.ListCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
-	71,  // 53: confirmate.orchestrator.v1.ListPublicCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
-	71,  // 54: confirmate.orchestrator.v1.UpdateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
-	40,  // 55: confirmate.orchestrator.v1.CreateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
-	40,  // 56: confirmate.orchestrator.v1.ListCatalogsResponse.catalogs:type_name -> confirmate.orchestrator.v1.Catalog
-	40,  // 57: confirmate.orchestrator.v1.UpdateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
-	97,  // 58: confirmate.orchestrator.v1.ListControlsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsRequest.Filter
-	42,  // 59: confirmate.orchestrator.v1.ListControlsResponse.controls:type_name -> confirmate.orchestrator.v1.Control
-	71,  // 60: confirmate.orchestrator.v1.CreateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
-	72,  // 61: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
-	110, // 62: confirmate.orchestrator.v1.UpsertUserPermissionRequest.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
-	110, // 63: confirmate.orchestrator.v1.UpsertUserPermissionResponse.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
-	111, // 64: confirmate.orchestrator.v1.RemoveUserPermissionRequest.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
-	98,  // 65: confirmate.orchestrator.v1.ListUsersRequest.filter:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter
-	107, // 66: confirmate.orchestrator.v1.ListUsersResponse.users:type_name -> confirmate.orchestrator.v1.User
-	100, // 67: confirmate.orchestrator.v1.ListUserPermissionsRequest.filter:type_name -> confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter
-	110, // 68: confirmate.orchestrator.v1.ListUserPermissionsResponse.user_permissions:type_name -> confirmate.orchestrator.v1.UserPermission
-	112, // 69: confirmate.orchestrator.v1.ListUserRolesResponse.roles:type_name -> confirmate.orchestrator.v1.Role
-	104, // 70: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
-	0,   // 71: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
-	92,  // 72: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
-	93,  // 73: confirmate.orchestrator.v1.TargetOfEvaluation.Organization.address:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddress
-	112, // 74: confirmate.orchestrator.v1.ListUsersRequest.Filter.role:type_name -> confirmate.orchestrator.v1.Role
-	99,  // 75: confirmate.orchestrator.v1.ListUsersRequest.Filter.attributes:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
-	111, // 76: confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
-	4,   // 77: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:input_type -> confirmate.orchestrator.v1.RegisterAssessmentToolRequest
-	5,   // 78: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:input_type -> confirmate.orchestrator.v1.ListAssessmentToolsRequest
-	7,   // 79: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:input_type -> confirmate.orchestrator.v1.GetAssessmentToolRequest
-	8,   // 80: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:input_type -> confirmate.orchestrator.v1.UpdateAssessmentToolRequest
-	9,   // 81: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:input_type -> confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
-	10,  // 82: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	10,  // 83: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
-	44,  // 84: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:input_type -> confirmate.orchestrator.v1.GetAssessmentResultRequest
-	13,  // 85: confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult:input_type -> confirmate.orchestrator.v1.StoreEvaluationResultRequest
-	45,  // 86: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:input_type -> confirmate.orchestrator.v1.ListAssessmentResultsRequest
-	14,  // 87: confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults:input_type -> confirmate.orchestrator.v1.ListEvaluationResultsRequest
-	16,  // 88: confirmate.orchestrator.v1.Orchestrator.CreateMetric:input_type -> confirmate.orchestrator.v1.CreateMetricRequest
-	17,  // 89: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:input_type -> confirmate.orchestrator.v1.UpdateMetricRequest
-	18,  // 90: confirmate.orchestrator.v1.Orchestrator.GetMetric:input_type -> confirmate.orchestrator.v1.GetMetricRequest
-	19,  // 91: confirmate.orchestrator.v1.Orchestrator.ListMetrics:input_type -> confirmate.orchestrator.v1.ListMetricsRequest
-	20,  // 92: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:input_type -> confirmate.orchestrator.v1.RemoveMetricRequest
-	23,  // 93: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
-	24,  // 94: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
-	22,  // 95: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
-	26,  // 96: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:input_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
-	25,  // 97: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
-	28,  // 98: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
-	30,  // 99: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:input_type -> confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
-	31,  // 100: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:input_type -> confirmate.orchestrator.v1.GetMetricConfigurationRequest
-	32,  // 101: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:input_type -> confirmate.orchestrator.v1.ListMetricConfigurationRequest
-	34,  // 102: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
-	35,  // 103: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
-	36,  // 104: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
-	69,  // 105: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:input_type -> confirmate.orchestrator.v1.CreateCertificateRequest
-	53,  // 106: confirmate.orchestrator.v1.Orchestrator.GetCertificate:input_type -> confirmate.orchestrator.v1.GetCertificateRequest
-	54,  // 107: confirmate.orchestrator.v1.Orchestrator.ListCertificates:input_type -> confirmate.orchestrator.v1.ListCertificatesRequest
-	56,  // 108: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:input_type -> confirmate.orchestrator.v1.ListPublicCertificatesRequest
-	58,  // 109: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:input_type -> confirmate.orchestrator.v1.UpdateCertificateRequest
-	70,  // 110: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:input_type -> confirmate.orchestrator.v1.RemoveCertificateRequest
-	59,  // 111: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:input_type -> confirmate.orchestrator.v1.CreateCatalogRequest
-	62,  // 112: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:input_type -> confirmate.orchestrator.v1.ListCatalogsRequest
-	61,  // 113: confirmate.orchestrator.v1.Orchestrator.GetCatalog:input_type -> confirmate.orchestrator.v1.GetCatalogRequest
-	60,  // 114: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:input_type -> confirmate.orchestrator.v1.RemoveCatalogRequest
-	64,  // 115: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:input_type -> confirmate.orchestrator.v1.UpdateCatalogRequest
-	65,  // 116: confirmate.orchestrator.v1.Orchestrator.GetCategory:input_type -> confirmate.orchestrator.v1.GetCategoryRequest
-	67,  // 117: confirmate.orchestrator.v1.Orchestrator.ListControls:input_type -> confirmate.orchestrator.v1.ListControlsRequest
-	66,  // 118: confirmate.orchestrator.v1.Orchestrator.GetControl:input_type -> confirmate.orchestrator.v1.GetControlRequest
-	47,  // 119: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:input_type -> confirmate.orchestrator.v1.CreateAuditScopeRequest
-	49,  // 120: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:input_type -> confirmate.orchestrator.v1.GetAuditScopeRequest
-	50,  // 121: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:input_type -> confirmate.orchestrator.v1.ListAuditScopesRequest
-	52,  // 122: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:input_type -> confirmate.orchestrator.v1.UpdateAuditScopeRequest
-	48,  // 123: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:input_type -> confirmate.orchestrator.v1.RemoveAuditScopeRequest
-	113, // 124: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:input_type -> confirmate.common.v1.GetRuntimeInfoRequest
-	73,  // 125: confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission:input_type -> confirmate.orchestrator.v1.UpsertUserPermissionRequest
-	75,  // 126: confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission:input_type -> confirmate.orchestrator.v1.RemoveUserPermissionRequest
-	76,  // 127: confirmate.orchestrator.v1.Orchestrator.GetCurrentUser:input_type -> confirmate.orchestrator.v1.GetCurrentUserRequest
-	77,  // 128: confirmate.orchestrator.v1.Orchestrator.GetUser:input_type -> confirmate.orchestrator.v1.GetUserRequest
-	78,  // 129: confirmate.orchestrator.v1.Orchestrator.ListUsers:input_type -> confirmate.orchestrator.v1.ListUsersRequest
-	80,  // 130: confirmate.orchestrator.v1.Orchestrator.ListUserPermissions:input_type -> confirmate.orchestrator.v1.ListUserPermissionsRequest
-	82,  // 131: confirmate.orchestrator.v1.Orchestrator.ListUserRoles:input_type -> confirmate.orchestrator.v1.ListUserRolesRequest
-	84,  // 132: confirmate.orchestrator.v1.Orchestrator.RemoveUser:input_type -> confirmate.orchestrator.v1.RemoveUserRequest
-	114, // 133: confirmate.orchestrator.v1.Orchestrator.CreateControlInScope:input_type -> confirmate.orchestrator.v1.CreateControlInScopeRequest
-	115, // 134: confirmate.orchestrator.v1.Orchestrator.GetControlInScope:input_type -> confirmate.orchestrator.v1.GetControlInScopeRequest
-	116, // 135: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:input_type -> confirmate.orchestrator.v1.ListControlsInScopeRequest
-	117, // 136: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:input_type -> confirmate.orchestrator.v1.UpdateControlInScopeRequest
-	118, // 137: confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState:input_type -> confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
-	119, // 138: confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope:input_type -> confirmate.orchestrator.v1.RemoveControlInScopeRequest
-	120, // 139: confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents:input_type -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest
-	38,  // 140: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	6,   // 141: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
-	38,  // 142: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	38,  // 143: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
-	121, // 144: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:output_type -> google.protobuf.Empty
-	11,  // 145: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultResponse
-	12,  // 146: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultsResponse
-	101, // 147: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:output_type -> confirmate.assessment.v1.AssessmentResult
-	102, // 148: confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult:output_type -> confirmate.evaluation.v1.EvaluationResult
-	46,  // 149: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:output_type -> confirmate.orchestrator.v1.ListAssessmentResultsResponse
-	15,  // 150: confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults:output_type -> confirmate.orchestrator.v1.ListEvaluationResultsResponse
-	103, // 151: confirmate.orchestrator.v1.Orchestrator.CreateMetric:output_type -> confirmate.assessment.v1.Metric
-	103, // 152: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:output_type -> confirmate.assessment.v1.Metric
-	103, // 153: confirmate.orchestrator.v1.Orchestrator.GetMetric:output_type -> confirmate.assessment.v1.Metric
-	21,  // 154: confirmate.orchestrator.v1.Orchestrator.ListMetrics:output_type -> confirmate.orchestrator.v1.ListMetricsResponse
-	121, // 155: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:output_type -> google.protobuf.Empty
-	39,  // 156: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	39,  // 157: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	39,  // 158: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
-	27,  // 159: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:output_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
-	121, // 160: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:output_type -> google.protobuf.Empty
-	29,  // 161: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:output_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
-	104, // 162: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
-	104, // 163: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
-	33,  // 164: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:output_type -> confirmate.orchestrator.v1.ListMetricConfigurationResponse
-	105, // 165: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
-	105, // 166: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
-	37,  // 167: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
-	71,  // 168: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	71,  // 169: confirmate.orchestrator.v1.Orchestrator.GetCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	55,  // 170: confirmate.orchestrator.v1.Orchestrator.ListCertificates:output_type -> confirmate.orchestrator.v1.ListCertificatesResponse
-	57,  // 171: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:output_type -> confirmate.orchestrator.v1.ListPublicCertificatesResponse
-	71,  // 172: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
-	121, // 173: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:output_type -> google.protobuf.Empty
-	40,  // 174: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	63,  // 175: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:output_type -> confirmate.orchestrator.v1.ListCatalogsResponse
-	40,  // 176: confirmate.orchestrator.v1.Orchestrator.GetCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	121, // 177: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:output_type -> google.protobuf.Empty
-	40,  // 178: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
-	41,  // 179: confirmate.orchestrator.v1.Orchestrator.GetCategory:output_type -> confirmate.orchestrator.v1.Category
-	68,  // 180: confirmate.orchestrator.v1.Orchestrator.ListControls:output_type -> confirmate.orchestrator.v1.ListControlsResponse
-	42,  // 181: confirmate.orchestrator.v1.Orchestrator.GetControl:output_type -> confirmate.orchestrator.v1.Control
-	43,  // 182: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	43,  // 183: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	51,  // 184: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:output_type -> confirmate.orchestrator.v1.ListAuditScopesResponse
-	43,  // 185: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
-	121, // 186: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:output_type -> google.protobuf.Empty
-	122, // 187: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:output_type -> confirmate.common.v1.Runtime
-	74,  // 188: confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission:output_type -> confirmate.orchestrator.v1.UpsertUserPermissionResponse
-	121, // 189: confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission:output_type -> google.protobuf.Empty
-	107, // 190: confirmate.orchestrator.v1.Orchestrator.GetCurrentUser:output_type -> confirmate.orchestrator.v1.User
-	107, // 191: confirmate.orchestrator.v1.Orchestrator.GetUser:output_type -> confirmate.orchestrator.v1.User
-	79,  // 192: confirmate.orchestrator.v1.Orchestrator.ListUsers:output_type -> confirmate.orchestrator.v1.ListUsersResponse
-	81,  // 193: confirmate.orchestrator.v1.Orchestrator.ListUserPermissions:output_type -> confirmate.orchestrator.v1.ListUserPermissionsResponse
-	83,  // 194: confirmate.orchestrator.v1.Orchestrator.ListUserRoles:output_type -> confirmate.orchestrator.v1.ListUserRolesResponse
-	121, // 195: confirmate.orchestrator.v1.Orchestrator.RemoveUser:output_type -> google.protobuf.Empty
-	108, // 196: confirmate.orchestrator.v1.Orchestrator.CreateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
-	108, // 197: confirmate.orchestrator.v1.Orchestrator.GetControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
-	123, // 198: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:output_type -> confirmate.orchestrator.v1.ListControlsInScopeResponse
-	108, // 199: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
-	108, // 200: confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState:output_type -> confirmate.orchestrator.v1.ControlInScope
-	121, // 201: confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope:output_type -> google.protobuf.Empty
-	124, // 202: confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents:output_type -> confirmate.orchestrator.v1.ListAuditTrailEventsResponse
-	140, // [140:203] is the sub-list for method output_type
-	77,  // [77:140] is the sub-list for method input_type
-	77,  // [77:77] is the sub-list for extension type_name
-	77,  // [77:77] is the sub-list for extension extendee
-	0,   // [0:77] is the sub-list for field type_name
+	98,  // 52: confirmate.orchestrator.v1.ListCertificatesRequest.filter:type_name -> confirmate.orchestrator.v1.ListCertificatesRequest.Filter
+	72,  // 53: confirmate.orchestrator.v1.ListCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
+	72,  // 54: confirmate.orchestrator.v1.ListPublicCertificatesResponse.certificates:type_name -> confirmate.orchestrator.v1.Certificate
+	72,  // 55: confirmate.orchestrator.v1.UpdateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
+	40,  // 56: confirmate.orchestrator.v1.CreateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
+	40,  // 57: confirmate.orchestrator.v1.ListCatalogsResponse.catalogs:type_name -> confirmate.orchestrator.v1.Catalog
+	40,  // 58: confirmate.orchestrator.v1.UpdateCatalogRequest.catalog:type_name -> confirmate.orchestrator.v1.Catalog
+	99,  // 59: confirmate.orchestrator.v1.ListControlsRequest.filter:type_name -> confirmate.orchestrator.v1.ListControlsRequest.Filter
+	42,  // 60: confirmate.orchestrator.v1.ListControlsResponse.controls:type_name -> confirmate.orchestrator.v1.Control
+	72,  // 61: confirmate.orchestrator.v1.CreateCertificateRequest.certificate:type_name -> confirmate.orchestrator.v1.Certificate
+	73,  // 62: confirmate.orchestrator.v1.Certificate.states:type_name -> confirmate.orchestrator.v1.State
+	112, // 63: confirmate.orchestrator.v1.UpsertUserPermissionRequest.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
+	112, // 64: confirmate.orchestrator.v1.UpsertUserPermissionResponse.user_permission:type_name -> confirmate.orchestrator.v1.UserPermission
+	113, // 65: confirmate.orchestrator.v1.RemoveUserPermissionRequest.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
+	100, // 66: confirmate.orchestrator.v1.ListUsersRequest.filter:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter
+	109, // 67: confirmate.orchestrator.v1.ListUsersResponse.users:type_name -> confirmate.orchestrator.v1.User
+	102, // 68: confirmate.orchestrator.v1.ListUserPermissionsRequest.filter:type_name -> confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter
+	112, // 69: confirmate.orchestrator.v1.ListUserPermissionsResponse.user_permissions:type_name -> confirmate.orchestrator.v1.UserPermission
+	114, // 70: confirmate.orchestrator.v1.ListUserRolesResponse.roles:type_name -> confirmate.orchestrator.v1.Role
+	106, // 71: confirmate.orchestrator.v1.ListMetricConfigurationResponse.ConfigurationsEntry.value:type_name -> confirmate.assessment.v1.MetricConfiguration
+	0,   // 72: confirmate.orchestrator.v1.SubscribeRequest.Filter.categories:type_name -> confirmate.orchestrator.v1.EventCategory
+	93,  // 73: confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.labels:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Metadata.LabelsEntry
+	94,  // 74: confirmate.orchestrator.v1.TargetOfEvaluation.Organization.address:type_name -> confirmate.orchestrator.v1.TargetOfEvaluation.Organization.PostalAddress
+	114, // 75: confirmate.orchestrator.v1.ListUsersRequest.Filter.role:type_name -> confirmate.orchestrator.v1.Role
+	101, // 76: confirmate.orchestrator.v1.ListUsersRequest.Filter.attributes:type_name -> confirmate.orchestrator.v1.ListUsersRequest.Filter.AttributesEntry
+	113, // 77: confirmate.orchestrator.v1.ListUserPermissionsRequest.Filter.object_type:type_name -> confirmate.orchestrator.v1.ObjectType
+	4,   // 78: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:input_type -> confirmate.orchestrator.v1.RegisterAssessmentToolRequest
+	5,   // 79: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:input_type -> confirmate.orchestrator.v1.ListAssessmentToolsRequest
+	7,   // 80: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:input_type -> confirmate.orchestrator.v1.GetAssessmentToolRequest
+	8,   // 81: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:input_type -> confirmate.orchestrator.v1.UpdateAssessmentToolRequest
+	9,   // 82: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:input_type -> confirmate.orchestrator.v1.DeregisterAssessmentToolRequest
+	10,  // 83: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	10,  // 84: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:input_type -> confirmate.orchestrator.v1.StoreAssessmentResultRequest
+	44,  // 85: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:input_type -> confirmate.orchestrator.v1.GetAssessmentResultRequest
+	13,  // 86: confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult:input_type -> confirmate.orchestrator.v1.StoreEvaluationResultRequest
+	45,  // 87: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:input_type -> confirmate.orchestrator.v1.ListAssessmentResultsRequest
+	14,  // 88: confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults:input_type -> confirmate.orchestrator.v1.ListEvaluationResultsRequest
+	16,  // 89: confirmate.orchestrator.v1.Orchestrator.CreateMetric:input_type -> confirmate.orchestrator.v1.CreateMetricRequest
+	17,  // 90: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:input_type -> confirmate.orchestrator.v1.UpdateMetricRequest
+	18,  // 91: confirmate.orchestrator.v1.Orchestrator.GetMetric:input_type -> confirmate.orchestrator.v1.GetMetricRequest
+	19,  // 92: confirmate.orchestrator.v1.Orchestrator.ListMetrics:input_type -> confirmate.orchestrator.v1.ListMetricsRequest
+	20,  // 93: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:input_type -> confirmate.orchestrator.v1.RemoveMetricRequest
+	23,  // 94: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.CreateTargetOfEvaluationRequest
+	24,  // 95: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.UpdateTargetOfEvaluationRequest
+	22,  // 96: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationRequest
+	26,  // 97: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:input_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationRequest
+	25,  // 98: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:input_type -> confirmate.orchestrator.v1.RemoveTargetOfEvaluationRequest
+	28,  // 99: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:input_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsRequest
+	30,  // 100: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:input_type -> confirmate.orchestrator.v1.UpdateMetricConfigurationRequest
+	31,  // 101: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:input_type -> confirmate.orchestrator.v1.GetMetricConfigurationRequest
+	32,  // 102: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:input_type -> confirmate.orchestrator.v1.ListMetricConfigurationRequest
+	34,  // 103: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:input_type -> confirmate.orchestrator.v1.UpdateMetricImplementationRequest
+	35,  // 104: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:input_type -> confirmate.orchestrator.v1.GetMetricImplementationRequest
+	36,  // 105: confirmate.orchestrator.v1.Orchestrator.Subscribe:input_type -> confirmate.orchestrator.v1.SubscribeRequest
+	69,  // 106: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:input_type -> confirmate.orchestrator.v1.CreateCertificateRequest
+	53,  // 107: confirmate.orchestrator.v1.Orchestrator.GetCertificate:input_type -> confirmate.orchestrator.v1.GetCertificateRequest
+	54,  // 108: confirmate.orchestrator.v1.Orchestrator.ListCertificates:input_type -> confirmate.orchestrator.v1.ListCertificatesRequest
+	56,  // 109: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:input_type -> confirmate.orchestrator.v1.ListPublicCertificatesRequest
+	58,  // 110: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:input_type -> confirmate.orchestrator.v1.UpdateCertificateRequest
+	70,  // 111: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:input_type -> confirmate.orchestrator.v1.RemoveCertificateRequest
+	71,  // 112: confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle:input_type -> confirmate.orchestrator.v1.UpdateCertificateLifecycleRequest
+	59,  // 113: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:input_type -> confirmate.orchestrator.v1.CreateCatalogRequest
+	62,  // 114: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:input_type -> confirmate.orchestrator.v1.ListCatalogsRequest
+	61,  // 115: confirmate.orchestrator.v1.Orchestrator.GetCatalog:input_type -> confirmate.orchestrator.v1.GetCatalogRequest
+	60,  // 116: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:input_type -> confirmate.orchestrator.v1.RemoveCatalogRequest
+	64,  // 117: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:input_type -> confirmate.orchestrator.v1.UpdateCatalogRequest
+	65,  // 118: confirmate.orchestrator.v1.Orchestrator.GetCategory:input_type -> confirmate.orchestrator.v1.GetCategoryRequest
+	67,  // 119: confirmate.orchestrator.v1.Orchestrator.ListControls:input_type -> confirmate.orchestrator.v1.ListControlsRequest
+	66,  // 120: confirmate.orchestrator.v1.Orchestrator.GetControl:input_type -> confirmate.orchestrator.v1.GetControlRequest
+	47,  // 121: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:input_type -> confirmate.orchestrator.v1.CreateAuditScopeRequest
+	49,  // 122: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:input_type -> confirmate.orchestrator.v1.GetAuditScopeRequest
+	50,  // 123: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:input_type -> confirmate.orchestrator.v1.ListAuditScopesRequest
+	52,  // 124: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:input_type -> confirmate.orchestrator.v1.UpdateAuditScopeRequest
+	48,  // 125: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:input_type -> confirmate.orchestrator.v1.RemoveAuditScopeRequest
+	115, // 126: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:input_type -> confirmate.common.v1.GetRuntimeInfoRequest
+	74,  // 127: confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission:input_type -> confirmate.orchestrator.v1.UpsertUserPermissionRequest
+	76,  // 128: confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission:input_type -> confirmate.orchestrator.v1.RemoveUserPermissionRequest
+	77,  // 129: confirmate.orchestrator.v1.Orchestrator.GetCurrentUser:input_type -> confirmate.orchestrator.v1.GetCurrentUserRequest
+	78,  // 130: confirmate.orchestrator.v1.Orchestrator.GetUser:input_type -> confirmate.orchestrator.v1.GetUserRequest
+	79,  // 131: confirmate.orchestrator.v1.Orchestrator.ListUsers:input_type -> confirmate.orchestrator.v1.ListUsersRequest
+	81,  // 132: confirmate.orchestrator.v1.Orchestrator.ListUserPermissions:input_type -> confirmate.orchestrator.v1.ListUserPermissionsRequest
+	83,  // 133: confirmate.orchestrator.v1.Orchestrator.ListUserRoles:input_type -> confirmate.orchestrator.v1.ListUserRolesRequest
+	85,  // 134: confirmate.orchestrator.v1.Orchestrator.RemoveUser:input_type -> confirmate.orchestrator.v1.RemoveUserRequest
+	116, // 135: confirmate.orchestrator.v1.Orchestrator.CreateControlInScope:input_type -> confirmate.orchestrator.v1.CreateControlInScopeRequest
+	117, // 136: confirmate.orchestrator.v1.Orchestrator.GetControlInScope:input_type -> confirmate.orchestrator.v1.GetControlInScopeRequest
+	118, // 137: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:input_type -> confirmate.orchestrator.v1.ListControlsInScopeRequest
+	119, // 138: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:input_type -> confirmate.orchestrator.v1.UpdateControlInScopeRequest
+	120, // 139: confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState:input_type -> confirmate.orchestrator.v1.TransitionControlInScopeStateRequest
+	121, // 140: confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope:input_type -> confirmate.orchestrator.v1.RemoveControlInScopeRequest
+	122, // 141: confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents:input_type -> confirmate.orchestrator.v1.ListAuditTrailEventsRequest
+	38,  // 142: confirmate.orchestrator.v1.Orchestrator.RegisterAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	6,   // 143: confirmate.orchestrator.v1.Orchestrator.ListAssessmentTools:output_type -> confirmate.orchestrator.v1.ListAssessmentToolsResponse
+	38,  // 144: confirmate.orchestrator.v1.Orchestrator.GetAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	38,  // 145: confirmate.orchestrator.v1.Orchestrator.UpdateAssessmentTool:output_type -> confirmate.orchestrator.v1.AssessmentTool
+	123, // 146: confirmate.orchestrator.v1.Orchestrator.DeregisterAssessmentTool:output_type -> google.protobuf.Empty
+	11,  // 147: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResult:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultResponse
+	12,  // 148: confirmate.orchestrator.v1.Orchestrator.StoreAssessmentResults:output_type -> confirmate.orchestrator.v1.StoreAssessmentResultsResponse
+	103, // 149: confirmate.orchestrator.v1.Orchestrator.GetAssessmentResult:output_type -> confirmate.assessment.v1.AssessmentResult
+	104, // 150: confirmate.orchestrator.v1.Orchestrator.StoreEvaluationResult:output_type -> confirmate.evaluation.v1.EvaluationResult
+	46,  // 151: confirmate.orchestrator.v1.Orchestrator.ListAssessmentResults:output_type -> confirmate.orchestrator.v1.ListAssessmentResultsResponse
+	15,  // 152: confirmate.orchestrator.v1.Orchestrator.ListEvaluationResults:output_type -> confirmate.orchestrator.v1.ListEvaluationResultsResponse
+	105, // 153: confirmate.orchestrator.v1.Orchestrator.CreateMetric:output_type -> confirmate.assessment.v1.Metric
+	105, // 154: confirmate.orchestrator.v1.Orchestrator.UpdateMetric:output_type -> confirmate.assessment.v1.Metric
+	105, // 155: confirmate.orchestrator.v1.Orchestrator.GetMetric:output_type -> confirmate.assessment.v1.Metric
+	21,  // 156: confirmate.orchestrator.v1.Orchestrator.ListMetrics:output_type -> confirmate.orchestrator.v1.ListMetricsResponse
+	123, // 157: confirmate.orchestrator.v1.Orchestrator.RemoveMetric:output_type -> google.protobuf.Empty
+	39,  // 158: confirmate.orchestrator.v1.Orchestrator.CreateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	39,  // 159: confirmate.orchestrator.v1.Orchestrator.UpdateTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	39,  // 160: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluation:output_type -> confirmate.orchestrator.v1.TargetOfEvaluation
+	27,  // 161: confirmate.orchestrator.v1.Orchestrator.ListTargetsOfEvaluation:output_type -> confirmate.orchestrator.v1.ListTargetsOfEvaluationResponse
+	123, // 162: confirmate.orchestrator.v1.Orchestrator.RemoveTargetOfEvaluation:output_type -> google.protobuf.Empty
+	29,  // 163: confirmate.orchestrator.v1.Orchestrator.GetTargetOfEvaluationStatistics:output_type -> confirmate.orchestrator.v1.GetTargetOfEvaluationStatisticsResponse
+	106, // 164: confirmate.orchestrator.v1.Orchestrator.UpdateMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
+	106, // 165: confirmate.orchestrator.v1.Orchestrator.GetMetricConfiguration:output_type -> confirmate.assessment.v1.MetricConfiguration
+	33,  // 166: confirmate.orchestrator.v1.Orchestrator.ListMetricConfigurations:output_type -> confirmate.orchestrator.v1.ListMetricConfigurationResponse
+	107, // 167: confirmate.orchestrator.v1.Orchestrator.UpdateMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
+	107, // 168: confirmate.orchestrator.v1.Orchestrator.GetMetricImplementation:output_type -> confirmate.assessment.v1.MetricImplementation
+	37,  // 169: confirmate.orchestrator.v1.Orchestrator.Subscribe:output_type -> confirmate.orchestrator.v1.ChangeEvent
+	72,  // 170: confirmate.orchestrator.v1.Orchestrator.CreateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	72,  // 171: confirmate.orchestrator.v1.Orchestrator.GetCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	55,  // 172: confirmate.orchestrator.v1.Orchestrator.ListCertificates:output_type -> confirmate.orchestrator.v1.ListCertificatesResponse
+	57,  // 173: confirmate.orchestrator.v1.Orchestrator.ListPublicCertificates:output_type -> confirmate.orchestrator.v1.ListPublicCertificatesResponse
+	72,  // 174: confirmate.orchestrator.v1.Orchestrator.UpdateCertificate:output_type -> confirmate.orchestrator.v1.Certificate
+	123, // 175: confirmate.orchestrator.v1.Orchestrator.RemoveCertificate:output_type -> google.protobuf.Empty
+	123, // 176: confirmate.orchestrator.v1.Orchestrator.UpdateCertificateLifecycle:output_type -> google.protobuf.Empty
+	40,  // 177: confirmate.orchestrator.v1.Orchestrator.CreateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	63,  // 178: confirmate.orchestrator.v1.Orchestrator.ListCatalogs:output_type -> confirmate.orchestrator.v1.ListCatalogsResponse
+	40,  // 179: confirmate.orchestrator.v1.Orchestrator.GetCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	123, // 180: confirmate.orchestrator.v1.Orchestrator.RemoveCatalog:output_type -> google.protobuf.Empty
+	40,  // 181: confirmate.orchestrator.v1.Orchestrator.UpdateCatalog:output_type -> confirmate.orchestrator.v1.Catalog
+	41,  // 182: confirmate.orchestrator.v1.Orchestrator.GetCategory:output_type -> confirmate.orchestrator.v1.Category
+	68,  // 183: confirmate.orchestrator.v1.Orchestrator.ListControls:output_type -> confirmate.orchestrator.v1.ListControlsResponse
+	42,  // 184: confirmate.orchestrator.v1.Orchestrator.GetControl:output_type -> confirmate.orchestrator.v1.Control
+	43,  // 185: confirmate.orchestrator.v1.Orchestrator.CreateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	43,  // 186: confirmate.orchestrator.v1.Orchestrator.GetAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	51,  // 187: confirmate.orchestrator.v1.Orchestrator.ListAuditScopes:output_type -> confirmate.orchestrator.v1.ListAuditScopesResponse
+	43,  // 188: confirmate.orchestrator.v1.Orchestrator.UpdateAuditScope:output_type -> confirmate.orchestrator.v1.AuditScope
+	123, // 189: confirmate.orchestrator.v1.Orchestrator.RemoveAuditScope:output_type -> google.protobuf.Empty
+	124, // 190: confirmate.orchestrator.v1.Orchestrator.GetRuntimeInfo:output_type -> confirmate.common.v1.Runtime
+	75,  // 191: confirmate.orchestrator.v1.Orchestrator.UpsertUserPermission:output_type -> confirmate.orchestrator.v1.UpsertUserPermissionResponse
+	123, // 192: confirmate.orchestrator.v1.Orchestrator.RemoveUserPermission:output_type -> google.protobuf.Empty
+	109, // 193: confirmate.orchestrator.v1.Orchestrator.GetCurrentUser:output_type -> confirmate.orchestrator.v1.User
+	109, // 194: confirmate.orchestrator.v1.Orchestrator.GetUser:output_type -> confirmate.orchestrator.v1.User
+	80,  // 195: confirmate.orchestrator.v1.Orchestrator.ListUsers:output_type -> confirmate.orchestrator.v1.ListUsersResponse
+	82,  // 196: confirmate.orchestrator.v1.Orchestrator.ListUserPermissions:output_type -> confirmate.orchestrator.v1.ListUserPermissionsResponse
+	84,  // 197: confirmate.orchestrator.v1.Orchestrator.ListUserRoles:output_type -> confirmate.orchestrator.v1.ListUserRolesResponse
+	123, // 198: confirmate.orchestrator.v1.Orchestrator.RemoveUser:output_type -> google.protobuf.Empty
+	110, // 199: confirmate.orchestrator.v1.Orchestrator.CreateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
+	110, // 200: confirmate.orchestrator.v1.Orchestrator.GetControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
+	125, // 201: confirmate.orchestrator.v1.Orchestrator.ListControlsInScope:output_type -> confirmate.orchestrator.v1.ListControlsInScopeResponse
+	110, // 202: confirmate.orchestrator.v1.Orchestrator.UpdateControlInScope:output_type -> confirmate.orchestrator.v1.ControlInScope
+	110, // 203: confirmate.orchestrator.v1.Orchestrator.TransitionControlInScopeState:output_type -> confirmate.orchestrator.v1.ControlInScope
+	123, // 204: confirmate.orchestrator.v1.Orchestrator.RemoveControlInScope:output_type -> google.protobuf.Empty
+	126, // 205: confirmate.orchestrator.v1.Orchestrator.ListAuditTrailEvents:output_type -> confirmate.orchestrator.v1.ListAuditTrailEventsResponse
+	142, // [142:206] is the sub-list for method output_type
+	78,  // [78:142] is the sub-list for method input_type
+	78,  // [78:78] is the sub-list for extension type_name
+	78,  // [78:78] is the sub-list for extension extendee
+	0,   // [0:78] is the sub-list for field type_name
 }
 
 func init() { file_api_orchestrator_orchestrator_proto_init() }
@@ -6970,26 +7091,28 @@ func file_api_orchestrator_orchestrator_proto_init() {
 	file_api_orchestrator_orchestrator_proto_msgTypes[39].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[41].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[46].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[50].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[63].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[74].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[76].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[82].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[75].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[77].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[83].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[86].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[84].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[87].OneofWrappers = []any{}
-	file_api_orchestrator_orchestrator_proto_msgTypes[90].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[88].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[91].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[92].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[93].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[94].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[95].OneofWrappers = []any{}
 	file_api_orchestrator_orchestrator_proto_msgTypes[96].OneofWrappers = []any{}
+	file_api_orchestrator_orchestrator_proto_msgTypes[98].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_orchestrator_orchestrator_proto_rawDesc), len(file_api_orchestrator_orchestrator_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   97,
+			NumMessages:   99,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

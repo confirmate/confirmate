@@ -130,6 +130,15 @@ func (svc *Service) ListCertificates(
 		req.Msg.Asc = true
 	}
 
+	// Filter by target_of_evaluation_id if provided
+	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
+		conds = append(conds, "target_of_evaluation_id = ?", *req.Msg.Filter.TargetOfEvaluationId)
+	}
+	// Filter by audit_scope_id if provided
+	if req.Msg.Filter != nil && req.Msg.Filter.AuditScopeId != nil {
+		conds = append(conds, "audit_scope_id = ?", *req.Msg.Filter.AuditScopeId)
+	}
+
 	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
 	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
 	if !all && len(toeIds) == 0 {

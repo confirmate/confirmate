@@ -254,6 +254,13 @@ service Orchestrator {
     option (google.api.http) = {delete: "/v1/orchestrator/certificates/{certificate_id}"};
   }
 
+  // Re-evaluates the certificate lifecycle state for the given audit scope
+  // based on its current evaluation results. This is called by the
+  // evaluation component once a full catalog evaluation run has finished.
+  rpc UpdateCertificateLifecycle(UpdateCertificateLifecycleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/orchestrator/audit_scopes/{audit_scope_id}/certificate_lifecycle"};
+  }
+
   // Creates a new security controls catalog
   rpc CreateCatalog(CreateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
@@ -1201,6 +1208,15 @@ message GetCertificateRequest {
 }
 
 message ListCertificatesRequest {
+  message Filter {
+    // Optional. List only certificates of a specific target of evaluation.
+    optional string target_of_evaluation_id = 1;
+    // Optional. List only certificates of a specific audit scope.
+    optional string audit_scope_id = 2;
+  }
+
+  optional Filter filter = 1;
+
   int32 page_size = 10;
   string page_token = 11;
   string order_by = 12;
@@ -1321,6 +1337,13 @@ message CreateCertificateRequest {
 message RemoveCertificateRequest {
   string certificate_id = 1 [
     (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message UpdateCertificateLifecycleRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
 }

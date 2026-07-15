@@ -16,6 +16,7 @@
 package orchestrator
 
 import (
+	"context"
 	"testing"
 
 	"confirmate.io/core/api/evaluation"
@@ -26,6 +27,7 @@ import (
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
+	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -239,6 +241,69 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{db: tt.fields.db}
 			err := svc.updateCertificateLifecycle(tt.auditScopeId)
+			tt.wantErr(t, err)
+			tt.wantDB(t, tt.fields.db)
+		})
+	}
+}
+
+func TestService_UpdateCertificateLifecycle(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		req     *orchestrator.UpdateCertificateLifecycleRequest
+		wantErr assert.WantErr
+		wantDB  assert.Want[persistence.DB]
+	}{
+		{
+			name: "validation error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			req: &orchestrator.UpdateCertificateLifecycleRequest{},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+				var states []*orchestrator.State
+				assert.NoError(t, db.List(&states, "id", true, 0, -1))
+				return assert.Equal(t, 0, len(states))
+			},
+		},
+		{
+			name: "happy path: appends 'suspended' when a NOT_COMPLIANT result exists",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCertificate1))
+					assert.NoError(t, d.Create(&evaluation.EvaluationResult{
+						Id:           "00000000-0000-0000-0099-000000000001",
+						AuditScopeId: orchestratortest.MockScopeId1,
+						ControlId:    evaluationtest.MockControlId1,
+						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+						Timestamp:    timestamppb.Now(),
+					}))
+				}),
+			},
+			req: &orchestrator.UpdateCertificateLifecycleRequest{
+				AuditScopeId: orchestratortest.MockScopeId1,
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+				var states []*orchestrator.State
+				assert.NoError(t, db.List(&states, "id", true, 0, -1))
+				return assert.Equal(t, 1, len(states)) &&
+					assert.Equal(t, CertificateStateSuspended, states[0].State)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{db: tt.fields.db}
+			_, err := svc.UpdateCertificateLifecycle(context.Background(), connect.NewRequest(tt.req))
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db)
 		})
