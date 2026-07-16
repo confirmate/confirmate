@@ -63,6 +63,10 @@ type mockOrchestratorHandler struct {
 	// ListUserPermissions support
 	userPermissions          []*orchestrator.UserPermission
 	listUserPermissionsError error
+
+	// ListControlsInScope support
+	controlsInScope          []*orchestrator.ControlInScope
+	listControlsInScopeError error
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -75,6 +79,19 @@ func (m *mockOrchestratorHandler) ListControls(
 	}
 	return connect.NewResponse(&orchestrator.ListControlsResponse{
 		Controls: m.controls,
+	}), nil
+}
+
+// ListControlsInScope returns the mocked controls in scope or an error if configured
+func (m *mockOrchestratorHandler) ListControlsInScope(
+	_ context.Context,
+	_ *connect.Request[orchestrator.ListControlsInScopeRequest],
+) (*connect.Response[orchestrator.ListControlsInScopeResponse], error) {
+	if m.listControlsInScopeError != nil {
+		return nil, m.listControlsInScopeError
+	}
+	return connect.NewResponse(&orchestrator.ListControlsInScopeResponse{
+		ControlsInScope: m.controlsInScope,
 	}), nil
 }
 
@@ -371,6 +388,10 @@ func WithGetCatalogNotFoundError(err error) func(*mockOrchestratorHandler) {
 // WithUserPermissions seeds the handler with user permissions returned by ListUserPermissions.
 func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.userPermissions = permissions }
+}
+
+func WithControlsInScope(controlsInScope []*orchestrator.ControlInScope) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.controlsInScope = controlsInScope }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog
