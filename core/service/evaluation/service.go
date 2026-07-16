@@ -191,7 +191,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		AuditScopeId: req.Msg.GetAuditScopeId(),
 	}))
 	if err != nil {
-		slog.Error("could not get audit scope from orchestrator", log.Err(err))
+		slog.Error("Could not get audit scope from orchestrator", log.Err(err))
 		return nil, connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
 	}
 	auditScope = auditScopeRes.Msg
@@ -209,7 +209,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	// Get all Controls from Orchestrator for the evaluation
 	err = svc.cacheControls(auditScope.GetCatalogId())
 	if err != nil {
-		slog.Error("could not cache controls", log.Err(err))
+		slog.Error("Could not cache controls", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not cache controls"))
 	}
 
@@ -218,7 +218,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		CatalogId: auditScope.GetCatalogId(),
 	}))
 	if err != nil {
-		slog.Error("could not get catalog from the orchestrator", log.Err(err))
+		slog.Error("Could not get catalog from the orchestrator", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not get catalog from the orchestrator"))
 	}
 	catalog = catalogRes.Msg
@@ -226,10 +226,10 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 	// Check, if a previous job exists and/or is running
 	jobs, err = svc.scheduler.FindJobsByTag(auditScope.GetId())
 	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
-		slog.Error("could not find existing scheduler job", log.Err(err))
+		slog.Error("Could not find existing scheduler job", log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("no scheduler job found"))
 	} else if len(jobs) > 0 {
-		slog.Error("evaluation already started for Audit scope", slog.String("audit scope", auditScope.GetId()), slog.String("target of evaluation", auditScope.GetTargetOfEvaluationId()), slog.String("catalog id", auditScope.GetCatalogId()))
+		slog.Error("Evaluation already started for Audit scope", slog.String("audit scope", auditScope.GetId()), slog.String("target of evaluation", auditScope.GetTargetOfEvaluationId()), slog.String("catalog id", auditScope.GetCatalogId()))
 		return nil, connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("evaluation already started for the given audit scope '%s'", auditScope.GetId()))
 	}
 
@@ -277,10 +277,10 @@ func (svc *Service) StopEvaluation(ctx context.Context, req *connect.Request[eva
 	// Stop jobs(s) for given audit scope
 	err = svc.scheduler.RemoveByTags(auditScopeId)
 	if err != nil && errors.Is(err, gocron.ErrJobNotFoundWithTag) {
-		slog.Error("job for audit scope is not running", slog.String("audit scope", auditScopeId), log.Err(err))
+		slog.Error("Job for audit scope is not running", slog.String("audit scope", auditScopeId), log.Err(err))
 		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("job for audit scope '%s' is not running", auditScopeId))
 	} else if err != nil {
-		slog.Error("could not remove jobs for audit scope '%s': %w", auditScopeId, log.Err(err))
+		slog.Error("Could not remove jobs for audit scope '%s': %w", auditScopeId, log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not remove jobs for audit scope '%s'", auditScopeId))
 	}
 
@@ -361,7 +361,7 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 		err = errors.New("interval is invalid")
 	}
 	if err != nil {
-		slog.Error("evaluation cannot be scheduled", log.Err(err))
+		slog.Error("Evaluation cannot be scheduled", log.Err(err))
 		return connect.NewError(connect.CodeInternal, errors.New("evaluation cannot be scheduled due to invalid input"))
 	}
 
@@ -374,11 +374,11 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 		Tag(auditScope.GetId()).
 		Do(svc.evaluateCatalog, context.Background(), auditScope, catalog, interval)
 	if err != nil {
-		slog.Error("evaluation cannot be scheduled", slog.String("audit scope", auditScope.GetId()), log.Err(err))
+		slog.Error("Evaluation cannot be scheduled", slog.String("audit scope", auditScope.GetId()), log.Err(err))
 		return connect.NewError(connect.CodeInternal, errors.New("evaluation cannot be scheduled"))
 	}
 
-	slog.Debug("audit scope added to scheduler",
+	slog.Debug("Audit scope added to scheduler",
 		slog.String("audit scope id", auditScope.GetId()))
 
 	return
@@ -407,7 +407,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	// controls that have been explicitly removed from scope.
 	inScopeIds, err = svc.fetchInScopeControlIds(ctx, auditScope.Id)
 	if err != nil {
-		slog.Warn("could not fetch controls in scope, evaluating all controls", log.Err(err))
+		slog.Warn("Could not fetch controls in scope, evaluating all controls", log.Err(err))
 		// Fall back to evaluating all controls — treat every control as in scope
 		inScopeIds = nil
 	}
@@ -498,7 +498,7 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	// Wait until all sub-controls are evaluated
 	err = g.Wait()
 	if err != nil {
-		slog.Error("wait group error", log.Err(err))
+		slog.Error("Wait group error", log.Err(err))
 		return err
 	}
 
@@ -596,7 +596,7 @@ func (svc *Service) evaluateControl(ctx context.Context, auditScope *orchestrato
 	// Wait until all sub-controls are evaluated
 	err = g.Wait()
 	if err != nil {
-		slog.Error("wait group error", log.Err(err))
+		slog.Error("Wait group error", log.Err(err))
 		return
 	}
 
@@ -674,18 +674,18 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 
 	// TODO(lebogg): Why we don't return an error here?
 	if auditScope == nil || control == nil {
-		slog.Error("audit_scope and/or control is missing")
+		slog.Error("Audit_scope and/or control is missing")
 		return
 	}
 
 	// Get metrics from control and sub-controls
 	metrics := getMetricsFromControl(control)
-	slog.Debug("evaluate subcontrol",
+	slog.Debug("Evaluate subcontrol",
 		slog.String("control_name", control.GetName()),
 		slog.String("audit_scope_id", auditScope.GetId()),
 		slog.Int("number of metrics", len(metrics)))
 	if len(metrics) == 0 {
-		slog.Error("could not get metrics for",
+		slog.Error("Could not get metrics for",
 			slog.String("control id", control.Id),
 			slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
 			log.Err(err))
@@ -714,19 +714,19 @@ func (svc *Service) evaluateSubcontrol(ctx context.Context, auditScope *orchestr
 		if err != nil {
 			// We let the scheduler running if we do not get the assessment results from the orchestrator, maybe it is
 			// only a temporary network problem
-			slog.Error("could not get assessment results",
+			slog.Error("Could not get assessment results",
 				slog.String("target of evaluation id", auditScope.GetTargetOfEvaluationId()),
 				slog.Any("metric ids", getMetricIds(metrics)),
 				log.Err(err))
 		} else if len(assessments) == 0 {
 			// We let the scheduler running if we do not get the assessment results from the orchestrator, maybe it is
 			// only a temporary network problem
-			slog.Debug("no assessment results available",
+			slog.Debug("No assessment results available",
 				slog.String("audit_scope_id", auditScope.GetId()),
 				slog.Any("metric_ids", getMetricIds(metrics)))
 		}
 	} else {
-		slog.Debug("no metrics available for the given control",
+		slog.Debug("No metrics available for the given control",
 			slog.String("control_name", control.GetName()),
 			slog.String("audit_scope_id", auditScope.GetId()))
 	}
