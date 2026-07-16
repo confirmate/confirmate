@@ -293,9 +293,19 @@ func TestAuthInterceptorParseToken(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name:   "no fallback issuer leaves iss empty",
+			name:   "default fallback issuer applied when none configured",
 			args:   args{token: noIssuerToken},
 			fields: fields{interceptor: NewAuthInterceptor(WithPublicKey(publicKey))},
+			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
+				return assert.Equal(t, "alice", got.Subject) &&
+					assert.Equal(t, DefaultFallbackIssuer, got.Issuer)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name:   "no fallback issuer leaves iss empty when explicitly unset",
+			args:   args{token: noIssuerToken},
+			fields: fields{interceptor: &AuthInterceptor{cfg: &AuthConfig{publicKey: publicKey}}},
 			want: func(t *testing.T, got *auth.OAuthClaims, _ ...any) bool {
 				return assert.Equal(t, "alice", got.Subject) &&
 					assert.Equal(t, "", got.Issuer)
