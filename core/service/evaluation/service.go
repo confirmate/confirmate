@@ -294,6 +294,7 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 	var (
 		jobs           []*gocron.Job
 		allowed        bool
+		scopeIds       []string
 		evaluationJobs = make([]*evaluation.EvaluationJob, 0)
 	)
 
@@ -303,23 +304,40 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	allowed, scopeIds, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
+	if !allowed && len(scopeIds) == 0 {
+		return connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
+			EvaluationJobs: []*evaluation.EvaluationJob{},
+		}), nil
+	}
+
+	// Build a set of allowed scope IDs for filtering
+	scopeIdSet := make(map[string]struct{}, len(scopeIds))
+	for _, id := range scopeIds {
+		scopeIdSet[id] = struct{}{}
 	}
 
 	// Get all jobs from the scheduler
 	jobs = svc.scheduler.Jobs()
 
 	for _, job := range jobs {
-		if job.Tags()[0] != req.Msg.GetFilter().GetAuditScopeId() && req.Msg.GetFilter().GetAuditScopeId() != "" {
+		jobScopeId := job.Tags()[0]
+		// Filter by audit scope ID if provided
+		if req.Msg.GetFilter().GetAuditScopeId() != "" && jobScopeId != req.Msg.GetFilter().GetAuditScopeId() {
 			continue
 		}
+		// Filter by permission — if not allowed to see all scopes, only show
+		// jobs for scopes the user has access to
+		if !allowed {
+			if _, ok := scopeIdSet[jobScopeId]; !ok {
+				continue
+			}
+		}
 		evaluationJobs = append(evaluationJobs, &evaluation.EvaluationJob{
-			AuditScopeId: job.Tags()[0],
+			AuditScopeId: jobScopeId,
 			RunCount:     int32(job.FinishedRunCount()),
 			LastRun:      timestamppb.New(job.LastRun()),
 			Interval:     int32(job.ScheduledInterval()),
@@ -370,12 +388,13 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 // fulfilled or not.
 func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) error {
 	var (
-		controls []*orchestrator.Control
-		relevant []*orchestrator.Control
-		ignored  []string
-		manual   map[string][]*evaluation.EvaluationResult
-		err      error
-		cancel   context.CancelFunc
+		controls   []*orchestrator.Control
+		relevant   []*orchestrator.Control
+		ignored    []string
+		manual     map[string][]*evaluation.EvaluationResult
+		inScopeIds map[string]struct{}
+		err        error
+		cancel     context.CancelFunc
 	)
 
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
@@ -383,6 +402,15 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	slices.SortFunc(controls, func(a *orchestrator.Control, b *orchestrator.Control) int {
 		return strings.Compare(a.Id, b.Id)
 	})
+
+	// Fetch ControlInScope records for this audit scope so we can skip
+	// controls that have been explicitly removed from scope.
+	inScopeIds, err = svc.fetchInScopeControlIds(ctx, auditScope.Id)
+	if err != nil {
+		slog.Warn("could not fetch controls in scope, evaluating all controls", log.Err(err))
+		// Fall back to evaluating all controls — treat every control as in scope
+		inScopeIds = nil
+	}
 
 	// First, look for any manual evaluation results that are still within their validity period, to see whether we need to ignore some of the automated ones
 	results, err := api.ListAllPaginated(ctx, &orchestrator.ListEvaluationResultsRequest{
@@ -431,7 +459,13 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 			continue
 		}
 
-		// TODO(anatheka): Should we call here the controls_in_scope and then check if the control is relevant for the evaluation?
+		// Skip controls that are not in scope for this audit scope
+		if inScopeIds != nil {
+			if _, ok := inScopeIds[c.Id]; !ok {
+				continue
+			}
+		}
+
 		if c.IsRelevantFor(auditScope, catalog) {
 			relevant = append(relevant, c)
 		}
@@ -469,6 +503,41 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 	}
 
 	return nil
+}
+
+// fetchInScopeControlIds returns a set of control IDs that are currently in
+// scope for the given audit scope. Controls that have been removed from scope
+// (no ControlInScope record) are excluded.
+func (svc *Service) fetchInScopeControlIds(ctx context.Context, auditScopeId string) (map[string]struct{}, error) {
+	cisList, err := api.ListAllPaginated(ctx, &orchestrator.ListControlsInScopeRequest{
+		Filter: &orchestrator.ListControlsInScopeRequest_Filter{
+			AuditScopeId: &auditScopeId,
+		},
+	}, func(ctx context.Context, req *orchestrator.ListControlsInScopeRequest) (*orchestrator.ListControlsInScopeResponse, error) {
+		res, err := svc.orchestratorClient.ListControlsInScope(ctx, connect.NewRequest(req))
+		if err != nil {
+			return nil, err
+		}
+		return res.Msg, nil
+	}, func(res *orchestrator.ListControlsInScopeResponse) []*orchestrator.ControlInScope {
+		return res.ControlsInScope
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// No ControlInScope records means there is no scoping information for this
+	// audit scope (e.g. it was created before scoping existed) — return nil so
+	// the caller evaluates all controls instead of none.
+	if len(cisList) == 0 {
+		return nil, nil
+	}
+
+	ids := make(map[string]struct{}, len(cisList))
+	for _, cis := range cisList {
+		ids[cis.ControlId] = struct{}{}
+	}
+	return ids, nil
 }
 
 // evaluateControl evaluates a control, e.g., OPS-13. Therefore, the method needs to wait till all sub-controls (e.g.,

@@ -61,6 +61,28 @@ func (*denyAuthorizationStrategy) AllowedUserPermission(_ context.Context) (bool
 	return false, nil
 }
 
+// partialScopeAuthorizationStrategy is a test strategy that grants access only
+// to the given audit scope IDs (but not to all scopes).
+type partialScopeAuthorizationStrategy struct {
+	scopeIds []string
+}
+
+func (s *partialScopeAuthorizationStrategy) CheckAccess(_ context.Context, _ string, _ orchestrator.RequestType, _ orchestrator.UserPermission_Permission, _ string, _ orchestrator.ObjectType) (bool, []string) {
+	return false, s.scopeIds
+}
+
+func (s *partialScopeAuthorizationStrategy) AllowedTargetOfEvaluations(_ context.Context) (bool, []string) {
+	return false, s.scopeIds
+}
+
+func (s *partialScopeAuthorizationStrategy) AllowedAuditScopes(_ context.Context) (bool, []string) {
+	return false, s.scopeIds
+}
+
+func (s *partialScopeAuthorizationStrategy) AllowedUserPermission(_ context.Context) (bool, []string) {
+	return false, nil
+}
+
 func TestNewService(t *testing.T) {
 	type args struct {
 		opts []service.Option[Service]
@@ -1815,18 +1837,17 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 			},
 		},
 		{
-			name: "err: validation error - authZ error",
+			name: "authorization failure returns empty list",
 			fields: fields{
 				orchestratorClient: nil,
 				scheduler:          gocron.NewScheduler(time.Local),
 				authz:              &denyAuthorizationStrategy{},
 			},
-			req:  connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
-			want: assert.Nil[*connect.Response[evaluation.ListEvaluationJobsResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied) &&
-					assert.ErrorContains(t, err, "permission_denied: access denied")
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.EvaluationJobs))
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: filter by audit scope id",
@@ -1871,6 +1892,29 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 				assert.Equal(t, 0, got.Msg.GetEvaluationJobs()[0].GetRunCount())
 				assert.NotEmpty(t, got.Msg.GetEvaluationJobs()[0].GetStartedAt())
 				return assert.Equal(t, want1, got.Msg.GetEvaluationJobs()[0], protocmp.IgnoreFields(&evaluation.EvaluationJob{}, "last_run", "run_count", "started_at"))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: only jobs for allowed audit scopes are listed",
+			fields: fields{
+				scheduler: func() *gocron.Scheduler {
+					s := gocron.NewScheduler(time.Local)
+					_, err := s.Every(1).Day().Tag("00000000-0000-0000-0000-000000000001").Do(func() { fmt.Println("Job 1") })
+					assert.NoError(t, err)
+					_, err = s.Every(2).Day().Tag("00000000-0000-0000-0000-000000000002").Do(func() { fmt.Println("Job 2") })
+					assert.NoError(t, err)
+					return s
+				}(),
+				authz: &partialScopeAuthorizationStrategy{
+					scopeIds: []string{"00000000-0000-0000-0000-000000000002"},
+				},
+			},
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.GetEvaluationJobs()))
+				return assert.Equal(t, "00000000-0000-0000-0000-000000000002", got.Msg.GetEvaluationJobs()[0].GetAuditScopeId())
 			},
 			wantErr: assert.NoError,
 		},
