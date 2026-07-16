@@ -1837,18 +1837,17 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 			},
 		},
 		{
-			name: "err: validation error - authZ error",
+			name: "authorization failure returns empty list",
 			fields: fields{
 				orchestratorClient: nil,
 				scheduler:          gocron.NewScheduler(time.Local),
 				authz:              &denyAuthorizationStrategy{},
 			},
-			req:  connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
-			want: assert.Nil[*connect.Response[evaluation.ListEvaluationJobsResponse]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodePermissionDenied) &&
-					assert.ErrorContains(t, err, "permission_denied: access denied")
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.EvaluationJobs))
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path: filter by audit scope id",

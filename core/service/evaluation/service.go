@@ -66,6 +66,12 @@ type Service struct {
 	// map[catalog_id][control_id]*orchestrator.Control
 	catalogControls map[string]map[string]*orchestrator.Control
 	catalogsMutex   sync.RWMutex
+
+	// evaluating tracks audit scopes with an in-progress evaluation, so that a
+	// scheduled tick and a manual trigger (or two triggers) do not run
+	// overlapping evaluations for the same audit scope.
+	evaluating      map[string]struct{}
+	evaluatingMutex sync.Mutex
 }
 
 // DefaultConfig is the default configuration for the evaluation [Service].
@@ -116,6 +122,7 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 			cfg:             DefaultConfig,
 			scheduler:       gocron.NewScheduler(time.Local),
 			catalogControls: make(map[string]map[string]*orchestrator.Control),
+			evaluating:      make(map[string]struct{}),
 		}
 	)
 
@@ -308,8 +315,12 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+	// A non-admin caller with no accessible audit scopes is not a permission
+	// error — they are allowed to list, there is simply nothing to return.
 	if !allowed && len(scopeIds) == 0 {
-		return nil, service.ErrPermissionDenied
+		return connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
+			EvaluationJobs: []*evaluation.EvaluationJob{},
+		}), nil
 	}
 
 	// Build a set of allowed scope IDs for filtering
@@ -495,6 +506,31 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 	return
 }
 
+// beginEvaluation marks the given audit scope as having an in-progress
+// evaluation. It returns false if an evaluation is already running for that
+// scope, in which case the caller must not start another one.
+func (svc *Service) beginEvaluation(auditScopeId string) bool {
+	svc.evaluatingMutex.Lock()
+	defer svc.evaluatingMutex.Unlock()
+
+	if svc.evaluating == nil {
+		svc.evaluating = make(map[string]struct{})
+	}
+	if _, ok := svc.evaluating[auditScopeId]; ok {
+		return false
+	}
+	svc.evaluating[auditScopeId] = struct{}{}
+	return true
+}
+
+// endEvaluation clears the in-progress marker for the given audit scope.
+func (svc *Service) endEvaluation(auditScopeId string) {
+	svc.evaluatingMutex.Lock()
+	defer svc.evaluatingMutex.Unlock()
+
+	delete(svc.evaluating, auditScopeId)
+}
+
 // evaluateCatalog evaluates all [orchestrator.Control] items in the catalog whether their associated metrics are
 // fulfilled or not.
 func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) error {
@@ -507,6 +543,17 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		err        error
 		cancel     context.CancelFunc
 	)
+
+	// Guard against overlapping evaluations for the same audit scope: a manual
+	// trigger (via TriggerEvaluation/RunByTag) may race a scheduled tick or
+	// another trigger. If one is already running, skip this run instead of
+	// producing duplicate/conflicting evaluation results.
+	if !svc.beginEvaluation(auditScope.GetId()) {
+		slog.Warn("skipping evaluation, another run is already in progress for audit scope",
+			slog.String("audit scope", auditScope.GetId()))
+		return nil
+	}
+	defer svc.endEvaluation(auditScope.GetId())
 
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
 	controls = slices.Collect(maps.Values(svc.catalogControls[auditScope.CatalogId]))
