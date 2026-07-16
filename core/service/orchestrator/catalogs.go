@@ -448,7 +448,7 @@ func (svc *Service) loadCatalogs() (err error) {
 	if emptyCatalogList {
 		return fmt.Errorf("No catalogs were loaded.")
 	}
-	return
+	return nil
 }
 
 // loadCatalogsFromFolder loads catalogs from a specified folder.

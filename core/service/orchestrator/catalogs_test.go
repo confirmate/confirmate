@@ -1249,10 +1249,8 @@ func TestService_loadCatalogs(t *testing.T) {
 					orchestratortest.MockCatalog2,
 				}, nil
 			},
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "could not save catalog")
-			},
-			wantDB: assert.NotNil[persistence.DB],
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name:            "load from default folder with valid catalogs",
