@@ -33,6 +33,12 @@ import (
 
 const DefaultJWKSURL = "http://localhost:8080/v1/auth/certs"
 
+// DefaultFallbackIssuer is the fallback issuer used when neither the token
+// nor [WithFallbackIssuer] provides one. It matches the embedded OAuth 2.0
+// server's default public URL, so [auth.GetConfirmateUserIDFromClaims] can
+// still construct a stable user ID out of the box.
+const DefaultFallbackIssuer = "http://localhost:8080/v1/auth"
+
 // AuthConfig contains parameters needed to configure authentication.
 type AuthConfig struct {
 	jwksURL string
@@ -56,11 +62,11 @@ type AuthConfig struct {
 
 	// fallbackIssuer is used as the JWT issuer (iss) claim when the token
 	// itself does not carry one. This is needed for the embedded OAuth 2.0
-	// server, whose tokens (in oauth2go v0.16.0) omit the iss claim even
-	// though [WithPublicURL] is configured. Without an issuer,
-	// [auth.GetConfirmateUserIDFromClaims] cannot construct a stable user
-	// ID that matches seeded demo users. When non-empty, it is substituted
-	// for a missing iss during claim re-hydration in [parseToken].
+	// server, whose tokens omit the iss claim even though [WithPublicURL]
+	// is configured. Without an issuer, [auth.GetConfirmateUserIDFromClaims]
+	// cannot construct a stable user ID that matches seeded demo users. It
+	// defaults to [DefaultFallbackIssuer] and is substituted for a missing
+	// iss during claim re-hydration in [parseToken].
 	fallbackIssuer string
 }
 
@@ -110,8 +116,8 @@ func WithPublicKey(publicKey *ecdsa.PublicKey) AuthOption {
 // WithFallbackIssuer configures a fallback issuer that is substituted for
 // the JWT iss claim when the token carries none. This keeps
 // [auth.GetConfirmateUserIDFromClaims] working with tokens issued by the
-// embedded OAuth 2.0 server, which (as of oauth2go v0.16.0) omits the iss
-// claim.
+// embedded OAuth 2.0 server, which omits the iss claim. It replaces the
+// [DefaultFallbackIssuer] that is used otherwise.
 func WithFallbackIssuer(issuer string) AuthOption {
 	return func(c *AuthConfig) {
 		c.fallbackIssuer = issuer
@@ -147,6 +153,7 @@ func NewAuthInterceptor(opts ...AuthOption) (interceptor *AuthInterceptor) {
 		// Callers that emit roles elsewhere (e.g. Keycloak's realm_access.roles)
 		// override this via WithRoleClaimPaths.
 		roleClaimPaths: []string{"roles"},
+		fallbackIssuer: DefaultFallbackIssuer,
 	}
 	for _, opt := range opts {
 		opt(cfg)
@@ -280,9 +287,9 @@ func (ai *AuthInterceptor) parseToken(token string) (claims *auth.OAuthClaims, e
 		_ = json.Unmarshal(b, claims)
 	}
 
-	// The embedded OAuth 2.0 server (oauth2go v0.16.0) omits the iss claim
-	// in issued tokens. Fall back to the configured issuer so downstream code
-	// (e.g. [auth.GetConfirmateUserIDFromClaims]) can construct a stable user
+	// The embedded OAuth 2.0 server omits the iss claim in issued tokens.
+	// Fall back to the configured issuer so downstream code (e.g.
+	// [auth.GetConfirmateUserIDFromClaims]) can construct a stable user
 	// ID matching seeded demo users. External IdPs that set iss themselves are
 	// unaffected.
 	if claims.RegisteredClaims.Issuer == "" && ai.cfg.fallbackIssuer != "" {
