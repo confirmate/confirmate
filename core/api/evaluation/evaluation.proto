@@ -27,6 +27,13 @@ service Evaluation {
   rpc ListEvaluationJobs(ListEvaluationJobsRequest) returns (ListEvaluationJobsResponse) {
     option (google.api.http) = {get: "/v1/evaluation/evaluate"};
   }
+
+  // TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
+  // bypassing the scheduler interval. If no evaluation job exists for the scope,
+  // a temporary one is created, run once, and removed.
+  rpc TriggerEvaluation(TriggerEvaluationRequest) returns (TriggerEvaluationResponse) {
+    option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/trigger"};
+  }
 }
 
 message StartEvaluationRequest {
@@ -52,6 +59,17 @@ message StopEvaluationRequest {
 }
 
 message StopEvaluationResponse {}
+
+message TriggerEvaluationRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message TriggerEvaluationResponse {
+  bool successful = 1;
+}
 
 message ListEvaluationJobsRequest {
   message Filter {

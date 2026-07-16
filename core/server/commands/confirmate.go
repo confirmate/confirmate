@@ -240,6 +240,14 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		return err
 	}
 
+	// Wire up the evaluation service's scope-change callback so that
+	// adding/removing controls from scope triggers an immediate re-evaluation.
+	if evalSvc, ok := evaluationSvc.(*evaluation.Service); ok {
+		if orchSvc, ok := orchestratorSvc.(*orchestrator.Service); ok {
+			orchSvc.SetScopeChangeCallback(evalSvc.OnScopeChanged())
+		}
+	}
+
 	// Server options configuration including CORS, logging, handler and gRPC reflection
 	serverOpts = []server.Option{
 		server.WithConfig(server.Config{

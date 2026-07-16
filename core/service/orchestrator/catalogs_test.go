@@ -1237,7 +1237,7 @@ func TestService_loadCatalogs(t *testing.T) {
 		wantDB           assert.Want[persistence.DB]
 	}{
 		{
-			name: "error: load from custom function and catalog exists already",
+			name: "happy path: load from custom function and catalog exists already",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
@@ -1249,10 +1249,10 @@ func TestService_loadCatalogs(t *testing.T) {
 					orchestratortest.MockCatalog2,
 				}, nil
 			},
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, "could not save catalog")
-			},
-			wantDB: assert.NotNil[persistence.DB],
+			// An already existing catalog is logged and skipped, not treated as a
+			// load failure.
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name:            "load from default folder with valid catalogs",

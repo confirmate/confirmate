@@ -5,6 +5,7 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Confirmate's assessment results
+    version: core/v0.2.16-54-g72d4e5bb
     version: core/v0.2.16-3-g24a503b
 paths:
     /v1/evaluation/evaluate:
@@ -92,6 +93,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/trigger:
+        post:
+            tags:
+                - Evaluation
+            description: |-
+                TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
+                 bypassing the scheduler interval. If no evaluation job exists for the scope,
+                 a temporary one is created, run once, and removed.
+            operationId: Evaluation_TriggerEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TriggerEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         EvaluationJob:
@@ -152,5 +181,10 @@ components:
         StopEvaluationResponse:
             type: object
             properties: {}
+        TriggerEvaluationResponse:
+            type: object
+            properties:
+                successful:
+                    type: boolean
 tags:
     - name: Evaluation
