@@ -112,7 +112,7 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		evidenceOpts        []service.Option[evidence.Service]
 		orchestratorSvc     orchestratorconnect.OrchestratorHandler
 		assessmentSvc       assessmentconnect.AssessmentHandler
-		evidenceSvc         evidenceconnect.EvidenceStoreHandler
+		evidenceSvc         *evidence.Service
 		orchestratorClient  *http.Client
 		apiPort             uint16
 		credentials         *clientcredentials.Config
@@ -238,6 +238,10 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			connect.WithInterceptors(interceptors...),
 		)),
 		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
+			evidenceSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(evidenceconnect.NewResourcesHandler(
 			evidenceSvc,
 			connect.WithInterceptors(interceptors...),
 		)),
