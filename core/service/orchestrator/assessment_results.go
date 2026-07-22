@@ -191,7 +191,11 @@ func (svc *Service) ListAssessmentResults(
 
 	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
-		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
+		placeholders := strings.TrimRight(strings.Repeat("?,", len(toeIds)), ",")
+		whereClauses = append(whereClauses, "target_of_evaluation_id IN ("+placeholders+")")
+		for _, id := range toeIds {
+			args = append(args, id)
+		}
 	}
 
 	// Handle latest_by_resource_id filter
@@ -205,12 +209,15 @@ func (svc *Service) ListAssessmentResults(
 
 		// Add filter for allowed ToE IDs if not allowed to access all
 		if !all {
+			placeholders := strings.TrimRight(strings.Repeat("?,", len(toeIds)), ",")
 			wherePrefix := "WHERE "
 			if where != "" {
 				wherePrefix = " AND "
 			}
-			where += wherePrefix + "target_of_evaluation_id IN ?"
-			args = append(args, toeIds)
+			where += wherePrefix + "target_of_evaluation_id IN (" + placeholders + ")"
+			for _, id := range toeIds {
+				args = append(args, id)
+			}
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
