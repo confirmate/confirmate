@@ -56,40 +56,49 @@ const (
 	// Mock Controls
 	MockCategoryName1 = "Category 1"
 	MockCategoryName2 = "Category 2"
+	MockCategoryName3 = "Category 3"
 
-	MockControlId1     = "Control 1"
-	MockControlId2     = "Control 2"
-	MockSubcontrolId11 = "Control 1.1"
-	MockSubcontrolId12 = "Control 1.2"
-	MockSubcontrolID21 = "Control 2.1"
+	MockControlId1                   = "Control 1"
+	MockControlName1                 = "Control Name 1"
+	MockControlShortName1            = "control-1"
+	MockControlDescription1          = "Description for Control 1"
+	MockControl1SubControlShortName1 = "subcontrol-1"
+	MockControl1SubcontrolId11       = "Control 1.1"
+	MockControl1SubcontrolName11     = "Control Name 1.1"
+	MockSubcontrolDescription11      = "Description for Control 1.1"
+	MockControl1SubcontrolId12       = "Control 1.2"
+	MockControl1SubcontrolName12     = "Subcontrol Name 1.2"
+	MockSubcontrolDescription12      = "Description for Control 1.2"
 
-	MockControlName1     = "Control Name 1"
-	MockControlName2     = "Control Name 2"
-	MockSubcontrolName11 = "Control Name 1.1"
-	MockSubcontrolName12 = "Control Name 1.2"
-	MockSubcontrolName21 = "Control Name 2.1"
-
-	MockControlDescription1     = "Description for Control 1"
-	MockControlDescription2     = "Description for Control 2"
-	MockSubcontrolDescription11 = "Description for Control 1.1"
-	MockSubcontrolDescription12 = "Description for Control 1.2"
-	MockSubcontrolDescription21 = "Description for Control 2.1"
+	MockControlId2                      = "Control 2"
+	MockControlName2                    = "Control Name 2"
+	MockControlShortName2               = "control-2"
+	MockControlDescription2             = "Description for Control 2"
+	MockControl2SubcontrolID21          = "Control 2.1"
+	MockControl2SubControlShortName2    = "subcontrol-2"
+	MockControl2SubcontrolName21        = "Control Name 2.1"
+	MockControl2SubcontrolDescription21 = "Description for Control 2.1"
 
 	// Mock Metrics
 	MockMetricId1 = "Metric 1"
 	MockMetricId2 = "Metric 2"
+	MockMetricId3 = "Metric 3"
 
 	MockMetricName1 = "Metric Name 1"
 	MockMetricName2 = "Metric Name 2"
+	MockMetricName3 = "Metric Name 3"
 
 	MockMetricDescription1 = "Description for Metric 1"
 	MockMetricDescription2 = "Description for Metric 2"
+	MockMetricDescription3 = "Description for Metric 3"
 
 	MockMetricCategory1 = "Metric Category 1"
 	MockMetricCategory2 = "Metric Category 2"
+	MockMetricCategory3 = "Metric Category 3"
 
 	MockMetricComments1 = "Comments for Metric 1"
 	MockMetricComments2 = "Comments for Metric 2"
+	MockMetricComments3 = "Comments for Metric 3"
 
 	// Mock Assessment Results
 	MockAssessmentResultId1 = "00000000-0000-0000-0000-000000000001"
@@ -131,7 +140,7 @@ var (
 		Id:                   MockEvaluationResultId3,
 		TargetOfEvaluationId: MockToeId1,
 		AuditScopeId:         MockAuditScopeId1,
-		ControlId:            MockSubcontrolId11,
+		ControlId:            MockControl1SubcontrolId11,
 		ParentControlId:      new(MockControlId1),
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
@@ -172,7 +181,7 @@ var (
 		Id:                   MockEvaluationResultId102,
 		TargetOfEvaluationId: MockToeId2,
 		AuditScopeId:         MockAuditScopeId1,
-		ControlId:            MockSubcontrolId11,
+		ControlId:            MockControl1SubcontrolId11,
 		ControlCatalogId:     MockCatalogId1,
 		Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY,
 		Timestamp:            timestamppb.New(MockEvaluationResult1.Timestamp.AsTime().Add(25 * time.Minute)),
@@ -229,23 +238,112 @@ var (
 
 // Mock Catalogs
 var (
+	// Mock Catalogs
+	// MockCatalog1 contains 2 Categories
+	// * category1 with 1 control and 2 sub-controls with one metric each
+	// * category2 with 1 control and 1 sub-control with one metric
 	MockCatalog1 = &orchestrator.Catalog{
 		Id:          MockCatalogId1,
 		Name:        MockCatalogName1,
 		Description: MockCatalogDescription1,
-		AllInScope:  false,
 		Categories: []*orchestrator.Category{
 			{
-				Name: MockCategoryName1,
+				Name:      MockCategoryName1,
+				CatalogId: MockCatalogId1,
 				Controls: []*orchestrator.Control{
-					MockControl1,
-					// MockSubcontrol11,
-					// MockControl2,
-					// MockSubcontrol21,
+					{
+						Id:        MockControlId1,
+						Name:      MockControlName1,
+						ShortName: MockControlShortName1,
+						CatalogId: MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              MockControl1SubcontrolId11,
+								Name:            MockControl1SubcontrolName11,
+								ShortName:       MockControl1SubControlShortName1,
+								Metrics:         []*assessment.Metric{MockMetric1},
+								ParentControlId: new(MockControlId1),
+								AssuranceLevel:  new("high"),
+								CatalogId:       MockCatalogId1,
+							},
+							{
+								Id:              MockControl1SubcontrolId12,
+								Name:            MockControl1SubcontrolName12,
+								ShortName:       MockControl2SubControlShortName2,
+								Metrics:         []*assessment.Metric{MockMetric2},
+								ParentControlId: new(MockControlId1),
+								AssuranceLevel:  new("medium"),
+								CatalogId:       MockCatalogId1,
+							},
+						},
+					},
+				},
+			},
+			{
+				Name:      MockCategoryName2,
+				CatalogId: MockCatalogId1,
+				Controls: []*orchestrator.Control{
+					{
+						Id:        MockControlId2,
+						Name:      MockControlName2,
+						ShortName: MockControlShortName2,
+						CatalogId: MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              MockControl2SubcontrolID21,
+								Name:            MockControl2SubcontrolName21,
+								ShortName:       MockControl1SubControlShortName1,
+								Metrics:         []*assessment.Metric{MockMetric3},
+								ParentControlId: new(MockControlId2),
+								CatalogId:       MockCatalogId1,
+							},
+						},
+					},
 				},
 			},
 		},
 	}
+
+	// Mock Metrics
+	MockMetric1 = &assessment.Metric{
+		Id:          MockMetricId1,
+		Name:        MockMetricName1,
+		Description: MockMetricDescription1,
+		Version:     MockDefaultVersion,
+		Category:    MockCategoryName1,
+	}
+	MockMetric2 = &assessment.Metric{
+		Id:          MockMetricId2,
+		Name:        MockMetricName2,
+		Description: MockMetricDescription2,
+		Version:     MockDefaultVersion,
+		Category:    MockCategoryName1,
+	}
+	MockMetric3 = &assessment.Metric{
+		Id:          MockMetricId3,
+		Name:        MockMetricName3,
+		Description: MockMetricDescription3,
+		Version:     MockDefaultVersion,
+		Category:    MockCategoryName3,
+	}
+
+	// MockCatalog1 = &orchestrator.Catalog{
+	// 	Id:          MockCatalogId1,
+	// 	Name:        MockCatalogName1,
+	// 	Description: MockCatalogDescription1,
+	// 	AllInScope:  false,
+	// 	Categories: []*orchestrator.Category{
+	// 		{
+	// 			Name: MockCategoryName1,
+	// 			Controls: []*orchestrator.Control{
+	// 				MockControl1,
+	// 				// MockSubcontrol11,
+	// 				// MockControl2,
+	// 				// MockSubcontrol21,
+	// 			},
+	// 		},
+	// 	},
+	// }
 )
 
 // Mock Controls
@@ -259,8 +357,8 @@ var (
 			MockSubcontrol12,
 		}}
 	MockSubcontrol11 = &orchestrator.Control{
-		Id:          MockSubcontrolId11,
-		Name:        MockSubcontrolName11,
+		Id:          MockControl1SubcontrolId11,
+		Name:        MockControl1SubcontrolName11,
 		Description: MockSubcontrolDescription11,
 		// AssuranceLevel:                 new("basic"),
 		ParentControlId: new(MockControlId1),
@@ -274,8 +372,8 @@ var (
 		},
 		}}
 	MockSubcontrol12 = &orchestrator.Control{
-		Id:          MockSubcontrolId12,
-		Name:        MockSubcontrolName12,
+		Id:          MockControl1SubcontrolId12,
+		Name:        MockControl1SubcontrolName12,
 		Description: MockSubcontrolDescription12,
 		// AssuranceLevel:                 new("basic"),
 		ParentControlId: new(MockControlId1),
@@ -297,9 +395,9 @@ var (
 		},
 	}
 	MockSubcontrol21 = &orchestrator.Control{
-		Id:              MockSubcontrolID21,
-		Name:            MockSubcontrolName21,
-		Description:     MockSubcontrolDescription21,
+		Id:              MockControl2SubcontrolID21,
+		Name:            MockControl2SubcontrolName21,
+		Description:     MockControl2SubcontrolDescription21,
 		AssuranceLevel:  new("basic"),
 		ParentControlId: new(MockControlId2),
 		Metrics: []*assessment.Metric{{

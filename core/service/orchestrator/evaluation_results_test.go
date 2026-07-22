@@ -391,7 +391,7 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			args: args{
 				req: connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
 					Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
-						SubControls: new(string(evaluationtest.MockSubcontrolId11)),
+						SubControls: new(string(evaluationtest.MockControl1SubcontrolId11)),
 					},
 				}),
 			},
