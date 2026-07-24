@@ -499,13 +499,13 @@ func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 	}
 
 	for _, category := range catalog.Categories {
-		normalizeControls(category.GetControls(), nil)
+		normalizeControls(category.GetControls(), nil, catalog.Id)
 		// category.Controls = flattenControls(category.GetControls())
 	}
 }
 
-// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
-func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control) {
+// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls and the catalog ID for all of them.
+func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control, catalogId string) {
 	for _, control := range controls {
 		if control.GetShortName() == "" {
 			control.ShortName = control.GetId()
@@ -514,13 +514,15 @@ func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Co
 			control.Id = uuid.NewString()
 		}
 
+		control.CatalogId = catalogId
+
 		if parent != nil {
 			control.ParentControlId = &parent.Id
 		} else {
 			control.ParentControlId = nil
 		}
 
-		normalizeControls(control.GetControls(), control)
+		normalizeControls(control.GetControls(), control, catalogId)
 	}
 }
 
