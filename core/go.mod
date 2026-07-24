@@ -8,7 +8,7 @@ require (
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
 	github.com/lmittmann/tint v1.2.0
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.22
+	github.com/mattn/go-isatty v0.0.24
 	github.com/oxisto/oauth2go v0.16.0
 	github.com/urfave/cli/v3 v3.10.1
 	golang.org/x/oauth2 v0.36.0
