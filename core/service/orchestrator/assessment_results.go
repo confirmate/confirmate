@@ -158,11 +158,10 @@ func (svc *Service) ListAssessmentResults(
 		}
 		if len(req.Msg.Filter.AssessmentResultIds) > 0 {
 			// Build IN clause dynamically to support ramsql (doesn't support array binding)
-			var marks []string
-			for range req.Msg.Filter.AssessmentResultIds {
-				marks = append(marks, "?")
-			}
-			whereClauses = append(whereClauses, "id IN ("+strings.Join(marks, ",")+")")
+			var placeholders string
+			placeholders = strings.Repeat("?,", len(req.Msg.Filter.AssessmentResultIds))
+			placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+			whereClauses = append(whereClauses, "id IN ("+placeholders+")")
 			for _, id := range req.Msg.Filter.AssessmentResultIds {
 				args = append(args, id)
 			}
@@ -184,12 +183,14 @@ func (svc *Service) ListAssessmentResults(
 	}
 
 	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
+	// Note: The authorization filter is added in addition to any request ToE filter.
+	// Since all where clauses are combined with AND later, a requested ToE must also
+	// be part of the allowed toeIds; otherwise, the query returns no results.
 	if !all {
-		var marks []string
-		for range toeIds {
-			marks = append(marks, "?")
-		}
-		whereClauses = append(whereClauses, "target_of_evaluation_id IN ("+strings.Join(marks, ",")+")")
+		var placeholders string
+		placeholders = strings.Repeat("?,", len(toeIds))
+		placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+		whereClauses = append(whereClauses, "target_of_evaluation_id IN ("+placeholders+")")
 		for _, id := range toeIds {
 			args = append(args, id)
 		}
