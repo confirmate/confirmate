@@ -172,13 +172,6 @@ func (svc *Service) ListAssessmentResults(
 		}
 	}
 
-	// Combine all WHERE clauses with AND
-	if len(whereClauses) > 0 {
-		where = strings.Join(whereClauses, " AND ")
-		conds = append(conds, where)
-		conds = append(conds, args...)
-	}
-
 	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
 	all, toeIds = svc.authz.AllowedTargetOfEvaluations(ctx)
 	if !all && len(toeIds) == 0 {
@@ -198,6 +191,13 @@ func (svc *Service) ListAssessmentResults(
 		}
 	}
 
+	// Combine all WHERE clauses with AND
+	if len(whereClauses) > 0 {
+		where = strings.Join(whereClauses, " AND ")
+		conds = append(conds, where)
+		conds = append(conds, args...)
+	}
+
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
@@ -205,19 +205,6 @@ func (svc *Service) ListAssessmentResults(
 		// Reuse the WHERE query and args directly.
 		if where != "" {
 			where = "WHERE " + where
-		}
-
-		// Add filter for allowed ToE IDs if not allowed to access all
-		if !all {
-			placeholders := strings.TrimRight(strings.Repeat("?,", len(toeIds)), ",")
-			wherePrefix := "WHERE "
-			if where != "" {
-				wherePrefix = " AND "
-			}
-			where += wherePrefix + "target_of_evaluation_id IN (" + placeholders + ")"
-			for _, id := range toeIds {
-				args = append(args, id)
-			}
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
