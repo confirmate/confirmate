@@ -268,12 +268,12 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not convert resource (proto to DB): %w", err))
 	}
-	// Persist the latest snapshot of the resource; Save already uses the primary key.
+	// Persist the latest state of the resource; Save already uses the primary key.
 	err = svc.db.Save(r)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("Resource snapshot upserted for evidence",
+	slog.Debug("Resource upserted for evidence",
 		slog.String("resource_id", r.Id),
 		slog.String("resource_type", r.ResourceType),
 		slog.String("evidence_id", req.Msg.Evidence.Id))
