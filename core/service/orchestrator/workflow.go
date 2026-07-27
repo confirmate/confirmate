@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
@@ -218,6 +219,7 @@ func (svc *Service) ListControlsInScope(
 		npt      string
 		all      bool
 		scopeIds []string
+		where    string
 	)
 
 	if err = service.Validate(req); err != nil {
@@ -245,8 +247,13 @@ func (svc *Service) ListControlsInScope(
 	)
 
 	if !all {
-		query = append(query, "audit_scope_id IN ?")
-		args = append(args, scopeIds)
+		var placeholders string
+		placeholders = strings.Repeat("?,", len(scopeIds))
+		placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+		query = append(query, "audit_scope_id IN ("+placeholders+")")
+		for _, id := range scopeIds {
+			args = append(args, id)
+		}
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
@@ -264,8 +271,11 @@ func (svc *Service) ListControlsInScope(
 		}
 	}
 
+	// Combine all WHERE clauses with AND
 	if len(query) > 0 {
-		conds = persistence.BuildConds(query, args)
+		where = strings.Join(query, " AND ")
+		conds = append(conds, where)
+		conds = append(conds, args...)
 	}
 
 	records, npt, err = service.PaginateStorage[*orchestrator.ControlInScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
