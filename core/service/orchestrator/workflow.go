@@ -317,7 +317,7 @@ func (svc *Service) UpdateControlInScope(
 		return nil, service.ErrPermissionDenied
 	}
 
-	prevAssigneeId := existing.GetAssigneeId()
+	prevAssigneeId := existing.AssigneeId
 	prevDetails := existing.GetImplementationDetails()
 	existing.AssigneeId = req.Msg.AssigneeId
 	existing.ImplementationDetails = req.Msg.ImplementationDetails
@@ -328,11 +328,11 @@ func (svc *Service) UpdateControlInScope(
 			return service.HandleDatabaseError(err, service.ErrNotFound("control in scope"))
 		}
 		actor := actorFromContext(ctx)
-		if prevAssigneeId != req.Msg.GetAssigneeId() {
+		if !assigneeIdsEqual(prevAssigneeId, req.Msg.AssigneeId) {
 			if err := createAuditTrailEvent(tx, actor, existing.AuditScopeId, existing.Id, "",
 				&orchestrator.ControlInScopeAssigneeChangedEvent{
 					ControlInScopeId:   existing.Id,
-					PreviousAssigneeId: &prevAssigneeId,
+					PreviousAssigneeId: prevAssigneeId,
 					NewAssigneeId:      req.Msg.AssigneeId,
 				}); err != nil {
 				return err
@@ -352,6 +352,15 @@ func (svc *Service) UpdateControlInScope(
 
 	res = connect.NewResponse(&existing)
 	return
+}
+
+// assigneeIdsEqual reports whether two optional assignee IDs are equal, treating a nil pointer
+// (unset) as distinct from a pointer to an empty string (explicitly cleared).
+func assigneeIdsEqual(a, b *string) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
 }
 
 // TransitionControlInScopeState moves a ControlInScope to a new implementation state, enforcing
