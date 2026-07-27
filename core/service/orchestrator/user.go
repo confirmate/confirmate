@@ -223,22 +223,39 @@ func (svc *Service) ListUserPermissions(
 
 	}
 
+	// If object ID is explicitily requested, verify that the calling user has access to that object
+	if !all && req.Msg.GetFilter().GetObjectId() != "" {
+		hasAccess := false
+		for _, id := range objectIds {
+			if id == req.Msg.GetFilter().GetObjectId() {
+				hasAccess = true
+				break
+			}
+		}
+		if !hasAccess {
+			return nil, connect.NewError(connect.CodePermissionDenied, errors.New("user does not have access to the requested object"))
+		}
+	}
+
 	// Add query for object IDs to filter results by access permissions and user ID.
 	if !all && len(objectIds) > 0 {
-		// Add a condition to filter by object IDs if the user has access to specific objects.
-		query = append(query, "object_id IN (?)")
-		args = append(args, objectIds)
+		if req.Msg.GetFilter().GetObjectId() != "" {
+			// Add a condition to filter by object IDs if the user has access to specific objects.
+			query = append(query, "object_id IN (?)")
+			args = append(args, objectIds)
 
-		// Get user ID from the JWT claims in the context
-		claims, ok := auth.ClaimsFromContext(ctx)
-		if !ok || claims == nil {
-			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
+		} else {
+			// Get user ID from the JWT claims in the context
+			claims, ok := auth.ClaimsFromContext(ctx)
+			if !ok || claims == nil {
+				return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
+			}
+			userId := auth.GetConfirmateUserIDFromClaims(claims)
+
+			// Add a condition to filter by user ID
+			query = append(query, "user_id = ?")
+			args = append(args, userId)
 		}
-		userId := auth.GetConfirmateUserIDFromClaims(claims)
-
-		// Add a condition to filter by user ID
-		query = append(query, "user_id = ?")
-		args = append(args, userId)
 	}
 
 	// Set default ordering
