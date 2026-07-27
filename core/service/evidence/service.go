@@ -567,7 +567,7 @@ func (svc *Service) ListGraphEdges(_ context.Context, req *connect.Request[evide
 				if _, ok := ids[rel.Value]; !ok {
 					continue
 				}
-				edgeID := s.Id + "→" + rel.Value
+				edgeID := s.Id + "→" + rel.Value + "→" + rel.Property
 				if _, dup := seen[edgeID]; dup {
 					continue
 				}
@@ -583,9 +583,13 @@ func (svc *Service) ListGraphEdges(_ context.Context, req *connect.Request[evide
 		})
 	}
 
-	res = connect.NewResponse(&evidence.ListGraphEdgesResponse{
-		Edges: edges,
-	})
+	res = connect.NewResponse(&evidence.ListGraphEdgesResponse{})
+	res.Msg.Edges, res.Msg.NextPageToken, err = service.PaginateSlice(req.Msg, edges, func(a, b *evidence.GraphEdge) bool {
+		return a.Id < b.Id
+	}, service.DefaultPaginationOpts)
+	if err != nil {
+		return nil, err
+	}
 
 	return
 }
