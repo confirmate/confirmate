@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 	"github.com/google/uuid"
 
@@ -116,6 +117,8 @@ func (svc *Service) ListCertificates(
 		npt          string
 		all          bool
 		toeIds       []string
+		query        []string
+		args         []any
 	)
 
 	// Validate the request
@@ -141,8 +144,11 @@ func (svc *Service) ListCertificates(
 
 	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
-		conds = append(conds, "target_of_evaluation_id IN ?", toeIds)
+		query, args = persistence.AppendObjectIds(toeIds, query, args, "target_of_evaluation_id")
 	}
+
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(query, args)
 
 	// Query the database with pagination and the constructed conditions
 	certificates, npt, err = service.PaginateStorage[*orchestrator.Certificate](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)

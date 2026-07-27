@@ -261,9 +261,9 @@ func (svc *Service) ListUserPermissions(
 		query = append(query, "object_type = ?")
 		args = append(args, objectType)
 	}
-	if len(query) > 0 {
-		conds = persistence.BuildConds(query, args)
-	}
+
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(query, args)
 
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {

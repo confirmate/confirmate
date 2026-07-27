@@ -143,6 +143,8 @@ func (svc *Service) ListTargetsOfEvaluation(
 		npt    string
 		all    bool
 		toeIds []string
+		query  []string
+		args   []any
 	)
 
 	// Validate request
@@ -169,8 +171,11 @@ func (svc *Service) ListTargetsOfEvaluation(
 
 	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
-		conds = append(conds, "id IN ?", toeIds)
+		query, args = persistence.AppendObjectIds(toeIds, query, args, "id")
 	}
+
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(query, args)
 
 	toes, npt, err = service.PaginateStorage[*orchestrator.TargetOfEvaluation](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {

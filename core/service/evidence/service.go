@@ -390,13 +390,7 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	}
 
 	// Build conditions for pagination
-	if len(query) > 0 {
-		conds = append(conds, strings.Join(query, " AND "))
-		conds = append(conds, args...)
-		slog.Debug("ListEvidences filters applied", slog.Any("filters", args))
-	} else {
-		slog.Debug("ListEvidences without filters")
-	}
+	conds = persistence.BuildConds(query, args)
 
 	// Paginate the evidences according to the request
 	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req.Msg, svc.db,
