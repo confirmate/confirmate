@@ -22,7 +22,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
@@ -264,7 +263,6 @@ func (svc *Service) ListControls(
 		conds        []any
 		whereClauses []string
 		args         []any
-		where        string
 		fullCatalog  bool
 	)
 
@@ -298,11 +296,7 @@ func (svc *Service) ListControls(
 	whereClauses = append(whereClauses, "parent_control_id IS NULL") // Only top-level controls
 
 	// Combine all WHERE clauses with AND
-	if len(whereClauses) > 0 {
-		where = strings.Join(whereClauses, " AND ")
-		conds = append(conds, where)
-		conds = append(conds, args...)
-	}
+	conds = persistence.BuildConds(whereClauses, args)
 
 	// Paginate the controls based on the request and conditions
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
