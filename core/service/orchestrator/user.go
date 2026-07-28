@@ -80,7 +80,7 @@ func (svc *Service) RemoveUserPermission(
 	}
 
 	// Only admins may revoke permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.ObjectId, orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
