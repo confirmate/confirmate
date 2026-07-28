@@ -147,6 +147,11 @@ func (a *AuthorizationStrategyPermissionStore) CheckAccess(ctx context.Context,
 	switch reqType {
 	case orchestrator.RequestType_REQUEST_TYPE_UPDATED:
 		userPermission = orchestrator.UserPermission_PERMISSION_CONTRIBUTOR
+
+		// If the object type is UserPermission, we require admin permissions to update it.
+		if objectTypeUsed == orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION {
+			userPermission = orchestrator.UserPermission_PERMISSION_ADMIN
+		}
 	case orchestrator.RequestType_REQUEST_TYPE_DELETED:
 		userPermission = orchestrator.UserPermission_PERMISSION_ADMIN
 	}
