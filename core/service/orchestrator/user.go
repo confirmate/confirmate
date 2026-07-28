@@ -44,7 +44,7 @@ func (svc *Service) UpsertUserPermission(
 		return nil, err
 	}
 
-	// Only admins (user with UserPermission_PERMISSION_ADMIN and global admin) may grant or revoke permissions.
+	// Only admins (user with user permission contributor or admin and global admin) may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.UserPermission.ObjectId, orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -79,7 +79,7 @@ func (svc *Service) RemoveUserPermission(
 		return nil, err
 	}
 
-	// Only admins may revoke permissions.
+	// Only admins (user with user permission contributor or admin and global admin) may revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.ObjectId, orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -328,7 +328,7 @@ func (svc *Service) RemoveUser(
 		return nil, err
 	}
 
-	// Only admins may delete users.
+	// Only admins (global admins) may delete users.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
