@@ -195,11 +195,70 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: with authorization strategy with permission store and without admin token",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					//
+					UserPermission: &orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables,
+					func(d persistence.DB) {
+						// // Create an admin permission for the calling user
+						// assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						// 	UserId:     orchestratortest.MockUserId1,
+						// 	ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						// 	ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						// 	Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+						// }))
+						// Create an admin permission for another user to be updated to reader
+						assert.NoError(t, d.Create(&orchestrator.UserPermission{
+							UserId:     orchestratortest.MockUserId2,
+							ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+							ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+							Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+						}))
+					}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				// Check if user permission was updated to reader for user 2
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockUserId2, got.Msg.UserPermission.UserId) && assert.Equal(t, orchestrator.UserPermission_PERMISSION_READER, got.Msg.UserPermission.Permission)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
+			svc := &Service{
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
+			}
 
 			res, err := svc.UpsertUserPermission(tt.args.ctx, tt.args.req)
 			assert.True(t, tt.wantErr(t, err))
