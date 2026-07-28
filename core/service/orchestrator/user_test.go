@@ -886,6 +886,96 @@ func TestService_ListUserPermissions(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: list UserPermission with authorization strategy 'permission store' without admin token. Should return only the permissions that the user has access to and all permissions for the requesting 'ToE'.",
+			args: args{
+				objectId: orchestratortest.MockTargetOfEvaluation1.Id,
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Issuer:  orchestratortest.MockUserIssuer1,
+						Subject: *orchestratortest.MockUser1.Username,
+					},
+					PreferredUsername: "testuser",
+				}),
+			},
+			fields: func() fields {
+				db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// UserID1, ToE1, ADMIN
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+					// UserID2, ToE1, READER
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser2.GetUsername()),
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					}))
+					// UserID1, AuditScope1, ADMIN
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					}))
+					// UserID1, AuditScope2, READER
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockAuditScope2.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					}))
+				})
+
+				return fields{
+					db: db,
+					authz: &service.AuthorizationStrategyPermissionStore{
+						Permissions: service.DBPermissionStore{
+							DB: db,
+						},
+					},
+				}
+			}(),
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListUserPermissionsResponse], _ ...any) bool {
+				// List UserPermission for UserID1, should return only the permissions that UserID1 has access to:
+				// * UserID1, ToE1, ADMIN
+				// * UserID2, ToE1, READER
+				// * UserID1, AuditScope1, ADMIN
+				want := []*orchestrator.UserPermission{
+					{
+						// UserID1, ToE1, ADMIN
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser1.GetUsername()),
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+					},
+					{
+						// UserID2, ToE1, READER
+						UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUser2.GetUsername()),
+						ObjectId:   orchestratortest.MockToeId1,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}
+
+				// We sort the got.Msg.UserPermissions slice by ObjectId to ensure the order is consistent for comparison
+				sort.Slice(got.Msg.UserPermissions, func(i, j int) bool {
+					if got.Msg.UserPermissions[i].ObjectId != got.Msg.UserPermissions[j].ObjectId {
+						return got.Msg.UserPermissions[i].ObjectId < got.Msg.UserPermissions[j].ObjectId
+					}
+					return got.Msg.UserPermissions[i].ObjectType < got.Msg.UserPermissions[j].ObjectType
+				})
+
+				assert.NotNil(t, got)
+				assert.Equal(t, 2, len(got.Msg.UserPermissions))
+				return assert.Equal(t, want, got.Msg.UserPermissions)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
