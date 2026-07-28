@@ -123,7 +123,7 @@ func (svc *Service) ListAssessmentResults(
 		npt          string
 		where        string
 		args         []any
-		whereClauses []string
+		query        []string
 		all          bool
 		toeIds       []string
 	)
@@ -142,37 +142,30 @@ func (svc *Service) ListAssessmentResults(
 	// Apply filters if provided
 	if req.Msg.Filter != nil {
 		if req.Msg.Filter.TargetOfEvaluationId != nil {
-			whereClauses = append(whereClauses, "target_of_evaluation_id = ?")
+			query = append(query, "target_of_evaluation_id = ?")
 			args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())
 		}
 		if req.Msg.Filter.Compliant != nil {
-			whereClauses = append(whereClauses, "compliant = ?")
+			query = append(query, "compliant = ?")
 			args = append(args, req.Msg.Filter.GetCompliant())
 		}
 		if req.Msg.Filter.MetricId != nil {
-			whereClauses = append(whereClauses, "metric_id = ?")
+			query = append(query, "metric_id = ?")
 			args = append(args, req.Msg.Filter.GetMetricId())
 		}
 		if len(req.Msg.Filter.MetricIds) > 0 {
-			// Build IN clause dynamically to support ramsql (doesn't support array binding)
-			var placeholders string
-			placeholders = strings.Repeat("?,", len(req.Msg.Filter.MetricIds))
-			placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
-			whereClauses = append(whereClauses, "metric_id IN ("+placeholders+")")
-			for _, id := range req.Msg.Filter.MetricIds {
-				args = append(args, id)
-			}
+			query, args = persistence.AppendObjectIds(req.Msg.Filter.MetricIds, query, args, "metric_id")
 		}
 		if req.Msg.Filter.ToolId != nil {
-			whereClauses = append(whereClauses, "tool_id = ?")
+			query = append(query, "tool_id = ?")
 			args = append(args, req.Msg.Filter.GetToolId())
 		}
 		if len(req.Msg.Filter.AssessmentResultIds) > 0 {
 			// Build IN clause dynamically to support ramsql (doesn't support array binding)
-			whereClauses, args = persistence.AppendObjectIds(req.Msg.Filter.AssessmentResultIds, whereClauses, args, "id")
+			query, args = persistence.AppendObjectIds(req.Msg.Filter.AssessmentResultIds, query, args, "id")
 		}
 		if req.Msg.Filter.EvidenceId != nil {
-			whereClauses = append(whereClauses, "evidence_id = ?")
+			query = append(query, "evidence_id = ?")
 			args = append(args, req.Msg.Filter.GetEvidenceId())
 		}
 	}
@@ -192,15 +185,14 @@ func (svc *Service) ListAssessmentResults(
 	// Since all where clauses are combined with AND later, a requested ToE must also
 	// be part of the allowed toeIds; otherwise, the query returns no results.
 	if !all {
-		whereClauses, args = persistence.AppendObjectIds(toeIds, whereClauses, args, "target_of_evaluation_id")
+		query, args = persistence.AppendObjectIds(toeIds, query, args, "target_of_evaluation_id")
 	}
 
 	// Combine all WHERE clauses with AND
-	if len(whereClauses) > 0 {
-		where = strings.Join(whereClauses, " AND ")
-		conds = append(conds, where)
-		conds = append(conds, args...)
+	if len(query) > 0 {
+		where = strings.Join(query, " AND ")
 	}
+	conds = persistence.BuildConds(query, args)
 
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
