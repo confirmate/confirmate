@@ -189,9 +189,7 @@ func (svc *Service) ListAssessmentResults(
 	}
 
 	// Combine all WHERE clauses with AND
-	if len(query) > 0 {
-		where = strings.Join(query, " AND ")
-	}
+	where = strings.Join(query, " AND ")
 	conds = persistence.BuildConds(query, args)
 
 	// Handle latest_by_resource_id filter
