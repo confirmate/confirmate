@@ -242,6 +242,22 @@ func WithoutPreload() QueryOption {
 
 // BuildConds prepares the conds used in [Storage.List] out of arrays of query and args.
 func BuildConds(query []string, args []any) (conds []any) {
+	if len(query) == 0 {
+		return
+	}
 	conds = append([]any{strings.Join(query, " AND ")}, args...)
 	return
+}
+
+// AppendObjectIds appends a condition to the query for filtering by a list of object IDs.
+// Returns the updated query and args slices.
+func AppendObjectIds(objectIds []string, query []string, args []any, objectName string) ([]string, []any) {
+	var placeholders string
+	placeholders = strings.Repeat("?,", len(objectIds))
+	placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+	query = append(query, objectName+" IN ("+placeholders+")")
+	for _, id := range objectIds {
+		args = append(args, id)
+	}
+	return query, args
 }

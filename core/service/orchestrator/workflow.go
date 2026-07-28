@@ -218,6 +218,8 @@ func (svc *Service) ListControlsInScope(
 		npt      string
 		all      bool
 		scopeIds []string
+		query    []string
+		args     []any
 	)
 
 	if err = service.Validate(req); err != nil {
@@ -235,18 +237,15 @@ func (svc *Service) ListControlsInScope(
 			ControlsInScope: []*orchestrator.ControlInScope{},
 		}), nil
 	}
+
 	// Collect all conditions as a single WHERE string; GORM only treats the
 	// first string argument as a clause and everything after it as arguments,
 	// so appending multiple "column = ?" strings silently drops all but the
 	// first condition.
-	var (
-		query []string
-		args  []any
-	)
 
+	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
 	if !all {
-		query = append(query, "audit_scope_id IN ?")
-		args = append(args, scopeIds)
+		query, args = persistence.AppendObjectIds(scopeIds, query, args, "audit_scope_id")
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
@@ -264,10 +263,10 @@ func (svc *Service) ListControlsInScope(
 		}
 	}
 
-	if len(query) > 0 {
-		conds = persistence.BuildConds(query, args)
-	}
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(query, args)
 
+	// PaginateStorage handles the pagination logic and returns the records, next page token, and any error encountered.
 	records, npt, err = service.PaginateStorage[*orchestrator.ControlInScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
@@ -477,8 +476,7 @@ func (svc *Service) ListAuditTrailEvents(
 	)
 
 	if !all {
-		query = append(query, "audit_scope_id IN ?")
-		args = append(args, scopeIds)
+		query, args = persistence.AppendObjectIds(scopeIds, query, args, "audit_scope_id")
 	}
 
 	if f := req.Msg.GetFilter(); f != nil {
@@ -496,9 +494,8 @@ func (svc *Service) ListAuditTrailEvents(
 		}
 	}
 
-	if len(query) > 0 {
-		conds = persistence.BuildConds(query, args)
-	}
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(query, args)
 
 	events, npt, err = service.PaginateStorage[*orchestrator.AuditTrailEvent](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
