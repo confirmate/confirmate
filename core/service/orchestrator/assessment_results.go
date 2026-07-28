@@ -118,14 +118,13 @@ func (svc *Service) ListAssessmentResults(
 	req *connect.Request[orchestrator.ListAssessmentResultsRequest],
 ) (res *connect.Response[orchestrator.ListAssessmentResultsResponse], err error) {
 	var (
-		results      []*assessment.AssessmentResult
-		conds        []any
-		npt          string
-		where        string
-		args         []any
-		query        []string
-		all          bool
-		toeIds       []string
+		results []*assessment.AssessmentResult
+		npt     string
+		where   string
+		args    []any
+		query   []string
+		all     bool
+		toeIds  []string
 	)
 
 	// Validate the request
@@ -188,29 +187,25 @@ func (svc *Service) ListAssessmentResults(
 		query, args = persistence.AppendObjectIds(toeIds, query, args, "target_of_evaluation_id")
 	}
 
-	// Combine all WHERE clauses with AND
-	where = strings.Join(query, " AND ")
-	conds = persistence.BuildConds(query, args)
-
 	// Handle latest_by_resource_id filter
 	// This returns only the most recent assessment result for each unique (resource_id, metric_id) pair
 	// Uses PostgreSQL's DISTINCT ON for efficient grouping
 	if req.Msg.LatestByResourceId != nil && req.Msg.GetLatestByResourceId() {
-		// Reuse the WHERE query and args directly.
+		// Combine all WHERE clauses with AND and reuse the query and args directly.
+		where = strings.Join(query, " AND ")
 		if where != "" {
 			where = "WHERE " + where
 		}
 
 		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
-		var query string
-		query = fmt.Sprintf(`
+		rawQuery := fmt.Sprintf(`
 			SELECT DISTINCT ON (resource_id, metric_id) *
 			FROM assessment_results
 			%s
 			ORDER BY resource_id, metric_id, created_at DESC
 		`, where)
 
-		err = svc.db.Raw(&results, query, args...)
+		err = svc.db.Raw(&results, rawQuery, args...)
 		if err = service.HandleDatabaseError(err); err != nil {
 			return nil, err
 		}
@@ -224,7 +219,7 @@ func (svc *Service) ListAssessmentResults(
 		return
 	}
 
-	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
