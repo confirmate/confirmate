@@ -44,7 +44,7 @@ func (svc *Service) UpsertUserPermission(
 		return nil, err
 	}
 
-	// Only admins (user with user permission contributor or admin and global admin) may grant or revoke permissions.
+	// Only admins (user admin and global admin) may grant or revoke permissions.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.UserPermission.ObjectId, orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
