@@ -148,6 +148,56 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			},
 		},
 		{
+			name: "error: with authorization strategy with permission store and without admin token",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables,
+					func(d persistence.DB) {
+						assert.NoError(t, d.Create(&orchestrator.UserPermission{
+							UserId:     orchestratortest.MockUserId2,
+							ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+							ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+							Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+						}))
+					}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(&orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockToeId1,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+								Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+							})
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.UpsertUserPermissionResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
@@ -195,11 +245,61 @@ func TestService_UpsertUserPermission(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: with authorization strategy with permission store and without admin token",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.UpsertUserPermissionRequest{
+					UserPermission: &orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables,
+					func(d persistence.DB) {
+						assert.NoError(t, d.Create(&orchestrator.UserPermission{
+							UserId:     orchestratortest.MockUserId2,
+							ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+							ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+							Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+						}))
+					}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.UpsertUserPermissionResponse], _ ...any) bool {
+				// Check if user permission was updated to reader for user 2
+				return assert.NotNil(t, got) &&
+					assert.Equal(t, orchestratortest.MockUserId2, got.Msg.UserPermission.UserId) && assert.Equal(t, orchestrator.UserPermission_PERMISSION_READER, got.Msg.UserPermission.Permission)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
+			svc := &Service{
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
+			}
 
 			res, err := svc.UpsertUserPermission(tt.args.ctx, tt.args.req)
 			assert.True(t, tt.wantErr(t, err))
@@ -301,6 +401,52 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			},
 		},
 		{
+			name: "error: with authorization strategy with permission store and without admin token",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
+					UserId:     orchestratortest.MockUserId2,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					}))
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(&orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockToeId1,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+								Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+							})
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
@@ -371,6 +517,47 @@ func TestService_RemoveUserPermission(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[emptypb.Empty], _ ...any) bool {
 				return assert.NotNil(t, got)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and without admin token",
+			args: args{
+				ctx: auth.WithClaims(context.Background(),
+					&auth.OAuthClaims{
+						RegisteredClaims: jwt.RegisteredClaims{
+							Subject: orchestratortest.MockUserId1,
+							Issuer:  orchestratortest.MockUserIssuer1,
+						},
+						IsAdminToken: false,
+					},
+				),
+				req: connect.NewRequest(&orchestrator.RemoveUserPermissionRequest{
+					UserId:     orchestratortest.MockUserId2,
+					ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+					ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(&orchestrator.UserPermission{
+						UserId:     orchestratortest.MockUserId2,
+						ObjectId:   orchestratortest.MockTargetOfEvaluation1.Id,
+						ObjectType: orchestrator.ObjectType_OBJECT_TYPE_TARGET_OF_EVALUATION,
+						Permission: orchestrator.UserPermission_PERMISSION_READER,
+					}))
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], _ ...any) bool {
+				return assert.Empty(t, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
