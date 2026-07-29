@@ -37,11 +37,14 @@ func Test_azureCollector_collectMLWorkspaces(t *testing.T) {
 		{
 			name: "Error list pages",
 			fields: fields{
-				azureCollector: NewMockAzureCollector(nil),
+				azureCollector: &azureCollector{
+					cred: nil,
+					sub:  nil,
+				},
 			},
 			want: assert.Nil[[]ontology.IsResource],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.ErrorContains(t, err, ErrSubscriptionNotFound.Error())
+				return assert.ErrorContains(t, err, "parameter client.subscriptionID cannot be empty")
 			},
 		},
 		{
