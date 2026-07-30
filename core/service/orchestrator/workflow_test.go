@@ -628,7 +628,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 		},
 		{
-			name: "authorization failure",
+			name: "error: authorization failure with AuthorizationStrategyPermissionStore",
 			args: args{
 				req: &orchestrator.UpdateControlInScopeRequest{
 					Id: orchestratortest.MockControlInScope1.Id,
@@ -638,7 +638,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					seedControlInScope1(t, d)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.ControlInScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
