@@ -22,7 +22,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
@@ -264,7 +263,6 @@ func (svc *Service) ListControls(
 		conds        []any
 		whereClauses []string
 		args         []any
-		where        string
 		fullCatalog  bool
 	)
 
@@ -298,11 +296,7 @@ func (svc *Service) ListControls(
 	whereClauses = append(whereClauses, "parent_control_id IS NULL") // Only top-level controls
 
 	// Combine all WHERE clauses with AND
-	if len(whereClauses) > 0 {
-		where = strings.Join(whereClauses, " AND ")
-		conds = append(conds, where)
-		conds = append(conds, args...)
-	}
+	conds = persistence.BuildConds(whereClauses, args)
 
 	// Paginate the controls based on the request and conditions
 	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
@@ -409,7 +403,10 @@ func (svc *Service) GetControl(
 // 1. DefaultCatalogsPath (if LoadDefaultCatalogs is true)
 // 2. LoadCatalogsFunc (if provided) for additional custom catalogs
 func (svc *Service) loadCatalogs() (err error) {
-	var catalogs []*orchestrator.Catalog
+	var (
+		catalogs         []*orchestrator.Catalog
+		emptyCatalogList = false
+	)
 
 	// Load default catalogs from folder if enabled
 	if svc.cfg.LoadDefaultCatalogs {
@@ -431,9 +428,20 @@ func (svc *Service) loadCatalogs() (err error) {
 
 	// Save all catalogs to DB (only if we have any)
 	if len(catalogs) > 0 {
-		return svc.db.Save(catalogs)
+		for _, catalog := range catalogs {
+			err = svc.db.Create(catalog)
+			if err != nil {
+				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()), log.Err(err))
+				// Continue to next catalog instead of returning error
+				continue
+			}
+			emptyCatalogList = false
+		}
 	}
 
+	if emptyCatalogList {
+		return fmt.Errorf("No catalogs were loaded.")
+	}
 	return nil
 }
 
@@ -485,13 +493,13 @@ func normalizeCatalogControls(catalog *orchestrator.Catalog) {
 	}
 
 	for _, category := range catalog.Categories {
-		normalizeControls(category.GetControls(), nil)
+		normalizeControls(category.GetControls(), nil, catalog.Id)
 		// category.Controls = flattenControls(category.GetControls())
 	}
 }
 
-// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
-func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control) {
+// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls and the catalog ID for all of them.
+func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control, catalogId string) {
 	for _, control := range controls {
 		if control.GetShortName() == "" {
 			control.ShortName = control.GetId()
@@ -500,13 +508,15 @@ func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Co
 			control.Id = uuid.NewString()
 		}
 
+		control.CatalogId = catalogId
+
 		if parent != nil {
 			control.ParentControlId = &parent.Id
 		} else {
 			control.ParentControlId = nil
 		}
 
-		normalizeControls(control.GetControls(), control)
+		normalizeControls(control.GetControls(), control, catalogId)
 	}
 }
 

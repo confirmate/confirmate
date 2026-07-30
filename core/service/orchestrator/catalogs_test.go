@@ -1223,8 +1223,12 @@ func TestService_GetControl(t *testing.T) {
 }
 
 func TestService_loadCatalogs(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
 	tests := []struct {
 		name             string
+		fields           fields
 		loadDefaultCats  bool
 		catalogsPath     string
 		loadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
@@ -1233,9 +1237,28 @@ func TestService_loadCatalogs(t *testing.T) {
 		wantDB           assert.Want[persistence.DB]
 	}{
 		{
+			name: "error: load from custom function and catalog exists already",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
+				}),
+			},
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog2,
+				}, nil
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
+		},
+		{
 			name:            "load from default folder with valid catalogs",
 			loadDefaultCats: true,
-			catalogsPath:    "",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			catalogsPath: "",
 			setupFiles: func(t *testing.T, dir string) {
 				catalog := []*orchestrator.Catalog{
 					{
@@ -1256,7 +1279,10 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 		},
 		{
-			name:            "load from custom function",
+			name: "load from custom function",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return []*orchestrator.Catalog{
@@ -1275,6 +1301,9 @@ func TestService_loadCatalogs(t *testing.T) {
 		{
 			name:            "load from both default folder and custom function",
 			loadDefaultCats: true,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			setupFiles: func(t *testing.T, dir string) {
 				catalog := []*orchestrator.Catalog{
 					{
@@ -1304,11 +1333,17 @@ func TestService_loadCatalogs(t *testing.T) {
 		{
 			name:            "empty folder and no custom function",
 			loadDefaultCats: true,
-			wantErr:         assert.NoError,
-			wantDB:          assert.NotNil[persistence.DB],
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "custom function returns error",
+			name: "custom function returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return nil, errors.New("custom error")
@@ -1319,7 +1354,10 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "invalid catalogs path",
+			name: "invalid catalogs path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: true,
 			catalogsPath:    "/nonexistent/path",
 			wantErr: func(t *testing.T, err error, args ...any) bool {
@@ -1342,7 +1380,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			}
 
 			svc := &Service{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: tt.fields.db,
 				cfg: Config{
 					LoadDefaultCatalogs: tt.loadDefaultCats,
 					DefaultCatalogsPath: catalogsPath,

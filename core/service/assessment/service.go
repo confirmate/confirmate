@@ -332,7 +332,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 
 	if canHandle {
 		// Assess evidence. This also validates the embedded resource and returns an error if validation fails.
-		_, err = svc.handleEvidence(ctx, ev, resource, related)
+		_, err = svc.handleEvidence(context.Background(), ev, resource, related)
 		if err != nil {
 			return nil, err
 		}
@@ -351,7 +351,7 @@ func (svc *Service) AssessEvidence(ctx context.Context, req *connect.Request[ass
 			Evidence:     ev,
 			s:            svc,
 			newResources: make(chan string, 1000),
-			ctx:          ctx,
+			ctx:          context.Background(),
 		}
 
 		// Add it to our wait group

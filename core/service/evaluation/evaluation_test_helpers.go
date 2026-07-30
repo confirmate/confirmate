@@ -68,6 +68,10 @@ type mockOrchestratorHandler struct {
 	// UpdateCertificateLifecycle support
 	lifecycleUpdates                []string
 	updateCertificateLifecycleError error
+
+	// ListControlsInScope support
+	controlsInScope          []*orchestrator.ControlInScope
+	listControlsInScopeError error
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -80,6 +84,19 @@ func (m *mockOrchestratorHandler) ListControls(
 	}
 	return connect.NewResponse(&orchestrator.ListControlsResponse{
 		Controls: m.controls,
+	}), nil
+}
+
+// ListControlsInScope returns the mocked controls in scope or an error if configured
+func (m *mockOrchestratorHandler) ListControlsInScope(
+	_ context.Context,
+	_ *connect.Request[orchestrator.ListControlsInScopeRequest],
+) (*connect.Response[orchestrator.ListControlsInScopeResponse], error) {
+	if m.listControlsInScopeError != nil {
+		return nil, m.listControlsInScopeError
+	}
+	return connect.NewResponse(&orchestrator.ListControlsInScopeResponse{
+		ControlsInScope: m.controlsInScope,
 	}), nil
 }
 
@@ -422,12 +439,18 @@ func WithUpdateCertificateLifecycleError(err error) func(*mockOrchestratorHandle
 	return func(h *mockOrchestratorHandler) { h.updateCertificateLifecycleError = err }
 }
 
+func WithControlsInScope(controlsInScope []*orchestrator.ControlInScope) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.controlsInScope = controlsInScope }
+}
+
 // mockControlsForCatalog returns mock controls for a catalog
 func mockControlsForCatalog(catalogID string) []*orchestrator.Control {
 	// Return 4 controls as expected by the test
 	control1 := &orchestrator.Control{
-		Id:   orchestratortest.MockControlId1,
-		Name: "Mock Control 1",
+		Id:        orchestratortest.MockControlId1,
+		Name:      "Mock Control 1",
+		ShortName: orchestratortest.MockControlShortName1,
+		Controls:  []*orchestrator.Control{orchestratortest.MockSubControl1},
 	}
 	control2 := &orchestrator.Control{
 		Id:   orchestratortest.MockControlId2,

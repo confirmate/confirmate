@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.15-23-g905f6e8f
+    version: core/v0.2.15-29-g3b4d7d84
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -919,6 +919,11 @@ paths:
                   description: Optional. Filter by assignee.
                   schema:
                     type: string
+                - name: filter.controlId
+                  in: query
+                  description: Optional. Filter by control ID.
+                  schema:
+                    type: string
                 - name: pageSize
                   in: query
                   schema:
@@ -1041,6 +1046,11 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
+                - name: comment
+                  in: query
+                  description: Comment explains why this control is being removed from scope.
                   schema:
                     type: string
             responses:
@@ -2688,6 +2698,9 @@ components:
                 assigneeId:
                     type: string
                     description: AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+                comment:
+                    type: string
+                    description: Comment explains why this control is being brought into scope.
         Dependency:
             type: object
             properties:

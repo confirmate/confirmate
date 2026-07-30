@@ -22,10 +22,11 @@ func (ps DBPermissionStore) HasPermission(_ context.Context, userId string, obje
 		userPermission orchestrator.UserPermission
 	)
 
+	// Note: We do not need the object type here. If the endpoint UpsertUserPermission is used, the object type will be set to OBJECT_TYPE_USER_PERMISSION, but the object ID will be the ID of the target object. Therefore, we can ignore the object type in this query. We assume that the combination of object id (UUID) and user id (UUID) is unique across all object types.
 	count, err = ps.DB.Count(
 		&userPermission,
-		"user_id = ? AND object_type = ? AND object_id = ? AND permission IN (?)",
-		userId, objectType, objectId, allowedPermissions(permission),
+		"user_id = ? AND object_id = ? AND permission IN ?",
+		userId, objectId, allowedPermissions(permission),
 	)
 	if err != nil {
 		return false, fmt.Errorf("failed to check permissions: %w", err)
