@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"confirmate.io/core/api/evaluation"
@@ -47,15 +48,26 @@ const (
 // catalog evaluation run has finished, so that the certificate state reflects
 // the results of that run as a whole rather than of a single control.
 func (svc *Service) UpdateCertificateLifecycle(
-	_ context.Context,
+	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCertificateLifecycleRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
+	var allowed bool
+
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	if err = svc.updateCertificateLifecycle(req.Msg.GetAuditScopeId()); err != nil {
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	if err = svc.updateCertificateLifecycle(ctx, req.Msg.GetAuditScopeId()); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -65,7 +77,7 @@ func (svc *Service) UpdateCertificateLifecycle(
 // updateCertificateLifecycle re-evaluates the certificate state for the given
 // audit scope and appends a new [orchestrator.State] record if the compliance
 // posture has changed.
-func (svc *Service) updateCertificateLifecycle(auditScopeId string) error {
+func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId string) error {
 	// Find the certificate linked to this audit scope (with States preloaded).
 	var cert orchestrator.Certificate
 	err := svc.db.Get(&cert, "audit_scope_id = ?", auditScopeId)
@@ -77,29 +89,19 @@ func (svc *Service) updateCertificateLifecycle(auditScopeId string) error {
 	}
 
 	// Fetch the latest parent-level evaluation result per control for this scope.
-	// We reuse the same raw-SQL deduplication pattern as ListEvaluationResults.
-	var allResults []*evaluation.EvaluationResult
-	err = svc.db.Raw(&allResults, `
-		SELECT *
-		FROM evaluation_results
-		WHERE audit_scope_id = ? AND parent_control_id IS NULL
-		ORDER BY control_catalog_id, control_id, timestamp DESC
-	`, auditScopeId)
+	listRes, err := svc.ListEvaluationResults(ctx, connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
+			AuditScopeId: &auditScopeId,
+			ParentsOnly:  new(true),
+		},
+		LatestByControlId: new(true),
+	}))
 	if err != nil {
 		return fmt.Errorf("lifecycle: list evaluation results: %w", err)
 	}
-	if len(allResults) == 0 {
+	results := listRes.Msg.GetResults()
+	if len(results) == 0 {
 		return nil
-	}
-
-	// Deduplicate: keep only the latest result per control_id.
-	seen := make(map[string]bool)
-	results := allResults[:0]
-	for _, r := range allResults {
-		if !seen[r.GetControlId()] {
-			seen[r.GetControlId()] = true
-			results = append(results, r)
-		}
 	}
 
 	// Determine the target certificate state from the current results.
@@ -128,6 +130,12 @@ func (svc *Service) updateCertificateLifecycle(auditScopeId string) error {
 	if err = svc.db.Create(state); err != nil {
 		return fmt.Errorf("lifecycle: create state: %w", err)
 	}
+
+	slog.Info("Certificate lifecycle state changed",
+		slog.String("certificate_id", cert.Id),
+		slog.String("audit_scope_id", auditScopeId),
+		slog.String("state", target))
+
 	return nil
 }
 

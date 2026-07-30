@@ -1350,7 +1350,8 @@ message UpdateCertificateLifecycleRequest {
   ];
 }
 
-// An ISO17021-based certificate
+// An ISO17021-based certificate. The lifecycle manager keeps the certificate
+// state in sync with the evaluation results of its associated audit scope.
 message Certificate {
   string id = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -1372,8 +1373,7 @@ message Certificate {
   string description = 9;
   // A list of states at specific times
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
-  // The audit scope this certificate is associated with. The lifecycle manager
-  // keeps the certificate state in sync with the evaluation results of this scope.
+  // The audit scope this certificate is associated with.
   string audit_scope_id = 11 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
@@ -1385,7 +1385,8 @@ message State {
   string id = 1;
   // An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
   string state = 2;
-  string tree_id = 3;
+  reserved 3;
+  reserved "tree_id";
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;

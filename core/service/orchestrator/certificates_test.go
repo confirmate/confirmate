@@ -557,7 +557,7 @@ func TestService_ListCertificates(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, 1, len(got.Msg.Certificates)) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.Id, got.Msg.Certificates[0].Id)
+					assert.Equal(t, orchestratortest.MockCertificate1, got.Msg.Certificates[0])
 			},
 			wantErr: assert.NoError,
 		},
@@ -582,7 +582,7 @@ func TestService_ListCertificates(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
 				assert.NotNil(t, got.Msg)
 				return assert.Equal(t, 1, len(got.Msg.Certificates)) &&
-					assert.Equal(t, orchestratortest.MockCertificate2.Id, got.Msg.Certificates[0].Id)
+					assert.Equal(t, orchestratortest.MockCertificate2, got.Msg.Certificates[0])
 			},
 			wantErr: assert.NoError,
 		},

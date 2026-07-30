@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.15-29-g3b4d7d84
+    version: core/v0.2.17-33-g76b51391
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2540,10 +2540,10 @@ components:
                     description: A list of states at specific times
                 auditScopeId:
                     type: string
-                    description: |-
-                        The audit scope this certificate is associated with. The lifecycle manager
-                         keeps the certificate state in sync with the evaluation results of this scope.
-            description: An ISO17021-based certificate
+                    description: The audit scope this certificate is associated with.
+            description: |-
+                An ISO17021-based certificate. The lifecycle manager keeps the certificate
+                 state in sync with the evaluation results of its associated audit scope.
         ComparisonResult:
             required:
                 - property
@@ -3111,8 +3111,6 @@ components:
                 state:
                     type: string
                     description: An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
-                treeId:
-                    type: string
                 timestamp:
                     type: string
                 certificateId:

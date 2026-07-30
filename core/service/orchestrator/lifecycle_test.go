@@ -18,16 +18,20 @@ package orchestrator
 import (
 	"context"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/evaluation/evaluationtest"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -49,7 +53,14 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				auditScopeId := msgAndArgs[0].(string)
+
+				// Confirm the actual reason for the no-op: no certificate is linked to this audit scope.
+				var cert orchestrator.Certificate
+				err := db.Get(&cert, "audit_scope_id = ?", auditScopeId)
+				assert.ErrorIs(t, err, persistence.ErrRecordNotFound)
+
 				var states []*orchestrator.State
 				assert.NoError(t, db.List(&states, "id", true, 0, -1))
 				return assert.Equal(t, 0, len(states))
@@ -64,7 +75,18 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 				}),
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				auditScopeId := msgAndArgs[0].(string)
+
+				// Confirm a certificate does exist (ruling out the "no certificate" case above)
+				// but there are genuinely no evaluation results yet for this scope.
+				var cert orchestrator.Certificate
+				assert.NoError(t, db.Get(&cert, "audit_scope_id = ?", auditScopeId))
+
+				var results []*evaluation.EvaluationResult
+				assert.NoError(t, db.List(&results, "id", true, 0, -1, "audit_scope_id = ?", auditScopeId))
+				assert.Equal(t, 0, len(results))
+
 				var states []*orchestrator.State
 				assert.NoError(t, db.List(&states, "id", true, 0, -1))
 				return assert.Equal(t, 0, len(states))
@@ -85,7 +107,18 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 				}),
 			},
 			wantErr: assert.NoError,
-			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				auditScopeId := msgAndArgs[0].(string)
+
+				// Confirm results exist for this scope, and all of them are PENDING —
+				// ruling out the "no results" case above and pinning down the actual reason.
+				var results []*evaluation.EvaluationResult
+				assert.NoError(t, db.List(&results, "id", true, 0, -1, "audit_scope_id = ?", auditScopeId))
+				assert.NotEqual(t, 0, len(results))
+				for _, r := range results {
+					assert.Equal(t, evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING, r.GetStatus())
+				}
+
 				var states []*orchestrator.State
 				assert.NoError(t, db.List(&states, "id", true, 0, -1))
 				return assert.Equal(t, 0, len(states))
@@ -110,9 +143,21 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
 				var states []*orchestrator.State
 				assert.NoError(t, db.List(&states, "id", true, 0, -1))
-				return assert.Equal(t, 1, len(states)) &&
-					assert.Equal(t, CertificateStateSuspended, states[0].State) &&
-					assert.Equal(t, orchestratortest.MockCertificateId1, states[0].CertificateId)
+				if !assert.Equal(t, 1, len(states)) {
+					return false
+				}
+
+				// Id and Timestamp are generated at runtime; check them for well-formedness
+				// and compare the rest of the object as a whole.
+				_, err := uuid.Parse(states[0].GetId())
+				assert.NoError(t, err)
+				_, err = time.Parse(time.RFC3339, states[0].GetTimestamp())
+				assert.NoError(t, err)
+
+				return assert.Equal(t, &orchestrator.State{
+					State:         CertificateStateSuspended,
+					CertificateId: orchestratortest.MockCertificateId1,
+				}, states[0], protocmp.IgnoreFields(&orchestrator.State{}, "id", "timestamp"))
 			},
 		},
 		{
@@ -220,7 +265,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 					assert.NoError(t, d.Create(&evaluation.EvaluationResult{
 						Id:              "00000000-0000-0000-0099-000000000002",
 						AuditScopeId:    orchestratortest.MockScopeId1,
-						ControlId:       evaluationtest.MockSubcontrolId11,
+						ControlId:       evaluationtest.MockControl1SubcontrolId11,
 						ParentControlId: &parent,
 						Status:          evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 						Timestamp:       timestamppb.Now(),
@@ -240,16 +285,17 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{db: tt.fields.db}
-			err := svc.updateCertificateLifecycle(tt.auditScopeId)
+			err := svc.updateCertificateLifecycle(context.Background(), tt.auditScopeId)
 			tt.wantErr(t, err)
-			tt.wantDB(t, tt.fields.db)
+			tt.wantDB(t, tt.fields.db, tt.auditScopeId)
 		})
 	}
 }
 
 func TestService_UpdateCertificateLifecycle(t *testing.T) {
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -261,11 +307,39 @@ func TestService_UpdateCertificateLifecycle(t *testing.T) {
 		{
 			name: "validation error",
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			req: &orchestrator.UpdateCertificateLifecycleRequest{},
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
+				var states []*orchestrator.State
+				assert.NoError(t, db.List(&states, "id", true, 0, -1))
+				return assert.Equal(t, 0, len(states))
+			},
+		},
+		{
+			name: "permission denied",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCertificate1))
+					assert.NoError(t, d.Create(&evaluation.EvaluationResult{
+						Id:           "00000000-0000-0000-0099-000000000001",
+						AuditScopeId: orchestratortest.MockScopeId1,
+						ControlId:    evaluationtest.MockControlId1,
+						Status:       evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
+						Timestamp:    timestamppb.Now(),
+					}))
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			req: &orchestrator.UpdateCertificateLifecycleRequest{
+				AuditScopeId: orchestratortest.MockScopeId1,
+			},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorIs(t, err, service.ErrPermissionDenied)
 			},
 			wantDB: func(t *testing.T, db persistence.DB, _ ...any) bool {
 				var states []*orchestrator.State
@@ -286,6 +360,7 @@ func TestService_UpdateCertificateLifecycle(t *testing.T) {
 						Timestamp:    timestamppb.Now(),
 					}))
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			req: &orchestrator.UpdateCertificateLifecycleRequest{
 				AuditScopeId: orchestratortest.MockScopeId1,
@@ -302,7 +377,7 @@ func TestService_UpdateCertificateLifecycle(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := &Service{db: tt.fields.db}
+			svc := &Service{db: tt.fields.db, authz: tt.fields.authz}
 			_, err := svc.UpdateCertificateLifecycle(context.Background(), connect.NewRequest(tt.req))
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db)

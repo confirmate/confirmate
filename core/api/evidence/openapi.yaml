@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.15-29-g3b4d7d84
+    version: core/v0.2.17-33-g76b51391
 paths:
     /v1/evidence_store/evidence:
         post:
@@ -274,6 +274,12 @@ components:
             type: object
             properties: {}
             description: ABAC is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        AccessControlTypePolicy:
+            type: object
+            properties:
+                authorizationTypes:
+                    type: string
+            description: AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         AccessRestriction:
             type: object
             properties:
@@ -2450,12 +2456,16 @@ components:
                     $ref: '#/components/schemas/Output'
                 padding:
                     $ref: '#/components/schemas/Padding'
+                accessControlTypePolicy:
+                    $ref: '#/components/schemas/AccessControlTypePolicy'
                 dataConfidentialitySdnPolicy:
                     $ref: '#/components/schemas/DataConfidentialitySDNPolicy'
                 leastPrivilegePolicy:
                     $ref: '#/components/schemas/LeastPrivilegePolicy'
                 needToKnowPolicy:
                     $ref: '#/components/schemas/NeedToKnowPolicy'
+                networkThreatMitigationPolicy:
+                    $ref: '#/components/schemas/NetworkThreatMitigationPolicy'
                 sdnFunctionValidationPolicy:
                     $ref: '#/components/schemas/SDNFunctionValidationPolicy'
                 separationOfDutiesPolicy:
@@ -4366,6 +4376,16 @@ components:
                 usageStatistics:
                     $ref: '#/components/schemas/UsageStatistics'
             description: NetworkSecurityGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        NetworkThreatMitigationPolicy:
+            type: object
+            properties:
+                coveredAttackTypes:
+                    type: array
+                    items:
+                        type: string
+            description: |-
+                NetworkThreatMitigationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Represents a policy section within a [PolicyDocument] describing network threat mitigation mechanisms and attack coverage. coveredAttackTypes: the types of network-level attacks mitigated by implemented controls (e.g., DoS, DDoS).
         NoAuthentication:
             type: object
             properties:

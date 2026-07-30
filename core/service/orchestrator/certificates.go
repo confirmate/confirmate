@@ -135,11 +135,13 @@ func (svc *Service) ListCertificates(
 
 	// Filter by target_of_evaluation_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		conds = append(conds, "target_of_evaluation_id = ?", *req.Msg.Filter.TargetOfEvaluationId)
+		query = append(query, "target_of_evaluation_id = ?")
+		args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())
 	}
 	// Filter by audit_scope_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.AuditScopeId != nil {
-		conds = append(conds, "audit_scope_id = ?", *req.Msg.Filter.AuditScopeId)
+		query = append(query, "audit_scope_id = ?")
+		args = append(args, req.Msg.Filter.GetAuditScopeId())
 	}
 
 	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
@@ -227,6 +229,10 @@ func (svc *Service) UpdateCertificate(
 		return nil, err
 	}
 
+	// Copy only the client-editable fields rather than using req.Msg.GetCertificate() as-is.
+	// svc.db.Update below runs with GORM's FullSaveAssociations, so passing the request's
+	// certificate straight through would let a client overwrite the states association —
+	// which is exclusively managed by the lifecycle manager.
 	cert = &orchestrator.Certificate{
 		Id:                   req.Msg.GetCertificate().GetId(),
 		Name:                 req.Msg.GetCertificate().GetName(),

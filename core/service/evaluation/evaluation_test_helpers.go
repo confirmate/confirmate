@@ -66,8 +66,7 @@ type mockOrchestratorHandler struct {
 	listUserPermissionsError error
 
 	// UpdateCertificateLifecycle support
-	lifecycleUpdates                []string
-	updateCertificateLifecycleError error
+	lifecycleUpdates []string
 
 	// ListControlsInScope support
 	controlsInScope          []*orchestrator.ControlInScope
@@ -259,10 +258,6 @@ func (m *mockOrchestratorHandler) UpdateCertificateLifecycle(
 	_ context.Context,
 	req *connect.Request[orchestrator.UpdateCertificateLifecycleRequest],
 ) (*connect.Response[emptypb.Empty], error) {
-	if m.updateCertificateLifecycleError != nil {
-		return nil, m.updateCertificateLifecycleError
-	}
-
 	m.mu.Lock()
 	m.lifecycleUpdates = append(m.lifecycleUpdates, req.Msg.GetAuditScopeId())
 	m.mu.Unlock()
@@ -432,11 +427,6 @@ func WithGetCatalogNotFoundError(err error) func(*mockOrchestratorHandler) {
 // WithUserPermissions seeds the handler with user permissions returned by ListUserPermissions.
 func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.userPermissions = permissions }
-}
-
-// WithUpdateCertificateLifecycleError forces UpdateCertificateLifecycle to return the given error.
-func WithUpdateCertificateLifecycleError(err error) func(*mockOrchestratorHandler) {
-	return func(h *mockOrchestratorHandler) { h.updateCertificateLifecycleError = err }
 }
 
 func WithControlsInScope(controlsInScope []*orchestrator.ControlInScope) func(*mockOrchestratorHandler) {

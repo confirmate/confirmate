@@ -4330,7 +4330,8 @@ func (x *UpdateCertificateLifecycleRequest) GetAuditScopeId() string {
 	return ""
 }
 
-// An ISO17021-based certificate
+// An ISO17021-based certificate. The lifecycle manager keeps the certificate
+// state in sync with the evaluation results of its associated audit scope.
 type Certificate struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	Id                   string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -4344,8 +4345,7 @@ type Certificate struct {
 	Description          string                 `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
 	// A list of states at specific times
 	States []*State `protobuf:"bytes,10,rep,name=states,proto3" json:"states,omitempty" gorm:"constraint:OnDelete:CASCADE"`
-	// The audit scope this certificate is associated with. The lifecycle manager
-	// keeps the certificate state in sync with the evaluation results of this scope.
+	// The audit scope this certificate is associated with.
 	AuditScopeId  string `protobuf:"bytes,11,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4464,7 +4464,6 @@ type State struct {
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
 	State     string `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
-	TreeId    string `protobuf:"bytes,3,opt,name=tree_id,json=treeId,proto3" json:"tree_id,omitempty"`
 	Timestamp string `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	// Reference to the certificate
 	CertificateId string `protobuf:"bytes,5,opt,name=certificate_id,json=certificateId,proto3" json:"certificate_id,omitempty"`
@@ -4512,13 +4511,6 @@ func (x *State) GetId() string {
 func (x *State) GetState() string {
 	if x != nil {
 		return x.State
-	}
-	return ""
-}
-
-func (x *State) GetTreeId() string {
-	if x != nil {
-		return x.TreeId
 	}
 	return ""
 }
@@ -6541,13 +6533,12 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\vdescription\x18\t \x01(\tR\vdescription\x12b\n" +
 	"\x06states\x18\n" +
 	" \x03(\v2!.confirmate.orchestrator.v1.StateB'\x9a\x84\x9e\x03\"gorm:\"constraint:OnDelete:CASCADE\"R\x06states\x121\n" +
-	"\x0eaudit_scope_id\x18\v \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x8b\x01\n" +
+	"\x0eaudit_scope_id\x18\v \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x81\x01\n" +
 	"\x05State\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05state\x18\x02 \x01(\tR\x05state\x12\x17\n" +
-	"\atree_id\x18\x03 \x01(\tR\x06treeId\x12\x1c\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12\x1c\n" +
 	"\ttimestamp\x18\x04 \x01(\tR\ttimestamp\x12%\n" +
-	"\x0ecertificate_id\x18\x05 \x01(\tR\rcertificateId\"}\n" +
+	"\x0ecertificate_id\x18\x05 \x01(\tR\rcertificateIdJ\x04\b\x03\x10\x04R\atree_id\"}\n" +
 	"\x1bUpsertUserPermissionRequest\x12^\n" +
 	"\x0fuser_permission\x18\x01 \x01(\v2*.confirmate.orchestrator.v1.UserPermissionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x0euserPermission\"s\n" +
 	"\x1cUpsertUserPermissionResponse\x12S\n" +
