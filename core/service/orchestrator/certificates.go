@@ -47,6 +47,7 @@ func (svc *Service) CreateCertificate(
 		Name:                 req.Msg.GetCertificate().GetName(),
 		Description:          req.Msg.GetCertificate().GetDescription(),
 		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
+		AuditScopeId:         req.Msg.GetCertificate().GetAuditScopeId(),
 		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
 		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
 		Standard:             req.Msg.GetCertificate().GetStandard(),
@@ -130,6 +131,17 @@ func (svc *Service) ListCertificates(
 	if req.Msg.OrderBy == "" {
 		req.Msg.OrderBy = "id"
 		req.Msg.Asc = true
+	}
+
+	// Filter by target_of_evaluation_id if provided
+	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
+		query = append(query, "target_of_evaluation_id = ?")
+		args = append(args, req.Msg.Filter.GetTargetOfEvaluationId())
+	}
+	// Filter by audit_scope_id if provided
+	if req.Msg.Filter != nil && req.Msg.Filter.AuditScopeId != nil {
+		query = append(query, "audit_scope_id = ?")
+		args = append(args, req.Msg.Filter.GetAuditScopeId())
 	}
 
 	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
@@ -217,11 +229,16 @@ func (svc *Service) UpdateCertificate(
 		return nil, err
 	}
 
+	// Copy only the client-editable fields rather than using req.Msg.GetCertificate() as-is.
+	// svc.db.Update below runs with GORM's FullSaveAssociations, so passing the request's
+	// certificate straight through would let a client overwrite the states association —
+	// which is exclusively managed by the lifecycle manager.
 	cert = &orchestrator.Certificate{
 		Id:                   req.Msg.GetCertificate().GetId(),
 		Name:                 req.Msg.GetCertificate().GetName(),
 		Description:          req.Msg.GetCertificate().GetDescription(),
 		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
+		AuditScopeId:         req.Msg.GetCertificate().GetAuditScopeId(),
 		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
 		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
 		Standard:             req.Msg.GetCertificate().GetStandard(),

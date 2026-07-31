@@ -254,6 +254,13 @@ service Orchestrator {
     option (google.api.http) = {delete: "/v1/orchestrator/certificates/{certificate_id}"};
   }
 
+  // Re-evaluates the certificate lifecycle state for the given audit scope
+  // based on its current evaluation results. This is called by the
+  // evaluation component once a full catalog evaluation run has finished.
+  rpc UpdateCertificateLifecycle(UpdateCertificateLifecycleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/orchestrator/audit_scopes/{audit_scope_id}/certificate_lifecycle"};
+  }
+
   // Creates a new security controls catalog
   rpc CreateCatalog(CreateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
@@ -1201,6 +1208,15 @@ message GetCertificateRequest {
 }
 
 message ListCertificatesRequest {
+  message Filter {
+    // Optional. List only certificates of a specific target of evaluation.
+    optional string target_of_evaluation_id = 1;
+    // Optional. List only certificates of a specific audit scope.
+    optional string audit_scope_id = 2;
+  }
+
+  optional Filter filter = 1;
+
   int32 page_size = 10;
   string page_token = 11;
   string order_by = 12;
@@ -1327,7 +1343,15 @@ message RemoveCertificateRequest {
   ];
 }
 
-// An ISO17021-based certificate
+message UpdateCertificateLifecycleRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// An ISO17021-based certificate. The lifecycle manager keeps the certificate
+// state in sync with the evaluation results of its associated audit scope.
 message Certificate {
   string id = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -1349,6 +1373,11 @@ message Certificate {
   string description = 9;
   // A list of states at specific times
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
+  // The audit scope this certificate is associated with.
+  string audit_scope_id = 11 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 // A state of a certificate at a given time
@@ -1356,7 +1385,8 @@ message State {
   string id = 1;
   // An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
   string state = 2;
-  string tree_id = 3;
+  reserved 3;
+  reserved "tree_id";
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
