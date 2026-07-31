@@ -415,8 +415,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":       false,
-				"AutomaticUpdatesInterval":      false,
+				"SoftwareAttestationEnabled":    true,
 				"VulnerabilitiesNotExploitable": true,
 			},
 			wantErr: assert.NoError,
@@ -583,6 +582,8 @@ func Test_regoEval_evalMap(t *testing.T) {
 					"automaticUpdates": map[string]interface{}{
 						"enabled": true,
 					},
+					// explicitly typed as interface{} holding a []string
+					"type": interface{}([]string{"VirtualMachine", "Compute", "Resource"}),
 				},
 				src: &mockMetricsSource{t: t},
 			},
