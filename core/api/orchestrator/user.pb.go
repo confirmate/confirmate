@@ -49,21 +49,27 @@ const (
 	Role_ROLE_EXPERT_COMPLIANCE_MANAGER          Role = 3
 	Role_ROLE_INTERNAL_CONTROL_OWNER             Role = 4
 	Role_ROLE_TECHNICAL_IMPLEMENTER              Role = 5
-	Role_ROLE_AUDITOR                            Role = 6
-	Role_ROLE_CHIEF_INFORMATION_SECURITY_OFFICER Role = 7
+	Role_ROLE_INTERNAL_AUDITOR                   Role = 6
+	Role_ROLE_LEAD_AUDITOR                       Role = 7
+	Role_ROLE_TECHNICAL_AUDITOR                  Role = 8
+	Role_ROLE_CHIEF_INFORMATION_SECURITY_OFFICER Role = 9
+	Role_ROLE_UI_ADMIN                           Role = 10
 )
 
 // Enum value maps for Role.
 var (
 	Role_name = map[int32]string{
-		0: "ROLE_UNSPECIFIED",
-		1: "ROLE_ADMIN",
-		2: "ROLE_COMPLIANCE_MANAGER",
-		3: "ROLE_EXPERT_COMPLIANCE_MANAGER",
-		4: "ROLE_INTERNAL_CONTROL_OWNER",
-		5: "ROLE_TECHNICAL_IMPLEMENTER",
-		6: "ROLE_AUDITOR",
-		7: "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER",
+		0:  "ROLE_UNSPECIFIED",
+		1:  "ROLE_ADMIN",
+		2:  "ROLE_COMPLIANCE_MANAGER",
+		3:  "ROLE_EXPERT_COMPLIANCE_MANAGER",
+		4:  "ROLE_INTERNAL_CONTROL_OWNER",
+		5:  "ROLE_TECHNICAL_IMPLEMENTER",
+		6:  "ROLE_INTERNAL_AUDITOR",
+		7:  "ROLE_LEAD_AUDITOR",
+		8:  "ROLE_TECHNICAL_AUDITOR",
+		9:  "ROLE_CHIEF_INFORMATION_SECURITY_OFFICER",
+		10: "ROLE_UI_ADMIN",
 	}
 	Role_value = map[string]int32{
 		"ROLE_UNSPECIFIED":                        0,
@@ -72,8 +78,11 @@ var (
 		"ROLE_EXPERT_COMPLIANCE_MANAGER":          3,
 		"ROLE_INTERNAL_CONTROL_OWNER":             4,
 		"ROLE_TECHNICAL_IMPLEMENTER":              5,
-		"ROLE_AUDITOR":                            6,
-		"ROLE_CHIEF_INFORMATION_SECURITY_OFFICER": 7,
+		"ROLE_INTERNAL_AUDITOR":                   6,
+		"ROLE_LEAD_AUDITOR":                       7,
+		"ROLE_TECHNICAL_AUDITOR":                  8,
+		"ROLE_CHIEF_INFORMATION_SECURITY_OFFICER": 9,
+		"ROLE_UI_ADMIN":                           10,
 	}
 )
 
@@ -481,7 +490,7 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11PERMISSION_READER\x10\x01\x12\x1a\n" +
 	"\x16PERMISSION_CONTRIBUTOR\x10\x02\x12\x14\n" +
-	"\x10PERMISSION_ADMIN\x10\x03*\xed\x01\n" +
+	"\x10PERMISSION_ADMIN\x10\x03*\xbc\x02\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -489,9 +498,13 @@ const file_api_orchestrator_user_proto_rawDesc = "" +
 	"\x17ROLE_COMPLIANCE_MANAGER\x10\x02\x12\"\n" +
 	"\x1eROLE_EXPERT_COMPLIANCE_MANAGER\x10\x03\x12\x1f\n" +
 	"\x1bROLE_INTERNAL_CONTROL_OWNER\x10\x04\x12\x1e\n" +
-	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x10\n" +
-	"\fROLE_AUDITOR\x10\x06\x12+\n" +
-	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\a*\x94\x04\n" +
+	"\x1aROLE_TECHNICAL_IMPLEMENTER\x10\x05\x12\x19\n" +
+	"\x15ROLE_INTERNAL_AUDITOR\x10\x06\x12\x15\n" +
+	"\x11ROLE_LEAD_AUDITOR\x10\a\x12\x1a\n" +
+	"\x16ROLE_TECHNICAL_AUDITOR\x10\b\x12+\n" +
+	"'ROLE_CHIEF_INFORMATION_SECURITY_OFFICER\x10\t\x12\x11\n" +
+	"\rROLE_UI_ADMIN\x10\n" +
+	"*\x94\x04\n" +
 	"\n" +
 	"ObjectType\x12\x1b\n" +
 	"\x17OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +

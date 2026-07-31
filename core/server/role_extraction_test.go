@@ -101,27 +101,27 @@ func TestApplyRoleMapping(t *testing.T) {
 		{
 			name:   "default path reads top-level roles",
 			paths:  nil, // i.e. no explicit override; constructor default applies
-			raw:    jwt.MapClaims{"roles": []any{"ROLE_AUDITOR"}},
+			raw:    jwt.MapClaims{"roles": []any{"ROLE_LEAD_AUDITOR"}},
 			preset: []orchestrator.Role{orchestrator.Role_ROLE_COMPLIANCE_MANAGER},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
+			want:   []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
 		},
 		{
 			name:  "explicit path replaces preset",
 			paths: []string{"realm_access.roles"},
 			raw: jwt.MapClaims{
-				"realm_access": map[string]any{"roles": []any{"ROLE_ADMIN", "ROLE_AUDITOR"}},
+				"realm_access": map[string]any{"roles": []any{"ROLE_ADMIN", "ROLE_LEAD_AUDITOR"}},
 			},
 			preset: []orchestrator.Role{orchestrator.Role_ROLE_COMPLIANCE_MANAGER},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN, orchestrator.Role_ROLE_AUDITOR},
+			want:   []orchestrator.Role{orchestrator.Role_ROLE_ADMIN, orchestrator.Role_ROLE_LEAD_AUDITOR},
 		},
 		{
 			name:  "multiple paths are merged and deduplicated",
 			paths: []string{"roles", "realm_access.roles"},
 			raw: jwt.MapClaims{
 				"roles":        []any{"ROLE_ADMIN"},
-				"realm_access": map[string]any{"roles": []any{"ROLE_ADMIN", "ROLE_AUDITOR"}},
+				"realm_access": map[string]any{"roles": []any{"ROLE_ADMIN", "ROLE_LEAD_AUDITOR"}},
 			},
-			want: []orchestrator.Role{orchestrator.Role_ROLE_ADMIN, orchestrator.Role_ROLE_AUDITOR},
+			want: []orchestrator.Role{orchestrator.Role_ROLE_ADMIN, orchestrator.Role_ROLE_LEAD_AUDITOR},
 		},
 		{
 			name:  "normalizer translates known IdP names",
@@ -145,8 +145,8 @@ func TestApplyRoleMapping(t *testing.T) {
 			raw: jwt.MapClaims{
 				"realm_access": map[string]any{"roles": []any{}},
 			},
-			preset: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
-			want:   []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
+			preset: []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
+			want:   []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
 		},
 	}
 

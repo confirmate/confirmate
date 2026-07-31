@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -45,7 +46,7 @@ func TestGetConfirmateUserIDFromClaims(t *testing.T) {
 				},
 			},
 			want: func(t *testing.T, got string, _ ...any) bool {
-				expected := "testIssuer|testSubject"
+				expected := orchestratortest.GetConfirmateUserID("testIssuer", "testSubject")
 
 				return assert.Equal(t, expected, got)
 			},
@@ -88,7 +89,7 @@ func TestOAuthClaimsHasRole(t *testing.T) {
 		{
 			name: "role present",
 			claims: &OAuthClaims{
-				Roles: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR, orchestrator.Role_ROLE_ADMIN},
+				Roles: []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR, orchestrator.Role_ROLE_ADMIN},
 			},
 			role: orchestrator.Role_ROLE_ADMIN,
 			want: func(t *testing.T, got bool, _ ...any) bool {
@@ -98,7 +99,7 @@ func TestOAuthClaimsHasRole(t *testing.T) {
 		{
 			name: "role missing",
 			claims: &OAuthClaims{
-				Roles: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
+				Roles: []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
 			},
 			role: orchestrator.Role_ROLE_ADMIN,
 			want: func(t *testing.T, got bool, _ ...any) bool {
@@ -132,7 +133,7 @@ func TestOAuthClaimsIsAdmin(t *testing.T) {
 			name: "cfadmin claim is admin",
 			claims: &OAuthClaims{
 				IsAdminToken: true,
-				Roles:        []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
+				Roles:        []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
 			},
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.True(t, got)
@@ -141,7 +142,7 @@ func TestOAuthClaimsIsAdmin(t *testing.T) {
 		{
 			name: "role admin is admin",
 			claims: &OAuthClaims{
-				Roles: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR, orchestrator.Role_ROLE_ADMIN},
+				Roles: []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR, orchestrator.Role_ROLE_ADMIN},
 			},
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.True(t, got)
@@ -150,7 +151,7 @@ func TestOAuthClaimsIsAdmin(t *testing.T) {
 		{
 			name: "without admin claim or role is not admin",
 			claims: &OAuthClaims{
-				Roles: []orchestrator.Role{orchestrator.Role_ROLE_AUDITOR},
+				Roles: []orchestrator.Role{orchestrator.Role_ROLE_LEAD_AUDITOR},
 			},
 			want: func(t *testing.T, got bool, _ ...any) bool {
 				return assert.False(t, got)

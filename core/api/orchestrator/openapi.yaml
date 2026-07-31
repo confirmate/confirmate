@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.14-1-g6f9910d4
+    version: core/v0.2.17-19-g39bb19b
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -47,6 +47,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.evidenceId
+                  in: query
+                  description: Optional. List only assessment results from a specific evidence ID.
+                  schema:
+                    type: string
                 - name: latestByResourceId
                   in: query
                   description: Optional. Latest results grouped by resource_id and metric_id.
@@ -786,6 +791,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.full
+                  in: query
+                  description: Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+                  schema:
+                    type: boolean
                 - name: pageSize
                   in: query
                   schema:
@@ -872,6 +882,11 @@ paths:
                 - name: filter.assigneeId
                   in: query
                   description: Optional. Filter by assignee.
+                  schema:
+                    type: string
+                - name: filter.controlId
+                  in: query
+                  description: Optional. Filter by control ID.
                   schema:
                     type: string
                 - name: pageSize
@@ -996,6 +1011,11 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
+                - name: comment
+                  in: query
+                  description: Comment explains why this control is being removed from scope.
                   schema:
                     type: string
             responses:
@@ -1732,8 +1752,11 @@ paths:
                         - ROLE_EXPERT_COMPLIANCE_MANAGER
                         - ROLE_INTERNAL_CONTROL_OWNER
                         - ROLE_TECHNICAL_IMPLEMENTER
-                        - ROLE_AUDITOR
+                        - ROLE_INTERNAL_AUDITOR
+                        - ROLE_LEAD_AUDITOR
+                        - ROLE_TECHNICAL_AUDITOR
                         - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        - ROLE_UI_ADMIN
                     type: string
                     format: enum
                 - name: filter.enabled
@@ -2514,6 +2537,7 @@ components:
                 - controls
                 - metrics
                 - shortName
+                - catalogId
             type: object
             properties:
                 id:
@@ -2556,6 +2580,9 @@ components:
                     items:
                         $ref: '#/components/schemas/ControlInScope'
                     description: 'FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).'
+                catalogId:
+                    type: string
+                    description: Catalog ID of the catalog this control belongs to.
             description: |-
                 Control represents a certain Control that needs to be fulfilled. It could be
                  a Control in a certification catalog. It follows the OSCAL model. A
@@ -2630,6 +2657,9 @@ components:
                 assigneeId:
                     type: string
                     description: AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+                comment:
+                    type: string
+                    description: Comment explains why this control is being brought into scope.
         Dependency:
             type: object
             properties:
@@ -2841,7 +2871,6 @@ components:
         ListTargetsOfEvaluationResponse:
             required:
                 - targetsOfEvaluation
-                - targetsOfEvaluation
             type: object
             properties:
                 targetsOfEvaluation:
@@ -2872,8 +2901,11 @@ components:
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
                             - ROLE_INTERNAL_CONTROL_OWNER
                             - ROLE_TECHNICAL_IMPLEMENTER
-                            - ROLE_AUDITOR
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
                             - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
                         type: string
                         format: enum
         ListUsersResponse:
@@ -2902,16 +2934,16 @@ components:
                     description: Required. The name of the metric.
                 description:
                     type: string
-                    description: The description of the metric
+                    description: The description of the metric.
                 version:
                     type: string
-                    description: The version of this metric
+                    description: The version of this metric.
                 comments:
                     type: string
                     description: Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
                 category:
                     type: string
-                    description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
+                    description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics repository.
                 implementation:
                     allOf:
                         - $ref: '#/components/schemas/MetricImplementation'
@@ -2936,7 +2968,7 @@ components:
             properties:
                 operator:
                     type: string
-                    description: The operator to compare the metric, such as == or >
+                    description: The operator to compare the metric, such as "==" or ">"
                 targetValue:
                     allOf:
                         - $ref: '#/components/schemas/GoogleProtobufValue'
@@ -2953,7 +2985,7 @@ components:
                     description: The metric this configuration belongs to
                 targetOfEvaluationId:
                     type: string
-                    description: The target of evaluation this configuration belongs to
+                    description: The target of evaluation this configuration belongs to.
             description: Defines the operator and a target value for an individual metric
         MetricImplementation:
             required:
@@ -3219,8 +3251,11 @@ components:
                             - ROLE_EXPERT_COMPLIANCE_MANAGER
                             - ROLE_INTERNAL_CONTROL_OWNER
                             - ROLE_TECHNICAL_IMPLEMENTER
-                            - ROLE_AUDITOR
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
                             - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
                         type: string
                         format: enum
                     description: Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.

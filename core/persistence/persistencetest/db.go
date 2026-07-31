@@ -32,6 +32,7 @@ type errorDB struct {
 	getErr    error
 	listErr   error
 	countErr  error
+	pluckErr  error
 	rawErr    error
 }
 
@@ -99,6 +100,14 @@ func RawErrorDB(t *testing.T, err error, types []any, joinTable []persistence.Cu
 	}
 }
 
+// PluckErrorDB returns an ErrorDB that fails on Pluck with the provided error.
+func PluckErrorDB(t *testing.T, err error, types []any, joinTable []persistence.CustomJoinTable, init ...func(persistence.DB)) persistence.DB {
+	return &errorDB{
+		pluckErr: err,
+		DB:       NewInMemoryDB(t, types, joinTable, init...),
+	}
+}
+
 // MultiErrorDB returns an [persistence.DB] that can fail on multiple operations with the provided
 // errors.
 func MultiErrorDB(t *testing.T,
@@ -109,6 +118,7 @@ func MultiErrorDB(t *testing.T,
 	getErr,
 	listErr,
 	countErr,
+	pluckErr,
 	rawErr error,
 	types []any, joinTable []persistence.CustomJoinTable, init ...func(persistence.DB)) persistence.DB {
 	return &errorDB{
@@ -119,6 +129,7 @@ func MultiErrorDB(t *testing.T,
 		getErr:    getErr,
 		listErr:   listErr,
 		countErr:  countErr,
+		pluckErr:  pluckErr,
 		rawErr:    rawErr,
 		DB:        NewInMemoryDB(t, types, joinTable, init...),
 	}
@@ -180,6 +191,14 @@ func (t *errorDB) Count(r any, conds ...any) (int64, error) {
 	return t.DB.Count(r, conds...)
 }
 
+func (t *errorDB) Pluck(model any, column string, dest any, conds ...any) error {
+	if t.pluckErr != nil {
+		return t.pluckErr
+	}
+
+	return t.DB.Pluck(model, column, dest, conds...)
+}
+
 func (t *errorDB) Raw(r any, query string, args ...any) error {
 	if t.rawErr != nil {
 		return t.rawErr
@@ -199,6 +218,7 @@ func (t *errorDB) Transaction(fn func(tx persistence.DB) error) error {
 			getErr:    t.getErr,
 			listErr:   t.listErr,
 			countErr:  t.countErr,
+			pluckErr:  t.pluckErr,
 			rawErr:    t.rawErr,
 		})
 	})

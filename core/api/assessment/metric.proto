@@ -39,13 +39,13 @@ message Metric {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The description of the metric
+  // The description of the metric.
   string description = 3 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The version of this metric
+  // The version of this metric.
   string version = 4 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
@@ -54,7 +54,7 @@ message Metric {
   // Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
   string comments = 5;
 
-  // Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
+  // Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics repository.
   string category = 6 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
@@ -71,7 +71,7 @@ message Metric {
 
 // Defines the operator and a target value for an individual metric
 message MetricConfiguration {
-  // The operator to compare the metric, such as == or >
+  // The operator to compare the metric, such as "==" or ">"
   string operator = 1 [
     (buf.validate.field).string.pattern = "^(<|>|<=|>=|==|!=|isIn|allIn)$",
     (google.api.field_behavior) = REQUIRED
@@ -97,7 +97,7 @@ message MetricConfiguration {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The target of evaluation this configuration belongs to
+  // The target of evaluation this configuration belongs to.
   string target_of_evaluation_id = 6 [
     (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.uuid = true,

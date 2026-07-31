@@ -16,6 +16,9 @@
 package auth
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+
 	"confirmate.io/core/api/orchestrator"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -74,10 +77,16 @@ func (claims *OAuthClaims) HasRole(role orchestrator.Role) bool {
 	return false
 }
 
-// GetConfirmateUserIDFromClaims constructs a unique user ID from the claims. It combines the issuer and subject
+// GetConfirmateUserIDFromClaims constructs a unique user ID from the claims.
+// It combines a hashed version of the issuer URL and the subject claim to create a unique identifier for the user.
 func GetConfirmateUserIDFromClaims(claims *OAuthClaims) string {
 	if claims == nil || claims.RegisteredClaims.Issuer == "" || claims.RegisteredClaims.Subject == "" {
 		return ""
 	}
-	return claims.RegisteredClaims.Issuer + "|" + claims.RegisteredClaims.Subject
+
+	// Hash the issuer URL so the URL itself is not stored directly.
+	h := md5.Sum([]byte(claims.RegisteredClaims.Issuer))
+	hashedIssuer := hex.EncodeToString(h[:])
+
+	return hashedIssuer + "-" + claims.RegisteredClaims.Subject
 }

@@ -2633,8 +2633,10 @@ type Control struct {
 	ShortName string `protobuf:"bytes,12,opt,name=short_name,json=shortName,proto3" json:"short_name,omitempty"`
 	// FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
 	ControlsInScope []*ControlInScope `protobuf:"bytes,13,rep,name=controls_in_scope,json=controlsInScope,proto3" json:"controls_in_scope,omitempty" gorm:"foreignKey:ControlId;constraint:OnDelete:RESTRICT"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Catalog ID of the catalog this control belongs to.
+	CatalogId     string `protobuf:"bytes,14,opt,name=catalog_id,json=catalogId,proto3" json:"catalog_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Control) Reset() {
@@ -2728,6 +2730,13 @@ func (x *Control) GetControlsInScope() []*ControlInScope {
 		return x.ControlsInScope
 	}
 	return nil
+}
+
+func (x *Control) GetCatalogId() string {
+	if x != nil {
+		return x.CatalogId
+	}
+	return ""
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -5618,8 +5627,10 @@ type ListAssessmentResultsRequest_Filter struct {
 	ToolId *string `protobuf:"bytes,5,opt,name=tool_id,json=toolId,proto3,oneof" json:"tool_id,omitempty"`
 	// Optional. List only assessment result from a specific list of IDs.
 	AssessmentResultIds []string `protobuf:"bytes,6,rep,name=assessment_result_ids,json=assessmentResultIds,proto3" json:"assessment_result_ids,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Optional. List only assessment results from a specific evidence ID.
+	EvidenceId    *string `protobuf:"bytes,7,opt,name=evidence_id,json=evidenceId,proto3,oneof" json:"evidence_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAssessmentResultsRequest_Filter) Reset() {
@@ -5694,6 +5705,13 @@ func (x *ListAssessmentResultsRequest_Filter) GetAssessmentResultIds() []string 
 	return nil
 }
 
+func (x *ListAssessmentResultsRequest_Filter) GetEvidenceId() string {
+	if x != nil && x.EvidenceId != nil {
+		return *x.EvidenceId
+	}
+	return ""
+}
+
 type ListAuditScopesRequest_Filter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. List only audit scopes of a specific target of evaluation
@@ -5756,8 +5774,10 @@ type ListControlsRequest_Filter struct {
 	CategoryName *string `protobuf:"bytes,2,opt,name=category_name,json=categoryName,proto3,oneof" json:"category_name,omitempty"`
 	// Optional. Lists only controls with the specified assurance levels.
 	AssuranceLevels []string `protobuf:"bytes,3,rep,name=assurance_levels,json=assuranceLevels,proto3" json:"assurance_levels,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+	Full          *bool `protobuf:"varint,4,opt,name=full,proto3,oneof" json:"full,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListControlsRequest_Filter) Reset() {
@@ -5809,6 +5829,13 @@ func (x *ListControlsRequest_Filter) GetAssuranceLevels() []string {
 		return x.AssuranceLevels
 	}
 	return nil
+}
+
+func (x *ListControlsRequest_Filter) GetFull() bool {
+	if x != nil && x.Full != nil {
+		return *x.Full
+	}
+	return false
 }
 
 type ListUsersRequest_Filter struct {
@@ -6052,9 +6079,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\"\xb5\x01\n" +
-	"\x1fListTargetsOfEvaluationResponse\x12j\n" +
-	"\x15targets_of_evaluation\x18\x01 \x03(\v2..confirmate.orchestrator.v1.TargetOfEvaluationB\x06\xe0A\x02\xe0A\x02R\x13targetsOfEvaluation\x12&\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\"\xb2\x01\n" +
+	"\x1fListTargetsOfEvaluationResponse\x12g\n" +
+	"\x15targets_of_evaluation\x18\x01 \x03(\v2..confirmate.orchestrator.v1.TargetOfEvaluationB\x03\xe0A\x02R\x13targetsOfEvaluation\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"l\n" +
 	"&GetTargetOfEvaluationStatisticsRequest\x12B\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\"\x9e\x02\n" +
@@ -6194,7 +6221,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"catalog_id\x18\x02 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\tcatalogId\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\xdf\x01\n" +
-	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\x90\x06\n" +
+	"\bcontrols\x18\x04 \x03(\v2#.confirmate.orchestrator.v1.ControlB\x9d\x01\xe0A\x02\xbaH\b\x92\x01\x05\"\x03\xc8\x01\x01\x9a\x84\x9e\x03\x89\x01gorm:\"many2many:category_controls;joinForeignKey:category_name,category_catalog_id;joinReferences:control_id;constraint:OnDelete:CASCADE\"R\bcontrols\"\xbb\x06\n" +
 	"\aControl\x121\n" +
 	"\x02id\x18\x01 \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tB\x03\xe0A\x02R\x04name\x12 \n" +
@@ -6205,7 +6232,10 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x0fassurance_level\x18\v \x01(\tH\x01R\x0eassuranceLevel\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"short_name\x18\f \x01(\tB\x03\xe0A\x02R\tshortName\x12\x95\x01\n" +
-	"\x11controls_in_scope\x18\r \x03(\v2*.confirmate.orchestrator.v1.ControlInScopeB=\x9a\x84\x9e\x038gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\"R\x0fcontrolsInScopeB\x14\n" +
+	"\x11controls_in_scope\x18\r \x03(\v2*.confirmate.orchestrator.v1.ControlInScopeB=\x9a\x84\x9e\x038gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\"R\x0fcontrolsInScope\x12)\n" +
+	"\n" +
+	"catalog_id\x18\x0e \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcatalogIdB\x14\n" +
 	"\x12_parent_control_idB\x12\n" +
 	"\x10_assurance_levelJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\t\x10\n" +
 	"J\x04\b\n" +
@@ -6226,7 +6256,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x12audit_trail_events\x18\v \x03(\v2+.confirmate.orchestrator.v1.AuditTrailEventB?\x9a\x84\x9e\x03:gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\"R\x10auditTrailEventsB\x12\n" +
 	"\x10_assurance_levelJ\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\b\x10\tR\areadersR\fcontributorsR\x06admins\"6\n" +
 	"\x1aGetAssessmentResultRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xbb\x05\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xfb\x05\n" +
 	"\x1cListAssessmentResultsRequest\x12\\\n" +
 	"\x06filter\x18\x01 \x01(\v2?.confirmate.orchestrator.v1.ListAssessmentResultsRequest.FilterH\x00R\x06filter\x88\x01\x01\x126\n" +
 	"\x15latest_by_resource_id\x18\x02 \x01(\bH\x01R\x12latestByResourceId\x88\x01\x01\x12\x1b\n" +
@@ -6235,7 +6265,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xf6\x02\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xb6\x03\n" +
 	"\x06Filter\x12D\n" +
 	"\x17target_of_evaluation_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x14targetOfEvaluationId\x88\x01\x01\x12!\n" +
 	"\tcompliant\x18\x02 \x01(\bH\x01R\tcompliant\x88\x01\x01\x12+\n" +
@@ -6243,14 +6273,17 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"metric_ids\x18\x03 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\tmetricIds\x12)\n" +
 	"\tmetric_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x02R\bmetricId\x88\x01\x01\x12%\n" +
 	"\atool_id\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x03R\x06toolId\x88\x01\x01\x12@\n" +
-	"\x15assessment_result_ids\x18\x06 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x13assessmentResultIdsB\x1a\n" +
+	"\x15assessment_result_ids\x18\x06 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x13assessmentResultIds\x12.\n" +
+	"\vevidence_id\x18\a \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x04R\n" +
+	"evidenceId\x88\x01\x01B\x1a\n" +
 	"\x18_target_of_evaluation_idB\f\n" +
 	"\n" +
 	"_compliantB\f\n" +
 	"\n" +
 	"_metric_idB\n" +
 	"\n" +
-	"\b_tool_idB\t\n" +
+	"\b_tool_idB\x0e\n" +
+	"\f_evidence_idB\t\n" +
 	"\a_filterB\x18\n" +
 	"\x16_latest_by_resource_id\"\x8d\x01\n" +
 	"\x1dListAssessmentResultsResponse\x12D\n" +
@@ -6341,7 +6374,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x11GetControlRequest\x12)\n" +
 	"\n" +
 	"control_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcontrolId\"\x91\x03\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tcontrolId\"\xb3\x03\n" +
 	"\x13ListControlsRequest\x12S\n" +
 	"\x06filter\x18\x03 \x01(\v26.confirmate.orchestrator.v1.ListControlsRequest.FilterH\x00R\x06filter\x88\x01\x01\x12\x1b\n" +
 	"\tpage_size\x18\n" +
@@ -6349,14 +6382,16 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x19\n" +
 	"\border_by\x18\f \x01(\tR\aorderBy\x12\x10\n" +
-	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xb0\x01\n" +
+	"\x03asc\x18\r \x01(\bR\x03asc\x1a\xd2\x01\n" +
 	"\x06Filter\x12\"\n" +
 	"\n" +
 	"catalog_id\x18\x01 \x01(\tH\x00R\tcatalogId\x88\x01\x01\x12(\n" +
 	"\rcategory_name\x18\x02 \x01(\tH\x01R\fcategoryName\x88\x01\x01\x127\n" +
-	"\x10assurance_levels\x18\x03 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x0fassuranceLevelsB\r\n" +
+	"\x10assurance_levels\x18\x03 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\x0fassuranceLevels\x12\x17\n" +
+	"\x04full\x18\x04 \x01(\bH\x02R\x04full\x88\x01\x01B\r\n" +
 	"\v_catalog_idB\x10\n" +
-	"\x0e_category_nameB\t\n" +
+	"\x0e_category_nameB\a\n" +
+	"\x05_fullB\t\n" +
 	"\a_filter\"\x7f\n" +
 	"\x14ListControlsResponse\x12?\n" +
 	"\bcontrols\x18\x01 \x03(\v2#.confirmate.orchestrator.v1.ControlR\bcontrols\x12&\n" +

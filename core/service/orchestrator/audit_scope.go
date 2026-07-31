@@ -165,10 +165,10 @@ func (svc *Service) ListAuditScopes(
 		conds = append(conds, "catalog_id = ?", *req.Msg.Filter.CatalogId)
 	}
 
-	// Retrieve list of all allowed ToE IDs for the user to filter results by access permissions.
+	// Retrieve list of all allowed Audit Scope IDs for the user to filter results by access permissions.
 	all, auditScopeIds = svc.authz.AllowedAuditScopes(ctx)
 	if !all && len(auditScopeIds) == 0 {
-		// User has no access to any ToE, return empty result
+		// User has no access to any Audit Scope, return empty result
 		return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
 			AuditScopes:   []*orchestrator.AuditScope{},
 			NextPageToken: "",
@@ -301,14 +301,11 @@ func (svc *Service) RemoveAuditScope(
 func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *orchestrator.AuditScope) error {
 	var controls []*orchestrator.Control
 
-	// Controls belong to categories which belong to catalogs. Join through category_controls to
-	// find all controls for the catalog. We do not use DISTINCT here because some SQL drivers used
-	// in tests do not support DISTINCT on wildcard column expansion; deduplication happens in Go.
+	// Query all controls for the catalog, including sub-controls. Since
+	// catalog_id is now set on every control during normalization, a simple
+	// filter suffices — no join through category_controls needed.
 	if err := tx.Raw(&controls,
-		`SELECT controls.* FROM controls
-		 JOIN category_controls ON category_controls.control_id = controls.id
-		 WHERE category_controls.category_catalog_id = ?
-		 ORDER BY controls.short_name`,
+		`SELECT * FROM controls WHERE catalog_id = ? ORDER BY controls.short_name`,
 		scope.CatalogId); err != nil {
 		return service.HandleDatabaseError(err)
 	}

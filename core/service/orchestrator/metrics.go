@@ -81,7 +81,7 @@ func (svc *Service) CreateMetric(
 		Implementation: impl,
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -197,7 +197,7 @@ func (svc *Service) UpdateMetric(
 		Category:    req.Msg.GetMetric().GetCategory(),
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -243,7 +243,7 @@ func (svc *Service) RemoveMetric(
 		return nil, err
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -319,7 +319,7 @@ func (svc *Service) UpdateMetricImplementation(
 		return nil, err
 	}
 
-	// Only admins may grant or revoke permissions.
+	// Check access via the configured auth strategy
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_IMPLEMENTATION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)

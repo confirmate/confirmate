@@ -37,6 +37,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/lmittmann/tint"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 const (
@@ -75,6 +76,7 @@ type Config struct {
 // Service is an implementation of the Confirmate req service (evidenceServer)
 type Service struct {
 	evidenceconnect.UnimplementedEvidenceStoreHandler
+	evidenceconnect.UnimplementedResourcesHandler
 
 	db  persistence.DB
 	cfg Config
@@ -90,13 +92,6 @@ type Service struct {
 	evidenceHooks []evidence.EvidenceHookFunc
 	// hookMutex is used for (un)locking result hook calls
 	hookMutex sync.Mutex
-
-	// toolIds is an in-memory cache of tool IDs that have provided evidence.
-	// It is a map[string]struct{} (a set) rather than a slice to guarantee
-	// uniqueness with O(1) insertion — no duplicate scan needed on each
-	// StoreEvidence call.
-	toolIds   map[string]struct{}
-	toolIdsMu sync.RWMutex
 
 	// authz defines our authorization strategy for target-of-evaluation scoped access.
 	authz service.AuthorizationStrategy
@@ -125,8 +120,7 @@ func WithAuthorizationStrategyPermissionStore() service.Option[Service] {
 
 func NewService(opts ...service.Option[Service]) (svc *Service, err error) {
 	svc = &Service{
-		cfg:     DefaultConfig,
-		toolIds: make(map[string]struct{}),
+		cfg: DefaultConfig,
 	}
 
 	// Apply configuration options
@@ -255,15 +249,10 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("evidence stored",
+	slog.Debug("Evidence stored",
 		slog.String("evidence_id", req.Msg.Evidence.Id),
 		slog.String("tool_id", req.Msg.Evidence.ToolId),
 		slog.String("target_of_evaluation_id", req.Msg.Evidence.TargetOfEvaluationId))
-
-	// Cache the tool ID for ListTools.
-	svc.toolIdsMu.Lock()
-	svc.toolIds[req.Msg.Evidence.GetToolId()] = struct{}{}
-	svc.toolIdsMu.Unlock()
 
 	// Store resource snapshot. This will hold the latest sync state of the resource and its
 	// association to ToE for our storage layer.
@@ -277,7 +266,6 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 		req.Msg.Evidence.GetToolId(),
 	)
 	if err != nil {
-		// Only reveal limited information about the error to the client
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not convert resource (proto to DB): %w", err))
 	}
 	// Persist the latest state of the resource; Save already uses the primary key.
@@ -285,18 +273,19 @@ func (svc *Service) StoreEvidence(ctx context.Context, req *connect.Request[evid
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
-	slog.Debug("resource upserted for evidence",
+	slog.Debug("Resource upserted for evidence",
 		slog.String("resource_id", r.Id),
 		slog.String("resource_type", r.ResourceType),
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 
 	go svc.informHooks(ctx, req.Msg.Evidence, nil)
 
-	// Send evidence to the channel for further processing and acknowledge receipt, without waiting for the processing to finish. This allows the sender to continue
-	// without waiting for the evidence to be processed.
+	// Send evidence to the channel for further processing and acknowledge receipt, without waiting
+	// for the processing to finish. This allows the sender to continue without waiting for the
+	// evidence to be processed.
 	svc.channelEvidence <- req.Msg.Evidence
 
-	slog.Debug("received and handled store evidence request",
+	slog.Debug("Received and handled store evidence request",
 		slog.String("evidence_id", req.Msg.Evidence.Id))
 	res = connect.NewResponse(&evidence.StoreEvidenceResponse{})
 	return
@@ -403,13 +392,7 @@ func (svc *Service) ListEvidences(_ context.Context, req *connect.Request[eviden
 	}
 
 	// Build conditions for pagination
-	if len(query) > 0 {
-		conds = append(conds, strings.Join(query, " AND "))
-		conds = append(conds, args...)
-		slog.Debug("ListEvidences filters applied", slog.Any("filters", args))
-	} else {
-		slog.Debug("ListEvidences without filters")
-	}
+	conds = persistence.BuildConds(query, args)
 
 	// Paginate the evidences according to the request
 	res.Msg.Evidences, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.Evidence](req.Msg, svc.db,
@@ -462,24 +445,26 @@ func (svc *Service) ListSupportedResourceTypes(_ context.Context, req *connect.R
 }
 
 // ListTools returns the IDs of all evidence collecting tools that have provided evidence so far.
-// The result is served from an in-memory cache that is populated on each [StoreEvidence] call.
 // This implements the [evidenceconnect.EvidenceStoreHandler.ListTools] RPC method.
 func (svc *Service) ListTools(_ context.Context, req *connect.Request[evidence.ListToolsRequest]) (
 	res *connect.Response[evidence.ListToolsResponse], err error) {
 
-	res = connect.NewResponse(&evidence.ListToolsResponse{})
+	var toolIds []string
 
 	// Validate request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	svc.toolIdsMu.RLock()
-	for id := range svc.toolIds {
-		res.Msg.ToolIds = append(res.Msg.ToolIds, id)
+	err = svc.db.Pluck(&evidence.Evidence{}, "tool_id", &toolIds)
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
-	svc.toolIdsMu.RUnlock()
 
+	res = connect.NewResponse(&evidence.ListToolsResponse{
+		ToolIds:       toolIds,
+		NextPageToken: "",
+	})
 	return
 }
 
@@ -529,6 +514,74 @@ func (svc *Service) ListResources(_ context.Context, req *connect.Request[eviden
 
 	res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateStorage[*evidence.ResourceSnapshot](req.Msg, svc.db, service.DefaultPaginationOpts, args...)
 	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+// ListGraphEdges returns edges between resources derived via [ontology.Related], which finds all
+// _id/_ids fields on each concrete ontology resource and matches them against known resource IDs.
+// This implements the [evidenceconnect.ResourcesHandler.ListGraphEdges] RPC method.
+func (svc *Service) ListGraphEdges(_ context.Context, req *connect.Request[evidence.ListGraphEdgesRequest]) (
+	res *connect.Response[evidence.ListGraphEdgesResponse], err error) {
+	var (
+		snapshots []*evidence.ResourceSnapshot
+		edges     []*evidence.GraphEdge
+	)
+
+	// Validate request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	if err = svc.db.List(&snapshots, "id", true, 0, -1); err != nil {
+		return nil, service.HandleDatabaseError(err)
+	}
+
+	// Build a set of all known resource IDs for fast lookup.
+	ids := make(map[string]struct{}, len(snapshots))
+	for _, s := range snapshots {
+		ids[s.Id] = struct{}{}
+	}
+
+	seen := make(map[string]struct{})
+
+	for _, s := range snapshots {
+		if s.Resource == nil {
+			continue
+		}
+		// The ontology Resource is a oneof — ranging over it visits only the set concrete field.
+		s.Resource.ProtoReflect().Range(func(_ protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+			concrete, ok := v.Message().Interface().(ontology.IsResource)
+			if !ok {
+				return true
+			}
+			for _, rel := range ontology.Related(concrete) {
+				if _, ok := ids[rel.Value]; !ok {
+					continue
+				}
+				edgeID := s.Id + "→" + rel.Value + "→" + rel.Property
+				if _, dup := seen[edgeID]; dup {
+					continue
+				}
+				seen[edgeID] = struct{}{}
+				edges = append(edges, &evidence.GraphEdge{
+					Id:     edgeID,
+					Source: s.Id,
+					Target: rel.Value,
+					Type:   rel.Property,
+				})
+			}
+			return true
+		})
+	}
+
+	res = connect.NewResponse(&evidence.ListGraphEdgesResponse{})
+	res.Msg.Edges, res.Msg.NextPageToken, err = service.PaginateSlice(req.Msg, edges, func(a, b *evidence.GraphEdge) bool {
+		return a.Id < b.Id
+	}, service.DefaultPaginationOpts)
+	if err != nil {
 		return nil, err
 	}
 

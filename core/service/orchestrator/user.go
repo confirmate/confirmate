@@ -44,8 +44,8 @@ func (svc *Service) UpsertUserPermission(
 		return nil, err
 	}
 
-	// Only admins may grant or revoke permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	// Only admins (user admin and global admin) may grant or revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.UserPermission.ObjectId, orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -79,8 +79,8 @@ func (svc *Service) RemoveUserPermission(
 		return nil, err
 	}
 
-	// Only admins may revoke permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
+	// Only admins (user admin and global admin) may revoke permissions.
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.ObjectId, orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -119,7 +119,7 @@ func (svc *Service) GetCurrentUser(
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
 	}
 
-	userId := claims.Issuer + "|" + claims.Subject
+	userId := auth.GetConfirmateUserIDFromClaims(claims)
 	err = svc.db.Get(&user, "id = ?", userId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("user")); err != nil {
 		return nil, err
@@ -201,9 +201,10 @@ func (svc *Service) ListUserPermissions(
 		permissions []*orchestrator.UserPermission
 		conds       []any
 		npt         string
-		allowed     bool
 		query       []string
 		args        []any
+		all         bool
+		objectIds   []string
 	)
 
 	// Validate request
@@ -211,13 +212,50 @@ func (svc *Service) ListUserPermissions(
 		return nil, err
 	}
 
-	// Only admins may list permissions.
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_LIST, "", orchestrator.ObjectType_OBJECT_TYPE_USER_PERMISSION)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+	// Retrieve list of all allowed UserPermission IDs for the user to filter results by access permissions.
+	all, objectIds = svc.authz.AllowedUserPermission(ctx)
+	if !all && len(objectIds) == 0 {
+		// User has no access to any objects (ToE or Audit Scope), so return an empty list without querying the database.
+		return connect.NewResponse(&orchestrator.ListUserPermissionsResponse{
+			UserPermissions: []*orchestrator.UserPermission{},
+			NextPageToken:   "",
+		}), nil
+
 	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
+
+	// If object ID is explicitily requested, verify that the calling user has access to that object
+	if !all && req.Msg.GetFilter().GetObjectId() != "" {
+		hasAccess := false
+		for _, id := range objectIds {
+			if id == req.Msg.GetFilter().GetObjectId() {
+				hasAccess = true
+				break
+			}
+		}
+		if !hasAccess {
+			return nil, connect.NewError(connect.CodePermissionDenied, errors.New("user does not have access to the requested object"))
+		}
+	}
+
+	// Add query for object IDs to filter results by access permissions and user ID.
+	if !all && len(objectIds) > 0 {
+		if req.Msg.GetFilter().GetObjectId() != "" {
+			// Add a condition to filter by object IDs if the user has access to specific objects.
+			query = append(query, "object_id IN (?)")
+			args = append(args, objectIds)
+
+		} else {
+			// Get user ID from the JWT claims in the context
+			claims, ok := auth.ClaimsFromContext(ctx)
+			if !ok || claims == nil {
+				return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("no authentication context"))
+			}
+			userId := auth.GetConfirmateUserIDFromClaims(claims)
+
+			// Add a condition to filter by user ID
+			query = append(query, "user_id = ?")
+			args = append(args, userId)
+		}
 	}
 
 	// Set default ordering
@@ -227,7 +265,8 @@ func (svc *Service) ListUserPermissions(
 	}
 
 	// Build filter conditions
-	if userId := req.Msg.GetFilter().GetUserId(); userId != "" {
+	// If the user ID is specified in the request filter and the user has access to all objects, add a condition to filter by user ID. Otherwise, if the user has only access to specific objects, the user ID condition is already added above.
+	if userId := req.Msg.GetFilter().GetUserId(); userId != "" && all {
 		query = append(query, "user_id = ?")
 		args = append(args, userId)
 	}
@@ -239,9 +278,9 @@ func (svc *Service) ListUserPermissions(
 		query = append(query, "object_type = ?")
 		args = append(args, objectType)
 	}
-	if len(query) > 0 {
-		conds = persistence.BuildConds(query, args)
-	}
+
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(query, args)
 
 	permissions, npt, err = service.PaginateStorage[*orchestrator.UserPermission](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -289,7 +328,7 @@ func (svc *Service) RemoveUser(
 		return nil, err
 	}
 
-	// Only admins may delete users.
+	// Only admins (global admins) may delete users.
 	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_USER)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -339,7 +378,7 @@ func provisionCurrentUser(ctx context.Context, svc *Service) (string, error) {
 	// JIT-provision the user using a read-then-update approach to avoid overwriting existing
 	// fields (e.g. enabled status) on every request. The user ID is "iss|sub" as recommended
 	// by the OIDC specification, ensuring uniqueness across identity providers.
-	userId = claims.Issuer + "|" + claims.Subject
+	userId = auth.GetConfirmateUserIDFromClaims(claims)
 	user = &orchestrator.User{}
 	err = svc.db.Get(user, "id = ?", userId)
 

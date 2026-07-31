@@ -183,7 +183,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
 				count, err = db.Count(&orchestrator.UserPermission{},
 					"user_id = ? AND object_id = ? AND object_type = ? AND permission = ?",
-					orchestratortest.MockUserIssuer1+"|"+orchestratortest.MockUserId1,
+					orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
 					res.Msg.Id,
 					orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
 					orchestrator.UserPermission_PERMISSION_ADMIN,
@@ -590,7 +590,7 @@ func TestService_ListAuditScopes(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path: user is not authorized to view any results for the specified target of evaluation",
+			name: "happy path: user is not authorized to view any results for the specified audit scope",
 			args: args{
 				req: &orchestrator.ListAuditScopesRequest{},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -680,15 +680,25 @@ func TestService_ListAuditScopes(t *testing.T) {
 				authz: &service.AuthorizationStrategyPermissionStore{
 					Permissions: service.DBPermissionStore{
 						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-							err := d.Create(orchestratortest.MockUserPermissionsAuditScopeAdmin)
-							assert.NoError(t, err)
+							assert.NoError(t, d.Create(orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockScopeId1,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+								Permission: orchestrator.UserPermission_PERMISSION_READER,
+							}))
+							assert.NoError(t, d.Create(orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockScopeId2,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+								Permission: orchestrator.UserPermission_PERMISSION_ADMIN,
+							}))
 						}),
 					},
 				},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAuditScopesResponse], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, 1, len(got.Msg.AuditScopes)) &&
+					assert.Equal(t, 2, len(got.Msg.AuditScopes)) &&
 					assert.Equal(t, orchestratortest.MockAuditScope1, got.Msg.AuditScopes[0])
 			},
 			wantErr: assert.NoError,
@@ -1272,8 +1282,8 @@ func TestCreateAuditScope_AutoCreatesControlsInScope(t *testing.T) {
 	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 		// Seed catalog, 2 controls, and a category that links to both via the many2many join.
 		assert.NoError(t, d.Create(&orchestrator.Catalog{Id: catalogId, Name: "Test Catalog"}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl1Id, ShortName: "C-01", Name: "Control 1"}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl2Id, ShortName: "C-02", Name: "Control 2"}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl1Id, ShortName: "C-01", Name: "Control 1", CatalogId: catalogId}))
+		assert.NoError(t, d.Create(&orchestrator.Control{Id: ctrl2Id, ShortName: "C-02", Name: "Control 2", CatalogId: catalogId}))
 		// Create the category with both controls referenced — GORM inserts the join table rows.
 		assert.NoError(t, d.Create(&orchestrator.Category{
 			Name:      "Cat1",

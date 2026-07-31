@@ -94,13 +94,13 @@ type Metric struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Required. The name of the metric.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// The description of the metric
+	// The description of the metric.
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	// The version of this metric
+	// The version of this metric.
 	Version string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
 	// Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
 	Comments string `protobuf:"bytes,5,opt,name=comments,proto3" json:"comments,omitempty"`
-	// Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
+	// Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics repository.
 	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
 	// The implementation of this metric. This ensures that we are modelling an
 	// association between a Metric and its MetricImplementation.
@@ -201,7 +201,7 @@ func (x *Metric) GetDeprecatedSince() *timestamppb.Timestamp {
 // Defines the operator and a target value for an individual metric
 type MetricConfiguration struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The operator to compare the metric, such as == or >
+	// The operator to compare the metric, such as "==" or ">"
 	Operator string `protobuf:"bytes,1,opt,name=operator,proto3" json:"operator,omitempty"`
 	// The target value
 	TargetValue *structpb.Value `protobuf:"bytes,2,opt,name=target_value,json=targetValue,proto3" json:"target_value,omitempty" gorm:"serializer:json"`
@@ -211,7 +211,7 @@ type MetricConfiguration struct {
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	// The metric this configuration belongs to
 	MetricId string `protobuf:"bytes,5,opt,name=metric_id,json=metricId,proto3" json:"metric_id,omitempty" gorm:"primaryKey"`
-	// The target of evaluation this configuration belongs to
+	// The target of evaluation this configuration belongs to.
 	TargetOfEvaluationId string `protobuf:"bytes,6,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"primaryKey"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
