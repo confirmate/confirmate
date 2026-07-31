@@ -627,6 +627,8 @@ func Test_regoEval_evalMap(t *testing.T) {
 					"automaticUpdates": map[string]interface{}{
 						"enabled": true,
 					},
+					// explicitly typed as interface{} holding a []string
+					"type": interface{}([]string{"VirtualMachine", "Compute", "Resource"}),
 				},
 				src: &updatedMockMetricsSource{mockMetricsSource{t: t}},
 			},
