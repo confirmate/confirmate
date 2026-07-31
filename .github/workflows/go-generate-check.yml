@@ -8,6 +8,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'core/api/**/*.proto'
+      - 'core/policies/security-metrics/ontology/v1/ontology.proto'
   workflow_dispatch:
 
 permissions:
@@ -25,7 +26,7 @@ jobs:
         shell: bash
         run: |
           # 1. Get the list of all modified .proto files in this PR
-          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep '^core/api/.*\.proto$' || true)
+          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep -E '^(core/api/.*\.proto|core/policies/security-metrics/ontology/v1/ontology\.proto)$' || true)
           
           if [ -z "$CHANGED_PROTOS" ]; then
             echo "✅ No proto files changed."
@@ -36,6 +37,12 @@ jobs:
             dir=$(dirname "$proto")
             base=$(basename "$proto" .proto)
             pb_go="$dir/$base.pb.go"
+
+            # Special case: ontology.proto generates files into core/api/ontology/
+            if [ "$proto" = "core/policies/security-metrics/ontology/v1/ontology.proto" ]; then
+              pb_go="core/api/ontology/$base.pb.go"
+            fi
+
 
             # Check if the .pb.go file exists at all
             if [ ! -f "$pb_go" ]; then
