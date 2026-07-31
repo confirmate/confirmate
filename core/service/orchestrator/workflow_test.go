@@ -505,7 +505,7 @@ func TestService_ListControlsInScope(t *testing.T) {
 
 func TestService_UpdateControlInScope(t *testing.T) {
 	var (
-		assigneeId = orchestratortest.MockUserId1
+		assigneeId = new(orchestratortest.MockUserId1)
 	)
 	type args struct {
 		req     *orchestrator.UpdateControlInScopeRequest
@@ -524,11 +524,62 @@ func TestService_UpdateControlInScope(t *testing.T) {
 		wantDB  assert.Want[persistence.DB]
 	}{
 		{
-			name: "happy path: update assignee",
+			name: "happy path: update assignee with AuthorizationStrategyPermissionStore",
+			args: args{
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: false,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+				req: &orchestrator.UpdateControlInScopeRequest{
+					Id:         orchestratortest.MockControlInScope1.Id,
+					AssigneeId: assigneeId,
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					seedControlInScope1(t, d)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(&orchestrator.UserPermission{
+								UserId:     orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
+								ObjectId:   orchestratortest.MockScopeId1,
+								ObjectType: orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE,
+								Permission: orchestrator.UserPermission_PERMISSION_CONTRIBUTOR,
+							})
+							assert.NoError(t, err)
+						}),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ControlInScope], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, assigneeId, got.Msg.AssigneeId)
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				want := &orchestrator.ControlInScope{
+					Id:                   orchestratortest.MockControlInScope1.Id,
+					AssigneeId:           assigneeId,
+					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+					ControlId:            orchestratortest.MockControlInScope1.ControlId,
+					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
+					State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+				}
+				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
+				return assert.Equal(t, want, got, protocmp.IgnoreFields(&orchestrator.ControlInScope{}, "created_at", "updated_at"))
+			},
+		},
+		{
+			name: "happy path: update assignee with AuthorizationStrategyAllowAll",
 			args: args{
 				req: &orchestrator.UpdateControlInScopeRequest{
 					Id:         orchestratortest.MockControlInScope1.Id,
-					AssigneeId: &assigneeId,
+					AssigneeId: assigneeId,
 				},
 			},
 			fields: fields{
@@ -539,16 +590,16 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ControlInScope], args ...any) bool {
 				return assert.NotNil(t, got.Msg) &&
-					assert.Equal(t, &assigneeId, got.Msg.AssigneeId)
+					assert.Equal(t, assigneeId, got.Msg.AssigneeId)
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
-				return assert.Equal(t, &assigneeId, got.AssigneeId)
+				return assert.Equal(t, assigneeId, got.AssigneeId)
 			},
 		},
 		{
-			name: "happy path: update implementation details",
+			name: "happy path: update implementation details with AuthorizationStrategyAllowAll",
 			args: args{
 				req: func() *orchestrator.UpdateControlInScopeRequest {
 					details := "We use TLS 1.3 for all connections."
@@ -577,7 +628,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 		},
 		{
-			name: "authorization failure",
+			name: "error: authorization failure with AuthorizationStrategyPermissionStore",
 			args: args{
 				req: &orchestrator.UpdateControlInScopeRequest{
 					Id: orchestratortest.MockControlInScope1.Id,
@@ -587,7 +638,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					seedControlInScope1(t, d)
 				}),
-				authz: &denyAuthorizationStrategy{},
+				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.ControlInScope]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
