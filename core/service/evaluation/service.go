@@ -66,6 +66,12 @@ type Service struct {
 	// map[catalog_id][control_id]*orchestrator.Control
 	catalogControls map[string]map[string]*orchestrator.Control
 	catalogsMutex   sync.RWMutex
+
+	// evaluating tracks audit scopes with an in-progress evaluation, so that a
+	// scheduled tick and a manual trigger (or two triggers) do not run
+	// overlapping evaluations for the same audit scope.
+	evaluating      map[string]struct{}
+	evaluatingMutex sync.Mutex
 }
 
 // DefaultConfig is the default configuration for the evaluation [Service].
@@ -116,6 +122,7 @@ func NewService(opts ...service.Option[Service]) (handler evaluationconnect.Eval
 			cfg:             DefaultConfig,
 			scheduler:       gocron.NewScheduler(time.Local),
 			catalogControls: make(map[string]map[string]*orchestrator.Control),
+			evaluating:      make(map[string]struct{}),
 		}
 	)
 
@@ -308,6 +315,8 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+	// A non-admin caller with no accessible audit scopes is not a permission
+	// error — they are allowed to list, there is simply nothing to return.
 	if !allowed && len(scopeIds) == 0 {
 		return connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
 			EvaluationJobs: []*evaluation.EvaluationJob{},
@@ -345,9 +354,122 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 		})
 	}
 
-	return connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
+	res = connect.NewResponse(&evaluation.ListEvaluationJobsResponse{
 		EvaluationJobs: evaluationJobs,
-	}), nil
+	})
+
+	return
+}
+
+// TriggerEvaluation triggers an immediate evaluation run for the given audit scope.
+// If a scheduled job exists, it runs immediately. If no job exists, a temporary
+// one-shot job is created and executed.
+func (svc *Service) TriggerEvaluation(ctx context.Context, req *connect.Request[evaluation.TriggerEvaluationRequest]) (res *connect.Response[evaluation.TriggerEvaluationResponse], err error) {
+	var allowed bool
+
+	// Validate the request
+	if err = service.Validate(req); err != nil {
+		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = checkAccess(ctx, svc.authz, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	if err = svc.triggerEvaluation(ctx, req.Msg.GetAuditScopeId()); err != nil {
+		return nil, err
+	}
+
+	res = connect.NewResponse(&evaluation.TriggerEvaluationResponse{
+		Successful: true,
+	})
+
+	return
+}
+
+// triggerEvaluation runs an immediate evaluation for the given audit scope, either by running an
+// existing scheduled job or as a one-shot run when no job exists. It performs no access checks;
+// those are done by the [Service.TriggerEvaluation] RPC, while internal callers such as
+// [Service.TriggerEvaluationNow] are trusted.
+func (svc *Service) triggerEvaluation(ctx context.Context, auditScopeId string) (err error) {
+	var (
+		jobs          []*gocron.Job
+		auditScope    *orchestrator.AuditScope
+		auditScopeRes *connect.Response[orchestrator.AuditScope]
+		catalog       *orchestrator.Catalog
+		catalogRes    *connect.Response[orchestrator.Catalog]
+	)
+
+	// Check, if a job exists for the given audit scope that we can run immediately
+	jobs, err = svc.scheduler.FindJobsByTag(auditScopeId)
+	if err != nil && !errors.Is(err, gocron.ErrJobNotFoundWithTag) {
+		slog.Error("could not find evaluation job", slog.String("audit scope", auditScopeId), log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("could not find evaluation job"))
+	}
+	if len(jobs) > 0 {
+		if err = svc.scheduler.RunByTag(auditScopeId); err != nil {
+			slog.Error("could not trigger evaluation", slog.String("audit scope", auditScopeId), log.Err(err))
+			return connect.NewError(connect.CodeInternal, errors.New("could not trigger evaluation"))
+		}
+		slog.Info("Triggered immediate evaluation", slog.String("audit scope", auditScopeId))
+		return nil
+	}
+
+	// No existing job — fetch the audit scope and catalog and run the evaluation once
+	auditScopeRes, err = svc.orchestratorClient.GetAuditScope(ctx, connect.NewRequest(&orchestrator.GetAuditScopeRequest{
+		AuditScopeId: auditScopeId,
+	}))
+	if err != nil {
+		slog.Error("could not get audit scope from orchestrator", log.Err(err))
+		return connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
+	}
+	auditScope = auditScopeRes.Msg
+
+	catalogRes, err = svc.orchestratorClient.GetCatalog(ctx, connect.NewRequest(&orchestrator.GetCatalogRequest{
+		CatalogId: auditScope.GetCatalogId(),
+	}))
+	if err != nil {
+		slog.Error("could not get catalog from the orchestrator", log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("could not get catalog from the orchestrator"))
+	}
+	catalog = catalogRes.Msg
+
+	// Get all Controls from Orchestrator for the evaluation
+	if err = svc.cacheControls(auditScope.GetCatalogId()); err != nil {
+		slog.Error("could not cache controls", log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("could not cache controls"))
+	}
+
+	// Make sure that the scheduler is already running, then evaluate the catalog once
+	svc.scheduler.StartAsync()
+	if err = svc.evaluateCatalog(ctx, auditScope, catalog, 1); err != nil {
+		slog.Error("evaluation failed", slog.String("audit scope", auditScopeId), log.Err(err))
+		return connect.NewError(connect.CodeInternal, errors.New("evaluation failed"))
+	}
+
+	slog.Info("Triggered one-shot evaluation", slog.String("audit scope", auditScopeId))
+	return nil
+}
+
+// TriggerEvaluationNow triggers an immediate evaluation run for the given
+// audit scope, bypassing the scheduler interval. This is safe to call
+// concurrently — if no job exists for the scope, a one-shot evaluation is run.
+// It performs no access checks and is intended for internal wiring; external
+// callers go through the [Service.TriggerEvaluation] RPC instead.
+func (svc *Service) TriggerEvaluationNow(ctx context.Context, auditScopeId string) error {
+	return svc.triggerEvaluation(ctx, auditScopeId)
+}
+
+// OnScopeChanged returns a callback that triggers an immediate evaluation
+// when a control's scope changes (added/removed). This can be wired up by
+// the orchestrator to call after scoping operations.
+func (svc *Service) OnScopeChanged() func(ctx context.Context, auditScopeId string) error {
+	return svc.TriggerEvaluationNow
 }
 
 // addJobToScheduler adds a job for the given control to the scheduler and sets the scheduler interval to the given
@@ -384,6 +506,31 @@ func (svc *Service) addJobToScheduler(ctx context.Context, auditScope *orchestra
 	return
 }
 
+// beginEvaluation marks the given audit scope as having an in-progress
+// evaluation. It returns false if an evaluation is already running for that
+// scope, in which case the caller must not start another one.
+func (svc *Service) beginEvaluation(auditScopeId string) bool {
+	svc.evaluatingMutex.Lock()
+	defer svc.evaluatingMutex.Unlock()
+
+	if svc.evaluating == nil {
+		svc.evaluating = make(map[string]struct{})
+	}
+	if _, ok := svc.evaluating[auditScopeId]; ok {
+		return false
+	}
+	svc.evaluating[auditScopeId] = struct{}{}
+	return true
+}
+
+// endEvaluation clears the in-progress marker for the given audit scope.
+func (svc *Service) endEvaluation(auditScopeId string) {
+	svc.evaluatingMutex.Lock()
+	defer svc.evaluatingMutex.Unlock()
+
+	delete(svc.evaluating, auditScopeId)
+}
+
 // evaluateCatalog evaluates all [orchestrator.Control] items in the catalog whether their associated metrics are
 // fulfilled or not.
 func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog, interval int) error {
@@ -396,6 +543,17 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 		err        error
 		cancel     context.CancelFunc
 	)
+
+	// Guard against overlapping evaluations for the same audit scope: a manual
+	// trigger (via TriggerEvaluation/RunByTag) may race a scheduled tick or
+	// another trigger. If one is already running, skip this run instead of
+	// producing duplicate/conflicting evaluation results.
+	if !svc.beginEvaluation(auditScope.GetId()) {
+		slog.Warn("skipping evaluation, another run is already in progress for audit scope",
+			slog.String("audit scope", auditScope.GetId()))
+		return nil
+	}
+	defer svc.endEvaluation(auditScope.GetId())
 
 	// Retrieve all controls that match our assurance level, sorted by the control ID for easier debugging
 	controls = slices.Collect(maps.Values(svc.catalogControls[auditScope.CatalogId]))
@@ -884,3 +1042,4 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 
 	return metricIds
 }
+

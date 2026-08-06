@@ -42,6 +42,9 @@ const (
 	// EvaluationListEvaluationJobsProcedure is the fully-qualified name of the Evaluation's
 	// ListEvaluationJobs RPC.
 	EvaluationListEvaluationJobsProcedure = "/confirmate.evaluation.v1.Evaluation/ListEvaluationJobs"
+	// EvaluationTriggerEvaluationProcedure is the fully-qualified name of the Evaluation's
+	// TriggerEvaluation RPC.
+	EvaluationTriggerEvaluationProcedure = "/confirmate.evaluation.v1.Evaluation/TriggerEvaluation"
 )
 
 // EvaluationClient is a client for the confirmate.evaluation.v1.Evaluation service.
@@ -53,6 +56,10 @@ type EvaluationClient interface {
 	StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error)
 	// ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
 	ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error)
+	// TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
+	// bypassing the scheduler interval. If no evaluation job exists for the scope,
+	// a temporary one is created, run once, and removed.
+	TriggerEvaluation(context.Context, *connect.Request[evaluation.TriggerEvaluationRequest]) (*connect.Response[evaluation.TriggerEvaluationResponse], error)
 }
 
 // NewEvaluationClient constructs a client for the confirmate.evaluation.v1.Evaluation service. By
@@ -84,6 +91,12 @@ func NewEvaluationClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(evaluationMethods.ByName("ListEvaluationJobs")),
 			connect.WithClientOptions(opts...),
 		),
+		triggerEvaluation: connect.NewClient[evaluation.TriggerEvaluationRequest, evaluation.TriggerEvaluationResponse](
+			httpClient,
+			baseURL+EvaluationTriggerEvaluationProcedure,
+			connect.WithSchema(evaluationMethods.ByName("TriggerEvaluation")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -92,6 +105,7 @@ type evaluationClient struct {
 	startEvaluation    *connect.Client[evaluation.StartEvaluationRequest, evaluation.StartEvaluationResponse]
 	stopEvaluation     *connect.Client[evaluation.StopEvaluationRequest, evaluation.StopEvaluationResponse]
 	listEvaluationJobs *connect.Client[evaluation.ListEvaluationJobsRequest, evaluation.ListEvaluationJobsResponse]
+	triggerEvaluation  *connect.Client[evaluation.TriggerEvaluationRequest, evaluation.TriggerEvaluationResponse]
 }
 
 // StartEvaluation calls confirmate.evaluation.v1.Evaluation.StartEvaluation.
@@ -109,6 +123,11 @@ func (c *evaluationClient) ListEvaluationJobs(ctx context.Context, req *connect.
 	return c.listEvaluationJobs.CallUnary(ctx, req)
 }
 
+// TriggerEvaluation calls confirmate.evaluation.v1.Evaluation.TriggerEvaluation.
+func (c *evaluationClient) TriggerEvaluation(ctx context.Context, req *connect.Request[evaluation.TriggerEvaluationRequest]) (*connect.Response[evaluation.TriggerEvaluationResponse], error) {
+	return c.triggerEvaluation.CallUnary(ctx, req)
+}
+
 // EvaluationHandler is an implementation of the confirmate.evaluation.v1.Evaluation service.
 type EvaluationHandler interface {
 	// StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
@@ -118,6 +137,10 @@ type EvaluationHandler interface {
 	StopEvaluation(context.Context, *connect.Request[evaluation.StopEvaluationRequest]) (*connect.Response[evaluation.StopEvaluationResponse], error)
 	// ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
 	ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error)
+	// TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
+	// bypassing the scheduler interval. If no evaluation job exists for the scope,
+	// a temporary one is created, run once, and removed.
+	TriggerEvaluation(context.Context, *connect.Request[evaluation.TriggerEvaluationRequest]) (*connect.Response[evaluation.TriggerEvaluationResponse], error)
 }
 
 // NewEvaluationHandler builds an HTTP handler from the service implementation. It returns the path
@@ -145,6 +168,12 @@ func NewEvaluationHandler(svc EvaluationHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(evaluationMethods.ByName("ListEvaluationJobs")),
 		connect.WithHandlerOptions(opts...),
 	)
+	evaluationTriggerEvaluationHandler := connect.NewUnaryHandler(
+		EvaluationTriggerEvaluationProcedure,
+		svc.TriggerEvaluation,
+		connect.WithSchema(evaluationMethods.ByName("TriggerEvaluation")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/confirmate.evaluation.v1.Evaluation/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EvaluationStartEvaluationProcedure:
@@ -153,6 +182,8 @@ func NewEvaluationHandler(svc EvaluationHandler, opts ...connect.HandlerOption) 
 			evaluationStopEvaluationHandler.ServeHTTP(w, r)
 		case EvaluationListEvaluationJobsProcedure:
 			evaluationListEvaluationJobsHandler.ServeHTTP(w, r)
+		case EvaluationTriggerEvaluationProcedure:
+			evaluationTriggerEvaluationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -172,4 +203,8 @@ func (UnimplementedEvaluationHandler) StopEvaluation(context.Context, *connect.R
 
 func (UnimplementedEvaluationHandler) ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evaluation.v1.Evaluation.ListEvaluationJobs is not implemented"))
+}
+
+func (UnimplementedEvaluationHandler) TriggerEvaluation(context.Context, *connect.Request[evaluation.TriggerEvaluationRequest]) (*connect.Response[evaluation.TriggerEvaluationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.evaluation.v1.Evaluation.TriggerEvaluation is not implemented"))
 }
