@@ -5,6 +5,8 @@ Thank you for your interest in contributing to Confirmate! This document provide
 ## Table of Contents
 
 - [Code Style Guidelines](#code-style-guidelines)
+- [Error Handling](#error-handling)
+- [API Design Guidelines](#api-design-guidelines)
 - [Documentation Guidelines](#documentation-guidelines)
 - [Testing Guidelines](#testing-guidelines)
 - [Dependencies and Libraries](#dependencies-and-libraries)
@@ -267,6 +269,105 @@ This will run all `//go:generate` directives, including multiple `buf generate` 
 - Go struct tags
 
 **Important:** Always run `go generate` from the repository root to ensure all proto files are regenerated correctly.
+
+## API Design Guidelines
+
+Confirmate's API follows the [Google API Design Guide](https://cloud.google.com/apis/design). All contributors should read the guide before adding or modifying RPC methods or protobuf definitions. The key principles are summarized below.
+
+### Resource-Oriented Design
+
+APIs must be modeled as a hierarchy of resources and collections rather than arbitrary RPC operations. Each resource has a unique name and a small set of standard methods.
+
+- **Collections** are plural nouns: `metrics`, `assessment_tools`, `targets`
+- **Resources** are identified by their collection name and a unique ID: `metrics/{metric_id}`
+- Prefer [standard methods](https://cloud.google.com/apis/design/standard_methods) (`Create`, `Get`, `List`, `Update`, `Delete`) over custom methods whenever possible
+- Use [custom methods](https://cloud.google.com/apis/design/custom_methods) (verb-based, appended with `:`) only for operations that cannot be expressed as a standard method
+
+### RPC Naming Conventions
+
+| Operation | Standard method | HTTP mapping |
+|-----------|----------------|--------------|
+| Create a resource | `CreateFoo` | `POST /v1/foos` |
+| Retrieve a resource | `GetFoo` | `GET /v1/foos/{foo_id}` |
+| List a collection | `ListFoos` | `GET /v1/foos` |
+| Fully replace a resource | `UpdateFoo` | `PUT /v1/foos/{foo.id}` |
+| Partially update a resource | `UpdateFoo` + `FieldMask` | `PATCH /v1/foos/{foo.id}` |
+| Delete a resource | `DeleteFoo` | `DELETE /v1/foos/{foo_id}` |
+
+**Good:**
+```proto
+rpc CreateMetric(CreateMetricRequest) returns (Metric) {
+  option (google.api.http) = {
+    post: "/v1/orchestrator/metrics"
+    body: "metric"
+  };
+}
+
+rpc GetMetric(GetMetricRequest) returns (Metric) {
+  option (google.api.http) = {get: "/v1/orchestrator/metrics/{metric_id}"};
+}
+
+rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse) {
+  option (google.api.http) = {get: "/v1/orchestrator/metrics"};
+}
+```
+
+**Bad:**
+```proto
+// Avoid verb-based names for standard CRUD operations
+rpc FetchMetric(FetchMetricRequest) returns (Metric);
+rpc AddMetric(AddMetricRequest) returns (AddMetricResponse);
+rpc RemoveMetric(RemoveMetricRequest) returns (google.protobuf.Empty);
+```
+
+### Request and Response Messages
+
+- Every RPC method must have its own dedicated request message (e.g., `CreateMetricRequest`), even if it is currently empty
+- Standard methods that return a resource return the resource message directly (not wrapped): `CreateMetric` returns `Metric`, not `CreateMetricResponse`
+- `List` methods must return a dedicated response message that includes the repeated resource field and, where applicable, pagination fields (`next_page_token`, `total_size`)
+- `Delete` methods return `google.protobuf.Empty`
+
+**Good:**
+```proto
+message CreateMetricRequest {
+  Metric metric = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Returns the resource directly, not a CreateMetricResponse wrapper
+rpc CreateMetric(CreateMetricRequest) returns (Metric);
+
+message ListMetricsResponse {
+  repeated Metric metrics = 1;
+  string next_page_token = 2;
+  int32 total_size = 3;
+}
+```
+
+### Pagination
+
+List methods must support [page-token-based pagination](https://cloud.google.com/apis/design/design_patterns#list_pagination):
+
+- Request: `page_size` (int32) and `page_token` (string) fields
+- Response: `next_page_token` (string, empty when no further pages) and `total_size` (int32)
+- Default and maximum page sizes should be documented in the proto comments
+
+### Field Behavior Annotations
+
+Use `google.api.field_behavior` annotations to clearly communicate field semantics:
+
+```proto
+import "google/api/field_behavior.proto";
+
+message CreateTargetRequest {
+  Target target = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Target {
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string description = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+```
 
 ## Documentation Guidelines
 
