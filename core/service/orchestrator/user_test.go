@@ -53,7 +53,7 @@ func TestService_GetCurrentUser(t *testing.T) {
 			},
 		},
 		{
-			name: "err: not found - user not in DB",
+			name: "happy path: user not in DB is JIT-provisioned",
 			ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject: "user-1",
@@ -61,10 +61,10 @@ func TestService_GetCurrentUser(t *testing.T) {
 				},
 			}),
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, joinTables)},
-			want:   assert.Nil[*connect.Response[orchestrator.User]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			want: func(t *testing.T, got *connect.Response[orchestrator.User], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, "098f6bcd4621d373cade4e832627b4f6-user-1", got.Msg.Id)
 			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path",
