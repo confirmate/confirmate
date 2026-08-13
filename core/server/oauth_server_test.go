@@ -126,3 +126,30 @@ func TestNormalizeOAuthPublicURL(t *testing.T) {
 		})
 	}
 }
+
+func TestIsSafeRedirectPath(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{name: "empty", path: "", want: false},
+		{name: "relative path", path: "/dashboard", want: true},
+		{name: "relative path with query", path: "/toe/123?tab=evidence", want: true},
+		{name: "no leading slash", path: "dashboard", want: false},
+		{name: "protocol-relative url", path: "//evil.example", want: false},
+		{name: "protocol-relative url with extra slashes", path: "///evil.example", want: false},
+		{name: "backslash variant", path: "/\\evil.example", want: false},
+		{name: "absolute url with scheme", path: "https://evil.example", want: false},
+		// A leading single slash makes this a same-origin path, even though it looks like a URL —
+		// browsers resolve "/https://evil.example" against the current origin, not as a redirect
+		// to evil.example.
+		{name: "absolute-looking url after a single leading slash is still same-origin", path: "/https://evil.example", want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, isSafeRedirectPath(tt.path))
+		})
+	}
+}

@@ -569,6 +569,12 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 			// configured metrics path and the standard security-metrics location.
 			for i := range batch {
 				metric := batch[i]
+				// A JSON array can legally contain null entries, which unmarshal to a nil
+				// metric — skip them rather than panicking on the field access below.
+				if metric == nil {
+					slog.Warn("Skipping null metric entry in JSON file", "file", info.Name(), "index", i)
+					continue
+				}
 				// Try to load Rego implementations and default configurations
 				// from the security-metrics repo for metrics that have a
 				// matching directory. Look in both the configured metrics path
@@ -587,8 +593,8 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 						break
 					}
 				}
+				metrics = append(metrics, metric)
 			}
-			metrics = append(metrics, batch...)
 			return nil
 		}
 

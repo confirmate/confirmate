@@ -181,6 +181,14 @@ Command flags involved:
 - `oauth2-public-url` — public base URL for the embedded OAuth 2.0 server;
   also used as the fallback `iss` claim for tokens issued by the embedded
   server (confirmate command only, when `oauth2-embedded` is true)
+- `demo-seed-file` — path to a JSON file (`{"users": [...]}`) that overrides
+  the built-in demo user set for the embedded OAuth 2.0 server (confirmate
+  command only, when `oauth2-embedded` is true). Any number of users is
+  supported; each becomes both a login-page user and a seeded
+  `orchestrator.User` with `PERMISSION_CONTRIBUTOR` access to the default
+  target of evaluation. If the flag is set but the file cannot be read or
+  parsed, startup fails with an error rather than silently falling back to
+  the built-in default users (alice/bob/charlie).
 
 ## Error semantics
 

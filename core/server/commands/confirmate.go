@@ -81,7 +81,7 @@ var oauthServerFlags = []cli.Flag{
 	},
 	&cli.StringFlag{
 		Name:    "demo-seed-file",
-		Usage:   "Path to a JSON file with demo seed data (audit scopes, etc.) loaded at startup",
+		Usage:   "Path to a JSON file ({\"users\": [...]}) overriding the demo user set loaded at startup",
 		Value:   "",
 		Sources: envVarSources("demo-seed-file"),
 	},
@@ -133,6 +133,11 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 		serverOpts          []server.Option
 		srv                 *server.Server
 		serverErrCh         chan error
+		authOpts            []server.AuthOption
+		seedFile            string
+		seedErr             error
+		sf                  *server.DemoSeedFile
+		issuer              string
 	)
 
 	if cmd.Bool("auth-enabled") {
@@ -141,16 +146,23 @@ func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
 			jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
 		}
 
-		authOpts := authInterceptorOptions(cmd, jwksURL)
+		authOpts = authInterceptorOptions(cmd, jwksURL)
 
 		if cmd.Bool("oauth2-embedded") {
-			// If a seed file is provided and defines users, use them as the demo user set.
-			if seedFile := cmd.String("demo-seed-file"); seedFile != "" {
-				if sf, err := server.LoadDemoSeedFile(seedFile); err == nil && len(sf.Users) > 0 {
+			// If a seed file is provided, use its users as the demo user set. An explicitly
+			// requested seed file that cannot be read or parsed is a startup misconfiguration,
+			// not something to silently ignore.
+			seedFile = cmd.String("demo-seed-file")
+			if seedFile != "" {
+				sf, seedErr = server.LoadDemoSeedFile(seedFile)
+				if seedErr != nil {
+					return fmt.Errorf("could not load demo seed file %q: %w", seedFile, seedErr)
+				}
+				if len(sf.Users) > 0 {
 					server.DefaultDemoUsers = sf.Users
 				}
 			}
-			issuer := server.NormalizeOAuthPublicURL(cmd.String("oauth2-public-url"), cmd.Uint16("api-port"))
+			issuer = server.NormalizeOAuthPublicURL(cmd.String("oauth2-public-url"), cmd.Uint16("api-port"))
 			// The embedded OAuth 2.0 server (oauth2go v0.16.0) omits the iss
 			// claim in issued tokens. Fall back to the configured public URL so
 			// GetConfirmateUserIDFromClaims produces IDs matching seeded users.

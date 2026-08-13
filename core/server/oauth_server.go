@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -122,17 +123,22 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 			slog.String("service_client_id", DefaultOAuth2ServiceClientID),
 		)
 
+		// Build the login page's user options dynamically: DefaultDemoUsers may be overridden via
+		// --demo-seed-file with fewer or more than the built-in 3 demo users. The element type is
+		// unexported by the login package, so it cannot be named in a var (...) block above.
+		var loginPageOpts = sliceOf(
+			login.WithBaseURL("/v1/auth"),
+			login.WithUser(DefaultOAuth2LoginUser, DefaultOAuth2LoginPassword),
+		)
+		for _, u := range DefaultDemoUsers {
+			loginPageOpts = append(loginPageOpts, login.WithUser(u.Username, u.Password))
+		}
+
 		opts = append(opts,
 			oauth2.WithClient(DefaultOAuth2CLIClientID, "", DefaultOAuth2CLIRedirectURI),
 			oauth2.WithClient(DefaultOAuth2UIClientID, "", DefaultOAuth2UIRedirectURI),
 			oauth2.WithClient(DefaultOAuth2ServiceClientID, DefaultOAuth2ServiceSecret, ""),
-			login.WithLoginPage(
-				login.WithBaseURL("/v1/auth"),
-				login.WithUser(DefaultOAuth2LoginUser, DefaultOAuth2LoginPassword),
-				login.WithUser(DefaultDemoUsers[0].Username, DefaultDemoUsers[0].Password),
-				login.WithUser(DefaultDemoUsers[1].Username, DefaultDemoUsers[1].Password),
-				login.WithUser(DefaultDemoUsers[2].Username, DefaultDemoUsers[2].Password),
-			),
+			login.WithLoginPage(loginPageOpts...),
 			oauth2.WithSigningKeysFunc(func() map[int]*ecdsa.PrivateKey {
 				return storage.LoadSigningKeys(expandedKeyPath, keyPassword, saveOnCreate)
 			}),
@@ -180,12 +186,41 @@ func WithEmbeddedOAuth2Server(keyPath string, keyPassword string, saveOnCreate b
 				Expires: time.Unix(0, 0),
 			})
 			returnTo := r.URL.Query().Get("return_to")
-			if returnTo == "" {
+			if !isSafeRedirectPath(returnTo) {
 				returnTo = "/"
 			}
 			http.Redirect(w, r, returnTo, http.StatusFound)
 		})
 	}
+}
+
+// sliceOf collects its variadic arguments into a slice. This lets us build a dynamically-sized
+// slice of the login package's option type, which is unexported and so cannot be spelled here.
+func sliceOf[T any](items ...T) []T {
+	return items
+}
+
+// isSafeRedirectPath reports whether path is safe to redirect to after logout: a same-origin,
+// relative path. This rejects absolute URLs and protocol-relative URLs (e.g. "//evil.com", which
+// browsers treat as a same-scheme redirect to a different host), which would otherwise allow an
+// open redirect via the return_to query parameter.
+func isSafeRedirectPath(path string) (safe bool) {
+	var (
+		u   *url.URL
+		err error
+	)
+
+	if path == "" || path[0] != '/' || strings.HasPrefix(path, "//") || strings.HasPrefix(path, "/\\") {
+		return false
+	}
+
+	u, err = url.Parse(path)
+	if err != nil {
+		return false
+	}
+
+	safe = u.Scheme == "" && u.Host == ""
+	return safe
 }
 
 // NormalizeOAuthPublicURL ensures that the public URL for the OAuth 2.0 server is properly
