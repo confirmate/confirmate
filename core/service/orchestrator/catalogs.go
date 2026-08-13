@@ -429,11 +429,12 @@ func (svc *Service) loadCatalogs() (err error) {
 
 	// Save all catalogs to DB (only if we have any)
 	if len(catalogs) > 0 {
+		var createErr error
 		for _, catalog := range catalogs {
 			// Use a local error variable so a failed create does not leak into the named
 			// return value: only an already-existing catalog is logged and skipped: any
 			// other error (DB connectivity, schema issues, etc.) must fail the load.
-			createErr := svc.db.Create(catalog)
+			createErr = svc.db.Create(catalog)
 			if errors.Is(createErr, persistence.ErrUniqueConstraintFailed) || errors.Is(createErr, persistence.ErrPrimaryKeyViolation) {
 				slog.Info("Catalog exists already, skipping", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
 				continue

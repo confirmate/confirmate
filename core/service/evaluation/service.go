@@ -403,6 +403,7 @@ func (svc *Service) triggerEvaluation(ctx context.Context, auditScopeId string) 
 		auditScopeRes *connect.Response[orchestrator.AuditScope]
 		catalog       *orchestrator.Catalog
 		catalogRes    *connect.Response[orchestrator.Catalog]
+		code          connect.Code
 	)
 
 	// Check, if a job exists for the given audit scope that we can run immediately
@@ -428,7 +429,7 @@ func (svc *Service) triggerEvaluation(ctx context.Context, auditScopeId string) 
 		slog.Error("could not get audit scope from orchestrator", log.Err(err))
 		// Propagate the upstream code when it's genuinely NotFound; anything else (internal
 		// errors, permission issues, etc.) must not be misreported as "not found".
-		code := connect.CodeInternal
+		code = connect.CodeInternal
 		if connect.CodeOf(err) == connect.CodeNotFound {
 			code = connect.CodeNotFound
 		}
