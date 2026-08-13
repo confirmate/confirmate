@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 
+	// Overridable at build time for deployments where the code-analysis dashboard isn't reachable
+	// at localhost from the browser (e.g. Docker/Kubernetes).
+	const codeAnalysisUrl = import.meta.env.VITE_CODE_ANALYSIS_URL ?? 'http://localhost:8000';
+
 	let ready = $state(false);
 	let elapsed = $state(0);
 
@@ -8,7 +12,7 @@
 		const startTime = Date.now();
 		while (true) {
 			try {
-				await fetch('http://localhost:8000', { mode: 'no-cors' });
+				await fetch(codeAnalysisUrl, { mode: 'no-cors' });
 				ready = true;
 				return;
 			} catch {
@@ -24,7 +28,7 @@
 </script>
 
 {#if ready}
-	<iframe src="http://localhost:8000" class="-m-8 block h-[calc(100vh-4rem)] w-full border-0" title="Code Analysis"></iframe>
+	<iframe src={codeAnalysisUrl} class="-m-8 block h-[calc(100vh-4rem)] w-full border-0" title="Code Analysis"></iframe>
 {:else}
 	<div class="-m-8 flex h-[calc(100vh-4rem)] items-center justify-center bg-slate-50">
 		<div class="text-center">

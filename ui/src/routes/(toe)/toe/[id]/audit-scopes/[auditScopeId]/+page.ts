@@ -1,6 +1,14 @@
 import { orchestratorClient } from '$lib/api/client';
 import { error } from '@sveltejs/kit';
-import type { SchemaControl, SchemaControlInScope, SchemaEvaluationResult } from '$lib/api/openapi/orchestrator';
+import type { SchemaControl } from '$lib/api/openapi/orchestrator';
+import {
+	bucketControlsByCategory,
+	countAssessmentsByMetric,
+	indexAssessmentsById,
+	indexControlsById,
+	indexControlsInScope,
+	indexEvaluationsByControl
+} from '$lib/auditScope';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ params, fetch, depends, url }) => {
@@ -15,7 +23,7 @@ export const load = (async ({ params, fetch, depends, url }) => {
 		{ params: { path: { auditScopeId: params.auditScopeId } } }
 	);
 
-	if (!auditScope) error(response.status, response.statusText);
+	if (!auditScope) throw error(response.status, response.statusText);
 
 	const { data: catalog } = await client.GET('/v1/orchestrator/catalogs/{catalogId}', {
 		params: { path: { catalogId: auditScope.catalogId } }
@@ -38,28 +46,12 @@ export const load = (async ({ params, fetch, depends, url }) => {
 		.sort((a, b) => (a.id ?? '').localeCompare(b.id ?? ''));
 
 	// Control no longer carries its category back-reference (categoryName was
-	// removed). Build a category-by-control-id lookup from the catalog's
-	// nested controls and use that to bucket the top-level controls.
-	const categoryByControlId = new Map<string, string>();
-	for (const cat of categories) {
-		for (const c of cat.controls ?? []) {
-			if (c.id) categoryByControlId.set(c.id, cat.name);
-		}
-	}
-	const controlsByCategory: Record<string, SchemaControl[]> = Object.fromEntries(
-		categories.map((cat) => [
-			cat.name,
-			topLevelControls.filter((c) => categoryByControlId.get(c.id ?? '') === cat.name)
-		])
-	);
+	// removed). Bucket the top-level controls using the catalog's nested
+	// category/control structure.
+	const controlsByCategory = bucketControlsByCategory(categories, topLevelControls);
 
 	// Flat map of all controls (including sub-controls) by ID for audit trail lookups.
-	function flatControls(controls: SchemaControl[]): SchemaControl[] {
-		return controls.flatMap((c) => [c, ...flatControls(c.controls ?? [])]);
-	}
-	const controlById: Record<string, { shortName?: string }> = Object.fromEntries(
-		flatControls(topLevelControls).filter((c) => c.id).map((c) => [c.id!, { shortName: c.shortName }])
-	);
+	const controlById = indexControlsById(topLevelControls);
 
 	// Fetch evaluation results (latest by control ID), filtered by audit scope
 	const evalRes = await client.GET('/v1/orchestrator/evaluation_results', {
@@ -86,15 +78,7 @@ export const load = (async ({ params, fetch, depends, url }) => {
 
 	const evaluationResults = evalRes.data?.results ?? [];
 	const allEvaluationResults = evalResAll.data?.results ?? [];
-
-	// Index evaluation results by control ID
-	const evaluationByControl: Record<string, SchemaEvaluationResult> = {};
-	for (const result of evaluationResults) {
-		const key = result.controlId ?? '';
-		if (key) {
-			evaluationByControl[key] = result;
-		}
-	}
+	const evaluationByControl = indexEvaluationsByControl(evaluationResults);
 
 	// Fetch assessment results and count by metric ID
 	const assessmentRes = await client.GET('/v1/orchestrator/assessment_results', {
@@ -107,30 +91,8 @@ export const load = (async ({ params, fetch, depends, url }) => {
 	});
 
 	const assessmentResults = assessmentRes.data?.results ?? [];
-
-	// Map assessment results by ID for lookup
-	const assessmentById: Record<string, { metricId?: string; compliant?: boolean; createdAt?: string }> = {};
-	for (const ar of assessmentResults) {
-		if (ar.id) {
-			assessmentById[ar.id] = { metricId: ar.metricId, compliant: ar.compliant, createdAt: ar.createdAt };
-		}
-	}
-
-	// Count assessment results by metric name - separate passing and failing
-	const assessmentCountByMetric: Record<string, { passing: number; failing: number }> = {};
-	for (const ar of assessmentResults) {
-		const metricName = ar.metricId;
-		if (metricName) {
-			if (!assessmentCountByMetric[metricName]) {
-				assessmentCountByMetric[metricName] = { passing: 0, failing: 0 };
-			}
-			if (ar.compliant) {
-				assessmentCountByMetric[metricName].passing++;
-			} else {
-				assessmentCountByMetric[metricName].failing++;
-			}
-		}
-	}
+	const assessmentById = indexAssessmentsById(assessmentResults);
+	const assessmentCountByMetric = countAssessmentsByMetric(assessmentResults);
 
 	// Fetch the ControlInScope records for this audit scope. They are
 	// auto-created when the audit scope is created, but a user can opt
@@ -143,10 +105,7 @@ export const load = (async ({ params, fetch, depends, url }) => {
 			}
 		}
 	});
-	const controlInScopeByControlId: Record<string, SchemaControlInScope> = {};
-	for (const cis of cisResp?.controlsInScope ?? []) {
-		if (cis.controlId) controlInScopeByControlId[cis.controlId] = cis;
-	}
+	const controlInScopeByControlId = indexControlsInScope(cisResp?.controlsInScope ?? []);
 
 	const { data: usersResp } = await client.GET('/v1/users', {});
 	const users = usersResp?.users ?? [];

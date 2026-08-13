@@ -17,7 +17,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
   if (!evidenceRes.response.ok) {
     const text = await evidenceRes.response.text();
     console.error('Evidence API error:', evidenceRes.response.status, text);
-    error(evidenceRes.response.status, 'Failed to load evidences');
+    throw error(evidenceRes.response.status, 'Failed to load evidences');
   }
 
   return {

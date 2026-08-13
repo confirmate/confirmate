@@ -42,10 +42,12 @@ const server = createServer(async (req, res) => {
         redirect: 'manual',
       });
 
+      // The UI and API are served same-origin through this proxy, so no CORS headers are
+      // needed on the response — adding Access-Control-Allow-Origin: * would just needlessly
+      // allow arbitrary other sites to read these responses cross-origin.
       const respHeaders = {};
       proxyRes.headers.forEach((v, k) => { respHeaders[k] = v; });
-      respHeaders['Access-Control-Allow-Origin'] = '*';
-      
+
       res.writeHead(proxyRes.status, respHeaders);
 
       // Stream the response body

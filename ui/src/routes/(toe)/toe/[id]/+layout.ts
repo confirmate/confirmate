@@ -14,7 +14,7 @@ export const load = (async ({ params, fetch }) => {
 		})
 	]);
 
-	if (!toeRes.data) error(toeRes.response.status, toeRes.response.statusText);
+	if (!toeRes.data) throw error(toeRes.response.status, toeRes.response.statusText);
 
 	return {
 		toe: toeRes.data,

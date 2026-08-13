@@ -12,7 +12,7 @@ export const load = (async ({ params, fetch }) => {
 	});
 
 	if (!res.response.ok) {
-		error(res.response.status, res.response.statusText);
+		throw error(res.response.status, res.response.statusText);
 	}
 
 	return {

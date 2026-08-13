@@ -290,19 +290,6 @@ def main(argv: list[str] | None = None) -> int:
     except FileNotFoundError as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
-    except ConnectionError as exc:
-        sys.stderr.write(
-            f"Connection error: Could not connect to the LLM at {config.base_url or 'default endpoint'}.\n"
-            f"Details: {exc}\n"
-            f"Make sure DOC_ANALYSER_BASE_URL and DOC_ANALYSER_API_KEY are set correctly.\n"
-        )
-        return 1
-    except TimeoutError as exc:
-        sys.stderr.write(
-            f"Timeout: The LLM at {config.base_url or 'default endpoint'} did not respond in time.\n"
-            f"Details: {exc}\n"
-        )
-        return 1
     except Exception as exc:
         exc_type = type(exc).__name__
         exc_msg = str(exc)
@@ -312,6 +299,11 @@ def main(argv: list[str] | None = None) -> int:
                 f"Details: {exc_msg}\n"
                 f"Make sure DOC_ANALYSER_BASE_URL and DOC_ANALYSER_API_KEY are set correctly.\n"
                 f"If using a self-signed certificate, set INSECURE_TLS=1.\n"
+            )
+        elif "timeout" in exc_type.lower() or "timeout" in exc_msg.lower():
+            sys.stderr.write(
+                f"Timeout: The LLM at {config.base_url or 'default endpoint'} did not respond in time.\n"
+                f"Details: {exc_msg}\n"
             )
         elif "auth" in exc_msg.lower() or "401" in exc_msg or "403" in exc_msg:
             sys.stderr.write(

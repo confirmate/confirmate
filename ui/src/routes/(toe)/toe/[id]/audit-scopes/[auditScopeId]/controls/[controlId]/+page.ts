@@ -16,7 +16,7 @@ export const load = (async ({ params, fetch }) => {
 			client.GET('/v1/users', {})
 		]);
 
-	if (!control) error(response.status, response.statusText);
+	if (!control) throw error(response.status, response.statusText);
 
 	// Find the ControlInScope record for this control in this audit scope
 	const { data: cisResp } = await client.GET('/v1/orchestrator/controls_in_scope', {

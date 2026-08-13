@@ -11,7 +11,7 @@
 		edges: GraphEdge[];
 		results: AssessmentResult[];
 		selectedId?: string | null;
-		onresourceselect?: (resource: Resource) => void;
+		onresourceselect?: (resource: Resource | null) => void;
 	}
 	let { resources, edges, results, selectedId: externalSelectedId = null, onresourceselect }: Props = $props();
 
@@ -73,7 +73,7 @@
 			const resource = resources.find((r) => r.id === id);
 			if (resource) onresourceselect?.(resource);
 		} else {
-			onresourceselect?.(undefined as unknown as Resource);
+			onresourceselect?.(null);
 		}
 	}
 </script>
