@@ -1020,7 +1020,7 @@ func TestService_ScopeChangeCallback(t *testing.T) {
 	select {
 	case scopeId := <-notified:
 		assert.Equal(t, orchestratortest.MockControlInScope1.AuditScopeId, scopeId)
-	case <-time.After(5 * time.Second):
+	case <-time.After(2 * time.Second):
 		t.Fatal("scope-change callback was not invoked on create")
 	}
 
@@ -1033,7 +1033,7 @@ func TestService_ScopeChangeCallback(t *testing.T) {
 	select {
 	case scopeId := <-notified:
 		assert.Equal(t, orchestratortest.MockControlInScope1.AuditScopeId, scopeId)
-	case <-time.After(5 * time.Second):
+	case <-time.After(2 * time.Second):
 		t.Fatal("scope-change callback was not invoked on remove")
 	}
 }

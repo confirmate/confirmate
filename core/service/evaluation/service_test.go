@@ -1125,6 +1125,28 @@ func TestService_evaluateCatalog(t *testing.T) {
 	}
 }
 
+// TestService_evaluateCatalog_SkipsWhenAlreadyRunning proves the overlap guard: a manual trigger
+// (via TriggerEvaluation/RunByTag) racing a scheduled tick for the same audit scope must not run a
+// second, concurrent evaluation.
+func TestService_evaluateCatalog_SkipsWhenAlreadyRunning(t *testing.T) {
+	svc := Service{
+		evaluating: map[string]struct{}{
+			evaluationtest.MockAuditScopeId1: {},
+		},
+	}
+
+	// orchestratorClient and catalogControls are intentionally left unset: if the overlap guard
+	// did not fire first, evaluateCatalog would try to use them and fail.
+	gotErr := svc.evaluateCatalog(context.Background(), evaluationtest.MockAuditScope1, evaluationtest.MockCatalog1, 5)
+	assert.NoError(t, gotErr)
+
+	// The in-progress marker set up by the test must still be present: evaluateCatalog's own
+	// endEvaluation (deferred after a successful beginEvaluation) must not have run, proving it
+	// returned before ever acquiring the guard.
+	_, stillRunning := svc.evaluating[evaluationtest.MockAuditScopeId1]
+	assert.True(t, stillRunning)
+}
+
 func TestService_evaluateSubcontrol(t *testing.T) {
 	type fields struct {
 		orchestratorClient orchestratorconnect.OrchestratorClient
@@ -2048,8 +2070,10 @@ func TestService_TriggerEvaluation(t *testing.T) {
 		{
 			name: "err: no job and audit scope not found",
 			fields: fields{
-				orchestratorClient: newOrchestratorClient(t),
-				scheduler:          gocron.NewScheduler(time.Local),
+				orchestratorClient: newOrchestratorClient(t,
+					WithGetAuditScopeNotFoundError(connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found"))),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
 			},
 			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
 				AuditScopeId: evaluationtest.MockAuditScopeId1,
@@ -2057,6 +2081,23 @@ func TestService_TriggerEvaluation(t *testing.T) {
 			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
+			},
+		},
+		{
+			name: "err: no job and audit scope lookup fails internally (not misreported as not found)",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithGetAuditScopeError(connect.NewError(connect.CodeInternal, fmt.Errorf("database is down"))),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
 					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
 			},
 		},

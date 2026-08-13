@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -430,11 +431,15 @@ func (svc *Service) loadCatalogs() (err error) {
 	if len(catalogs) > 0 {
 		for _, catalog := range catalogs {
 			// Use a local error variable so a failed create does not leak into the named
-			// return value: an already existing catalog is logged and skipped, not
-			// treated as a load failure.
-			if createErr := svc.db.Create(catalog); createErr != nil {
-				slog.Error("Catalog exists already", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()), log.Err(createErr))
+			// return value: only an already-existing catalog is logged and skipped: any
+			// other error (DB connectivity, schema issues, etc.) must fail the load.
+			createErr := svc.db.Create(catalog)
+			if errors.Is(createErr, persistence.ErrUniqueConstraintFailed) || errors.Is(createErr, persistence.ErrPrimaryKeyViolation) {
+				slog.Info("Catalog exists already, skipping", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
 				continue
+			}
+			if createErr != nil {
+				return fmt.Errorf("could not save catalog %s: %w", catalog.GetId(), createErr)
 			}
 			emptyCatalogList = false
 		}

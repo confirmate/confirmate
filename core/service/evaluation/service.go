@@ -362,8 +362,8 @@ func (svc *Service) ListEvaluationJobs(ctx context.Context, req *connect.Request
 }
 
 // TriggerEvaluation triggers an immediate evaluation run for the given audit scope.
-// If a scheduled job exists, it runs immediately. If no job exists, a temporary
-// one-shot job is created and executed.
+// If a scheduled job exists, it runs immediately. If no job exists, the catalog is
+// evaluated once directly, without creating a scheduled job.
 func (svc *Service) TriggerEvaluation(ctx context.Context, req *connect.Request[evaluation.TriggerEvaluationRequest]) (res *connect.Response[evaluation.TriggerEvaluationResponse], err error) {
 	var allowed bool
 
@@ -426,7 +426,13 @@ func (svc *Service) triggerEvaluation(ctx context.Context, auditScopeId string) 
 	}))
 	if err != nil {
 		slog.Error("could not get audit scope from orchestrator", log.Err(err))
-		return connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
+		// Propagate the upstream code when it's genuinely NotFound; anything else (internal
+		// errors, permission issues, etc.) must not be misreported as "not found".
+		code := connect.CodeInternal
+		if connect.CodeOf(err) == connect.CodeNotFound {
+			code = connect.CodeNotFound
+		}
+		return connect.NewError(code, errors.New("could not get audit scope from orchestrator"))
 	}
 	auditScope = auditScopeRes.Msg
 
@@ -445,8 +451,8 @@ func (svc *Service) triggerEvaluation(ctx context.Context, auditScopeId string) 
 		return connect.NewError(connect.CodeInternal, errors.New("could not cache controls"))
 	}
 
-	// Make sure that the scheduler is already running, then evaluate the catalog once
-	svc.scheduler.StartAsync()
+	// Evaluate the catalog once, directly — this one-shot path does not go through the
+	// scheduler, so unlike StartEvaluation it does not need to start it first.
 	if err = svc.evaluateCatalog(ctx, auditScope, catalog, 1); err != nil {
 		slog.Error("evaluation failed", slog.String("audit scope", auditScopeId), log.Err(err))
 		return connect.NewError(connect.CodeInternal, errors.New("evaluation failed"))

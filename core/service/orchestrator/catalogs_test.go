@@ -1367,6 +1367,22 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
+		{
+			name: "a non-'already exists' Create error must fail the load, not be skipped",
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog2,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not save catalog")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
 	}
 
 	for _, tt := range tests {

@@ -19,11 +19,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
+	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
@@ -171,11 +173,7 @@ func (svc *Service) CreateControlInScope(
 
 	// Trigger an immediate re-evaluation of the audit scope so the newly
 	// in-scope control gets evaluated without waiting for the next interval.
-	if svc.scopeChangeCallback != nil {
-		go func() {
-			_ = svc.scopeChangeCallback(context.Background(), cis.AuditScopeId)
-		}()
-	}
+	svc.triggerScopeChangeCallback(cis.AuditScopeId)
 
 	res = connect.NewResponse(cis)
 	return
@@ -506,14 +504,30 @@ func (svc *Service) RemoveControlInScope(
 
 	// Trigger an immediate re-evaluation of the audit scope so the remaining
 	// controls get re-evaluated without the removed control.
-	if svc.scopeChangeCallback != nil {
-		go func() {
-			_ = svc.scopeChangeCallback(context.Background(), cis.AuditScopeId)
-		}()
-	}
+	svc.triggerScopeChangeCallback(cis.AuditScopeId)
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
+}
+
+// triggerScopeChangeCallback invokes the registered scope-change callback (if any) in a new
+// goroutine, so that CreateControlInScope/RemoveControlInScope are not blocked on a full catalog
+// evaluation of the affected audit scope. The evaluation service's own overlap guard ensures at
+// most one evaluation runs per audit scope at a time, so this does not lead to unbounded
+// concurrent evaluations even if scope changes arrive in a burst.
+//
+// It uses context.Background() rather than the caller's request context: the triggered evaluation
+// can run well past the lifetime of the originating request, and must not be canceled just because
+// that request finished or its context was otherwise torn down.
+func (svc *Service) triggerScopeChangeCallback(auditScopeId string) {
+	if svc.scopeChangeCallback == nil {
+		return
+	}
+	go func() {
+		if err := svc.scopeChangeCallback(context.Background(), auditScopeId); err != nil {
+			slog.Warn("scope-change evaluation trigger failed", slog.String("audit scope", auditScopeId), log.Err(err))
+		}
+	}()
 }
 
 // collectControlInScopeSubtree returns every ControlInScope record under the
