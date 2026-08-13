@@ -1038,6 +1038,31 @@ func TestService_ScopeChangeCallback(t *testing.T) {
 	}
 }
 
+// TestService_triggerScopeChangeCallback_RecoversPanic proves a panicking scope-change callback
+// does not crash the process. If the recover() in triggerScopeChangeCallback were missing or
+// broken, this test would crash the whole test binary rather than fail cleanly.
+func TestService_triggerScopeChangeCallback_RecoversPanic(t *testing.T) {
+	var (
+		svc    = &Service{}
+		called = make(chan struct{})
+	)
+
+	svc.SetScopeChangeCallback(func(_ context.Context, _ string) error {
+		defer close(called)
+		panic("boom")
+	})
+
+	svc.triggerScopeChangeCallback("audit-scope-1")
+
+	select {
+	case <-called:
+		// Give the deferred recover a moment to run before the test process exits.
+		time.Sleep(50 * time.Millisecond)
+	case <-time.After(2 * time.Second):
+		t.Fatal("callback was not invoked")
+	}
+}
+
 func TestService_ListAuditTrailEvents(t *testing.T) {
 	type args struct {
 		req     *orchestrator.ListAuditTrailEventsRequest

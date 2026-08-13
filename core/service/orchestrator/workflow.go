@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"runtime/debug"
 	"slices"
 
 	"confirmate.io/core/api/evaluation"
@@ -524,6 +525,18 @@ func (svc *Service) triggerScopeChangeCallback(auditScopeId string) {
 		return
 	}
 	go func() {
+		// The callback can be wired to network/RPC code (or other external logic) that we don't
+		// control here; a panic in it must not take down the whole server over a scoping
+		// operation, so recover and log it instead.
+		defer func() {
+			if r := recover(); r != nil {
+				slog.Error("scope-change evaluation trigger panicked",
+					slog.String("audit scope", auditScopeId),
+					slog.Any("panic", r),
+					slog.String("stack", string(debug.Stack())))
+			}
+		}()
+
 		if err := svc.scopeChangeCallback(context.Background(), auditScopeId); err != nil {
 			slog.Warn("scope-change evaluation trigger failed", slog.String("audit scope", auditScopeId), log.Err(err))
 		}
