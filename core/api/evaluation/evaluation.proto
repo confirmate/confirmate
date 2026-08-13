@@ -29,8 +29,9 @@ service Evaluation {
   }
 
   // TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
-  // bypassing the scheduler interval. If no evaluation job exists for the scope,
-  // a temporary one is created, run once, and removed.
+  // bypassing the scheduler interval. If a scheduled evaluation job exists for the
+  // scope, it is run immediately; otherwise the catalog is evaluated once directly,
+  // without creating a scheduled job.
   rpc TriggerEvaluation(TriggerEvaluationRequest) returns (TriggerEvaluationResponse) {
     option (google.api.http) = {post: "/v1/evaluation/evaluate/{audit_scope_id}/trigger"};
   }

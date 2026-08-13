@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Evaluation API
     description: Manages the evaluation of Confirmate's assessment results
-    version: core/v0.2.17-30-gc660605e
+    version: core/v0.2.17-32-g3fc6977d
 paths:
     /v1/evaluation/evaluate:
         get:
@@ -98,8 +98,9 @@ paths:
                 - Evaluation
             description: |-
                 TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
-                 bypassing the scheduler interval. If no evaluation job exists for the scope,
-                 a temporary one is created, run once, and removed.
+                 bypassing the scheduler interval. If a scheduled evaluation job exists for the
+                 scope, it is run immediately; otherwise the catalog is evaluated once directly,
+                 without creating a scheduled job.
             operationId: Evaluation_TriggerEvaluation
             parameters:
                 - name: auditScopeId

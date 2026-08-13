@@ -57,8 +57,9 @@ type EvaluationClient interface {
 	// ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
 	ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error)
 	// TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
-	// bypassing the scheduler interval. If no evaluation job exists for the scope,
-	// a temporary one is created, run once, and removed.
+	// bypassing the scheduler interval. If a scheduled evaluation job exists for the
+	// scope, it is run immediately; otherwise the catalog is evaluated once directly,
+	// without creating a scheduled job.
 	TriggerEvaluation(context.Context, *connect.Request[evaluation.TriggerEvaluationRequest]) (*connect.Response[evaluation.TriggerEvaluationResponse], error)
 }
 
@@ -138,8 +139,9 @@ type EvaluationHandler interface {
 	// ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
 	ListEvaluationJobs(context.Context, *connect.Request[evaluation.ListEvaluationJobsRequest]) (*connect.Response[evaluation.ListEvaluationJobsResponse], error)
 	// TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
-	// bypassing the scheduler interval. If no evaluation job exists for the scope,
-	// a temporary one is created, run once, and removed.
+	// bypassing the scheduler interval. If a scheduled evaluation job exists for the
+	// scope, it is run immediately; otherwise the catalog is evaluated once directly,
+	// without creating a scheduled job.
 	TriggerEvaluation(context.Context, *connect.Request[evaluation.TriggerEvaluationRequest]) (*connect.Response[evaluation.TriggerEvaluationResponse], error)
 }
 
