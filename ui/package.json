@@ -32,5 +32,8 @@
 		"cytoscape": "^3.33.1",
 		"cytoscape-cola": "^2.5.1",
 		"openapi-fetch": "^0.17.0"
+	},
+	"overrides": {
+		"cookie": "0.7.2"
 	}
 }
