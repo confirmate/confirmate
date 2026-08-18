@@ -3,8 +3,8 @@
 
 openapi: 3.0.3
 info:
-    title: Evidence Store API
-    version: core/v0.2.17-32-g60e9a874
+    title: ""
+    version: 0.0.1
 paths:
     /v1/evidence_store/evidence:
         post:
@@ -527,6 +527,12 @@ components:
                     type: number
                     description: Percentage of completed reviews and updates of asset inventory entries.
                     format: float
+                reviewFrequency:
+                    type: integer
+                    format: int32
+                service:
+                    type: string
+                    description: Service contains the name of the service (e.g., Asset Management).
                 status:
                     type: string
                 storageFacility:
@@ -544,6 +550,7 @@ components:
                 AssetInventory is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  AuditInterval contains the frequency of asset inventory audits in month.
                  Class representing the inventory of assets.
+                 Service contains the name of the service (e.g., Asset Management).
                  Status contains the status of the asset (e.g., active, inactive).
                  StorageFacility contains the storage facility type of the asset (e.g., central, decentralized).
                  Type: contains the type of the asset, e.g., digital
@@ -656,10 +663,16 @@ components:
             properties:
                 enabled:
                     type: boolean
+                frequency:
+                    type: integer
+                    format: int32
                 interval:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
                     description: The interval refers to the update interval in days.
+                recoveryFrequency:
+                    type: integer
+                    format: int32
                 retentionPeriod:
                     pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
@@ -871,10 +884,6 @@ components:
                     items:
                         $ref: '#/components/schemas/Cipher'
             description: CipherSuite is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-        CloudFeature:
-            type: object
-            properties: {}
-            description: CloudFeature is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         CodeRegion:
             type: object
             properties:
@@ -4766,12 +4775,12 @@ components:
                 raw:
                     type: string
                     description: The raw field contains the raw information that is used to fill in the fields of the ontology.
+                accessControlTypePolicy:
+                    $ref: '#/components/schemas/AccessControlTypePolicy'
                 assetInventory:
                     $ref: '#/components/schemas/AssetInventory'
                 backup:
                     $ref: '#/components/schemas/Backup'
-                cloudFeature:
-                    $ref: '#/components/schemas/CloudFeature'
                 cryptographicHashs:
                     type: array
                     items:
@@ -4790,8 +4799,12 @@ components:
                         $ref: '#/components/schemas/Governance'
                 leastPrivilegePolicy:
                     $ref: '#/components/schemas/LeastPrivilegePolicy'
+                monitoringProcedure:
+                    $ref: '#/components/schemas/MonitoringProcedure'
                 needToKnowPolicy:
                     $ref: '#/components/schemas/NeedToKnowPolicy'
+                networkThreatMitigationPolicy:
+                    $ref: '#/components/schemas/NetworkThreatMitigationPolicy'
                 parentId:
                     type: string
                 sdnFunctionValidationPolicy:
