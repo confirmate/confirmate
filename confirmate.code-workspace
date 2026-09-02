@@ -1,20 +1,20 @@
 {
 	"folders": [
 		{
-			"path": ".",
-			"name": "Workspace Root"
+			"name": "Workspace Root",
+			"path": "."
 		},
 		{
-			"path": "ui",
-			"name": "UI"
+			"name": "UI",
+			"path": "ui"
 		},
 		{
-			"path": "core",
-			"name": "Core"
+			"name": "Core",
+			"path": "core"
 		},
 		{
-			"path": "collectors/cloud",
-			"name": "Cloud Collectors"
+			"name": "Cloud Collectors",
+			"path": "collectors/cloud"
 		}
 	],
 	"settings": {
