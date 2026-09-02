@@ -1,0 +1,166 @@
+{
+  "controls": [
+    {
+      "shortName": "CRA-I-1.1.2.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "Vulnerability scanning is performed weekly using Trivy for container images and Dependabot for dependencies. Results are reviewed by the security team and tracked in GitHub Issues."
+    },
+    {
+      "shortName": "CRA-I-1.1.3.1",
+      "state": "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+      "assignee": "alice",
+      "details": "Default configuration hardened: debug mode disabled, CORS restricted to known origins, security headers (HSTS, X-Frame-Options) added. Ready for security review."
+    },
+    {
+      "shortName": "CRA-I-1.1.4.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "Application checks for updates every 24 hours via a scheduled CI/CD pipeline. Critical patches are deployed within 48 hours of release."
+    },
+    {
+      "shortName": "CRA-I-1.1.4.2",
+      "state": "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+      "assignee": "alice",
+      "details": "Automatic updates are enabled for the backend services. Frontend auto-update mechanism is still being evaluated — considering a feature flag approach."
+    },
+    {
+      "shortName": "CRA-I-1.1.4.3",
+      "state": "CONTROL_IN_SCOPE_STATE_OPEN",
+      "assignee": "bob",
+      "details": "Users can postpone updates and receive notifications. Implementation pending — design document drafted, awaiting approval."
+    },
+    {
+      "shortName": "CRA-I-1.1.5.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+      "assignee": "bob",
+      "details": "Role-based access control (RBAC) is implemented for all API endpoints. JWT-based authentication with refresh tokens. Some legacy endpoints still need authorization checks backported."
+    },
+    {
+      "shortName": "CRA-I-1.1.5.2",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "alice",
+      "details": "Password policy enforces minimum 12 characters, complexity requirements, and rate limiting. Argon2id hashing with pepper. Password rotation every 90 days."
+    },
+    {
+      "shortName": "CRA-I-1.1.5.3",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "Unauthorized access attempts are logged and monitored. Automated alerts trigger after 5 failed attempts. Incidents are escalated to the security team via PagerDuty."
+    },
+    {
+      "shortName": "CRA-I-1.1.5.4",
+      "state": "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+      "assignee": "alice",
+      "details": "MFA enforced for all admin accounts using TOTP. SMS fallback available but discouraged. Recovery codes generated with proper entropy. Awaiting final security review."
+    },
+    {
+      "shortName": "CRA-I-1.1.5.5",
+      "state": "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+      "assignee": "bob",
+      "details": "Anomaly detection integrated via AWS GuardDuty for infrastructure layer. Application-level anomaly detection using session behavior analysis is under development."
+    },
+    {
+      "shortName": "CRA-I-1.1.6.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "AES-256-GCM encryption at rest for all sensitive data fields. Database-level TDE is enabled. Key rotation happens quarterly via AWS KMS."
+    },
+    {
+      "shortName": "CRA-I-1.1.6.2",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "alice",
+      "details": "Cryptographic algorithms reviewed and validated against NIST recommendations. RSA-2048+ for asymmetric, SHA-256+ for hashing. Legacy SHA-1 usage eliminated."
+    },
+    {
+      "shortName": "CRA-I-1.1.6.3",
+      "state": "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+      "assignee": "alice",
+      "details": "TLS 1.3 enforced for all external traffic. Internal service-to-service communication uses mTLS via a service mesh. HSTS preload enabled. Awaiting review from infrastructure team."
+    },
+    {
+      "shortName": "CRA-I-1.1.7.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "All external communication uses TLS 1.3 with strong cipher suites. SSH access restricted to ED25519 keys. FTP and other insecure protocols disabled."
+    },
+    {
+      "shortName": "CRA-I-1.1.7.2",
+      "state": "CONTROL_IN_SCOPE_STATE_ACCEPTED",
+      "assignee": "alice",
+      "details": "Password policy enforcement verified across all authentication flows. Failed attempts trigger lockout after 5 tries. Account recovery uses verified email + security questions."
+    },
+    {
+      "shortName": "CRA-I-1.1.8.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+      "assignee": "bob",
+      "details": "Data minimization principles applied to user registration — only essential fields collected. API responses reviewed to remove unnecessary PII. Still working on legacy data cleanup."
+    },
+    {
+      "shortName": "CRA-I-1.1.8.2",
+      "state": "CONTROL_IN_SCOPE_STATE_OPEN",
+      "assignee": "alice",
+      "details": "Automated data deletion for inactive accounts after 24 months is planned. GDPR retention policy drafted but not yet implemented. Scheduled for next sprint."
+    },
+    {
+      "shortName": "CRA-I-1.1.9.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "AWS Shield Advanced enabled for DDoS protection. Web Application Firewall (AWS WAF) configured with rate-limiting rules. Traffic monitoring via CloudWatch dashboards."
+    },
+    {
+      "shortName": "CRA-I-1.1.10.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "alice",
+      "details": "Complete API surface inventory maintained in OpenAPI 3.1 spec. All endpoints documented with authentication requirements. Reviewed quarterly for deprecated endpoints."
+    },
+    {
+      "shortName": "CRA-I-1.1.11.1",
+      "state": "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+      "assignee": "bob",
+      "details": "Risk assessment completed mapping all services to CRA controls. Each service categorized by criticality. Mitigation plan documented for identified gaps. Awaiting management sign-off."
+    },
+    {
+      "shortName": "CRA-I-1.1.11.2",
+      "state": "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+      "assignee": "alice",
+      "details": "Attack surface analysis in progress. External attack surface mapped using Amass. Internal attack surface mapping 60% complete. Remediation of 3 high-risk findings underway."
+    },
+    {
+      "shortName": "CRA-I-1.1.12.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "bob",
+      "details": "Automated daily backups of all databases to encrypted S3 buckets with 30-day retention. Quarterly restore tests verify backup integrity. Cross-region replication enabled."
+    },
+    {
+      "shortName": "CRA-I-1.1.13.1",
+      "state": "CONTROL_IN_SCOPE_STATE_IN_PROGRESS",
+      "assignee": "bob",
+      "details": "Audit logging is implemented for authentication events, data access, and admin actions. Logs are shipped to a centralized SIEM. Still working on adding logging for configuration changes."
+    },
+    {
+      "shortName": "CRA-I-1.1.13.2",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "alice",
+      "details": "All log entries include actor identity, timestamp, and source IP. Session correlation IDs enable tracing user activity across services. PII is masked in logs per GDPR."
+    },
+    {
+      "shortName": "CRA-I-1.1.13.3",
+      "state": "CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW",
+      "assignee": "bob",
+      "details": "Logging opt-out mechanism implemented for user activity tracking. Privacy dashboard allows users to view and delete their activity data. Awaiting legal review."
+    },
+    {
+      "shortName": "CRA-I-1.1.13.4",
+      "state": "CONTROL_IN_SCOPE_STATE_IMPLEMENTED",
+      "assignee": "alice",
+      "details": "Security-relevant data (incidents, vulnerabilities, compliance status) is accessible to users via a self-service portal. Role-based visibility ensures appropriate access."
+    },
+    {
+      "shortName": "CRA-I-1.1.14.1",
+      "state": "CONTROL_IN_SCOPE_STATE_ACCEPTED",
+      "assignee": "alice",
+      "details": "Secure data deletion procedure implemented and verified. Data is securely wiped using DoD 5220.22-M standard. Deletion is logged and verified by a second reviewer."
+    }
+  ]
+}

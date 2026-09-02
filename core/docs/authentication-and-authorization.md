@@ -55,8 +55,14 @@ For unary and streaming handler requests:
    - via JWKS (`WithJWKS`) or
    - via static public key (`WithPublicKey`).
 4. Parses **verified** JWT claims.
-5. Stores claims in context via `auth.WithClaims(...)`.
-6. Calls next handler.
+5. Substitutes a fallback issuer (`WithFallbackIssuer`) when the token carries
+   no `iss` claim. This is needed for the embedded OAuth 2.0 server, whose
+   tokens (as of oauth2go v0.16.0) omit `iss` even when `WithPublicURL` is
+   configured. Without an issuer, `auth.GetConfirmateUserIDFromClaims` cannot
+   construct a stable user ID matching seeded demo users. External IdPs that
+   set `iss` themselves are unaffected.
+6. Stores claims in context via `auth.WithClaims(...)`.
+7. Calls next handler.
 
 If anything fails, it returns `connect.CodeUnauthenticated`.
 
@@ -172,6 +178,17 @@ Command flags involved:
 - `service-oauth2-token-endpoint` — token endpoint for service-to-service auth
 - `service-oauth2-client-id` — service client ID (default: `confirmate`)
 - `service-oauth2-client-secret` — service client secret (default: `confirmate`)
+- `oauth2-public-url` — public base URL for the embedded OAuth 2.0 server;
+  also used as the fallback `iss` claim for tokens issued by the embedded
+  server (confirmate command only, when `oauth2-embedded` is true)
+- `demo-seed-file` — path to a JSON file (`{"users": [...]}`) that overrides
+  the built-in demo user set for the embedded OAuth 2.0 server (confirmate
+  command only, when `oauth2-embedded` is true). Any number of users is
+  supported; each becomes both a login-page user and a seeded
+  `orchestrator.User` with `PERMISSION_CONTRIBUTOR` access to the default
+  target of evaluation. If the flag is set but the file cannot be read or
+  parsed, startup fails with an error rather than silently falling back to
+  the built-in default users (alice/bob/charlie).
 
 ## Error semantics
 
