@@ -1450,6 +1450,29 @@ func TestService_loadMetricsFromRepository(t *testing.T) {
 	}
 }
 
+// TestService_loadMetricsFromRepository_JSONWithNullEntry proves that a null entry in a JSON
+// metrics batch file is skipped rather than causing a nil-pointer panic.
+func TestService_loadMetricsFromRepository_JSONWithNullEntry(t *testing.T) {
+	dir := t.TempDir()
+	content := `[{"id": "metric-1", "category": "Test", "name": "Metric1"}, null, {"id": "metric-2", "category": "Test", "name": "Metric2"}]`
+	assert.NoError(t, os.WriteFile(dir+"/batch.json", []byte(content), 0644))
+
+	svc := &Service{
+		db: persistencetest.NewInMemoryDB(t, types, joinTables),
+		cfg: Config{
+			DefaultMetricsPath: dir,
+		},
+	}
+
+	// If the nil batch entry isn't skipped, the field access below panics and fails this test.
+	metrics, err := svc.loadMetricsFromRepository()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(metrics))
+	for _, m := range metrics {
+		assert.NotNil(t, m)
+	}
+}
+
 func Test_prepareMetric(t *testing.T) {
 	type args struct {
 		m          *assessment.Metric

@@ -16,4 +16,47 @@ Confirmate repository.
   [core/docs/authentication-and-authorization.md](core/docs/authentication-and-authorization.md)
   in the same PR.
 
-(Any further agent-specific rules can be added here.)
+## Code Generation
+
+When modifying proto files or adding new API services, run the following in `core/`:
+
+```bash
+cd core
+go generate ./...
+buf generate
+```
+
+Then regenerate frontend types in `ui/`:
+
+```bash
+cd ui
+npm run generate:types
+```
+
+**Important:** After running `go generate`, you must rebuild and restart the demo for changes to take effect.
+
+## UI Development Guidelines
+
+Route files (`+page.svelte`, `+layout.svelte`) should be **minimal** — they receive data via props and pass it to reusable components. Business logic, display logic, and UI patterns live in `$lib/components/`.
+
+- **Route files**: only wire up data to components, handle top-level page structure
+- **`$lib/components/`**: all reusable UI — cards, lists, dialogs, forms
+  - `nav/` — sidebar, navigation items
+  - `ui/` — generic UI primitives (buttons, badges, empty states, etc.)
+  - `toe/` — Target of Evaluation specific components
+
+### Tech Stack
+
+- SvelteKit 2 + Svelte 5 (runes: `$props()`, `$state()`, `$derived()`, `{@render children()}`)
+- Tailwind CSS v4 (`@tailwindcss/vite`), custom color `--color-confirmate: #005B99`
+- `openapi-fetch` with auto-generated types from `openapi-typescript` (`--root-types` flag)
+- Pure SPA: `ssr = false` + `trailingSlash = 'always'` in root `+layout.ts`
+- Vite proxy: all `/v1/...` requests → `http://localhost:8080`
+
+### API Client Pattern
+
+```ts
+import { orchestratorClient } from '$lib/api/client';
+// In load functions: orchestratorClient(fetch)
+// In browser event handlers: orchestratorClient()
+```

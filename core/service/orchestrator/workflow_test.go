@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/auth"
@@ -984,6 +985,81 @@ func TestService_RemoveControlInScope(t *testing.T) {
 			tt.wantErr(t, err)
 			tt.wantDB(t, tt.fields.db, res)
 		})
+	}
+}
+
+// TestService_ScopeChangeCallback verifies that adding and removing a control
+// from scope invokes the registered scope-change callback with the audit scope ID.
+func TestService_ScopeChangeCallback(t *testing.T) {
+	var (
+		notified = make(chan string, 2)
+		db       = persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+			assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
+			seedControl(t, d, orchestratortest.MockControl1)
+		})
+	)
+
+	svc := &Service{
+		db:    db,
+		authz: &service.AuthorizationStrategyAllowAll{},
+	}
+	svc.SetScopeChangeCallback(func(_ context.Context, auditScopeId string) error {
+		notified <- auditScopeId
+		return nil
+	})
+
+	// Creating a control in scope must notify the callback
+	res, err := svc.CreateControlInScope(context.Background(), connect.NewRequest(&orchestrator.CreateControlInScopeRequest{
+		AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
+		ControlId:            orchestratortest.MockControlInScope1.ControlId,
+		TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
+	}))
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+
+	select {
+	case scopeId := <-notified:
+		assert.Equal(t, orchestratortest.MockControlInScope1.AuditScopeId, scopeId)
+	case <-time.After(2 * time.Second):
+		t.Fatal("scope-change callback was not invoked on create")
+	}
+
+	// Removing it again must notify the callback as well
+	_, err = svc.RemoveControlInScope(context.Background(), connect.NewRequest(&orchestrator.RemoveControlInScopeRequest{
+		Id: res.Msg.GetId(),
+	}))
+	assert.NoError(t, err)
+
+	select {
+	case scopeId := <-notified:
+		assert.Equal(t, orchestratortest.MockControlInScope1.AuditScopeId, scopeId)
+	case <-time.After(2 * time.Second):
+		t.Fatal("scope-change callback was not invoked on remove")
+	}
+}
+
+// TestService_triggerScopeChangeCallback_RecoversPanic proves a panicking scope-change callback
+// does not crash the process. If the recover() in triggerScopeChangeCallback were missing or
+// broken, this test would crash the whole test binary rather than fail cleanly.
+func TestService_triggerScopeChangeCallback_RecoversPanic(t *testing.T) {
+	var (
+		svc    = &Service{}
+		called = make(chan struct{})
+	)
+
+	svc.SetScopeChangeCallback(func(_ context.Context, _ string) error {
+		defer close(called)
+		panic("boom")
+	})
+
+	svc.triggerScopeChangeCallback("audit-scope-1")
+
+	select {
+	case <-called:
+		// Give the deferred recover a moment to run before the test process exits.
+		time.Sleep(50 * time.Millisecond)
+	case <-time.After(2 * time.Second):
+		t.Fatal("callback was not invoked")
 	}
 }
 
