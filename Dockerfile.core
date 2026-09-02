@@ -1,0 +1,28 @@
+# Confirmate Core — uses a pre-built binary (build locally, copy into Alpine)
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates wget
+
+WORKDIR /app
+
+# The binary is built locally before docker build (see docker-compose.yml build args)
+COPY bin/confirmate-linux ./bin/confirmate
+COPY example-data/ ./example-data/
+COPY core/policies/ ./core/policies/
+
+# Create symlink for Rego policies path expected by the assessment engine
+RUN ln -s /app/core/policies /policies
+
+EXPOSE 8080
+
+ENTRYPOINT ["./bin/confirmate"]
+CMD ["--db-in-memory", \
+     "--api-port", "8080", \
+     "--catalogs-default-path", "/app/example-data/catalogs", \
+     "--catalogs-load-default", \
+     "--metrics-default-path", "/app/example-data/metrics", \
+     "--metrics-load-default", \
+     "--auth-enabled", \
+     "--oauth2-embedded", \
+     "--demo-seed-file", "/app/example-data/demo/seed.json", \
+     "--oauth2-key-save-on-create"]
