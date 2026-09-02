@@ -1237,7 +1237,7 @@ func TestService_loadCatalogs(t *testing.T) {
 		wantDB           assert.Want[persistence.DB]
 	}{
 		{
-			name: "error: load from custom function and catalog exists already",
+			name: "happy path: load from custom function and catalog exists already",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
@@ -1249,6 +1249,8 @@ func TestService_loadCatalogs(t *testing.T) {
 					orchestratortest.MockCatalog2,
 				}, nil
 			},
+			// An already existing catalog is logged and skipped, not treated as a
+			// load failure.
 			wantErr: assert.NoError,
 			wantDB:  assert.NotNil[persistence.DB],
 		},
@@ -1362,6 +1364,22 @@ func TestService_loadCatalogs(t *testing.T) {
 			catalogsPath:    "/nonexistent/path",
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "could not load default catalogs")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "a non-'already exists' Create error must fail the load, not be skipped",
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog2,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not save catalog")
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
