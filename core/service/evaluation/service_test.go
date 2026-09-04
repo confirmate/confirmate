@@ -1155,6 +1155,28 @@ func TestService_evaluateCatalog_UpdatesCertificateLifecycle(t *testing.T) {
 	assert.Equal(t, []string{evaluationtest.MockAuditScope1.Id}, handler.lifecycleUpdates)
 }
 
+// TestService_evaluateCatalog_SkipsWhenAlreadyRunning proves the overlap guard: a manual trigger
+// (via TriggerEvaluation/RunByTag) racing a scheduled tick for the same audit scope must not run a
+// second, concurrent evaluation.
+func TestService_evaluateCatalog_SkipsWhenAlreadyRunning(t *testing.T) {
+	svc := Service{
+		evaluating: map[string]struct{}{
+			evaluationtest.MockAuditScopeId1: {},
+		},
+	}
+
+	// orchestratorClient and catalogControls are intentionally left unset: if the overlap guard
+	// did not fire first, evaluateCatalog would try to use them and fail.
+	gotErr := svc.evaluateCatalog(context.Background(), evaluationtest.MockAuditScope1, evaluationtest.MockCatalog1, 5)
+	assert.NoError(t, gotErr)
+
+	// The in-progress marker set up by the test must still be present: evaluateCatalog's own
+	// endEvaluation (deferred after a successful beginEvaluation) must not have run, proving it
+	// returned before ever acquiring the guard.
+	_, stillRunning := svc.evaluating[evaluationtest.MockAuditScopeId1]
+	assert.True(t, stillRunning)
+}
+
 func TestService_evaluateSubcontrol(t *testing.T) {
 	type fields struct {
 		orchestratorClient orchestratorconnect.OrchestratorClient
@@ -1994,6 +2016,29 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: only jobs for allowed audit scopes are listed",
+			fields: fields{
+				scheduler: func() *gocron.Scheduler {
+					s := gocron.NewScheduler(time.Local)
+					_, err := s.Every(1).Day().Tag("00000000-0000-0000-0000-000000000001").Do(func() { fmt.Println("Job 1") })
+					assert.NoError(t, err)
+					_, err = s.Every(2).Day().Tag("00000000-0000-0000-0000-000000000002").Do(func() { fmt.Println("Job 2") })
+					assert.NoError(t, err)
+					return s
+				}(),
+				authz: &partialScopeAuthorizationStrategy{
+					scopeIds: []string{"00000000-0000-0000-0000-000000000002"},
+				},
+			},
+			req: connect.NewRequest(&evaluation.ListEvaluationJobsRequest{}),
+			want: func(t *testing.T, got *connect.Response[evaluation.ListEvaluationJobsResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				assert.Equal(t, 1, len(got.Msg.GetEvaluationJobs()))
+				return assert.Equal(t, "00000000-0000-0000-0000-000000000002", got.Msg.GetEvaluationJobs()[0].GetAuditScopeId())
+			},
+			wantErr: assert.NoError,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -2007,5 +2052,196 @@ func TestService_ListEvaluationJobs(t *testing.T) {
 			tt.want(t, got)
 			tt.wantErr(t, gotErr)
 		})
+	}
+}
+
+func TestService_TriggerEvaluation(t *testing.T) {
+	type fields struct {
+		orchestratorClient orchestratorconnect.OrchestratorClient
+		catalogControls    map[string]map[string]*orchestrator.Control
+		scheduler          *gocron.Scheduler
+		authz              service.AuthorizationStrategy
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		req     *connect.Request[evaluation.TriggerEvaluationRequest]
+		want    assert.Want[*connect.Response[evaluation.TriggerEvaluationResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "err: invalid request - invalid audit scope id",
+			fields: fields{
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: "invalid-uuid",
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "audit_scope_id: must be a valid UUID")
+			},
+		},
+		{
+			name: "err: permission denied",
+			fields: fields{
+				scheduler: gocron.NewScheduler(time.Local),
+				authz:     &denyAuthorizationStrategy{},
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "err: no job and audit scope not found",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithGetAuditScopeNotFoundError(connect.NewError(connect.CodeNotFound, fmt.Errorf("audit scope not found"))),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
+			},
+		},
+		{
+			name: "err: no job and audit scope lookup fails internally (not misreported as not found)",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithGetAuditScopeError(connect.NewError(connect.CodeInternal, fmt.Errorf("database is down"))),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not get audit scope from orchestrator")
+			},
+		},
+		{
+			name: "err: no job and catalog not found",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithGetCatalogNotFoundError(fmt.Errorf("catalog not found")),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: assert.Nil[*connect.Response[evaluation.TriggerEvaluationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "could not get catalog from the orchestrator")
+			},
+		},
+		{
+			name: "happy path: one-shot evaluation without existing job",
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope1),
+					WithControls(
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+					// Only control 1 is in scope; control 2 must be skipped during evaluation
+					WithControlsInScope([]*orchestrator.ControlInScope{
+						{
+							AuditScopeId: evaluationtest.MockAuditScopeId1,
+							ControlId:    evaluationtest.MockControl1.Id,
+						},
+					}),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						evaluationtest.MockControl1.Id: evaluationtest.MockControl1,
+						evaluationtest.MockControl2.Id: evaluationtest.MockControl2,
+					},
+				},
+			},
+			req: connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+				AuditScopeId: evaluationtest.MockAuditScopeId1,
+			}),
+			want: func(t *testing.T, got *connect.Response[evaluation.TriggerEvaluationResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				return assert.True(t, got.Msg.GetSuccessful())
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := Service{
+				orchestratorClient: tt.fields.orchestratorClient,
+				catalogControls:    tt.fields.catalogControls,
+				scheduler:          tt.fields.scheduler,
+				authz:              tt.fields.authz,
+			}
+			got, gotErr := svc.TriggerEvaluation(context.Background(), tt.req)
+
+			tt.want(t, got)
+			tt.wantErr(t, gotErr)
+		})
+	}
+}
+
+func TestService_TriggerEvaluation_ExistingJob(t *testing.T) {
+	var (
+		ran       = make(chan struct{}, 1)
+		scheduler = gocron.NewScheduler(time.Local)
+	)
+
+	// Schedule a job for the audit scope, as StartEvaluation would
+	_, err := scheduler.Every(1).Day().Tag(evaluationtest.MockAuditScopeId1).Do(func() {
+		ran <- struct{}{}
+	})
+	assert.NoError(t, err)
+	scheduler.StartAsync()
+	t.Cleanup(scheduler.Stop)
+
+	// Drain the initial run that StartAsync triggers for a fresh job
+	select {
+	case <-ran:
+	case <-time.After(5 * time.Second):
+		t.Fatal("initial job run did not happen")
+	}
+
+	svc := Service{scheduler: scheduler}
+	got, gotErr := svc.TriggerEvaluation(context.Background(), connect.NewRequest(&evaluation.TriggerEvaluationRequest{
+		AuditScopeId: evaluationtest.MockAuditScopeId1,
+	}))
+
+	assert.NoError(t, gotErr)
+	assert.NotNil(t, got)
+	assert.True(t, got.Msg.GetSuccessful())
+
+	// The existing job must have been run immediately
+	select {
+	case <-ran:
+	case <-time.After(5 * time.Second):
+		t.Fatal("triggered job run did not happen")
+	}
+
+	// The scope-change callback must trigger the job in the same way
+	assert.NoError(t, svc.OnScopeChanged()(context.Background(), evaluationtest.MockAuditScopeId1))
+	select {
+	case <-ran:
+	case <-time.After(5 * time.Second):
+		t.Fatal("scope-change triggered job run did not happen")
 	}
 }

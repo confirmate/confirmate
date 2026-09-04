@@ -1,10 +1,14 @@
 .idea
 cf
 orchestrator
+confirmate
 *.log
 cf_output.txt
 go.work.sum
 **/go.work.sum
 junit.xml
 output.json
+.venv/
+bin/
+logs/
 
