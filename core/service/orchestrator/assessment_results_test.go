@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"sort"
 	"testing"
 	"time"
 
@@ -474,398 +475,398 @@ func TestService_ListAssessmentResults(t *testing.T) {
 		want    assert.Want[*connect.Response[orchestrator.ListAssessmentResultsResponse]]
 		wantErr assert.WantErr
 	}{
-		// {
-		// 	name: "validation error",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			PageToken: "!!!invalid-base64!!!",
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 	},
-		// 	want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
-		// 	wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-		// 		return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-		// 			assert.ErrorContains(t, err, "invalid page_token")
-		// 	},
-		// },
-		// {
-		// 	name: "authorization failure returns empty list",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				TargetOfEvaluationId: new(orchestratortest.MockToeId1),
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db:    persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 		authz: &denyAuthorizationStrategy{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], _ ...any) bool {
-		// 		return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.Results))
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "happy path: user is not authorized to view any results for the specified target of evaluation",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{},
-		// 		context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
-		// 			RegisteredClaims: jwt.RegisteredClaims{
-		// 				Subject: orchestratortest.MockUserId1,
-		// 				Issuer:  orchestratortest.MockUserIssuer1,
-		// 			},
-		// 		}),
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResultToE2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyPermissionStore{
-		// 			Permissions: service.DBPermissionStore{
-		// 				DB: persistencetest.NewInMemoryDB(t, types, joinTables),
-		// 			},
-		// 		},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], _ ...any) bool {
-		// 		return assert.Empty(t, got.Msg.Results)
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "error: authorization error",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{},
-		// 		context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
-		// 			RegisteredClaims: jwt.RegisteredClaims{
-		// 				Subject: orchestratortest.MockUserId1,
-		// 				Issuer:  orchestratortest.MockUserIssuer1,
-		// 			},
-		// 		}),
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResultToE2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &denyAuthorizationStrategy{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		return assert.NotNil(t, got.Msg) &&
-		// 			assert.Empty(t, got.Msg.Results)
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by metric ID",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				MetricId: &orchestratortest.MockAssessmentResult1.MetricId,
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResult2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		return assert.NotNil(t, got.Msg) &&
-		// 			assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by compliant",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				Compliant: &[]bool{true}[0],
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResult2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		return assert.NotNil(t, got.Msg) &&
-		// 			assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
+		{
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListAssessmentResultsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "authorization failure returns empty list",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						TargetOfEvaluationId: new(orchestratortest.MockToeId1),
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], _ ...any) bool {
+				return assert.NotNil(t, got) && assert.Equal(t, 0, len(got.Msg.Results))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: user is not authorized to view any results for the specified target of evaluation",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResultToE2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables),
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], _ ...any) bool {
+				return assert.Empty(t, got.Msg.Results)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "error: authorization error",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResultToE2)
+					assert.NoError(t, err)
+				}),
+				authz: &denyAuthorizationStrategy{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Empty(t, got.Msg.Results)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by metric ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						MetricId: &orchestratortest.MockAssessmentResult1.MetricId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by compliant",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						Compliant: &[]bool{true}[0],
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
 
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by tool ID",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				ToolId: orchestratortest.MockAssessmentResult1.ToolId,
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResult2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		// Both MockAssessmentResult1 and MockAssessmentResult2 have tool-1
-		// 		return assert.NotNil(t, got.Msg) &&
-		// 			assert.Equal(t, 2, len(got.Msg.Results))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by tool ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						ToolId: orchestratortest.MockAssessmentResult1.ToolId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Both MockAssessmentResult1 and MockAssessmentResult2 have tool-1
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 2, len(got.Msg.Results))
 
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by target of evaluation ID",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				TargetOfEvaluationId: new(orchestratortest.MockToeId1),
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResultToE2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		// Both MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID
-		// 		return assert.NotNil(t, got.Msg) &&
-		// 			assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by target of evaluation ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						TargetOfEvaluationId: new(orchestratortest.MockToeId1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResultToE2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Both MockAssessmentResult1 and MockAssessmentResult2 have the same TOE ID
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult1, got.Msg.Results[0])
 
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by assessment result IDs",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				AssessmentResultIds: []string{orchestratortest.MockAssessmentResult1.Id},
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResult2)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		return assert.NotNil(t, got.Msg) &&
-		// 			assert.Equal(t, 1, len(got.Msg.Results)) &&
-		// 			assert.Equal(t, orchestratortest.MockAssessmentResult1.Id, got.Msg.Results[0].Id)
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by evidence ID",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
-		// 				EvidenceId: new(orchestratortest.MockEvidenceId1),
-		// 			},
-		// 		},
-		// 	},
-		// 	fields: fields{
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			err := d.Create(orchestratortest.MockAssessmentResult1)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResult2)
-		// 			assert.NoError(t, err)
-		// 			err = d.Create(orchestratortest.MockAssessmentResult3)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 		authz: &service.AuthorizationStrategyAllowAll{},
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 2, len(got.Msg.Results)) {
-		// 			return false
-		// 		}
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by assessment result IDs",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						AssessmentResultIds: []string{orchestratortest.MockAssessmentResult1.Id},
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, 1, len(got.Msg.Results)) &&
+					assert.Equal(t, orchestratortest.MockAssessmentResult1.Id, got.Msg.Results[0].Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by evidence ID",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+						EvidenceId: new(orchestratortest.MockEvidenceId1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAssessmentResult1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult2)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockAssessmentResult3)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 2, len(got.Msg.Results)) {
+					return false
+				}
 
-		// 		// order result by ID to ensure consistent ordering for assertions
-		// 		sort.SliceStable(got.Msg.Results, func(i, j int) bool {
-		// 			return got.Msg.Results[i].Id < got.Msg.Results[j].Id
-		// 		})
+				// order result by ID to ensure consistent ordering for assertions
+				sort.SliceStable(got.Msg.Results, func(i, j int) bool {
+					return got.Msg.Results[i].Id < got.Msg.Results[j].Id
+				})
 
-		// 		// order expected results by ID to ensure consistent ordering for assertions
-		// 		expected := []*assessment.AssessmentResult{
-		// 			orchestratortest.MockAssessmentResult1,
-		// 			orchestratortest.MockAssessmentResult3,
-		// 		}
-		// 		sort.SliceStable(expected, func(i, j int) bool {
-		// 			return expected[i].Id < expected[j].Id
-		// 		})
+				// order expected results by ID to ensure consistent ordering for assertions
+				expected := []*assessment.AssessmentResult{
+					orchestratortest.MockAssessmentResult1,
+					orchestratortest.MockAssessmentResult3,
+				}
+				sort.SliceStable(expected, func(i, j int) bool {
+					return expected[i].Id < expected[j].Id
+				})
 
-		// 		return assert.Equal(t, expected[0], got.Msg.Results[0]) &&
-		// 			assert.Equal(t, expected[1], got.Msg.Results[1])
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
-		// {
-		// 	name: "filter by latest_by_resource_id",
-		// 	args: args{
-		// 		req: &orchestrator.ListAssessmentResultsRequest{
-		// 			LatestByResourceId: &[]bool{true}[0],
-		// 		},
-		// 		context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
-		// 			RegisteredClaims: jwt.RegisteredClaims{
-		// 				Subject: orchestratortest.MockUserId1,
-		// 				Issuer:  orchestratortest.MockUserIssuer1,
-		// 			},
-		// 		}),
-		// 	},
-		// 	fields: fields{
-		// 		authz: &service.AuthorizationStrategyPermissionStore{
-		// 			Permissions: service.DBPermissionStore{
-		// 				DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 					err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
-		// 					assert.NoError(t, err)
-		// 				}),
-		// 			},
-		// 		},
-		// 		db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		// 			// Create multiple results with different combinations of resource_id and metric_id
-		// 			// to test that we get the latest for each unique (resource_id, metric_id) pair
+				return assert.Equal(t, expected[0], got.Msg.Results[0]) &&
+					assert.Equal(t, expected[1], got.Msg.Results[1])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "filter by latest_by_resource_id",
+			args: args{
+				req: &orchestrator.ListAssessmentResultsRequest{
+					LatestByResourceId: &[]bool{true}[0],
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create multiple results with different combinations of resource_id and metric_id
+					// to test that we get the latest for each unique (resource_id, metric_id) pair
 
-		// 			// Resource 1, Metric 1: 3 results, latest should be "result-1-1-latest"
-		// 			result11old := &assessment.AssessmentResult{
-		// 				Id:                   "result-1-1-old",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-1",
-		// 				ResourceId:           "resource-1",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId2,
-		// 			}
-		// 			result11middle := &assessment.AssessmentResult{
-		// 				Id:                   "result-1-1-middle",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-1",
-		// 				ResourceId:           "resource-1",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId2,
-		// 			}
-		// 			result11latest := &assessment.AssessmentResult{
-		// 				Id:                   "result-1-1-latest",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-1",
-		// 				ResourceId:           "resource-1",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId2,
-		// 			}
+					// Resource 1, Metric 1: 3 results, latest should be "result-1-1-latest"
+					result11old := &assessment.AssessmentResult{
+						Id:                   "result-1-1-old",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
+					}
+					result11middle := &assessment.AssessmentResult{
+						Id:                   "result-1-1-middle",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
+					}
+					result11latest := &assessment.AssessmentResult{
+						Id:                   "result-1-1-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId2,
+					}
 
-		// 			// Resource 1, Metric 2: 2 results, latest should be "result-1-2-latest"
-		// 			result12old := &assessment.AssessmentResult{
-		// 				Id:                   "result-1-2-old",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-2",
-		// 				ResourceId:           "resource-1",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId1,
-		// 			}
-		// 			result12latest := &assessment.AssessmentResult{
-		// 				Id:                   "result-1-2-latest",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-2",
-		// 				ResourceId:           "resource-1",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId1,
-		// 			}
+					// Resource 1, Metric 2: 2 results, latest should be "result-1-2-latest"
+					result12old := &assessment.AssessmentResult{
+						Id:                   "result-1-2-old",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-2",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
+					result12latest := &assessment.AssessmentResult{
+						Id:                   "result-1-2-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-2",
+						ResourceId:           "resource-1",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
 
-		// 			// Resource 2, Metric 1: 2 results, latest should be "result-2-1-latest"
-		// 			result21old := &assessment.AssessmentResult{
-		// 				Id:                   "result-2-1-old",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-1",
-		// 				ResourceId:           "resource-2",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId1,
-		// 			}
-		// 			result21latest := &assessment.AssessmentResult{
-		// 				Id:                   "result-2-1-latest",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-1",
-		// 				ResourceId:           "resource-2",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId1,
-		// 			}
+					// Resource 2, Metric 1: 2 results, latest should be "result-2-1-latest"
+					result21old := &assessment.AssessmentResult{
+						Id:                   "result-2-1-old",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
+					result21latest := &assessment.AssessmentResult{
+						Id:                   "result-2-1-latest",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-1",
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
 
-		// 			// Resource 2, Metric 2: 1 result, should be returned
-		// 			result22single := &assessment.AssessmentResult{
-		// 				Id:                   "result-2-2-single",
-		// 				CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
-		// 				MetricId:             "metric-2",
-		// 				ResourceId:           "resource-2",
-		// 				TargetOfEvaluationId: orchestratortest.MockToeId1,
-		// 			}
+					// Resource 2, Metric 2: 1 result, should be returned
+					result22single := &assessment.AssessmentResult{
+						Id:                   "result-2-2-single",
+						CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+						MetricId:             "metric-2",
+						ResourceId:           "resource-2",
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+					}
 
-		// 			// Insert in random order to ensure ordering by created_at works
-		// 			results := []*assessment.AssessmentResult{
-		// 				result11middle, result21old, result12latest, result11old,
-		// 				result21latest, result12old, result22single, result11latest,
-		// 			}
-		// 			for _, r := range results {
-		// 				err := d.Create(r)
-		// 				assert.NoError(t, err)
-		// 			}
+					// Insert in random order to ensure ordering by created_at works
+					results := []*assessment.AssessmentResult{
+						result11middle, result21old, result12latest, result11old,
+						result21latest, result12old, result22single, result11latest,
+					}
+					for _, r := range results {
+						err := d.Create(r)
+						assert.NoError(t, err)
+					}
 
-		// 			// Add user and user permission to authorize user for the TOE1
-		// 			err := d.Create(orchestratortest.MockUser1)
-		// 			assert.NoError(t, err)
-		// 		}),
-		// 	},
-		// 	want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-		// 		// Should return exactly 4 results (one per unique resource_id/metric_id combination)
-		// 		if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 3, len(got.Msg.Results)) {
-		// 			return false
-		// 		}
+					// Add user and user permission to authorize user for the TOE1
+					err := d.Create(orchestratortest.MockUser1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
+				// Should return exactly 4 results (one per unique resource_id/metric_id combination)
+				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 3, len(got.Msg.Results)) {
+					return false
+				}
 
-		// 		// Collect returned IDs
-		// 		ids := make(map[string]bool)
-		// 		for _, r := range got.Msg.Results {
-		// 			ids[r.Id] = true
-		// 		}
+				// Collect returned IDs
+				ids := make(map[string]bool)
+				for _, r := range got.Msg.Results {
+					ids[r.Id] = true
+				}
 
-		// 		// Verify we got the latest result for each (resource_id, metric_id) pair
-		// 		expectedIds := []string{
-		// 			"result-1-2-latest", // resource-1, metric-2: latest of 2
-		// 			"result-2-1-latest", // resource-2, metric-1: latest of 2
-		// 			"result-2-2-single", // resource-2, metric-2: only 1
-		// 		}
+				// Verify we got the latest result for each (resource_id, metric_id) pair
+				expectedIds := []string{
+					"result-1-2-latest", // resource-1, metric-2: latest of 2
+					"result-2-1-latest", // resource-2, metric-1: latest of 2
+					"result-2-2-single", // resource-2, metric-2: only 1
+				}
 
-		// 		for _, expectedId := range expectedIds {
-		// 			if !ids[expectedId] {
-		// 				t.Errorf("Expected result %s not found in response", expectedId)
-		// 				return false
-		// 			}
-		// 		}
+				for _, expectedId := range expectedIds {
+					if !ids[expectedId] {
+						t.Errorf("Expected result %s not found in response", expectedId)
+						return false
+					}
+				}
 
-		// 		return true
-		// 	},
-		// 	wantErr: assert.NoError,
-		// },
+				return true
+			},
+			wantErr: assert.NoError,
+		},
 		{
 			name: "filter by latest_by_resource_id with conditions",
 			args: args{
