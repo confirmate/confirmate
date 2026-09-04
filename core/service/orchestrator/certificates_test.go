@@ -183,6 +183,7 @@ func TestService_CreateCertificate(t *testing.T) {
 						Id:                   orchestratortest.MockCertificate1.Id,
 						Name:                 orchestratortest.MockCertificate1.Name,
 						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -535,6 +536,56 @@ func TestService_ListCertificates(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: filtered by target_of_evaluation_id",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{
+					Filter: &orchestrator.ListCertificatesRequest_Filter{
+						TargetOfEvaluationId: &orchestratortest.MockCertificate1.TargetOfEvaluationId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 1, len(got.Msg.Certificates)) &&
+					assert.Equal(t, orchestratortest.MockCertificate1, got.Msg.Certificates[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: filtered by audit_scope_id",
+			args: args{
+				req: &orchestrator.ListCertificatesRequest{
+					Filter: &orchestrator.ListCertificatesRequest_Filter{
+						AuditScopeId: &orchestratortest.MockCertificate2.AuditScopeId,
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCertificate1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCertificate2)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListCertificatesResponse], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 1, len(got.Msg.Certificates)) &&
+					assert.Equal(t, orchestratortest.MockCertificate2, got.Msg.Certificates[0])
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
@@ -657,6 +708,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -682,6 +734,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -710,6 +763,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
@@ -780,6 +834,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -802,6 +857,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 			},
@@ -823,6 +879,7 @@ func TestService_UpdateCertificate(t *testing.T) {
 						Name:                 "Updated Certificate",
 						Description:          "Updated description",
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						AuditScopeId:         orchestratortest.MockScopeId1,
 					},
 				},
 			},

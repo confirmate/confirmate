@@ -3,8 +3,8 @@
 
 openapi: 3.0.3
 info:
-    title: ""
-    version: 0.0.1
+    title: Evidence Store API
+    version: core/v0.2.17-35-g6d82ea5
 paths:
     /v1/evidence_store/evidence:
         post:

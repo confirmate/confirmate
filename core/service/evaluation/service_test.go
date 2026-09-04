@@ -1125,6 +1125,36 @@ func TestService_evaluateCatalog(t *testing.T) {
 	}
 }
 
+func TestService_evaluateCatalog_UpdatesCertificateLifecycle(t *testing.T) {
+	client, handler := newOrchestratorClientWithHandler(t,
+		WithAssessmentResults([]*assessment.AssessmentResult{
+			{
+				Id:                   evaluationtest.MockAssessmentResultId1,
+				MetricId:             evaluationtest.MockMetricId1,
+				Compliant:            true,
+				ResourceId:           "resource-1",
+				TargetOfEvaluationId: evaluationtest.MockToeId1,
+			},
+		}),
+	)
+
+	svc := Service{
+		orchestratorClient: client,
+		catalogControls: map[string]map[string]*orchestrator.Control{
+			evaluationtest.MockCatalog1.Id: {
+				evaluationtest.MockControl1.Id:     evaluationtest.MockControl1,
+				evaluationtest.MockSubcontrol11.Id: evaluationtest.MockSubcontrol11,
+				evaluationtest.MockSubcontrol12.Id: evaluationtest.MockSubcontrol12,
+			},
+		},
+	}
+
+	err := svc.evaluateCatalog(context.Background(), evaluationtest.MockAuditScope1, evaluationtest.MockCatalog1, 5)
+	assert.NoError(t, err)
+
+	assert.Equal(t, []string{evaluationtest.MockAuditScope1.Id}, handler.lifecycleUpdates)
+}
+
 // TestService_evaluateCatalog_SkipsWhenAlreadyRunning proves the overlap guard: a manual trigger
 // (via TriggerEvaluation/RunByTag) racing a scheduled tick for the same audit scope must not run a
 // second, concurrent evaluation.

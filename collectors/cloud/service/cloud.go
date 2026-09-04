@@ -383,30 +383,39 @@ func (svc *Service) StartCollector(collector collector.Collector) {
 		ev   *evidence.Evidence
 	)
 
+	// Locally buffer this run's events and deliver them to svc.Events from a single goroutine. This
+	// keeps delivery non-blocking for the collection loop below (the local channel never blocks,
+	// since we send at most two items into a buffer of two) while guaranteeing that the start event
+	// is always delivered before the finished event, even if svc.Events itself has no ready receiver.
+	events := make(chan *CollectorEvent, 2)
 	go func() {
-		svc.Events <- &CollectorEvent{
-			Type:          CloudCollectorStart,
-			CollectorName: collector.Name(),
-			Time:          time.Now(),
+		for e := range events {
+			svc.Events <- e
 		}
 	}()
+
+	events <- &CollectorEvent{
+		Type:          CloudCollectorStart,
+		CollectorName: collector.Name(),
+		Time:          time.Now(),
+	}
 
 	list, err = collector.Collect()
 
 	if err != nil {
 		log.Error("Could not retrieve resources from collector", "collector", collector.Name(), tint.Err(err))
+		close(events)
 		return
 	}
 
 	// Notify event listeners that the collector is finished
-	go func() {
-		svc.Events <- &CollectorEvent{
-			Type:           CloudCollectorFinished,
-			CollectorName:  collector.Name(),
-			CollectedItems: len(list),
-			Time:           time.Now(),
-		}
-	}()
+	events <- &CollectorEvent{
+		Type:           CloudCollectorFinished,
+		CollectorName:  collector.Name(),
+		CollectedItems: len(list),
+		Time:           time.Now(),
+	}
+	close(events)
 
 	for _, resource := range list {
 		ev = &evidence.Evidence{
