@@ -17148,9 +17148,10 @@ func (x *KeyVault) GetUsageStatistics() *UsageStatistics {
 // L3Firewall is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type L3Firewall struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
+	AllowedSources  []string               `protobuf:"bytes,4470,rep,name=allowed_sources,json=allowedSources,proto3" json:"allowed_sources,omitempty"`
 	Enabled         bool                   `protobuf:"varint,9476,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	Inbound         bool                   `protobuf:"varint,1000,opt,name=inbound,proto3" json:"inbound,omitempty"`
-	RestrictedPorts string                 `protobuf:"bytes,7341,opt,name=restricted_ports,json=restrictedPorts,proto3" json:"restricted_ports,omitempty"`
+	RestrictedPorts []string               `protobuf:"bytes,7341,rep,name=restricted_ports,json=restrictedPorts,proto3" json:"restricted_ports,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -17185,6 +17186,13 @@ func (*L3Firewall) Descriptor() ([]byte, []int) {
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{149}
 }
 
+func (x *L3Firewall) GetAllowedSources() []string {
+	if x != nil {
+		return x.AllowedSources
+	}
+	return nil
+}
+
 func (x *L3Firewall) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
@@ -17199,11 +17207,11 @@ func (x *L3Firewall) GetInbound() bool {
 	return false
 }
 
-func (x *L3Firewall) GetRestrictedPorts() string {
+func (x *L3Firewall) GetRestrictedPorts() []string {
 	if x != nil {
 		return x.RestrictedPorts
 	}
-	return ""
+	return nil
 }
 
 // LeastPrivilegePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -34539,12 +34547,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\bKeyVault\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
 	"\n" +
-	"_parent_id\"\xc3\x01\n" +
+	"_parent_id\"\xed\x01\n" +
 	"\n" +
-	"L3Firewall\x12\x19\n" +
+	"L3Firewall\x12(\n" +
+	"\x0fallowed_sources\x18\xf6\" \x03(\tR\x0eallowedSources\x12\x19\n" +
 	"\aenabled\x18\x84J \x01(\bR\aenabled\x12\x19\n" +
 	"\ainbound\x18\xe8\a \x01(\bR\ainbound\x12*\n" +
-	"\x10restricted_ports\x18\xad9 \x01(\tR\x0frestrictedPorts:S\x82\xa6\x1d\n" +
+	"\x10restricted_ports\x18\xad9 \x03(\tR\x0frestrictedPorts:S\x82\xa6\x1d\n" +
 	"L3Firewall\x82\xa6\x1d\bFirewall\x82\xa6\x1d\x11AccessRestriction\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"n\n" +
 	"\x14LeastPrivilegePolicy\x12\x1f\n" +
 	"\n" +
