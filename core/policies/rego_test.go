@@ -603,6 +603,15 @@ func Test_regoEval_evalMap(t *testing.T) {
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
+					ComparisonResult: []*assessment.ComparisonResult{
+						{
+							Value:       &structpb.Value{},
+							Property:    "automatic_updates_enabled",
+							TargetValue: structpb.NewBoolValue(true),
+							Operator:    "==",
+							Success:     true,
+						},
+					},
 					Message: assessment.DefaultCompliantMessage,
 				}
 
@@ -648,6 +657,15 @@ func Test_regoEval_evalMap(t *testing.T) {
 						UpdatedAt:            timestamppb.New(time.Date(2022, 12, 1, 0, 0, 0, 0, time.Local)),
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
+					},
+					ComparisonResult: []*assessment.ComparisonResult{
+						{
+							Value:       &structpb.Value{},
+							Property:    "automatic_updates_enabled",
+							TargetValue: structpb.NewBoolValue(false),
+							Operator:    "==",
+							Success:     false,
+						},
 					},
 					Message: assessment.DefaultNonCompliantMessage,
 				}

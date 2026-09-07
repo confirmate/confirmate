@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
+	"google.golang.org/protobuf/types/known/structpb"
 
 	"connectrpc.com/connect"
 	"github.com/open-policy-agent/opa/v1/rego"
@@ -419,8 +420,8 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 		}
 	} else {
 		result.ComparisonResult = append(result.ComparisonResult, &assessment.ComparisonResult{
-			Property: pkg,
-			// Value: , // How do we get the current value?
+			Property:    pkg,
+			Value:       &structpb.Value{}, // How do we get the current value?
 			Operator:    config.GetOperator(),
 			TargetValue: config.GetTargetValue(),
 			Success:     result.Compliant,
