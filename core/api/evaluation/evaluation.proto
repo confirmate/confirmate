@@ -95,16 +95,36 @@ message EvaluationResult {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The Target of Evaluation ID the evaluation belongs to
-  string target_of_evaluation_id = 2 [(buf.validate.field).string = {uuid: true}];
+  // The Target of Evaluation ID the evaluation belongs to.
+  //
+  // NOTE: idx_evaluation_results_toe_control_timestamp is picked up by
+  // GORM's AutoMigrate on service startup (see persistence.NewDB). See the
+  // note on control_id below regarding a safe production rollout.
+  string target_of_evaluation_id = 2 [
+    (buf.validate.field).string = {uuid: true},
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_toe_control_timestamp,priority:1\""
+  ];
 
   // The Audit Scope ID the evaluation belongs to
   string audit_scope_id = 3 [(buf.validate.field).string = {uuid: true}];
 
-  // The control id the evaluation was based on
+  // The control id the evaluation was based on.
+  //
+  // NOTE: idx_evaluation_results_control_timestamp and
+  // idx_evaluation_results_toe_control_timestamp are picked up by GORM's
+  // AutoMigrate on service startup (see persistence.NewDB). On a large,
+  // already-populated evaluation_results table, the first startup after
+  // these indexes are introduced will run blocking CREATE INDEX statements
+  // and may stall writes for a while. Consider pre-creating them out-of-band
+  // with `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp
+  // ON evaluation_results (control_id, timestamp);` and `CREATE INDEX
+  // CONCURRENTLY idx_evaluation_results_toe_control_timestamp ON
+  // evaluation_results (target_of_evaluation_id, control_id, timestamp);`
+  // before rolling this out; AutoMigrate detects existing indexes by name
+  // and skips them.
   string control_id = 4 [
     (buf.validate.field).string.min_len = 1,
-    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1\""
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2\""
   ];
 
   reserved 5;
@@ -123,7 +143,7 @@ message EvaluationResult {
 
   // Time of evaluation
   google.protobuf.Timestamp timestamp = 9 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2\"",
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3\"",
     (google.api.field_behavior) = REQUIRED
   ];
 

@@ -140,12 +140,13 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 
 		// Use PostgreSQL's DISTINCT ON to let the database pick the latest row per
 		// control_id directly, instead of pulling every historical evaluation result
-		// into memory and deduplicating in Go (see #486).
+		// into memory and deduplicating in Go (see #486). "id DESC" breaks ties
+		// deterministically when two results share the same timestamp.
 		sql := fmt.Sprintf(`
 			SELECT DISTINCT ON (control_id) *
 			FROM evaluation_results
 			%s
-			ORDER BY control_id, timestamp DESC
+			ORDER BY control_id, timestamp DESC, id DESC
 		`, where)
 
 		err = svc.db.Raw(&res.Msg.Results, sql, args...)

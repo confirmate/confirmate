@@ -117,8 +117,18 @@ type AssessmentResult struct {
 	ComplianceComment string `protobuf:"bytes,9,opt,name=compliance_comment,json=complianceComment,proto3" json:"compliance_comment,omitempty"`
 	// ComplianceDetails contains machine-readable details about which comparisons lead to a (non)-compliance.
 	ComplianceDetails []*ComparisonResult `protobuf:"bytes,10,rep,name=compliance_details,json=complianceDetails,proto3" json:"compliance_details,omitempty" gorm:"serializer:json"`
-	// The target of evaluation which this assessment result belongs to
-	TargetOfEvaluationId string `protobuf:"bytes,20,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
+	// The target of evaluation which this assessment result belongs to.
+	//
+	// NOTE: idx_assessment_results_target_of_evaluation_id is picked up by
+	// GORM's AutoMigrate on service startup (see persistence.NewDB). On a
+	// large, already-populated assessment_results table, the first startup
+	// after this index is introduced will run a blocking CREATE INDEX and may
+	// stall writes for a while. Consider pre-creating the index out-of-band
+	// with `CREATE INDEX CONCURRENTLY
+	// idx_assessment_results_target_of_evaluation_id ON assessment_results
+	// (target_of_evaluation_id);` before rolling this out; AutoMigrate detects
+	// the existing index by name and skips it.
+	TargetOfEvaluationId string `protobuf:"bytes,20,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"index:idx_assessment_results_target_of_evaluation_id"`
 	// Reference to the tool which provided the assessment result
 	ToolId *string `protobuf:"bytes,21,opt,name=tool_id,json=toolId,proto3,oneof" json:"tool_id,omitempty"`
 	// The time of the last update of the assessment result history field
@@ -395,7 +405,7 @@ var File_api_assessment_result_proto protoreflect.FileDescriptor
 
 const file_api_assessment_result_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\xd2\b\n" +
+	"\x1bapi/assessment/result.proto\x12\x18confirmate.assessment.v1\x1a\x1bapi/assessment/metric.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13tagger/tagger.proto\"\x93\t\n" +
 	"\x10AssessmentResult\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12u\n" +
 	"\n" +
@@ -413,8 +423,8 @@ const file_api_assessment_result_proto_rawDesc = "" +
 	"\x12compliance_comment\x18\t \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x11complianceComment\x12v\n" +
 	"\x12compliance_details\x18\n" +
-	" \x03(\v2*.confirmate.assessment.v1.ComparisonResultB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x11complianceDetails\x12B\n" +
-	"\x17target_of_evaluation_id\x18\x14 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12(\n" +
+	" \x03(\v2*.confirmate.assessment.v1.ComparisonResultB\x1b\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x11complianceDetails\x12\x82\x01\n" +
+	"\x17target_of_evaluation_id\x18\x14 \x01(\tBK\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03;gorm:\"index:idx_assessment_results_target_of_evaluation_id\"R\x14targetOfEvaluationId\x12(\n" +
 	"\atool_id\x18\x15 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01H\x00R\x06toolId\x88\x01\x01\x12\x84\x01\n" +
 	"\x12history_updated_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampB:\xe0A\x02\xbaH\x03\xc8\x01\x01\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x10historyUpdatedAt\x12|\n" +
