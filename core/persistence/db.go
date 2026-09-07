@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
+	"time"
 
 	_ "github.com/proullon/ramsql/driver"
 	"gorm.io/driver/postgres"
@@ -149,6 +150,20 @@ func NewDB(opts ...DBOption) (s DB, err error) {
 		}
 
 		sqlDB.SetMaxOpenConns(db.cfg.MaxConn)
+
+		// database/sql defaults MaxIdleConns to 2, which is far below MaxConn.
+		// Under bursty load (e.g. a dashboard firing many List/Get calls at
+		// once), connections opened to serve the burst get closed down to 2
+		// idle ones as soon as the burst subsides, so the *next* burst pays
+		// to re-establish them (a fresh TCP handshake plus a new Postgres
+		// backend process) instead of reusing an already-open connection.
+		// Keep every connection up to MaxConn warm in the idle pool.
+		sqlDB.SetMaxIdleConns(db.cfg.MaxConn)
+
+		// Recycle connections periodically so long-lived processes don't get
+		// stuck on a connection the network path (proxies, load balancers)
+		// has silently dropped or would prefer to rebalance away from.
+		sqlDB.SetConnMaxLifetime(30 * time.Minute)
 	}
 
 	// Register custom serializers
