@@ -838,9 +838,8 @@ func TestService_ListAssessmentResults(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
-				// Should return exactly 4 results (one per unique resource_id/metric_id combination)
+				// Should return exactly 3 results (one per unique resource_id/metric_id combination the user is authorized to see)
 				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 3, len(got.Msg.Results)) {
-					return false
 				}
 
 				// Collect returned IDs
