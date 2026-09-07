@@ -197,13 +197,21 @@ func (svc *Service) ListAssessmentResults(
 			where = "WHERE " + where
 		}
 
+		// Using ROW_NUMBER() instead of DISTINCT ON for better performance without indexes
 		rawQuery := fmt.Sprintf(`
-				SELECT DISTINCT ON (resource_id, metric_id) *
+			SELECT * FROM (
+				SELECT *,
+				       ROW_NUMBER() OVER (
+				           PARTITION BY resource_id, metric_id
+				           ORDER BY created_at DESC, id DESC
+				       ) as rn
 				FROM assessment_results
 				%s
-				ORDER BY resource_id, metric_id, created_at DESC, id DESC
-				LIMIT ? OFFSET ?
-			`, where)
+			) sub
+			WHERE rn = 1
+			ORDER BY created_at DESC, id DESC
+			LIMIT ? OFFSET ?
+		`, where)
 
 		results, npt, err = service.PaginateRaw[*assessment.AssessmentResult](
 			req.Msg,
@@ -211,6 +219,7 @@ func (svc *Service) ListAssessmentResults(
 			func(start int64, size int32) ([]*assessment.AssessmentResult, error) {
 				var page []*assessment.AssessmentResult
 
+				// Append the original filter args, then LIMIT and OFFSET
 				queryArgs := append([]any(nil), args...)
 				queryArgs = append(queryArgs, int(size), int(start))
 
