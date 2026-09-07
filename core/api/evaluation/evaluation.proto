@@ -102,7 +102,10 @@ message EvaluationResult {
   string audit_scope_id = 3 [(buf.validate.field).string = {uuid: true}];
 
   // The control id the evaluation was based on
-  string control_id = 4 [(buf.validate.field).string.min_len = 1];
+  string control_id = 4 [
+    (buf.validate.field).string.min_len = 1,
+    (tagger.tags) = "gorm:\"index:idx_evaluation_results_control_timestamp,priority:1\""
+  ];
 
   reserved 5;
 
@@ -120,7 +123,7 @@ message EvaluationResult {
 
   // Time of evaluation
   google.protobuf.Timestamp timestamp = 9 [
-    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\"",
+    (tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2\"",
     (google.api.field_behavior) = REQUIRED
   ];
 
