@@ -1223,18 +1223,23 @@ func TestService_GetControl(t *testing.T) {
 }
 
 func TestService_loadCatalogs(t *testing.T) {
+	// Updated description for MockCatalog2 to test upsert behavior
+	mockCatalog2Update := orchestratortest.MockCatalog2
+	mockCatalog2Update.Description = "Updated description"
+
 	type fields struct {
 		db persistence.DB
 	}
 	tests := []struct {
-		name             string
-		fields           fields
-		loadDefaultCats  bool
-		catalogsPath     string
-		loadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
-		setupFiles       func(t *testing.T, dir string)
-		wantErr          assert.WantErr
-		wantDB           assert.Want[persistence.DB]
+		name               string
+		fields             fields
+		loadDefaultCats    bool
+		catalogsPath       string
+		loadCatalogsFunc   func(*Service) ([]*orchestrator.Catalog, error)
+		upsertCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
+		setupFiles         func(t *testing.T, dir string)
+		wantErr            assert.WantErr
+		wantDB             assert.Want[persistence.DB]
 	}{
 		{
 			name: "happy path: load from custom function and catalog exists already",
@@ -1255,7 +1260,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "load from default folder with valid catalogs",
+			name:            "happy path: load from default folder with valid catalogs",
 			loadDefaultCats: true,
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -1281,7 +1286,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 		},
 		{
-			name: "load from custom function",
+			name: "happy path: load from custom function and only create catalog if it doesn't exist",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
@@ -1298,6 +1303,28 @@ func TestService_loadCatalogs(t *testing.T) {
 				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
 				return assert.NotNil(t, catalog1) &&
 					assert.NotNil(t, catalog2)
+			},
+		},
+		{
+			name: "happy path: load from custom function and update one catalog und create one catalog",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
+				}),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					mockCatalog2Update,
+				}, nil
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
+				catalog1 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
+				return assert.NotNil(t, catalog1) && assert.Equal(t, mockCatalog2Update.Description, catalog2.Description)
+
 			},
 		},
 		{
@@ -1403,6 +1430,7 @@ func TestService_loadCatalogs(t *testing.T) {
 					LoadDefaultCatalogs: tt.loadDefaultCats,
 					DefaultCatalogsPath: catalogsPath,
 					LoadCatalogsFunc:    tt.loadCatalogsFunc,
+					UpsertCatalogsFunc:  tt.upsertCatalogsFunc,
 				},
 			}
 

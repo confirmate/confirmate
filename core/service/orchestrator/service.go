@@ -90,6 +90,8 @@ type Config struct {
 	// LoadCatalogsFunc is an optional function to load additional catalogs at service start. This
 	// function is called in addition to loading from [Config.DefaultCatalogsPath] (if enabled).
 	LoadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
+	// UpsertCatalogsFunc is an optional function to upsert catalogs at service start. This function is called in addition to loading from [Config.DefaultCatalogsPath] (if enabled).
+	UpsertCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
 
 	// DefaultMetricsPath is the path containing default metrics (e.g., security-metrics
 	// repository).
@@ -253,14 +255,6 @@ func NewService(opts ...service.Option[Service]) (handler orchestratorconnect.Or
 	handler = svc
 	return
 }
-
-// func (svc *Service) allowedTargetOfEvaluations(ctx context.Context) (all bool, allowed []string) {
-// 	if svc == nil || svc.authz == nil {
-// 		return true, nil
-// 	}
-
-// 	return svc.authz.AllowedTargetOfEvaluations(ctx)
-// }
 
 // GetRuntimeInfo returns runtime information about the orchestrator service.
 func (svc *Service) GetRuntimeInfo(
