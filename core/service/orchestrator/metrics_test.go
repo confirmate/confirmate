@@ -1337,8 +1337,9 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 
 func TestService_loadMetrics(t *testing.T) {
 	type fields struct {
-		db  persistence.DB
-		cfg Config
+		db      persistence.DB
+		cfg     Config
+		preload bool
 	}
 	tests := []struct {
 		name    string
@@ -1414,7 +1415,7 @@ func TestService_loadMetrics(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 				}),
-
+				preload: true,
 				cfg: Config{
 					LoadDefaultMetrics: true,
 					DefaultMetricsPath: "./policies/security-metrics/metrics",
@@ -1436,8 +1437,8 @@ func TestService_loadMetrics(t *testing.T) {
 			}
 
 			// Small setup: if we load default metrics from repository, pre-populate the DB
-			// with a matching metric (with a slightly different description) so that
-			if svc.cfg.LoadDefaultMetrics {
+			// with a matching metric (with a slightly different description) so that we can test that the description is updated.
+			if tt.fields.preload {
 				metricsFromRepo, err := svc.loadMetricsFromRepository()
 				if err != nil {
 					t.Fatalf("failed to load metrics from repository during test setup: %v", err)
