@@ -69,6 +69,8 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	req *connect.Request[orchestrator.ListEvaluationResultsRequest],
 ) (res *connect.Response[orchestrator.ListEvaluationResultsResponse], err error) {
 	var (
+		results   []*evaluation.EvaluationResult
+		npt       string
 		query     []string
 		partition []string
 		args      []any
@@ -142,17 +144,37 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 		// control_id directly, instead of pulling every historical evaluation result
 		// into memory and deduplicating in Go (see #486). "id DESC" breaks ties
 		// deterministically when two results share the same timestamp.
-		sql := fmt.Sprintf(`
+		rawQuery := fmt.Sprintf(`
 			SELECT DISTINCT ON (control_id) *
 			FROM evaluation_results
 			%s
 			ORDER BY control_id, timestamp DESC, id DESC
 		`, where)
 
-		err = svc.db.Raw(&res.Msg.Results, sql, args...)
+		results, npt, err = service.PaginateRaw(
+			req.Msg,
+			service.DefaultPaginationOpts,
+			func(start int64, size int32) ([]*evaluation.EvaluationResult, error) {
+				var page []*evaluation.EvaluationResult
+
+				queryArgs := append([]any(nil), args...)
+				queryArgs = append(queryArgs, int(size), int(start))
+
+				if err := svc.db.Raw(&page, rawQuery, queryArgs...); err != nil {
+					return nil, err
+				}
+
+				return page, nil
+			},
+		)
 		if err = service.HandleDatabaseError(err); err != nil {
 			return nil, err
 		}
+
+		return connect.NewResponse(&orchestrator.ListEvaluationResultsResponse{
+			Results:       results,
+			NextPageToken: npt,
+		}), nil
 	} else {
 		// join query with AND and prepend the query
 		args = append([]any{strings.Join(query, " AND ")}, args...)

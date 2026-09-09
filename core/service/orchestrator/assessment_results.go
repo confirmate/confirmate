@@ -205,7 +205,7 @@ func (svc *Service) ListAssessmentResults(
 				LIMIT ? OFFSET ?
 			`, where)
 
-		results, npt, err = service.PaginateRaw[*assessment.AssessmentResult](
+		results, npt, err = service.PaginateRaw(
 			req.Msg,
 			service.DefaultPaginationOpts,
 			func(start int64, size int32) ([]*assessment.AssessmentResult, error) {
