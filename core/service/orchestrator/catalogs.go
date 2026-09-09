@@ -411,7 +411,6 @@ func (svc *Service) loadCatalogs() (err error) {
 	)
 
 	// If UpsertCatalogsFunc is provided, call it to create new catalogs and update existing ones
-	// If UpsertCatalogsFunc is provided, call it to create new catalogs and update existing ones
 	if svc.cfg.UpsertCatalogsFunc != nil {
 		upsertedCatalogs, err := svc.cfg.UpsertCatalogsFunc(svc)
 		if err != nil {
