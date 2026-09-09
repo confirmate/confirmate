@@ -226,6 +226,10 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 				if connect.CodeOf(err) == connect.CodeNotFound &&
 					(strings.Contains(err.Error(), "implementation for metric not found") ||
 						strings.Contains(err.Error(), "metric configuration not found")) {
+					slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+					continue
+				} else {
+					slog.Error("Rego evaluation failed. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
 					continue
 				}
 
@@ -390,7 +394,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 
 	results, err := query.Eval(ctx, rego.EvalInput(m))
 	if err != nil {
-		slog.Error("Rego evaluation failed", "metric", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+		return nil, fmt.Errorf("could not evaluate rego policy: %w", err)
 	}
 
 	if len(results) == 0 {
