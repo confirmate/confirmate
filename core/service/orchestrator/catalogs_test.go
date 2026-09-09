@@ -1306,7 +1306,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 		},
 		{
-			name: "happy path: load from custom function and update one catalog und create one catalog",
+			name: "happy path: load from custom function and update one catalog and create one catalog",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
