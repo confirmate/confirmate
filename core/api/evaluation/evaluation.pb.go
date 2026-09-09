@@ -444,12 +444,29 @@ type EvaluationResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Evaluation result id
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// The Target of Evaluation ID the evaluation belongs to
-	TargetOfEvaluationId string `protobuf:"bytes,2,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
+	// The Target of Evaluation ID the evaluation belongs to.
+	//
+	// NOTE: idx_evaluation_results_toe_control_timestamp is picked up by
+	// GORM's AutoMigrate on service startup (see persistence.NewDB). See the
+	// note on control_id below regarding a safe production rollout.
+	TargetOfEvaluationId string `protobuf:"bytes,2,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty" gorm:"index:idx_evaluation_results_toe_control_timestamp,priority:1"`
 	// The Audit Scope ID the evaluation belongs to
 	AuditScopeId string `protobuf:"bytes,3,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
-	// The control id the evaluation was based on
-	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty"`
+	// The control id the evaluation was based on.
+	//
+	// NOTE: idx_evaluation_results_control_timestamp and
+	// idx_evaluation_results_toe_control_timestamp are picked up by GORM's
+	// AutoMigrate on service startup (see persistence.NewDB). On a large,
+	// already-populated evaluation_results table, the first startup after
+	// these indexes are introduced will run blocking CREATE INDEX statements
+	// and may stall writes for a while. Consider pre-creating them out-of-band
+	// with `CREATE INDEX CONCURRENTLY idx_evaluation_results_control_timestamp
+	// ON evaluation_results (control_id, timestamp);` and `CREATE INDEX
+	// CONCURRENTLY idx_evaluation_results_toe_control_timestamp ON
+	// evaluation_results (target_of_evaluation_id, control_id, timestamp);`
+	// before rolling this out; AutoMigrate detects existing indexes by name
+	// and skips them.
+	ControlId string `protobuf:"bytes,4,opt,name=control_id,json=controlId,proto3" json:"control_id,omitempty" gorm:"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2"`
 	// The catalog the evaluated control belongs to
 	ControlCatalogId string `protobuf:"bytes,6,opt,name=control_catalog_id,json=controlCatalogId,proto3" json:"control_catalog_id,omitempty"`
 	// Optionally, specifies the parent control ID, if this is a sub-control
@@ -457,7 +474,7 @@ type EvaluationResult struct {
 	// Evaluation status
 	Status EvaluationStatus `protobuf:"varint,8,opt,name=status,proto3,enum=confirmate.evaluation.v1.EvaluationStatus" json:"status,omitempty"`
 	// Time of evaluation
-	Timestamp *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
+	Timestamp *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=timestamp,proto3" json:"timestamp,omitempty" gorm:"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3"`
 	// List of assessment results because of which the evaluation status is compliant or not compliant
 	AssessmentResultIds []string `protobuf:"bytes,10,rep,name=assessment_result_ids,json=assessmentResultIds,proto3" json:"assessment_result_ids,omitempty" gorm:"serializer:json"`
 	Comment             *string  `protobuf:"bytes,11,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
@@ -738,17 +755,17 @@ const file_api_evaluation_evaluation_proto_rawDesc = "" +
 	"\x0f_audit_scope_idB\t\n" +
 	"\a_filter\"n\n" +
 	"\x1aListEvaluationJobsResponse\x12P\n" +
-	"\x0fevaluation_jobs\x18\x01 \x03(\v2'.confirmate.evaluation.v1.EvaluationJobR\x0eevaluationJobs\"\xd7\x06\n" +
+	"\x0fevaluation_jobs\x18\x01 \x03(\v2'.confirmate.evaluation.v1.EvaluationJobR\x0eevaluationJobs\"\xa1\t\n" +
 	"\x10EvaluationResult\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12?\n" +
-	"\x17target_of_evaluation_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12.\n" +
-	"\x0eaudit_scope_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12&\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x88\x01\n" +
+	"\x17target_of_evaluation_id\x18\x02 \x01(\tBQ\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03Dgorm:\"index:idx_evaluation_results_toe_control_timestamp,priority:1\"R\x14targetOfEvaluationId\x12.\n" +
+	"\x0eaudit_scope_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\x12\xaa\x01\n" +
 	"\n" +
-	"control_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tcontrolId\x125\n" +
+	"control_id\x18\x04 \x01(\tB\x8a\x01\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03~gorm:\"index:idx_evaluation_results_control_timestamp,priority:1;index:idx_evaluation_results_toe_control_timestamp,priority:2\"R\tcontrolId\x125\n" +
 	"\x12control_catalog_id\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x10controlCatalogId\x12/\n" +
 	"\x11parent_control_id\x18\a \x01(\tH\x00R\x0fparentControlId\x88\x01\x01\x12O\n" +
-	"\x06status\x18\b \x01(\x0e2*.confirmate.evaluation.v1.EvaluationStatusB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12n\n" +
-	"\ttimestamp\x18\t \x01(\v2\x1a.google.protobuf.TimestampB4\xe0A\x02\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\ttimestamp\x12^\n" +
+	"\x06status\x18\b \x01(\x0e2*.confirmate.evaluation.v1.EvaluationStatusB\v\xe0A\x02\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\xe8\x01\n" +
+	"\ttimestamp\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\xad\x01\xe0A\x02\x9a\x84\x9e\x03\xa4\x01gorm:\"serializer:timestamppb;type:timestamp;index:idx_evaluation_results_control_timestamp,priority:2;index:idx_evaluation_results_toe_control_timestamp,priority:3\"R\ttimestamp\x12^\n" +
 	"\x15assessment_result_ids\x18\n" +
 	" \x03(\tB*\xe0A\x02\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01\x9a\x84\x9e\x03\x16gorm:\"serializer:json\"R\x13assessmentResultIds\x12\x1d\n" +
 	"\acomment\x18\v \x01(\tH\x01R\acomment\x88\x01\x01\x12s\n" +
