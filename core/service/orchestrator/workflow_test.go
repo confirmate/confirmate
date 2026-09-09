@@ -78,7 +78,7 @@ func TestService_CreateControlInScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.ControlInScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				got := assert.InDB[orchestrator.ControlInScope](t, db, res.Msg.Id)
+				got := assert.InDBGet[orchestrator.ControlInScope](t, db, res.Msg.Id)
 				want := &orchestrator.ControlInScope{
 					AuditScopeId:         orchestratortest.MockControlInScope1.AuditScopeId,
 					ControlId:            orchestratortest.MockControlInScope1.ControlId,
@@ -571,7 +571,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 					TargetOfEvaluationId: orchestratortest.MockControlInScope1.TargetOfEvaluationId,
 					State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 				}
-				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
+				got := assert.InDBGet[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
 				return assert.Equal(t, want, got, protocmp.IgnoreFields(&orchestrator.ControlInScope{}, "created_at", "updated_at"))
 			},
 		},
@@ -595,7 +595,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
-				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
+				got := assert.InDBGet[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
 				return assert.Equal(t, assigneeId, got.AssigneeId)
 			},
 		},
@@ -624,7 +624,7 @@ func TestService_UpdateControlInScope(t *testing.T) {
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				details := "We use TLS 1.3 for all connections."
-				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
+				got := assert.InDBGet[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
 				return assert.Equal(t, &details, got.ImplementationDetails)
 			},
 		},
@@ -756,7 +756,7 @@ func TestService_TransitionControlInScopeState(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
-				got := assert.InDB[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
+				got := assert.InDBGet[orchestrator.ControlInScope](t, db, orchestratortest.MockControlInScope1.Id)
 				return assert.Equal(t,
 					orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 					got.State)

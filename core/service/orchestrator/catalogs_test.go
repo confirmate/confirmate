@@ -1282,7 +1282,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				catalog := assert.InDB[orchestrator.Catalog](t, db, "test-catalog-1")
+				catalog := assert.InDBGet[orchestrator.Catalog](t, db, "test-catalog-1")
 				return assert.Equal(t, "Test Catalog 1", catalog.Name)
 			},
 		},
@@ -1300,8 +1300,8 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				catalog1 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
-				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
+				catalog1 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				catalog2 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
 				return assert.NotNil(t, catalog1) &&
 					assert.NotNil(t, catalog2)
 			},
@@ -1322,8 +1322,8 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				catalog1 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
-				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
+				catalog1 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				catalog2 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
 				return assert.NotNil(t, catalog1) && assert.Equal(t, mockCatalog2Update.Description, catalog2.Description)
 
 			},
@@ -1354,8 +1354,8 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				folderCatalog := assert.InDB[orchestrator.Catalog](t, db, "folder-catalog")
-				customCatalog := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				folderCatalog := assert.InDBGet[orchestrator.Catalog](t, db, "folder-catalog")
+				customCatalog := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
 				return assert.NotNil(t, folderCatalog) &&
 					assert.NotNil(t, customCatalog)
 			},

@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
@@ -34,6 +35,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -1342,6 +1344,7 @@ func TestService_loadMetrics(t *testing.T) {
 		name    string
 		fields  fields
 		wantErr assert.WantErr
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "no metrics to load",
@@ -1353,6 +1356,7 @@ func TestService_loadMetrics(t *testing.T) {
 				},
 			},
 			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name: "load from custom function",
@@ -1371,6 +1375,7 @@ func TestService_loadMetrics(t *testing.T) {
 				},
 			},
 			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name: "custom function returns error",
@@ -1387,9 +1392,10 @@ func TestService_loadMetrics(t *testing.T) {
 				return assert.Error(t, err) &&
 					assert.ErrorContains(t, err, "could not load additional metrics")
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "load default",
+			name: "happy path: load default",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 				cfg: Config{
@@ -1398,6 +1404,27 @@ func TestService_loadMetrics(t *testing.T) {
 				},
 			},
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				metrics := assert.InDBList[assessment.Metric](t, db, 10)
+				return assert.NotEmpty(t, metrics)
+			},
+		},
+		{
+			name: "happy path: load and update default metrics",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+				}),
+
+				cfg: Config{
+					LoadDefaultMetrics: true,
+					DefaultMetricsPath: "./policies/security-metrics/metrics",
+				},
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				metrics := assert.InDBList[assessment.Metric](t, db, 10)
+				return assert.NotEmpty(t, metrics) && assert.Equal(t, 10, len(metrics)) && assert.False(t, strings.Contains(metrics[0].Description, "(old)"))
+			},
 		},
 	}
 
@@ -1407,8 +1434,27 @@ func TestService_loadMetrics(t *testing.T) {
 				db:  tt.fields.db,
 				cfg: tt.fields.cfg,
 			}
+
+			// Small setup: if we load default metrics from repository, pre-populate the DB
+			// with a matching metric (with a slightly different description) so that
+			if svc.cfg.LoadDefaultMetrics {
+				metricsFromRepo, err := svc.loadMetricsFromRepository()
+				if err != nil {
+					t.Fatalf("failed to load metrics from repository during test setup: %v", err)
+				}
+				if len(metricsFromRepo) > 0 {
+					// insert a copy of the first metric with a modified description
+					mp := proto.Clone(metricsFromRepo[0]).(*assessment.Metric)
+					mp.Description = mp.Description + " (old)"
+					if err := svc.db.Create(mp); err != nil {
+						t.Fatalf("failed to create initial metric in DB: %v", err)
+					}
+				}
+			}
+
 			err := svc.loadMetrics()
 			tt.wantErr(t, err)
+			tt.wantDB(t, svc.db)
 		})
 	}
 }
@@ -1421,9 +1467,22 @@ func TestService_loadMetricsFromRepository(t *testing.T) {
 	tests := []struct {
 		name        string
 		fields      fields
-		wantMetrics int
+		wantMetrics assert.Want[[]*assessment.Metric]
 		wantErr     assert.WantErr
 	}{
+		{
+			name: "happy path: load metrics from default path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					DefaultMetricsPath: "./policies/security-metrics/metrics",
+				},
+			},
+			wantMetrics: func(t *testing.T, got []*assessment.Metric, args ...any) bool {
+				return assert.NotEmpty(t, got) && assert.NotNil(t, got[0])
+			},
+			wantErr: assert.NoError,
+		},
 		{
 			name: "directory does not exist",
 			fields: fields{
@@ -1432,20 +1491,21 @@ func TestService_loadMetricsFromRepository(t *testing.T) {
 					DefaultMetricsPath: "/nonexistent/path",
 				},
 			},
-			wantMetrics: 0,
-			wantErr:     assert.NoError,
+			wantMetrics: func(t *testing.T, got []*assessment.Metric, msgAndArgs ...any) bool {
+				return assert.Empty(t, got)
+			},
+			wantErr: assert.NoError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db:  tt.fields.db,
 				cfg: tt.fields.cfg,
 			}
 			metrics, err := svc.loadMetricsFromRepository()
 			tt.wantErr(t, err)
-			assert.Equal(t, tt.wantMetrics, len(metrics))
+			tt.wantMetrics(t, metrics)
 		})
 	}
 }
