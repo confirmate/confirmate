@@ -390,7 +390,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 
 	results, err := query.Eval(ctx, rego.EvalInput(m))
 	if err != nil {
-		return nil, fmt.Errorf("could not evaluate rego policy: %w", err)
+		slog.Error("Rego evaluation failed", "metric", metric.GetName(), "metric_id", metric.GetId(), "error", err)
 	}
 
 	if len(results) == 0 {
