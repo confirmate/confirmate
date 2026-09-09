@@ -434,10 +434,8 @@ func (svc *Service) loadCatalogs() (err error) {
 					// avoiding foreign key constraint violations for its nested categories.
 					upsertErr = svc.db.Create(catalog)
 				} else {
-					// If the catalog already exists, use Save().
-					// Since the catalog ID is already present in the DB, GORM can safely
-					// perform an upsert on the catalog and its nested associations.
-					upsertErr = svc.db.Save(catalog)
+					// If the catalog already exists, use Update() so nested associations are updated as well.
+					upsertErr = svc.db.Update(catalog)
 				}
 
 				if upsertErr != nil {
