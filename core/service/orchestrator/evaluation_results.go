@@ -149,6 +149,7 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 			FROM evaluation_results
 			%s
 			ORDER BY control_id, timestamp DESC, id DESC
+			LIMIT ? OFFSET ?
 		`, where)
 
 		results, npt, err = service.PaginateRaw(
