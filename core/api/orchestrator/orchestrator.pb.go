@@ -2430,7 +2430,7 @@ func (x *TargetOfEvaluation) GetOrganization() *TargetOfEvaluation_Organization 
 
 type Catalog struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"primaryKey"`
 	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Categories  []*Category            `protobuf:"bytes,4,rep,name=categories,proto3" json:"categories,omitempty" gorm:"constraint:OnDelete:CASCADE"`
@@ -6304,10 +6304,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\v\n" +
 	"\t_metadataB\x0f\n" +
-	"\r_organizationJ\x04\b\f\x10\rJ\x04\b\r\x10\x0eJ\x04\b\x0e\x10\x0fR\areadersR\fcontributorsR\x06admins\"\x9c\x04\n" +
-	"\aCatalog\x12\x1a\n" +
-	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
+	"\r_organizationJ\x04\b\f\x10\rJ\x04\b\r\x10\x0eJ\x04\b\x0e\x10\x0fR\areadersR\fcontributorsR\x06admins\"\xb2\x04\n" +
+	"\aCatalog\x120\n" +
+	"\x02id\x18\x01 \x01(\tB \xe0A\x02\xbaH\x04r\x02\x10\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12{\n" +

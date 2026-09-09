@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.2.17-43-g0877a1f
+    version: core/v0.2.17-64-gb2702b4
 paths:
     /v1/assessment/evidences:
         post:
@@ -1798,7 +1798,17 @@ components:
                     format: date-time
                 targetOfEvaluationId:
                     type: string
-                    description: Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from
+                    description: |-
+                        Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from.
+
+                         NOTE: this index is picked up by GORM's AutoMigrate on service startup
+                         (see persistence.NewDB). Evidence is append-only and can grow very
+                         large; on an already-populated table, the first startup after this
+                         index is introduced will run a blocking CREATE INDEX and may stall
+                         writes for a while. Consider pre-creating it out-of-band with
+                         `CREATE INDEX CONCURRENTLY idx_evidences_target_of_evaluation_id ON
+                         evidences (target_of_evaluation_id);` before rolling this out;
+                         AutoMigrate detects the existing index by name and skips it.
                 toolId:
                     type: string
                     description: Reference to the tool which provided the evidence
