@@ -29,7 +29,6 @@ import (
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
 
-	"connectrpc.com/connect"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
@@ -223,23 +222,16 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {
 				// Try to check if the metric implementation just does not exist.
-				if connect.CodeOf(err) == connect.CodeNotFound &&
-					(strings.Contains(err.Error(), "implementation for metric not found") ||
-						strings.Contains(err.Error(), "metric configuration not found")) {
+				if strings.Contains(err.Error(), "implementation for metric not found") ||
+					strings.Contains(err.Error(), "metric configuration not found") {
 					slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
-					continue
-				} else {
-					slog.Error("Rego evaluation failed. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
 					continue
 				}
 
-				// Otherwise, we are not really in a state where our cache is valid, so we mark it
-				// as not cached at all.
-				re.mrtc.m[key] = nil
-
-				// Unlock, to avoid deadlock and return from here with the error
-				re.mrtc.Unlock()
-				return nil, err
+				// For other errors, log and skip this metric but do not return.
+				// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+				slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
 			}
 
 			if runMap != nil {
