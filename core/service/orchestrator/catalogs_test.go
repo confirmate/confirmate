@@ -34,6 +34,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -1224,7 +1225,7 @@ func TestService_GetControl(t *testing.T) {
 
 func TestService_loadCatalogs(t *testing.T) {
 	// Updated description for MockCatalog2 to test upsert behavior
-	mockCatalog2Update := orchestratortest.MockCatalog2
+	mockCatalog2Update := proto.Clone(orchestratortest.MockCatalog2).(*orchestrator.Catalog)
 	mockCatalog2Update.Description = "Updated description"
 
 	type fields struct {
