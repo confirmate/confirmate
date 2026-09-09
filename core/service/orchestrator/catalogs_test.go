@@ -1329,7 +1329,7 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 		},
 		{
-			name:            "load from both default folder and custom function",
+			name:            "happy path: load from both default folder and custom function",
 			loadDefaultCats: true,
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -1370,12 +1370,26 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
-			name: "custom function returns error",
+			name: "error: LoadCatalogsFunc returns error",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return nil, errors.New("custom error")
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "custom error")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "error: UpsertCatalogsFunc returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return nil, errors.New("custom error")
 			},
 			wantErr: func(t *testing.T, err error, args ...any) bool {
@@ -1408,6 +1422,40 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "could not save catalog")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "error: could not check existence of catalog",
+			fields: fields{
+				db: persistencetest.CountErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					mockCatalog2Update,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not check existence of catalog")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "error: could not upsert catalog",
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					mockCatalog2Update,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not upsert catalog")
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
