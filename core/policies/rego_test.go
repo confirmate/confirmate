@@ -436,7 +436,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsErrorSource{t: t},
 			},
 			compliant: map[string]bool{
-				// "SoftwareAttestationEnabled":    true, // metric is set incorrect
+				// "SoftwareAttestationEnabled":    true, // metric is incorrect
 				"VulnerabilitiesNotExploitable": false,
 			},
 			wantErr: assert.NoError,

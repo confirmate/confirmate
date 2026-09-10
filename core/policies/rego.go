@@ -68,6 +68,9 @@ type regoEval struct {
 
 	// eventMutex protects event subscription state
 	eventMutex sync.Mutex
+
+	// skipMetricsOnError indicates whether to skip metrics that produce an error during assessment
+	skipMetricOnError bool
 }
 
 type queryCache struct {
@@ -93,15 +96,23 @@ func WithEventSubscriber(sub EventSubscriber) RegoEvalOption {
 	}
 }
 
+// WithSkipMetricOnError is an option to skip metrics from the assessment that cause an error
+func WithSkipMetricOnError(skip bool) RegoEvalOption {
+	return func(re *regoEval) {
+		re.skipMetricOnError = skip
+	}
+}
+
 func NewRegoEval(opts ...RegoEvalOption) PolicyEval {
 	ctx, cancel := context.WithCancel(context.Background())
 	re := regoEval{
-		mrtc:         &metricsCache{m: make(map[string][]*assessment.Metric)},
-		qc:           newQueryCache(),
-		pkg:          DefaultRegoPackage,
-		eventCtx:     ctx,
-		eventCancel:  cancel,
-		subscriberID: -1,
+		mrtc:              &metricsCache{m: make(map[string][]*assessment.Metric)},
+		qc:                newQueryCache(),
+		pkg:               DefaultRegoPackage,
+		eventCtx:          ctx,
+		eventCancel:       cancel,
+		subscriberID:      -1,
+		skipMetricOnError: false,
 	}
 
 	for _, o := range opts {
@@ -230,19 +241,11 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 					continue
 				}
 
-				// Otherwise, we are not really in a state where our cache is valid, so we mark it
-				// as not cached at all.
-				re.mrtc.m[key] = nil
-
-				// Unlock, to avoid deadlock and return from here with the error
-				re.mrtc.Unlock()
-				return nil, err
-
-				// TODO(anatheka): Delete if it works
-				// // For other errors, log and skip this metric but do not return.
-				// // We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
-				// slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
-				// continue
+				if re.skipMetricOnError {
+					// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+					slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+					continue
+				}
 			}
 
 			if runMap != nil {
