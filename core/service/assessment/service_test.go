@@ -674,10 +674,10 @@ func TestService_handleEvidence(t *testing.T) {
 					},
 				},
 			},
-			want: func(t *testing.T, got []*assessment.AssessmentResult, msgAndArgs ...any) bool {
-				return assert.Empty(t, got) // No results expected since the metric does not return any comparison results
+			want: assert.Nil[[]*assessment.AssessmentResult],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.Contains(t, err.Error(), "no results")
 			},
-			wantErr: assert.NoError,
 		},
 		{
 			name: "broken Any message",
