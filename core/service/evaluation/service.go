@@ -669,12 +669,14 @@ func (svc *Service) evaluateCatalog(ctx context.Context, auditScope *orchestrato
 
 	// Best-effort: now that the whole catalog has been evaluated, update the
 	// certificate lifecycle state for this audit scope.
+	slog.Info("Starting certificate lifecycle update for audit scope", slog.String("audit scope", auditScope.GetId()))
 	_, lcErr := svc.orchestratorClient.UpdateCertificateLifecycle(ctx, connect.NewRequest(&orchestrator.UpdateCertificateLifecycleRequest{
 		AuditScopeId: auditScope.GetId(),
 	}))
 	if lcErr != nil {
 		slog.Warn("lifecycle manager failed to update certificate state", slog.String("audit scope", auditScope.GetId()), log.Err(lcErr))
 	}
+	slog.Info("Finished certificate lifecycle update for audit scope", slog.String("audit scope", auditScope.GetId()))
 
 	return nil
 }
@@ -1058,4 +1060,3 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 
 	return metricIds
 }
-
