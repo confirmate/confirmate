@@ -560,6 +560,19 @@ func TestWithPackageName(t *testing.T) {
 	assert.Equal(t, "custom.package", re.pkg)
 }
 
+func TestWithSkipMetricOnError(t *testing.T) {
+	var (
+		re  *regoEval
+		opt RegoEvalOption
+	)
+
+	re = &regoEval{skipMetricOnError: false}
+	opt = WithSkipMetricOnError(true)
+	opt(re)
+
+	assert.True(t, re.skipMetricOnError)
+}
+
 func Test_regoEval_evalMap(t *testing.T) {
 	type fields struct {
 		qc   *queryCache
