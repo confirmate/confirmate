@@ -45,7 +45,7 @@ var assessmentFlags = []cli.Flag{
 	},
 	&cli.BoolFlag{
 		Name:    "assessment-skip-metrics-on-error",
-		Usage:   "Skip metrics in assessment componentn that produce an error",
+		Usage:   "Skip metrics in assessment component that produce an error",
 		Value:   assessment.DefaultConfig.SkipMetricsOnError,
 		Sources: envVarSources("assessment-skip-metrics-on-error"),
 	},

@@ -423,7 +423,7 @@ func Test_regoEval_Eval(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "happy path: Application: StrongCryptographicHash with parmeter skipMetricOnError=true",
+			name: "happy path: Application: StrongCryptographicHash with parameter skipMetricOnError=true",
 			fields: fields{
 				qc:                newQueryCache(),
 				mrtc:              &metricsCache{m: make(map[string][]*assessment.Metric)},

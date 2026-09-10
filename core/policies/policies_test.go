@@ -78,7 +78,6 @@ var _ MetricsSource = (*mockMetricsErrorSource)(nil)
 // Metrics returns all metrics loaded from the metrics directory
 func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
 	metricsPath := "./policies/security-metrics/metrics"
-	fmt.Println(os.Executable())
 	metrics := make([]*assessment.Metric, 0)
 
 	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
@@ -121,7 +120,6 @@ func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, er
 // Metrics returns all metrics loaded from the metrics directory with one incorrect metric for testing error handling
 func (m *mockMetricsErrorSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
 	metricsPath := "./policies/security-metrics/metrics"
-	fmt.Println(os.Executable())
 	metrics := make([]*assessment.Metric, 0)
 
 	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
