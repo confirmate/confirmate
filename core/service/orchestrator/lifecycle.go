@@ -82,10 +82,10 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	var cert orchestrator.Certificate
 	err := svc.db.Get(&cert, "audit_scope_id = ?", auditScopeId)
 	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil
+		return fmt.Errorf("lifecycle: audit scope '%s' not found", auditScopeId)
 	}
 	if err != nil {
-		return fmt.Errorf("lifecycle: get certificate: %w", err)
+		return fmt.Errorf("lifecycle: error getting audit scope '%s': %w", auditScopeId, err)
 	}
 
 	// Fetch the latest parent-level evaluation result per control for this scope.
@@ -97,7 +97,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 		LatestByControlId: new(true),
 	}))
 	if err != nil {
-		return fmt.Errorf("lifecycle: list evaluation results: %w", err)
+		return fmt.Errorf("lifecycle: error list evaluation results for audit scope '%s': %w", auditScopeId, err)
 	}
 	results := listRes.Msg.GetResults()
 	if len(results) == 0 {
