@@ -1,6 +1,6 @@
 module confirmate.io/core
 
-go 1.26
+go 1.26.0
 
 // runtime dependencies - CLI
 require (
@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.24
 	github.com/oxisto/oauth2go v0.16.0
-	github.com/urfave/cli/v3 v3.10.1
+	github.com/urfave/cli/v3 v3.11.0
 	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sys v0.47.0 // indirect
 )
@@ -92,8 +92,7 @@ require (
 // test dependencies
 require (
 	github.com/google/go-cmp v0.7.0
-	github.com/stretchr/testify v1.12.0
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/stretchr/testify v1.12.1
 )
 
 // build dependencies
@@ -105,7 +104,7 @@ require (
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
 	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	golang.org/x/tools v0.47.0 // indirect
 )
 

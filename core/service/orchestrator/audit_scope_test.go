@@ -77,7 +77,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				got := assert.InDBGet[orchestrator.AuditScope](t, db, res.Msg.Id)
 				want := &orchestrator.AuditScope{
 					// ID is generated, so we can't assert on it
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
@@ -121,7 +121,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				got := assert.InDBGet[orchestrator.AuditScope](t, db, res.Msg.Id)
 				want := &orchestrator.AuditScope{
 					// ID is generated, so we can't assert on it
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
@@ -180,7 +180,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				got := assert.InDBGet[orchestrator.AuditScope](t, db, res.Msg.Id)
 				count, err = db.Count(&orchestrator.UserPermission{},
 					"user_id = ? AND object_id = ? AND object_type = ? AND permission = ?",
 					orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
@@ -251,7 +251,7 @@ func TestService_CreateAuditScope(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.AuditScope]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				got := assert.InDB[orchestrator.AuditScope](t, db, res.Msg.Id)
+				got := assert.InDBGet[orchestrator.AuditScope](t, db, res.Msg.Id)
 				want := &orchestrator.AuditScope{
 					// ID is generated, so we can't assert on it
 					TargetOfEvaluationId: orchestratortest.MockAuditScope1.TargetOfEvaluationId,
