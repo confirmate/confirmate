@@ -92,8 +92,7 @@ require (
 // test dependencies
 require (
 	github.com/google/go-cmp v0.7.0
-	github.com/stretchr/testify v1.12.0
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/stretchr/testify v1.12.1
 )
 
 // build dependencies
