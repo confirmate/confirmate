@@ -1,6 +1,6 @@
 module confirmate.io/core
 
-go 1.26
+go 1.26.0
 
 // runtime dependencies - CLI
 require (
@@ -105,7 +105,7 @@ require (
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
 	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	golang.org/x/tools v0.47.0 // indirect
 )
 
