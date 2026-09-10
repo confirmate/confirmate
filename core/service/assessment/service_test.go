@@ -77,13 +77,14 @@ func TestNewService(t *testing.T) {
 		want assert.Want[*Service]
 	}{
 		{
-			name: "AssessmentServer created with config rego package name",
+			name: "AssessmentServer created with config rego package name and skipMetricsOnError",
 			args: args{
 				opts: []service.Option[Service]{
 					WithConfig(Config{
 						OrchestratorAddress:    DefaultOrchestratorURL,
 						OrchestratorHTTPClient: http.DefaultClient,
 						RegoPackage:            "testPkg",
+						SkipMetricsOnError:     true,
 					}),
 				},
 			},
