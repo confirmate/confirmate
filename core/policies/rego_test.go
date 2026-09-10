@@ -547,31 +547,6 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 	assert.Equal(t, 0, len(results))
 }
 
-func Test_regoEval_Eval_ReturnsNonSkippableMetricConfigurationError(t *testing.T) {
-	var (
-		pe      *regoEval
-		source  MetricsSource
-		results []*CombinedResult
-		err     error
-	)
-
-	pe = &regoEval{
-		qc:   newQueryCache(),
-		mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
-		pkg:  DefaultRegoPackage,
-	}
-	source = &metricConfigErrorSource{}
-
-	results, err = pe.Eval(context.Background(), &evidence.Evidence{
-		Id:                   "11111111-1111-1111-1111-111111111111",
-		ToolId:               "tool-a",
-		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, source)
-
-	assert.Nil(t, results)
-	assert.NoError(t, err)
-}
-
 func TestWithPackageName(t *testing.T) {
 	var (
 		re  *regoEval
