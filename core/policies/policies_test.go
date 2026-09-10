@@ -66,13 +66,18 @@ type mockMetricsSource struct {
 	t *testing.T
 }
 
+// mockMetricsErrorSource implements the MetricsSource interface for testing with one incorrect metric.
+type mockMetricsErrorSource struct {
+	t *testing.T
+}
+
 // Ensure mockMetricsSource implements MetricsSource interface
 var _ MetricsSource = (*mockMetricsSource)(nil)
+var _ MetricsSource = (*mockMetricsErrorSource)(nil)
 
 // Metrics returns all metrics loaded from the metrics directory
 func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
 	metricsPath := "./policies/security-metrics/metrics"
-	fmt.Println(os.Executable())
 	metrics := make([]*assessment.Metric, 0)
 
 	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
@@ -110,6 +115,93 @@ func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, er
 	}
 
 	return metrics, nil
+}
+
+// Metrics returns all metrics loaded from the metrics directory with one incorrect metric for testing error handling
+func (m *mockMetricsErrorSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
+	metricsPath := "./policies/security-metrics/metrics"
+	metrics := make([]*assessment.Metric, 0)
+
+	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("error accessing path %s: %w", path, err)
+		}
+
+		// Skip directories and non-YAML files
+		if info.IsDir() || (!strings.HasSuffix(info.Name(), ".yaml") && !strings.HasSuffix(info.Name(), ".yml")) {
+			return nil
+		}
+
+		// Read the YAML file
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("error reading file %s: %w", path, err)
+		}
+
+		var metric assessment.Metric
+
+		dec := yaml.NewDecoder(bytes.NewReader(b))
+		if err := dec.Decode(&metric); err != nil {
+			return fmt.Errorf("error unmarshalling metric %s: %w", path, err)
+		}
+
+		// Set the category automatically, since it is not included in the YAML definition
+		metric.Category = filepath.Base(filepath.Dir(filepath.Dir(path)))
+
+		metrics = append(metrics, &metric)
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error walking through metrics directory: %w", err)
+	}
+
+	return metrics, nil
+}
+
+// MetricConfiguration returns the default configuration for a given metric (same logic as mockMetricsSource)
+func (m *mockMetricsErrorSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
+	// Fetch the metric configuration directly from our file
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Name)
+
+	b, err := os.ReadFile(bundle)
+	assert.NoError(m.t, err)
+
+	var config assessment.MetricConfiguration
+	err = protojson.Unmarshal(b, &config)
+	assert.NoError(m.t, err)
+
+	config.IsDefault = true
+	config.MetricId = metric.Id
+	config.TargetOfEvaluationId = targetID
+
+	return &config, nil
+}
+
+// MetricImplementation returns the Rego implementation for a given metric (same logic as mockMetricsSource)
+func (m *mockMetricsErrorSource) MetricImplementation(_ context.Context, _ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
+	var impl *assessment.MetricImplementation
+	// Fetch the metric implementation directly from our file
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Name)
+
+	b, err := os.ReadFile(bundle)
+	assert.NoError(m.t, err)
+
+	if metric.GetName() == "SoftwareAttestationEnabled" {
+		impl = &assessment.MetricImplementation{
+			MetricId: metric.Id,
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     "invalid code", // Introduce an error in the implementation for testing
+		}
+	} else {
+		impl = &assessment.MetricImplementation{
+			MetricId: metric.Id,
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     string(b),
+		}
+	}
+
+	return impl, nil
 }
 
 // MetricConfiguration returns the default configuration for a given metric

@@ -43,6 +43,12 @@ var assessmentFlags = []cli.Flag{
 		Value:   assessment.DefaultConfig.RegoPackage,
 		Sources: envVarSources("assessment-rego-package"),
 	},
+	&cli.BoolFlag{
+		Name:    "assessment-skip-metrics-on-error",
+		Usage:   "Skip metrics in assessment component that produce an error",
+		Value:   assessment.DefaultConfig.SkipMetricsOnError,
+		Sources: envVarSources("assessment-skip-metrics-on-error"),
+	},
 }
 
 // AssessmentCommand is the command to start the assessment server.
@@ -60,6 +66,7 @@ var AssessmentCommand = &cli.Command{
 			OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
 			OrchestratorHTTPClient: service.NewHTTPClient(),
 			RegoPackage:            cmd.String("assessment-rego-package"),
+			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
 		}
 
 		if cmd.Bool("auth-enabled") {

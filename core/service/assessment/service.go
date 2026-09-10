@@ -50,6 +50,7 @@ var DefaultConfig = Config{
 	OrchestratorAddress:    DefaultOrchestratorURL,
 	OrchestratorHTTPClient: service.DefaultHTTPClient,
 	RegoPackage:            policies.DefaultRegoPackage,
+	SkipMetricsOnError:     false,
 }
 
 // Config represents the configuration for the assessment [Service].
@@ -64,6 +65,8 @@ type Config struct {
 	// service-to-service authentication with the orchestrator. When set, all outgoing
 	// orchestrator calls use this token.
 	ServiceOAuth2Config *clientcredentials.Config
+	// SkipMetricsOnError indicates whether to skip metrics that produce an error during assessment.
+	SkipMetricsOnError bool
 }
 
 const (
@@ -188,6 +191,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	svc.pe = policies.NewRegoEval(
 		policies.WithPackageName(svc.cfg.RegoPackage),
 		policies.WithEventSubscriber(svc),
+		policies.WithSkipMetricOnError(svc.cfg.SkipMetricsOnError),
 	)
 
 	// Initialize orchestrator service client
