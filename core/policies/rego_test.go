@@ -93,9 +93,10 @@ func (m *metricConfigErrorSource) MetricImplementation(_ context.Context, lang a
 func Test_regoEval_Eval(t *testing.T) {
 
 	type fields struct {
-		qc   *queryCache
-		mrtc *metricsCache
-		pkg  string
+		qc                *queryCache
+		mrtc              *metricsCache
+		pkg               string
+		skipMetricOnError bool
 	}
 	type args struct {
 		resource   ontology.IsResource
@@ -422,11 +423,12 @@ func Test_regoEval_Eval(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "error: Application: StrongCryptographicHash",
+			name: "happy path: Application: StrongCryptographicHash with parmeter skipMetricOnError=true",
 			fields: fields{
-				qc:   newQueryCache(),
-				mrtc: &metricsCache{m: make(map[string][]*assessment.Metric)},
-				pkg:  DefaultRegoPackage,
+				qc:                newQueryCache(),
+				mrtc:              &metricsCache{m: make(map[string][]*assessment.Metric)},
+				pkg:               DefaultRegoPackage,
+				skipMetricOnError: true,
 			},
 			args: args{
 				resource: &ontology.Application{
@@ -441,14 +443,35 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "error: Application: StrongCryptographicHash",
+			fields: fields{
+				qc:                newQueryCache(),
+				mrtc:              &metricsCache{m: make(map[string][]*assessment.Metric)},
+				pkg:               DefaultRegoPackage,
+				skipMetricOnError: false,
+			},
+			args: args{
+				resource: &ontology.Application{
+					Id: "app",
+				},
+				evidenceID: mockVM1EvidenceID,
+				src:        &mockMetricsErrorSource{t: t},
+			},
+			compliant: map[string]bool{},
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.ErrorContains(t, err, "could not fetch cached query")
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			pe := regoEval{
-				qc:   tt.fields.qc,
-				mrtc: tt.fields.mrtc,
-				pkg:  tt.fields.pkg,
+				qc:                tt.fields.qc,
+				mrtc:              tt.fields.mrtc,
+				pkg:               tt.fields.pkg,
+				skipMetricOnError: tt.fields.skipMetricOnError,
 			}
 			results, err := pe.Eval(context.Background(), &evidence.Evidence{
 				Id:       tt.args.evidenceID,
@@ -457,7 +480,9 @@ func Test_regoEval_Eval(t *testing.T) {
 
 			tt.wantErr(t, err)
 
-			assert.NotEmpty(t, results)
+			if err == nil {
+				assert.NotEmpty(t, results)
+			}
 
 			var compliants = map[string]bool{}
 

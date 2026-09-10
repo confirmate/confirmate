@@ -235,8 +235,7 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 			if err != nil {
 				// Try to check if the metric implementation just does not exist.
 				if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
-					strings.Contains(err.Error(), "metric configuration not found") ||
-					strings.Contains(err.Error(), "could not fetch cached query")) {
+					strings.Contains(err.Error(), "metric configuration not found")) {
 					slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
 					continue
 				}
@@ -245,6 +244,14 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 					// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
 					slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
 					continue
+				} else {
+					// Otherwise, we are not really in a state where our cache is valid, so we mark it
+					// as not cached at all.
+					re.mrtc.m[key] = nil
+
+					// Unlock, to avoid deadlock and return from here with the error
+					re.mrtc.Unlock()
+					return nil, err
 				}
 			}
 
