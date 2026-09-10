@@ -191,6 +191,7 @@ func NewService(opts ...service.Option[Service]) (handler assessmentconnect.Asse
 	svc.pe = policies.NewRegoEval(
 		policies.WithPackageName(svc.cfg.RegoPackage),
 		policies.WithEventSubscriber(svc),
+		policies.WithSkipMetricOnError(svc.cfg.SkipMetricsOnError),
 	)
 
 	// Initialize orchestrator service client
