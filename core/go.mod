@@ -1,6 +1,6 @@
 module confirmate.io/core
 
-go 1.26
+go 1.26.0
 
 // runtime dependencies - CLI
 require (
@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.24
 	github.com/oxisto/oauth2go v0.16.0
-	github.com/urfave/cli/v3 v3.10.1
+	github.com/urfave/cli/v3 v3.11.0
 	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sys v0.47.0 // indirect
 )
@@ -24,16 +24,15 @@ require (
 // runtime dependencies - protobuf/Connect
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.1
-	buf.build/go/protovalidate v1.3.0
-	cel.dev/expr v0.25.1 // indirect
+	buf.build/go/protovalidate v1.4.0
+	cel.dev/expr v0.25.3 // indirect
 	connectrpc.com/connect v1.20.0
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/vanguard v0.4.0
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
-	github.com/google/cel-go v0.30.0 // indirect
 	github.com/google/uuid v1.6.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
 	google.golang.org/protobuf v1.36.12
 )
 
@@ -47,8 +46,8 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/proullon/ramsql v0.1.4
 	golang.org/x/crypto v0.53.0 // indirect
-	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/exp v0.0.0-20260820142414-ca536658362e // indirect
+	golang.org/x/text v0.41.0 // indirect
 	gorm.io/driver/postgres v1.6.2
 	gorm.io/gorm v1.31.2
 )
@@ -92,8 +91,7 @@ require (
 // test dependencies
 require (
 	github.com/google/go-cmp v0.7.0
-	github.com/stretchr/testify v1.12.0
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/stretchr/testify v1.12.1
 )
 
 // build dependencies
@@ -104,10 +102,12 @@ require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v1.0.2
-	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/sync v0.22.0
-	golang.org/x/tools v0.47.0 // indirect
+	golang.org/x/mod v0.39.0 // indirect
+	golang.org/x/sync v0.23.0
+	golang.org/x/tools v0.49.0 // indirect
 )
+
+require cel.dev/cel-go v0.32.0 // indirect
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
