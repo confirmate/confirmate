@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
@@ -26,6 +27,7 @@ import (
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // CreateCertificate creates a new certificate.
@@ -44,7 +46,7 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	err = svc.db.Get(&auditScope, "id = ?", req.Msg.GetAuditScopeId())
+	err = svc.db.Get(&auditScope, persistence.WithoutPreload(), "id = ?", req.Msg.GetAuditScopeId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
@@ -64,10 +66,9 @@ func (svc *Service) CreateCertificate(
 		Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", auditScope.GetTargetOfEvaluationId(), auditScope.GetId(), auditScope.GetCatalogId()),
 		TargetOfEvaluationId: auditScope.GetTargetOfEvaluationId(),
 		AuditScopeId:         auditScope.GetId(),
-		// IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
-		// ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
-		// Standard:             req.Msg.GetCertificate().GetStandard(),
-		AssuranceLevel: auditScope.GetAssuranceLevel(),
+		IssueDate:            timestamppb.Now(),
+		ExpirationDate:       timestamppb.New(time.Now().UTC().AddDate(1, 0, 0)), // Set expiration date to one year from now
+		AssuranceLevel:       auditScope.GetAssuranceLevel(),
 	}
 
 	// Persist the new certificate in the database
@@ -247,7 +248,6 @@ func (svc *Service) UpdateCertificate(
 		AuditScopeId:         req.Msg.GetCertificate().GetAuditScopeId(),
 		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
 		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
-		Standard:             req.Msg.GetCertificate().GetStandard(),
 		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
 		Cab:                  req.Msg.GetCertificate().GetCab(),
 	}

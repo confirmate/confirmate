@@ -1363,9 +1363,8 @@ message Certificate {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string issue_date = 4;
-  string expiration_date = 5;
-  string standard = 6;
+  google.protobuf.Timestamp issue_date = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  google.protobuf.Timestamp expiration_date = 5 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   string assurance_level = 7;
   string cab = 8;
   string description = 9;
@@ -1373,6 +1372,7 @@ message Certificate {
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
   // The audit scope this certificate is associated with.
   string audit_scope_id = 11 [
+    (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1385,7 +1385,7 @@ message State {
   string state = 2;
   reserved 3;
   reserved "tree_id";
-  string timestamp = 4;
+  google.protobuf.Timestamp timestamp = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   // Reference to the certificate
   string certificate_id = 5;
 }

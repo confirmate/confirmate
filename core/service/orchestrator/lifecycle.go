@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
@@ -28,6 +27,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -119,7 +119,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	state := &orchestrator.State{
 		Id:            uuid.NewString(),
 		State:         target,
-		Timestamp:     time.Now().UTC().Format(time.RFC3339),
+		Timestamp:     timestamppb.Now(),
 		CertificateId: cert.Id,
 	}
 	if err = svc.db.Create(state); err != nil {
@@ -158,7 +158,9 @@ func targetCertificateState(results []*evaluation.EvaluationResult) string {
 func latestCertificateState(states []*orchestrator.State) string {
 	var latest *orchestrator.State
 	for _, s := range states {
-		if latest == nil || s.Timestamp > latest.Timestamp {
+		if latest == nil || s.Timestamp != nil &&
+			latest.Timestamp != nil &&
+			s.Timestamp.AsTime().After(latest.Timestamp.AsTime()) {
 			latest = s
 		}
 	}
