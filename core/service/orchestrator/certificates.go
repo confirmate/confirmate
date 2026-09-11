@@ -44,7 +44,7 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	err = svc.db.Get(&auditScope, "id = ?", req.Msg.GetAuditScopeId())
+	err = svc.db.Get(&auditScope, persistence.WithoutPreload(), "id = ?", req.Msg.GetAuditScopeId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
 	}
