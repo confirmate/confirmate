@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"confirmate.io/core/api/orchestrator"
@@ -29,6 +30,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -53,11 +55,14 @@ func TestService_CreateCertificate(t *testing.T) {
 			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
-					Certificate: orchestratortest.MockCertificate1,
+					AuditScopeId: orchestratortest.MockScopeId1,
 				},
 			},
 			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
@@ -69,23 +74,31 @@ func TestService_CreateCertificate(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.Certificate]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 				cert := assert.InDBGet[orchestrator.Certificate](t, db, res.Msg.Id)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.Description, cert.Description) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.TargetOfEvaluationId, cert.TargetOfEvaluationId)
+				want := &orchestrator.Certificate{
+					Name:                 orchestratortest.MockAuditScope1.GetName(),
+					Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", orchestratortest.MockAuditScope1.GetTargetOfEvaluationId(), orchestratortest.MockAuditScope1.GetId(), orchestratortest.MockAuditScope1.GetCatalogId()),
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.GetTargetOfEvaluationId(),
+					AuditScopeId:         orchestratortest.MockAuditScope1.GetId(),
+					AssuranceLevel:       orchestratortest.MockAuditScope1.GetAssuranceLevel(),
+				}
+				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "standard"))
 			},
 		},
 		{
 			name: "happy path: with authorization strategy with permission store and admin token",
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
-					Certificate: orchestratortest.MockCertificate1,
+					AuditScopeId: orchestratortest.MockScopeId1,
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
 					IsAdminToken: true,
 				}),
 			},
 			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
 				authz: &service.AuthorizationStrategyPermissionStore{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Certificate], args ...any) bool {
@@ -97,15 +110,20 @@ func TestService_CreateCertificate(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.Certificate]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 				cert := assert.InDBGet[orchestrator.Certificate](t, db, res.Msg.Id)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.Description, cert.Description) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.TargetOfEvaluationId, cert.TargetOfEvaluationId)
+				want := &orchestrator.Certificate{
+					Name:                 orchestratortest.MockAuditScope1.GetName(),
+					Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", orchestratortest.MockAuditScope1.GetTargetOfEvaluationId(), orchestratortest.MockAuditScope1.GetId(), orchestratortest.MockAuditScope1.GetCatalogId()),
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.GetTargetOfEvaluationId(),
+					AuditScopeId:         orchestratortest.MockAuditScope1.GetId(),
+					AssuranceLevel:       orchestratortest.MockAuditScope1.GetAssuranceLevel(),
+				}
+				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "standard"))
 			},
 		},
 		{
 			name: "happy path: with authorization strategy with permission store and user permissions allowing access", args: args{
 				req: &orchestrator.CreateCertificateRequest{
-					Certificate: orchestratortest.MockCertificate1,
+					AuditScopeId: orchestratortest.MockScopeId1,
 				},
 				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
 					RegisteredClaims: jwt.RegisteredClaims{
@@ -115,7 +133,10 @@ func TestService_CreateCertificate(t *testing.T) {
 				}),
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
 				authz: &service.AuthorizationStrategyPermissionStore{
 					Permissions: service.DBPermissionStore{
 						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
@@ -134,9 +155,14 @@ func TestService_CreateCertificate(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.Certificate]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 				cert := assert.InDBGet[orchestrator.Certificate](t, db, res.Msg.Id)
-				return assert.Equal(t, orchestratortest.MockCertificate1.Name, cert.Name) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.Description, cert.Description) &&
-					assert.Equal(t, orchestratortest.MockCertificate1.TargetOfEvaluationId, cert.TargetOfEvaluationId)
+				want := &orchestrator.Certificate{
+					Name:                 orchestratortest.MockAuditScope1.GetName(),
+					Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", orchestratortest.MockAuditScope1.GetTargetOfEvaluationId(), orchestratortest.MockAuditScope1.GetId(), orchestratortest.MockAuditScope1.GetCatalogId()),
+					TargetOfEvaluationId: orchestratortest.MockAuditScope1.GetTargetOfEvaluationId(),
+					AuditScopeId:         orchestratortest.MockAuditScope1.GetId(),
+					AssuranceLevel:       orchestratortest.MockAuditScope1.GetAssuranceLevel(),
+				}
+				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "standard"))
 			},
 		},
 		{
@@ -157,11 +183,9 @@ func TestService_CreateCertificate(t *testing.T) {
 			},
 		},
 		{
-			name: "validation error - missing certificate",
+			name: "validation error - missing audit_scope_id in request",
 			args: args{
-				req: &orchestrator.CreateCertificateRequest{
-					Certificate: &orchestrator.Certificate{},
-				},
+				req: &orchestrator.CreateCertificateRequest{},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
@@ -169,7 +193,7 @@ func TestService_CreateCertificate(t *testing.T) {
 			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
-					assert.IsValidationError(t, err, "certificate.target_of_evaluation_id")
+					assert.IsValidationError(t, err, "audit_scope_id")
 			},
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				return true
@@ -179,16 +203,14 @@ func TestService_CreateCertificate(t *testing.T) {
 			name: "authorization failure",
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
-					Certificate: &orchestrator.Certificate{
-						Id:                   orchestratortest.MockCertificate1.Id,
-						Name:                 orchestratortest.MockCertificate1.Name,
-						TargetOfEvaluationId: orchestratortest.MockCertificate1.TargetOfEvaluationId,
-						AuditScopeId:         orchestratortest.MockScopeId1,
-					},
+					AuditScopeId: orchestratortest.MockScopeId1,
 				},
 			},
 			fields: fields{
-				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockAuditScope1)
+					assert.NoError(t, err)
+				}),
 				authz: &denyAuthorizationStrategy{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
@@ -200,19 +222,19 @@ func TestService_CreateCertificate(t *testing.T) {
 			},
 		},
 		{
-			name: "db error - unique constraint",
+			name: "db error - not found",
 			args: args{
 				req: &orchestrator.CreateCertificateRequest{
-					Certificate: orchestratortest.MockCertificate1,
+					AuditScopeId: orchestratortest.MockScopeId1,
 				},
 			},
 			fields: fields{
-				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
 				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Certificate]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},

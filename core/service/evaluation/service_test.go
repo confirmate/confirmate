@@ -1839,6 +1839,37 @@ func TestService_StartEvaluation(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 		},
+		{
+			name: "happy path: certificate is not available for the audit scope, create a new one",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId2,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope2),
+					WithControls(
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						evaluationtest.MockControl1.Id: evaluationtest.MockControl1,
+						evaluationtest.MockControl2.Id: evaluationtest.MockControl2,
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.StartEvaluationResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				return assert.True(t, got.Msg.GetSuccessful())
+			},
+			wantErr: assert.NoError,
+			wantSvc: assert.NotNil[*Service],
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

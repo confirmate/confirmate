@@ -17,19 +17,17 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -68,7 +66,7 @@ func (svc *Service) UpdateCertificateLifecycle(
 	}
 
 	if err = svc.updateCertificateLifecycle(ctx, req.Msg.GetAuditScopeId()); err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, err
 	}
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
@@ -81,11 +79,8 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	// Find the certificate linked to this audit scope (with States preloaded).
 	var cert orchestrator.Certificate
 	err := svc.db.Get(&cert, "audit_scope_id = ?", auditScopeId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("lifecycle: get certificate: %w", err)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+		return err
 	}
 
 	// Fetch the latest parent-level evaluation result per control for this scope.
@@ -97,7 +92,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 		LatestByControlId: new(true),
 	}))
 	if err != nil {
-		return fmt.Errorf("lifecycle: list evaluation results: %w", err)
+		return fmt.Errorf("lifecycle: error list evaluation results: %w", err)
 	}
 	results := listRes.Msg.GetResults()
 	if len(results) == 0 {
@@ -124,7 +119,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	state := &orchestrator.State{
 		Id:            uuid.NewString(),
 		State:         target,
-		Timestamp:     time.Now().UTC().Format(time.RFC3339),
+		Timestamp:     timestamppb.Now(),
 		CertificateId: cert.Id,
 	}
 	if err = svc.db.Create(state); err != nil {
@@ -163,7 +158,9 @@ func targetCertificateState(results []*evaluation.EvaluationResult) string {
 func latestCertificateState(states []*orchestrator.State) string {
 	var latest *orchestrator.State
 	for _, s := range states {
-		if latest == nil || s.Timestamp > latest.Timestamp {
+		if latest == nil || s.Timestamp != nil &&
+			latest.Timestamp != nil &&
+			s.Timestamp.AsTime().After(latest.Timestamp.AsTime()) {
 			latest = s
 		}
 	}

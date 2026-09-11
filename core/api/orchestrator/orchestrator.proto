@@ -220,10 +220,7 @@ service Orchestrator {
 
   // Creates a new certificate
   rpc CreateCertificate(CreateCertificateRequest) returns (Certificate) {
-    option (google.api.http) = {
-      post: "/v1/orchestrator/certificates"
-      body: "certificate"
-    };
+    option (google.api.http) = {post: "/v1/orchestrator/certificates/{audit_scope_id}"};
   }
 
   // Retrieves a certificate
@@ -1330,7 +1327,7 @@ message ListControlsResponse {
 }
 
 message CreateCertificateRequest {
-  Certificate certificate = 1 [
+  string audit_scope_id = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1365,9 +1362,8 @@ message Certificate {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string issue_date = 4;
-  string expiration_date = 5;
-  string standard = 6;
+  google.protobuf.Timestamp issue_date = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  google.protobuf.Timestamp expiration_date = 5 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   string assurance_level = 7;
   string cab = 8;
   string description = 9;
@@ -1375,6 +1371,7 @@ message Certificate {
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
   // The audit scope this certificate is associated with.
   string audit_scope_id = 11 [
+    (tagger.tags) = "gorm:\"not null;uniqueIndex:uq_certificates_audit_scope_id\"",
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -1387,7 +1384,7 @@ message State {
   string state = 2;
   reserved 3;
   reserved "tree_id";
-  string timestamp = 4;
+  google.protobuf.Timestamp timestamp = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   // Reference to the certificate
   string certificate_id = 5;
 }
