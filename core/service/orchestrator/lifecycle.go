@@ -78,8 +78,8 @@ func (svc *Service) UpdateCertificateLifecycle(
 func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId string) error {
 	// Find the certificate linked to this audit scope (with States preloaded).
 	var cert orchestrator.Certificate
-	err := svc.db.Get(&cert, "id = ?", auditScopeId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+	err := svc.db.Get(&cert, "audit_scope_id = ?", auditScopeId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
 		return err
 	}
 
@@ -92,7 +92,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 		LatestByControlId: new(true),
 	}))
 	if err != nil {
-		return fmt.Errorf("lifecycle: list evaluation results: %w", err)
+		return fmt.Errorf("lifecycle: error list evaluation results: %w", err)
 	}
 	results := listRes.Msg.GetResults()
 	if len(results) == 0 {
