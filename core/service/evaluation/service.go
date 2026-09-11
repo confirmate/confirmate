@@ -201,7 +201,28 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		slog.Error("Could not get audit scope from orchestrator", log.Err(err))
 		return nil, connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
 	}
+
 	auditScope = auditScopeRes.Msg
+
+	// Check if Certificate is already available for the Audit Scope
+	resp, err := svc.orchestratorClient.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{
+		Filter: &orchestrator.ListCertificatesRequest_Filter{
+			AuditScopeId: &auditScope.Id,
+		}}))
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, errors.New("could not get certificate for the audit scope"))
+	}
+
+	// If no certificate for the given Audit Scope is available, create a new one
+	if len(resp.Msg.GetCertificates()) == 0 {
+		_, err = svc.orchestratorClient.CreateCertificate(ctx, connect.NewRequest(&orchestrator.CreateCertificateRequest{
+			AuditScopeId: auditScope.GetId(),
+		}))
+		if err != nil {
+			slog.Error("Could not create a certificate", log.Err(err))
+			return nil, connect.NewError(connect.CodeNotFound, errors.New("could not create a certificate"))
+		}
+	}
 
 	// Make sure that the scheduler is already running
 	svc.scheduler.StartAsync()
@@ -1058,4 +1079,3 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 
 	return metricIds
 }
-
