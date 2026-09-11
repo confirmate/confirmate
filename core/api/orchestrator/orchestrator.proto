@@ -1362,8 +1362,8 @@ message Certificate {
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string issue_date = 4;
-  string expiration_date = 5;
+  google.protobuf.Timestamp issue_date = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
+  google.protobuf.Timestamp expiration_date = 5 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   string standard = 6;
   string assurance_level = 7;
   string cab = 8;
@@ -1385,7 +1385,7 @@ message State {
   string state = 2;
   reserved 3;
   reserved "tree_id";
-  string timestamp = 4;
+  google.protobuf.Timestamp timestamp = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   // Reference to the certificate
   string certificate_id = 5;
 }

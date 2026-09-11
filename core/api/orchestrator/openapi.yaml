@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.17-68-g94e4e9a
+    version: core/v0.2.17-69-gace30bd
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -2524,8 +2524,10 @@ components:
                     type: string
                 issueDate:
                     type: string
+                    format: date-time
                 expirationDate:
                     type: string
+                    format: date-time
                 standard:
                     type: string
                 assuranceLevel:
@@ -3114,6 +3116,7 @@ components:
                     description: An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
                 timestamp:
                     type: string
+                    format: date-time
                 certificateId:
                     type: string
                     description: Reference to the certificate

@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
@@ -26,6 +27,7 @@ import (
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // CreateCertificate creates a new certificate.
@@ -64,8 +66,8 @@ func (svc *Service) CreateCertificate(
 		Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", auditScope.GetTargetOfEvaluationId(), auditScope.GetId(), auditScope.GetCatalogId()),
 		TargetOfEvaluationId: auditScope.GetTargetOfEvaluationId(),
 		AuditScopeId:         auditScope.GetId(),
-		// IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
-		// ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
+		IssueDate:            timestamppb.Now(),
+		ExpirationDate:       timestamppb.New(time.Now().UTC().AddDate(1, 0, 0)), // Set expiration date to one year from now
 		// Standard:             req.Msg.GetCertificate().GetStandard(),
 		AssuranceLevel: auditScope.GetAssuranceLevel(),
 	}
