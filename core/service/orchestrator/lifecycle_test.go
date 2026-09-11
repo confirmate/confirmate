@@ -52,7 +52,9 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			wantErr: assert.NoError,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				auditScopeId := msgAndArgs[0].(string)
 

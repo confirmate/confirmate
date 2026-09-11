@@ -220,10 +220,7 @@ service Orchestrator {
 
   // Creates a new certificate
   rpc CreateCertificate(CreateCertificateRequest) returns (Certificate) {
-    option (google.api.http) = {
-      post: "/v1/orchestrator/certificates"
-      body: "certificate"
-    };
+    option (google.api.http) = {post: "/v1/orchestrator/certificates/{audit_scope_id}"};
   }
 
   // Retrieves a certificate
@@ -1331,7 +1328,7 @@ message ListControlsResponse {
 }
 
 message CreateCertificateRequest {
-  Certificate certificate = 1 [
+  string audit_scope_id = 1 [
     (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];

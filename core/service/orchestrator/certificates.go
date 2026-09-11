@@ -17,6 +17,7 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
@@ -33,8 +34,9 @@ func (svc *Service) CreateCertificate(
 	req *connect.Request[orchestrator.CreateCertificateRequest],
 ) (res *connect.Response[orchestrator.Certificate], err error) {
 	var (
-		cert    *orchestrator.Certificate
-		allowed bool
+		cert       *orchestrator.Certificate
+		auditScope *orchestrator.AuditScope
+		allowed    bool
 	)
 
 	// Validate the request
@@ -42,26 +44,30 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	cert = &orchestrator.Certificate{
-		Id:                   uuid.NewString(),
-		Name:                 req.Msg.GetCertificate().GetName(),
-		Description:          req.Msg.GetCertificate().GetDescription(),
-		TargetOfEvaluationId: req.Msg.GetCertificate().GetTargetOfEvaluationId(),
-		AuditScopeId:         req.Msg.GetCertificate().GetAuditScopeId(),
-		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
-		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
-		Standard:             req.Msg.GetCertificate().GetStandard(),
-		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
-		Cab:                  req.Msg.GetCertificate().GetCab(),
+	err = svc.db.Get(&auditScope, "id = ?", req.Msg.GetAuditScopeId())
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+		return nil, err
 	}
 
 	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, cert.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_CERTIFICATE)
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, auditScope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if !allowed {
 		return nil, service.ErrPermissionDenied
+	}
+
+	cert = &orchestrator.Certificate{
+		Id:                   uuid.NewString(),
+		Name:                 auditScope.GetName(),
+		Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", auditScope.GetTargetOfEvaluationId(), auditScope.GetId(), auditScope.GetCatalogId()),
+		TargetOfEvaluationId: auditScope.GetTargetOfEvaluationId(),
+		AuditScopeId:         auditScope.GetId(),
+		// IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
+		// ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
+		// Standard:             req.Msg.GetCertificate().GetStandard(),
+		AssuranceLevel: auditScope.GetAssuranceLevel(),
 	}
 
 	// Persist the new certificate in the database
