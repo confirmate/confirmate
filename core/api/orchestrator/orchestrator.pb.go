@@ -4345,7 +4345,7 @@ type Certificate struct {
 	// A list of states at specific times
 	States []*State `protobuf:"bytes,10,rep,name=states,proto3" json:"states,omitempty" gorm:"constraint:OnDelete:CASCADE"`
 	// The audit scope this certificate is associated with.
-	AuditScopeId  string `protobuf:"bytes,11,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"primaryKey"`
+	AuditScopeId  string `protobuf:"bytes,11,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty" gorm:"not null;uniqueIndex:uq_certificates_audit_scope_id"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6509,7 +6509,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"V\n" +
 	"!UpdateCertificateLifecycleRequest\x121\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\xfd\x04\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\xa6\x05\n" +
 	"\vCertificate\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
@@ -6523,8 +6523,8 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x03cab\x18\b \x01(\tR\x03cab\x12 \n" +
 	"\vdescription\x18\t \x01(\tR\vdescription\x12b\n" +
 	"\x06states\x18\n" +
-	" \x03(\v2!.confirmate.orchestrator.v1.StateB'\x9a\x84\x9e\x03\"gorm:\"constraint:OnDelete:CASCADE\"R\x06states\x12G\n" +
-	"\x0eaudit_scope_id\x18\v \x01(\tB!\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03\x11gorm:\"primaryKey\"R\fauditScopeId\"\xd0\x01\n" +
+	" \x03(\v2!.confirmate.orchestrator.v1.StateB'\x9a\x84\x9e\x03\"gorm:\"constraint:OnDelete:CASCADE\"R\x06states\x12p\n" +
+	"\x0eaudit_scope_id\x18\v \x01(\tBJ\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01\x9a\x84\x9e\x03:gorm:\"not null;uniqueIndex:uq_certificates_audit_scope_id\"R\fauditScopeId\"\xd0\x01\n" +
 	"\x05State\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12k\n" +
