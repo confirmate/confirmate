@@ -210,6 +210,7 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 			AuditScopeId: &auditScope.Id,
 		}}))
 	if err != nil {
+		slog.Error("Could not get certificate for the audit scope", slog.String("audit scope", auditScope.Id), log.Err(err))
 		return nil, connect.NewError(connect.CodeInternal, errors.New("could not get certificate for the audit scope"))
 	}
 
