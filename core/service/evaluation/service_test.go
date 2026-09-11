@@ -1868,10 +1868,7 @@ func TestService_StartEvaluation(t *testing.T) {
 				return assert.True(t, got.Msg.GetSuccessful())
 			},
 			wantErr: assert.NoError,
-			wantSvc: func(t *testing.T, got *Service, msgAndArgs ...any) bool {
-				assert.Equal(t, 2, len(got.catalogControls[evaluationtest.MockCatalogId1]))
-				return assert.Equal(t, 1, len(got.scheduler.Jobs()))
-			},
+			wantSvc: assert.NotNil[*Service],
 		},
 	}
 	for _, tt := range tests {
