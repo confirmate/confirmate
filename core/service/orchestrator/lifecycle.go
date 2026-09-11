@@ -17,14 +17,12 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
-	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
@@ -68,7 +66,7 @@ func (svc *Service) UpdateCertificateLifecycle(
 	}
 
 	if err = svc.updateCertificateLifecycle(ctx, req.Msg.GetAuditScopeId()); err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, err
 	}
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
@@ -81,11 +79,8 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	// Find the certificate linked to this audit scope (with States preloaded).
 	var cert orchestrator.Certificate
 	err := svc.db.Get(&cert, "audit_scope_id = ?", auditScopeId)
-	if errors.Is(err, persistence.ErrRecordNotFound) {
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("lifecycle: get certificate: %w", err)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("certificate")); err != nil {
+		return err
 	}
 
 	// Fetch the latest parent-level evaluation result per control for this scope.
