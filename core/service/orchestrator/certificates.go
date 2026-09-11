@@ -44,9 +44,18 @@ func (svc *Service) CreateCertificate(
 		return nil, err
 	}
 
-	err = svc.db.Get(&auditScope, "audit_scope_id = ?", req.Msg.GetAuditScopeId())
+	err = svc.db.Get(&auditScope, "id = ?", req.Msg.GetAuditScopeId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, auditScope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	cert = &orchestrator.Certificate{
@@ -59,15 +68,6 @@ func (svc *Service) CreateCertificate(
 		// ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
 		// Standard:             req.Msg.GetCertificate().GetStandard(),
 		AssuranceLevel: auditScope.GetAssuranceLevel(),
-	}
-
-	// Check access via the configured auth strategy
-	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, auditScope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-	if !allowed {
-		return nil, service.ErrPermissionDenied
 	}
 
 	// Persist the new certificate in the database
