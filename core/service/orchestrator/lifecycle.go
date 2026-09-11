@@ -79,7 +79,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 	// Find the certificate linked to this audit scope (with States preloaded).
 	var cert orchestrator.Certificate
 	err := svc.db.Get(&cert, "audit_scope_id = ?", auditScopeId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit_scope_id")); err != nil {
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
 		return err
 	}
 
