@@ -68,8 +68,7 @@ func (svc *Service) CreateCertificate(
 		AuditScopeId:         auditScope.GetId(),
 		IssueDate:            timestamppb.Now(),
 		ExpirationDate:       timestamppb.New(time.Now().UTC().AddDate(1, 0, 0)), // Set expiration date to one year from now
-		// Standard:             req.Msg.GetCertificate().GetStandard(),
-		AssuranceLevel: auditScope.GetAssuranceLevel(),
+		AssuranceLevel:       auditScope.GetAssuranceLevel(),
 	}
 
 	// Persist the new certificate in the database

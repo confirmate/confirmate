@@ -4339,7 +4339,6 @@ type Certificate struct {
 	TargetOfEvaluationId string                 `protobuf:"bytes,3,opt,name=target_of_evaluation_id,json=targetOfEvaluationId,proto3" json:"target_of_evaluation_id,omitempty"`
 	IssueDate            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=issue_date,json=issueDate,proto3" json:"issue_date,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
 	ExpirationDate       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expiration_date,json=expirationDate,proto3" json:"expiration_date,omitempty" gorm:"serializer:timestamppb;type:timestamp"`
-	Standard             string                 `protobuf:"bytes,6,opt,name=standard,proto3" json:"standard,omitempty"`
 	AssuranceLevel       string                 `protobuf:"bytes,7,opt,name=assurance_level,json=assuranceLevel,proto3" json:"assurance_level,omitempty"`
 	Cab                  string                 `protobuf:"bytes,8,opt,name=cab,proto3" json:"cab,omitempty"`
 	Description          string                 `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
@@ -4414,13 +4413,6 @@ func (x *Certificate) GetExpirationDate() *timestamppb.Timestamp {
 		return x.ExpirationDate
 	}
 	return nil
-}
-
-func (x *Certificate) GetStandard() string {
-	if x != nil {
-		return x.Standard
-	}
-	return ""
 }
 
 func (x *Certificate) GetAssuranceLevel() string {
@@ -6517,7 +6509,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"V\n" +
 	"!UpdateCertificateLifecycleRequest\x121\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\x99\x05\n" +
+	"\x0eaudit_scope_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeId\"\xfd\x04\n" +
 	"\vCertificate\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
@@ -6526,8 +6518,7 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\x17target_of_evaluation_id\x18\x03 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x14targetOfEvaluationId\x12l\n" +
 	"\n" +
 	"issue_date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\tissueDate\x12v\n" +
-	"\x0fexpiration_date\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x12\x1a\n" +
-	"\bstandard\x18\x06 \x01(\tR\bstandard\x12'\n" +
+	"\x0fexpiration_date\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB1\x9a\x84\x9e\x03,gorm:\"serializer:timestamppb;type:timestamp\"R\x0eexpirationDate\x12'\n" +
 	"\x0fassurance_level\x18\a \x01(\tR\x0eassuranceLevel\x12\x10\n" +
 	"\x03cab\x18\b \x01(\tR\x03cab\x12 \n" +
 	"\vdescription\x18\t \x01(\tR\vdescription\x12b\n" +

@@ -1364,7 +1364,6 @@ message Certificate {
   ];
   google.protobuf.Timestamp issue_date = 4 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
   google.protobuf.Timestamp expiration_date = 5 [(tagger.tags) = "gorm:\"serializer:timestamppb;type:timestamp\""];
-  string standard = 6;
   string assurance_level = 7;
   string cab = 8;
   string description = 9;
