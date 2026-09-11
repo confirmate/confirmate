@@ -248,7 +248,6 @@ func (svc *Service) UpdateCertificate(
 		AuditScopeId:         req.Msg.GetCertificate().GetAuditScopeId(),
 		IssueDate:            req.Msg.GetCertificate().GetIssueDate(),
 		ExpirationDate:       req.Msg.GetCertificate().GetExpirationDate(),
-		Standard:             req.Msg.GetCertificate().GetStandard(),
 		AssuranceLevel:       req.Msg.GetCertificate().GetAssuranceLevel(),
 		Cab:                  req.Msg.GetCertificate().GetCab(),
 	}
