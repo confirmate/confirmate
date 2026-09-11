@@ -219,8 +219,8 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 			AuditScopeId: auditScope.GetId(),
 		}))
 		if err != nil {
-			slog.Error("Could not create a certificate", log.Err(err))
-			return nil, connect.NewError(connect.CodeNotFound, errors.New("could not create a certificate"))
+			slog.Error("Could not create a certificate", slog.String("audit scope", auditScope.Id), log.Err(err))
+			return nil, err
 		}
 	}
 
