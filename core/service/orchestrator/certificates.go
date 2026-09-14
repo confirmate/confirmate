@@ -63,7 +63,7 @@ func (svc *Service) CreateCertificate(
 	cert = &orchestrator.Certificate{
 		Id:                   uuid.NewString(),
 		Name:                 auditScope.GetName(),
-		Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", auditScope.GetTargetOfEvaluationId(), auditScope.GetId(), auditScope.GetCatalogId()),
+		Description:          fmt.Sprintf("Certificate for the Target of Evaluation ID '%s', Audit Scope ID '%s', Audit Scope Name '%s' and Catalog ID '%s'.", auditScope.GetTargetOfEvaluationId(), auditScope.GetId(), auditScope.GetName(), auditScope.GetCatalogId()),
 		TargetOfEvaluationId: auditScope.GetTargetOfEvaluationId(),
 		AuditScopeId:         auditScope.GetId(),
 		IssueDate:            timestamppb.Now(),
