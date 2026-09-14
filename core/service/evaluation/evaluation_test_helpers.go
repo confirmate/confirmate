@@ -72,6 +72,10 @@ type mockOrchestratorHandler struct {
 	// ListControlsInScope support
 	controlsInScope          []*orchestrator.ControlInScope
 	listControlsInScopeError error
+
+	// CreateCertificate support
+	createCertificateError error
+	createCertificateCalls []string
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -267,14 +271,19 @@ func (m *mockOrchestratorHandler) UpdateCertificateLifecycle(
 }
 
 // CreateCertificate returns a mock certificate for the given audit scope id. It returns an error if configured.
+// It also records the audit scope id it was called with, so tests can verify it was invoked.
 func (m *mockOrchestratorHandler) CreateCertificate(
 	_ context.Context,
 	req *connect.Request[orchestrator.CreateCertificateRequest],
 ) (*connect.Response[orchestrator.Certificate], error) {
 	var cert *orchestrator.Certificate
 
-	if m.listError != nil {
-		return nil, m.listError
+	m.mu.Lock()
+	m.createCertificateCalls = append(m.createCertificateCalls, req.Msg.GetAuditScopeId())
+	m.mu.Unlock()
+
+	if m.createCertificateError != nil {
+		return nil, m.createCertificateError
 	}
 
 	// Return certificate for mock audit scope 2
@@ -485,6 +494,11 @@ func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockO
 
 func WithControlsInScope(controlsInScope []*orchestrator.ControlInScope) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.controlsInScope = controlsInScope }
+}
+
+// WithCreateCertificateError forces CreateCertificate to return the given error.
+func WithCreateCertificateError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.createCertificateError = err }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog

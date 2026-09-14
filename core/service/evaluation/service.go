@@ -204,24 +204,18 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 
 	auditScope = auditScopeRes.Msg
 
-	// Check if Certificate is already available for the Audit Scope
-	resp, err := svc.orchestratorClient.ListCertificates(ctx, connect.NewRequest(&orchestrator.ListCertificatesRequest{
-		Filter: &orchestrator.ListCertificatesRequest_Filter{
-			AuditScopeId: &auditScope.Id,
-		}}))
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("could not get certificate for the audit scope"))
-	}
-
-	// If no certificate for the given Audit Scope is available, create a new one
-	if len(resp.Msg.GetCertificates()) == 0 {
-		_, err = svc.orchestratorClient.CreateCertificate(ctx, connect.NewRequest(&orchestrator.CreateCertificateRequest{
-			AuditScopeId: auditScope.GetId(),
-		}))
-		if err != nil {
-			slog.Error("Could not create a certificate", slog.String("audit scope", auditScope.Id), log.Err(err))
-			return nil, err
-		}
+	// Ensure a certificate exists for the Audit Scope. Certificate creation is idempotent per
+	// audit scope (audit_scope_id has a unique DB constraint), so we simply attempt to create
+	// one and tolerate an already-exists response, rather than doing a separate check-then-act
+	// lookup. The latter would race with concurrent evaluation starts and, since it is
+	// filtered by the caller's ToE list permissions, could under-report an existing
+	// certificate for a caller who is allowed to start the scope but not list its ToE.
+	_, err = svc.orchestratorClient.CreateCertificate(ctx, connect.NewRequest(&orchestrator.CreateCertificateRequest{
+		AuditScopeId: auditScope.GetId(),
+	}))
+	if err != nil && connect.CodeOf(err) != connect.CodeAlreadyExists {
+		slog.Error("Could not create a certificate", slog.String("audit scope", auditScope.Id), log.Err(err))
+		return nil, err
 	}
 
 	// Make sure that the scheduler is already running

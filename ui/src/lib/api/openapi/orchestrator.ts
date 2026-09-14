@@ -134,6 +134,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/orchestrator/audit_scopes/{auditScopeId}/certificate_lifecycle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Re-evaluates the certificate lifecycle state for the given audit scope
+         *      based on its current evaluation results. This is called by the
+         *      evaluation component once a full catalog evaluation run has finished.
+         */
+        post: operations["Orchestrator_UpdateCertificateLifecycle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orchestrator/audit_trail_events": {
         parameters: {
             query?: never;
@@ -240,6 +261,22 @@ export interface paths {
         };
         /** @description Lists all target certificates */
         get: operations["Orchestrator_ListCertificates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orchestrator/certificates/{auditScopeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
         put?: never;
         /** @description Creates a new certificate */
         post: operations["Orchestrator_CreateCertificate"];
@@ -976,19 +1013,25 @@ export interface components {
             description?: string;
             controls: components["schemas"]["Control"][];
         };
-        /** @description An ISO17021-based certificate */
+        /**
+         * @description An ISO17021-based certificate. The lifecycle manager keeps the certificate
+         *      state in sync with the evaluation results of its associated audit scope.
+         */
         Certificate: {
             id: string;
             name: string;
             targetOfEvaluationId: string;
+            /** Format: date-time */
             issueDate?: string;
+            /** Format: date-time */
             expirationDate?: string;
-            standard?: string;
             assuranceLevel?: string;
             cab?: string;
             description?: string;
             /** @description A list of states at specific times */
             states?: components["schemas"]["State"][];
+            /** @description The audit scope this certificate is associated with. */
+            auditScopeId: string;
         };
         /** @description An optional structure containing more details how a comparison inside an assessment result was done and if it was successful. */
         ComparisonResult: {
@@ -1324,7 +1367,7 @@ export interface components {
             id?: string;
             /** @description An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn` */
             state?: string;
-            treeId?: string;
+            /** Format: date-time */
             timestamp?: string;
             /** @description Reference to the certificate */
             certificateId?: string;
@@ -1928,6 +1971,35 @@ export interface operations {
             };
         };
     };
+    Orchestrator_UpdateCertificateLifecycle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auditScopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
     Orchestrator_ListAuditTrailEvents: {
         parameters: {
             query?: {
@@ -2165,6 +2237,10 @@ export interface operations {
     Orchestrator_ListCertificates: {
         parameters: {
             query?: {
+                /** @description Optional. List only certificates of a specific target of evaluation. */
+                "filter.targetOfEvaluationId"?: string;
+                /** @description Optional. List only certificates of a specific audit scope. */
+                "filter.auditScopeId"?: string;
                 pageSize?: number;
                 pageToken?: string;
                 orderBy?: string;
@@ -2200,14 +2276,12 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                auditScopeId: string;
+            };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["Certificate"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -2333,6 +2407,8 @@ export interface operations {
                 "filter.categoryName"?: string;
                 /** @description Optional. Lists only controls with the specified assurance levels. */
                 "filter.assuranceLevels"?: string[];
+                /** @description Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned. */
+                "filter.full"?: boolean;
                 pageSize?: number;
                 pageToken?: string;
                 orderBy?: string;
