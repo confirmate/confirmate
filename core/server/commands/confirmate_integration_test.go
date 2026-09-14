@@ -120,7 +120,7 @@ func TestConfirmate_AuthEnabled_EvidenceProducesAssessmentResults(t *testing.T) 
 // for in-process tests.
 func pickFreePort(t *testing.T) int {
 	t.Helper()
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	l, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		t.Fatalf("could not allocate port: %v", err)
 	}
