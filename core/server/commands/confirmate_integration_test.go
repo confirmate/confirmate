@@ -42,7 +42,7 @@ func TestConfirmate_AuthEnabled_EvidenceProducesAssessmentResults(t *testing.T) 
 	t.Chdir(filepath.Join(filepath.Dir(thisFile), "..", ".."))
 
 	port := pickFreePort(t)
-	baseURL := fmt.Sprintf("http://127.0.0.1:%d", port)
+	baseURL := fmt.Sprintf("http://localhost:%d", port)
 	keyPath := filepath.Join(t.TempDir(), "api.key")
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -178,4 +178,3 @@ func loadBalancerEvidence() *evidence.Evidence {
 		},
 	}
 }
-
