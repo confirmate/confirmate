@@ -362,7 +362,9 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 			compliant = data.%s.%s.compliant;
 			operator = data.cch.operator;
 			target_value = data.cch.target_value;
-			config = data.cch.config`, prefix, pkg, prefix, pkg, prefix, pkg)),
+			config = data.cch.config;
+			message = object.get(data.%s.%s, "message", []);
+			results = object.get(data.%s.%s, "results", [])`, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg)),
 			rego.Package(prefix),
 			rego.Store(store),
 			rego.Transaction(tx),
@@ -411,16 +413,15 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 	}
 
 	// Enable the new results
-	output := results[0].Bindings["output"]
-	if results, ok := output.(map[string]interface{})["results"]; ok {
+	if res, ok := results[0].Bindings["results"]; ok {
 		result.ComparisonResult = make([]*assessment.ComparisonResult, 0)
-		if err = reencode(results, &result.ComparisonResult); err != nil {
+		if err = reencode(res, &result.ComparisonResult); err != nil {
 			return nil, err
 		}
 	}
 
 	// Check, if the metric supplies an additional message
-	if msg, ok := output.(map[string]interface{})["message"]; ok {
+	if msg, ok := results[0].Bindings["message"]; ok {
 		// Also append a short comment that details can be found in the ... details, if we have any
 		if len(result.ComparisonResult) > 0 {
 			result.Message = fmt.Sprintf("%s %s", msg, assessment.AdditionalDetailsMessage)
