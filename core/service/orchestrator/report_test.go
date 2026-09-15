@@ -30,6 +30,8 @@ import (
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
+	pdfapi "github.com/pdfcpu/pdfcpu/pkg/api"
+	pdfmodel "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/xuri/excelize/v2"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -127,6 +129,32 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		assert.Equal(t, "Rolled out via IaC pipeline.", control2Row[6])
 		assert.Equal(t, "Compliant", control2Row[7])
 		assert.Equal(t, evalTime.Local().Format("2006-01-02 15:04"), control2Row[8])
+	})
+
+	t.Run("happy path: PDF format", func(t *testing.T) {
+		res, err := svc.ExportAuditScopeReport(context.Background(), connect.NewRequest(&orchestrator.ExportAuditScopeReportRequest{
+			AuditScopeId: orchestratortest.MockScopeId1,
+			Format:       orchestrator.ReportFormat_REPORT_FORMAT_PDF,
+		}))
+		assert.NoError(t, err)
+		if !assert.NotNil(t, res) {
+			return
+		}
+		assert.NotEmpty(t, res.Msg.GetContent())
+		assert.Equal(t, "audit-scope-report-Mock-Audit-Scope-1-"+time.Now().Format("20060102")+".pdf",
+			res.Msg.GetFilename())
+
+		content := res.Msg.GetContent()
+		assert.True(t, bytes.HasPrefix(content, []byte("%PDF-")), "content does not start with a PDF header")
+
+		r := bytes.NewReader(content)
+		assert.NoError(t, pdfapi.Validate(r, pdfmodel.NewDefaultConfiguration()))
+
+		_, err = r.Seek(0, 0)
+		assert.NoError(t, err)
+		pages, err := pdfapi.PageCount(r, pdfmodel.NewDefaultConfiguration())
+		assert.NoError(t, err)
+		assert.Equal(t, 1, pages)
 	})
 
 	t.Run("err: audit scope not found", func(t *testing.T) {

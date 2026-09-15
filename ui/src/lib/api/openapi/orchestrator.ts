@@ -1202,7 +1202,7 @@ export interface components {
         ExportAuditScopeReportResponse: {
             /**
              * Format: bytes
-             * @description Content is the raw XLSX file content.
+             * @description Content is the raw file content, in the format requested.
              */
             readonly content?: string;
             /** @description Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx". */
@@ -2029,7 +2029,10 @@ export interface operations {
     };
     Orchestrator_ExportAuditScopeReport: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Format selects the file format of the report. Defaults to XLSX if unspecified. */
+                format?: "REPORT_FORMAT_UNSPECIFIED" | "REPORT_FORMAT_XLSX" | "REPORT_FORMAT_PDF";
+            };
             header?: never;
             path: {
                 auditScopeId: string;

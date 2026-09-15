@@ -1167,15 +1167,26 @@ message RemoveAuditScopeRequest {
   bool remove_evaluation_results = 2;
 }
 
+// ReportFormat is the file format an audit scope report can be exported as.
+enum ReportFormat {
+  REPORT_FORMAT_UNSPECIFIED = 0;
+  // REPORT_FORMAT_XLSX is the default format if none is specified.
+  REPORT_FORMAT_XLSX = 1;
+  REPORT_FORMAT_PDF = 2;
+}
+
 message ExportAuditScopeReportRequest {
   string audit_scope_id = 1 [
     (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  // Format selects the file format of the report. Defaults to XLSX if unspecified.
+  ReportFormat format = 2;
 }
 
 message ExportAuditScopeReportResponse {
-  // Content is the raw XLSX file content.
+  // Content is the raw file content, in the format requested.
   bytes content = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx".

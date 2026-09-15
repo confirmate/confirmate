@@ -103,20 +103,30 @@
 		}
 	}
 
-	async function downloadReport() {
+	const reportMimeTypes = {
+		PDF: 'application/pdf',
+		XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	} as const;
+
+	async function downloadReport(format: 'PDF' | 'XLSX') {
 		reportBusy = true;
 		reportError = null;
 		try {
 			const { data: report, error } = await orchestratorClient().GET(
 				'/v1/orchestrator/audit_scopes/{auditScopeId}/report',
-				{ params: { path: { auditScopeId: data.auditScope.id } } }
+				{
+					params: {
+						path: { auditScopeId: data.auditScope.id },
+						query: { format: `REPORT_FORMAT_${format}` }
+					}
+				}
 			);
 			if (error) throw error;
 			if (!report?.content) throw new Error('empty report');
 			downloadBase64File(
 				report.content,
-				report.filename ?? 'audit-scope-report.xlsx',
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+				report.filename ?? `audit-scope-report.${format.toLowerCase()}`,
+				reportMimeTypes[format]
 			);
 		} catch {
 			reportError = 'Failed to download report';
@@ -161,8 +171,11 @@
 						Enable Automatic Evaluation
 					</Button>
 				{/if}
-				<Button variant="secondary" size="sm" onclick={downloadReport} disabled={reportBusy}>
-					{reportBusy ? 'Preparing report…' : 'Download Report (XLSX)'}
+				<Button variant="secondary" size="sm" onclick={() => downloadReport('PDF')} disabled={reportBusy}>
+					{reportBusy ? 'Preparing…' : 'Download Report (PDF)'}
+				</Button>
+				<Button variant="secondary" size="sm" onclick={() => downloadReport('XLSX')} disabled={reportBusy}>
+					{reportBusy ? 'Preparing…' : 'Download Report (XLSX)'}
 				</Button>
 			{/snippet}
 		</SectionHeader>

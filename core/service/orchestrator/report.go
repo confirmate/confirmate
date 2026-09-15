@@ -61,16 +61,18 @@ var reportFilenameSanitizer = regexp.MustCompile(`[^a-zA-Z0-9-]+`)
 // reportRow is one row of the audit scope compliance report, combining data from the catalog
 // control, its ControlInScope record, and its latest evaluation result.
 type reportRow struct {
-	category            string
-	shortName           string
-	controlName         string
-	assuranceLevel      string
-	implementationState string
-	assignee            string
-	implementationNotes string
-	evaluationStatus    string
-	evaluationTimestamp string
-	evaluationComment   string
+	category                string
+	shortName               string
+	controlName             string
+	assuranceLevel          string
+	implementationState     string
+	implementationStateEnum orchestrator.ControlInScopeState
+	assignee                string
+	implementationNotes     string
+	evaluationStatus        string
+	evaluationStatusEnum    evaluation.EvaluationStatus
+	evaluationTimestamp     string
+	evaluationComment       string
 }
 
 // ExportAuditScopeReport generates an XLSX compliance report for the given audit scope, listing
@@ -122,14 +124,21 @@ func (svc *Service) ExportAuditScopeReport(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	content, err := renderAuditScopeReportXLSX(&auditScope, &toe, rows)
+	var content []byte
+	extension := "xlsx"
+	if req.Msg.GetFormat() == orchestrator.ReportFormat_REPORT_FORMAT_PDF {
+		extension = "pdf"
+		content, err = renderAuditScopeReportPDF(&auditScope, &toe, &catalog, rows)
+	} else {
+		content, err = renderAuditScopeReportXLSX(&auditScope, &toe, rows)
+	}
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not render report: %w", err))
 	}
 
-	filename := fmt.Sprintf("audit-scope-report-%s-%s.xlsx",
+	filename := fmt.Sprintf("audit-scope-report-%s-%s.%s",
 		reportFilenameSanitizer.ReplaceAllString(auditScope.GetName(), "-"),
-		time.Now().Format("20060102"))
+		time.Now().Format("20060102"), extension)
 
 	res = connect.NewResponse(&orchestrator.ExportAuditScopeReportResponse{
 		Content:  content,
@@ -202,18 +211,20 @@ func (svc *Service) buildReportRows(ctx context.Context, auditScope *orchestrato
 		}
 
 		row := reportRow{
-			category:            categoryByControlId[control.GetId()],
-			shortName:           control.GetShortName(),
-			controlName:         control.GetName(),
-			assuranceLevel:      control.GetAssuranceLevel(),
-			implementationState: controlInScopeStateLabels[cis.GetState()],
-			implementationNotes: cis.GetImplementationDetails(),
+			category:                categoryByControlId[control.GetId()],
+			shortName:               control.GetShortName(),
+			controlName:             control.GetName(),
+			assuranceLevel:          control.GetAssuranceLevel(),
+			implementationState:     controlInScopeStateLabels[cis.GetState()],
+			implementationStateEnum: cis.GetState(),
+			implementationNotes:     cis.GetImplementationDetails(),
 		}
 		if assigneeId := cis.GetAssigneeId(); assigneeId != "" {
 			row.assignee = nameByUserId[assigneeId]
 		}
 		if evalResult := evalByControlId[control.GetId()]; evalResult != nil {
 			row.evaluationStatus = evaluationStatusLabels[evalResult.GetStatus()]
+			row.evaluationStatusEnum = evalResult.GetStatus()
 			if ts := evalResult.GetTimestamp(); ts != nil {
 				row.evaluationTimestamp = ts.AsTime().Local().Format("2006-01-02 15:04")
 			}
