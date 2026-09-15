@@ -17,7 +17,9 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -840,6 +842,7 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListAssessmentResultsResponse], args ...any) bool {
 				// Should return exactly 3 results (one per unique resource_id/metric_id combination the user is authorized to see)
 				if !assert.NotNil(t, got.Msg) || !assert.Equal(t, 3, len(got.Msg.Results)) {
+					return false
 				}
 
 				// Collect returned IDs
@@ -1074,4 +1077,80 @@ func TestService_ListAssessmentResults(t *testing.T) {
 			tt.wantErr(t, err)
 		})
 	}
+}
+
+// TestService_ListAssessmentResults_LatestByResourceIdPagination verifies that the raw-SQL
+// pagination path used for latest_by_resource_id returns stable, non-overlapping pages that
+// together cover exactly the distinct (resource_id, metric_id) pairs, when paged through
+// using the returned next page token.
+func TestService_ListAssessmentResults_LatestByResourceIdPagination(t *testing.T) {
+	const numPairs = 5
+
+	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+		// Create numPairs unique (resource_id, metric_id) pairs, each with two results so that
+		// only the latest of each pair should be returned.
+		for i := range numPairs {
+			resourceId := fmt.Sprintf("resource-%d", i)
+			metricId := fmt.Sprintf("metric-%d", i)
+
+			older := &assessment.AssessmentResult{
+				Id:                   fmt.Sprintf("result-%d-old", i),
+				CreatedAt:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+				MetricId:             metricId,
+				ResourceId:           resourceId,
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+			}
+			latest := &assessment.AssessmentResult{
+				Id:                   fmt.Sprintf("result-%d-latest", i),
+				CreatedAt:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+				MetricId:             metricId,
+				ResourceId:           resourceId,
+				TargetOfEvaluationId: orchestratortest.MockToeId1,
+			}
+
+			assert.NoError(t, d.Create(older))
+			assert.NoError(t, d.Create(latest))
+		}
+	})
+
+	svc := &Service{
+		db:    db,
+		authz: &service.AuthorizationStrategyAllowAll{},
+	}
+
+	var (
+		pageToken string
+		seen      = make(map[string]bool)
+		pageCount int
+	)
+	for {
+		res, err := svc.ListAssessmentResults(context.Background(), connect.NewRequest(&orchestrator.ListAssessmentResultsRequest{
+			LatestByResourceId: new(true),
+			PageSize:           2,
+			PageToken:          pageToken,
+		}))
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+
+		pageCount++
+		// Guard against an infinite loop if pagination never terminates.
+		if pageCount > numPairs {
+			t.Fatalf("pagination did not terminate after %d pages", pageCount)
+		}
+
+		for _, r := range res.Msg.GetResults() {
+			// Every returned result must be the "latest" one and must not have been seen on a
+			// previous page (i.e., pages must not overlap).
+			assert.True(t, strings.HasSuffix(r.Id, "-latest"), "unexpected result %s on page %d", r.Id, pageCount)
+			assert.False(t, seen[r.Id], "result %s returned on more than one page", r.Id)
+			seen[r.Id] = true
+		}
+
+		pageToken = res.Msg.GetNextPageToken()
+		if pageToken == "" {
+			break
+		}
+	}
+
+	assert.Equal(t, numPairs, len(seen))
 }
