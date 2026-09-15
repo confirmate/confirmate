@@ -107,6 +107,34 @@ func TestCompliancePercent(t *testing.T) {
 	assert.Equal(t, float64(100), reportSummary{evaluatedMetrics: 2, compliantMetrics: 2}.compliancePercent())
 }
 
+func TestBuildReportMetricRow(t *testing.T) {
+	m := &assessment.Metric{Id: "metric1", Name: "TestMetric"}
+
+	// No results: metric hasn't been evaluated for any resource yet.
+	row := buildReportMetricRow(m, nil)
+	assert.Equal(t, false, row.evaluated)
+	assert.Equal(t, "—", row.targetComponent)
+	assert.Equal(t, "—", row.condition)
+
+	// Multiple resources, mixed compliance: overall compliant is false, the non-compliant
+	// resource's condition/comment is surfaced, and the resource count is appended.
+	row = buildReportMetricRow(m, []*assessment.AssessmentResult{
+		{Compliant: true, ResourceId: "res1"},
+		{Compliant: false, ResourceId: "res2", ResourceTypes: []string{"VirtualMachine"}, ComplianceComment: "disk not encrypted"},
+	})
+	assert.Equal(t, true, row.evaluated)
+	assert.Equal(t, false, row.compliant)
+	assert.Equal(t, "disk not encrypted", row.complianceComment)
+	assert.Equal(t, "VirtualMachine (×2 resources)", row.targetComponent)
+
+	// Single resource, fully compliant: no resource-count suffix.
+	row = buildReportMetricRow(m, []*assessment.AssessmentResult{
+		{Compliant: true, ResourceId: "res1"},
+	})
+	assert.Equal(t, true, row.compliant)
+	assert.Equal(t, "res1", row.targetComponent)
+}
+
 func TestPdfHeaderRow(t *testing.T) {
 	scope := &orchestrator.AuditScope{Name: "Test Scope"}
 
