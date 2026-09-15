@@ -45,7 +45,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/proullon/ramsql v0.1.4
-	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/exp v0.0.0-20260820142414-ca536658362e // indirect
 	golang.org/x/text v0.41.0 // indirect
 	gorm.io/driver/postgres v1.6.2
@@ -107,7 +107,17 @@ require (
 	golang.org/x/tools v0.49.0 // indirect
 )
 
-require cel.dev/cel-go v0.32.0 // indirect
+require github.com/xuri/excelize/v2 v2.11.0
+
+require (
+	cel.dev/cel-go v0.32.0 // indirect
+	github.com/richardlehane/mscfb v1.0.7 // indirect
+	github.com/richardlehane/msoleps v1.0.6 // indirect
+	github.com/tiendc/go-deepcopy v1.7.2 // indirect
+	github.com/xuri/efp v0.0.1 // indirect
+	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
+	golang.org/x/net v0.58.0 // indirect
+)
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.

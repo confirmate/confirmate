@@ -155,6 +155,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/orchestrator/audit_scopes/{auditScopeId}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Exports a compliance report for an Audit Scope as an XLSX spreadsheet */
+        get: operations["Orchestrator_ExportAuditScopeReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orchestrator/audit_trail_events": {
         parameters: {
             query?: never;
@@ -1182,6 +1199,15 @@ export interface components {
              */
             data?: string;
         };
+        ExportAuditScopeReportResponse: {
+            /**
+             * Format: bytes
+             * @description Content is the raw XLSX file content.
+             */
+            readonly content?: string;
+            /** @description Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx". */
+            readonly filename?: string;
+        };
         GetTargetOfEvaluationStatisticsResponse: {
             /** @description number of discovered resources per target of evaluation */
             numberOfDiscoveredResources?: string;
@@ -1524,6 +1550,7 @@ export type SchemaControlInScope = components['schemas']['ControlInScope'];
 export type SchemaCreateControlInScopeRequest = components['schemas']['CreateControlInScopeRequest'];
 export type SchemaDependency = components['schemas']['Dependency'];
 export type SchemaEvaluationResult = components['schemas']['EvaluationResult'];
+export type SchemaExportAuditScopeReportResponse = components['schemas']['ExportAuditScopeReportResponse'];
 export type SchemaGetTargetOfEvaluationStatisticsResponse = components['schemas']['GetTargetOfEvaluationStatisticsResponse'];
 export type SchemaGoogleProtobufAny = components['schemas']['GoogleProtobufAny'];
 export type SchemaGoogleProtobufValue = components['schemas']['GoogleProtobufValue'];
@@ -1988,6 +2015,37 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Default error response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Status"];
+                };
+            };
+        };
+    };
+    Orchestrator_ExportAuditScopeReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                auditScopeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportAuditScopeReportResponse"];
+                };
             };
             /** @description Default error response */
             default: {

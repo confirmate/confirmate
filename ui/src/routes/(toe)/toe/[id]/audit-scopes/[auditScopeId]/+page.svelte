@@ -10,7 +10,8 @@
 	import CategorySection from '$lib/components/toe/CategorySection.svelte';
 	import ImplementationCategory from '$lib/components/toe/ImplementationCategory.svelte';
 	import AuditTrail from '$lib/components/ui/AuditTrail.svelte';
-	import { evaluationClient } from '$lib/api/client';
+	import { evaluationClient, orchestratorClient } from '$lib/api/client';
+	import { downloadBase64File } from '$lib/download';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -45,6 +46,9 @@
 	let evaluationRunning = $state(false);
 	let evaluationBusy = $state(false);
 	let evaluationError = $state<string | null>(null);
+
+	let reportBusy = $state(false);
+	let reportError = $state<string | null>(null);
 
 	$effect(() => {
 		if (!browser) return;
@@ -99,6 +103,28 @@
 		}
 	}
 
+	async function downloadReport() {
+		reportBusy = true;
+		reportError = null;
+		try {
+			const { data: report, error } = await orchestratorClient().GET(
+				'/v1/orchestrator/audit_scopes/{auditScopeId}/report',
+				{ params: { path: { auditScopeId: data.auditScope.id } } }
+			);
+			if (error) throw error;
+			if (!report?.content) throw new Error('empty report');
+			downloadBase64File(
+				report.content,
+				report.filename ?? 'audit-scope-report.xlsx',
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+			);
+		} catch {
+			reportError = 'Failed to download report';
+		} finally {
+			reportBusy = false;
+		}
+	}
+
 </script>
 
 <div>
@@ -135,12 +161,18 @@
 						Enable Automatic Evaluation
 					</Button>
 				{/if}
+				<Button variant="secondary" size="sm" onclick={downloadReport} disabled={reportBusy}>
+					{reportBusy ? 'Preparing report…' : 'Download Report (XLSX)'}
+				</Button>
 			{/snippet}
 		</SectionHeader>
 	</div>
 
 	{#if evaluationError}
 		<p class="mt-2 text-sm text-red-600">{evaluationError}</p>
+	{/if}
+	{#if reportError}
+		<p class="mt-2 text-sm text-red-600">{reportError}</p>
 	{/if}
 
 	<!-- Tab switcher -->
