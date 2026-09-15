@@ -17,6 +17,7 @@ package evaluation
 
 import (
 	"context"
+	"fmt"
 	"net/http/httptest"
 	"sync"
 	"testing"
@@ -71,6 +72,10 @@ type mockOrchestratorHandler struct {
 	// ListControlsInScope support
 	controlsInScope          []*orchestrator.ControlInScope
 	listControlsInScopeError error
+
+	// CreateCertificate support
+	createCertificateError error
+	createCertificateCalls []string
 }
 
 // ListControls returns the mocked controls or an error if configured
@@ -265,6 +270,64 @@ func (m *mockOrchestratorHandler) UpdateCertificateLifecycle(
 	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
+// CreateCertificate returns a mock certificate for the given audit scope id. It returns an error if configured.
+// It also records the audit scope id it was called with, so tests can verify it was invoked.
+func (m *mockOrchestratorHandler) CreateCertificate(
+	_ context.Context,
+	req *connect.Request[orchestrator.CreateCertificateRequest],
+) (*connect.Response[orchestrator.Certificate], error) {
+	var cert *orchestrator.Certificate
+
+	m.mu.Lock()
+	m.createCertificateCalls = append(m.createCertificateCalls, req.Msg.GetAuditScopeId())
+	m.mu.Unlock()
+
+	if m.createCertificateError != nil {
+		return nil, m.createCertificateError
+	}
+
+	// Return certificate for mock audit scope 2
+	if req.Msg.GetAuditScopeId() == orchestratortest.MockAuditScope2.GetId() {
+		// For simplicity, return a mock certificate for the given audit scope id
+		cert = &orchestrator.Certificate{
+			Id:                   uuid.NewString(),
+			Name:                 orchestratortest.MockAuditScope2.GetName(),
+			Description:          fmt.Sprintf("Certificate for the Target of Evaluation '%s', Audit Scope '%s' and Catalog '%s'.", orchestratortest.MockAuditScope2.GetTargetOfEvaluationId(), orchestratortest.MockAuditScope2.GetId(), orchestratortest.MockAuditScope2.GetCatalogId()),
+			TargetOfEvaluationId: orchestratortest.MockAuditScope2.GetTargetOfEvaluationId(),
+			AssuranceLevel:       orchestratortest.MockAuditScope2.GetAssuranceLevel(),
+			AuditScopeId:         req.Msg.GetAuditScopeId(),
+		}
+	}
+	return connect.NewResponse(cert), nil
+}
+
+// ListCertificates returns the list of certificates for the given audit scope id. It returns an error if configured.
+func (m *mockOrchestratorHandler) ListCertificates(
+	_ context.Context,
+	req *connect.Request[orchestrator.ListCertificatesRequest],
+) (*connect.Response[orchestrator.ListCertificatesResponse], error) {
+	var cert *orchestrator.Certificate
+
+	if m.listError != nil {
+		return nil, m.listError
+	}
+
+	if req.Msg.Filter.GetAuditScopeId() == orchestratortest.MockScopeId1 {
+		// For simplicity, return a mock certificate for the given audit scope id
+		cert =
+			orchestratortest.MockCertificate1
+	} else {
+		// Simulate "not found" by returning an empty list
+		return connect.NewResponse(&orchestrator.ListCertificatesResponse{
+			Certificates: []*orchestrator.Certificate{},
+		}), nil
+	}
+
+	return connect.NewResponse(&orchestrator.ListCertificatesResponse{
+		Certificates: []*orchestrator.Certificate{cert},
+	}), nil
+}
+
 // GetCatalog returns catalog or an error if configured
 func (m *mockOrchestratorHandler) GetCatalog(
 	_ context.Context,
@@ -431,6 +494,11 @@ func WithUserPermissions(permissions []*orchestrator.UserPermission) func(*mockO
 
 func WithControlsInScope(controlsInScope []*orchestrator.ControlInScope) func(*mockOrchestratorHandler) {
 	return func(h *mockOrchestratorHandler) { h.controlsInScope = controlsInScope }
+}
+
+// WithCreateCertificateError forces CreateCertificate to return the given error.
+func WithCreateCertificateError(err error) func(*mockOrchestratorHandler) {
+	return func(h *mockOrchestratorHandler) { h.createCertificateError = err }
 }
 
 // mockControlsForCatalog returns mock controls for a catalog
