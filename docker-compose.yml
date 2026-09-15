@@ -1,0 +1,97 @@
+# Confirmate Demo — Docker Compose
+#
+# Brings up the full demo stack:
+#   - core:    Confirmate API + embedded OAuth2 + assessment + evaluation + evidence store
+#   - ui:      SvelteKit SPA served by nginx (proxies /v1/ to core)
+#   - collector: Code analysis collector (Kotlin/Gradle + CPG)
+#
+# Usage:
+#   docker compose up --build
+#
+# Then open http://localhost:5173
+#
+# Login: confirmate/confirmate (admin), alice/alice, bob/bob
+#
+# The document analyser is optional — run it separately:
+#   docker compose run doc-analyser
+
+services:
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile.core
+      # Binary is pre-built for linux/arm64 — adjust GOARCH for your platform
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIRMATE_API_PORT=8080
+      - CONFIRMATE_DB_IN_MEMORY=true
+      - CONFIRMATE_AUTH_ENABLED=true
+      - CONFIRMATE_OAUTH2_EMBEDDED=true
+      - CONFIRMATE_OAUTH2_KEY_SAVE_ON_CREATE=true
+      - CONFIRMATE_DEMO_SEED_FILE=/app/example-data/demo/seed.json
+      - CONFIRMATE_CATALOGS_DEFAULT_PATH=/app/example-data/catalogs
+      - CONFIRMATE_CATALOGS_LOAD_DEFAULT=true
+      - CONFIRMATE_METRICS_DEFAULT_PATH=/app/example-data/metrics
+      - CONFIRMATE_METRICS_LOAD_DEFAULT=true
+      - CONFIRMATE_API_CORS_ALLOWED_ORIGINS=*
+    volumes:
+      - confirmate-key:/root/.confirmate
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/.well-known/openid-configuration"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    ports:
+      - "5173:80"
+    depends_on:
+      core:
+        condition: service_healthy
+    environment:
+      - API_BASE=http://core:8080
+      - VITE_AUTH_BASE=http://localhost:8080
+
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.collector
+    depends_on:
+      core:
+        condition: service_healthy
+    environment:
+      - CPG_PYTHON_VIRTUALENV=cpg
+      - CONFIRMATE_API_BASE=http://core:8080
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # Optional: document analyser — run once after core is up
+  doc-analyser:
+    profiles: ["doc-analyser"]
+    build:
+      context: .
+      dockerfile: Dockerfile.doc-analyser
+    depends_on:
+      core:
+        condition: service_healthy
+    environment:
+      - DOC_ANALYSER_BASE_URL=${DOC_ANALYSER_BASE_URL:-https://dgx-b200-node1.aisec.fraunhofer.de:32008/v1}
+      - DOC_ANALYSER_API_KEY=${DOC_ANALYSER_API_KEY:-not-needed}
+      - DOC_ANALYSER_MODEL=${DOC_ANALYSER_MODEL:-glm-5.2-fp8}
+      - DOC_ANALYSER_MAX_TOKENS=4096
+      - INSECURE_TLS=1
+      - EVIDENCE_STORE_BASE=http://core:8080
+      - EVIDENCE_TOOL_ID=document-analyser
+      - TARGET_OF_EVALUATION_ID=00000000-0000-0000-0000-000000000000
+    volumes:
+      - ./collectors/documents/vibe-pythonpass-pdfs:/data/pdfs
+
+volumes:
+  confirmate-key:

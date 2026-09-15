@@ -173,6 +173,7 @@ func TestErrorDB_Passthrough(t *testing.T) {
 		nil,
 		nil,
 		nil,
+		nil,
 		types,
 		nil,
 	)

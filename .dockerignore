@@ -1,0 +1,15 @@
+.git
+.github
+logs
+node_modules
+**/node_modules
+**/.svelte-kit
+**/.gradle
+**/out
+*.log
+*.md
+!README.md
+LICENSE
+.agents
+.opencode
+demo.sh

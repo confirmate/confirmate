@@ -1,0 +1,77 @@
+name: Proto generated files check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'core/api/**/*.proto'
+      - 'core/policies/security-metrics/ontology/v1/ontology.proto'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to analyze the commit history timeline
+
+      - name: Verify generator timeline
+        shell: bash
+        run: |
+          # 1. Get the list of all modified .proto files in this PR
+          CHANGED_PROTOS=$(git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep -E '^(core/api/.*\.proto|core/policies/security-metrics/ontology/v1/ontology\.proto)$' || true)
+          
+          if [ -z "$CHANGED_PROTOS" ]; then
+            echo "✅ No proto files changed."
+            exit 0
+          fi
+
+          for proto in $CHANGED_PROTOS; do
+            dir=$(dirname "$proto")
+            base=$(basename "$proto" .proto)
+            pb_go="$dir/$base.pb.go"
+
+            # Special case: ontology.proto generates files into core/api/ontology/
+            if [ "$proto" = "core/policies/security-metrics/ontology/v1/ontology.proto" ]; then
+              pb_go="core/api/ontology/$base.pb.go"
+            fi
+
+
+            # Check if the .pb.go file exists at all
+            if [ ! -f "$pb_go" ]; then
+              echo "❌ $pb_go does not exist!"
+              exit 1
+            fi
+
+            # 2. Get the Unix timestamp of the LAST commit modifying the .proto file
+            PROTO_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$proto")
+            
+            # 3. Get the Unix timestamp of the LAST commit modifying the .pb.go file
+            PB_GO_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$pb_go" || echo 0)
+
+            # 4. Compare: If the .proto was modified in a newer commit than the .pb.go -> ERROR
+            if [ "$PROTO_COMMIT_TIME" -gt "$PB_GO_COMMIT_TIME" ]; then
+              echo "❌ $proto was modified after the last generation of $pb_go!"
+              echo "   Please run 'go generate' locally and commit the updated $pb_go file."
+              exit 1
+            fi
+
+            # Apply exceptions for OpenAPI files
+              if [ -f "$openapi" ]; then
+                OPENAPI_COMMIT_TIME=$(git log -1 --format=%ct HEAD -- "$openapi" || echo 0)
+                if [ "$PROTO_COMMIT_TIME" -gt "$OPENAPI_COMMIT_TIME" ]; then
+                  echo "❌ $proto was modified after the last generation of $openapi!"
+                  echo "   Please run your generation tool locally and commit the updated openapi.yaml."
+                  exit 1
+                fi
+              fi
+          done
+          
+          echo "✅ All generated files are up to date with their corresponding .proto sources."

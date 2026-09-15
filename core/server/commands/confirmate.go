@@ -17,20 +17,26 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"time"
 
 	"confirmate.io/core/api"
 	"confirmate.io/core/api/assessment/assessmentconnect"
+	"confirmate.io/core/api/evaluation/evaluationconnect"
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"confirmate.io/core/service/evaluation"
+	"confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 
 	"connectrpc.com/connect"
-	"connectrpc.com/grpcreflect"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -73,149 +79,20 @@ var oauthServerFlags = []cli.Flag{
 		Value:   server.DefaultOAuth2KeySaveOnCreate,
 		Sources: envVarSources("oauth2-key-save-on-create"),
 	},
+	&cli.StringFlag{
+		Name:    "demo-seed-file",
+		Usage:   "Path to a JSON file ({\"users\": [...]}) overriding the demo user set loaded at startup",
+		Value:   "",
+		Sources: envVarSources("demo-seed-file"),
+	},
 }
 
-// ConfirmateCommand starts the full framework: orchestrator and assessment services on one server.
+// ConfirmateCommand starts the full framework: orchestrator, assessment, and evidence store services on one server.
 var ConfirmateCommand = &cli.Command{
 	Name:  "confirmate",
-	Usage: "Launches the confirmate framework (including orchestrator and assessment services)",
+	Usage: "Launches the confirmate framework (including orchestrator, assessment, evidence store and evaluation services)",
 	Action: func(ctx context.Context, cmd *cli.Command) (err error) {
-		var (
-			interceptors       []connect.Interceptor
-			svcOptions         []service.Option[orchestrator.Service]
-			assessmentOptions  []service.Option[assessment.Service]
-			jwksURL            string
-			svcOpts            []service.Option[orchestrator.Service]
-			assessmentOpts     []service.Option[assessment.Service]
-			svc                orchestratorconnect.OrchestratorHandler
-			assessmentSvc      assessmentconnect.AssessmentHandler
-			orchestratorClient *http.Client
-			apiPort            uint16
-			orchestratorURL    string
-			credentials        *clientcredentials.Config
-			authorizer         api.Authorizer
-			serverOpts         []server.Option
-			reflector          *grpcreflect.Reflector
-			reflectionV1Path   string
-			reflectionV1       http.Handler
-			reflectionV1APath  string
-			reflectionV1A      http.Handler
-		)
-
-		if cmd.Bool("auth-enabled") {
-			jwksURL = cmd.String("auth-jwks-url")
-			if jwksURL == server.DefaultJWKSURL {
-				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
-			}
-
-			interceptors = append(interceptors, server.NewAuthInterceptor(
-				server.WithJWKS(jwksURL),
-			))
-			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
-				service.DefaultAllowAllClaim,
-			))
-			assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
-				service.DefaultAllowAllClaim,
-			))
-		}
-
-		interceptors = append(interceptors, &server.LoggingInterceptor{})
-
-		svcOpts = append([]service.Option[orchestrator.Service]{
-			orchestrator.WithConfig(orchestrator.Config{
-				DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
-				LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
-				DefaultMetricsPath:              cmd.String("metrics-default-path"),
-				LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
-				CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
-				PersistenceConfig: persistence.Config{
-					Host:       cmd.String("db-host"),
-					Port:       cmd.Int("db-port"),
-					DBName:     cmd.String("db-name"),
-					User:       cmd.String("db-user-name"),
-					Password:   cmd.String("db-password"),
-					SSLMode:    cmd.String("db-ssl-mode"),
-					InMemoryDB: cmd.Bool("db-in-memory"),
-					MaxConn:    cmd.Int("db-max-connections"),
-				},
-			}),
-		}, svcOptions...)
-
-		svc, err = orchestrator.NewService(svcOpts...)
-		if err != nil {
-			return err
-		}
-
-		apiPort = cmd.Uint16("api-port")
-		orchestratorURL = fmt.Sprintf("http://localhost:%d", apiPort)
-
-		orchestratorClient = http.DefaultClient
-		if cmd.Bool("auth-enabled") {
-			credentials = &clientcredentials.Config{
-				ClientID:     cmd.String("service-oauth2-client-id"),
-				ClientSecret: cmd.String("service-oauth2-client-secret"),
-				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
-			}
-			authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
-			orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
-		}
-
-		assessmentOpts = append([]service.Option[assessment.Service]{
-			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: orchestratorURL,
-				OrchestratorClient:  orchestratorClient,
-				RegoPackage:         cmd.String("assessment-rego-package"),
-			}),
-		}, assessmentOptions...)
-
-		assessmentSvc, err = assessment.NewService(assessmentOpts...)
-		if err != nil {
-			return err
-		}
-
-		reflector = grpcreflect.NewStaticReflector(
-			orchestratorconnect.OrchestratorName,
-			assessmentconnect.AssessmentName,
-		)
-		reflectionV1Path, reflectionV1 = grpcreflect.NewHandlerV1(reflector)
-		reflectionV1APath, reflectionV1A = grpcreflect.NewHandlerV1Alpha(reflector)
-
-		serverOpts = []server.Option{
-			server.WithConfig(server.Config{
-				Port:     apiPort,
-				Path:     "/",
-				LogLevel: cmd.String("log-level"),
-				CORS: server.CORS{
-					AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
-					AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
-					AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
-				},
-			}),
-			server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
-				svc,
-				connect.WithInterceptors(interceptors...),
-			)),
-			server.WithHandler(assessmentconnect.NewAssessmentHandler(
-				assessmentSvc,
-				connect.WithInterceptors(interceptors...),
-			)),
-			server.WithHTTPHandler(reflectionV1Path, reflectionV1),
-			server.WithHTTPHandler(reflectionV1APath, reflectionV1A),
-		}
-
-		if cmd.Bool("oauth2-embedded") {
-			serverOpts = append(serverOpts, server.WithEmbeddedOAuth2Server(
-				cmd.String("oauth2-key-path"),
-				cmd.String("oauth2-key-password"),
-				cmd.Bool("oauth2-key-save-on-create"),
-				cmd.String("oauth2-public-url"),
-			))
-		}
-
-		err = server.RunConnectServer(serverOpts...)
-		return err
+		return runConfirmate(ctx, cmd)
 	},
 	Flags: joinFlagSlices(
 		logFlags,
@@ -227,5 +104,283 @@ var ConfirmateCommand = &cli.Command{
 		evidenceFlags,
 		oauthServerFlags,
 		orchestratorFlags,
+		evaluationFlags,
 	),
+}
+
+// runConfirmate starts the embedded Confirmate framework stack.
+func runConfirmate(ctx context.Context, cmd *cli.Command) (err error) {
+	var (
+		interceptors        []connect.Interceptor
+		orchestratorOptions []service.Option[orchestrator.Service]
+		assessmentOptions   []service.Option[assessment.Service]
+		evidenceOptions     []service.Option[evidence.Service]
+		evaluationOptions   []service.Option[evaluation.Service]
+		jwksURL             string
+		orchestratorOpts    []service.Option[orchestrator.Service]
+		assessmentOpts      []service.Option[assessment.Service]
+		evidenceOpts        []service.Option[evidence.Service]
+		evaluationOpts      []service.Option[evaluation.Service]
+		orchestratorSvc     orchestratorconnect.OrchestratorHandler
+		assessmentSvc       assessmentconnect.AssessmentHandler
+		evidenceSvc         *evidence.Service
+		evaluationSvc       evaluationconnect.EvaluationHandler
+		orchestratorClient  *http.Client
+		evaluationClient    *http.Client
+		apiPort             uint16
+		credentials         *clientcredentials.Config
+		authorizer          api.Authorizer
+		serverOpts          []server.Option
+		srv                 *server.Server
+		serverErrCh         chan error
+		authOpts            []server.AuthOption
+		seedFile            string
+		seedErr             error
+		sf                  *server.DemoSeedFile
+		issuer              string
+	)
+
+	if cmd.Bool("auth-enabled") {
+		jwksURL = cmd.String("auth-jwks-url")
+		if jwksURL == server.DefaultJWKSURL {
+			jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+		}
+
+		authOpts = authInterceptorOptions(cmd, jwksURL)
+
+		if cmd.Bool("oauth2-embedded") {
+			// If a seed file is provided, use its users as the demo user set. An explicitly
+			// requested seed file that cannot be read or parsed is a startup misconfiguration,
+			// not something to silently ignore.
+			seedFile = cmd.String("demo-seed-file")
+			if seedFile != "" {
+				sf, seedErr = server.LoadDemoSeedFile(seedFile)
+				if seedErr != nil {
+					return fmt.Errorf("could not load demo seed file %q: %w", seedFile, seedErr)
+				}
+				if len(sf.Users) > 0 {
+					server.DefaultDemoUsers = sf.Users
+				}
+			}
+			issuer = server.NormalizeOAuthPublicURL(cmd.String("oauth2-public-url"), cmd.Uint16("api-port"))
+			// The embedded OAuth 2.0 server (oauth2go v0.16.0) omits the iss
+			// claim in issued tokens. Fall back to the configured public URL so
+			// GetConfirmateUserIDFromClaims produces IDs matching seeded users.
+			authOpts = append(authOpts, server.WithFallbackIssuer(issuer))
+			orchestratorOptions = append(orchestratorOptions, orchestrator.WithSeedUsers(server.DemoOrchestratorUsers(issuer)))
+		}
+
+		// Configure authentication interceptor for all services and authorization strategy for services based on JWT claims
+		interceptors = append(interceptors, server.NewAuthInterceptor(authOpts...))
+		orchestratorOptions = append(orchestratorOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
+		assessmentOptions = append(assessmentOptions, assessment.WithAuthorizationStrategyPermissionStore())
+		evaluationOptions = append(evaluationOptions, evaluation.WithAuthorizationStrategyPermissionStore())
+	}
+
+	interceptors = append(interceptors, &server.LoggingInterceptor{})
+
+	// Orchestrator service configuration
+	orchestratorOpts = append([]service.Option[orchestrator.Service]{
+		orchestrator.WithConfig(orchestrator.Config{
+			DefaultCatalogsPath:             cmd.String("catalogs-default-path"),
+			LoadDefaultCatalogs:             cmd.Bool("catalogs-load-default"),
+			DefaultMetricsPath:              cmd.String("metrics-default-path"),
+			LoadDefaultMetrics:              cmd.Bool("metrics-load-default"),
+			CreateDefaultTargetOfEvaluation: cmd.Bool("create-default-target-of-evaluation"),
+			PersistenceConfig: persistence.Config{
+				Host:       cmd.String("db-host"),
+				Port:       cmd.Int("db-port"),
+				DBName:     cmd.String("db-name"),
+				User:       cmd.String("db-user-name"),
+				Password:   cmd.String("db-password"),
+				SSLMode:    cmd.String("db-ssl-mode"),
+				InMemoryDB: cmd.Bool("db-in-memory"),
+				MaxConn:    cmd.Int("db-max-connections"),
+			},
+		}),
+	}, orchestratorOptions...)
+
+	orchestratorSvc, err = orchestrator.NewService(orchestratorOpts...)
+	if err != nil {
+		return err
+	}
+	apiPort = cmd.Uint16("api-port")
+
+	orchestratorClient = service.NewHTTPClient()
+	evaluationClient = service.NewHTTPClient()
+	if cmd.Bool("auth-enabled") {
+		credentials = &clientcredentials.Config{
+			ClientID:     cmd.String("service-oauth2-client-id"),
+			ClientSecret: cmd.String("service-oauth2-client-secret"),
+			TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+		}
+		authorizer = api.NewOAuthAuthorizerFromClientCredentials(credentials)
+		orchestratorClient = api.NewOAuthHTTPClient(orchestratorClient, authorizer)
+		evaluationClient = api.NewOAuthHTTPClient(evaluationClient, authorizer)
+	}
+
+	// Assessment service configuration
+	assessmentOpts = append([]service.Option[assessment.Service]{
+		assessment.WithConfig(assessment.Config{
+			OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
+			OrchestratorHTTPClient: orchestratorClient,
+			RegoPackage:            cmd.String("assessment-rego-package"),
+			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
+		}),
+	}, assessmentOptions...)
+
+	assessmentSvc, err = assessment.NewService(assessmentOpts...)
+	if err != nil {
+		return err
+	}
+
+	// EvidenceStore service configuration
+	assessmentClient := service.NewHTTPClient()
+	assessmentClient.Timeout = cmd.Duration("evidence-assessment-http-timeout")
+	if authorizer != nil {
+		assessmentClient = api.NewOAuthHTTPClient(assessmentClient, authorizer)
+	}
+	evidenceOpts = append([]service.Option[evidence.Service]{
+		evidence.WithConfig(evidence.Config{
+			AssessmentAddress: cmd.String("evidence-assessment-address"),
+			EvidenceQueueSize: evidence.DefaultConfig.EvidenceQueueSize,
+			PersistenceConfig: persistence.Config{
+				Host:       cmd.String("db-host"),
+				Port:       cmd.Int("db-port"),
+				DBName:     cmd.String("db-name"),
+				User:       cmd.String("db-user-name"),
+				Password:   cmd.String("db-password"),
+				SSLMode:    cmd.String("db-ssl-mode"),
+				InMemoryDB: cmd.Bool("db-in-memory"),
+				MaxConn:    cmd.Int("db-max-connections"),
+			},
+			AssessmentHTTPClient: assessmentClient,
+		}),
+	}, evidenceOptions...)
+
+	evidenceSvc, err = evidence.NewService(evidenceOpts...)
+	if err != nil {
+		return err
+	}
+
+	// Evaluation service configuration
+	evaluationOpts = append([]service.Option[evaluation.Service]{
+		evaluation.WithConfig(evaluation.Config{
+			OrchestratorAddress: cmd.String("evaluation-orchestrator-address"),
+			OrchestratorClient:  orchestratorClient,
+		}),
+	}, evaluationOptions...)
+
+	evaluationSvc, err = evaluation.NewService(evaluationOpts...)
+	if err != nil {
+		return err
+	}
+
+	// Wire up the evaluation service's scope-change callback so that
+	// adding/removing controls from scope triggers an immediate re-evaluation.
+	if evalSvc, ok := evaluationSvc.(*evaluation.Service); ok {
+		if orchSvc, ok := orchestratorSvc.(*orchestrator.Service); ok {
+			orchSvc.SetScopeChangeCallback(evalSvc.OnScopeChanged())
+		}
+	}
+
+	// Server options configuration including CORS, logging, handler and gRPC reflection
+	serverOpts = []server.Option{
+		server.WithConfig(server.Config{
+			Port:     apiPort,
+			Path:     "/",
+			LogLevel: cmd.String("log-level"),
+			CORS: server.CORS{
+				AllowedOrigins: cmd.StringSlice("api-cors-allowed-origins"),
+				AllowedMethods: cmd.StringSlice("api-cors-allowed-methods"),
+				AllowedHeaders: cmd.StringSlice("api-cors-allowed-headers"),
+			},
+		}),
+		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(
+			orchestratorSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(assessmentconnect.NewAssessmentHandler(
+			assessmentSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(
+			evidenceSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(evidenceconnect.NewResourcesHandler(
+			evidenceSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithHandler(evaluationconnect.NewEvaluationHandler(
+			evaluationSvc,
+			connect.WithInterceptors(interceptors...),
+		)),
+		server.WithReflection(),
+	}
+
+	if cmd.Bool("oauth2-embedded") {
+		serverOpts = append(serverOpts, server.WithEmbeddedOAuth2Server(
+			cmd.String("oauth2-key-path"),
+			cmd.String("oauth2-key-password"),
+			cmd.Bool("oauth2-key-save-on-create"),
+			cmd.String("oauth2-public-url"),
+		))
+	}
+
+	srv, err = server.NewConnectServer(serverOpts)
+	if err != nil {
+		return err
+	}
+
+	serverErrCh = make(chan error, 1)
+	go func() {
+		serverErrCh <- srv.ListenAndServe()
+	}()
+
+	err = waitForLocalServer(ctx, apiPort)
+	if err != nil {
+		return err
+	}
+
+	// Run until the server exits on its own or the context is cancelled (SIGTERM,
+	// test teardown, etc.) — in which case shut the HTTP server down gracefully.
+	select {
+	case err = <-serverErrCh:
+	case <-ctx.Done():
+		shutdownCtx, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelShutdown()
+		_ = srv.Shutdown(shutdownCtx)
+		err = <-serverErrCh
+		if errors.Is(err, http.ErrServerClosed) {
+			err = nil
+		}
+	}
+	return err
+}
+
+func waitForLocalServer(ctx context.Context, port uint16) (err error) {
+	var (
+		addr   string
+		conn   net.Conn
+		ticker *time.Ticker
+	)
+
+	addr = fmt.Sprintf("127.0.0.1:%d", port)
+	ticker = time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		conn, err = net.DialTimeout("tcp", addr, 100*time.Millisecond)
+		if err == nil {
+			_ = conn.Close()
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+		}
+	}
 }

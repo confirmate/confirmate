@@ -1,0 +1,382 @@
+{
+  "evidences": [
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111111",
+        "timestamp": "2026-03-16T00:00:00Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "product": {
+            "contextOfUse": "Factory-floor telemetry collection and secure cloud forwarding",
+            "creationTime": "2026-01-10T08:30:00Z",
+            "dataIds": [
+              "user-info-doc-1",
+              "sbom-doc-1",
+              "eu-decl-doc-1",
+              "distrib-updates-doc-1",
+              "prod-monitor-doc-1",
+              "risk-assess-doc-1",
+              "cvdp-policy-1"
+            ],
+            "description": "Edge gateway bundle with one control app and one hardware memory component.",
+            "id": "product-edge-gateway-1",
+            "labels": {
+              "environment": "test",
+              "productLine": "edge"
+            },
+            "name": "Edge Gateway Starter Kit",
+            "programmingVersion": "2.3.1",
+            "purpose": "Provide a simple, secure gateway for sensor data ingestion.",
+            "raw": "test_evidence_raw/product-evidence.json",
+            "supportEnds": "2029-12-31T00:00:00Z",
+            "type": "CyberPhysicalProduct",
+            "codeIds": [
+              "app-edge-control-1"
+            ],
+            "contactPersonId": "contact-person-1",
+            "governanceIds": [
+              "monitoring-procedure-1"
+            ],
+            "hardwareIds": [
+              "memory-module-1"
+            ],
+            "infrastructureIds": [
+              "vm-edge-management-1"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111112",
+        "timestamp": "2026-03-16T00:00:01Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "application": {
+            "creationTime": "2026-01-10T08:35:00Z",
+            "description": "Control-plane service that manages connected edge sensors.",
+            "id": "app-edge-control-1",
+            "labels": {
+              "tier": "backend"
+            },
+            "name": "Edge Control App",
+            "programmingLanguage": "Go",
+            "programmingVersion": "1.21.3",
+            "raw": "test_evidence_raw/application-evidence.json",
+            "computeId": "vm-edge-management-1"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111113",
+        "timestamp": "2026-03-16T00:00:02Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "contactPerson": {
+            "creationTime": "2026-01-10T08:40:00Z",
+            "description": "Primary contact for product security and release approvals.",
+            "emailAddress": "maya.fischer@example.com",
+            "id": "contact-person-1",
+            "jobTitle": "Product Security Lead",
+            "labels": {
+              "team": "security"
+            },
+            "name": "Maya Fischer",
+            "phoneNumber": "+49-111-555-0101",
+            "raw": "test_evidence_raw/contact-person-evidence.json"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111114",
+        "timestamp": "2026-03-16T00:00:03Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "monitoringProcedure": {
+            "creationTime": "2026-01-10T08:45:00Z",
+            "description": "Quarterly review of security telemetry and incident response readiness.",
+            "id": "monitoring-procedure-1",
+            "intervalMonths": 3,
+            "labels": {
+              "scope": "product-security"
+            },
+            "name": "Quarterly Security Review",
+            "raw": "test_evidence_raw/monitoring-procedure-evidence.json"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111115",
+        "timestamp": "2026-03-16T00:00:04Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "memory": {
+            "creationTime": "2026-01-10T08:50:00Z",
+            "description": "Single memory module used by the edge gateway hardware profile.",
+            "id": "memory-module-1",
+            "labels": {
+              "class": "hardware"
+            },
+            "mode": "DDR4",
+            "name": "8GB Memory Module",
+            "raw": "test_evidence_raw/memory-evidence.json"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111116",
+        "timestamp": "2026-03-16T00:00:05Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "virtualMachine": {
+            "creationTime": "2026-01-10T08:55:00Z",
+            "description": "VM hosting the management backend for the edge gateway fleet.",
+            "id": "vm-edge-management-1",
+            "internetAccessibleEndpoint": false,
+            "labels": {
+              "zone": "eu-central"
+            },
+            "name": "Edge Management VM",
+            "raw": "test_evidence_raw/virtual-machine-evidence.json"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111117",
+        "timestamp": "2026-03-16T00:00:06Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "userInformationAndIntructionDocument": {
+            "creationTime": "2026-02-01T10:00:00Z",
+            "cryptographicHashs": [],
+            "dataLocation": {
+              "localDataLocation": {
+                "path": "test_evidence_raw/user-info-doc.json"
+              }
+            },
+            "description": "User manual and installation instructions for the Edge Gateway Starter Kit.",
+            "documentSignatures": [],
+            "filetype": "application/json",
+            "id": "user-info-doc-1",
+            "labels": {
+              "docType": "userManual"
+            },
+            "name": "User Information and Instruction Document",
+            "raw": "test_evidence_raw/user-info-doc.json",
+            "securityFeatures": [],
+            "validatedBy": {
+              "format": "json",
+              "schemaUrl": "schema:user-instruction-document"
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111118",
+        "timestamp": "2026-03-16T00:00:07Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "sbomDocument": {
+            "creationTime": "2026-02-05T11:15:00Z",
+            "cryptographicHashs": [],
+            "dataLocation": {
+              "localDataLocation": {
+                "path": "test_evidence_raw/sbom-doc.json"
+              }
+            },
+            "description": "Software Bill of Materials listing all components and dependencies.",
+            "documentSignatures": [],
+            "filetype": "application/json",
+            "id": "sbom-doc-1",
+            "labels": {
+              "docType": "sbom",
+              "format": "cyclonedx"
+            },
+            "name": "SBOM Document",
+            "raw": "test_evidence_raw/sbom-doc.json",
+            "securityFeatures": [],
+            "validatedBy": {
+              "format": "json",
+              "schemaUrl": "schema:sbom-document"
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111119",
+        "timestamp": "2026-03-16T00:00:08Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "euDeclarationOfConformity": {
+            "creationTime": "2026-01-15T09:00:00Z",
+            "cryptographicHashs": [],
+            "dataLocation": {
+              "localDataLocation": {
+                "path": "test_evidence_raw/eu-declaration.json"
+              }
+            },
+            "description": "EU Declaration of Conformity with applicable directives and standards.",
+            "documentSignatures": [],
+            "filetype": "application/json",
+            "id": "eu-decl-doc-1",
+            "labels": {
+              "docType": "euDoC",
+              "directive": "RED-2014-53-EU"
+            },
+            "name": "EU Declaration of Conformity",
+            "raw": "test_evidence_raw/eu-declaration.json",
+            "securityFeatures": [],
+            "validatedBy": {
+              "format": "json",
+              "schemaUrl": "schema:eu-declaration"
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111120",
+        "timestamp": "2026-03-16T00:00:09Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "distributionOfUpdatesDocument": {
+            "creationTime": "2026-02-10T12:30:00Z",
+            "cryptographicHashs": [],
+            "dataLocation": {
+              "localDataLocation": {
+                "path": "test_evidence_raw/distribution-updates.json"
+              }
+            },
+            "description": "Policy and procedures for distributing security updates and patches.",
+            "documentSignatures": [],
+            "filetype": "application/json",
+            "id": "distrib-updates-doc-1",
+            "labels": {
+              "docType": "updatePolicy"
+            },
+            "name": "Distribution of Updates Description",
+            "raw": "test_evidence_raw/distribution-updates.json",
+            "securityFeatures": [],
+            "validatedBy": {
+              "format": "json",
+              "schemaUrl": "schema:distribution-updates"
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111121",
+        "timestamp": "2026-03-16T00:00:10Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "productionAndMonitoringProcessDocument": {
+            "creationTime": "2026-02-15T14:45:00Z",
+            "cryptographicHashs": [],
+            "dataLocation": {
+              "localDataLocation": {
+                "path": "test_evidence_raw/production-monitoring.json"
+              }
+            },
+            "description": "Documentation of production processes, quality assurance, and monitoring procedures.",
+            "documentSignatures": [],
+            "filetype": "application/json",
+            "id": "prod-monitor-doc-1",
+            "labels": {
+              "docType": "processDoc"
+            },
+            "name": "Production and Monitoring Process Description",
+            "raw": "test_evidence_raw/production-monitoring.json",
+            "securityFeatures": [],
+            "validatedBy": {
+              "format": "json",
+              "schemaUrl": "schema:production-monitoring"
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111122",
+        "timestamp": "2026-03-16T00:00:11Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "cyberSecurityRiskAssessmentDocument": {
+            "creationTime": "2026-03-01T16:20:00Z",
+            "cryptographicHashs": [],
+            "dataLocation": {
+              "localDataLocation": {
+                "path": "test_evidence_raw/risk-assessment.json"
+              }
+            },
+            "description": "Cyber security risk assessment covering threats, vulnerabilities, and mitigation strategies.",
+            "documentSignatures": [],
+            "filetype": "application/json",
+            "id": "risk-assess-doc-1",
+            "labels": {
+              "docType": "riskAssessment",
+              "methodology": "CVSS"
+            },
+            "name": "Cyber Security Risk Assessment Document",
+            "raw": "test_evidence_raw/risk-assessment.json",
+            "securityFeatures": [],
+            "validatedBy": {
+              "format": "json",
+              "schemaUrl": "schema:risk-assessment"
+            }
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "id": "11111111-1111-1111-1111-111111111123",
+        "timestamp": "2026-03-16T00:00:12Z",
+        "targetOfEvaluationId": "22222222-2222-2222-2222-222222222222",
+        "toolId": "mock-tool",
+        "resource": {
+          "coordinatedVulnerabilityDisclosurePolicy": {
+            "creationTime": "2026-01-20T08:00:00Z",
+            "description": "Policy and procedures for coordinated vulnerability disclosure and responsible disclosure timelines.",
+            "id": "cvdp-policy-1",
+            "labels": {
+              "policyType": "cvd"
+            },
+            "name": "Coordinated Vulnerability Disclosure Policy",
+            "raw": "test_evidence_raw/cvdp-policy.json"
+          }
+        }
+      }
+    }
+  ]
+}

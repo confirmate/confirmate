@@ -31,7 +31,7 @@ import (
 	"confirmate.io/core/log"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
-	"confirmate.io/core/util"
+	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
 	"go.yaml.in/yaml/v3"
@@ -50,7 +50,10 @@ func (svc *Service) CreateMetric(
 	req *connect.Request[orchestrator.CreateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
 	var (
-		metric *assessment.Metric
+		metric   *assessment.Metric
+		metricID string
+		impl     *assessment.MetricImplementation
+		allowed  bool
 	)
 
 	// Validate the request
@@ -58,7 +61,34 @@ func (svc *Service) CreateMetric(
 		return nil, err
 	}
 
-	metric = req.Msg.Metric
+	metricID = uuid.NewString()
+	if req.Msg.GetMetric().GetImplementation() != nil {
+		impl = &assessment.MetricImplementation{
+			MetricId:  metricID,
+			Lang:      req.Msg.GetMetric().GetImplementation().GetLang(),
+			Code:      req.Msg.GetMetric().GetImplementation().GetCode(),
+			UpdatedAt: timestamppb.Now(),
+		}
+	}
+
+	metric = &assessment.Metric{
+		Id:             metricID,
+		Name:           req.Msg.GetMetric().GetName(),
+		Description:    req.Msg.GetMetric().GetDescription(),
+		Version:        req.Msg.GetMetric().GetVersion(),
+		Comments:       req.Msg.GetMetric().Comments,
+		Category:       req.Msg.GetMetric().GetCategory(),
+		Implementation: impl,
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Persist the new metric in the database
 	err = svc.db.Create(metric)
@@ -125,7 +155,13 @@ func (svc *Service) ListMetrics(
 		req.Msg.Asc = true
 	}
 
-	metrics, npt, err = service.PaginateStorage[*assessment.Metric](req.Msg, svc.db, service.DefaultPaginationOpts)
+	// Filter metrics with empty DeprecatedSince field
+	metrics, npt, err = service.PaginateStorage[*assessment.Metric](
+		req.Msg,
+		svc.db,
+		service.DefaultPaginationOpts,
+		"deprecated_since IS NULL",
+	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -142,14 +178,33 @@ func (svc *Service) UpdateMetric(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricRequest],
 ) (res *connect.Response[assessment.Metric], err error) {
-	var metric *assessment.Metric
+	var (
+		metric  *assessment.Metric
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	metric = req.Msg.Metric
+	metric = &assessment.Metric{
+		Id:          req.Msg.GetMetric().GetId(),
+		Name:        req.Msg.GetMetric().GetName(),
+		Description: req.Msg.GetMetric().GetDescription(),
+		Version:     req.Msg.GetMetric().GetVersion(),
+		Comments:    req.Msg.GetMetric().Comments,
+		Category:    req.Msg.GetMetric().GetCategory(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the metric
 	err = svc.db.Update(metric, "id = ?", metric.Id)
@@ -179,12 +234,22 @@ func (svc *Service) RemoveMetric(
 	req *connect.Request[orchestrator.RemoveMetricRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		metric *assessment.Metric
+		metric  *assessment.Metric
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Check if metric exists
@@ -244,14 +309,31 @@ func (svc *Service) UpdateMetricImplementation(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateMetricImplementationRequest],
 ) (res *connect.Response[assessment.MetricImplementation], err error) {
-	var impl *assessment.MetricImplementation
+	var (
+		impl    *assessment.MetricImplementation
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	impl = req.Msg.Implementation
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_METRIC_IMPLEMENTATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
+
+	impl = &assessment.MetricImplementation{
+		MetricId:  req.Msg.GetImplementation().GetMetricId(),
+		Lang:      req.Msg.GetImplementation().GetLang(),
+		Code:      req.Msg.GetImplementation().GetCode(),
+		UpdatedAt: timestamppb.Now(),
+	}
 
 	// Update the metric implementation
 	err = svc.db.Update(impl, "metric_id = ?", impl.MetricId)
@@ -362,7 +444,8 @@ func (svc *Service) UpdateMetricConfiguration(
 	req *connect.Request[orchestrator.UpdateMetricConfigurationRequest],
 ) (res *connect.Response[assessment.MetricConfiguration], err error) {
 	var (
-		config *assessment.MetricConfiguration
+		config  *assessment.MetricConfiguration
+		allowed bool
 	)
 
 	// Validate the request
@@ -370,8 +453,21 @@ func (svc *Service) UpdateMetricConfiguration(
 		return nil, err
 	}
 
-	config = req.Msg.Configuration
-	if config == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	config = &assessment.MetricConfiguration{
+		MetricId:             req.Msg.GetConfiguration().GetMetricId(),
+		TargetOfEvaluationId: req.Msg.GetConfiguration().GetTargetOfEvaluationId(),
+		Operator:             req.Msg.GetConfiguration().GetOperator(),
+		TargetValue:          req.Msg.GetConfiguration().GetTargetValue(),
+		IsDefault:            false,
+		UpdatedAt:            timestamppb.Now(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, config.GetTargetOfEvaluationId(), orchestrator.ObjectType_OBJECT_TYPE_METRIC_CONFIGURATION)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -387,7 +483,7 @@ func (svc *Service) UpdateMetricConfiguration(
 		Category:             orchestrator.EventCategory_EVENT_CATEGORY_METRIC_CONFIGURATION,
 		RequestType:          orchestrator.RequestType_REQUEST_TYPE_UPDATED,
 		EntityId:             config.MetricId,
-		TargetOfEvaluationId: util.Ref(config.TargetOfEvaluationId),
+		TargetOfEvaluationId: new(config.TargetOfEvaluationId),
 		Entity: &orchestrator.ChangeEvent_MetricConfiguration{
 			MetricConfiguration: config,
 		},
@@ -452,12 +548,61 @@ func (svc *Service) loadMetricsFromRepository() (metrics []*assessment.Metric, e
 			return fmt.Errorf("error accessing path %s: %w", path, err)
 		}
 
-		// Skip directories and non-yaml files
-		if info.IsDir() || (!strings.HasSuffix(info.Name(), ".yaml") && !strings.HasSuffix(info.Name(), ".yml")) {
+		// Skip directories and unsupported file types
+		if info.IsDir() {
 			return nil
 		}
 
-		// Read the YAML file
+		// JSON files: treat as an array of metrics
+		if strings.HasSuffix(info.Name(), ".json") {
+			b, err := os.ReadFile(path)
+			if err != nil {
+				return fmt.Errorf("error reading file %s: %w", path, err)
+			}
+			var batch []*assessment.Metric
+			if err = json.Unmarshal(b, &batch); err != nil {
+				slog.Warn("Could not parse metrics JSON file, skipping", "file", info.Name(), log.Err(err))
+				return nil
+			}
+			// Try to load Rego implementations from the security-metrics repo
+			// for metrics that have a matching directory. Look in both the
+			// configured metrics path and the standard security-metrics location.
+			for i := range batch {
+				metric := batch[i]
+				// A JSON array can legally contain null entries, which unmarshal to a nil
+				// metric — skip them rather than panicking on the field access below.
+				if metric == nil {
+					slog.Warn("Skipping null metric entry in JSON file", "file", info.Name(), "index", i)
+					continue
+				}
+				// Try to load Rego implementations and default configurations
+				// from the security-metrics repo for metrics that have a
+				// matching directory. Look in both the configured metrics path
+				// and the standard security-metrics location.
+				for _, base := range []string{svc.cfg.DefaultMetricsPath, filepath.Join("policies", "security-metrics", "metrics")} {
+					regoDir := filepath.Join(base, metric.Category, metric.Name)
+					metric.Implementation, err = loadMetricImplementation(metric.Id, regoDir)
+					if err != nil {
+						slog.Debug("Could not load metric implementation", "metric", metric.Id, log.Err(err))
+					}
+					// Load default configuration from data.json if it exists
+					if err = prepareMetric(metric, filepath.Join(regoDir, "dummy.yaml")); err != nil {
+						slog.Debug("Could not load metric configuration", "metric", metric.Id, log.Err(err))
+					}
+					if metric.Implementation != nil {
+						break
+					}
+				}
+				metrics = append(metrics, metric)
+			}
+			return nil
+		}
+
+		// YAML files: single metric per file
+		if !strings.HasSuffix(info.Name(), ".yaml") && !strings.HasSuffix(info.Name(), ".yml") {
+			return nil
+		}
+
 		b, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("error reading file %s: %w", path, err)

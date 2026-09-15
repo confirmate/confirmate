@@ -17,11 +17,13 @@ package commands
 
 import (
 	"context"
-	"net/http"
+	"fmt"
 
 	"confirmate.io/core/api/assessment/assessmentconnect"
 	"confirmate.io/core/server"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/assessment"
+	"golang.org/x/oauth2/clientcredentials"
 
 	"connectrpc.com/connect"
 	"github.com/urfave/cli/v3"
@@ -32,6 +34,7 @@ var assessmentFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "assessment-orchestrator-address",
 		Usage:   "Address of the orchestrator service the assessment service connects to",
+		Value:   assessment.DefaultOrchestratorURL,
 		Sources: envVarSources("assessment-orchestrator-address"),
 	},
 	&cli.StringFlag{
@@ -40,6 +43,12 @@ var assessmentFlags = []cli.Flag{
 		Value:   assessment.DefaultConfig.RegoPackage,
 		Sources: envVarSources("assessment-rego-package"),
 	},
+	&cli.BoolFlag{
+		Name:    "assessment-skip-metrics-on-error",
+		Usage:   "Skip metrics in assessment component that produce an error",
+		Value:   assessment.DefaultConfig.SkipMetricsOnError,
+		Sources: envVarSources("assessment-skip-metrics-on-error"),
+	},
 }
 
 // AssessmentCommand is the command to start the assessment server.
@@ -47,13 +56,38 @@ var AssessmentCommand = &cli.Command{
 	Name:  "assessment",
 	Usage: "Launches the assessment service",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		svc, err := assessment.NewService(
-			assessment.WithConfig(assessment.Config{
-				OrchestratorAddress: cmd.String("assessment-orchestrator-address"),
-				OrchestratorClient:  http.DefaultClient,
-				RegoPackage:         cmd.String("assessment-rego-package"),
-			}),
+		var (
+			interceptors []connect.Interceptor
+			svcOptions   []service.Option[assessment.Service]
+			cfg          assessment.Config
 		)
+
+		cfg = assessment.Config{
+			OrchestratorAddress:    cmd.String("assessment-orchestrator-address"),
+			OrchestratorHTTPClient: service.NewHTTPClient(),
+			RegoPackage:            cmd.String("assessment-rego-package"),
+			SkipMetricsOnError:     cmd.Bool("assessment-skip-metrics-on-error"),
+		}
+
+		if cmd.Bool("auth-enabled") {
+			jwksURL := cmd.String("auth-jwks-url")
+			if jwksURL == server.DefaultJWKSURL {
+				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
+			}
+			interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
+			svcOptions = append(svcOptions, assessment.WithAuthorizationStrategyPermissionStore())
+
+			cfg.ServiceOAuth2Config = &clientcredentials.Config{
+				ClientID:     cmd.String("service-oauth2-client-id"),
+				ClientSecret: cmd.String("service-oauth2-client-secret"),
+				TokenURL:     cmd.String("service-oauth2-token-endpoint"),
+			}
+		}
+
+		interceptors = append(interceptors, &server.LoggingInterceptor{})
+		svcOptions = append(svcOptions, assessment.WithConfig(cfg))
+
+		svc, err := assessment.NewService(svcOptions...)
 		if err != nil {
 			return err
 		}
@@ -71,8 +105,9 @@ var AssessmentCommand = &cli.Command{
 			}),
 			server.WithHandler(assessmentconnect.NewAssessmentHandler(
 				svc,
-				connect.WithInterceptors(&server.LoggingInterceptor{}),
+				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithReflection(),
 		)
 	},
 	Flags: joinFlagSlices(

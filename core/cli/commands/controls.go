@@ -47,13 +47,15 @@ func ControlsListCommand() *cli.Command {
 			levels := ExpandCommaSeparated(c.StringSlice("assurance-level"))
 
 			req := &orchestrator.ListControlsRequest{
-				CatalogId:    c.String("catalog-id"),
-				CategoryName: c.String("category-name"),
-				PageSize:     int32(c.Int("page-size")),
-				PageToken:    c.String("page-token"),
+				PageSize:  int32(c.Int("page-size")),
+				PageToken: c.String("page-token"),
 			}
-			if len(levels) > 0 {
+			catalogId := c.String("catalog-id")
+			categoryName := c.String("category-name")
+			if catalogId != "" || categoryName != "" || len(levels) > 0 {
 				req.Filter = &orchestrator.ListControlsRequest_Filter{
+					CatalogId:       &catalogId,
+					CategoryName:    &categoryName,
 					AssuranceLevels: levels,
 				}
 			}
@@ -71,21 +73,17 @@ func ControlsListCommand() *cli.Command {
 func ControlsGetCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "get",
-		Usage:     "Get a control by catalog ID, category name, and control ID",
-		ArgsUsage: "<catalog-id> <category-name> <control-id>",
+		Usage:     "Get a control by control ID",
+		ArgsUsage: "<control-id>",
 		Action: func(ctx context.Context, c *cli.Command) error {
-			if c.Args().Len() < 3 {
-				return fmt.Errorf("catalog ID, category name, and control ID required")
+			if c.Args().Len() < 1 {
+				return fmt.Errorf("control ID required")
 			}
-			catalogID := c.Args().Get(0)
-			categoryName := c.Args().Get(1)
-			controlID := c.Args().Get(2)
+			controlID := c.Args().Get(0)
 
 			client := OrchestratorClient(ctx, c)
 			resp, err := client.GetControl(ctx, connect.NewRequest(&orchestrator.GetControlRequest{
-				CatalogId:    catalogID,
-				CategoryName: categoryName,
-				ControlId:    controlID,
+				ControlId: controlID,
 			}))
 			if err != nil {
 				return err

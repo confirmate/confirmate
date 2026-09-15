@@ -23,22 +23,29 @@ import (
 	"path/filepath"
 	"testing"
 
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestService_CreateCatalog(t *testing.T) {
 	type args struct {
 		req *orchestrator.CreateCatalogRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -48,20 +55,70 @@ func TestService_CreateCatalog(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.CreateCatalogRequest{
 					Catalog: orchestratortest.MockCatalog1,
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id)
+				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
+					assert.Equal(t, orchestratortest.MockCatalog1.Name, got.Msg.Name) &&
+					assert.Equal(t, orchestratortest.MockCatalog1.Description, got.Msg.Description)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{
+					Catalog: orchestratortest.MockCatalog1,
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: true,
+					},
+				),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := orchestratortest.MockCatalog1
+				normalizeCatalogControls(want)
+				return assert.NotNil(t, got.Msg) &&
+					assert.Equal(t, want, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.CreateCatalogRequest{
+					Catalog: orchestratortest.MockCatalog1,
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: false,
+					},
+				),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -73,7 +130,8 @@ func TestService_CreateCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -100,7 +158,8 @@ func TestService_CreateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -112,9 +171,10 @@ func TestService_CreateCatalog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.CreateCatalog(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.CreateCatalog(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -122,6 +182,9 @@ func TestService_CreateCatalog(t *testing.T) {
 }
 
 func TestService_GetCatalog(t *testing.T) {
+	catalog1 := orchestratortest.MockCatalog1
+	normalizeCatalogControls(catalog1)
+
 	type args struct {
 		req *orchestrator.GetCatalogRequest
 	}
@@ -144,13 +207,46 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
+					err := d.Create(catalog1)
 					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalogId1,
+					Name:        orchestratortest.MockCatalogName1,
+					Description: orchestratortest.MockCatalogDescription1,
+					Categories: []*orchestrator.Category{
+						{
+							Name:      orchestratortest.MockCategoryName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+							Controls: []*orchestrator.Control{
+								{
+									Id:        orchestratortest.MockControlId1,
+									Name:      orchestratortest.MockControlName1,
+									ShortName: orchestratortest.MockControlShortName1,
+									CatalogId: orchestratortest.MockCatalogId1,
+									Controls:  []*orchestrator.Control{},
+								},
+							},
+						},
+						{
+							Name:      orchestratortest.MockCategoryName2,
+							CatalogId: orchestratortest.MockCatalogId1,
+							Controls: []*orchestrator.Control{
+								{
+									Id:        orchestratortest.MockControlId2,
+									Name:      orchestratortest.MockControlName2,
+									ShortName: orchestratortest.MockControlShortName2,
+									CatalogId: orchestratortest.MockCatalogId1,
+									Controls:  []*orchestrator.Control{},
+								},
+							},
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -164,7 +260,8 @@ func TestService_GetCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -226,7 +323,36 @@ func TestService_ListCatalogs(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "validation error",
+			args: args{
+				req: &orchestrator.ListCatalogsRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListCatalogsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.ListCatalogsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListCatalogsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "happy path: list all catalogs",
 			args: args{
 				req: &orchestrator.ListCatalogsRequest{},
 			},
@@ -239,13 +365,30 @@ func TestService_ListCatalogs(t *testing.T) {
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListCatalogsResponse], args ...any) bool {
+				want := &orchestrator.Catalog{
+					Id:          orchestratortest.MockCatalogId1,
+					Name:        orchestratortest.MockCatalogName1,
+					Description: orchestratortest.MockCatalogDescription1,
+					Categories: []*orchestrator.Category{
+						{
+							Name:      orchestratortest.MockCategoryName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+						{
+							Name:      orchestratortest.MockCategoryName2,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+					},
+				}
+
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Catalogs))
+				assert.Equal(t, 2, len(got.Msg.Catalogs))
+				return assert.Equal(t, want, got.Msg.Catalogs[0])
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			name: "empty list",
+			name: "happy path: empty list",
 			args: args{
 				req: &orchestrator.ListCatalogsRequest{},
 			},
@@ -275,9 +418,11 @@ func TestService_ListCatalogs(t *testing.T) {
 func TestService_UpdateCatalog(t *testing.T) {
 	type args struct {
 		req *orchestrator.UpdateCatalogRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -287,7 +432,7 @@ func TestService_UpdateCatalog(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateCatalogRequest{
 					Catalog: &orchestrator.Catalog{
@@ -302,12 +447,67 @@ func TestService_UpdateCatalog(t *testing.T) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, "Updated Catalog", got.Msg.Name)
+				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
+					assert.Equal(t, "Updated Catalog", got.Msg.Name) &&
+					assert.Equal(t, "Updated description", got.Msg.Description)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{
+					Catalog: &orchestrator.Catalog{
+						Id:          orchestratortest.MockCatalog1.Id,
+						Name:        "Updated Catalog",
+						Description: "Updated description",
+					},
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: true,
+					},
+				),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.Catalog], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockCatalog1.Id, got.Msg.Id) &&
+					assert.Equal(t, "Updated Catalog", got.Msg.Name) &&
+					assert.Equal(t, "Updated description", got.Msg.Description)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.UpdateCatalogRequest{
+					Catalog: &orchestrator.Catalog{
+						Id:          orchestratortest.MockCatalog1.Id,
+						Name:        "Updated Catalog",
+						Description: "Updated description",
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -319,7 +519,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -352,7 +553,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -371,7 +573,8 @@ func TestService_UpdateCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				db:    persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[orchestrator.Catalog]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -383,9 +586,10 @@ func TestService_UpdateCatalog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateCatalog(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateCatalog(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -395,9 +599,11 @@ func TestService_UpdateCatalog(t *testing.T) {
 func TestService_RemoveCatalog(t *testing.T) {
 	type args struct {
 		req *orchestrator.RemoveCatalogRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -407,7 +613,7 @@ func TestService_RemoveCatalog(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.RemoveCatalogRequest{
 					CatalogId: orchestratortest.MockCatalog1.Id,
@@ -418,11 +624,53 @@ func TestService_RemoveCatalog(t *testing.T) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
 				return assert.NotNil(t, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.RemoveCatalogRequest{
+					CatalogId: orchestratortest.MockCatalog1.Id,
+				},
+				ctx: auth.WithClaims(
+					context.Background(),
+					&auth.OAuthClaims{
+						IsAdminToken: true,
+					},
+				),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
+				return assert.NotNil(t, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.RemoveCatalogRequest{
+					CatalogId: orchestratortest.MockCatalog1.Id,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -434,7 +682,8 @@ func TestService_RemoveCatalog(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -445,7 +694,8 @@ func TestService_RemoveCatalog(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				db:    persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -457,9 +707,10 @@ func TestService_RemoveCatalog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.RemoveCatalog(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.RemoveCatalog(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -481,24 +732,48 @@ func TestService_GetCategory(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetCategoryRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Category]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetCategoryRequest{
-					CatalogId:    orchestratortest.MockCategory1.CatalogId,
-					CategoryName: orchestratortest.MockCategory1.Name,
+					CatalogId:    orchestratortest.MockCatalogId1,
+					CategoryName: orchestratortest.MockCategoryName1,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Category], args ...any) bool {
+				want := &orchestrator.Category{
+					Name:      orchestratortest.MockCategoryName1,
+					CatalogId: orchestratortest.MockCatalogId1,
+					Controls: []*orchestrator.Control{
+						{
+							Id:        orchestratortest.MockControlId1,
+							Name:      orchestratortest.MockControlName1,
+							ShortName: orchestratortest.MockControlShortName1,
+							CatalogId: orchestratortest.MockCatalogId1,
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockCategory1.Name, got.Msg.Name)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -506,8 +781,8 @@ func TestService_GetCategory(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetCategoryRequest{
-					CatalogId:    orchestratortest.MockCategory1.CatalogId,
-					CategoryName: "non-existent",
+					CatalogId:    orchestratortest.MockCatalogId1,
+					CategoryName: "does-not-exist",
 				},
 			},
 			fields: fields{
@@ -547,7 +822,144 @@ func TestService_ListControls(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					PageToken: "!!!invalid-base64!!!",
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid page_token")
+			},
+		},
+		{
+			name: "db error - not found",
+			args: args{
+				req: &orchestrator.ListControlsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
+		},
+		{
+			name: "error: filter by category_name",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CategoryName: new(orchestratortest.MockCategoryName1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeUnimplemented) &&
+					assert.ErrorContains(t, err, "filtering by category name is not yet implemented")
+			},
+		},
+		{
+			name: "error: filter by assurance_level",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						AssuranceLevels: []string{"high"},
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+				}),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListControlsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeUnimplemented) &&
+					assert.ErrorContains(t, err, "filtering by assurance levels is not yet implemented")
+			},
+		},
+		{
+			name: "happy path: with filter catalog id",
+			args: args{
+				req: &orchestrator.ListControlsRequest{
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						CatalogId: new(orchestratortest.MockCatalogId1),
+					},
+				},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockCatalog1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockCatalog2)
+					assert.NoError(t, err)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
+				want := []*orchestrator.Control{
+					{
+						Id:        orchestratortest.MockControlId1,
+						Name:      orchestratortest.MockControlName1,
+						ShortName: orchestratortest.MockControlShortName1,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl1SubControlId1,
+								Name:            orchestratortest.MockSubControlName1,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								AssuranceLevel:  new("high"),
+								ParentControlId: new(orchestratortest.MockControlId1),
+							},
+							{
+								Id:              orchestratortest.MockControl1SubControlId2,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName2,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								AssuranceLevel:  new("medium"),
+								ParentControlId: new(orchestratortest.MockControlId1),
+							},
+						},
+					},
+					{
+
+						Id:        orchestratortest.MockControlId2,
+						Name:      orchestratortest.MockControlName2,
+						ShortName: orchestratortest.MockControlShortName2,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl2SubControlId1,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								ParentControlId: new(orchestratortest.MockControlId2),
+								CatalogId:       orchestratortest.MockCatalogId1,
+							},
+						},
+					},
+				}
+
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, 2, len(got.Msg.Controls)) && assert.Equal(t, want, got.Msg.Controls)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: list all",
 			args: args{
 				req: &orchestrator.ListControlsRequest{},
 			},
@@ -557,87 +969,146 @@ func TestService_ListControls(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockCatalog2)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory2)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl2)
-					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
+				want := []*orchestrator.Control{
+					{
+						Id:        orchestratortest.MockControlId1,
+						Name:      orchestratortest.MockControlName1,
+						ShortName: orchestratortest.MockControlShortName1,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:        orchestratortest.MockControl1SubControlId1,
+								CatalogId: orchestratortest.MockCatalogId1,
+								Name:      orchestratortest.MockSubControlName1,
+								ShortName: orchestratortest.MockSubControlShortName1,
+								// Metrics:         ,
+								ParentControlId: new(orchestratortest.MockControlId1),
+								AssuranceLevel:  new("high"),
+							},
+							{
+								Id:        orchestratortest.MockControl1SubControlId2,
+								CatalogId: orchestratortest.MockCatalogId1,
+								Name:      orchestratortest.MockSubControlName2,
+								ShortName: orchestratortest.MockSubControlShortName2,
+								// Metrics:         []*assessment.Metric{MockMetric2},
+								ParentControlId: new(orchestratortest.MockControlId1),
+								AssuranceLevel:  new("medium"),
+							},
+						},
+					},
+					{
+						Id:        orchestratortest.MockControlId2,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Name:      orchestratortest.MockControlName2,
+						ShortName: orchestratortest.MockControlShortName2,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl2SubControlId1,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								ParentControlId: new(orchestratortest.MockControlId2),
+							},
+						},
+					},
+				}
+
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 2, len(got.Msg.Controls))
+				assert.Equal(t, 2, len(got.Msg.Controls))
+				return assert.Equal(t, want, got.Msg.Controls)
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			name: "filter by catalog",
+			name: "happy path: list full control tree",
 			args: args{
 				req: &orchestrator.ListControlsRequest{
-					CatalogId: orchestratortest.MockControl1.CategoryCatalogId,
+					Filter: &orchestrator.ListControlsRequest_Filter{
+						Full: new(true),
+					},
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCatalog2)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory2)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl2)
+					err = d.Create(orchestratortest.MockCatalog3)
 					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
+				want := []*orchestrator.Control{
+					{
+						Id:        orchestratortest.MockControlId1,
+						Name:      orchestratortest.MockControlName1,
+						ShortName: orchestratortest.MockControlShortName1,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl1SubControlId1,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								Name:            orchestratortest.MockSubControlName1,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								Metrics:         []*assessment.Metric{orchestratortest.MockMetric1},
+								ParentControlId: new(orchestratortest.MockControlId1),
+								AssuranceLevel:  new("high"),
+							},
+							{
+								Id:              orchestratortest.MockControl1SubControlId2,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName2,
+								Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
+								ParentControlId: new(orchestratortest.MockControlId1),
+								AssuranceLevel:  new("medium"),
+							},
+						},
+					},
+					{
+						Id:        orchestratortest.MockControlId2,
+						CatalogId: orchestratortest.MockCatalogId1,
+						Name:      orchestratortest.MockControlName2,
+						ShortName: orchestratortest.MockControlShortName2,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl2SubControlId1,
+								CatalogId:       orchestratortest.MockCatalogId1,
+								Name:            orchestratortest.MockSubControlName2,
+								ShortName:       orchestratortest.MockSubControlShortName1,
+								Metrics:         []*assessment.Metric{orchestratortest.MockMetric1},
+								ParentControlId: new(orchestratortest.MockControlId2),
+							},
+						},
+					},
+					{
+
+						Id:        orchestratortest.MockControlId31,
+						Name:      orchestratortest.MockControlName31,
+						ShortName: orchestratortest.MockControlShortName31,
+						CatalogId: orchestratortest.MockCatalogId3,
+						Controls: []*orchestrator.Control{
+							{
+								Id:              orchestratortest.MockControl31SubControlId1,
+								Name:            orchestratortest.MockControl31SubControlName1,
+								ShortName:       orchestratortest.MockControl31SubControlShortName1,
+								Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
+								ParentControlId: new(orchestratortest.MockControlId31),
+								CatalogId:       orchestratortest.MockCatalogId3,
+							},
+						},
+					},
+				}
+
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 1, len(got.Msg.Controls))
-			},
-			wantErr: assert.NoError,
-		},
-		{
-			name: "filter by category",
-			args: args{
-				req: &orchestrator.ListControlsRequest{
-					CategoryName: orchestratortest.MockControl1.CategoryName,
-				},
-			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-					err := d.Create(orchestratortest.MockCatalog1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(&orchestrator.Category{
-						Name:      "category-2",
-						CatalogId: orchestratortest.MockCatalog1.Id,
-					})
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
-					err = d.Create(&orchestrator.Control{
-						Id:                "control-3",
-						CategoryName:      "category-2",
-						CategoryCatalogId: orchestratortest.MockControl1.CategoryCatalogId,
-					})
-					assert.NoError(t, err)
-				}),
-			},
-			want: func(t *testing.T, got *connect.Response[orchestrator.ListControlsResponse], args ...any) bool {
-				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, 1, len(got.Msg.Controls))
+				assert.Equal(t, 3, len(got.Msg.Controls))
+				return assert.Equal(t, want, got.Msg.Controls)
 			},
 			wantErr: assert.NoError,
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
@@ -665,27 +1136,61 @@ func TestService_GetControl(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: &orchestrator.GetControlRequest{},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.Control]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
 			name: "happy path",
 			args: args{
 				req: &orchestrator.GetControlRequest{
-					ControlId:    orchestratortest.MockControl1.Id,
-					CategoryName: orchestratortest.MockControl1.CategoryName,
-					CatalogId:    orchestratortest.MockControl1.CategoryCatalogId,
+					ControlId: orchestratortest.MockControlId1,
 				},
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
 					err := d.Create(orchestratortest.MockCatalog1)
 					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockCategory1)
-					assert.NoError(t, err)
-					err = d.Create(orchestratortest.MockControl1)
-					assert.NoError(t, err)
 				}),
 			},
 			want: func(t *testing.T, got *connect.Response[orchestrator.Control], args ...any) bool {
+				want := &orchestrator.Control{
+					Id:        orchestratortest.MockControlId1,
+					Name:      orchestratortest.MockControlName1,
+					ShortName: orchestratortest.MockControlShortName1,
+					CatalogId: orchestratortest.MockCatalogId1,
+					Controls: []*orchestrator.Control{
+						{
+							Id:              orchestratortest.MockControl1SubControlId1,
+							Name:            orchestratortest.MockSubControlName1,
+							CatalogId:       orchestratortest.MockCatalogId1,
+							ShortName:       orchestratortest.MockSubControlShortName1,
+							ParentControlId: new(orchestratortest.MockControlId1),
+							Metrics:         []*assessment.Metric{orchestratortest.MockMetric1},
+							AssuranceLevel:  new("high"),
+						},
+						{
+							Id:              orchestratortest.MockControl1SubControlId2,
+							Name:            orchestratortest.MockSubControlName2,
+							CatalogId:       orchestratortest.MockCatalogId1,
+							ShortName:       orchestratortest.MockSubControlShortName2,
+							ParentControlId: new(orchestratortest.MockControlId1),
+							Metrics:         []*assessment.Metric{orchestratortest.MockMetric2},
+							AssuranceLevel:  new("medium"),
+						},
+					},
+				}
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockControl1.Id, got.Msg.Id)
+				return assert.Equal(t, want, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -693,9 +1198,7 @@ func TestService_GetControl(t *testing.T) {
 			name: "not found",
 			args: args{
 				req: &orchestrator.GetControlRequest{
-					ControlId:    "non-existent",
-					CategoryName: orchestratortest.MockControl1.CategoryName,
-					CatalogId:    orchestratortest.MockControl1.CategoryCatalogId,
+					ControlId: "non-existent",
 				},
 			},
 			fields: fields{
@@ -721,19 +1224,49 @@ func TestService_GetControl(t *testing.T) {
 }
 
 func TestService_loadCatalogs(t *testing.T) {
+	// Updated description for MockCatalog2 to test upsert behavior
+	mockCatalog2Update := proto.Clone(orchestratortest.MockCatalog2).(*orchestrator.Catalog)
+	mockCatalog2Update.Description = "Updated description"
+
+	type fields struct {
+		db persistence.DB
+	}
 	tests := []struct {
-		name             string
-		loadDefaultCats  bool
-		catalogsPath     string
-		loadCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
-		setupFiles       func(t *testing.T, dir string)
-		wantErr          assert.WantErr
-		wantDB           assert.Want[persistence.DB]
+		name               string
+		fields             fields
+		loadDefaultCats    bool
+		catalogsPath       string
+		loadCatalogsFunc   func(*Service) ([]*orchestrator.Catalog, error)
+		upsertCatalogsFunc func(*Service) ([]*orchestrator.Catalog, error)
+		setupFiles         func(t *testing.T, dir string)
+		wantErr            assert.WantErr
+		wantDB             assert.Want[persistence.DB]
 	}{
 		{
-			name:            "load from default folder with valid catalogs",
+			name: "happy path: load from custom function and catalog exists already",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
+				}),
+			},
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog2,
+				}, nil
+			},
+			// An already existing catalog is logged and skipped, not treated as a
+			// load failure.
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
+		},
+		{
+			name:            "happy path: load from default folder with valid catalogs",
 			loadDefaultCats: true,
-			catalogsPath:    "",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			catalogsPath: "",
 			setupFiles: func(t *testing.T, dir string) {
 				catalog := []*orchestrator.Catalog{
 					{
@@ -749,12 +1282,15 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				catalog := assert.InDB[orchestrator.Catalog](t, db, "test-catalog-1")
+				catalog := assert.InDBGet[orchestrator.Catalog](t, db, "test-catalog-1")
 				return assert.Equal(t, "Test Catalog 1", catalog.Name)
 			},
 		},
 		{
-			name:            "load from custom function",
+			name: "happy path: load from custom function and only create catalog if it doesn't exist",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return []*orchestrator.Catalog{
@@ -764,15 +1300,40 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				catalog1 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
-				catalog2 := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
+				catalog1 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				catalog2 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
 				return assert.NotNil(t, catalog1) &&
 					assert.NotNil(t, catalog2)
 			},
 		},
 		{
-			name:            "load from both default folder and custom function",
+			name: "happy path: load from custom function and update one catalog and create one catalog",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					assert.NoError(t, d.Create(orchestratortest.MockCatalog2))
+				}),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					mockCatalog2Update,
+				}, nil
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
+				catalog1 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				catalog2 := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog2.Id)
+				return assert.NotNil(t, catalog1) && assert.Equal(t, mockCatalog2Update.Description, catalog2.Description)
+
+			},
+		},
+		{
+			name:            "happy path: load from both default folder and custom function",
 			loadDefaultCats: true,
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			setupFiles: func(t *testing.T, dir string) {
 				catalog := []*orchestrator.Catalog{
 					{
@@ -793,8 +1354,8 @@ func TestService_loadCatalogs(t *testing.T) {
 			},
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, args ...any) bool {
-				folderCatalog := assert.InDB[orchestrator.Catalog](t, db, "folder-catalog")
-				customCatalog := assert.InDB[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
+				folderCatalog := assert.InDBGet[orchestrator.Catalog](t, db, "folder-catalog")
+				customCatalog := assert.InDBGet[orchestrator.Catalog](t, db, orchestratortest.MockCatalog1.Id)
 				return assert.NotNil(t, folderCatalog) &&
 					assert.NotNil(t, customCatalog)
 			},
@@ -802,11 +1363,17 @@ func TestService_loadCatalogs(t *testing.T) {
 		{
 			name:            "empty folder and no custom function",
 			loadDefaultCats: true,
-			wantErr:         assert.NoError,
-			wantDB:          assert.NotNil[persistence.DB],
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "custom function returns error",
+			name: "error: LoadCatalogsFunc returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: false,
 			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
 				return nil, errors.New("custom error")
@@ -817,11 +1384,78 @@ func TestService_loadCatalogs(t *testing.T) {
 			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name:            "invalid catalogs path",
+			name: "error: UpsertCatalogsFunc returns error",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return nil, errors.New("custom error")
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "custom error")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "invalid catalogs path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
 			loadDefaultCats: true,
 			catalogsPath:    "/nonexistent/path",
 			wantErr: func(t *testing.T, err error, args ...any) bool {
 				return assert.ErrorContains(t, err, "could not load default catalogs")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "a non-'already exists' Create error must fail the load, not be skipped",
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+			},
+			loadDefaultCats: false,
+			loadCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog2,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not save catalog")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "error: could not check existence of catalog",
+			fields: fields{
+				db: persistencetest.CountErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					mockCatalog2Update,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not check existence of catalog")
+			},
+			wantDB: assert.NotNil[persistence.DB],
+		},
+		{
+			name: "error: could not upsert catalog",
+			fields: fields{
+				db: persistencetest.CreateErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			loadDefaultCats: false,
+			upsertCatalogsFunc: func(svc *Service) ([]*orchestrator.Catalog, error) {
+				return []*orchestrator.Catalog{
+					orchestratortest.MockCatalog1,
+					mockCatalog2Update,
+				}, nil
+			},
+			wantErr: func(t *testing.T, err error, args ...any) bool {
+				return assert.ErrorContains(t, err, "could not upsert catalog")
 			},
 			wantDB: assert.NotNil[persistence.DB],
 		},
@@ -840,11 +1474,12 @@ func TestService_loadCatalogs(t *testing.T) {
 			}
 
 			svc := &Service{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db: tt.fields.db,
 				cfg: Config{
 					LoadDefaultCatalogs: tt.loadDefaultCats,
 					DefaultCatalogsPath: catalogsPath,
 					LoadCatalogsFunc:    tt.loadCatalogsFunc,
+					UpsertCatalogsFunc:  tt.upsertCatalogsFunc,
 				},
 			}
 
@@ -968,9 +1603,7 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 								CatalogId: "catalog-1",
 								Controls: []*orchestrator.Control{
 									{
-										Id:                "control-1",
-										CategoryName:      "category-1",
-										CategoryCatalogId: "catalog-1",
+										Id: "control-1",
 										Controls: []*orchestrator.Control{
 											{
 												Id: "sub-control-1",
@@ -1037,19 +1670,26 @@ func TestService_loadCatalogsFromFolder(t *testing.T) {
 					assert.Equal(t, 1, len(catalog.Categories))
 					category := catalog.Categories[0]
 					assert.Equal(t, 1, len(category.Controls))
-					control := category.Controls[0]
+					var control *orchestrator.Control
+					for _, candidate := range category.Controls {
+						if candidate.ParentControlId == nil {
+							control = candidate
+							break
+						}
+					}
+					assert.NotNil(t, control)
 					assert.Equal(t, 1, len(control.Controls))
 					subControl := control.Controls[0]
 
 					// Check parent relationships were set correctly
-					assert.Equal(t, "category-1", subControl.CategoryName)
-					assert.Equal(t, "catalog-1", subControl.CategoryCatalogId)
+					assert.NotEmpty(t, control.ShortName)
+					assert.Equal(t, "control-1", control.ShortName)
+					assert.NoError(t, uuid.Validate(control.Id))
+					assert.NotEmpty(t, subControl.ShortName)
+					assert.Equal(t, "sub-control-1", subControl.ShortName)
+					assert.NoError(t, uuid.Validate(subControl.Id))
 					assert.NotNil(t, subControl.ParentControlId)
-					assert.Equal(t, "control-1", *subControl.ParentControlId)
-					assert.NotNil(t, subControl.ParentControlCategoryName)
-					assert.Equal(t, "category-1", *subControl.ParentControlCategoryName)
-					assert.NotNil(t, subControl.ParentControlCategoryCatalogId)
-					assert.Equal(t, "catalog-1", *subControl.ParentControlCategoryCatalogId)
+					assert.Equal(t, control.Id, *subControl.ParentControlId)
 				}
 			}
 		})

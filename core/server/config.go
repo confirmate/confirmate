@@ -33,6 +33,9 @@ type Config struct {
 	Path     string
 	LogLevel string
 	CORS     CORS
+	// UseGRPCReflection enables gRPC reflection, which allows clients to query the server for its
+	// supported services and methods.
+	UseGRPCReflection bool
 }
 
 // CORS represents the CORS configuration for the server.

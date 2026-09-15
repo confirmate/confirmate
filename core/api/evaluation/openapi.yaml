@@ -1,0 +1,190 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Evaluation API
+    description: Manages the evaluation of Confirmate's assessment results
+    version: core/v0.2.17-43-g0877a1f
+paths:
+    /v1/evaluation/evaluate:
+        get:
+            tags:
+                - Evaluation
+            description: ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
+            operationId: Evaluation_ListEvaluationJobs
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional, if provided, filters the evaluation jobs by the given audit scope ID.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEvaluationJobsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/start:
+        post:
+            tags:
+                - Evaluation
+            description: StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
+            operationId: Evaluation_StartEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: interval
+                  in: query
+                  description: |-
+                    The interval time in minutes the evaluation executes periodically. The
+                     default interval is set to 5 minutes.
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StartEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/stop:
+        post:
+            tags:
+                - Evaluation
+            description: |-
+                StopEvaluation stops the evaluation for the given audit scope.
+                 Part of the public API, also exposed as REST.
+            operationId: Evaluation_StopEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StopEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/trigger:
+        post:
+            tags:
+                - Evaluation
+            description: |-
+                TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
+                 bypassing the scheduler interval. If a scheduled evaluation job exists for the
+                 scope, it is run immediately; otherwise the catalog is evaluated once directly,
+                 without creating a scheduled job.
+            operationId: Evaluation_TriggerEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TriggerEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        EvaluationJob:
+            type: object
+            properties:
+                auditScopeId:
+                    type: string
+                startedAt:
+                    type: string
+                    format: date-time
+                interval:
+                    type: integer
+                    description: interval in minutes the evaluation executes periodically. The default interval is set to 5 minutes.
+                    format: int32
+                runCount:
+                    type: integer
+                    description: the number of times the job has finished running
+                    format: int32
+                lastRun:
+                    type: string
+                    format: date-time
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ListEvaluationJobsResponse:
+            type: object
+            properties:
+                evaluationJobs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EvaluationJob'
+        StartEvaluationResponse:
+            type: object
+            properties:
+                successful:
+                    type: boolean
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        StopEvaluationResponse:
+            type: object
+            properties: {}
+        TriggerEvaluationResponse:
+            type: object
+            properties:
+                successful:
+                    type: boolean
+tags:
+    - name: Evaluation

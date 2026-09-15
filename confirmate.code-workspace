@@ -1,15 +1,19 @@
 {
 	"folders": [
 		{
+			"name": "Workspace Root",
 			"path": "."
 		},
 		{
+			"name": "UI",
 			"path": "ui"
 		},
 		{
+			"name": "Core",
 			"path": "core"
 		},
 		{
+			"name": "Cloud Collectors",
 			"path": "collectors/cloud"
 		}
 	],
@@ -22,6 +26,7 @@
 			"anypb",
 			"bmatcuk",
 			"bufbuild",
+			"cfadmin",
 			"clitest",
 			"conds",
 			"Confirmate",
@@ -40,6 +45,7 @@
 			"inmem",
 			"jackc",
 			"jinzhu",
+			"Keyfunc",
 			"lebogg",
 			"lmittmann",
 			"mrtc",

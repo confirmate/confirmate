@@ -19,18 +19,24 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/auth"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 	"confirmate.io/core/util/clitest"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/go-cmp/cmp"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -44,9 +50,11 @@ func TestMain(m *testing.M) {
 func TestService_CreateMetric(t *testing.T) {
 	type args struct {
 		req *orchestrator.CreateMetricRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -56,21 +64,15 @@ func TestService_CreateMetric(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "err: request validation error",
 			args: args{
-				req: &orchestrator.CreateMetricRequest{
-					Metric: orchestratortest.MockMetric1,
-				},
+				req: nil,
 			},
-			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
 			},
-			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
-				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id) &&
-					assert.Equal(t, orchestratortest.MockMetric1.Description, got.Msg.Description)
-			},
-			wantErr: assert.NoError,
 		},
 		{
 			name: "validation error - empty request",
@@ -82,7 +84,8 @@ func TestService_CreateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -109,21 +112,82 @@ func TestService_CreateMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				db:    persistencetest.CreateErrorDB(t, persistence.ErrUniqueConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
 				return assert.IsConnectError(t, err, connect.CodeAlreadyExists)
 			},
 		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.CreateMetricRequest{
+					Metric: orchestratortest.MockMetric1,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
+		},
+		{
+			name: "happy path: with allow-all authorization strategy",
+			args: args{
+				req: &orchestrator.CreateMetricRequest{
+					Metric: orchestratortest.MockMetric1,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "id"),
+				}) &&
+					assert.NotEmpty(t, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.CreateMetricRequest{
+					Metric: orchestratortest.MockMetric1,
+				},
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "id"),
+				}) &&
+					assert.NotEmpty(t, got.Msg.Id)
+			},
+			wantErr: assert.NoError,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.CreateMetric(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.CreateMetric(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -159,8 +223,7 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				assert.Equal(t, orchestratortest.MockMetric1.Id, got.Msg.Id)
-				return true
+				return assert.Equal(t, orchestratortest.MockMetric1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -186,21 +249,6 @@ func TestService_GetMetric(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
-			},
-			want: assert.Nil[*connect.Response[assessment.Metric]],
-			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
-			},
-		},
-		{
-			name: "db error - not found",
-			args: args{
-				req: &orchestrator.GetMetricRequest{
-					MetricId: orchestratortest.MockMetric1.Id,
-				},
-			},
-			fields: fields{
-				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -237,7 +285,32 @@ func TestService_ListMetrics(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "list all",
+			name: "err: request validation error",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
+			},
+		},
+		{
+			name: "err: db error",
+			args: args{
+				req: &orchestrator.ListMetricsRequest{},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					errors.Is(err, persistence.ErrRecordNotFound)
+			},
+		},
+		{
+			name: "happy path: list all metrics without deprecated metrics",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
@@ -246,6 +319,8 @@ func TestService_ListMetrics(t *testing.T) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetric2)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricDeprecated)
 					assert.NoError(t, err)
 				}),
 			},
@@ -256,7 +331,7 @@ func TestService_ListMetrics(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "empty list",
+			name: "happy path: empty list",
 			args: args{
 				req: &orchestrator.ListMetricsRequest{},
 			},
@@ -287,9 +362,11 @@ func TestService_ListMetrics(t *testing.T) {
 func TestService_UpdateMetric(t *testing.T) {
 	type args struct {
 		req *orchestrator.UpdateMetricRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 
 	tests := []struct {
@@ -300,7 +377,7 @@ func TestService_UpdateMetric(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateMetricRequest{
 					Metric: &assessment.Metric{
@@ -317,12 +394,64 @@ func TestService_UpdateMetric(t *testing.T) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
 				assert.NotNil(t, got.Msg)
+				assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "description"),
+				})
 				return assert.Equal(t, "Updated description", got.Msg.Description)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateMetricRequest{
+					Metric: &assessment.Metric{
+						Id:          orchestratortest.MockMetric1.Id,
+						Name:        orchestratortest.MockMetricName1,
+						Description: "Updated description",
+						Version:     "v1",
+						Category:    "test-category",
+					},
+				},
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.Metric], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				assert.Equal(t, orchestratortest.MockMetric1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.Metric{}, "description"),
+				})
+				return assert.Equal(t, "Updated description", got.Msg.Description)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.UpdateMetricRequest{
+					Metric: orchestratortest.MockMetric1,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[assessment.Metric]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -334,7 +463,8 @@ func TestService_UpdateMetric(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -369,11 +499,13 @@ func TestService_UpdateMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					assert.ErrorContains(t, err, "metric not found")
 			},
 		},
 		{
@@ -390,11 +522,13 @@ func TestService_UpdateMetric(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				db:    persistencetest.UpdateErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[assessment.Metric]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					errors.Is(err, persistence.ErrConstraintFailed)
 			},
 		},
 	}
@@ -402,9 +536,10 @@ func TestService_UpdateMetric(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateMetric(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateMetric(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -414,9 +549,11 @@ func TestService_UpdateMetric(t *testing.T) {
 func TestService_RemoveMetric(t *testing.T) {
 	type args struct {
 		req *orchestrator.RemoveMetricRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 
 	tests := []struct {
@@ -427,7 +564,7 @@ func TestService_RemoveMetric(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.RemoveMetricRequest{
 					MetricId: orchestratortest.MockMetric1.Id,
@@ -438,11 +575,50 @@ func TestService_RemoveMetric(t *testing.T) {
 					err := d.Create(orchestratortest.MockMetric1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
-				return assert.NotNil(t, got)
+				return assert.Empty(t, got.Msg)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.RemoveMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[emptypb.Empty], args ...any) bool {
+				return assert.Empty(t, got.Msg)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.RemoveMetricRequest{
+					MetricId: orchestratortest.MockMetric1.Id,
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[emptypb.Empty]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - missing id",
@@ -458,18 +634,20 @@ func TestService_RemoveMetric(t *testing.T) {
 			},
 		},
 		{
-			name: "db error - not found",
+			name: "db error - GET",
 			args: args{
 				req: &orchestrator.RemoveMetricRequest{
 					MetricId: orchestratortest.MockMetric1.Id,
 				},
 			},
 			fields: fields{
-				db: persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				db:    persistencetest.GetErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[emptypb.Empty]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeNotFound)
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					errors.Is(err, persistence.ErrRecordNotFound)
 			},
 		},
 	}
@@ -477,9 +655,10 @@ func TestService_RemoveMetric(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.RemoveMetric(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.RemoveMetric(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -517,7 +696,7 @@ func TestService_GetMetricImplementation(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.MetricImplementation], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockMetricImplementation1.MetricId, got.Msg.MetricId)
+				return assert.Equal(t, orchestratortest.MockMetricImplementation1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -566,9 +745,11 @@ func TestService_GetMetricImplementation(t *testing.T) {
 func TestService_UpdateMetricImplementation(t *testing.T) {
 	type args struct {
 		req *orchestrator.UpdateMetricImplementationRequest
+		ctx context.Context
 	}
 	type fields struct {
-		db persistence.DB
+		db    persistence.DB
+		authz service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name    string
@@ -578,7 +759,7 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateMetricImplementationRequest{
 					Implementation: &assessment.MetricImplementation{
@@ -595,12 +776,68 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 					err = d.Create(orchestratortest.MockMetricImplementation1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.MetricImplementation], args ...any) bool {
 				assert.NotNil(t, got.Msg)
+				assert.Equal(t, orchestratortest.MockMetricImplementation1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.MetricImplementation{}, "code", "updated_at"),
+				})
 				return assert.Equal(t, "updated code", got.Msg.Code)
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateMetricImplementationRequest{
+					Implementation: &assessment.MetricImplementation{
+						MetricId: orchestratortest.MockMetricImplementation1.MetricId,
+						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+						Code:     "updated code",
+					},
+				},
+				ctx: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					err := d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricImplementation1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.MetricImplementation], args ...any) bool {
+				assert.NotNil(t, got.Msg)
+				assert.Equal(t, orchestratortest.MockMetricImplementation1, got.Msg, cmp.Options{
+					protocmp.IgnoreFields(&assessment.MetricImplementation{}, "code", "updated_at"),
+				})
+				return assert.Equal(t, "updated code", got.Msg.Code)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "authorization error",
+			args: args{
+				req: &orchestrator.UpdateMetricImplementationRequest{
+					Implementation: &assessment.MetricImplementation{
+						MetricId: orchestratortest.MockMetricImplementation1.MetricId,
+						Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+						Code:     "updated code",
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodePermissionDenied)
+			},
 		},
 		{
 			name: "validation error - empty request",
@@ -612,7 +849,8 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -643,7 +881,8 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 				},
 			},
 			fields: fields{
-				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				db:    persistencetest.NewInMemoryDB(t, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricImplementation]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
@@ -655,9 +894,10 @@ func TestService_UpdateMetricImplementation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db: tt.fields.db,
+				db:    tt.fields.db,
+				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateMetricImplementation(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateMetricImplementation(tt.args.ctx, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -695,7 +935,7 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.MetricConfiguration], args ...any) bool {
 				assert.NotNil(t, got.Msg)
-				return assert.Equal(t, orchestratortest.MockMetricConfiguration1.MetricId, got.Msg.MetricId)
+				return assert.Equal(t, orchestratortest.MockMetricConfiguration1, got.Msg)
 			},
 			wantErr: assert.NoError,
 		},
@@ -709,7 +949,8 @@ func TestService_GetMetricConfiguration(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
 			},
 		},
 		{
@@ -800,6 +1041,36 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
+			name: "validation error - empty request",
+			args: args{
+				req: nil,
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricConfigurationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "empty request")
+			},
+		},
+		{
+			name: "err: db error",
+			args: args{
+				req: &orchestrator.ListMetricConfigurationRequest{
+					TargetOfEvaluationId: orchestratortest.MockToeId1,
+				},
+			},
+			fields: fields{
+				db: persistencetest.ListErrorDB(t, persistence.ErrRecordNotFound, types, joinTables),
+			},
+			want: assert.Nil[*connect.Response[orchestrator.ListMetricConfigurationResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound) &&
+					errors.Is(err, persistence.ErrRecordNotFound)
+			},
+		},
+		{
 			name: "list all for TOE",
 			args: args{
 				req: &orchestrator.ListMetricConfigurationRequest{
@@ -816,11 +1087,15 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetric2)
 					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetric4)
+					assert.NoError(t, err)
 					err = d.Create(&assessment.Metric{Id: "metric-3", Description: "Mock Metric 3"})
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetricConfiguration1)
 					assert.NoError(t, err)
 					err = d.Create(orchestratortest.MockMetricConfiguration2)
+					assert.NoError(t, err)
+					err = d.Create(orchestratortest.MockMetricConfiguration4)
 					assert.NoError(t, err)
 					err = d.Create(&assessment.MetricConfiguration{
 						TargetOfEvaluationId: orchestratortest.MockTargetOfEvaluation2.Id,
@@ -852,7 +1127,8 @@ func TestService_ListMetricConfigurations(t *testing.T) {
 
 func TestService_UpdateMetricConfiguration(t *testing.T) {
 	type args struct {
-		req *orchestrator.UpdateMetricConfigurationRequest
+		req     *orchestrator.UpdateMetricConfigurationRequest
+		context context.Context
 	}
 	type fields struct {
 		db    persistence.DB
@@ -866,13 +1142,13 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 		wantErr assert.WantErr
 	}{
 		{
-			name: "happy path",
+			name: "happy path: with allow-all authorization strategy",
 			args: args{
 				req: &orchestrator.UpdateMetricConfigurationRequest{
 					Configuration: &assessment.MetricConfiguration{
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
 						MetricId:             orchestratortest.MockMetricId1,
-						Operator:             "!=",
+						Operator:             "!=", // updates the operator from "==" to "!="
 						TargetValue:          structpb.NewBoolValue(false),
 						IsDefault:            false,
 					},
@@ -890,6 +1166,93 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 					err = d.Create(orchestratortest.MockMetricConfiguration1)
 					assert.NoError(t, err)
 				}),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.MetricConfiguration], args ...any) bool {
+				return assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId) &&
+					assert.Equal(t, orchestratortest.MockMetricId1, got.Msg.MetricId) &&
+					assert.Equal(t, "!=", got.Msg.Operator) &&
+					assert.False(t, got.Msg.IsDefault)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and admin token",
+			args: args{
+				req: &orchestrator.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						MetricId:             orchestratortest.MockMetricId1,
+						Operator:             "!=", // updates the operator from "==" to "!="
+						TargetValue:          structpb.NewBoolValue(false),
+						IsDefault:            false,
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					IsAdminToken: true,
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create the TOE first (required by foreign key constraint)
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+					// Create the metric (required by foreign key constraint)
+					err = d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					// Then create the configuration
+					err = d.Create(orchestratortest.MockMetricConfiguration1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{},
+			},
+			want: func(t *testing.T, got *connect.Response[assessment.MetricConfiguration], args ...any) bool {
+				return assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId) &&
+					assert.Equal(t, orchestratortest.MockMetricId1, got.Msg.MetricId) &&
+					assert.Equal(t, "!=", got.Msg.Operator) &&
+					assert.False(t, got.Msg.IsDefault)
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: with authorization strategy with permission store and user permissions allowing access",
+			args: args{
+				req: &orchestrator.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						MetricId:             orchestratortest.MockMetricId1,
+						Operator:             "!=", // updates the operator from "==" to "!="
+						TargetValue:          structpb.NewBoolValue(false),
+						IsDefault:            false,
+					},
+				},
+				context: auth.WithClaims(context.Background(), &auth.OAuthClaims{
+					RegisteredClaims: jwt.RegisteredClaims{
+						Subject: orchestratortest.MockUserId1,
+						Issuer:  orchestratortest.MockUserIssuer1,
+					},
+				}),
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+					// Create the TOE first (required by foreign key constraint)
+					err := d.Create(orchestratortest.MockTargetOfEvaluation1)
+					assert.NoError(t, err)
+					// Create the metric (required by foreign key constraint)
+					err = d.Create(orchestratortest.MockMetric1)
+					assert.NoError(t, err)
+					// Then create the configuration
+					err = d.Create(orchestratortest.MockMetricConfiguration1)
+					assert.NoError(t, err)
+				}),
+				authz: &service.AuthorizationStrategyPermissionStore{
+					Permissions: service.DBPermissionStore{
+						DB: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+							err := d.Create(orchestratortest.MockUserPermissionsToEAdmin)
+							assert.NoError(t, err)
+						}),
+					},
+				},
 			},
 			want: func(t *testing.T, got *connect.Response[assessment.MetricConfiguration], args ...any) bool {
 				return assert.Equal(t, orchestratortest.MockToeId1, got.Msg.TargetOfEvaluationId) &&
@@ -931,7 +1294,30 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 			},
 			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
 			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
-				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					assert.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
+			name: "error - db error on update",
+			args: args{
+				req: &orchestrator.UpdateMetricConfigurationRequest{
+					Configuration: &assessment.MetricConfiguration{
+						TargetOfEvaluationId: orchestratortest.MockToeId1,
+						MetricId:             orchestratortest.MockMetricId1,
+						Operator:             "!=",
+						TargetValue:          structpb.NewBoolValue(false),
+					},
+				},
+			},
+			fields: fields{
+				db:    persistencetest.SaveErrorDB(t, persistence.ErrConstraintFailed, types, joinTables),
+				authz: &service.AuthorizationStrategyAllowAll{},
+			},
+			want: assert.Nil[*connect.Response[assessment.MetricConfiguration]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument) &&
+					errors.Is(err, persistence.ErrConstraintFailed)
 			},
 		},
 	}
@@ -942,7 +1328,7 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 				db:    tt.fields.db,
 				authz: tt.fields.authz,
 			}
-			res, err := svc.UpdateMetricConfiguration(context.Background(), connect.NewRequest(tt.args.req))
+			res, err := svc.UpdateMetricConfiguration(tt.args.context, connect.NewRequest(tt.args.req))
 			tt.want(t, res)
 			tt.wantErr(t, err)
 		})
@@ -951,13 +1337,15 @@ func TestService_UpdateMetricConfiguration(t *testing.T) {
 
 func TestService_loadMetrics(t *testing.T) {
 	type fields struct {
-		db  persistence.DB
-		cfg Config
+		db      persistence.DB
+		cfg     Config
+		preload bool
 	}
 	tests := []struct {
 		name    string
 		fields  fields
 		wantErr assert.WantErr
+		wantDB  assert.Want[persistence.DB]
 	}{
 		{
 			name: "no metrics to load",
@@ -969,6 +1357,7 @@ func TestService_loadMetrics(t *testing.T) {
 				},
 			},
 			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name: "load from custom function",
@@ -987,6 +1376,7 @@ func TestService_loadMetrics(t *testing.T) {
 				},
 			},
 			wantErr: assert.NoError,
+			wantDB:  assert.NotNil[persistence.DB],
 		},
 		{
 			name: "custom function returns error",
@@ -1003,9 +1393,10 @@ func TestService_loadMetrics(t *testing.T) {
 				return assert.Error(t, err) &&
 					assert.ErrorContains(t, err, "could not load additional metrics")
 			},
+			wantDB: assert.NotNil[persistence.DB],
 		},
 		{
-			name: "load default",
+			name: "happy path: load default",
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 				cfg: Config{
@@ -1014,6 +1405,27 @@ func TestService_loadMetrics(t *testing.T) {
 				},
 			},
 			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				metrics := assert.InDBList[assessment.Metric](t, db, 10)
+				return assert.NotEmpty(t, metrics)
+			},
+		},
+		{
+			name: "happy path: load and update default metrics",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
+				}),
+				preload: true,
+				cfg: Config{
+					LoadDefaultMetrics: true,
+					DefaultMetricsPath: "./policies/security-metrics/metrics",
+				},
+			},
+			wantErr: assert.NoError,
+			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
+				metrics := assert.InDBList[assessment.Metric](t, db, 10)
+				return assert.NotEmpty(t, metrics) && assert.Equal(t, 10, len(metrics)) && assert.False(t, strings.Contains(metrics[0].Description, "(old)"))
+			},
 		},
 	}
 
@@ -1023,8 +1435,27 @@ func TestService_loadMetrics(t *testing.T) {
 				db:  tt.fields.db,
 				cfg: tt.fields.cfg,
 			}
+
+			// Small setup: if we load default metrics from repository, pre-populate the DB
+			// with a matching metric (with a slightly different description) so that we can test that the description is updated.
+			if tt.fields.preload {
+				metricsFromRepo, err := svc.loadMetricsFromRepository()
+				if err != nil {
+					t.Fatalf("failed to load metrics from repository during test setup: %v", err)
+				}
+				if len(metricsFromRepo) > 0 {
+					// insert a copy of the first metric with a modified description
+					mp := proto.Clone(metricsFromRepo[0]).(*assessment.Metric)
+					mp.Description = mp.Description + " (old)"
+					if err := svc.db.Create(mp); err != nil {
+						t.Fatalf("failed to create initial metric in DB: %v", err)
+					}
+				}
+			}
+
 			err := svc.loadMetrics()
 			tt.wantErr(t, err)
+			tt.wantDB(t, svc.db)
 		})
 	}
 }
@@ -1037,9 +1468,22 @@ func TestService_loadMetricsFromRepository(t *testing.T) {
 	tests := []struct {
 		name        string
 		fields      fields
-		wantMetrics int
+		wantMetrics assert.Want[[]*assessment.Metric]
 		wantErr     assert.WantErr
 	}{
+		{
+			name: "happy path: load metrics from default path",
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, joinTables),
+				cfg: Config{
+					DefaultMetricsPath: "./policies/security-metrics/metrics",
+				},
+			},
+			wantMetrics: func(t *testing.T, got []*assessment.Metric, args ...any) bool {
+				return assert.NotEmpty(t, got) && assert.NotNil(t, got[0])
+			},
+			wantErr: assert.NoError,
+		},
 		{
 			name: "directory does not exist",
 			fields: fields{
@@ -1048,21 +1492,45 @@ func TestService_loadMetricsFromRepository(t *testing.T) {
 					DefaultMetricsPath: "/nonexistent/path",
 				},
 			},
-			wantMetrics: 0,
-			wantErr:     assert.NoError,
+			wantMetrics: func(t *testing.T, got []*assessment.Metric, msgAndArgs ...any) bool {
+				return assert.Empty(t, got)
+			},
+			wantErr: assert.NoError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{
-				db:  tt.fields.db,
 				cfg: tt.fields.cfg,
 			}
 			metrics, err := svc.loadMetricsFromRepository()
 			tt.wantErr(t, err)
-			assert.Equal(t, tt.wantMetrics, len(metrics))
+			tt.wantMetrics(t, metrics)
 		})
+	}
+}
+
+// TestService_loadMetricsFromRepository_JSONWithNullEntry proves that a null entry in a JSON
+// metrics batch file is skipped rather than causing a nil-pointer panic.
+func TestService_loadMetricsFromRepository_JSONWithNullEntry(t *testing.T) {
+	dir := t.TempDir()
+	content := `[{"id": "metric-1", "category": "Test", "name": "Metric1"}, null, {"id": "metric-2", "category": "Test", "name": "Metric2"}]`
+	assert.NoError(t, os.WriteFile(dir+"/batch.json", []byte(content), 0644))
+
+	svc := &Service{
+		db: persistencetest.NewInMemoryDB(t, types, joinTables),
+		cfg: Config{
+			DefaultMetricsPath: dir,
+		},
+	}
+
+	// If the nil batch entry isn't skipped, the field access below panics and fails this test.
+	metrics, err := svc.loadMetricsFromRepository()
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(metrics))
+	for _, m := range metrics {
+		assert.NotNil(t, m)
 	}
 }
 

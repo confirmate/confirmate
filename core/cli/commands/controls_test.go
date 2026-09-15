@@ -32,7 +32,7 @@ func TestControlsCommands(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		output, err := commandstest.RunCLI(t, "controls", "get", orchestratortest.MockCatalogId1, orchestratortest.MockCategoryName1, orchestratortest.MockControlId1)
+		output, err := commandstest.RunCLI(t, "controls", "get", orchestratortest.MockControlId1)
 		assert.NoError(t, err)
 		assert.Contains(t, output, orchestratortest.MockControlId1)
 	})

@@ -54,7 +54,7 @@ func (s *gormDB) Create(r any) (err error) {
 // Save attempts to save the given record to the database, applying optional conditions for
 // filtering. If a constraint violation occurs, it returns [ErrConstraintFailed].
 func (s *gormDB) Save(r any, conds ...any) (err error) {
-	db := applyWhere(s.DB, conds...).Save(r)
+	db := applyWhere(s.DB.Session(&gorm.Session{FullSaveAssociations: true}), conds...).Save(r)
 	err = db.Error
 
 	if err != nil && strings.Contains(err.Error(), "constraint failed") {
@@ -159,6 +159,12 @@ func (s *gormDB) Count(r any, conds ...any) (count int64, err error) {
 // Advanced and customizable operations
 // ================================================================================================
 
+// Pluck retrieves distinct values for a single column from the database.
+func (s *gormDB) Pluck(model any, column string, dest any, conds ...any) (err error) {
+	db := applyWhere(s.DB.Model(model).Distinct(column), conds...)
+	return db.Pluck(column, dest).Error
+}
+
 // Raw executes a raw SQL query and scans the result into the provided destination. Returns an error
 // if the query fails.
 func (s *gormDB) Raw(r any, query string, args ...any) (err error) {
@@ -189,21 +195,29 @@ func applyWhere(db *gorm.DB, conds ...any) *gorm.DB {
 // applyPreload checks for any preload options and prepends them to the DB query. If no extra option
 // is specified, [clause.Associations] is used as the default preload.
 func applyPreload(db *gorm.DB, conds ...any) (*gorm.DB, []any) {
-	if len(conds) > 0 {
-		if preload, ok := conds[0].(*preload); ok {
-			if preload.query != "" {
-				return db.Preload(preload.query, preload.args...), conds[1:]
-			} else {
-				return db, conds[1:]
+	remaining := make([]any, 0, len(conds))
+	hasPreload := false
+
+	for _, c := range conds {
+		if p, ok := c.(*preload); ok {
+			hasPreload = true
+			if p.query != "" {
+				db = db.Preload(p.query, p.args...)
 			}
+		} else {
+			remaining = append(remaining, c)
 		}
 	}
 
-	return db.Preload(clause.Associations), conds
+	if !hasPreload {
+		db = db.Preload(clause.Associations)
+	}
+
+	return db, remaining
 }
 
 // ================================================================================================
-// Query Options
+// Query options and other helpers
 // ================================================================================================
 
 // QueryOption is a condition that can be passed to the CRUD functions for customizing the query.
@@ -224,4 +238,26 @@ func WithPreload(query string, args ...any) QueryOption {
 // are used, otherwise Gorm will throw errors.
 func WithoutPreload() QueryOption {
 	return &preload{query: ""}
+}
+
+// BuildConds prepares the conds used in [Storage.List] out of arrays of query and args.
+func BuildConds(query []string, args []any) (conds []any) {
+	if len(query) == 0 {
+		return
+	}
+	conds = append([]any{strings.Join(query, " AND ")}, args...)
+	return
+}
+
+// AppendObjectIds appends a condition to the query for filtering by a list of object IDs.
+// Returns the updated query and args slices.
+func AppendObjectIds(objectIds []string, query []string, args []any, objectName string) ([]string, []any) {
+	var placeholders string
+	placeholders = strings.Repeat("?,", len(objectIds))
+	placeholders = placeholders[:len(placeholders)-1] // Remove trailing comma
+	query = append(query, objectName+" IN ("+placeholders+")")
+	for _, id := range objectIds {
+		args = append(args, id)
+	}
+	return query, args
 }

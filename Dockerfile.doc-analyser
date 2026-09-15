@@ -1,0 +1,24 @@
+# Dockerfile for the document analyser (optional)
+FROM mcr.microsoft.com/devcontainers/typescript-node:0-18
+
+WORKDIR /app
+
+# Remove the problematic yarn repo before apt operations
+RUN rm -f /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY collectors/documents/requirements.txt ./requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+
+COPY collectors/documents/src/ ./src/
+
+ENV PYTHONPATH=/app/src
+
+ENTRYPOINT ["python3", "-m", "document_analyser.cli"]
+CMD ["/data/pdfs", \
+     "--mode", "resources", \
+     "--model", "glm-5.2-fp8", \
+     "--push-evidence", \
+     "--evidence-url", "http://core:8080", \
+     "--evidence-auth", "confirmate:confirmate"]

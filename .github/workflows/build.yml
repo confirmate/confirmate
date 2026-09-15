@@ -27,7 +27,9 @@ jobs:
         with:
           go-version-file: core/go.mod
           cache: true
-          cache-dependency-path: core/go.sum
+          cache-dependency-path: |
+            core/go.sum
+            collectors/go.sum
       - name: Install buf
         uses: bufbuild/buf-setup-action@v1.50.0
         with:
@@ -42,26 +44,59 @@ jobs:
           mkdir -p build
           go build -ldflags="-X confirmate.io/core/service.version=$(git describe --exact-match --tags --abbrev=0)" -o build ./cmd/orchestrator
         working-directory: ./core
-      - name: Test
+      - name: Install test tools
         run: |
           go install github.com/mfridman/tparse@latest
           go install gotest.tools/gotestsum@latest
-
-          gotestsum --jsonfile output.json --junitfile junit.xml -- -coverprofile=coverage.cov -coverpkg ./... -covermode=atomic ./...
-          tparse -format markdown -file output.json > $GITHUB_STEP_SUMMARY
+      - name: Test (core)
+        run: |
+          gotestsum \
+            --jsonfile output-core.json \
+            --junitfile junit-core.xml \
+            -- \
+            -coverprofile=coverage-core.cov \
+            -coverpkg ./... \
+            -covermode=atomic ./...
+          tparse -format markdown -file output-core.json > $GITHUB_STEP_SUMMARY
         working-directory: ./core
-      - name: Upload coverage to Codecov
+      - name: Test (collectors)
+        run: |
+          gotestsum \
+            --packages=./... \
+            --jsonfile output-collectors.json\
+            --junitfile junit-collectors.xml \
+            -- \
+            -coverprofile=coverage-collectors.cov \
+            -coverpkg ./... \
+            -covermode=atomic ./...
+          tparse -format markdown -file output-collectors.json >> $GITHUB_STEP_SUMMARY
+        working-directory: ./collectors/cloud
+      - name: Upload coverage to Codecov (core)
         uses: codecov/codecov-action@v5
         with:
-          files: ./core/coverage.cov
+          files: ./core/coverage-core.cov
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-      - name: Upload test results to Codecov
+      - name: Upload coverage to Codecov (collectors)
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./collectors/coverage-collectors.cov
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+      - name: Upload test results to Codecov (core)
         if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./core/junit.xml
+          files: ./core/junit-core.xml
+          report_type: test_results
+
+      - name: Upload test results to Codecov (collectors)
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./collectors/junit-collectors.xml
           report_type: test_results
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4

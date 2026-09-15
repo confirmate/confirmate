@@ -17,6 +17,7 @@ package policies
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -65,13 +66,18 @@ type mockMetricsSource struct {
 	t *testing.T
 }
 
+// mockMetricsErrorSource implements the MetricsSource interface for testing with one incorrect metric.
+type mockMetricsErrorSource struct {
+	t *testing.T
+}
+
 // Ensure mockMetricsSource implements MetricsSource interface
 var _ MetricsSource = (*mockMetricsSource)(nil)
+var _ MetricsSource = (*mockMetricsErrorSource)(nil)
 
 // Metrics returns all metrics loaded from the metrics directory
-func (m *mockMetricsSource) Metrics() ([]*assessment.Metric, error) {
+func (m *mockMetricsSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
 	metricsPath := "./policies/security-metrics/metrics"
-	fmt.Println(os.Executable())
 	metrics := make([]*assessment.Metric, 0)
 
 	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
@@ -111,8 +117,95 @@ func (m *mockMetricsSource) Metrics() ([]*assessment.Metric, error) {
 	return metrics, nil
 }
 
+// Metrics returns all metrics loaded from the metrics directory with one incorrect metric for testing error handling
+func (m *mockMetricsErrorSource) Metrics(_ context.Context) ([]*assessment.Metric, error) {
+	metricsPath := "./policies/security-metrics/metrics"
+	metrics := make([]*assessment.Metric, 0)
+
+	err := filepath.Walk(metricsPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("error accessing path %s: %w", path, err)
+		}
+
+		// Skip directories and non-YAML files
+		if info.IsDir() || (!strings.HasSuffix(info.Name(), ".yaml") && !strings.HasSuffix(info.Name(), ".yml")) {
+			return nil
+		}
+
+		// Read the YAML file
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("error reading file %s: %w", path, err)
+		}
+
+		var metric assessment.Metric
+
+		dec := yaml.NewDecoder(bytes.NewReader(b))
+		if err := dec.Decode(&metric); err != nil {
+			return fmt.Errorf("error unmarshalling metric %s: %w", path, err)
+		}
+
+		// Set the category automatically, since it is not included in the YAML definition
+		metric.Category = filepath.Base(filepath.Dir(filepath.Dir(path)))
+
+		metrics = append(metrics, &metric)
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error walking through metrics directory: %w", err)
+	}
+
+	return metrics, nil
+}
+
+// MetricConfiguration returns the default configuration for a given metric (same logic as mockMetricsSource)
+func (m *mockMetricsErrorSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
+	// Fetch the metric configuration directly from our file
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Name)
+
+	b, err := os.ReadFile(bundle)
+	assert.NoError(m.t, err)
+
+	var config assessment.MetricConfiguration
+	err = protojson.Unmarshal(b, &config)
+	assert.NoError(m.t, err)
+
+	config.IsDefault = true
+	config.MetricId = metric.Id
+	config.TargetOfEvaluationId = targetID
+
+	return &config, nil
+}
+
+// MetricImplementation returns the Rego implementation for a given metric (same logic as mockMetricsSource)
+func (m *mockMetricsErrorSource) MetricImplementation(_ context.Context, _ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
+	var impl *assessment.MetricImplementation
+	// Fetch the metric implementation directly from our file
+	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Name)
+
+	b, err := os.ReadFile(bundle)
+	assert.NoError(m.t, err)
+
+	if metric.GetName() == "SoftwareAttestationEnabled" {
+		impl = &assessment.MetricImplementation{
+			MetricId: metric.Id,
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     "invalid code", // Introduce an error in the implementation for testing
+		}
+	} else {
+		impl = &assessment.MetricImplementation{
+			MetricId: metric.Id,
+			Lang:     assessment.MetricImplementation_LANGUAGE_REGO,
+			Code:     string(b),
+		}
+	}
+
+	return impl, nil
+}
+
 // MetricConfiguration returns the default configuration for a given metric
-func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
+func (m *mockMetricsSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
 	// Fetch the metric configuration directly from our file
 	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/data.json", metric.Category, metric.Name)
 
@@ -131,7 +224,7 @@ func (m *mockMetricsSource) MetricConfiguration(targetID string, metric *assessm
 }
 
 // MetricImplementation returns the Rego implementation for a given metric
-func (m *mockMetricsSource) MetricImplementation(_ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
+func (m *mockMetricsSource) MetricImplementation(_ context.Context, _ assessment.MetricImplementation_Language, metric *assessment.Metric) (*assessment.MetricImplementation, error) {
 	// Fetch the metric implementation directly from our file
 	bundle := fmt.Sprintf("./policies/security-metrics/metrics/%s/%s/metric.rego", metric.Category, metric.Name)
 
@@ -156,7 +249,7 @@ type updatedMockMetricsSource struct {
 var _ MetricsSource = (*updatedMockMetricsSource)(nil)
 
 // MetricConfiguration returns an updated (non-default) configuration
-func (u *updatedMockMetricsSource) MetricConfiguration(targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
+func (u *updatedMockMetricsSource) MetricConfiguration(_ context.Context, targetID string, metric *assessment.Metric) (*assessment.MetricConfiguration, error) {
 	return &assessment.MetricConfiguration{
 		Operator:             "==",
 		TargetValue:          structpb.NewBoolValue(false),
@@ -178,7 +271,7 @@ type mockPolicyEval struct {
 var _ PolicyEval = (*mockPolicyEval)(nil)
 
 // Eval returns pre-configured results
-func (m *mockPolicyEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) ([]*CombinedResult, error) {
+func (m *mockPolicyEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) ([]*CombinedResult, error) {
 	return m.results, m.err
 }
 
@@ -284,7 +377,7 @@ func TestMetricsCache(t *testing.T) {
 func TestMockMetricsSource_Metrics(t *testing.T) {
 	mock := &mockMetricsSource{t: t}
 
-	metrics, err := mock.Metrics()
+	metrics, err := mock.Metrics(context.Background())
 	assert.NoError(t, err)
 	assert.NotEmpty(t, metrics)
 }
@@ -293,12 +386,12 @@ func TestMockMetricsSource_MetricConfiguration(t *testing.T) {
 	mock := &mockMetricsSource{t: t}
 
 	// Get metrics first
-	metrics, err := mock.Metrics()
+	metrics, err := mock.Metrics(context.Background())
 	assert.NoError(t, err)
 	assert.NotEmpty(t, metrics)
 
 	// Get configuration for first metric
-	config, err := mock.MetricConfiguration("test-target", metrics[0])
+	config, err := mock.MetricConfiguration(context.Background(), "test-target", metrics[0])
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 	assert.True(t, config.IsDefault)
@@ -309,7 +402,7 @@ func TestUpdatedMockMetricsSource_MetricConfiguration(t *testing.T) {
 		mockMetricsSource: mockMetricsSource{t: t},
 	}
 
-	config, err := mock.MetricConfiguration("test-target", &assessment.Metric{Name: "test-metric"})
+	config, err := mock.MetricConfiguration(context.Background(), "test-target", &assessment.Metric{Name: "test-metric"})
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 	assert.False(t, config.IsDefault)
@@ -330,7 +423,7 @@ func TestMockPolicyEval_Eval(t *testing.T) {
 		results: expectedResults,
 	}
 
-	results, err := mock.Eval(nil, nil, nil, nil)
+	results, err := mock.Eval(context.Background(), nil, nil, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedResults, results)
 }

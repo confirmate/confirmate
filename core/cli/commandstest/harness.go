@@ -24,11 +24,14 @@ import (
 	"sync"
 	"testing"
 
+	"confirmate.io/core/api/evidence/evidenceconnect"
 	"confirmate.io/core/api/orchestrator/orchestratorconnect"
 	"confirmate.io/core/cli/commands"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
+	"confirmate.io/core/service/evaluation/evaluationtest"
+	evidencesvc "confirmate.io/core/service/evidence"
 	"confirmate.io/core/service/orchestrator"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
@@ -74,10 +77,11 @@ func ensureHarness(t *testing.T) error {
 
 func newTestServer(t *testing.T) (*httptest.Server, error) {
 	var (
-		err     error
-		svc     orchestratorconnect.OrchestratorHandler
-		srv     *server.Server
-		testSrv *httptest.Server
+		err         error
+		svc         orchestratorconnect.OrchestratorHandler
+		evidenceSvc evidenceconnect.EvidenceStoreHandler
+		srv         *server.Server
+		testSrv     *httptest.Server
 	)
 
 	svc, err = orchestrator.NewService(orchestrator.WithConfig(orchestrator.Config{
@@ -97,8 +101,16 @@ func newTestServer(t *testing.T) (*httptest.Server, error) {
 		return nil, err
 	}
 
+	evidenceSvc, err = evidencesvc.NewService(evidencesvc.WithConfig(evidencesvc.Config{
+		PersistenceConfig: persistence.Config{InMemoryDB: true},
+	}))
+	if err != nil {
+		return nil, err
+	}
+
 	srv, testSrv = servertest.NewTestConnectServer(t,
 		server.WithHandler(orchestratorconnect.NewOrchestratorHandler(svc)),
+		server.WithHandler(evidenceconnect.NewEvidenceStoreHandler(evidenceSvc)),
 	)
 	_ = srv
 
@@ -137,16 +149,13 @@ func seedCLIData(t *testing.T, db persistence.DB) {
 	assert.NoError(t, db.Create(orchestratortest.MockMetricConfiguration1))
 	assert.NoError(t, db.Create(orchestratortest.MockCatalog1))
 	assert.NoError(t, db.Create(orchestratortest.MockCatalog2))
-	assert.NoError(t, db.Create(orchestratortest.MockCatalog3))
-	assert.NoError(t, db.Create(orchestratortest.MockCategory1))
-	assert.NoError(t, db.Create(orchestratortest.MockCategory2))
-	assert.NoError(t, db.Create(orchestratortest.MockControl1))
-	assert.NoError(t, db.Create(orchestratortest.MockControl2))
 	assert.NoError(t, db.Create(orchestratortest.MockCertificate1))
 	assert.NoError(t, db.Create(orchestratortest.MockCertificate2))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentTool1))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentTool2))
 	assert.NoError(t, db.Create(orchestratortest.MockAssessmentResult1))
+	assert.NoError(t, db.Create(evaluationtest.MockEvaluationResult1))
+	assert.NoError(t, db.Create(evaluationtest.MockEvaluationResult2))
 }
 
 func captureOutput(t *testing.T, fn func() error) (string, error) {

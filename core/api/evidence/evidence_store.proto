@@ -23,7 +23,9 @@ import "google/api/field_behavior.proto";
 
 option go_package = "confirmate.io/core/api/evidence";
 
-// Manages the storage of evidences
+// EvidenceStore API
+
+// Manages the storage of evidences.
 service EvidenceStore {
   // Stores an evidence to the evidence storage. Part of the public API, also
   // exposed as REST.
@@ -57,6 +59,12 @@ service EvidenceStore {
   // Lists all resources collected in the last run, exposed as REST.
   rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
     option (google.api.http) = {get: "/v1/evidence_store/resources"};
+  }
+
+  // Returns the IDs of all evidence collecting tools that have provided
+  // evidence so far. Part of the public API, also exposed as REST.
+  rpc ListTools(ListToolsRequest) returns (ListToolsResponse) {
+    option (google.api.http) = {get: "/v1/evidence_store/tools"};
   }
 }
 
@@ -126,6 +134,13 @@ message ListResourcesRequest {
 }
 
 message ListResourcesResponse {
-  repeated Resource results = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated ResourceSnapshot results = 1 [(google.api.field_behavior) = REQUIRED];
+  string next_page_token = 2;
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+  repeated string tool_ids = 1;
   string next_page_token = 2;
 }

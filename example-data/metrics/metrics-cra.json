@@ -1,0 +1,389 @@
+[
+  {
+    "id": "AdminMFAEnabled",
+    "name": "AdminMFAEnabled",
+    "description": "This metric is used to assess if MFA for admins is enabled",
+    "category": "Identity Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "AnomalyDetectionEnabled",
+    "name": "AnomalyDetectionEnabled",
+    "description": "This metric is used to assess if Anomaly Detection is enabled",
+    "category": "Logging & Monitoring",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "AtRestEncryptionEnabled",
+    "name": "AtRestEncryptionEnabled",
+    "description": "This metric is used to assess if storage encryption is enabled",
+    "category": "Storage Encryption",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "AutomaticUpdatesEnabled",
+    "name": "AutomaticUpdatesEnabled",
+    "description": "This metric is used to assess if automatic updates are enabled",
+    "category": "Endpoint Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "AutomaticUpdatesInterval",
+    "name": "AutomaticUpdatesInterval",
+    "description": "This metric is used to assess if automatic updates are performed with sufficient frequency (hours)",
+    "category": "Endpoint Security",
+    "scale": 3,
+    "range": {
+      "minMax": {
+        "min": 1,
+        "max": 8760
+      }
+    }
+  },
+  {
+    "id": "IdentityRecentActivity",
+    "name": "IdentityRecentActivity",
+    "description": "This metric is used to assess if a user is still active (days)",
+    "category": "Identity Management",
+    "scale": 3,
+    "range": {
+      "minMax": {
+        "min": 0,
+        "max": 365
+      }
+    }
+  },
+  {
+    "id": "StrongCryptographicHash",
+    "name": "StrongCryptographicHash",
+    "description": "This rule assesses whether a resource that offers the property CryptographicHash has its algorithm set correctly",
+    "category": "Application Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          "SHA-256",
+          "SHA-3",
+          "BLAKE2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "TransportEncryptionEnabled",
+    "name": "TransportEncryptionEnabled",
+    "description": "This metric is used if transport encryption is enabled",
+    "category": "Transport Encryption",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "AccessControlMechanismsImplemented",
+    "name": "AccessControlMechanismsImplemented",
+    "description": "This metric checks for the existence of proper access control mechanisms",
+    "category": "Identity Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "VulnerabilityScanReportUpdated",
+    "name": "VulnerabilityScanReportUpdated",
+    "description": "This metric is used to assess if vulnerability scan reports are regularly updated and available",
+    "category": "Vulnerability Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecureConfigurationEnforced",
+    "name": "SecureConfigurationEnforced",
+    "description": "This metric is used to assess if secure configuration is enforced by default",
+    "category": "Configuration Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "PostponeAlertOptionEnabled",
+    "name": "PostponeAlertOptionEnabled",
+    "description": "This metric is used to assess if users can postpone updates and receive notifications",
+    "category": "Endpoint Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "IdentityPasswordPolicyEnabled",
+    "name": "IdentityPasswordPolicyEnabled",
+    "description": "This metric is used to assess if a password policy is enabled for identity management",
+    "category": "Identity Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "UnauthorizedAccessReported",
+    "name": "UnauthorizedAccessReported",
+    "description": "This metric is used to assess if unauthorized access attempts are detected and reported",
+    "category": "Security Monitoring",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DataMinimisationTechniquesEnabled",
+    "name": "DataMinimisationTechniquesEnabled",
+    "description": "This metric is used to assess if data minimization techniques are enabled and enforced",
+    "category": "Privacy",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "AutomatedDeletionOfDataEnabled",
+    "name": "AutomatedDeletionOfDataEnabled",
+    "description": "This metric is used to assess if automated deletion of data is configured",
+    "category": "Privacy",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "DDOSMechanismActivated",
+    "name": "DDOSMechanismActivated",
+    "description": "This metric is used to assess if DDoS protection mechanisms are activated",
+    "category": "Network Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "StandardProtocolsListed",
+    "name": "StandardProtocolsListed",
+    "description": "This metric is used to assess if only required standard protocols and interfaces are enabled",
+    "category": "Network Security",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "RiskAssessmentMappingtoServicesandControl",
+    "name": "RiskAssessmentMappingtoServicesandControl",
+    "description": "This metric is used to assess if risk assessments are mapped to services and security controls",
+    "category": "Risk Management",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "BackupEnabled",
+    "name": "BackupEnabled",
+    "description": "This metric is used to assess if backup mechanisms are enabled for critical data flows",
+    "category": "Data Protection",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "ActivityLoggingEnabled",
+    "name": "ActivityLoggingEnabled",
+    "description": "This metric is used to assess if activity logging is enabled for security-relevant activities",
+    "category": "Logging & Monitoring",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "LoggingOptOutMechanismAvailable",
+    "name": "LoggingOptOutMechanismAvailable",
+    "description": "This metric is used to assess if a logging opt-out mechanism is available to users",
+    "category": "Logging & Monitoring",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecurityDataAvailableToUser",
+    "name": "SecurityDataAvailableToUser",
+    "description": "This metric is used to assess if security-related data and logs are available to users",
+    "category": "Logging & Monitoring",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "SecureDataDeletionMechanismActivated",
+    "name": "SecureDataDeletionMechanismActivated",
+    "description": "This metric is used to assess if secure data deletion mechanisms are activated and available to users",
+    "category": "Privacy",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "NoKnownVulnerabilities",
+    "name": "NoKnownVulnerabilities",
+    "description": "Assesses whether a resource has no known vulnerabilities.",
+    "category": "ApplicationSecurity",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  },
+  {
+    "id": "VulnerabilitiesNotExploitable",
+    "name": "VulnerabilitiesNotExploitable",
+    "description": "Assesses whether detected vulnerabilities are not exploitable for the target of evaluation.",
+    "category": "ApplicationSecurity",
+    "scale": 1,
+    "range": {
+      "allowedValues": {
+        "values": [
+          true,
+          false
+        ]
+      }
+    }
+  }
+]

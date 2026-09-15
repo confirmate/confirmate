@@ -18,6 +18,7 @@ package orchestrator
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -25,9 +26,12 @@ import (
 
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/log"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -38,6 +42,7 @@ func (svc *Service) CreateCatalog(
 ) (res *connect.Response[orchestrator.Catalog], err error) {
 	var (
 		catalog *orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
@@ -45,8 +50,27 @@ func (svc *Service) CreateCatalog(
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
+	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
+	normalizeCatalogControls(catalog)
 
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 	// Persist the new catalog in the database
 	err = svc.db.Create(catalog)
 	if err = service.HandleDatabaseError(err); err != nil {
@@ -57,7 +81,8 @@ func (svc *Service) CreateCatalog(
 	return
 }
 
-// GetCatalog retrieves a catalog by ID.
+// GetCatalog retrieves a specific catalog by it's ID. The catalog includes a list of all
+// of it categories as well as the first level of controls in each category.
 func (svc *Service) GetCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCatalogRequest],
@@ -71,7 +96,11 @@ func (svc *Service) GetCatalog(
 		return nil, err
 	}
 
-	err = svc.db.Get(&catalog, "id = ?", req.Msg.CatalogId)
+	err = svc.db.Get(&catalog,
+		// Preload fills in associated entities, in this case controls. We want to only select those controls which do
+		// not have a parent, e.g., the top-level
+		persistence.WithPreload("Categories.Controls", "parent_control_id IS NULL"),
+		"id = ?", req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
 		return nil, err
 	}
@@ -80,7 +109,8 @@ func (svc *Service) GetCatalog(
 	return
 }
 
-// ListCatalogs lists all catalogs.
+// ListCatalogs lists all security controls catalogs. Each catalog includes a list of its
+// categories but no additional sub-resources.
 func (svc *Service) ListCatalogs(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListCatalogsRequest],
@@ -118,14 +148,37 @@ func (svc *Service) UpdateCatalog(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateCatalogRequest],
 ) (res *connect.Response[orchestrator.Catalog], err error) {
-	var catalog *orchestrator.Catalog
+	var (
+		catalog *orchestrator.Catalog
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	catalog = req.Msg.Catalog
+	catalog = &orchestrator.Catalog{
+		Id:              req.Msg.GetCatalog().GetId(),
+		Name:            req.Msg.GetCatalog().GetName(),
+		Categories:      req.Msg.GetCatalog().GetCategories(),
+		Description:     req.Msg.Catalog.GetDescription(),
+		AllInScope:      req.Msg.Catalog.GetAllInScope(),
+		AssuranceLevels: req.Msg.Catalog.GetAssuranceLevels(),
+		ShortName:       req.Msg.Catalog.GetShortName(),
+		Metadata:        req.Msg.Catalog.Metadata,
+	}
+	catalog = proto.Clone(catalog).(*orchestrator.Catalog)
+	normalizeCatalogControls(catalog)
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
+	}
 
 	// Update the catalog
 	err = svc.db.Update(catalog, "id = ?", catalog.Id)
@@ -144,11 +197,21 @@ func (svc *Service) RemoveCatalog(
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
 		catalog orchestrator.Catalog
+		allowed bool
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, "", orchestrator.ObjectType_OBJECT_TYPE_CATALOG)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
 	// Delete the catalog
@@ -161,7 +224,9 @@ func (svc *Service) RemoveCatalog(
 	return
 }
 
-// GetCategory retrieves a category by name and catalog ID.
+// GetCategory retrieves a category of a catalog specified by the catalog ID and the
+// category name. It includes the first level of controls within each
+// category.
 func (svc *Service) GetCategory(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetCategoryRequest],
@@ -175,7 +240,11 @@ func (svc *Service) GetCategory(
 		return nil, err
 	}
 
-	err = svc.db.Get(&category, "name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
+	err = svc.db.Get(&category,
+		// Preload fills in associated entities, in this case controls. We want to only select those controls which do
+		// not have a parent, e.g., the top-level
+		persistence.WithPreload("Controls", "parent_control_id IS NULL"),
+		"name = ? AND catalog_id = ?", req.Msg.CategoryName, req.Msg.CatalogId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("category")); err != nil {
 		return nil, err
 	}
@@ -184,15 +253,18 @@ func (svc *Service) GetCategory(
 	return
 }
 
-// ListControls lists all controls, optionally filtered by catalog ID.
+// ListControls lists all controls.
 func (svc *Service) ListControls(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ListControlsRequest],
 ) (res *connect.Response[orchestrator.ListControlsResponse], err error) {
 	var (
-		controls []*orchestrator.Control
-		conds    []any
-		npt      string
+		controls     []*orchestrator.Control
+		npt          string
+		conds        []any
+		whereClauses []string
+		args         []any
+		fullCatalog  bool
 	)
 
 	// Validate the request
@@ -202,23 +274,50 @@ func (svc *Service) ListControls(
 
 	// Set default ordering
 	if req.Msg.OrderBy == "" {
-		req.Msg.OrderBy = "id"
+		req.Msg.OrderBy = "short_name"
 		req.Msg.Asc = true
 	}
 
-	// Filter by catalog_id if provided
-	if req.Msg.CatalogId != "" {
-		conds = append(conds, "category_catalog_id = ?", req.Msg.CatalogId)
+	// Apply filters if provided
+	if req.Msg.Filter != nil {
+		if req.Msg.Filter.CatalogId != nil {
+			whereClauses = append(whereClauses, "catalog_id = ?")
+			args = append(args, req.Msg.Filter.GetCatalogId())
+		}
+		if req.Msg.Filter.CategoryName != nil {
+			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by category name is not yet implemented"))
+		}
+		if len(req.Msg.Filter.AssuranceLevels) > 0 {
+			return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("filtering by assurance levels is not yet implemented"))
+		}
+
+		fullCatalog = req.Msg.Filter.GetFull()
 	}
 
-	// Filter by category_name if provided
-	if req.Msg.CategoryName != "" {
-		conds = append(conds, "category_name = ?", req.Msg.CategoryName)
-	}
+	whereClauses = append(whereClauses, "parent_control_id IS NULL") // Only top-level controls
 
-	controls, npt, err = service.PaginateStorage[*orchestrator.Control](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	// Combine all WHERE clauses with AND
+	conds = persistence.BuildConds(whereClauses, args)
+
+	// Paginate the controls based on the request and conditions
+	controls, npt, err = service.PaginateStorage[*orchestrator.Control](
+		req.Msg,
+		svc.db,
+		service.DefaultPaginationOpts,
+		conds...,
+	)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
+	}
+
+	// If fullCatalog is requested, load the full control tree for each top-level control.
+	for _, control := range controls {
+		err = svc.loadControlTree(control, fullCatalog)
+		if err != nil {
+			if err = service.HandleDatabaseError(err); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	res = connect.NewResponse(&orchestrator.ListControlsResponse{
@@ -228,7 +327,56 @@ func (svc *Service) ListControls(
 	return
 }
 
-// GetControl retrieves a control by ID, category name, and catalog ID.
+// loadControlTree recursively loads the full control tree for a given control, including its sub-controls and optionally its metrics if it is a leaf control. It populates the `Controls` field of the provided control with its child controls and, if `withLeafMetrics` is true, it also loads the metrics for leaf controls.
+func (svc *Service) loadControlTree(ctrl *orchestrator.Control, withLeafMetrics bool) error {
+	var children []*orchestrator.Control
+
+	err := svc.db.List(
+		&children,
+		"short_name",
+		true,
+		0,
+		-1,
+		persistence.WithPreload(""),
+		"parent_control_id = ?",
+		ctrl.Id,
+	)
+	if err != nil {
+		return err
+	}
+
+	ctrl.Controls = children
+
+	if len(children) == 0 {
+		if withLeafMetrics {
+			var loaded orchestrator.Control
+			err := svc.db.Get(
+				&loaded,
+				persistence.WithPreload("Metrics"),
+				"id = ?",
+				ctrl.Id,
+			)
+			if err != nil {
+				return err
+			}
+			ctrl.Metrics = loaded.Metrics
+		}
+		return nil
+	}
+
+	for _, child := range children {
+		err := svc.loadControlTree(child, withLeafMetrics)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GetControl retrieves a control by its unique control ID. If present, it also includes a list of
+// sub-controls if present or a list of metrics if no sub-controls but metrics
+// are present.
 func (svc *Service) GetControl(
 	ctx context.Context,
 	req *connect.Request[orchestrator.GetControlRequest],
@@ -242,8 +390,7 @@ func (svc *Service) GetControl(
 		return nil, err
 	}
 
-	err = svc.db.Get(&control, "id = ? AND category_name = ? AND category_catalog_id = ?",
-		req.Msg.ControlId, req.Msg.CategoryName, req.Msg.CatalogId)
+	err = svc.db.Get(&control, persistence.WithPreload("Controls.Metrics"), "id = ?", req.Msg.ControlId)
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("control")); err != nil {
 		return nil, err
 	}
@@ -255,9 +402,49 @@ func (svc *Service) GetControl(
 // loadCatalogs loads catalog definitions from configured sources.
 // It loads catalogs from:
 // 1. DefaultCatalogsPath (if LoadDefaultCatalogs is true)
-// 2. LoadCatalogsFunc (if provided) for additional custom catalogs
+// 2. LoadCatalogsFunc (if provided) for additional new custom catalogs
+// 3. UpsertCatalogsFunc (if provided) to create new catalogs and update existing ones
 func (svc *Service) loadCatalogs() (err error) {
-	var catalogs []*orchestrator.Catalog
+	var (
+		catalogs         []*orchestrator.Catalog
+		emptyCatalogList = false
+	)
+
+	// If UpsertCatalogsFunc is provided, call it to create new catalogs and update existing ones
+	if svc.cfg.UpsertCatalogsFunc != nil {
+		upsertedCatalogs, err := svc.cfg.UpsertCatalogsFunc(svc)
+		if err != nil {
+			return fmt.Errorf("could not upsert catalogs: %w", err)
+		}
+
+		// Upsert catalogs in DB (only if we have any)
+		if len(upsertedCatalogs) > 0 {
+			var upsertErr error
+			for _, catalog := range upsertedCatalogs {
+				// Check if the catalog already exists in the database
+				var count int64
+				count, upsertErr = svc.db.Count(catalog, "id = ?", catalog.GetId())
+				if upsertErr != nil {
+					return fmt.Errorf("could not check existence of catalog %s: %w", catalog.GetId(), upsertErr)
+				}
+
+				if count == 0 {
+					// If the catalog is new, use Create().
+					// This guarantees that GORM inserts the parent catalog first,
+					// avoiding foreign key constraint violations for its nested categories.
+					upsertErr = svc.db.Create(catalog)
+				} else {
+					// If the catalog already exists, use Update() so nested associations are updated as well.
+					upsertErr = svc.db.Update(catalog)
+				}
+
+				if upsertErr != nil {
+					return fmt.Errorf("could not upsert catalog %s: %w", catalog.GetId(), upsertErr)
+				}
+				emptyCatalogList = false
+			}
+		}
+	}
 
 	// Load default catalogs from folder if enabled
 	if svc.cfg.LoadDefaultCatalogs {
@@ -277,11 +464,28 @@ func (svc *Service) loadCatalogs() (err error) {
 		catalogs = append(catalogs, additionalCatalogs...)
 	}
 
-	// Save all catalogs to DB (only if we have any)
+	// Create all catalogs in DB (only if we have any)
 	if len(catalogs) > 0 {
-		return svc.db.Save(catalogs)
+		var createErr error
+		for _, catalog := range catalogs {
+			// Use a local error variable so a failed create does not leak into the named
+			// return value: only an already-existing catalog is logged and skipped: any
+			// other error (DB connectivity, schema issues, etc.) must fail the load.
+			createErr = svc.db.Create(catalog)
+			if errors.Is(createErr, persistence.ErrUniqueConstraintFailed) || errors.Is(createErr, persistence.ErrPrimaryKeyViolation) {
+				slog.Info("Catalog exists already, skipping", slog.String("catalog_id", catalog.GetId()), slog.String("name", catalog.GetName()))
+				continue
+			}
+			if createErr != nil {
+				return fmt.Errorf("could not save catalog %s: %w", catalog.GetId(), createErr)
+			}
+			emptyCatalogList = false
+		}
 	}
 
+	if emptyCatalogList {
+		return fmt.Errorf("No catalogs were loaded.")
+	}
 	return nil
 }
 
@@ -318,25 +522,67 @@ func (svc *Service) loadCatalogsFromFolder(folder string) (catalogs []*orchestra
 		catalogs = append(catalogs, catalogsFromFile...)
 	}
 
-	// Post-processing: Populate parent relationships for nested controls.
-	// The JSON catalog files use nested structures, but the database model requires
-	// flat relationships with foreign keys. This step sets the CategoryName, CategoryCatalogId,
-	// and parent control references so sub-controls are correctly linked to their parents.
 	for _, catalog := range catalogs {
-		for _, category := range catalog.Categories {
-			for _, control := range category.Controls {
-				for _, sub := range control.Controls {
-					sub.CategoryName = category.Name
-					sub.CategoryCatalogId = catalog.Id
-
-					// Set parent info
-					sub.ParentControlCategoryCatalogId = &control.CategoryCatalogId
-					sub.ParentControlCategoryName = &control.CategoryName
-					sub.ParentControlId = &control.Id
-				}
-			}
-		}
+		normalizeCatalogControls(catalog)
 	}
 
 	return catalogs, nil
 }
+
+// normalizeCatalogControls normalizes the controls in a catalog by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls.
+// Note: The flattenControls function is commented out, as it is not currently used in the normalization process.
+func normalizeCatalogControls(catalog *orchestrator.Catalog) {
+	if catalog == nil {
+		return
+	}
+
+	for _, category := range catalog.Categories {
+		normalizeControls(category.GetControls(), nil, catalog.Id)
+		// category.Controls = flattenControls(category.GetControls())
+	}
+}
+
+// normalizeControls recursively normalizes a list of controls by ensuring that each control has a short name and a valid UUID. It also sets the parent control ID for nested controls and the catalog ID for all of them.
+func normalizeControls(controls []*orchestrator.Control, parent *orchestrator.Control, catalogId string) {
+	for _, control := range controls {
+		if control.GetShortName() == "" {
+			control.ShortName = control.GetId()
+		}
+		if _, err := uuid.Parse(control.GetId()); err != nil {
+			control.Id = uuid.NewString()
+		}
+
+		control.CatalogId = catalogId
+
+		if parent != nil {
+			control.ParentControlId = &parent.Id
+		} else {
+			control.ParentControlId = nil
+		}
+
+		normalizeControls(control.GetControls(), control, catalogId)
+	}
+}
+
+// // flattenControls flattens a list of controls into a single-level list, preserving the original order and avoiding duplicates.
+// func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
+// 	var (
+// 		flat    []*orchestrator.Control
+// 		visited = make(map[string]struct{})
+// 	)
+
+// 	var walk func(items []*orchestrator.Control)
+// 	walk = func(items []*orchestrator.Control) {
+// 		for _, control := range items {
+// 			if _, ok := visited[control.GetId()]; !ok {
+// 				visited[control.GetId()] = struct{}{}
+// 				flat = append(flat, control)
+// 			}
+// 			walk(control.GetControls())
+// 		}
+// 	}
+
+// 	walk(controls)
+
+// 	return flat
+// }

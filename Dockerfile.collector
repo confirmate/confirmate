@@ -1,0 +1,48 @@
+# Confirmate Code Analysis Collector — Kotlin/Gradle + jep
+# Uses cached Java devcontainer image + conda for Python 3.12
+FROM mcr.microsoft.com/devcontainers/java:1-21-bullseye AS build
+
+WORKDIR /src
+
+# Install miniconda for Python 3.12 (avoids apt/PPA issues)
+RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-$(uname -m).sh -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
+    rm /tmp/miniconda.sh
+ENV PATH="/opt/miniconda/bin:${PATH}"
+
+# Create a Python 3.12 venv with jep
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
+    conda create -y -p /root/.virtualenvs/cpg python=3.12 && \
+    /root/.virtualenvs/cpg/bin/pip install jep==4.3.1
+
+# Copy the code-analysis submodule
+COPY collectors/code-analysis/ ./code-analysis/
+
+WORKDIR /src/code-analysis
+
+# Build the example project
+RUN chmod +x gradlew && ./gradlew --no-daemon :example-project:installDist
+
+# ── Runtime image ──
+FROM mcr.microsoft.com/devcontainers/java:1-21-bullseye
+
+# Install miniconda for Python 3.12 runtime
+RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-$(uname -m).sh -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
+    rm /tmp/miniconda.sh
+ENV PATH="/opt/miniconda/bin:${PATH}"
+
+# Copy jep virtualenv from build stage
+COPY --from=build /root/.virtualenvs/cpg /root/.virtualenvs/cpg
+
+# Copy the built application
+COPY --from=build /src/code-analysis/example-project/build/install/example-project /app/
+COPY --from=build /src/code-analysis/example-project /app/example-project
+
+ENV CPG_PYTHON_VIRTUALENV=cpg
+ENV CONFIRMATE_API_BASE=http://core:8080
+
+WORKDIR /app
+
+ENTRYPOINT ["./bin/example-project"]

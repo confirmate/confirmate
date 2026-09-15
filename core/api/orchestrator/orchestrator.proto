@@ -18,6 +18,9 @@ package confirmate.orchestrator.v1;
 import "api/assessment/metric.proto";
 import "api/assessment/result.proto";
 import "api/common/runtime.proto";
+import "api/evaluation/evaluation.proto";
+import "api/orchestrator/user.proto";
+import "api/orchestrator/workflow.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -79,9 +82,24 @@ service Orchestrator {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results/{id}"};
   }
 
+  // Store the evaluation result provided by the evaluation component.″
+  rpc StoreEvaluationResult(StoreEvaluationResultRequest) returns (confirmate.evaluation.v1.EvaluationResult) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/evaluation_results"
+      body: "result"
+    };
+  }
+
   // List all assessment results. Part of the public API, also exposed as REST.
   rpc ListAssessmentResults(ListAssessmentResultsRequest) returns (ListAssessmentResultsResponse) {
     option (google.api.http) = {get: "/v1/orchestrator/assessment_results"};
+  }
+
+  // List all evaluation results that the user can access. It can further be
+  // restricted by various filtering options. Part of the public API, also
+  // exposed as REST.
+  rpc ListEvaluationResults(ListEvaluationResultsRequest) returns (ListEvaluationResultsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/evaluation_results"};
   }
 
   // Creates a new metric
@@ -236,6 +254,13 @@ service Orchestrator {
     option (google.api.http) = {delete: "/v1/orchestrator/certificates/{certificate_id}"};
   }
 
+  // Re-evaluates the certificate lifecycle state for the given audit scope
+  // based on its current evaluation results. This is called by the
+  // evaluation component once a full catalog evaluation run has finished.
+  rpc UpdateCertificateLifecycle(UpdateCertificateLifecycleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/orchestrator/audit_scopes/{audit_scope_id}/certificate_lifecycle"};
+  }
+
   // Creates a new security controls catalog
   rpc CreateCatalog(CreateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
@@ -280,19 +305,14 @@ service Orchestrator {
   // catalog ID and a category name is specified, then only controls containing
   // in this category are returned.
   rpc ListControls(ListControlsRequest) returns (ListControlsResponse) {
-    option (google.api.http) = {
-      get: "/v1/orchestrator/controls"
-      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/controls"}
-      additional_bindings: {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls"}
-    };
+    option (google.api.http) = {get: "/v1/orchestrator/controls"};
   }
 
-  // Retrieves a control specified by the catalog ID, the control's category
-  // name and the control ID. If present, it also includes a list of
-  // sub-controls if present or a list of metrics if no sub-controls but metrics
-  // are present.
+  // Retrieves a control by its unique control ID.
+  // If present, it also includes a list of sub-controls if present or a list of
+  // metrics if no sub-controls but metrics are present.
   rpc GetControl(GetControlRequest) returns (Control) {
-    option (google.api.http) = {get: "/v1/orchestrator/catalogs/{catalog_id}/categories/{category_name}/controls/{control_id}"};
+    option (google.api.http) = {get: "/v1/orchestrator/controls/{control_id}"};
   }
 
   // Creates a new Audit Scope
@@ -332,6 +352,100 @@ service Orchestrator {
   // Get Runtime Information
   rpc GetRuntimeInfo(confirmate.common.v1.GetRuntimeInfoRequest) returns (confirmate.common.v1.Runtime) {
     option (google.api.http) = {get: "/v1/orchestrator/runtime_info"};
+  }
+
+  // Upserts a specific user permission identified by object and user.
+  rpc UpsertUserPermission(UpsertUserPermissionRequest) returns (UpsertUserPermissionResponse) {
+    option (google.api.http) = {
+      put: "/v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}"
+      body: "*"
+    };
+  }
+
+  // Removes a specific user permission identified by object ID, object type and user ID.
+  rpc RemoveUserPermission(RemoveUserPermissionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/permissions/{object_type}/{object_id}/users/{user_id}"};
+  }
+
+  // Returns information about the currently authenticated user
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/me"};
+  }
+
+  // Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/users/{user_id}"};
+  }
+
+  // Lists users with optional filtering
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/users"};
+  }
+
+  // Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+  rpc ListUserPermissions(ListUserPermissionsRequest) returns (ListUserPermissionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/permissions"
+      additional_bindings: {get: "/v1/users/permissions/{filter.object_type}/{filter.object_id}"}
+      additional_bindings: {get: "/v1/users/permissions/{filter.object_type}/{filter.object_id}/users/{filter.user_id}"}
+    };
+  }
+
+  // Lists all predefined roles in the system.
+  rpc ListUserRoles(ListUserRolesRequest) returns (ListUserRolesResponse) {
+    option (google.api.http) = {get: "/v1/users/roles"};
+  }
+
+  // Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+  rpc RemoveUser(RemoveUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/{user_id}"};
+  }
+
+  // Manually brings a control into scope within an audit scope, creating a ControlInScope record.
+  // Note: controls are also brought in scope automatically when an audit scope is created.
+  rpc CreateControlInScope(CreateControlInScopeRequest) returns (ControlInScope) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/controls_in_scope"
+      body: "*"
+    };
+  }
+
+  // Retrieves a ControlInScope record by ID.
+  rpc GetControlInScope(GetControlInScopeRequest) returns (ControlInScope) {
+    option (google.api.http) = {get: "/v1/orchestrator/controls_in_scope/{id}"};
+  }
+
+  // Lists controls in scope with optional filtering by audit scope, state, or assignee.
+  rpc ListControlsInScope(ListControlsInScopeRequest) returns (ListControlsInScopeResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/controls_in_scope"};
+  }
+
+  // Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
+  // use TransitionControlInScopeState to change the implementation state.
+  rpc UpdateControlInScope(UpdateControlInScopeRequest) returns (ControlInScope) {
+    option (google.api.http) = {
+      put: "/v1/orchestrator/controls_in_scope/{id}"
+      body: "*"
+    };
+  }
+
+  // Transitions a ControlInScope to a new implementation state, enforcing the state machine and
+  // recording the change as an AuditTrailEvent.
+  rpc TransitionControlInScopeState(TransitionControlInScopeStateRequest) returns (ControlInScope) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/controls_in_scope/{id}/transition"
+      body: "*"
+    };
+  }
+
+  // Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
+  rpc RemoveControlInScope(RemoveControlInScopeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/orchestrator/controls_in_scope/{id}"};
+  }
+
+  // Lists audit trail events, optionally filtered by audit scope.
+  rpc ListAuditTrailEvents(ListAuditTrailEventsRequest) returns (ListAuditTrailEventsResponse) {
+    option (google.api.http) = {get: "/v1/orchestrator/audit_trail_events"};
   }
 }
 
@@ -398,6 +512,55 @@ message StoreAssessmentResultResponse {}
 message StoreAssessmentResultsResponse {
   bool status = 1;
   string status_message = 2;
+}
+
+message StoreEvaluationResultRequest {
+  confirmate.evaluation.v1.EvaluationResult result = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListEvaluationResultsRequest {
+  message Filter {
+    // Optional. Lists only evaluation results for a specific target of evaluation.
+    optional string target_of_evaluation_id = 1 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Lists only evaluation results for a specific catalog.
+    optional string catalog_id = 2 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists only evaluation results for a specific control id.
+    optional string control_id = 3 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists all evaluation results for the given initial control id
+    // substring, e.g., if the substring 'CMK-01.' is given it returns the
+    // controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+    optional string sub_controls = 4 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Lists only results for parent controls
+    optional bool parents_only = 5;
+
+    // Optional. Lists only manual results in their validity period
+    optional bool valid_manual_only = 6;
+
+    // Optional. Lists only evaluation results for a specific audit scope.
+    optional string audit_scope_id = 7 [(buf.validate.field).string.uuid = true];
+  }
+
+  optional Filter filter = 1;
+
+  // Optional. Latest results grouped by control_id.
+  optional bool latest_by_control_id = 2;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListEvaluationResultsResponse {
+  repeated confirmate.evaluation.v1.EvaluationResult results = 1;
+  string next_page_token = 2;
 }
 
 message CreateMetricRequest {
@@ -482,10 +645,7 @@ message ListTargetsOfEvaluationRequest {
 }
 
 message ListTargetsOfEvaluationResponse {
-  repeated TargetOfEvaluation targets_of_evaluation = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  repeated TargetOfEvaluation targets_of_evaluation = 1 [(google.api.field_behavior) = REQUIRED];
   string next_page_token = 2;
 }
 
@@ -571,6 +731,8 @@ enum EventCategory {
   EVENT_CATEGORY_AUDIT_SCOPE = 5;
   EVENT_CATEGORY_ASSESSMENT_RESULT = 6;
   EVENT_CATEGORY_ASSESSMENT_TOOL = 7;
+  EVENT_CATEGORY_USER = 8;
+  EVENT_CATEGORY_CONTROL_IN_SCOPE = 9;
 }
 
 message SubscribeRequest {
@@ -604,6 +766,10 @@ enum RequestType {
   REQUEST_TYPE_REGISTERED = 4;
   // RequestTypeStored indicates that an entity was stored (similar to created, but for bulk operations).
   REQUEST_TYPE_STORED = 5;
+  // RequestTypeGet indicates that an entity was retrieved from the orchestrator.
+  REQUEST_TYPE_GET = 6;
+  // RequestTypeList indicates that a list of entities was retrieved from the orchestrator.
+  REQUEST_TYPE_LIST = 7;
 }
 
 // ChangeEvent represents a change that occurred to an entity managed by the orchestrator.
@@ -629,7 +795,7 @@ message ChangeEvent {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes). 
+  // TargetOfEvaluationId is an optional target of evaluation ID (for metric configuration changes).
   // When present, should be a valid UUID.
   optional string target_of_evaluation_id = 5;
 
@@ -642,6 +808,8 @@ message ChangeEvent {
     confirmate.assessment.v1.MetricConfiguration metric_configuration = 14;
     confirmate.assessment.v1.MetricImplementation metric_implementation = 15;
     AssessmentTool assessment_tool = 16;
+    User user = 17;
+    ControlInScope control_in_scope = 18;
   }
 }
 
@@ -715,6 +883,45 @@ message TargetOfEvaluation {
     (buf.validate.field).enum.defined_only = true,
     (google.api.field_behavior) = REQUIRED
   ];
+
+  reserved 12, 13, 14;
+  reserved "readers", "contributors", "admins";
+
+  // Organization contains details about the organization responsible for this target of evaluation.
+  message Organization {
+    // Name of the company or organization.
+    string name = 1;
+
+    // PostalAddress holds the physical address of the organization.
+    message PostalAddress {
+      // Street name and number.
+      string street = 1;
+
+      // City.
+      string city = 2;
+
+      // Postal / ZIP code.
+      string zip = 3;
+
+      // Country.
+      string country = 4;
+    }
+
+    // Postal address of the organization.
+    PostalAddress address = 2;
+
+    // Optional name of the primary contact person.
+    optional string contact_person = 3;
+
+    // Contact e-mail address.
+    string contact_email = 4;
+
+    // Website URL of the organization.
+    string website = 5;
+  }
+
+  // Organization details for this target of evaluation.
+  optional Organization organization = 15 [(tagger.tags) = "gorm:\"serializer:json\""];
 }
 
 message Catalog {
@@ -775,8 +982,10 @@ message Category {
 
   repeated Control controls = 4 [
     (tagger.tags) =
-      "gorm:\"foreignKey:category_name,category_"
-      "catalog_id;references:name,catalog_id;constraint:OnDelete:CASCADE\"",
+      "gorm:\"many2many:category_controls;"
+      "joinForeignKey:category_name,category_catalog_id;"
+      "joinReferences:control_id;"
+      "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -787,29 +996,17 @@ message Category {
 // requirement in the EUCS terminology, e.g., is represented as the lowest
 // sub-control.
 message Control {
-  // A short name of the control, e.g. OPS-01, as used in OSCAL; it is not a
-  // unique ID!
+  // Globally unique ID of the control.
   string id = 1 [
     (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.uuid = true,
     (google.api.field_behavior) = REQUIRED
   ];
-  string category_name = 2 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_catalog_id = 3 [
-    (tagger.tags) = "gorm:\"primaryKey\"",
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  reserved 2;
+  reserved 3;
 
-  // Human-readable name of the control
-  string name = 4 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
+  // Human-readable name of the control.
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
 
   // Description of the control
   string description = 5;
@@ -818,9 +1015,9 @@ message Control {
   //     this is in accordance with the OSCAL model.
   repeated Control controls = 6 [
     (tagger.tags) =
-      "gorm:\"foreignKey:parent_control_id,parent_control_"
-      "category_name,parent_control_category_catalog_id;"
-      "references=id,category_name;category_catalog_id\"",
+      "gorm:\"foreignKey:parent_control_id;"
+      "references:id;"
+      "constraint:OnDelete:CASCADE\"",
     (buf.validate.field).repeated.items.required = true,
     (google.api.field_behavior) = REQUIRED
   ];
@@ -834,14 +1031,42 @@ message Control {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // Reference to the parent category this control belongs to.
-  optional string parent_control_id = 8 [(buf.validate.field).string.min_len = 1];
-  optional string parent_control_category_name = 9 [(buf.validate.field).string.min_len = 1];
-  optional string parent_control_category_catalog_id = 10 [(buf.validate.field).string.min_len = 1];
+  // Unique ID of the parent control, if this is a sub-control.
+  optional string parent_control_id = 8 [(buf.validate.field).string.uuid = true];
+
+  reserved 9;
+  reserved 10;
 
   // An assurance level is not offered by every catalog, therefore it is
   // optional.
   optional string assurance_level = 11;
+
+  // Catalog-local control identifier (e.g. OPS-01).
+  string short_name = 12 [(google.api.field_behavior) = REQUIRED];
+
+  // FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).
+  repeated ControlInScope controls_in_scope = 13 [(tagger.tags) = "gorm:\"foreignKey:ControlId;constraint:OnDelete:RESTRICT\""];
+
+  // Catalog ID of the catalog this control belongs to.
+  string catalog_id = 14 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// AuditScopeStatus represents the lifecycle status of an audit scope.
+enum AuditScopeStatus {
+  AUDIT_SCOPE_STATUS_UNSPECIFIED = 0;
+  // Setup is the initial status when an audit scope is first created.
+  AUDIT_SCOPE_STATUS_SETUP = 1;
+  // InternalReview indicates the audit scope is under internal review.
+  AUDIT_SCOPE_STATUS_INTERNAL_REVIEW = 2;
+  // AuditorReview indicates the audit scope is being reviewed by an auditor.
+  AUDIT_SCOPE_STATUS_AUDITOR_REVIEW = 3;
+  // ContinuousComplianceManagement indicates the audit scope is in continuous compliance management.
+  AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT = 4;
+  // Fixed indicates the audit scope has been completed and fixed.
+  AUDIT_SCOPE_STATUS_FIXED = 5;
 }
 
 // A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
@@ -851,6 +1076,10 @@ message AuditScope {
   string id = 4 [
     (tagger.tags) = "gorm:\"primaryKey\"",
     (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string name = 5 [
+    (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
   ];
   string target_of_evaluation_id = 1 [
@@ -864,6 +1093,25 @@ message AuditScope {
   // an assurance level is not offered by every catalog, therefore it is
   // optional
   optional string assurance_level = 3;
+
+  reserved 6, 7, 8;
+  reserved "readers", "contributors", "admins";
+
+  // Status represents the current lifecycle status of the audit scope.
+  AuditScopeStatus status = 9 [
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    },
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // FK-constraint-only back-references: not populated in API responses (queries use WithoutPreload).
+  // GORM requires a relationship field on the parent to declare the FK and cascade behaviour on
+  // AutoMigrate; workflow.proto cannot import orchestrator.proto (circular), so the declarations
+  // must live here.
+  repeated ControlInScope controls_in_scope = 10 [(tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""];
+  repeated AuditTrailEvent audit_trail_events = 11 [(tagger.tags) = "gorm:\"foreignKey:AuditScopeId;constraint:OnDelete:CASCADE\""];
 }
 
 message GetAssessmentResultRequest {
@@ -883,6 +1131,8 @@ message ListAssessmentResultsRequest {
     optional string tool_id = 5 [(buf.validate.field).string.min_len = 1];
     // Optional. List only assessment result from a specific list of IDs.
     repeated string assessment_result_ids = 6 [(buf.validate.field).repeated.items.string.min_len = 1];
+    // Optional. List only assessment results from a specific evidence ID.
+    optional string evidence_id = 7 [(buf.validate.field).string.uuid = true];
   }
   optional Filter filter = 1;
   // Optional. Latest results grouped by resource_id and metric_id.
@@ -958,6 +1208,15 @@ message GetCertificateRequest {
 }
 
 message ListCertificatesRequest {
+  message Filter {
+    // Optional. List only certificates of a specific target of evaluation.
+    optional string target_of_evaluation_id = 1;
+    // Optional. List only certificates of a specific audit scope.
+    optional string audit_scope_id = 2;
+  }
+
+  optional Filter filter = 1;
+
   int32 page_size = 10;
   string page_token = 11;
   string order_by = 12;
@@ -1040,14 +1299,6 @@ message GetCategoryRequest {
 }
 
 message GetControlRequest {
-  string catalog_id = 1 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
-  string category_name = 2 [
-    (buf.validate.field).string.min_len = 1,
-    (google.api.field_behavior) = REQUIRED
-  ];
   string control_id = 3 [
     (buf.validate.field).string.min_len = 1,
     (google.api.field_behavior) = REQUIRED
@@ -1055,13 +1306,15 @@ message GetControlRequest {
 }
 
 message ListControlsRequest {
-  // return either all controls or only the controls of the specified category
-  string catalog_id = 1;
-  string category_name = 2;
-
   message Filter {
+    // Optional. Lists only controls with the specified catalog.
+    optional string catalog_id = 1;
+    // Optional. Lists only controls with the specified category.
+    optional string category_name = 2;
     // Optional. Lists only controls with the specified assurance levels.
-    repeated string assurance_levels = 1 [(buf.validate.field).repeated.items.string.min_len = 1];
+    repeated string assurance_levels = 3 [(buf.validate.field).repeated.items.string.min_len = 1];
+    // Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+    optional bool full = 4;
   }
   optional Filter filter = 3;
 
@@ -1090,7 +1343,15 @@ message RemoveCertificateRequest {
   ];
 }
 
-// An ISO17021-based certificate
+message UpdateCertificateLifecycleRequest {
+  string audit_scope_id = 1 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// An ISO17021-based certificate. The lifecycle manager keeps the certificate
+// state in sync with the evaluation results of its associated audit scope.
 message Certificate {
   string id = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -1112,6 +1373,11 @@ message Certificate {
   string description = 9;
   // A list of states at specific times
   repeated State states = 10 [(tagger.tags) = "gorm:\"constraint:OnDelete:CASCADE\""];
+  // The audit scope this certificate is associated with.
+  string audit_scope_id = 11 [
+    (buf.validate.field).string.uuid = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }
 
 // A state of a certificate at a given time
@@ -1119,8 +1385,119 @@ message State {
   string id = 1;
   // An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
   string state = 2;
-  string tree_id = 3;
+  reserved 3;
+  reserved "tree_id";
   string timestamp = 4;
   // Reference to the certificate
   string certificate_id = 5;
+}
+
+message UpsertUserPermissionRequest {
+  UserPermission user_permission = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message UpsertUserPermissionResponse {
+  UserPermission user_permission = 1;
+}
+
+message RemoveUserPermissionRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string object_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  ObjectType object_type = 3 [
+    (buf.validate.field).enum.defined_only = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetCurrentUserRequest {
+  // Empty request - user is identified from authentication context
+}
+
+message GetUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListUsersRequest {
+  message Filter {
+    // Optional. Filter by role (e.g., "compliance_manager")
+    optional Role role = 1 [(buf.validate.field).enum = {defined_only: true}];
+
+    // Optional. Filter by enabled/disabled status
+    optional bool enabled = 2;
+
+    // Optional. Search query for username, email, first name, or last name
+    optional string search = 3;
+
+    // Optional. Filter by specific attribute key-value pairs (e.g., department)
+    map<string, string> attributes = 4;
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message ListUserPermissionsRequest {
+  message Filter {
+    // Optional. Filter by a specific user ID to list all permissions for that user.
+    optional string user_id = 1 [(buf.validate.field).string.min_len = 1];
+
+    // Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+    optional string object_id = 2 [(buf.validate.field).string.uuid = true];
+
+    // Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
+    optional ObjectType object_type = 3 [(buf.validate.field).enum.defined_only = true];
+  }
+
+  optional Filter filter = 1;
+
+  int32 page_size = 10;
+  string page_token = 11;
+  string order_by = 12;
+  bool asc = 13;
+}
+
+message ListUserPermissionsResponse {
+  repeated UserPermission user_permissions = 1;
+
+  string next_page_token = 2;
+}
+
+message ListUserRolesRequest {
+  int32 page_size = 10;
+  string page_token = 11;
+  bool asc = 13;
+}
+
+message ListUserRolesResponse {
+  repeated Role roles = 1;
+}
+
+message RemoveUserRequest {
+  string user_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
 }

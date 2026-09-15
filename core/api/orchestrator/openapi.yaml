@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: 0.0.1
+    version: core/v0.2.17-43-g0877a1f
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -47,6 +47,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.evidenceId
+                  in: query
+                  description: Optional. List only assessment results from a specific evidence ID.
+                  schema:
+                    type: string
                 - name: latestByResourceId
                   in: query
                   description: Optional. Latest results grouped by resource_id and metric_id.
@@ -394,6 +399,83 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_scopes/{auditScopeId}/certificate_lifecycle:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Re-evaluates the certificate lifecycle state for the given audit scope
+                 based on its current evaluation results. This is called by the
+                 evaluation component once a full catalog evaluation run has finished.
+            operationId: Orchestrator_UpdateCertificateLifecycle
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_trail_events:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists audit trail events, optionally filtered by audit scope.
+            operationId: Orchestrator_ListAuditTrailEvents
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Filter by audit scope.
+                  schema:
+                    type: string
+                - name: filter.controlInScopeId
+                  in: query
+                  description: Optional. Filter by control in scope (returns only events for that specific record).
+                  schema:
+                    type: string
+                - name: filter.actorId
+                  in: query
+                  description: Optional. Filter by the actor (User.id) who triggered the events.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAuditTrailEventsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/catalogs:
         get:
             tags:
@@ -536,103 +618,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/catalogs/{catalogId}/categories/{categoryName}/controls:
-        get:
-            tags:
-                - Orchestrator
-            description: |-
-                If no additional parameters are specified, this lists all controls. If a
-                 catalog ID and a category name is specified, then only controls containing
-                 in this category are returned.
-            operationId: Orchestrator_ListControls
-            parameters:
-                - name: catalogId
-                  in: path
-                  description: return either all controls or only the controls of the specified category
-                  required: true
-                  schema:
-                    type: string
-                - name: categoryName
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: filter.assuranceLevels
-                  in: query
-                  description: Optional. Lists only controls with the specified assurance levels.
-                  schema:
-                    type: array
-                    items:
-                        type: string
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListControlsResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /v1/orchestrator/catalogs/{catalogId}/categories/{categoryName}/controls/{controlId}:
-        get:
-            tags:
-                - Orchestrator
-            description: |-
-                Retrieves a control specified by the catalog ID, the control's category
-                 name and the control ID. If present, it also includes a list of
-                 sub-controls if present or a list of metrics if no sub-controls but metrics
-                 are present.
-            operationId: Orchestrator_GetControl
-            parameters:
-                - name: catalogId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: categoryName
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: controlId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Control'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/catalogs/{catalogId}/category/{categoryName}:
         get:
             tags:
@@ -666,63 +651,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/orchestrator/catalogs/{catalogId}/controls:
-        get:
-            tags:
-                - Orchestrator
-            description: |-
-                If no additional parameters are specified, this lists all controls. If a
-                 catalog ID and a category name is specified, then only controls containing
-                 in this category are returned.
-            operationId: Orchestrator_ListControls
-            parameters:
-                - name: catalogId
-                  in: path
-                  description: return either all controls or only the controls of the specified category
-                  required: true
-                  schema:
-                    type: string
-                - name: categoryName
-                  in: query
-                  schema:
-                    type: string
-                - name: filter.assuranceLevels
-                  in: query
-                  description: Optional. Lists only controls with the specified assurance levels.
-                  schema:
-                    type: array
-                    items:
-                        type: string
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  schema:
-                    type: string
-                - name: asc
-                  in: query
-                  schema:
-                    type: boolean
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListControlsResponse'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
     /v1/orchestrator/certificates:
         get:
             tags:
@@ -730,6 +658,16 @@ paths:
             description: Lists all target certificates
             operationId: Orchestrator_ListCertificates
             parameters:
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: Optional. List only certificates of a specific target of evaluation.
+                  schema:
+                    type: string
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. List only certificates of a specific audit scope.
+                  schema:
+                    type: string
                 - name: pageSize
                   in: query
                   schema:
@@ -871,13 +809,14 @@ paths:
                  in this category are returned.
             operationId: Orchestrator_ListControls
             parameters:
-                - name: catalogId
+                - name: filter.catalogId
                   in: query
-                  description: return either all controls or only the controls of the specified category
+                  description: Optional. Lists only controls with the specified catalog.
                   schema:
                     type: string
-                - name: categoryName
+                - name: filter.categoryName
                   in: query
+                  description: Optional. Lists only controls with the specified category.
                   schema:
                     type: string
                 - name: filter.assuranceLevels
@@ -887,6 +826,11 @@ paths:
                     type: array
                     items:
                         type: string
+                - name: filter.full
+                  in: query
+                  description: Optional. Lists controls with all sub-controls and metrics. If false, only top-level and subcontrols are returned.
+                  schema:
+                    type: boolean
                 - name: pageSize
                   in: query
                   schema:
@@ -911,6 +855,348 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListControlsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls/{controlId}:
+        get:
+            tags:
+                - Orchestrator
+            description: |-
+                Retrieves a control by its unique control ID.
+                 If present, it also includes a list of sub-controls if present or a list of
+                 metrics if no sub-controls but metrics are present.
+            operationId: Orchestrator_GetControl
+            parameters:
+                - name: controlId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Control'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls_in_scope:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists controls in scope with optional filtering by audit scope, state, or assignee.
+            operationId: Orchestrator_ListControlsInScope
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Filter by audit scope.
+                  schema:
+                    type: string
+                - name: filter.state
+                  in: query
+                  description: Optional. Filter by current state.
+                  schema:
+                    enum:
+                        - CONTROL_IN_SCOPE_STATE_UNSPECIFIED
+                        - CONTROL_IN_SCOPE_STATE_OPEN
+                        - CONTROL_IN_SCOPE_STATE_IN_PROGRESS
+                        - CONTROL_IN_SCOPE_STATE_IMPLEMENTED
+                        - CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW
+                        - CONTROL_IN_SCOPE_STATE_ACCEPTED
+                    type: string
+                    format: enum
+                - name: filter.assigneeId
+                  in: query
+                  description: Optional. Filter by assignee.
+                  schema:
+                    type: string
+                - name: filter.controlId
+                  in: query
+                  description: Optional. Filter by control ID.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListControlsInScopeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Manually brings a control into scope within an audit scope, creating a ControlInScope record.
+                 Note: controls are also brought in scope automatically when an audit scope is created.
+            operationId: Orchestrator_CreateControlInScope
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateControlInScopeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls_in_scope/{id}:
+        get:
+            tags:
+                - Orchestrator
+            description: Retrieves a ControlInScope record by ID.
+            operationId: Orchestrator_GetControlInScope
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - Orchestrator
+            description: |-
+                Updates a ControlInScope record. Only assignee_id and implementation_details can be updated;
+                 use TransitionControlInScopeState to change the implementation state.
+            operationId: Orchestrator_UpdateControlInScope
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateControlInScopeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Manually removes a control from scope within an audit scope, creating an AuditTrailEvent.
+            operationId: Orchestrator_RemoveControlInScope
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: comment
+                  in: query
+                  description: Comment explains why this control is being removed from scope.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/controls_in_scope/{id}/transition:
+        post:
+            tags:
+                - Orchestrator
+            description: |-
+                Transitions a ControlInScope to a new implementation state, enforcing the state machine and
+                 recording the change as an AuditTrailEvent.
+            operationId: Orchestrator_TransitionControlInScopeState
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TransitionControlInScopeStateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ControlInScope'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/evaluation_results:
+        get:
+            tags:
+                - Orchestrator
+            description: |-
+                List all evaluation results that the user can access. It can further be
+                 restricted by various filtering options. Part of the public API, also
+                 exposed as REST.
+            operationId: Orchestrator_ListEvaluationResults
+            parameters:
+                - name: filter.targetOfEvaluationId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific target of evaluation.
+                  schema:
+                    type: string
+                - name: filter.catalogId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific catalog.
+                  schema:
+                    type: string
+                - name: filter.controlId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific control id.
+                  schema:
+                    type: string
+                - name: filter.subControls
+                  in: query
+                  description: |-
+                    Optional. Lists all evaluation results for the given initial control id
+                     substring, e.g., if the substring 'CMK-01.' is given it returns the
+                     controls CMK-01.1B, CMK-01.1S, CMK-01.1H.
+                  schema:
+                    type: string
+                - name: filter.parentsOnly
+                  in: query
+                  description: Optional. Lists only results for parent controls
+                  schema:
+                    type: boolean
+                - name: filter.validManualOnly
+                  in: query
+                  description: Optional. Lists only manual results in their validity period
+                  schema:
+                    type: boolean
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional. Lists only evaluation results for a specific audit scope.
+                  schema:
+                    type: string
+                - name: latestByControlId
+                  in: query
+                  description: Optional. Latest results grouped by control_id.
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEvaluationResultsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - Orchestrator
+            description: Store the evaluation result provided by the evaluation component.″
+            operationId: Orchestrator_StoreEvaluationResult
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EvaluationResult'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EvaluationResult'
                 default:
                     description: Default error response
                     content:
@@ -1483,6 +1769,504 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /v1/users:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists users with optional filtering
+            operationId: Orchestrator_ListUsers
+            parameters:
+                - name: filter.role
+                  in: query
+                  description: Optional. Filter by role (e.g., "compliance_manager")
+                  schema:
+                    enum:
+                        - ROLE_UNSPECIFIED
+                        - ROLE_ADMIN
+                        - ROLE_COMPLIANCE_MANAGER
+                        - ROLE_EXPERT_COMPLIANCE_MANAGER
+                        - ROLE_INTERNAL_CONTROL_OWNER
+                        - ROLE_TECHNICAL_IMPLEMENTER
+                        - ROLE_INTERNAL_AUDITOR
+                        - ROLE_LEAD_AUDITOR
+                        - ROLE_TECHNICAL_AUDITOR
+                        - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                        - ROLE_UI_ADMIN
+                    type: string
+                    format: enum
+                - name: filter.enabled
+                  in: query
+                  description: Optional. Filter by enabled/disabled status
+                  schema:
+                    type: boolean
+                - name: filter.search
+                  in: query
+                  description: Optional. Search query for username, email, first name, or last name
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUsersResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/me:
+        get:
+            tags:
+                - Orchestrator
+            description: Returns information about the currently authenticated user
+            operationId: Orchestrator_GetCurrentUser
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: filter.userId
+                  in: query
+                  description: Optional. Filter by a specific user ID to list all permissions for that user.
+                  schema:
+                    type: string
+                - name: filter.objectId
+                  in: query
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  schema:
+                    type: string
+                - name: filter.objectType
+                  in: query
+                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IN_SCOPE
+                    type: string
+                    format: enum
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{filter.object_type}/{filter.object_id}:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: filter.object_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.userId
+                  in: query
+                  description: Optional. Filter by a specific user ID to list all permissions for that user.
+                  schema:
+                    type: string
+                - name: filter.objectId
+                  in: query
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  schema:
+                    type: string
+                - name: filter.objectType
+                  in: query
+                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IN_SCOPE
+                    type: string
+                    format: enum
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{filter.object_type}/{filter.object_id}/users/{filter.user_id}:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists user permissions, optionally filtered by object type, object ID, and/or user ID.
+            operationId: Orchestrator_ListUserPermissions
+            parameters:
+                - name: filter.object_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: filter.userId
+                  in: query
+                  description: Optional. Filter by a specific user ID to list all permissions for that user.
+                  schema:
+                    type: string
+                - name: filter.objectId
+                  in: query
+                  description: Optional. Filter by the ID of a confirmate object such as a Target of Evaluation or Audit Scope.
+                  schema:
+                    type: string
+                - name: filter.objectType
+                  in: query
+                  description: Optional. Filter by the type of the confirmate object such as Taget of Evaluation or Audit Scope.
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IN_SCOPE
+                    type: string
+                    format: enum
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserPermissionsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/permissions/{objectType}/{objectId}/users/{userId}:
+        delete:
+            tags:
+                - Orchestrator
+            description: Removes a specific user permission identified by object ID, object type and user ID.
+            operationId: Orchestrator_RemoveUserPermission
+            parameters:
+                - name: objectType
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IN_SCOPE
+                    type: string
+                    format: enum
+                - name: objectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    ? /v1/users/permissions/{user_permission.object_type}/{user_permission.object_id}/users/{user_permission.user_id}/{user_permission.permission}
+    :   put:
+            tags:
+                - Orchestrator
+            description: Upserts a specific user permission identified by object and user.
+            operationId: Orchestrator_UpsertUserPermission
+            parameters:
+                - name: user_permission.object_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.object_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: user_permission.permission
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpsertUserPermissionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpsertUserPermissionResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/roles:
+        get:
+            tags:
+                - Orchestrator
+            description: Lists all predefined roles in the system.
+            operationId: Orchestrator_ListUserRoles
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: asc
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserRolesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/users/{userId}:
+        get:
+            tags:
+                - Orchestrator
+            description: Retrieves a specific user by their ID. This endpoint is restricted to users with elevated roles, such as admin.
+            operationId: Orchestrator_GetUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - Orchestrator
+            description: Remove a user from the system. This is a soft delete that disables the user and removes their access, but retains their data for audit purposes.
+            operationId: Orchestrator_RemoveUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         AssessmentResult:
@@ -1578,13 +2362,17 @@ components:
         AuditScope:
             required:
                 - id
+                - name
                 - targetOfEvaluationId
                 - catalogId
+                - status
             type: object
             properties:
                 id:
                     type: string
                     description: Audit Scope ID
+                name:
+                    type: string
                 targetOfEvaluationId:
                     type: string
                 catalogId:
@@ -1594,9 +2382,69 @@ components:
                     description: |-
                         an assurance level is not offered by every catalog, therefore it is
                          optional
+                status:
+                    enum:
+                        - AUDIT_SCOPE_STATUS_UNSPECIFIED
+                        - AUDIT_SCOPE_STATUS_SETUP
+                        - AUDIT_SCOPE_STATUS_INTERNAL_REVIEW
+                        - AUDIT_SCOPE_STATUS_AUDITOR_REVIEW
+                        - AUDIT_SCOPE_STATUS_CONTINUOUS_COMPLIANCE_MANAGEMENT
+                        - AUDIT_SCOPE_STATUS_FIXED
+                    type: string
+                    description: Status represents the current lifecycle status of the audit scope.
+                    format: enum
+                controlsInScope:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlInScope'
+                    description: |-
+                        FK-constraint-only back-references: not populated in API responses (queries use WithoutPreload).
+                         GORM requires a relationship field on the parent to declare the FK and cascade behaviour on
+                         AutoMigrate; workflow.proto cannot import orchestrator.proto (circular), so the declarations
+                         must live here.
+                auditTrailEvents:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AuditTrailEvent'
             description: |-
                 A Audit Scope binds a target of evaluation to a catalog, so the target of evaluation is
                  evaluated regarding this catalog's controls
+        AuditTrailEvent:
+            type: object
+            properties:
+                id:
+                    readOnly: true
+                    type: string
+                auditScopeId:
+                    readOnly: true
+                    type: string
+                    description: AuditScopeId is the primary resource this event belongs to.
+                actorId:
+                    readOnly: true
+                    type: string
+                    description: ActorId is the User.id of the person who triggered this event.
+                comment:
+                    type: string
+                    description: Comment provides optional context for the event.
+                createdAt:
+                    readOnly: true
+                    type: string
+                    description: Time is the creation time of this event.
+                    format: date-time
+                eventData:
+                    readOnly: true
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: EventData holds the typed event payload serialized as JSON.
+                controlInScopeId:
+                    type: string
+                    description: |-
+                        ControlInScopeId optionally links this event to the affected ControlInScope record.
+                         Not set for events where the ControlInScope record is deleted (e.g. RemoveControlInScope).
+            description: |-
+                AuditTrailEvent is a persisted record of any significant change related to an audit scope,
+                 such as a control being scoped/unscoped or an audit scope state transition. The event_data
+                 field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
         Catalog:
             required:
                 - id
@@ -1664,6 +2512,7 @@ components:
                 - id
                 - name
                 - targetOfEvaluationId
+                - auditScopeId
             type: object
             properties:
                 id:
@@ -1689,7 +2538,12 @@ components:
                     items:
                         $ref: '#/components/schemas/State'
                     description: A list of states at specific times
-            description: An ISO17021-based certificate
+                auditScopeId:
+                    type: string
+                    description: The audit scope this certificate is associated with.
+            description: |-
+                An ISO17021-based certificate. The lifecycle manager keeps the certificate
+                 state in sync with the evaluation results of its associated audit scope.
         ComparisonResult:
             required:
                 - property
@@ -1720,25 +2574,19 @@ components:
         Control:
             required:
                 - id
-                - categoryName
-                - categoryCatalogId
                 - name
                 - controls
                 - metrics
+                - shortName
+                - catalogId
             type: object
             properties:
                 id:
                     type: string
-                    description: |-
-                        A short name of the control, e.g. OPS-01, as used in OSCAL; it is not a
-                         unique ID!
-                categoryName:
-                    type: string
-                categoryCatalogId:
-                    type: string
+                    description: Globally unique ID of the control.
                 name:
                     type: string
-                    description: Human-readable name of the control
+                    description: Human-readable name of the control.
                 description:
                     type: string
                     description: Description of the control
@@ -1759,21 +2607,100 @@ components:
                          meta-data, most likely returned by the database.
                 parentControlId:
                     type: string
-                    description: Reference to the parent category this control belongs to.
-                parentControlCategoryName:
-                    type: string
-                parentControlCategoryCatalogId:
-                    type: string
+                    description: Unique ID of the parent control, if this is a sub-control.
                 assuranceLevel:
                     type: string
                     description: |-
                         An assurance level is not offered by every catalog, therefore it is
                          optional.
+                shortName:
+                    type: string
+                    description: Catalog-local control identifier (e.g. OPS-01).
+                controlsInScope:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlInScope'
+                    description: 'FK-constraint-only back-reference: not populated in API responses (queries use WithoutPreload).'
+                catalogId:
+                    type: string
+                    description: Catalog ID of the catalog this control belongs to.
             description: |-
                 Control represents a certain Control that needs to be fulfilled. It could be
                  a Control in a certification catalog. It follows the OSCAL model. A
                  requirement in the EUCS terminology, e.g., is represented as the lowest
                  sub-control.
+        ControlInScope:
+            required:
+                - id
+                - auditScopeId
+                - controlId
+            type: object
+            properties:
+                id:
+                    type: string
+                auditScopeId:
+                    type: string
+                    description: AuditScopeId describes the audit scope this record belongs to.
+                targetOfEvaluationId:
+                    type: string
+                    description: |-
+                        TargetOfEvaluationId is denormalized from the audit scope for efficient authorization checks.
+                         It is set server-side and not required in requests.
+                controlId:
+                    type: string
+                    description: 'ControlId references the control being implemented (unique UUID since #270).'
+                state:
+                    enum:
+                        - CONTROL_IN_SCOPE_STATE_UNSPECIFIED
+                        - CONTROL_IN_SCOPE_STATE_OPEN
+                        - CONTROL_IN_SCOPE_STATE_IN_PROGRESS
+                        - CONTROL_IN_SCOPE_STATE_IMPLEMENTED
+                        - CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW
+                        - CONTROL_IN_SCOPE_STATE_ACCEPTED
+                    type: string
+                    description: Current implementation state.
+                    format: enum
+                implementationDetails:
+                    type: string
+                    description: ImplementationDetails contains free-form notes about how the control is being addressed.
+                assigneeId:
+                    type: string
+                    description: |-
+                        AssigneeId is the ID of the orchestrator User entity responsible for implementing this control.
+                         This is the User.id of the person assigned, not the actor making the request.
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+            description: |-
+                ControlInScope tracks the implementation status of a specific control within an audit scope.
+                 There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
+                 when an audit scope is created and can also be managed manually via the CreateControlInScope /
+                 RemoveControlInScope RPCs.
+        CreateControlInScopeRequest:
+            required:
+                - auditScopeId
+                - controlId
+                - targetOfEvaluationId
+            type: object
+            properties:
+                auditScopeId:
+                    type: string
+                controlId:
+                    type: string
+                targetOfEvaluationId:
+                    type: string
+                    description: |-
+                        TargetOfEvaluationId must match the target_of_evaluation_id of the referenced audit scope.
+                         It is required here so the server can avoid a round-trip fetch of the AuditScope.
+                assigneeId:
+                    type: string
+                    description: AssigneeId is the ID of the orchestrator User entity initially responsible for this control.
+                comment:
+                    type: string
+                    description: Comment explains why this control is being brought into scope.
         Dependency:
             type: object
             properties:
@@ -1781,6 +2708,71 @@ components:
                     type: string
                 version:
                     type: string
+        EvaluationResult:
+            required:
+                - id
+                - status
+                - timestamp
+                - assessmentResultIds
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Evaluation result id
+                targetOfEvaluationId:
+                    type: string
+                    description: The Target of Evaluation ID the evaluation belongs to
+                auditScopeId:
+                    type: string
+                    description: The Audit Scope ID the evaluation belongs to
+                controlId:
+                    type: string
+                    description: The control id the evaluation was based on
+                controlCatalogId:
+                    type: string
+                    description: The catalog the evaluated control belongs to
+                parentControlId:
+                    type: string
+                    description: Optionally, specifies the parent control ID, if this is a sub-control
+                status:
+                    enum:
+                        - EVALUATION_STATUS_UNSPECIFIED
+                        - EVALUATION_STATUS_COMPLIANT
+                        - EVALUATION_STATUS_COMPLIANT_MANUALLY
+                        - EVALUATION_STATUS_NOT_COMPLIANT
+                        - EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY
+                        - EVALUATION_STATUS_PENDING
+                    type: string
+                    description: Evaluation status
+                    format: enum
+                timestamp:
+                    type: string
+                    description: Time of evaluation
+                    format: date-time
+                assessmentResultIds:
+                    type: array
+                    items:
+                        type: string
+                    description: List of assessment results because of which the evaluation status is compliant or not compliant
+                comment:
+                    type: string
+                validUntil:
+                    type: string
+                    description: |-
+                        Optional, but required if the status is one of the "manually" ones. This
+                         denotes how long the (manual) created evaluation result is valid. During
+                         this time, no automatic results are generated for the specific control.
+                    format: date-time
+                data:
+                    type: string
+                    description: |-
+                        Optional, but if you use manually created evaluation results, you can provide a justification for the manual
+                         creation, such as a large file like a policy in PDF format.
+                    format: bytes
+            description: |-
+                A evaluation result resource, representing the result after evaluating the
+                 target of evaluation with a specific control target_of_evaluation_id, category_name and
+                 catalog_id are necessary to get the corresponding AuditScope
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
@@ -1833,6 +2825,15 @@ components:
                         $ref: '#/components/schemas/AuditScope'
                 nextPageToken:
                     type: string
+        ListAuditTrailEventsResponse:
+            type: object
+            properties:
+                auditTrailEvents:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AuditTrailEvent'
+                nextPageToken:
+                    type: string
         ListCatalogsResponse:
             type: object
             properties:
@@ -1851,6 +2852,15 @@ components:
                         $ref: '#/components/schemas/Certificate'
                 nextPageToken:
                     type: string
+        ListControlsInScopeResponse:
+            type: object
+            properties:
+                controlsInScope:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ControlInScope'
+                nextPageToken:
+                    type: string
         ListControlsResponse:
             type: object
             properties:
@@ -1858,6 +2868,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Control'
+                nextPageToken:
+                    type: string
+        ListEvaluationResultsResponse:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EvaluationResult'
                 nextPageToken:
                     type: string
         ListMetricConfigurationResponse:
@@ -1893,13 +2912,50 @@ components:
         ListTargetsOfEvaluationResponse:
             required:
                 - targetsOfEvaluation
-                - targetsOfEvaluation
             type: object
             properties:
                 targetsOfEvaluation:
                     type: array
                     items:
                         $ref: '#/components/schemas/TargetOfEvaluation'
+                nextPageToken:
+                    type: string
+        ListUserPermissionsResponse:
+            type: object
+            properties:
+                userPermissions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserPermission'
+                nextPageToken:
+                    type: string
+        ListUserRolesResponse:
+            type: object
+            properties:
+                roles:
+                    type: array
+                    items:
+                        enum:
+                            - ROLE_UNSPECIFIED
+                            - ROLE_ADMIN
+                            - ROLE_COMPLIANCE_MANAGER
+                            - ROLE_EXPERT_COMPLIANCE_MANAGER
+                            - ROLE_INTERNAL_CONTROL_OWNER
+                            - ROLE_TECHNICAL_IMPLEMENTER
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
+                            - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
+                        type: string
+                        format: enum
+        ListUsersResponse:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
                 nextPageToken:
                     type: string
         Metric:
@@ -1919,16 +2975,16 @@ components:
                     description: Required. The name of the metric.
                 description:
                     type: string
-                    description: The description of the metric
+                    description: The description of the metric.
                 version:
                     type: string
-                    description: The version of this metric
+                    description: The version of this metric.
                 comments:
                     type: string
-                    description: Optional comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
+                    description: Comments that describe the purpose of this metric. They may also describe a scenario in which the metric can be useful.
                 category:
                     type: string
-                    description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics respository
+                    description: Semantically, the reference to control catalog category or domain; it must conform to the directory structure of the security-metrics repository.
                 implementation:
                     allOf:
                         - $ref: '#/components/schemas/MetricImplementation'
@@ -1953,7 +3009,7 @@ components:
             properties:
                 operator:
                     type: string
-                    description: The operator to compare the metric, such as == or >
+                    description: The operator to compare the metric, such as "==" or ">"
                 targetValue:
                     allOf:
                         - $ref: '#/components/schemas/GoogleProtobufValue'
@@ -1970,7 +3026,7 @@ components:
                     description: The metric this configuration belongs to
                 targetOfEvaluationId:
                     type: string
-                    description: The target of evaluation this configuration belongs to
+                    description: The target of evaluation this configuration belongs to.
             description: Defines the operator and a target value for an individual metric
         MetricImplementation:
             required:
@@ -1996,6 +3052,22 @@ components:
                     description: The last time of update
                     format: date-time
             description: MetricImplementation defines the implementation of an individual metric.
+        Organization_PostalAddress:
+            type: object
+            properties:
+                street:
+                    type: string
+                    description: Street name and number.
+                city:
+                    type: string
+                    description: City.
+                zip:
+                    type: string
+                    description: Postal / ZIP code.
+                country:
+                    type: string
+                    description: Country.
+            description: PostalAddress holds the physical address of the organization.
         Record:
             required:
                 - evidenceId
@@ -2039,8 +3111,6 @@ components:
                 state:
                     type: string
                     description: An EUCS-defined state, e.g. `new`, `suspended` or `withdrawn`
-                treeId:
-                    type: string
                 timestamp:
                     type: string
                 certificateId:
@@ -2109,6 +3179,10 @@ components:
                     type: string
                     description: 'type of the target to be evaluated: cloud, product or organization'
                     format: enum
+                organization:
+                    allOf:
+                        - $ref: '#/components/schemas/TargetOfEvaluation_Organization'
+                    description: Organization details for this target of evaluation.
         TargetOfEvaluation_Metadata:
             type: object
             properties:
@@ -2120,5 +3194,167 @@ components:
                 icon:
                     type: string
                     description: an icon for the target of evaluation used by the UI
+        TargetOfEvaluation_Organization:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Name of the company or organization.
+                address:
+                    allOf:
+                        - $ref: '#/components/schemas/Organization_PostalAddress'
+                    description: Postal address of the organization.
+                contactPerson:
+                    type: string
+                    description: Optional name of the primary contact person.
+                contactEmail:
+                    type: string
+                    description: Contact e-mail address.
+                website:
+                    type: string
+                    description: Website URL of the organization.
+            description: Organization contains details about the organization responsible for this target of evaluation.
+        TransitionControlInScopeStateRequest:
+            required:
+                - id
+                - toState
+                - comment
+            type: object
+            properties:
+                id:
+                    type: string
+                toState:
+                    enum:
+                        - CONTROL_IN_SCOPE_STATE_UNSPECIFIED
+                        - CONTROL_IN_SCOPE_STATE_OPEN
+                        - CONTROL_IN_SCOPE_STATE_IN_PROGRESS
+                        - CONTROL_IN_SCOPE_STATE_IMPLEMENTED
+                        - CONTROL_IN_SCOPE_STATE_READY_FOR_REVIEW
+                        - CONTROL_IN_SCOPE_STATE_ACCEPTED
+                    type: string
+                    format: enum
+                comment:
+                    type: string
+                    description: Comment explaining the reason for this transition.
+        UpdateControlInScopeRequest:
+            required:
+                - id
+            type: object
+            properties:
+                id:
+                    type: string
+                assigneeId:
+                    type: string
+                implementationDetails:
+                    type: string
+                    description: ImplementationDetails contains free-form notes about how the control is being addressed.
+        UpsertUserPermissionRequest:
+            required:
+                - userPermission
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
+        UpsertUserPermissionResponse:
+            type: object
+            properties:
+                userPermission:
+                    $ref: '#/components/schemas/UserPermission'
+        User:
+            required:
+                - id
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ID is the unique identifier of the user
+                username:
+                    type: string
+                    description: Username is the name used to be displayed
+                email:
+                    type: string
+                    description: Email is the email address of the user, if available.
+                firstName:
+                    type: string
+                    description: FirstName is the first name of the user, if available.
+                lastName:
+                    type: string
+                    description: LastName is the last name of the user, if available.
+                roles:
+                    type: array
+                    items:
+                        enum:
+                            - ROLE_UNSPECIFIED
+                            - ROLE_ADMIN
+                            - ROLE_COMPLIANCE_MANAGER
+                            - ROLE_EXPERT_COMPLIANCE_MANAGER
+                            - ROLE_INTERNAL_CONTROL_OWNER
+                            - ROLE_TECHNICAL_IMPLEMENTER
+                            - ROLE_INTERNAL_AUDITOR
+                            - ROLE_LEAD_AUDITOR
+                            - ROLE_TECHNICAL_AUDITOR
+                            - ROLE_CHIEF_INFORMATION_SECURITY_OFFICER
+                            - ROLE_UI_ADMIN
+                        type: string
+                        format: enum
+                    description: Roles represent the roles assigned to the user in the system, which determine their permissions and access levels.
+                enabled:
+                    type: boolean
+                    description: Enabled indicates whether the user is active/enabled in the system
+                attributes:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Attributes contains additional key-value pairs associated with the user, such as department or team.
+                lastAccess:
+                    type: string
+                    description: LastAccess indicates the last time the user accessed the system.
+                    format: date-time
+            description: Represents a user from the IdP
+        UserPermission:
+            required:
+                - userId
+                - objectId
+                - objectType
+                - permission
+            type: object
+            properties:
+                userId:
+                    type: string
+                    description: User ID is required to identify the user for whom the perission is being upserted.
+                objectId:
+                    type: string
+                    description: Object ID identifies the confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+                objectType:
+                    enum:
+                        - OBJECT_TYPE_UNSPECIFIED
+                        - OBJECT_TYPE_METRIC
+                        - OBJECT_TYPE_METRIC_CONFIGURATION
+                        - OBJECT_TYPE_METRIC_IMPLEMENTATION
+                        - OBJECT_TYPE_TARGET_OF_EVALUATION
+                        - OBJECT_TYPE_AUDIT_SCOPE
+                        - OBJECT_TYPE_ASSESSMENT_RESULT
+                        - OBJECT_TYPE_ASSESSMENT_TOOL
+                        - OBJECT_TYPE_USER
+                        - OBJECT_TYPE_USER_PERMISSION
+                        - OBJECT_TYPE_CERTIFICATE
+                        - OBJECT_TYPE_CATALOG
+                        - OBJECT_TYPE_CATEGORY
+                        - OBJECT_TYPE_CONTROL
+                        - OBJECT_TYPE_EVALUATION_RESULT
+                        - OBJECT_TYPE_EVIDENCE
+                        - OBJECT_TYPE_CONTROL_IN_SCOPE
+                    type: string
+                    description: Object type specifies the type of confirmate object (e.g. Target of Evaluation or Audit Scope) for which the permission is granted.
+                    format: enum
+                permission:
+                    enum:
+                        - PERMISSION_UNSPECIFIED
+                        - PERMISSION_READER
+                        - PERMISSION_CONTRIBUTOR
+                        - PERMISSION_ADMIN
+                    type: string
+                    description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
+                    format: enum
 tags:
     - name: Orchestrator

@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/server"
 	"confirmate.io/core/server/servertest"
+	"confirmate.io/core/service"
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
@@ -47,6 +48,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 	type fields struct {
 		db          persistence.DB
 		subscribers map[int64]*subscriber
+		authz       service.AuthorizationStrategy
 	}
 	tests := []struct {
 		name         string
@@ -60,6 +62,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			fields: fields{
 				db:          persistencetest.NewInMemoryDB(t, types, joinTables),
 				subscribers: make(map[int64]*subscriber),
+				authz:       &service.AuthorizationStrategyAllowAll{},
 			},
 			results: []*assessment.AssessmentResult{
 				orchestratortest.MockNewAssessmentResult,
@@ -74,6 +77,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			fields: fields{
 				db:          persistencetest.NewInMemoryDB(t, types, joinTables),
 				subscribers: make(map[int64]*subscriber),
+				authz:       &service.AuthorizationStrategyAllowAll{},
 			},
 			results: []*assessment.AssessmentResult{
 				orchestratortest.MockNewAssessmentResult,
@@ -92,6 +96,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 					assert.NoError(t, d.Create(orchestratortest.MockAssessmentResult2))
 				}),
 				subscribers: make(map[int64]*subscriber),
+				authz:       &service.AuthorizationStrategyAllowAll{},
 			},
 			results: []*assessment.AssessmentResult{
 				orchestratortest.MockNewAssessmentResult, // Should succeed
@@ -109,6 +114,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			fields: fields{
 				db:          persistencetest.NewInMemoryDB(t, types, joinTables),
 				subscribers: make(map[int64]*subscriber),
+				authz:       &service.AuthorizationStrategyAllowAll{},
 			},
 			results: []*assessment.AssessmentResult{}, // No results
 			wantStatuses: func(t *testing.T, got []bool, args ...any) bool {
@@ -128,6 +134,7 @@ func TestService_StoreAssessmentResults(t *testing.T) {
 			svc := &Service{
 				db:          tt.fields.db,
 				subscribers: tt.fields.subscribers,
+				authz:       tt.fields.authz,
 			}
 
 			// Create test server
@@ -185,6 +192,7 @@ func TestService_StoreAssessmentResults_ContextCancellation(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Create test server
@@ -239,6 +247,7 @@ func TestService_StoreAssessmentResults_CloseAndReceive(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Create test server
@@ -281,6 +290,7 @@ func TestService_StoreAssessmentResults_ConcurrentStreams(t *testing.T) {
 	svc := &Service{
 		db:          db,
 		subscribers: make(map[int64]*subscriber),
+		authz:       &service.AuthorizationStrategyAllowAll{},
 	}
 
 	// Create test server

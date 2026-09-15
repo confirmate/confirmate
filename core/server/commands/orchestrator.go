@@ -83,13 +83,8 @@ var OrchestratorCommand = &cli.Command{
 				jwksURL = fmt.Sprintf("http://localhost:%d/v1/auth/certs", cmd.Uint16("api-port"))
 			}
 
-			interceptors = append(interceptors, server.NewAuthInterceptor(
-				server.WithJWKS(jwksURL),
-			))
-			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyJWT(
-				service.DefaultTargetOfEvaluationsClaim,
-				service.DefaultAllowAllClaim,
-			))
+			interceptors = append(interceptors, server.NewAuthInterceptor(authInterceptorOptions(cmd, jwksURL)...))
+			svcOptions = append(svcOptions, orchestrator.WithAuthorizationStrategyPermissionStore())
 		}
 
 		interceptors = append(interceptors, &server.LoggingInterceptor{})
@@ -134,6 +129,7 @@ var OrchestratorCommand = &cli.Command{
 				svc,
 				connect.WithInterceptors(interceptors...),
 			)),
+			server.WithReflection(),
 		}
 
 		err = server.RunConnectServer(serverOpts...)

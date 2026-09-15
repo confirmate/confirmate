@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"confirmate.io/core/api/orchestrator"
+	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"buf.build/go/protovalidate"
@@ -34,7 +35,8 @@ func (svc *Service) CreateAuditScope(
 	req *connect.Request[orchestrator.CreateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope *orchestrator.AuditScope
+		scope   *orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request, ignoring ID field which will be auto-generated
@@ -42,17 +44,41 @@ func (svc *Service) CreateAuditScope(
 		return nil, err
 	}
 
-	scope = req.Msg.AuditScope
+	scope = &orchestrator.AuditScope{
+		Id:                   uuid.NewString(),
+		Name:                 req.Msg.GetAuditScope().GetName(),
+		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
+		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
+		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
+		Status:               req.Msg.GetAuditScope().GetStatus(),
+	}
 
-	// Generate a new UUID for the audit scope
-	scope.Id = uuid.NewString()
-
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_CREATED, req) {
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_CREATED, scope.TargetOfEvaluationId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 
-	// Persist the new audit scope in the database
-	err = svc.db.Create(scope)
+	// Persist the new audit scope in the database, grant creator admin access, and auto-create
+	// ControlInScope records for all controls in the catalog matching the assurance level.
+	err = svc.db.Transaction(func(tx persistence.DB) error {
+		if err = tx.Create(scope); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+
+		if err = grantCreatorAdminPermission(ctx, tx, scope.Id, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE); err != nil {
+			return err
+		}
+
+		if err = autoCreateControlsInScope(ctx, tx, scope); err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -78,7 +104,8 @@ func (svc *Service) GetAuditScope(
 	req *connect.Request[orchestrator.GetAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
 	var (
-		scope orchestrator.AuditScope
+		scope   orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request
@@ -86,13 +113,18 @@ func (svc *Service) GetAuditScope(
 		return nil, err
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
-		return nil, err
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_GET, req.Msg.GetAuditScopeId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, connect.NewRequest(&scope)) {
-		return nil, service.ErrPermissionDenied
+	err = svc.db.Get(&scope, persistence.WithoutPreload(), "id = ?", req.Msg.AuditScopeId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+		return nil, err
 	}
 
 	res = connect.NewResponse(&scope)
@@ -105,21 +137,16 @@ func (svc *Service) ListAuditScopes(
 	req *connect.Request[orchestrator.ListAuditScopesRequest],
 ) (res *connect.Response[orchestrator.ListAuditScopesResponse], err error) {
 	var (
-		scopes []*orchestrator.AuditScope
-		conds  []any
-		npt    string
+		scopes        []*orchestrator.AuditScope
+		conds         []any
+		npt           string
+		all           bool
+		auditScopeIds []string
 	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
-	}
-
-	all, allowed := svc.allowedTargetOfEvaluations(ctx)
-	if !all && req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
-		if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UNSPECIFIED, req) {
-			return nil, service.ErrPermissionDenied
-		}
 	}
 
 	// Set default ordering
@@ -128,21 +155,34 @@ func (svc *Service) ListAuditScopes(
 		req.Msg.Asc = true
 	}
 
+	// Use filter from request to build query conditions
 	// Filter by target_of_evaluation_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.TargetOfEvaluationId != nil {
 		conds = append(conds, "target_of_evaluation_id = ?", *req.Msg.Filter.TargetOfEvaluationId)
 	}
-
-	if !all {
-		conds = append(conds, "target_of_evaluation_id IN ?", allowed)
-	}
-
 	// Filter by catalog_id if provided
 	if req.Msg.Filter != nil && req.Msg.Filter.CatalogId != nil {
 		conds = append(conds, "catalog_id = ?", *req.Msg.Filter.CatalogId)
 	}
 
-	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts, conds...)
+	// Retrieve list of all allowed Audit Scope IDs for the user to filter results by access permissions.
+	all, auditScopeIds = svc.authz.AllowedAuditScopes(ctx)
+	if !all && len(auditScopeIds) == 0 {
+		// User has no access to any Audit Scope, return empty result
+		return connect.NewResponse(&orchestrator.ListAuditScopesResponse{
+			AuditScopes:   []*orchestrator.AuditScope{},
+			NextPageToken: "",
+		}), nil
+	}
+
+	// If access is not allowed to all objects, add a condition to filter by the allowed object IDs
+	if !all {
+		conds = append(conds, "id IN ?", auditScopeIds)
+	}
+
+	// Query the database with pagination and the constructed conditions
+	scopes, npt, err = service.PaginateStorage[*orchestrator.AuditScope](req.Msg, svc.db, service.DefaultPaginationOpts,
+		append([]any{persistence.WithoutPreload()}, conds...)...)
 	if err = service.HandleDatabaseError(err); err != nil {
 		return nil, err
 	}
@@ -159,15 +199,31 @@ func (svc *Service) UpdateAuditScope(
 	ctx context.Context,
 	req *connect.Request[orchestrator.UpdateAuditScopeRequest],
 ) (res *connect.Response[orchestrator.AuditScope], err error) {
-	var scope *orchestrator.AuditScope
+	var (
+		scope   *orchestrator.AuditScope
+		allowed bool
+	)
 
 	// Validate the request
 	if err = service.Validate(req); err != nil {
 		return nil, err
 	}
 
-	scope = req.Msg.AuditScope
-	if scope == nil || !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_UPDATED, req) {
+	scope = &orchestrator.AuditScope{
+		Id:                   req.Msg.GetAuditScope().GetId(),
+		Name:                 req.Msg.GetAuditScope().GetName(),
+		TargetOfEvaluationId: req.Msg.GetAuditScope().GetTargetOfEvaluationId(),
+		CatalogId:            req.Msg.GetAuditScope().GetCatalogId(),
+		AssuranceLevel:       req.Msg.GetAuditScope().AssuranceLevel,
+		Status:               req.Msg.GetAuditScope().GetStatus(),
+	}
+
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_UPDATED, scope.GetId(), orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
 		return nil, service.ErrPermissionDenied
 	}
 
@@ -198,7 +254,8 @@ func (svc *Service) RemoveAuditScope(
 	req *connect.Request[orchestrator.RemoveAuditScopeRequest],
 ) (res *connect.Response[emptypb.Empty], err error) {
 	var (
-		scope orchestrator.AuditScope
+		scope   orchestrator.AuditScope
+		allowed bool
 	)
 
 	// Validate the request
@@ -206,13 +263,18 @@ func (svc *Service) RemoveAuditScope(
 		return nil, err
 	}
 
-	err = svc.db.Get(&scope, "id = ?", req.Msg.AuditScopeId)
-	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
-		return nil, err
+	// Check access via the configured auth strategy
+	allowed, _, err = CheckAccess(ctx, svc.authz, svc, orchestrator.RequestType_REQUEST_TYPE_DELETED, req.Msg.AuditScopeId, orchestrator.ObjectType_OBJECT_TYPE_AUDIT_SCOPE)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return nil, service.ErrPermissionDenied
 	}
 
-	if !service.CheckAccess(svc.authz, ctx, orchestrator.RequestType_REQUEST_TYPE_DELETED, connect.NewRequest(&scope)) {
-		return nil, service.ErrPermissionDenied
+	err = svc.db.Get(&scope, persistence.WithoutPreload(), "id = ?", req.Msg.AuditScopeId)
+	if err = service.HandleDatabaseError(err, service.ErrNotFound("audit scope")); err != nil {
+		return nil, err
 	}
 
 	// Delete the audit scope
@@ -231,4 +293,58 @@ func (svc *Service) RemoveAuditScope(
 
 	res = connect.NewResponse(&emptypb.Empty{})
 	return
+}
+
+// autoCreateControlsInScope loads all controls for the catalog associated with scope and creates
+// a ControlInScope record for each matching control. A control matches if the scope has no
+// assurance level, the control has no assurance level, or both levels match exactly.
+func autoCreateControlsInScope(ctx context.Context, tx persistence.DB, scope *orchestrator.AuditScope) error {
+	var controls []*orchestrator.Control
+
+	// Query all controls for the catalog, including sub-controls. Since
+	// catalog_id is now set on every control during normalization, a simple
+	// filter suffices — no join through category_controls needed.
+	if err := tx.Raw(&controls,
+		`SELECT * FROM controls WHERE catalog_id = ? ORDER BY controls.short_name`,
+		scope.CatalogId); err != nil {
+		return service.HandleDatabaseError(err)
+	}
+
+	now := timestamppb.Now()
+	seen := make(map[string]bool, len(controls))
+	for _, ctrl := range controls {
+		if seen[ctrl.Id] {
+			continue
+		}
+		seen[ctrl.Id] = true
+		// Skip only when both levels are explicitly set and differ. Controls without an
+		// assurance level are included in every scope regardless of the scope's level.
+		if scope.AssuranceLevel != nil && ctrl.AssuranceLevel != nil &&
+			*scope.AssuranceLevel != *ctrl.AssuranceLevel {
+			continue
+		}
+		cis := &orchestrator.ControlInScope{
+			Id:                   uuid.NewString(),
+			AuditScopeId:         scope.Id,
+			TargetOfEvaluationId: scope.TargetOfEvaluationId,
+			ControlId:            ctrl.Id,
+			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+			CreatedAt:            now,
+			UpdatedAt:            now,
+		}
+		if err := tx.Create(cis); err != nil {
+			return service.HandleDatabaseError(err)
+		}
+		if err := createAuditTrailEvent(tx, actorFromContext(ctx), cis.AuditScopeId, cis.Id, "",
+			&orchestrator.ControlScopingEvent{
+				ControlInScopeId: cis.Id,
+				ControlId:        cis.ControlId,
+				AuditScopeId:     cis.AuditScopeId,
+				InScope:          true,
+			}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

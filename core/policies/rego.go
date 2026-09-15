@@ -33,6 +33,7 @@ import (
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // DefaultRegoPackage is the default package name for the Rego files
@@ -68,6 +69,9 @@ type regoEval struct {
 
 	// eventMutex protects event subscription state
 	eventMutex sync.Mutex
+
+	// skipMetricsOnError indicates whether to skip metrics that produce an error during assessment
+	skipMetricOnError bool
 }
 
 type queryCache struct {
@@ -93,15 +97,23 @@ func WithEventSubscriber(sub EventSubscriber) RegoEvalOption {
 	}
 }
 
+// WithSkipMetricOnError is an option to skip metrics from the assessment that cause an error
+func WithSkipMetricOnError(skip bool) RegoEvalOption {
+	return func(re *regoEval) {
+		re.skipMetricOnError = skip
+	}
+}
+
 func NewRegoEval(opts ...RegoEvalOption) PolicyEval {
 	ctx, cancel := context.WithCancel(context.Background())
 	re := regoEval{
-		mrtc:         &metricsCache{m: make(map[string][]*assessment.Metric)},
-		qc:           newQueryCache(),
-		pkg:          DefaultRegoPackage,
-		eventCtx:     ctx,
-		eventCancel:  cancel,
-		subscriberID: -1,
+		mrtc:              &metricsCache{m: make(map[string][]*assessment.Metric)},
+		qc:                newQueryCache(),
+		pkg:               DefaultRegoPackage,
+		eventCtx:          ctx,
+		eventCancel:       cancel,
+		subscriberID:      -1,
+		skipMetricOnError: false,
 	}
 
 	for _, o := range opts {
@@ -163,7 +175,7 @@ func (re *regoEval) Close() error {
 // Eval evaluates a given evidence against all available Rego policies and returns the result of all policies that were
 // considered to be applicable. In order to avoid multiple unwrapping, the callee will already supply an unwrapped
 // ontology resource in r.
-func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error) {
+func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error) {
 	var (
 		baseDir string
 		m       map[string]any
@@ -200,7 +212,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 
 	// TODO(lebogg): Try to optimize duplicated code
 	if cached == nil {
-		metrics, err := src.Metrics()
+		metrics, err := src.Metrics(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("could not retrieve metric definitions: %w", err)
 		}
@@ -220,22 +232,28 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 			// we need to know that the metric exists, e.g., because it is evaluated by an external
 			// tool. In this case, we can just pretend that the metric is not applicable for us and
 			// continue.
-			runMap, err := re.evalMap(baseDir, evidence.TargetOfEvaluationId, metric, m, src)
+			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {
 				// Try to check if the metric implementation just does not exist.
-				if connect.CodeOf(err) == connect.CodeNotFound &&
-					(strings.Contains(err.Error(), "implementation for metric not found") ||
-						strings.Contains(err.Error(), "metric configuration not found for metric")) {
+				if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
+					strings.Contains(err.Error(), "metric configuration not found")) {
+					slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
 					continue
 				}
 
-				// Otherwise, we are not really in a state where our cache is valid, so we mark it
-				// as not cached at all.
-				re.mrtc.m[key] = nil
+				if re.skipMetricOnError {
+					// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+					slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+					continue
+				} else {
+					// Otherwise, we are not really in a state where our cache is valid, so we mark it
+					// as not cached at all.
+					re.mrtc.m[key] = nil
 
-				// Unlock, to avoid deadlock and return from here with the error
-				re.mrtc.Unlock()
-				return nil, err
+					// Unlock, to avoid deadlock and return from here with the error
+					re.mrtc.Unlock()
+					return nil, err
+				}
 			}
 
 			if runMap != nil {
@@ -252,7 +270,7 @@ func (re *regoEval) Eval(evidence *evidence.Evidence, r ontology.IsResource, rel
 		re.mrtc.Unlock()
 	} else {
 		for _, metric := range cached {
-			runMap, err := re.evalMap(baseDir, evidence.TargetOfEvaluationId, metric, m, src)
+			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {
 				return nil, err
 			}
@@ -286,7 +304,7 @@ func (re *regoEval) HandleMetricEvent(event *orchestrator.ChangeEvent) (err erro
 	return nil
 }
 
-func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.Metric, m map[string]interface{}, src MetricsSource) (result *CombinedResult, err error) {
+func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string, metric *assessment.Metric, m map[string]interface{}, src MetricsSource) (result *CombinedResult, err error) {
 	var (
 		query  *rego.PreparedEvalQuery
 		key    string
@@ -295,7 +313,7 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 	)
 
 	// We need to check if the metric configuration has been changed.
-	config, err := src.MetricConfiguration(targetID, metric)
+	config, err := src.MetricConfiguration(ctx, targetID, metric)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch metric configuration for metric %s: %w", metric.Name, err)
 	}
@@ -343,7 +361,7 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 		pkg = util.CamelCaseToSnakeCase(metric.Name)
 
 		// Fetch the metric implementation, i.e., the Rego code from the metric source
-		impl, err = src.MetricImplementation(assessment.MetricImplementation_LANGUAGE_REGO, metric)
+		impl, err = src.MetricImplementation(ctx, assessment.MetricImplementation_LANGUAGE_REGO, metric)
 		if err != nil {
 			return nil, fmt.Errorf("could not fetch policy for metric %s: %w", metric.Name, err)
 		}
@@ -362,7 +380,9 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 			compliant = data.%s.%s.compliant;
 			operator = data.cch.operator;
 			target_value = data.cch.target_value;
-			config = data.cch.config`, prefix, pkg, prefix, pkg, prefix, pkg)),
+			config = data.cch.config;
+			message = object.get(data.%s.%s, "message", "");
+			results = object.get(data.%s.%s, "results", [])`, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg)),
 			rego.Package(prefix),
 			rego.Store(store),
 			rego.Transaction(tx),
@@ -388,7 +408,7 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 		return nil, fmt.Errorf("could not fetch cached query for metric %s: %w", metric.Name, err)
 	}
 
-	results, err := query.Eval(context.Background(), rego.EvalInput(m))
+	results, err := query.Eval(ctx, rego.EvalInput(m))
 	if err != nil {
 		return nil, fmt.Errorf("could not evaluate rego policy: %w", err)
 	}
@@ -411,26 +431,33 @@ func (re *regoEval) evalMap(baseDir string, targetID string, metric *assessment.
 	}
 
 	// Enable the new results
-	output := results[0].Bindings["output"]
-	if results, ok := output.(map[string]interface{})["results"]; ok {
+	if res, ok := results[0].Bindings["results"]; ok {
 		result.ComparisonResult = make([]*assessment.ComparisonResult, 0)
-		if err = reencode(results, &result.ComparisonResult); err != nil {
+		if err = reencode(res, &result.ComparisonResult); err != nil {
 			return nil, err
 		}
+	} else {
+		result.ComparisonResult = append(result.ComparisonResult, &assessment.ComparisonResult{
+			Property:    pkg,
+			Value:       &structpb.Value{}, // How do we get the current value?
+			Operator:    config.GetOperator(),
+			TargetValue: config.GetTargetValue(),
+			Success:     result.Compliant,
+		})
 	}
 
 	// Check, if the metric supplies an additional message
-	if msg, ok := output.(map[string]interface{})["message"]; ok {
+	if msg, ok := results[0].Bindings["message"]; ok {
 		// Also append a short comment that details can be found in the ... details, if we have any
-		if len(result.ComparisonResult) > 0 {
+		if msg != "" {
 			result.Message = fmt.Sprintf("%s %s", msg, assessment.AdditionalDetailsMessage)
 		} else {
 			result.Message = assessment.AdditionalDetailsMessage
 		}
 	} else if result.Compliant {
-		result.Message = assessment.DefaultCompliantMessage
+		result.Message = assessment.DefaultCompliantMessage + " " + assessment.AdditionalDetailsMessage
 	} else if !result.Compliant {
-		result.Message = assessment.DefaultNonCompliantMessage
+		result.Message = assessment.DefaultNonCompliantMessage + " " + assessment.AdditionalDetailsMessage
 	}
 
 	if !result.Applicable {

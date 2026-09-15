@@ -1,3 +1,18 @@
+// Copyright 2016-2026 Fraunhofer AISEC
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//                                 /$$$$$$  /$$                                     /$$
+//                               /$$__  $$|__/                                    | $$
+//   /$$$$$$$  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
+//  /$$_____/ /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$| $$_  $$_  $$ |____  $$|_  $$_/   /$$__  $$
+// | $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \__/| $$ \ $$ \ $$  /$$$$$$$  | $$    | $$$$$$$$
+// | $$      | $$  | $$| $$  | $$| $$      | $$| $$      | $$ | $$ | $$ /$$__  $$  | $$ /$$| $$_____/
+// |  $$$$$$$|  $$$$$$/| $$  | $$| $$      | $$| $$      | $$ | $$ | $$|  $$$$$$$  |  $$$$/|  $$$$$$$
+// \_______/ \______/ |__/  |__/|__/      |__/|__/      |__/ |__/ |__/ \_______/   \___/   \_______/
+//
+// This file is part of Confirmate Core.
+
 package evidence
 
 import (
@@ -19,7 +34,6 @@ import (
 	"confirmate.io/core/server/servertest"
 	"confirmate.io/core/service"
 	"confirmate.io/core/service/evidence/evidencetest"
-	"confirmate.io/core/util"
 	"confirmate.io/core/util/assert"
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -347,7 +361,7 @@ func TestService_StoreEvidence(t *testing.T) {
 			},
 			fields: fields{db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
 				// Create a resource already such that `save` will update it instead of creating a new entry
-				r, err := evidence.ToEvidenceResource(evidencetest.MockEvidenceWithVMResource.GetOntologyResource(), evidencetest.MockEvidenceWithVMResource.GetTargetOfEvaluationId(), evidencetest.MockEvidenceWithVMResource.GetToolId())
+				r, err := evidence.ToResourceSnapshot(evidencetest.MockEvidenceWithVMResource.GetOntologyResource(), evidencetest.MockEvidenceWithVMResource.GetTargetOfEvaluationId(), evidencetest.MockEvidenceWithVMResource.GetToolId())
 				assert.NoError(t, err)
 				err = db.Create(r)
 				assert.NoError(t, err)
@@ -677,7 +691,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{TargetOfEvaluationId: util.Ref(ev1.TargetOfEvaluationId)},
+				Filter: &evidence.Filter{TargetOfEvaluationId: new(ev1.TargetOfEvaluationId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -702,7 +716,7 @@ func TestService_ListEvidences(t *testing.T) {
 				assert.NoError(t, db.Create(ev3))
 			})},
 			req: &connect.Request[evidence.ListEvidencesRequest]{Msg: &evidence.ListEvidencesRequest{
-				Filter: &evidence.Filter{ToolId: util.Ref(ev1.ToolId)},
+				Filter: &evidence.Filter{ToolId: new(ev1.ToolId)},
 			}},
 			want: func(t *testing.T, got *connect.Response[evidence.ListEvidencesResponse], msgAndArgs ...any) bool {
 				assert.NotNil(t, got)
@@ -895,6 +909,102 @@ func TestService_ListSupportedResourceTypes(t *testing.T) {
 	}
 }
 
+// TestService_ListTools covers the empty-cache case and population via StoreEvidence.
+func TestService_ListTools(t *testing.T) {
+	type fields struct {
+		db persistence.DB
+	}
+	type args struct {
+		ctx context.Context
+		req *connect.Request[evidence.ListToolsRequest]
+	}
+	tests := []struct {
+		name    string
+		args    args
+		fields  fields
+		want    assert.Want[*connect.Response[evidence.ListToolsResponse]]
+		wantErr assert.WantErr
+	}{
+		{
+			name: "error - nil request",
+			args: args{
+				req: nil,
+			},
+			want: assert.Nil[*connect.Response[evidence.ListToolsResponse]],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInvalidArgument)
+			},
+		},
+		{
+			name: "happy path - empty cache returns empty list",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, 0, len(got.Msg.ToolIds))
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - deduplicates same tool across multiple evidences",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListA)) // tool-a
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListB)) // tool-a (same tool, different ToE)
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				return assert.Equal(t, 1, len(got.Msg.ToolIds)) &&
+					assert.Equal(t, evidencetest.MockEvidenceListA.ToolId, got.Msg.ToolIds[0])
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path - returns all distinct tool ids",
+			args: args{
+				req: &connect.Request[evidence.ListToolsRequest]{Msg: &evidence.ListToolsRequest{}},
+			},
+			fields: fields{
+				db: persistencetest.NewInMemoryDB(t, types, nil, func(db persistence.DB) {
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListA)) // tool-a
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListB)) // tool-a (same tool, different ToE)
+					assert.NoError(t, db.Create(evidencetest.MockEvidenceListC)) // tool-b
+				}),
+			},
+			want: func(t *testing.T, got *connect.Response[evidence.ListToolsResponse], msgAndArgs ...any) bool {
+				assert.NotNil(t, got)
+				if !assert.Equal(t, 2, len(got.Msg.ToolIds)) {
+					return false
+				}
+				assert.Contains(t, got.Msg.ToolIds, evidencetest.MockEvidenceListA.ToolId)
+				assert.Contains(t, got.Msg.ToolIds, evidencetest.MockEvidenceListC.ToolId)
+				return true
+			},
+			wantErr: assert.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &Service{
+				db: tt.fields.db,
+			}
+
+			res, err := svc.ListTools(tt.args.ctx, tt.args.req)
+			tt.wantErr(t, err)
+			tt.want(t, res)
+		})
+	}
+}
+
 // TestService_ListResources uses table tests to cover filters, pagination, and error handling.
 func TestService_ListResources(t *testing.T) {
 	res1 := evidencetest.MockResourceListA
@@ -969,7 +1079,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: util.Ref(res1.TargetOfEvaluationId)},
+					Filter: &evidence.ListResourcesRequest_Filter{TargetOfEvaluationId: new(res1.TargetOfEvaluationId)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
@@ -994,7 +1104,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{ToolId: util.Ref(res1.ToolId)},
+					Filter: &evidence.ListResourcesRequest_Filter{ToolId: new(res1.ToolId)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
@@ -1019,7 +1129,7 @@ func TestService_ListResources(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				req: &connect.Request[evidence.ListResourcesRequest]{Msg: &evidence.ListResourcesRequest{
-					Filter: &evidence.ListResourcesRequest_Filter{Type: util.Ref(res1.ResourceType)},
+					Filter: &evidence.ListResourcesRequest_Filter{Type: new(res1.ResourceType)},
 				}},
 			},
 			wantRes: func(t *testing.T, got *connect.Response[evidence.ListResourcesResponse], msgAndArgs ...any) bool {
