@@ -28,11 +28,12 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
-	"connectrpc.com/connect"
 
+	"connectrpc.com/connect"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // DefaultRegoPackage is the default package name for the Rego files
@@ -379,7 +380,9 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 			compliant = data.%s.%s.compliant;
 			operator = data.cch.operator;
 			target_value = data.cch.target_value;
-			config = data.cch.config`, prefix, pkg, prefix, pkg, prefix, pkg)),
+			config = data.cch.config;
+			message = object.get(data.%s.%s, "message", "");
+			results = object.get(data.%s.%s, "results", [])`, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg)),
 			rego.Package(prefix),
 			rego.Store(store),
 			rego.Transaction(tx),
@@ -428,26 +431,33 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 	}
 
 	// Enable the new results
-	output := results[0].Bindings["output"]
-	if results, ok := output.(map[string]interface{})["results"]; ok {
+	if res, ok := results[0].Bindings["results"]; ok {
 		result.ComparisonResult = make([]*assessment.ComparisonResult, 0)
-		if err = reencode(results, &result.ComparisonResult); err != nil {
+		if err = reencode(res, &result.ComparisonResult); err != nil {
 			return nil, err
 		}
+	} else {
+		result.ComparisonResult = append(result.ComparisonResult, &assessment.ComparisonResult{
+			Property:    pkg,
+			Value:       &structpb.Value{}, // How do we get the current value?
+			Operator:    config.GetOperator(),
+			TargetValue: config.GetTargetValue(),
+			Success:     result.Compliant,
+		})
 	}
 
 	// Check, if the metric supplies an additional message
-	if msg, ok := output.(map[string]interface{})["message"]; ok {
+	if msg, ok := results[0].Bindings["message"]; ok {
 		// Also append a short comment that details can be found in the ... details, if we have any
-		if len(result.ComparisonResult) > 0 {
+		if msg != "" {
 			result.Message = fmt.Sprintf("%s %s", msg, assessment.AdditionalDetailsMessage)
 		} else {
 			result.Message = assessment.AdditionalDetailsMessage
 		}
 	} else if result.Compliant {
-		result.Message = assessment.DefaultCompliantMessage
+		result.Message = assessment.DefaultCompliantMessage + " " + assessment.AdditionalDetailsMessage
 	} else if !result.Compliant {
-		result.Message = assessment.DefaultNonCompliantMessage
+		result.Message = assessment.DefaultNonCompliantMessage + " " + assessment.AdditionalDetailsMessage
 	}
 
 	if !result.Applicable {
