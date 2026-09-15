@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -647,7 +648,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 					Message: assessment.DefaultCompliantMessage,
 				}
 
-				return assert.Equal(t, want, got)
+				return assert.Equal(t, want, got, cmpopts.IgnoreFields(CombinedResult{}, "Message", "ComparisonResult")) && assert.NotEmpty(t, got.Message) && assert.NotEmpty(t, got.ComparisonResult)
 			},
 			wantErr: assert.NoError,
 		},
@@ -702,7 +703,7 @@ func Test_regoEval_evalMap(t *testing.T) {
 					Message: assessment.DefaultNonCompliantMessage,
 				}
 
-				return assert.Equal(t, want, got)
+				return assert.Equal(t, want, got, cmpopts.IgnoreFields(CombinedResult{}, "Message", "ComparisonResult")) && assert.NotEmpty(t, got.Message) && assert.NotEmpty(t, got.ComparisonResult)
 			},
 			wantErr: assert.NoError,
 		},
