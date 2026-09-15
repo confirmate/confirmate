@@ -197,26 +197,38 @@ func (svc *Service) ListAssessmentResults(
 			where = "WHERE " + where
 		}
 
-		// Use PostgreSQL DISTINCT ON with ORDER BY to get latest result per (resource_id, metric_id)
 		rawQuery := fmt.Sprintf(`
-			SELECT DISTINCT ON (resource_id, metric_id) *
-			FROM assessment_results
-			%s
-			ORDER BY resource_id, metric_id, created_at DESC
-		`, where)
+				SELECT DISTINCT ON (resource_id, metric_id) *
+				FROM assessment_results
+				%s
+				ORDER BY resource_id, metric_id, created_at DESC, id DESC
+				LIMIT ? OFFSET ?
+			`, where)
 
-		err = svc.db.Raw(&results, rawQuery, args...)
+		results, npt, err = service.PaginateRaw[*assessment.AssessmentResult](
+			req.Msg,
+			service.DefaultPaginationOpts,
+			func(start int64, size int32) ([]*assessment.AssessmentResult, error) {
+				var page []*assessment.AssessmentResult
+
+				queryArgs := append([]any(nil), args...)
+				queryArgs = append(queryArgs, int(size), int(start))
+
+				if err := svc.db.Raw(&page, rawQuery, queryArgs...); err != nil {
+					return nil, err
+				}
+
+				return page, nil
+			},
+		)
 		if err = service.HandleDatabaseError(err); err != nil {
 			return nil, err
 		}
 
-		// Since we used raw SQL, we need to handle pagination differently
-		// For now, return all results without pagination support
-		res = connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
+		return connect.NewResponse(&orchestrator.ListAssessmentResultsResponse{
 			Results:       results,
-			NextPageToken: "",
-		})
-		return
+			NextPageToken: npt,
+		}), nil
 	}
 
 	results, npt, err = service.PaginateStorage[*assessment.AssessmentResult](req.Msg, svc.db, service.DefaultPaginationOpts, persistence.BuildConds(query, args)...)
