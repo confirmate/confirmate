@@ -17,34 +17,34 @@ package orchestrator
 
 import (
 	"fmt"
-	"time"
 
-	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
 
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
-	"github.com/johnfercher/maroto/v2/pkg/components/line"
 	"github.com/johnfercher/maroto/v2/pkg/components/row"
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
 	"github.com/johnfercher/maroto/v2/pkg/consts/border"
+	"github.com/johnfercher/maroto/v2/pkg/consts/fontfamily"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
 )
 
-// Report palette. brandBlue matches the confirmate UI's --color-confirmate; the rest are chosen
-// to read clearly as semantic status colors (green/red/amber/gray) against white and each other.
+// Report palette. pdfCodeBlue matches the confirmate UI's --color-confirmate-light and is reused
+// for code-styled identifiers and section accents; the rest read clearly as semantic status
+// colors (green/red/amber/gray) against white and each other.
 var (
-	pdfBrandBlue  = &props.Color{Red: 0, Green: 91, Blue: 153}
+	pdfNavy       = &props.Color{Red: 15, Green: 23, Blue: 42}
+	pdfCodeBlue   = &props.Color{Red: 26, Green: 122, Blue: 191}
 	pdfInk        = &props.Color{Red: 31, Green: 41, Blue: 55}
 	pdfMuted      = &props.Color{Red: 107, Green: 114, Blue: 128}
 	pdfWhite      = &props.Color{Red: 255, Green: 255, Blue: 255}
 	pdfZebra      = &props.Color{Red: 249, Green: 250, Blue: 251}
 	pdfHeaderBg   = &props.Color{Red: 243, Green: 244, Blue: 246}
-	pdfCategoryBg = &props.Color{Red: 227, Green: 239, Blue: 249}
+	pdfBorderGray = &props.Color{Red: 224, Green: 227, Blue: 231}
 
 	pdfGreen     = &props.Color{Red: 21, Green: 128, Blue: 61}
 	pdfGreenTint = &props.Color{Red: 220, Green: 252, Blue: 231}
@@ -58,18 +58,10 @@ var (
 	pdfGrayTint  = &props.Color{Red: 229, Green: 231, Blue: 235}
 )
 
-// pdfChip is a text/background color pair used to render a status or state as a small colored badge.
+// pdfChip is a text/background color pair used to render a status as a small colored badge.
 type pdfChip struct {
 	text *props.Color
 	bg   *props.Color
-}
-
-var evaluationStatusChips = map[evaluation.EvaluationStatus]pdfChip{
-	evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT:              {pdfGreen, pdfGreenTint},
-	evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:     {pdfGreen, pdfGreenTint},
-	evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT:          {pdfRed, pdfRedTint},
-	evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY: {pdfRed, pdfRedTint},
-	evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:                {pdfAmber, pdfAmberTint},
 }
 
 var implementationStateChips = map[orchestrator.ControlInScopeState]pdfChip{
@@ -80,9 +72,51 @@ var implementationStateChips = map[orchestrator.ControlInScopeState]pdfChip{
 	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED:         {pdfGreen, pdfGreenTint},
 }
 
-// truncate shortens s to at most n runes, appending an ellipsis if it was cut. Keeping report
-// table rows to a single line avoids relying on maroto's auto row height, which undersizes rows
-// with wrapped text and lets the second line bleed into the row below.
+func implementationChip(s orchestrator.ControlInScopeState) pdfChip {
+	if c, ok := implementationStateChips[s]; ok {
+		return c
+	}
+	return pdfChip{pdfGray, pdfGrayTint}
+}
+
+// controlStatusChip returns the chip and left-border accent color for a control's aggregated
+// metric status label (see [reportControlRow.statusLabel]).
+func controlStatusChip(status string) pdfChip {
+	switch status {
+	case "Passed":
+		return pdfChip{pdfGreen, pdfGreenTint}
+	case "Action Required":
+		return pdfChip{pdfAmber, pdfAmberTint}
+	default: // "Not Evaluated", "No Metrics"
+		return pdfChip{pdfGray, pdfGrayTint}
+	}
+}
+
+func metricStatusChip(m reportMetricRow) pdfChip {
+	switch {
+	case !m.evaluated:
+		return pdfChip{pdfGray, pdfGrayTint}
+	case m.compliant:
+		return pdfChip{pdfGreen, pdfGreenTint}
+	default:
+		return pdfChip{pdfRed, pdfRedTint}
+	}
+}
+
+func metricStatusLabel(m reportMetricRow) string {
+	switch {
+	case !m.evaluated:
+		return "Not Evaluated"
+	case m.compliant:
+		return "Compliant"
+	default:
+		return "Not Compliant"
+	}
+}
+
+// truncate shortens s to at most n runes, appending an ellipsis if it was cut. Report table rows
+// are kept to a single line so we don't depend on maroto's auto row height, which undersizes
+// rows with wrapped text and lets later lines bleed into the row below.
 func truncate(s string, n int) string {
 	r := []rune(s)
 	if len(r) <= n {
@@ -91,46 +125,39 @@ func truncate(s string, n int) string {
 	return string(r[:n-1]) + "…"
 }
 
-func evaluationChip(s evaluation.EvaluationStatus) pdfChip {
-	if c, ok := evaluationStatusChips[s]; ok {
-		return c
-	}
-	return pdfChip{pdfGray, pdfGrayTint}
-}
-
-func implementationChip(s orchestrator.ControlInScopeState) pdfChip {
-	if c, ok := implementationStateChips[s]; ok {
-		return c
-	}
-	return pdfChip{pdfGray, pdfGrayTint}
-}
-
-// reportSummary holds the control counts shown in the PDF's summary cards.
+// reportSummary holds the metric counts shown in the PDF's summary cards and header status pill.
 type reportSummary struct {
-	total, compliant, notCompliant, outstanding int
+	controls, totalMetrics, compliantMetrics, evaluatedMetrics, actionRequired int
 }
 
-func summarizeReportRows(rows []reportRow) reportSummary {
-	var s reportSummary
-	s.total = len(rows)
-	for _, r := range rows {
-		switch r.evaluationStatusEnum {
-		case evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-			evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:
-			s.compliant++
-		case evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
-			evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY:
-			s.notCompliant++
-		default:
-			s.outstanding++
-		}
+func summarizeReportControls(controls []reportControlRow) reportSummary {
+	s := reportSummary{controls: len(controls)}
+	for _, c := range controls {
+		compliant, evaluated, total := c.metricCounts()
+		s.totalMetrics += total
+		s.compliantMetrics += compliant
+		s.evaluatedMetrics += evaluated
+		s.actionRequired += evaluated - compliant
 	}
 	return s
 }
 
-// renderAuditScopeReportPDF renders the given rows into a styled, single-document PDF report and
-// returns its raw file content.
-func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchestrator.TargetOfEvaluation, catalog *orchestrator.Catalog, rows []reportRow) ([]byte, error) {
+// compliancePercent returns the share of evaluated metrics that are compliant, ignoring metrics
+// that haven't been evaluated yet (so a freshly-scoped audit doesn't score as failing).
+func (s reportSummary) compliancePercent() float64 {
+	if s.evaluatedMetrics == 0 {
+		return 0
+	}
+	return 100 * float64(s.compliantMetrics) / float64(s.evaluatedMetrics)
+}
+
+// overallStatusPassThreshold mirrors the confirmate demo report template, which still labels a
+// 90%-compliant assessment as an overall "PASS".
+const overallStatusPassThreshold = 90.0
+
+// renderAuditScopeReportPDF renders the given controls (and their metrics) into a styled,
+// single-document PDF report and returns its raw file content.
+func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchestrator.TargetOfEvaluation, catalog *orchestrator.Catalog, controls []reportControlRow) ([]byte, error) {
 	cfg := config.NewBuilder().
 		WithLeftMargin(12).
 		WithTopMargin(10).
@@ -147,7 +174,9 @@ func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchest
 
 	m := maroto.New(cfg)
 
-	if err := m.RegisterHeader(pdfHeaderRow(auditScope)); err != nil {
+	summary := summarizeReportControls(controls)
+
+	if err := m.RegisterHeader(pdfHeaderRow(auditScope, summary)); err != nil {
 		return nil, err
 	}
 	if err := m.RegisterFooter(pdfFooterRow()); err != nil {
@@ -155,20 +184,21 @@ func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchest
 	}
 
 	m.AddRows(pdfInfoRow(auditScope, toe, catalog))
-	m.AddRows(pdfSummaryRow(summarizeReportRows(rows)))
-	m.AddRows(line.NewRow(6, props.Line{Color: pdfGrayTint, Thickness: 0.4}))
+	m.AddRows(pdfSummaryRow(summary))
 
-	category := ""
-	i := 0
-	for _, r := range rows {
-		if r.category != category {
-			category = r.category
-			i = 0
-			m.AddRows(pdfCategoryHeaderRow(category))
-			m.AddRows(pdfTableHeaderRow())
+	m.AddRows(pdfSectionHeaderRow("1. Evaluation Results Overview"))
+	m.AddRows(pdfOverviewTableHeaderRow())
+	for _, ctrl := range controls {
+		m.AddRows(pdfOverviewRow(ctrl))
+	}
+
+	m.AddRows(row.New(6))
+	m.AddRows(pdfSectionHeaderRow("2. Metrics by Evaluation Result"))
+	for _, ctrl := range controls {
+		for _, r := range pdfControlCardRows(ctrl) {
+			m.AddRows(r)
 		}
-		m.AddRows(pdfControlRow(r, i%2 == 1))
-		i++
+		m.AddRows(row.New(4))
 	}
 
 	document, err := m.Generate()
@@ -178,31 +208,39 @@ func renderAuditScopeReportPDF(auditScope *orchestrator.AuditScope, toe *orchest
 	return document.GetBytes(), nil
 }
 
-func pdfHeaderRow(auditScope *orchestrator.AuditScope) core.Row {
-	return row.New(22).Add(
+func pdfHeaderRow(auditScope *orchestrator.AuditScope, summary reportSummary) core.Row {
+	pct := summary.compliancePercent()
+	status := "ACTION REQUIRED"
+	pillChip := pdfChip{pdfWhite, pdfAmber}
+	if pct >= overallStatusPassThreshold {
+		status = "PASS"
+		pillChip = pdfChip{pdfWhite, pdfGreen}
+	}
+
+	return row.New(24).Add(
 		col.New(7).Add(
-			text.New("CONFIRMATE", props.Text{Top: 5, Left: 2, Size: 16, Style: fontstyle.Bold, Color: pdfWhite}),
-			text.New("Audit Scope Compliance Report", props.Text{Top: 13, Left: 2, Size: 9, Color: pdfWhite}),
+			text.New("Compliance Report", props.Text{Top: 5, Left: 2, Size: 16, Style: fontstyle.Bold, Color: pdfCodeBlue}),
+			text.New("CONFIRMATE Full Compliance Breakdown", props.Text{Top: 13, Left: 2, Size: 9, Color: pdfWhite}),
+			text.New(auditScope.GetName(), props.Text{Top: 18, Left: 2, Size: 8, Color: pdfMuted}),
 		),
 		col.New(5).Add(
-			text.New(auditScope.GetName(), props.Text{Top: 6, Right: 2, Size: 11, Style: fontstyle.Bold, Align: align.Right, Color: pdfWhite}),
-			text.New("Generated "+time.Now().Local().Format("2006-01-02 15:04"), props.Text{Top: 13, Right: 2, Size: 8, Align: align.Right, Color: pdfWhite}),
-		),
-	).WithStyle(&props.Cell{BackgroundColor: pdfBrandBlue})
+			text.New(fmt.Sprintf("STATUS: %s (%.1f%%)", status, pct), props.Text{Top: 7, Right: 2, Size: 10, Style: fontstyle.Bold, Align: align.Right, Color: pillChip.text}),
+		).WithStyle(&props.Cell{BackgroundColor: pillChip.bg, BorderType: border.Full, BorderColor: pillChip.bg}),
+	).WithStyle(&props.Cell{BackgroundColor: pdfNavy})
 }
 
 func pdfFooterRow() core.Row {
 	return row.New(14).Add(
 		col.New(12).Add(
-			text.New("Confirmate · Continuous Compliance Platform", props.Text{Top: 5, Size: 7, Color: pdfMuted}),
+			text.New("Confirmate Compliance Report · Confidential", props.Text{Top: 5, Size: 7, Color: pdfMuted}),
 		),
 	).WithStyle(&props.Cell{BorderType: border.Top, BorderColor: pdfGrayTint, BorderThickness: 0.3})
 }
 
 func pdfInfoField(size int, label, value string) core.Col {
 	return col.New(size).Add(
-		text.New(label, props.Text{Top: 3, Size: 7.5, Style: fontstyle.Bold, Color: pdfMuted}),
-		text.New(value, props.Text{Top: 8, Size: 11, Style: fontstyle.Bold, Color: pdfInk}),
+		text.New(label, props.Text{Top: 3, Left: 2, Size: 7.5, Style: fontstyle.Bold, Color: pdfMuted}),
+		text.New(truncate(value, 34), props.Text{Top: 8, Left: 2, Size: 10.5, Style: fontstyle.Bold, Color: pdfInk}),
 	)
 }
 
@@ -216,80 +254,150 @@ func pdfInfoRow(auditScope *orchestrator.AuditScope, toe *orchestrator.TargetOfE
 		pdfInfoField(4, "CATALOG", catalog.GetName()),
 		pdfInfoField(2, "ASSURANCE LEVEL", assurance),
 		pdfInfoField(2, "STATUS", auditScopeStatusLabels[auditScope.GetStatus()]),
-	)
+	).WithStyle(&props.Cell{BorderType: border.Bottom, BorderColor: pdfBorderGray, BorderThickness: 0.4})
 }
 
-func pdfSummaryCard(size int, label string, value int, chip pdfChip) core.Col {
+func pdfSummaryCard(size int, label string, value int, color *props.Color) core.Col {
 	return col.New(size).Add(
-		text.New(fmt.Sprint(value), props.Text{Top: 4, Size: 20, Style: fontstyle.Bold, Align: align.Center, Color: chip.text}),
-		text.New(label, props.Text{Top: 13, Size: 7.5, Align: align.Center, Color: pdfMuted}),
-	).WithStyle(&props.Cell{BackgroundColor: chip.bg, BorderType: border.Full, BorderColor: pdfWhite, BorderThickness: 1.2})
+		text.New(fmt.Sprint(value), props.Text{Top: 4, Size: 20, Style: fontstyle.Bold, Align: align.Center, Color: color}),
+		text.New(label, props.Text{Top: 13, Size: 7, Align: align.Center, Color: pdfMuted}),
+	).WithStyle(&props.Cell{BorderType: border.Full, BorderColor: pdfBorderGray, BorderThickness: 0.4})
 }
 
 func pdfSummaryRow(s reportSummary) core.Row {
 	return row.New(20).Add(
-		pdfSummaryCard(3, "TOTAL CONTROLS", s.total, pdfChip{pdfInk, pdfGrayTint}),
-		pdfSummaryCard(3, "COMPLIANT", s.compliant, pdfChip{pdfGreen, pdfGreenTint}),
-		pdfSummaryCard(3, "NOT COMPLIANT", s.notCompliant, pdfChip{pdfRed, pdfRedTint}),
-		pdfSummaryCard(3, "OUTSTANDING", s.outstanding, pdfChip{pdfAmber, pdfAmberTint}),
+		pdfSummaryCard(3, "EVALUATION RESULTS", s.controls, pdfInk),
+		pdfSummaryCard(3, "TOTAL METRICS", s.totalMetrics, pdfInk),
+		pdfSummaryCard(3, "COMPLIANT METRICS", s.compliantMetrics, pdfGreen),
+		pdfSummaryCard(3, "ACTION REQUIRED", s.actionRequired, pdfAmber),
 	)
 }
 
-func pdfCategoryHeaderRow(category string) core.Row {
-	return row.New(9).Add(
-		col.New(12).Add(
-			text.New(category, props.Text{Top: 3, Left: 2, Size: 10.5, Style: fontstyle.Bold, Color: pdfBrandBlue}),
+func pdfSectionHeaderRow(title string) core.Row {
+	return row.New(10).Add(
+		col.New(1).Add(
+			text.New(" ", props.Text{}),
+		).WithStyle(&props.Cell{BackgroundColor: pdfCodeBlue}),
+		col.New(11).Add(
+			text.New(title, props.Text{Top: 2, Left: 2, Size: 11, Style: fontstyle.Bold, Color: pdfInk}),
 		),
-	).WithStyle(&props.Cell{BackgroundColor: pdfCategoryBg})
+	)
 }
 
-func pdfTableHeaderRow() core.Row {
+func pdfOverviewTableHeaderRow() core.Row {
 	headerText := props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Color: pdfMuted}
 	return row.New(6).Add(
-		text.NewCol(5, "CONTROL", headerText),
-		text.NewCol(2, "ASSIGNEE", headerText),
+		text.NewCol(2, "CONTROL", headerText),
+		text.NewCol(3, "NAME / FOCUS AREA", headerText),
+		text.NewCol(2, "CATEGORY", headerText),
 		text.NewCol(2, "IMPLEMENTATION", headerText),
-		text.NewCol(3, "EVALUATION", headerText),
+		text.NewCol(1, "METRICS", headerText),
+		text.NewCol(2, "STATUS", headerText),
 	).WithStyle(&props.Cell{BackgroundColor: pdfHeaderBg})
 }
 
-func pdfControlRow(r reportRow, zebra bool) core.Row {
-	implChip := implementationChip(r.implementationStateEnum)
-	evalChip := evaluationChip(r.evaluationStatusEnum)
+func pdfOverviewRow(ctrl reportControlRow) core.Row {
+	compliant, _, total := ctrl.metricCounts()
+	statusChip := controlStatusChip(ctrl.statusLabel())
+	implChip := implementationChip(ctrl.implementationStateEnum)
 
-	evaluationValue := r.evaluationStatus
-	if evaluationValue == "" {
-		evaluationValue = "Not Evaluated"
-	}
-	assignee := r.assignee
-	if assignee == "" {
-		assignee = "—"
-	}
-
-	control := col.New(5).Add(
-		text.New(fmt.Sprintf("%s  ·  %s", r.shortName, truncate(r.controlName, 42)), props.Text{Top: 2.5, Left: 2, Size: 8.5, Style: fontstyle.Bold, Color: pdfInk}),
+	idCol := col.New(2).Add(
+		text.New(ctrl.shortName, props.Text{Top: 2.5, Left: 2, Size: 8.5, Family: fontfamily.Courier, Style: fontstyle.Bold, Color: pdfCodeBlue}),
 	)
-	assigneeCol := col.New(2).Add(
-		text.New(assignee, props.Text{Top: 2.5, Size: 8, Color: pdfInk}),
+	nameCol := col.New(3).Add(
+		text.New(truncate(ctrl.controlName, 28), props.Text{Top: 2.5, Size: 8.5, Color: pdfInk}),
+	)
+	categoryCol := col.New(2).Add(
+		text.New(truncate(ctrl.category, 18), props.Text{Top: 2.5, Size: 8, Color: pdfMuted}),
 	)
 	implCol := col.New(2).Add(
-		text.New(r.implementationState, props.Text{Top: 2.5, Size: 8, Style: fontstyle.Bold, Align: align.Center, Color: implChip.text}),
+		text.New(ctrl.implementationState, props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Align: align.Center, Color: implChip.text}),
 	).WithStyle(&props.Cell{BackgroundColor: implChip.bg})
+	metricsCol := col.New(1).Add(
+		text.New(fmt.Sprint(total), props.Text{Top: 2.5, Size: 8.5, Align: align.Center, Color: pdfInk}),
+	)
+	statusCol := col.New(2).Add(
+		text.New(fmt.Sprintf("%s (%d/%d)", ctrl.statusLabel(), compliant, total), props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Align: align.Center, Color: statusChip.text}),
+	).WithStyle(&props.Cell{BackgroundColor: statusChip.bg})
 
-	evalTexts := []core.Component{
-		text.New(evaluationValue, props.Text{Top: 2.5, Size: 8, Style: fontstyle.Bold, Align: align.Center, Color: evalChip.text}),
-	}
-	if r.evaluationTimestamp != "" {
-		evalTexts[0] = text.New(evaluationValue, props.Text{Top: 1.5, Size: 8, Style: fontstyle.Bold, Align: align.Center, Color: evalChip.text})
-		evalTexts = append(evalTexts, text.New(r.evaluationTimestamp, props.Text{Top: 6, Size: 6.5, Align: align.Center, Color: evalChip.text}))
-	}
-	evalCol := col.New(3).Add(evalTexts...).WithStyle(&props.Cell{BackgroundColor: evalChip.bg})
+	return row.New(8).Add(idCol, nameCol, categoryCol, implCol, metricsCol, statusCol)
+}
 
-	rw := row.New(9).Add(control, assigneeCol, implCol, evalCol)
-	if zebra {
-		rw.WithStyle(&props.Cell{BackgroundColor: pdfZebra})
+// pdfControlCardRows renders one control's card: a header row (control ID/name and aggregated
+// status), a metrics table (if any), and a remediation callout for any non-compliant metric that
+// has a compliance comment. Every row shares a colored left border matching the control's status,
+// approximating a bordered card since maroto rows can't span a single box with rounded corners.
+func pdfControlCardRows(ctrl reportControlRow) []core.Row {
+	statusChip := controlStatusChip(ctrl.statusLabel())
+	accent := &props.Cell{BorderType: border.Left, BorderColor: statusChip.text, BorderThickness: 1.5}
+
+	compliant, _, total := ctrl.metricCounts()
+	rows := []core.Row{
+		row.New(10).Add(
+			col.New(8).Add(
+				text.New(fmt.Sprintf("Control: %s", ctrl.shortName), props.Text{Top: 2.5, Left: 3, Size: 9.5, Style: fontstyle.Bold, Color: pdfInk}),
+				text.New(truncate(ctrl.controlName, 55), props.Text{Top: 2.5, Left: 30, Size: 9.5, Color: pdfMuted}),
+			),
+			col.New(4).Add(
+				text.New(fmt.Sprintf("%s (%d/%d)", ctrl.statusLabel(), compliant, total), props.Text{Top: 3, Size: 8, Style: fontstyle.Bold, Align: align.Right, Right: 3, Color: statusChip.text}),
+			),
+		).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfZebra})),
 	}
-	return rw
+
+	if len(ctrl.metrics) == 0 {
+		rows = append(rows, row.New(8).Add(
+			col.New(12).Add(text.New("No metrics configured for this control.", props.Text{Top: 2.5, Left: 3, Size: 8, Color: pdfMuted})),
+		).WithStyle(accent))
+		return rows
+	}
+
+	headerText := props.Text{Top: 2.5, Size: 7, Style: fontstyle.Bold, Color: pdfMuted}
+	firstHeaderText := headerText
+	firstHeaderText.Left = 3
+	rows = append(rows, row.New(6).Add(
+		text.NewCol(3, "METRIC", firstHeaderText),
+		text.NewCol(3, "TARGET COMPONENT", headerText),
+		text.NewCol(4, "EVALUATED CONDITION & OBSERVED VALUE", headerText),
+		text.NewCol(2, "STATUS", headerText),
+	).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfHeaderBg})))
+
+	var remediations []reportMetricRow
+	for i, m := range ctrl.metrics {
+		chip := metricStatusChip(m)
+		rw := row.New(8).Add(
+			col.New(3).Add(text.New(truncate(m.name, 20), props.Text{Top: 2.5, Left: 3, Size: 7.5, Family: fontfamily.Courier, Color: pdfCodeBlue})),
+			col.New(3).Add(text.New(truncate(m.targetComponent, 22), props.Text{Top: 2.5, Size: 7.5, Color: pdfInk})),
+			col.New(4).Add(text.New(truncate(m.condition, 33), props.Text{Top: 2.5, Size: 7.5, Family: fontfamily.Courier, Color: pdfInk})),
+			col.New(2).Add(text.New(metricStatusLabel(m), props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Align: align.Center, Color: chip.text})).WithStyle(&props.Cell{BackgroundColor: chip.bg}),
+		)
+		style := *accent
+		if i%2 == 1 {
+			style.BackgroundColor = pdfZebra
+		}
+		rows = append(rows, rw.WithStyle(&style))
+
+		if m.evaluated && !m.compliant && m.complianceComment != "" {
+			remediations = append(remediations, m)
+		}
+	}
+
+	for _, m := range remediations {
+		rows = append(rows, row.New(9).Add(
+			col.New(12).Add(
+				text.New(fmt.Sprintf("Remediation (%s): %s", m.name, truncate(m.complianceComment, 110)), props.Text{Top: 2.5, Left: 3, Size: 7.5, Color: pdfAmber}),
+			),
+		).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfAmberTint})))
+	}
+
+	return rows
+}
+
+func mergeCellStyle(a, b *props.Cell) *props.Cell {
+	merged := *a
+	if b.BackgroundColor != nil {
+		merged.BackgroundColor = b.BackgroundColor
+	}
+	return &merged
 }
 
 // auditScopeStatusLabels maps [orchestrator.AuditScopeStatus] values to short, human-readable

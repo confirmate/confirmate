@@ -21,59 +21,130 @@ import (
 	"testing"
 	"time"
 
-	"confirmate.io/core/api/evaluation"
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/persistence/persistencetest"
 	"confirmate.io/core/service"
-	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 
 	"connectrpc.com/connect"
 	pdfapi "github.com/pdfcpu/pdfcpu/pkg/api"
 	pdfmodel "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/xuri/excelize/v2"
+	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestService_ExportAuditScopeReport(t *testing.T) {
+	const (
+		toeId      = "10000000-0000-0000-0000-000000000001"
+		scopeId    = "20000000-0000-0000-0000-000000000001"
+		catalogId  = "report-test-catalog"
+		control1Id = "30000000-0000-0000-0000-000000000001"
+		control2Id = "30000000-0000-0000-0000-000000000002"
+		metric1Id  = "40000000-0000-0000-0000-000000000001"
+		metric2Id  = "40000000-0000-0000-0000-000000000002"
+		metric3Id  = "40000000-0000-0000-0000-000000000003"
+		userId     = "50000000-0000-0000-0000-000000000001"
+	)
+
+	catalog := &orchestrator.Catalog{
+		Id:   catalogId,
+		Name: "Report Test Catalog",
+		Categories: []*orchestrator.Category{
+			{
+				Name:      "Access Control",
+				CatalogId: catalogId,
+				Controls: []*orchestrator.Control{
+					{
+						Id: control1Id, Name: "Multi-Factor Authentication", ShortName: "AC-1", CatalogId: catalogId,
+						Metrics: []*assessment.Metric{{Id: metric1Id, Name: "MFAEnforcedForAdmin"}},
+					},
+				},
+			},
+			{
+				Name:      "Data Protection",
+				CatalogId: catalogId,
+				Controls: []*orchestrator.Control{
+					{
+						Id: control2Id, Name: "Encryption at Rest", ShortName: "DP-1", CatalogId: catalogId,
+						Metrics: []*assessment.Metric{
+							{Id: metric2Id, Name: "DiskEncryptionEnabled"},
+							{Id: metric3Id, Name: "KeyRotationEnabled"},
+						},
+					},
+				},
+			},
+		},
+	}
+	toe := &orchestrator.TargetOfEvaluation{Id: toeId, Name: "Report Test ToE"}
+	auditScope := &orchestrator.AuditScope{Id: scopeId, Name: "Mock Audit Scope 1", TargetOfEvaluationId: toeId, CatalogId: catalogId}
+	user := &orchestrator.User{Id: userId, FirstName: new("Test"), LastName: new("User")}
+
 	evalTime := time.Date(2026, 1, 15, 10, 30, 0, 0, time.UTC)
 
 	db := persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		assert.NoError(t, d.Create(orchestratortest.MockCatalog1))
-		assert.NoError(t, d.Create(orchestratortest.MockTargetOfEvaluation1))
-		assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
-		assert.NoError(t, d.Create(orchestratortest.MockUser1))
+		assert.NoError(t, d.Create(catalog))
+		assert.NoError(t, d.Create(toe))
+		assert.NoError(t, d.Create(auditScope))
+		assert.NoError(t, d.Create(user))
 
-		// Control 1 (category 1): open, no assignee, no evaluation result yet.
+		// Control 1 (category "Access Control"): open, no assignee. Its one metric is never
+		// assessed, so it should show up as "Not Evaluated".
 		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
-			Id:                   "00000000-0000-0000-0004-000000000101",
-			AuditScopeId:         orchestratortest.MockScopeId1,
-			TargetOfEvaluationId: orchestratortest.MockToeId1,
-			ControlId:            orchestratortest.MockControlId1,
+			Id:                   "60000000-0000-0000-0000-000000000001",
+			AuditScopeId:         scopeId,
+			TargetOfEvaluationId: toeId,
+			ControlId:            control1Id,
 			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 		}))
 
-		// Control 2 (category 2): accepted, assigned, with a latest evaluation result.
+		// Control 2 (category "Data Protection"): accepted, assigned. One metric compliant, one
+		// not compliant, so the control should show up as "Action Required".
 		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
-			Id:                    "00000000-0000-0000-0004-000000000102",
-			AuditScopeId:          orchestratortest.MockScopeId1,
-			TargetOfEvaluationId:  orchestratortest.MockToeId1,
-			ControlId:             orchestratortest.MockControlId2,
+			Id:                    "60000000-0000-0000-0000-000000000002",
+			AuditScopeId:          scopeId,
+			TargetOfEvaluationId:  toeId,
+			ControlId:             control2Id,
 			State:                 orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED,
-			AssigneeId:            new(orchestratortest.MockUser1.Id),
+			AssigneeId:            new(userId),
 			ImplementationDetails: new("Rolled out via IaC pipeline."),
 		}))
 
-		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
-			Id:                   "00000000-0000-0000-0002-000000000101",
-			TargetOfEvaluationId: orchestratortest.MockToeId1,
-			AuditScopeId:         orchestratortest.MockScopeId1,
-			ControlId:            orchestratortest.MockControlId2,
-			ControlCatalogId:     orchestratortest.MockCatalogId1,
-			Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
-			Timestamp:            timestamppb.New(evalTime),
-			AssessmentResultIds:  []string{"some-assessment-result-id"},
+		assert.NoError(t, d.Create(&assessment.AssessmentResult{
+			Id:                   "70000000-0000-0000-0000-000000000001",
+			CreatedAt:            timestamppb.New(evalTime),
+			MetricId:             metric2Id,
+			TargetOfEvaluationId: toeId,
+			Compliant:            true,
+			EvidenceId:           "80000000-0000-0000-0000-000000000001",
+			ResourceId:           "disk-1",
+			ResourceTypes:        []string{"BlockStorage"},
+			ComplianceComment:    "Resource is compliant",
+			ComplianceDetails: []*assessment.ComparisonResult{{
+				Property:    "encryptionEnabled",
+				Operator:    "==",
+				TargetValue: structpb.NewBoolValue(true),
+				Value:       structpb.NewBoolValue(true),
+			}},
+		}))
+		assert.NoError(t, d.Create(&assessment.AssessmentResult{
+			Id:                   "70000000-0000-0000-0000-000000000002",
+			CreatedAt:            timestamppb.New(evalTime),
+			MetricId:             metric3Id,
+			TargetOfEvaluationId: toeId,
+			Compliant:            false,
+			EvidenceId:           "80000000-0000-0000-0000-000000000002",
+			ResourceId:           "disk-1",
+			ResourceTypes:        []string{"BlockStorage"},
+			ComplianceComment:    "Key rotation is disabled, enable automatic rotation.",
+			ComplianceDetails: []*assessment.ComparisonResult{{
+				Property:    "keyRotationEnabled",
+				Operator:    "==",
+				TargetValue: structpb.NewBoolValue(true),
+				Value:       structpb.NewBoolValue(false),
+			}},
 		}))
 	})
 
@@ -84,7 +155,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 
 	t.Run("happy path", func(t *testing.T) {
 		res, err := svc.ExportAuditScopeReport(context.Background(), connect.NewRequest(&orchestrator.ExportAuditScopeReportRequest{
-			AuditScopeId: orchestratortest.MockScopeId1,
+			AuditScopeId: scopeId,
 		}))
 		assert.NoError(t, err)
 		if !assert.NotNil(t, res) {
@@ -103,37 +174,45 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		rows, err := f.GetRows("Report")
 		assert.NoError(t, err)
 
-		// Row 1-3 are the title block, row 5 is the header, data starts at row 6.
-		// Control 1 (category-1) must sort before control 2 (category-2).
-		if !assert.Equal(t, 7, len(rows)) {
+		// Row 1-3 are the title block, row 5 is the header. Control 1 has 1 metric row, control 2
+		// has 2 metric rows: 3 data rows total, sorted by category then control short name.
+		if !assert.Equal(t, 8, len(rows)) {
 			return
 		}
 
 		header := rows[4]
 		assert.Equal(t, []string{
-			"Category", "Control ID", "Control Name", "Assurance Level",
-			"Implementation State", "Assignee", "Implementation Notes",
-			"Evaluation Status", "Evaluation Timestamp", "Evaluation Comment",
+			"Category", "Control ID", "Control Name", "Implementation State", "Assignee", "Implementation Notes",
+			"Metric", "Target Component", "Evaluated Condition & Observed Value", "Metric Status", "Compliance Comment",
 		}, header)
 
-		control1Row := rows[5]
-		assert.Equal(t, orchestratortest.MockCategoryName1, control1Row[0])
-		assert.Equal(t, orchestratortest.MockControlShortName1, control1Row[1])
-		assert.Equal(t, "Open", control1Row[4])
+		control1MetricRow := rows[5]
+		assert.Equal(t, "Access Control", control1MetricRow[0])
+		assert.Equal(t, "AC-1", control1MetricRow[1])
+		assert.Equal(t, "Open", control1MetricRow[3])
+		assert.Equal(t, "MFAEnforcedForAdmin", control1MetricRow[6])
+		assert.Equal(t, "Not Evaluated", control1MetricRow[9])
 
-		control2Row := rows[6]
-		assert.Equal(t, orchestratortest.MockCategoryName2, control2Row[0])
-		assert.Equal(t, orchestratortest.MockControlShortName2, control2Row[1])
-		assert.Equal(t, "Accepted", control2Row[4])
-		assert.Equal(t, "Test User", control2Row[5])
-		assert.Equal(t, "Rolled out via IaC pipeline.", control2Row[6])
-		assert.Equal(t, "Compliant", control2Row[7])
-		assert.Equal(t, evalTime.Local().Format("2006-01-02 15:04"), control2Row[8])
+		control2CompliantRow := rows[6]
+		assert.Equal(t, "Data Protection", control2CompliantRow[0])
+		assert.Equal(t, "DP-1", control2CompliantRow[1])
+		assert.Equal(t, "Accepted", control2CompliantRow[3])
+		assert.Equal(t, "Test User", control2CompliantRow[4])
+		assert.Equal(t, "Rolled out via IaC pipeline.", control2CompliantRow[5])
+		assert.Equal(t, "DiskEncryptionEnabled", control2CompliantRow[6])
+		assert.Equal(t, "BlockStorage", control2CompliantRow[7])
+		assert.Equal(t, "encryptionEnabled == true (Observed: true)", control2CompliantRow[8])
+		assert.Equal(t, "Compliant", control2CompliantRow[9])
+
+		control2NonCompliantRow := rows[7]
+		assert.Equal(t, "KeyRotationEnabled", control2NonCompliantRow[6])
+		assert.Equal(t, "Not Compliant", control2NonCompliantRow[9])
+		assert.Equal(t, "Key rotation is disabled, enable automatic rotation.", control2NonCompliantRow[10])
 	})
 
 	t.Run("happy path: PDF format", func(t *testing.T) {
 		res, err := svc.ExportAuditScopeReport(context.Background(), connect.NewRequest(&orchestrator.ExportAuditScopeReportRequest{
-			AuditScopeId: orchestratortest.MockScopeId1,
+			AuditScopeId: scopeId,
 			Format:       orchestrator.ReportFormat_REPORT_FORMAT_PDF,
 		}))
 		assert.NoError(t, err)
@@ -159,7 +238,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 
 	t.Run("err: audit scope not found", func(t *testing.T) {
 		_, err := svc.ExportAuditScopeReport(context.Background(), connect.NewRequest(&orchestrator.ExportAuditScopeReportRequest{
-			AuditScopeId: orchestratortest.MockNonExistentId,
+			AuditScopeId: "00000000-0000-0000-0000-000000000000",
 		}))
 		assert.IsConnectError(t, err, connect.CodeNotFound)
 	})
@@ -170,7 +249,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 			authz: &denyAuthorizationStrategy{},
 		}
 		_, err := denySvc.ExportAuditScopeReport(context.Background(), connect.NewRequest(&orchestrator.ExportAuditScopeReportRequest{
-			AuditScopeId: orchestratortest.MockScopeId1,
+			AuditScopeId: scopeId,
 		}))
 		assert.IsConnectError(t, err, connect.CodePermissionDenied)
 	})

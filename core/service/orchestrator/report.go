@@ -25,13 +25,14 @@ import (
 	"time"
 
 	"confirmate.io/core/api"
-	"confirmate.io/core/api/evaluation"
+	"confirmate.io/core/api/assessment"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/persistence"
 	"confirmate.io/core/service"
 
 	"connectrpc.com/connect"
 	"github.com/xuri/excelize/v2"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // controlInScopeStateLabels maps [orchestrator.ControlInScopeState] values to short,
@@ -45,22 +46,23 @@ var controlInScopeStateLabels = map[orchestrator.ControlInScopeState]string{
 	orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED:         "Accepted",
 }
 
-// evaluationStatusLabels maps [evaluation.EvaluationStatus] values to short, human-readable
-// labels for display in the report.
-var evaluationStatusLabels = map[evaluation.EvaluationStatus]string{
-	evaluation.EvaluationStatus_EVALUATION_STATUS_UNSPECIFIED:            "",
-	evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT:              "Compliant",
-	evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT_MANUALLY:     "Compliant (manual)",
-	evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT:          "Not Compliant",
-	evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT_MANUALLY: "Not Compliant (manual)",
-	evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING:                "Pending",
-}
-
 var reportFilenameSanitizer = regexp.MustCompile(`[^a-zA-Z0-9-]+`)
 
-// reportRow is one row of the audit scope compliance report, combining data from the catalog
-// control, its ControlInScope record, and its latest evaluation result.
-type reportRow struct {
+// reportMetricRow is the aggregated, latest-per-resource compliance status of a single metric
+// for a control, as shown under that control's "Evaluation Result" in the report.
+type reportMetricRow struct {
+	name              string
+	targetComponent   string
+	condition         string
+	evaluated         bool
+	compliant         bool
+	complianceComment string
+}
+
+// reportControlRow is one control ("Evaluation Result") of the audit scope compliance report,
+// combining data from the catalog control, its ControlInScope record, and the aggregated
+// compliance status of each of its metrics.
+type reportControlRow struct {
 	category                string
 	shortName               string
 	controlName             string
@@ -69,14 +71,43 @@ type reportRow struct {
 	implementationStateEnum orchestrator.ControlInScopeState
 	assignee                string
 	implementationNotes     string
-	evaluationStatus        string
-	evaluationStatusEnum    evaluation.EvaluationStatus
-	evaluationTimestamp     string
-	evaluationComment       string
+	metrics                 []reportMetricRow
 }
 
-// ExportAuditScopeReport generates an XLSX compliance report for the given audit scope, listing
-// every in-scope control together with its implementation state and latest evaluation status.
+// metricCounts returns the number of metrics that are compliant, evaluated at all, and
+// configured in total for this control.
+func (c reportControlRow) metricCounts() (compliant, evaluated, total int) {
+	total = len(c.metrics)
+	for _, m := range c.metrics {
+		if !m.evaluated {
+			continue
+		}
+		evaluated++
+		if m.compliant {
+			compliant++
+		}
+	}
+	return
+}
+
+// statusLabel summarizes a control's metrics into a single status.
+func (c reportControlRow) statusLabel() string {
+	compliant, evaluated, total := c.metricCounts()
+	switch {
+	case total == 0:
+		return "No Metrics"
+	case evaluated == 0:
+		return "Not Evaluated"
+	case compliant == total:
+		return "Passed"
+	default:
+		return "Action Required"
+	}
+}
+
+// ExportAuditScopeReport generates a compliance report for the given audit scope, listing every
+// in-scope control ("evaluation result") together with its implementation state and the
+// aggregated compliance status of each of its metrics.
 func (svc *Service) ExportAuditScopeReport(
 	ctx context.Context,
 	req *connect.Request[orchestrator.ExportAuditScopeReportRequest],
@@ -114,12 +145,13 @@ func (svc *Service) ExportAuditScopeReport(
 
 	err = svc.db.Get(&catalog,
 		persistence.WithPreload("Categories.Controls", "parent_control_id IS NULL"),
+		persistence.WithPreload("Categories.Controls.Metrics"),
 		"id = ?", auditScope.GetCatalogId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
 		return nil, err
 	}
 
-	rows, err := svc.buildReportRows(ctx, &auditScope, &catalog)
+	controls, err := svc.buildReportControls(ctx, &auditScope, &catalog)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -128,9 +160,9 @@ func (svc *Service) ExportAuditScopeReport(
 	extension := "xlsx"
 	if req.Msg.GetFormat() == orchestrator.ReportFormat_REPORT_FORMAT_PDF {
 		extension = "pdf"
-		content, err = renderAuditScopeReportPDF(&auditScope, &toe, &catalog, rows)
+		content, err = renderAuditScopeReportPDF(&auditScope, &toe, &catalog, controls)
 	} else {
-		content, err = renderAuditScopeReportXLSX(&auditScope, &toe, rows)
+		content, err = renderAuditScopeReportXLSX(&auditScope, &toe, controls)
 	}
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("could not render report: %w", err))
@@ -147,17 +179,22 @@ func (svc *Service) ExportAuditScopeReport(
 	return
 }
 
-// buildReportRows gathers the ControlInScope records, their catalog control metadata, and their
-// latest evaluation result for the given audit scope, and combines them into report rows ordered
-// by category (in catalog order) and then by control short name.
-func (svc *Service) buildReportRows(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog) ([]reportRow, error) {
-	// Map every top-level control ID to the name of the category it belongs to.
+// buildReportControls gathers the ControlInScope records, their catalog control metadata (with
+// metrics), and the latest-per-resource assessment result for each metric, and combines them
+// into report rows ordered by category (in catalog order) and then by control short name.
+func (svc *Service) buildReportControls(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog) ([]reportControlRow, error) {
+	// Map every top-level control ID to the name of the category it belongs to, and collect the
+	// IDs of every metric attached to any of those controls.
 	categoryByControlId := make(map[string]string)
 	controlById := make(map[string]*orchestrator.Control)
+	var allMetricIds []string
 	for _, cat := range catalog.GetCategories() {
 		for _, c := range cat.GetControls() {
 			categoryByControlId[c.GetId()] = cat.GetName()
 			controlById[c.GetId()] = c
+			for _, m := range c.GetMetrics() {
+				allMetricIds = append(allMetricIds, m.GetId())
+			}
 		}
 	}
 
@@ -177,19 +214,34 @@ func (svc *Service) buildReportRows(ctx context.Context, auditScope *orchestrato
 		return nil, fmt.Errorf("could not list controls in scope: %w", err)
 	}
 
-	evalRes, err := svc.ListEvaluationResults(ctx, connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
-		Filter: &orchestrator.ListEvaluationResultsRequest_Filter{
-			AuditScopeId: &auditScopeId,
-			ParentsOnly:  new(true),
-		},
-		LatestByControlId: new(true),
-	}))
-	if err != nil {
-		return nil, fmt.Errorf("could not list evaluation results: %w", err)
+	// Fetch the latest assessment result per resource for every metric relevant to this catalog,
+	// in one batched call, rather than querying per control or per metric.
+	var assessmentResults []*assessment.AssessmentResult
+	if len(allMetricIds) > 0 {
+		toeId := auditScope.GetTargetOfEvaluationId()
+		assessmentResults, err = api.ListAllPaginated(ctx, &orchestrator.ListAssessmentResultsRequest{
+			Filter: &orchestrator.ListAssessmentResultsRequest_Filter{
+				TargetOfEvaluationId: &toeId,
+				MetricIds:            allMetricIds,
+			},
+			LatestByResourceId: new(true),
+		}, func(ctx context.Context, req *orchestrator.ListAssessmentResultsRequest) (*orchestrator.ListAssessmentResultsResponse, error) {
+			res, err := svc.ListAssessmentResults(ctx, connect.NewRequest(req))
+			if err != nil {
+				return nil, err
+			}
+			return res.Msg, nil
+		}, func(res *orchestrator.ListAssessmentResultsResponse) []*assessment.AssessmentResult {
+			return res.Results
+		})
+		if err != nil {
+			return nil, fmt.Errorf("could not list assessment results: %w", err)
+		}
 	}
-	evalByControlId := make(map[string]*evaluation.EvaluationResult, len(evalRes.Msg.GetResults()))
-	for _, r := range evalRes.Msg.GetResults() {
-		evalByControlId[r.GetControlId()] = r
+
+	resultsByMetric := make(map[string][]*assessment.AssessmentResult, len(allMetricIds))
+	for _, r := range assessmentResults {
+		resultsByMetric[r.GetMetricId()] = append(resultsByMetric[r.GetMetricId()], r)
 	}
 
 	var users []*orchestrator.User
@@ -201,7 +253,7 @@ func (svc *Service) buildReportRows(ctx context.Context, auditScope *orchestrato
 		nameByUserId[u.GetId()] = userDisplayName(u)
 	}
 
-	rows := make([]reportRow, 0, len(cisList))
+	controls := make([]reportControlRow, 0, len(cisList))
 	for _, cis := range cisList {
 		control := controlById[cis.GetControlId()]
 		if control == nil {
@@ -210,7 +262,7 @@ func (svc *Service) buildReportRows(ctx context.Context, auditScope *orchestrato
 			continue
 		}
 
-		row := reportRow{
+		row := reportControlRow{
 			category:                categoryByControlId[control.GetId()],
 			shortName:               control.GetShortName(),
 			controlName:             control.GetName(),
@@ -222,26 +274,82 @@ func (svc *Service) buildReportRows(ctx context.Context, auditScope *orchestrato
 		if assigneeId := cis.GetAssigneeId(); assigneeId != "" {
 			row.assignee = nameByUserId[assigneeId]
 		}
-		if evalResult := evalByControlId[control.GetId()]; evalResult != nil {
-			row.evaluationStatus = evaluationStatusLabels[evalResult.GetStatus()]
-			row.evaluationStatusEnum = evalResult.GetStatus()
-			if ts := evalResult.GetTimestamp(); ts != nil {
-				row.evaluationTimestamp = ts.AsTime().Local().Format("2006-01-02 15:04")
-			}
-			row.evaluationComment = evalResult.GetComment()
+
+		for _, m := range control.GetMetrics() {
+			row.metrics = append(row.metrics, buildReportMetricRow(m, resultsByMetric[m.GetId()]))
 		}
 
-		rows = append(rows, row)
+		controls = append(controls, row)
 	}
 
-	sort.SliceStable(rows, func(i, j int) bool {
-		if rows[i].category != rows[j].category {
-			return rows[i].category < rows[j].category
+	sort.SliceStable(controls, func(i, j int) bool {
+		if controls[i].category != controls[j].category {
+			return controls[i].category < controls[j].category
 		}
-		return rows[i].shortName < rows[j].shortName
+		return controls[i].shortName < controls[j].shortName
 	})
 
-	return rows, nil
+	return controls, nil
+}
+
+// buildReportMetricRow aggregates the latest-per-resource assessment results for a single metric
+// into one report row. If more than one resource was assessed, the metric is only considered
+// compliant if all of them are; the condition/observed value shown is taken from a non-compliant
+// resource if one exists, so the row explains what needs fixing.
+func buildReportMetricRow(m *assessment.Metric, results []*assessment.AssessmentResult) reportMetricRow {
+	row := reportMetricRow{name: m.GetName()}
+	if len(results) == 0 {
+		row.targetComponent = "—"
+		row.condition = "—"
+		return row
+	}
+
+	row.evaluated = true
+
+	sample := results[0]
+	compliantCount := 0
+	for _, r := range results {
+		if r.GetCompliant() {
+			compliantCount++
+		} else if sample.GetCompliant() {
+			sample = r
+		}
+	}
+	row.compliant = compliantCount == len(results)
+	row.complianceComment = sample.GetComplianceComment()
+	row.condition = formatAssessmentCondition(sample)
+
+	component := sample.GetResourceId()
+	if types := sample.GetResourceTypes(); len(types) > 0 {
+		component = types[0]
+	}
+	if len(results) > 1 {
+		component = fmt.Sprintf("%s (×%d resources)", component, len(results))
+	}
+	row.targetComponent = component
+
+	return row
+}
+
+// formatAssessmentCondition renders the evaluated condition and observed value of an assessment
+// result as a single human-readable string, e.g. "tlsVersion >= 1.3 (Observed: 1.3)".
+func formatAssessmentCondition(r *assessment.AssessmentResult) string {
+	if details := r.GetComplianceDetails(); len(details) > 0 {
+		d := details[0]
+		return fmt.Sprintf("%s %s %s (Observed: %s)",
+			d.GetProperty(), d.GetOperator(), formatStructValue(d.GetTargetValue()), formatStructValue(d.GetValue()))
+	}
+	if cfg := r.GetMetricConfiguration(); cfg != nil {
+		return fmt.Sprintf("Expected %s %s", cfg.GetOperator(), formatStructValue(cfg.GetTargetValue()))
+	}
+	return "—"
+}
+
+func formatStructValue(v *structpb.Value) string {
+	if v == nil {
+		return "—"
+	}
+	return fmt.Sprint(v.AsInterface())
 }
 
 // userDisplayName returns the best available human-readable name for a user.
@@ -255,26 +363,10 @@ func userDisplayName(u *orchestrator.User) string {
 	return u.GetId()
 }
 
-// reportColumns describes each column of the report sheet, in order.
-var reportColumns = []struct {
-	header string
-	value  func(reportRow) string
-}{
-	{"Category", func(r reportRow) string { return r.category }},
-	{"Control ID", func(r reportRow) string { return r.shortName }},
-	{"Control Name", func(r reportRow) string { return r.controlName }},
-	{"Assurance Level", func(r reportRow) string { return r.assuranceLevel }},
-	{"Implementation State", func(r reportRow) string { return r.implementationState }},
-	{"Assignee", func(r reportRow) string { return r.assignee }},
-	{"Implementation Notes", func(r reportRow) string { return r.implementationNotes }},
-	{"Evaluation Status", func(r reportRow) string { return r.evaluationStatus }},
-	{"Evaluation Timestamp", func(r reportRow) string { return r.evaluationTimestamp }},
-	{"Evaluation Comment", func(r reportRow) string { return r.evaluationComment }},
-}
-
-// renderAuditScopeReportXLSX renders the given rows into a single-sheet XLSX workbook and returns
-// its raw file content.
-func renderAuditScopeReportXLSX(auditScope *orchestrator.AuditScope, toe *orchestrator.TargetOfEvaluation, rows []reportRow) ([]byte, error) {
+// renderAuditScopeReportXLSX renders the given controls (and their metrics) into a single-sheet
+// XLSX workbook, one row per (control, metric) pair, and returns its raw file content. Controls
+// with no metrics still get a single row, so they aren't silently dropped from the export.
+func renderAuditScopeReportXLSX(auditScope *orchestrator.AuditScope, toe *orchestrator.TargetOfEvaluation, controls []reportControlRow) ([]byte, error) {
 	const sheet = "Report"
 
 	f := excelize.NewFile()
@@ -306,17 +398,21 @@ func renderAuditScopeReportXLSX(auditScope *orchestrator.AuditScope, toe *orches
 		return nil, err
 	}
 
+	headers := []string{
+		"Category", "Control ID", "Control Name", "Implementation State", "Assignee", "Implementation Notes",
+		"Metric", "Target Component", "Evaluated Condition & Observed Value", "Metric Status", "Compliance Comment",
+	}
 	const headerRow = 5
-	for i, col := range reportColumns {
+	for i, h := range headers {
 		cell, err := excelize.CoordinatesToCellName(i+1, headerRow)
 		if err != nil {
 			return nil, err
 		}
-		if err := f.SetCellStr(sheet, cell, col.header); err != nil {
+		if err := f.SetCellStr(sheet, cell, h); err != nil {
 			return nil, err
 		}
 	}
-	lastHeaderCell, err := excelize.CoordinatesToCellName(len(reportColumns), headerRow)
+	lastHeaderCell, err := excelize.CoordinatesToCellName(len(headers), headerRow)
 	if err != nil {
 		return nil, err
 	}
@@ -324,19 +420,45 @@ func renderAuditScopeReportXLSX(auditScope *orchestrator.AuditScope, toe *orches
 		return nil, err
 	}
 
-	for r, row := range rows {
-		for c, col := range reportColumns {
-			cell, err := excelize.CoordinatesToCellName(c+1, headerRow+1+r)
+	r := headerRow
+	writeRow := func(values []string) error {
+		r++
+		for c, v := range values {
+			cell, err := excelize.CoordinatesToCellName(c+1, r)
 			if err != nil {
+				return err
+			}
+			if err := f.SetCellStr(sheet, cell, v); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	for _, ctrl := range controls {
+		base := []string{ctrl.category, ctrl.shortName, ctrl.controlName, ctrl.implementationState, ctrl.assignee, ctrl.implementationNotes}
+		if len(ctrl.metrics) == 0 {
+			if err := writeRow(append(append([]string{}, base...), "", "", "", "No Metrics", "")); err != nil {
 				return nil, err
 			}
-			if err := f.SetCellStr(sheet, cell, col.value(row)); err != nil {
+			continue
+		}
+		for _, m := range ctrl.metrics {
+			status := "Not Evaluated"
+			if m.evaluated {
+				status = "Compliant"
+				if !m.compliant {
+					status = "Not Compliant"
+				}
+			}
+			row := append(append([]string{}, base...), m.name, m.targetComponent, m.condition, status, m.complianceComment)
+			if err := writeRow(row); err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	for i := range reportColumns {
+	for i := range headers {
 		col, err := excelize.ColumnNumberToName(i + 1)
 		if err != nil {
 			return nil, err
