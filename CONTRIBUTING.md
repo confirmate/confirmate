@@ -279,9 +279,9 @@ Confirmate's API follows the [Google API Design Guide](https://cloud.google.com/
 APIs must be modeled as a hierarchy of resources and collections rather than arbitrary RPC operations. Each resource has a unique name and a small set of standard methods.
 
 - **Collections** are plural nouns: `metrics`, `assessment_tools`, `targets_of_evaluation`
-- **Resources** are identified by their collection name and a unique ID: `metrics/{metric_id}`
+- **Resources** have a unique `id` field within their collection; the collection is implied by the RPC/HTTP path (e.g. `GET /v1/orchestrator/metrics/{metric_id}`). This repo does not use AIP-122's composed resource-name convention (e.g. `metrics/{metric_id}` as a single `name` field) — resources just have a plain `id`
 - Prefer [standard methods](https://cloud.google.com/apis/design/standard_methods) (`Create`, `Get`, `List`, `Update`, `Delete`) over custom methods whenever possible
-- Use [custom methods](https://cloud.google.com/apis/design/custom_methods) (verb-based, appended with `:`) only for operations that cannot be expressed as a standard method
+- Use [custom methods](https://cloud.google.com/apis/design/custom_methods) only for operations that cannot be expressed as a standard method. Unlike the Google guide, this repo does **not** use the `:verb` HTTP suffix convention (e.g. `POST /foos/{id}:archive`); custom methods here are a trailing path segment instead, e.g. `POST /v1/evaluation/evaluate/{audit_scope_id}/start` or `POST /v1/orchestrator/controls_in_scope/{id}/transition`. Follow this existing pattern for new custom methods — adopting the `:verb` style would mean migrating every existing one first
 
 ### RPC Naming Conventions
 
@@ -355,7 +355,7 @@ List methods must support [page-token-based pagination](https://cloud.google.com
 - Request: `page_size` (int32) and `page_token` (string) fields
 - Response: `next_page_token` (string, empty when no further pages) is required
 - Response: `total_size` (int32) is optional, per [AIP-158](https://google.aip.dev/158) — it is not part of the current API surface (existing `List*Response` messages in this repo omit it), so only add it if there is a real need for an exact count
-- Default and maximum page sizes should be documented in the proto comments
+- Default and maximum page sizes should be documented in the proto comments (see `evidence_store.proto`'s `page_size` field for an example — most existing `List*Request.page_size` fields don't yet document this; do so for new fields and when you touch existing ones)
 
 ### Field Behavior Annotations
 
