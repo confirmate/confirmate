@@ -30,6 +30,10 @@ export interface components {
     schemas: {
         /** @description ABAC is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ABAC: Record<string, never>;
+        /** @description AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        AccessControlTypePolicy: {
+            authorizationTypes?: string;
+        };
         /** @description AccessRestriction is an abstract class in our ontology, it cannot be instantiated but acts as an "interface". */
         AccessRestriction: {
             l3Firewall?: components["schemas"]["L3Firewall"];
@@ -90,6 +94,7 @@ export interface components {
             codeRepositoryId?: string;
             functionalities?: components["schemas"]["Functionality"][];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /** @description Allocate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Allocate: {
@@ -149,6 +154,7 @@ export interface components {
             functionalities?: components["schemas"]["Functionality"][];
             libraryIds?: string[];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /** @description ApplicationLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ApplicationLogging: {
@@ -176,6 +182,7 @@ export interface components {
          * @description AssetInventory is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      AuditInterval contains the frequency of asset inventory audits in month.
          *      Class representing the inventory of assets.
+         *      Service contains the name of the service (e.g., Asset Management).
          *      Status contains the status of the asset (e.g., active, inactive).
          *      StorageFacility contains the storage facility type of the asset (e.g., central, decentralized).
          *      Type: contains the type of the asset, e.g., digital
@@ -194,6 +201,10 @@ export interface components {
              * @description Percentage of completed reviews and updates of asset inventory entries.
              */
             completedReviewPercentage?: number;
+            /** Format: int32 */
+            reviewFrequency?: number;
+            /** @description Service contains the name of the service (e.g., Asset Management). */
+            service?: string;
             status?: string;
             storageFacility?: string;
             type?: string;
@@ -283,8 +294,12 @@ export interface components {
          */
         Backup: {
             enabled?: boolean;
+            /** Format: int32 */
+            frequency?: number;
             /** @description The interval refers to the update interval in days. */
             interval?: string;
+            /** Format: int32 */
+            recoveryFrequency?: number;
             retentionPeriod?: string;
             storageId?: string;
             transportEncryption?: components["schemas"]["TransportEncryption"];
@@ -469,6 +484,18 @@ export interface components {
             percentage?: number;
             /** Format: float */
             percentageLastMonth?: number;
+        };
+        /** @description ComplianceAuditIntervalPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ComplianceAuditIntervalPolicy: {
+            /**
+             * Format: int32
+             * @description The time needed for an audit.
+             */
+            auditInterval?: number;
+        };
+        /** @description ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        ComplianceMethodologyPolicy: {
+            methodology?: string;
         };
         /**
          * @description Configuration is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -810,27 +837,14 @@ export interface components {
             codeRepositoryId?: string;
             functionalities?: components["schemas"]["Functionality"][];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /**
          * @description DataConfidentialitySDNPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      Represents a policy section within a [PolicyDocument] describing data confidentiality requirements for Software Defined Networking (SDN). isDefined: whether this policy section is present and defined.
          */
         DataConfidentialitySDNPolicy: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
             isDefined?: boolean;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            contextId?: string;
-            dataLocation?: components["schemas"]["DataLocation"];
-            policyRuleIds?: string[];
-            parentId?: string;
         };
         /**
          * @description DataLocation is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -1309,11 +1323,21 @@ export interface components {
             getSecret?: components["schemas"]["GetSecret"];
             output?: components["schemas"]["Output"];
             padding?: components["schemas"]["Padding"];
+            accessControlTypePolicy?: components["schemas"]["AccessControlTypePolicy"];
+            complianceAuditIntervalPolicy?: components["schemas"]["ComplianceAuditIntervalPolicy"];
+            complianceMethodologyPolicy?: components["schemas"]["ComplianceMethodologyPolicy"];
+            dataConfidentialitySdnPolicy?: components["schemas"]["DataConfidentialitySDNPolicy"];
+            leastPrivilegePolicy?: components["schemas"]["LeastPrivilegePolicy"];
+            needToKnowPolicy?: components["schemas"]["NeedToKnowPolicy"];
+            networkThreatMitigationPolicy?: components["schemas"]["NetworkThreatMitigationPolicy"];
+            sdnFunctionValidationPolicy?: components["schemas"]["SDNFunctionValidationPolicy"];
+            separationOfDutiesPolicy?: components["schemas"]["SeparationOfDutiesPolicy"];
             principal?: components["schemas"]["Principal"];
             protectedAsset?: components["schemas"]["ProtectedAsset"];
             requestForChange?: components["schemas"]["RequestForChange"];
             schemaValidation?: components["schemas"]["SchemaValidation"];
             securityAdvisoryFeed?: components["schemas"]["SecurityAdvisoryFeed"];
+            securityIncident?: components["schemas"]["SecurityIncident"];
             time?: components["schemas"]["Time"];
             vulnerability?: components["schemas"]["Vulnerability"];
         };
@@ -2049,30 +2073,17 @@ export interface components {
         };
         /** @description L3Firewall is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         L3Firewall: {
+            allowedSources?: string[];
             enabled?: boolean;
             inbound?: boolean;
-            restrictedPorts?: string;
+            restrictedPorts?: string[];
         };
         /**
          * @description LeastPrivilegePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
          *      Represents a policy section within a [PolicyDocument] describing least privilege requirements. isDefined: whether this policy section is present and defined.
          */
         LeastPrivilegePolicy: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
             isDefined?: boolean;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            contextId?: string;
-            dataLocation?: components["schemas"]["DataLocation"];
-            policyRuleIds?: string[];
-            parentId?: string;
         };
         /** @description Library is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Library: {
@@ -2091,6 +2102,7 @@ export interface components {
             functionalities?: components["schemas"]["Functionality"][];
             libraryIds?: string[];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
             vulnerabilities?: components["schemas"]["Vulnerability"][];
         };
         /**
@@ -2472,21 +2484,7 @@ export interface components {
          *      Represents a policy section within a [PolicyDocument] describing need-to-know access control requirements. isDefined: whether this policy section is present and defined.
          */
         NeedToKnowPolicy: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
             isDefined?: boolean;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            contextId?: string;
-            dataLocation?: components["schemas"]["DataLocation"];
-            policyRuleIds?: string[];
-            parentId?: string;
         };
         /** @description NetworkInterface is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         NetworkInterface: {
@@ -2531,6 +2529,13 @@ export interface components {
             redundancies?: components["schemas"]["Redundancy"][];
             parentId?: string;
             usageStatistics?: components["schemas"]["UsageStatistics"];
+        };
+        /**
+         * @description NetworkThreatMitigationPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+         *      Represents a policy section within a [PolicyDocument] describing network threat mitigation mechanisms and attack coverage. coveredAttackTypes: the types of network-level attacks mitigated by implemented controls (e.g., DoS, DDoS).
+         */
+        NetworkThreatMitigationPolicy: {
+            coveredAttackTypes?: string[];
         };
         /** @description NoAuthentication is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         NoAuthentication: {
@@ -2662,6 +2667,7 @@ export interface components {
             codeRepositoryId?: string;
             functionalities?: components["schemas"]["Functionality"][];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /**
          * @description Package is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -2682,6 +2688,7 @@ export interface components {
             codeRepositoryId?: string;
             functionalities?: components["schemas"]["Functionality"][];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /**
          * @description Padding is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -2737,18 +2744,24 @@ export interface components {
             name?: string;
             /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
             raw?: string;
+            accessControlTypePolicy?: components["schemas"]["AccessControlTypePolicy"];
+            assetInventory?: components["schemas"]["AssetInventory"];
+            backup?: components["schemas"]["Backup"];
             cryptographicHashs?: components["schemas"]["CryptographicHash"][];
-            dataConfidentialitySdnPolicyId?: string;
+            dataConfidentialitySdnPolicy?: components["schemas"]["DataConfidentialitySDNPolicy"];
             dataLocation?: components["schemas"]["DataLocation"];
             documentSignatures?: components["schemas"]["DocumentSignature"][];
             governances?: components["schemas"]["Governance"][];
-            leastPrivilegePolicyId?: string;
-            needToKnowPolicyId?: string;
+            leastPrivilegePolicy?: components["schemas"]["LeastPrivilegePolicy"];
+            monitoringProcedure?: components["schemas"]["MonitoringProcedure"];
+            needToKnowPolicy?: components["schemas"]["NeedToKnowPolicy"];
+            networkThreatMitigationPolicy?: components["schemas"]["NetworkThreatMitigationPolicy"];
             parentId?: string;
-            sdnFunctionValidationPolicyId?: string;
+            sdnFunctionValidationPolicy?: components["schemas"]["SDNFunctionValidationPolicy"];
             validatedBy?: components["schemas"]["SchemaValidation"];
             securityFeatures?: components["schemas"]["SecurityFeature"][];
-            separationOfDutiesPolicyId?: string;
+            securityIncident?: components["schemas"]["SecurityIncident"];
+            separationOfDutiesPolicy?: components["schemas"]["SeparationOfDutiesPolicy"];
         };
         /**
          * @description Principal is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
@@ -3090,11 +3103,6 @@ export interface components {
             machineLearningDataset?: components["schemas"]["MachineLearningDataset"];
             machineLearningModel?: components["schemas"]["MachineLearningModel"];
             coordinatedVulnerabilityDisclosurePolicy?: components["schemas"]["CoordinatedVulnerabilityDisclosurePolicy"];
-            dataConfidentialitySdnPolicy?: components["schemas"]["DataConfidentialitySDNPolicy"];
-            leastPrivilegePolicy?: components["schemas"]["LeastPrivilegePolicy"];
-            needToKnowPolicy?: components["schemas"]["NeedToKnowPolicy"];
-            sdnFunctionValidationPolicy?: components["schemas"]["SDNFunctionValidationPolicy"];
-            separationOfDutiesPolicy?: components["schemas"]["SeparationOfDutiesPolicy"];
             andRule?: components["schemas"]["AndRule"];
             token?: components["schemas"]["Token"];
             value?: components["schemas"]["Value"];
@@ -3190,21 +3198,7 @@ export interface components {
          *      Represents a policy section within a [PolicyDocument] describing validation and testing requirements for SDN functions. isDefined: whether this policy section is present and defined.
          */
         SDNFunctionValidationPolicy: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
             isDefined?: boolean;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            contextId?: string;
-            dataLocation?: components["schemas"]["DataLocation"];
-            policyRuleIds?: string[];
-            parentId?: string;
         };
         /** @description SchemaValidation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SchemaValidation: {
@@ -3339,6 +3333,7 @@ export interface components {
             encryptionInUse?: components["schemas"]["EncryptionInUse"];
             localAttestation?: components["schemas"]["LocalAttestation"];
             remoteAttestation?: components["schemas"]["RemoteAttestation"];
+            softwareAttestation?: components["schemas"]["SoftwareAttestation"];
             automaticUpdates?: components["schemas"]["AutomaticUpdates"];
             cryptographicHash?: components["schemas"]["CryptographicHash"];
             immutability?: components["schemas"]["Immutability"];
@@ -3347,6 +3342,10 @@ export interface components {
             verifiedCommits?: components["schemas"]["VerifiedCommits"];
             explainableResults?: components["schemas"]["ExplainableResults"];
             robustnessScore?: components["schemas"]["RobustnessScore"];
+        };
+        /** @description SecurityIncident is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SecurityIncident: {
+            team?: string[];
         };
         /** @description SecurityTraining is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SecurityTraining: {
@@ -3358,21 +3357,7 @@ export interface components {
          *      Represents a policy section within a [PolicyDocument] describing separation of duties requirements. isDefined: whether this policy section is present and defined.
          */
         SeparationOfDutiesPolicy: {
-            /** Format: date-time */
-            creationTime?: string;
-            description?: string;
-            id?: string;
             isDefined?: boolean;
-            labels?: {
-                [key: string]: string;
-            };
-            name?: string;
-            /** @description The raw field contains the raw information that is used to fill in the fields of the ontology. */
-            raw?: string;
-            contextId?: string;
-            dataLocation?: components["schemas"]["DataLocation"];
-            policyRuleIds?: string[];
-            parentId?: string;
         };
         /** @description ServiceMetadataDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         ServiceMetadataDocument: {
@@ -3419,6 +3404,14 @@ export interface components {
              */
             rotationInterval?: number;
         };
+        /** @description SoftwareAttestation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
+        SoftwareAttestation: {
+            enabled?: boolean;
+            /** @description predicate: Property being affirmed */
+            predicate?: string;
+            /** @description subject: Subject of an assertion */
+            subject?: string[];
+        };
         /** @description SourceCodeFile is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         SourceCodeFile: {
             /** Format: date-time */
@@ -3435,6 +3428,7 @@ export interface components {
             codeRepositoryId?: string;
             functionalities?: components["schemas"]["Functionality"][];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /** @description The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors). */
         Status: {
@@ -3714,6 +3708,7 @@ export interface components {
             codeRepositoryId?: string;
             functionalities?: components["schemas"]["Functionality"][];
             parentId?: string;
+            softwareAttestations?: components["schemas"]["SoftwareAttestation"][];
         };
         /** @description Workflow is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces. */
         Workflow: {
@@ -3748,6 +3743,7 @@ export interface components {
     pathItems: never;
 }
 export type SchemaAbac = components['schemas']['ABAC'];
+export type SchemaAccessControlTypePolicy = components['schemas']['AccessControlTypePolicy'];
 export type SchemaAccessRestriction = components['schemas']['AccessRestriction'];
 export type SchemaAccount = components['schemas']['Account'];
 export type SchemaActivityLogging = components['schemas']['ActivityLogging'];
@@ -3781,6 +3777,8 @@ export type SchemaCipherSuite = components['schemas']['CipherSuite'];
 export type SchemaCodeRegion = components['schemas']['CodeRegion'];
 export type SchemaCodeRepository = components['schemas']['CodeRepository'];
 export type SchemaCodeSignoff = components['schemas']['CodeSignoff'];
+export type SchemaComplianceAuditIntervalPolicy = components['schemas']['ComplianceAuditIntervalPolicy'];
+export type SchemaComplianceMethodologyPolicy = components['schemas']['ComplianceMethodologyPolicy'];
 export type SchemaConfiguration = components['schemas']['Configuration'];
 export type SchemaConfigurationDocument = components['schemas']['ConfigurationDocument'];
 export type SchemaConfigurationGroup = components['schemas']['ConfigurationGroup'];
@@ -3897,6 +3895,7 @@ export type SchemaMultiModalDatabaseService = components['schemas']['MultiModalD
 export type SchemaNeedToKnowPolicy = components['schemas']['NeedToKnowPolicy'];
 export type SchemaNetworkInterface = components['schemas']['NetworkInterface'];
 export type SchemaNetworkSecurityGroup = components['schemas']['NetworkSecurityGroup'];
+export type SchemaNetworkThreatMitigationPolicy = components['schemas']['NetworkThreatMitigationPolicy'];
 export type SchemaNoAuthentication = components['schemas']['NoAuthentication'];
 export type SchemaOsLogging = components['schemas']['OSLogging'];
 export type SchemaOtpBasedAuthentication = components['schemas']['OTPBasedAuthentication'];
@@ -3945,11 +3944,13 @@ export type SchemaSecurityAdvisoryDocument = components['schemas']['SecurityAdvi
 export type SchemaSecurityAdvisoryFeed = components['schemas']['SecurityAdvisoryFeed'];
 export type SchemaSecurityAdvisoryService = components['schemas']['SecurityAdvisoryService'];
 export type SchemaSecurityFeature = components['schemas']['SecurityFeature'];
+export type SchemaSecurityIncident = components['schemas']['SecurityIncident'];
 export type SchemaSecurityTraining = components['schemas']['SecurityTraining'];
 export type SchemaSeparationOfDutiesPolicy = components['schemas']['SeparationOfDutiesPolicy'];
 export type SchemaServiceMetadataDocument = components['schemas']['ServiceMetadataDocument'];
 export type SchemaSignedCommits = components['schemas']['SignedCommits'];
 export type SchemaSingleSignOn = components['schemas']['SingleSignOn'];
+export type SchemaSoftwareAttestation = components['schemas']['SoftwareAttestation'];
 export type SchemaSourceCodeFile = components['schemas']['SourceCodeFile'];
 export type SchemaStatus = components['schemas']['Status'];
 export type SchemaSymmetricCipher = components['schemas']['SymmetricCipher'];
