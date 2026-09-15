@@ -28,13 +28,12 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
-	"google.golang.org/protobuf/types/known/structpb"
 
 	"connectrpc.com/connect"
-
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // DefaultRegoPackage is the default package name for the Rego files
