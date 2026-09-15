@@ -635,7 +635,16 @@ func Test_regoEval_evalMap(t *testing.T) {
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
-					Message: assessment.DefaultCompliantMessage,
+					ComparisonResult: []*assessment.ComparisonResult{
+						{
+							Value:       &structpb.Value{Kind: &structpb.Value_BoolValue{BoolValue: true}},
+							Property:    "automaticUpdates.enabled",
+							TargetValue: structpb.NewBoolValue(true),
+							Operator:    "==",
+							Success:     true,
+						},
+					},
+					Message: assessment.AdditionalDetailsMessage,
 				}
 
 				return assert.Equal(t, want, got)
@@ -681,7 +690,16 @@ func Test_regoEval_evalMap(t *testing.T) {
 						MetricId:             "84eaed86-759d-4419-9954-f3d3ea1f5200",
 						TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1,
 					},
-					Message: assessment.DefaultNonCompliantMessage,
+					ComparisonResult: []*assessment.ComparisonResult{
+						{
+							Value:       &structpb.Value{Kind: &structpb.Value_BoolValue{BoolValue: true}},
+							Property:    "automaticUpdates.enabled",
+							TargetValue: structpb.NewBoolValue(false),
+							Operator:    "==",
+							Success:     false,
+						},
+					},
+					Message: assessment.AdditionalDetailsMessage,
 				}
 
 				return assert.Equal(t, want, got)

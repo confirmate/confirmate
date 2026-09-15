@@ -52,7 +52,9 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 			fields: fields{
 				db: persistencetest.NewInMemoryDB(t, types, joinTables),
 			},
-			wantErr: assert.NoError,
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeNotFound)
+			},
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				auditScopeId := msgAndArgs[0].(string)
 
@@ -151,7 +153,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 				// and compare the rest of the object as a whole.
 				_, err := uuid.Parse(states[0].GetId())
 				assert.NoError(t, err)
-				_, err = time.Parse(time.RFC3339, states[0].GetTimestamp())
+				_, err = time.Parse(time.RFC3339, states[0].Timestamp.AsTime().Format(time.RFC3339))
 				assert.NoError(t, err)
 
 				return assert.Equal(t, &orchestrator.State{
@@ -194,7 +196,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
 						AuditScopeId:         orchestratortest.MockScopeId1,
 						States: []*orchestrator.State{
-							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateNew, Timestamp: "2026-01-01T00:00:00Z", CertificateId: orchestratortest.MockCertificateId1},
+							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateNew, Timestamp: timestamppb.New(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)), CertificateId: orchestratortest.MockCertificateId1},
 						},
 					}
 					assert.NoError(t, d.Create(cert))
@@ -225,7 +227,7 @@ func TestService_updateCertificateLifecycle(t *testing.T) {
 						TargetOfEvaluationId: orchestratortest.MockToeId1,
 						AuditScopeId:         orchestratortest.MockScopeId1,
 						States: []*orchestrator.State{
-							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateWithdrawn, Timestamp: "2026-01-01T00:00:00Z", CertificateId: orchestratortest.MockCertificateId1},
+							{Id: "00000000-0000-0000-0088-000000000001", State: CertificateStateWithdrawn, Timestamp: timestamppb.New(time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)), CertificateId: orchestratortest.MockCertificateId1},
 						},
 					}
 					assert.NoError(t, d.Create(cert))
