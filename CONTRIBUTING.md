@@ -278,7 +278,7 @@ Confirmate's API follows the [Google API Design Guide](https://cloud.google.com/
 
 APIs must be modeled as a hierarchy of resources and collections rather than arbitrary RPC operations. Each resource has a unique name and a small set of standard methods.
 
-- **Collections** are plural nouns: `metrics`, `assessment_tools`, `targets`
+- **Collections** are plural nouns: `metrics`, `assessment_tools`, `targets_of_evaluation`
 - **Resources** are identified by their collection name and a unique ID: `metrics/{metric_id}`
 - Prefer [standard methods](https://cloud.google.com/apis/design/standard_methods) (`Create`, `Get`, `List`, `Update`, `Delete`) over custom methods whenever possible
 - Use [custom methods](https://cloud.google.com/apis/design/custom_methods) (verb-based, appended with `:`) only for operations that cannot be expressed as a standard method
@@ -293,6 +293,13 @@ APIs must be modeled as a hierarchy of resources and collections rather than arb
 | Fully replace a resource | `UpdateFoo` | `PUT /v1/foos/{foo.id}` |
 | Partially update a resource | `UpdateFoo` + `FieldMask` | `PATCH /v1/foos/{foo.id}` |
 | Delete a resource | `DeleteFoo` | `DELETE /v1/foos/{foo_id}` |
+
+> **Current state:** several existing RPCs use `Remove*` (e.g. `RemoveMetric`, `RemoveTargetOfEvaluation`)
+> or `Deregister*` (e.g. `DeregisterAssessmentTool`) for delete semantics, even though the
+> corresponding database operations and REST routes already use `Delete`. New delete-style RPCs
+> should use `Delete*` as shown above. Do not rename existing `Remove*`/`Deregister*` methods as
+> part of an unrelated change — that would be a breaking API change; a repo-wide rename is a
+> separate decision.
 
 **Good:**
 ```proto
@@ -314,17 +321,16 @@ rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse) {
 
 **Bad:**
 ```proto
-// Avoid verb-based names for standard CRUD operations
+// Avoid verb-based names and non-standard response wrappers for standard CRUD operations
 rpc FetchMetric(FetchMetricRequest) returns (Metric);
 rpc AddMetric(AddMetricRequest) returns (AddMetricResponse);
-rpc RemoveMetric(RemoveMetricRequest) returns (google.protobuf.Empty);
 ```
 
 ### Request and Response Messages
 
 - Every RPC method must have its own dedicated request message (e.g., `CreateMetricRequest`), even if it is currently empty
 - Standard methods that return a resource return the resource message directly (not wrapped): `CreateMetric` returns `Metric`, not `CreateMetricResponse`
-- `List` methods must return a dedicated response message that includes the repeated resource field and, where applicable, pagination fields (`next_page_token`, `total_size`)
+- `List` methods must return a dedicated response message that includes the repeated resource field and the `next_page_token` pagination field
 - `Delete` methods return `google.protobuf.Empty`
 
 **Good:**
@@ -339,7 +345,6 @@ rpc CreateMetric(CreateMetricRequest) returns (Metric);
 message ListMetricsResponse {
   repeated Metric metrics = 1;
   string next_page_token = 2;
-  int32 total_size = 3;
 }
 ```
 
@@ -348,12 +353,15 @@ message ListMetricsResponse {
 List methods must support [page-token-based pagination](https://cloud.google.com/apis/design/design_patterns#list_pagination):
 
 - Request: `page_size` (int32) and `page_token` (string) fields
-- Response: `next_page_token` (string, empty when no further pages) and `total_size` (int32)
+- Response: `next_page_token` (string, empty when no further pages) is required
+- Response: `total_size` (int32) is optional, per [AIP-158](https://google.aip.dev/158) — it is not part of the current API surface (existing `List*Response` messages in this repo omit it), so only add it if there is a real need for an exact count
 - Default and maximum page sizes should be documented in the proto comments
 
 ### Field Behavior Annotations
 
-Use `google.api.field_behavior` annotations to clearly communicate field semantics:
+Per [AIP-203](https://google.aip.dev/203), prefer `google.api.field_behavior` annotations over
+comments to clearly communicate field semantics — annotations are machine-readable and show up
+in generated clients, whereas comments can drift out of sync:
 
 ```proto
 import "google/api/field_behavior.proto";
@@ -367,6 +375,23 @@ message Target {
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string description = 3 [(google.api.field_behavior) = OPTIONAL];
 }
+```
+
+### Comment Conventions
+
+Follow [AIP-192](https://google.aip.dev/192) for proto comments. In particular, the first
+sentence of a comment should omit the subject and be written in third-person present tense:
+
+**Good:**
+```proto
+// Retrieves the metric by ID.
+rpc GetMetric(GetMetricRequest) returns (Metric);
+```
+
+**Bad:**
+```proto
+// This function retrieves the metric by ID.
+rpc GetMetric(GetMetricRequest) returns (Metric);
 ```
 
 ## Documentation Guidelines
