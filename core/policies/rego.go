@@ -382,7 +382,7 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 			operator = data.cch.operator;
 			target_value = data.cch.target_value;
 			config = data.cch.config;
-			message = object.get(data.%s.%s, "message", []);
+			message = object.get(data.%s.%s, "message", "");
 			results = object.get(data.%s.%s, "results", [])`, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg, prefix, pkg)),
 			rego.Package(prefix),
 			rego.Store(store),
@@ -450,15 +450,15 @@ func (re *regoEval) evalMap(ctx context.Context, baseDir string, targetID string
 	// Check, if the metric supplies an additional message
 	if msg, ok := results[0].Bindings["message"]; ok {
 		// Also append a short comment that details can be found in the ... details, if we have any
-		if len(result.ComparisonResult) > 0 {
+		if msg != "" {
 			result.Message = fmt.Sprintf("%s %s", msg, assessment.AdditionalDetailsMessage)
 		} else {
 			result.Message = assessment.AdditionalDetailsMessage
 		}
 	} else if result.Compliant {
-		result.Message = assessment.DefaultCompliantMessage
+		result.Message = assessment.DefaultCompliantMessage + " " + assessment.AdditionalDetailsMessage
 	} else if !result.Compliant {
-		result.Message = assessment.DefaultNonCompliantMessage
+		result.Message = assessment.DefaultNonCompliantMessage + " " + assessment.AdditionalDetailsMessage
 	}
 
 	if !result.Applicable {

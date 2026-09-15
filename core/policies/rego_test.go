@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -638,17 +637,17 @@ func Test_regoEval_evalMap(t *testing.T) {
 					},
 					ComparisonResult: []*assessment.ComparisonResult{
 						{
-							Value:       &structpb.Value{},
-							Property:    "automatic_updates_enabled",
+							Value:       &structpb.Value{Kind: &structpb.Value_BoolValue{BoolValue: true}},
+							Property:    "automaticUpdates.enabled",
 							TargetValue: structpb.NewBoolValue(true),
 							Operator:    "==",
 							Success:     true,
 						},
 					},
-					Message: assessment.DefaultCompliantMessage,
+					Message: assessment.AdditionalDetailsMessage,
 				}
 
-				return assert.Equal(t, want, got, cmpopts.IgnoreFields(CombinedResult{}, "Message", "ComparisonResult")) && assert.NotEmpty(t, got.Message) && assert.NotEmpty(t, got.ComparisonResult)
+				return assert.Equal(t, want, got)
 			},
 			wantErr: assert.NoError,
 		},
@@ -693,17 +692,17 @@ func Test_regoEval_evalMap(t *testing.T) {
 					},
 					ComparisonResult: []*assessment.ComparisonResult{
 						{
-							Value:       &structpb.Value{},
-							Property:    "automatic_updates_enabled",
+							Value:       &structpb.Value{Kind: &structpb.Value_BoolValue{BoolValue: true}},
+							Property:    "automaticUpdates.enabled",
 							TargetValue: structpb.NewBoolValue(false),
 							Operator:    "==",
 							Success:     false,
 						},
 					},
-					Message: assessment.DefaultNonCompliantMessage,
+					Message: assessment.AdditionalDetailsMessage,
 				}
 
-				return assert.Equal(t, want, got, cmpopts.IgnoreFields(CombinedResult{}, "Message", "ComparisonResult")) && assert.NotEmpty(t, got.Message) && assert.NotEmpty(t, got.ComparisonResult)
+				return assert.Equal(t, want, got)
 			},
 			wantErr: assert.NoError,
 		},

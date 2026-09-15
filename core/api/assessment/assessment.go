@@ -24,7 +24,7 @@ type ResultHookFunc func(ctx context.Context, result *AssessmentResult, err erro
 const (
 	DefaultNonCompliantMessage = "The result of the metric indicates that the resource contains properties that are not compliant with the target value."
 	DefaultCompliantMessage    = "The result of the metric shows that the evidence is compliant to the target value."
-	AdditionalDetailsMessage   = "Additional details can be found in the comparison below."
+	AdditionalDetailsMessage   = "Additional details can be found in the compliance details."
 )
 
 const AssessmentToolId = "Clouditor Assessment"
