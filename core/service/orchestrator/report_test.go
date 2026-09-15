@@ -44,6 +44,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		control1Id  = "30000000-0000-0000-0000-000000000001"
 		control1aId = "30000000-0000-0000-0000-000000000004"
 		control2Id  = "30000000-0000-0000-0000-000000000002"
+		control3Id  = "30000000-0000-0000-0000-000000000003"
 		metric1Id   = "40000000-0000-0000-0000-000000000001"
 		metric1aId  = "40000000-0000-0000-0000-000000000004"
 		metric2Id   = "40000000-0000-0000-0000-000000000002"
@@ -85,6 +86,11 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 							{Id: metric2Id, Name: "DiskEncryptionEnabled"},
 							{Id: metric3Id, Name: "KeyRotationEnabled"},
 						},
+					},
+					// No metrics configured at all: must still show up as a "No Metrics" row in
+					// both XLSX and PDF, rather than being silently omitted.
+					{
+						Id: control3Id, Name: "Data Retention Policy", ShortName: "DP-2", CatalogId: catalogId,
 					},
 				},
 			},
@@ -132,6 +138,15 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 			State:                 orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED,
 			AssigneeId:            new(userId),
 			ImplementationDetails: new("Rolled out via IaC pipeline."),
+		}))
+
+		// Control 3 (category "Data Protection"): no metrics configured at all.
+		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
+			Id:                   "60000000-0000-0000-0000-000000000003",
+			AuditScopeId:         scopeId,
+			TargetOfEvaluationId: toeId,
+			ControlId:            control3Id,
+			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IN_PROGRESS,
 		}))
 
 		assert.NoError(t, d.Create(&assessment.AssessmentResult{
@@ -197,9 +212,9 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Row 1-3 are the title block, row 5 is the header. Control 1 (AC-1) and its sub-control
-		// (AC-1.1) each have 1 metric row, control 2 has 2 metric rows: 4 data rows total, sorted
-		// by category then control short name.
-		if !assert.Equal(t, 9, len(rows)) {
+		// (AC-1.1) each have 1 metric row, control 2 has 2 metric rows, control 3 has no metrics
+		// (1 row): 5 data rows total, sorted by category then control short name.
+		if !assert.Equal(t, 10, len(rows)) {
 			return
 		}
 
@@ -240,6 +255,14 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		assert.Equal(t, "KeyRotationEnabled", control2NonCompliantRow[6])
 		assert.Equal(t, "Not Compliant", control2NonCompliantRow[9])
 		assert.Equal(t, "Key rotation is disabled, enable automatic rotation.", control2NonCompliantRow[10])
+
+		// Control 3 has no metrics at all; it must still appear as a single "No Metrics" row
+		// rather than being silently dropped from the export.
+		control3Row := rows[9]
+		assert.Equal(t, "Data Protection", control3Row[0])
+		assert.Equal(t, "DP-2", control3Row[1])
+		assert.Equal(t, "In Progress", control3Row[3])
+		assert.Equal(t, "No Metrics", control3Row[9])
 	})
 
 	t.Run("happy path: PDF format", func(t *testing.T) {
