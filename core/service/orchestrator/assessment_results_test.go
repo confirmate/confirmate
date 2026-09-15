@@ -159,7 +159,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				// Verify the result was persisted with correct timestamp
-				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
+				result := assert.InDBGet[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
 				assert.NotNil(t, result.CreatedAt)
 				assert.True(t, time.Since(result.CreatedAt.AsTime()) < 5*time.Second)
 				assert.Equal(t, orchestratortest.MockMetricId1, result.MetricId)
@@ -185,7 +185,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				// Verify the result was persisted with correct timestamp
-				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
+				result := assert.InDBGet[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
 				assert.NotNil(t, result.CreatedAt)
 				assert.True(t, time.Since(result.CreatedAt.AsTime()) < 5*time.Second)
 				assert.Equal(t, orchestratortest.MockMetricId1, result.MetricId)
@@ -225,7 +225,7 @@ func TestService_StoreAssessmentResult(t *testing.T) {
 			wantErr: assert.NoError,
 			wantDB: func(t *testing.T, db persistence.DB, msgAndArgs ...any) bool {
 				// Verify the result was persisted with correct timestamp
-				result := assert.InDB[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
+				result := assert.InDBGet[assessment.AssessmentResult](t, db, orchestratortest.MockResultId3)
 				assert.NotNil(t, result.CreatedAt)
 				assert.True(t, time.Since(result.CreatedAt.AsTime()) < 5*time.Second)
 				assert.Equal(t, orchestratortest.MockMetricId1, result.MetricId)
