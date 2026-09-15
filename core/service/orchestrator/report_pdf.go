@@ -27,6 +27,7 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
 	"github.com/johnfercher/maroto/v2/pkg/consts/border"
+	"github.com/johnfercher/maroto/v2/pkg/consts/breakline"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontfamily"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/core"
@@ -361,13 +362,12 @@ func pdfControlCardRows(ctrl reportControlRow) []core.Row {
 		text.NewCol(2, "STATUS", headerText),
 	).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfHeaderBg})))
 
-	var remediations []reportMetricRow
 	for i, m := range ctrl.metrics {
 		chip := metricStatusChip(m)
-		rw := row.New(8).Add(
-			col.New(3).Add(text.New(truncate(m.name, 20), props.Text{Top: 2.5, Left: 3, Size: 7.5, Family: fontfamily.Courier, Color: pdfCodeBlue})),
-			col.New(3).Add(text.New(truncate(m.targetComponent, 22), props.Text{Top: 2.5, Size: 7.5, Color: pdfInk})),
-			col.New(4).Add(text.New(truncate(m.condition, 33), props.Text{Top: 2.5, Size: 7.5, Family: fontfamily.Courier, Color: pdfInk})),
+		rw := row.New().Add(
+			col.New(3).Add(text.New(m.name, props.Text{Top: 2.5, Left: 3, Size: 7.5, Family: fontfamily.Courier, Color: pdfCodeBlue, BreakLineStrategy: breakline.DashStrategy})),
+			col.New(3).Add(text.New(m.targetComponent, props.Text{Top: 2.5, Size: 7.5, Color: pdfInk})),
+			col.New(4).Add(text.New(m.condition, props.Text{Top: 2.5, Size: 7.5, Family: fontfamily.Courier, Color: pdfInk, BreakLineStrategy: breakline.DashStrategy})),
 			col.New(2).Add(text.New(metricStatusLabel(m), props.Text{Top: 2.5, Size: 7.5, Style: fontstyle.Bold, Align: align.Center, Color: chip.text})).WithStyle(&props.Cell{BackgroundColor: chip.bg}),
 		)
 		style := *accent
@@ -376,17 +376,15 @@ func pdfControlCardRows(ctrl reportControlRow) []core.Row {
 		}
 		rows = append(rows, rw.WithStyle(&style))
 
+		// Attach the remediation callout directly under its own metric, rather than batching all
+		// of a control's remediations together at the end of its card.
 		if m.evaluated && !m.compliant && m.complianceComment != "" {
-			remediations = append(remediations, m)
+			rows = append(rows, row.New().Add(
+				col.New(12).Add(
+					text.New(fmt.Sprintf("Remediation (%s): %s", m.name, m.complianceComment), props.Text{Top: 2.5, Left: 3, Size: 7.5, Color: pdfAmber}),
+				),
+			).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfAmberTint})))
 		}
-	}
-
-	for _, m := range remediations {
-		rows = append(rows, row.New(9).Add(
-			col.New(12).Add(
-				text.New(fmt.Sprintf("Remediation (%s): %s", m.name, truncate(m.complianceComment, 110)), props.Text{Top: 2.5, Left: 3, Size: 7.5, Color: pdfAmber}),
-			),
-		).WithStyle(mergeCellStyle(accent, &props.Cell{BackgroundColor: pdfAmberTint})))
 	}
 
 	return rows

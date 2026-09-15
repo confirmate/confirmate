@@ -143,9 +143,18 @@ func (svc *Service) ExportAuditScopeReport(
 		return nil, err
 	}
 
+	// Preload the full control tree (not just top-level controls): autoCreateControlsInScope
+	// creates a ControlInScope for every control in the catalog, including sub-controls, which
+	// is also where metrics are typically attached (top-level controls are often just a grouping
+	// with no metrics of their own). Catalogs are at most 2 levels deep in practice, but preload
+	// one extra level as a safety margin; flattenControls below walks to any depth regardless.
 	err = svc.db.Get(&catalog,
 		persistence.WithPreload("Categories.Controls", "parent_control_id IS NULL"),
 		persistence.WithPreload("Categories.Controls.Metrics"),
+		persistence.WithPreload("Categories.Controls.Controls"),
+		persistence.WithPreload("Categories.Controls.Controls.Metrics"),
+		persistence.WithPreload("Categories.Controls.Controls.Controls"),
+		persistence.WithPreload("Categories.Controls.Controls.Controls.Metrics"),
 		"id = ?", auditScope.GetCatalogId())
 	if err = service.HandleDatabaseError(err, service.ErrNotFound("catalog")); err != nil {
 		return nil, err
@@ -183,13 +192,16 @@ func (svc *Service) ExportAuditScopeReport(
 // metrics), and the latest-per-resource assessment result for each metric, and combines them
 // into report rows ordered by category (in catalog order) and then by control short name.
 func (svc *Service) buildReportControls(ctx context.Context, auditScope *orchestrator.AuditScope, catalog *orchestrator.Catalog) ([]reportControlRow, error) {
-	// Map every top-level control ID to the name of the category it belongs to, and collect the
-	// IDs of every metric attached to any of those controls.
+	// Map every control ID (at any depth: top-level and sub-controls) to the name of the category
+	// it belongs to, and collect the IDs of every metric attached to any of those controls.
+	// ControlInScope records exist for controls at any depth (see autoCreateControlsInScope), and
+	// metrics are typically attached to sub-controls rather than their top-level parent, so
+	// restricting this to top-level controls would both drop rows and miss most metrics.
 	categoryByControlId := make(map[string]string)
 	controlById := make(map[string]*orchestrator.Control)
 	var allMetricIds []string
 	for _, cat := range catalog.GetCategories() {
-		for _, c := range cat.GetControls() {
+		for _, c := range flattenControls(cat.GetControls()) {
 			categoryByControlId[c.GetId()] = cat.GetName()
 			controlById[c.GetId()] = c
 			for _, m := range c.GetMetrics() {
@@ -350,6 +362,17 @@ func formatStructValue(v *structpb.Value) string {
 		return "—"
 	}
 	return fmt.Sprint(v.AsInterface())
+}
+
+// flattenControls recursively flattens a control tree (including sub-controls at any depth) into
+// a single slice, so every control that could have its own ControlInScope record is included.
+func flattenControls(controls []*orchestrator.Control) []*orchestrator.Control {
+	flat := make([]*orchestrator.Control, 0, len(controls))
+	for _, c := range controls {
+		flat = append(flat, c)
+		flat = append(flat, flattenControls(c.GetControls())...)
+	}
+	return flat
 }
 
 // userDisplayName returns the best available human-readable name for a user.

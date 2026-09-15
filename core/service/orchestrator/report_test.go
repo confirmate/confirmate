@@ -38,15 +38,17 @@ import (
 
 func TestService_ExportAuditScopeReport(t *testing.T) {
 	const (
-		toeId      = "10000000-0000-0000-0000-000000000001"
-		scopeId    = "20000000-0000-0000-0000-000000000001"
-		catalogId  = "report-test-catalog"
-		control1Id = "30000000-0000-0000-0000-000000000001"
-		control2Id = "30000000-0000-0000-0000-000000000002"
-		metric1Id  = "40000000-0000-0000-0000-000000000001"
-		metric2Id  = "40000000-0000-0000-0000-000000000002"
-		metric3Id  = "40000000-0000-0000-0000-000000000003"
-		userId     = "50000000-0000-0000-0000-000000000001"
+		toeId       = "10000000-0000-0000-0000-000000000001"
+		scopeId     = "20000000-0000-0000-0000-000000000001"
+		catalogId   = "report-test-catalog"
+		control1Id  = "30000000-0000-0000-0000-000000000001"
+		control1aId = "30000000-0000-0000-0000-000000000004"
+		control2Id  = "30000000-0000-0000-0000-000000000002"
+		metric1Id   = "40000000-0000-0000-0000-000000000001"
+		metric1aId  = "40000000-0000-0000-0000-000000000004"
+		metric2Id   = "40000000-0000-0000-0000-000000000002"
+		metric3Id   = "40000000-0000-0000-0000-000000000003"
+		userId      = "50000000-0000-0000-0000-000000000001"
 	)
 
 	catalog := &orchestrator.Catalog{
@@ -60,6 +62,16 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 					{
 						Id: control1Id, Name: "Multi-Factor Authentication", ShortName: "AC-1", CatalogId: catalogId,
 						Metrics: []*assessment.Metric{{Id: metric1Id, Name: "MFAEnforcedForAdmin"}},
+						// A sub-control, carrying its own metric. ControlInScope records exist for
+						// controls at any depth (see autoCreateControlsInScope), so this must show
+						// up as its own report row too, not just its top-level parent.
+						Controls: []*orchestrator.Control{
+							{
+								Id: control1aId, Name: "MFA for Privileged Accounts", ShortName: "AC-1.1", CatalogId: catalogId,
+								ParentControlId: new(control1Id),
+								Metrics:         []*assessment.Metric{{Id: metric1aId, Name: "PrivilegedMFAEnforced"}},
+							},
+						},
 					},
 				},
 			},
@@ -97,6 +109,16 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 			AuditScopeId:         scopeId,
 			TargetOfEvaluationId: toeId,
 			ControlId:            control1Id,
+			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+		}))
+
+		// Control 1's sub-control (AC-1.1): also open, also never assessed. Must show up as its
+		// own report row, not be silently dropped because it isn't a top-level control.
+		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
+			Id:                   "60000000-0000-0000-0000-000000000004",
+			AuditScopeId:         scopeId,
+			TargetOfEvaluationId: toeId,
+			ControlId:            control1aId,
 			State:                orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 		}))
 
@@ -174,9 +196,10 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		rows, err := f.GetRows("Report")
 		assert.NoError(t, err)
 
-		// Row 1-3 are the title block, row 5 is the header. Control 1 has 1 metric row, control 2
-		// has 2 metric rows: 3 data rows total, sorted by category then control short name.
-		if !assert.Equal(t, 8, len(rows)) {
+		// Row 1-3 are the title block, row 5 is the header. Control 1 (AC-1) and its sub-control
+		// (AC-1.1) each have 1 metric row, control 2 has 2 metric rows: 4 data rows total, sorted
+		// by category then control short name.
+		if !assert.Equal(t, 9, len(rows)) {
 			return
 		}
 
@@ -193,7 +216,16 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		assert.Equal(t, "MFAEnforcedForAdmin", control1MetricRow[6])
 		assert.Equal(t, "Not Evaluated", control1MetricRow[9])
 
-		control2CompliantRow := rows[6]
+		// The sub-control must show up as its own row (this is what Copilot's review on #529
+		// flagged: the report was silently dropping every non-top-level control).
+		subControlMetricRow := rows[6]
+		assert.Equal(t, "Access Control", subControlMetricRow[0])
+		assert.Equal(t, "AC-1.1", subControlMetricRow[1])
+		assert.Equal(t, "Open", subControlMetricRow[3])
+		assert.Equal(t, "PrivilegedMFAEnforced", subControlMetricRow[6])
+		assert.Equal(t, "Not Evaluated", subControlMetricRow[9])
+
+		control2CompliantRow := rows[7]
 		assert.Equal(t, "Data Protection", control2CompliantRow[0])
 		assert.Equal(t, "DP-1", control2CompliantRow[1])
 		assert.Equal(t, "Accepted", control2CompliantRow[3])
@@ -204,7 +236,7 @@ func TestService_ExportAuditScopeReport(t *testing.T) {
 		assert.Equal(t, "encryptionEnabled == true (Observed: true)", control2CompliantRow[8])
 		assert.Equal(t, "Compliant", control2CompliantRow[9])
 
-		control2NonCompliantRow := rows[7]
+		control2NonCompliantRow := rows[8]
 		assert.Equal(t, "KeyRotationEnabled", control2NonCompliantRow[6])
 		assert.Equal(t, "Not Compliant", control2NonCompliantRow[9])
 		assert.Equal(t, "Key rotation is disabled, enable automatic rotation.", control2NonCompliantRow[10])
