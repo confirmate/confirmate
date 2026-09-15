@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.17-76-g9864db18
+    version: core/v0.2.17-62-g1c789afa
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -418,6 +418,41 @@ paths:
                 "200":
                     description: OK
                     content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_scopes/{auditScopeId}/report:
+        get:
+            tags:
+                - Orchestrator
+            description: Exports a compliance report for an Audit Scope as an XLSX spreadsheet
+            operationId: Orchestrator_ExportAuditScopeReport
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: format
+                  in: query
+                  description: Format selects the file format of the report. Defaults to XLSX if unspecified.
+                  schema:
+                    enum:
+                        - REPORT_FORMAT_UNSPECIFIED
+                        - REPORT_FORMAT_XLSX
+                        - REPORT_FORMAT_PDF
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExportAuditScopeReportResponse'
                 default:
                     description: Default error response
                     content:
@@ -2774,6 +2809,18 @@ components:
                 A evaluation result resource, representing the result after evaluating the
                  target of evaluation with a specific control target_of_evaluation_id, category_name and
                  catalog_id are necessary to get the corresponding AuditScope
+        ExportAuditScopeReportResponse:
+            type: object
+            properties:
+                content:
+                    readOnly: true
+                    type: string
+                    description: Content is the raw file content, in the format requested.
+                    format: bytes
+                filename:
+                    readOnly: true
+                    type: string
+                    description: Filename is the suggested filename for the download, e.g. "audit-scope-report-my-scope.xlsx".
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
