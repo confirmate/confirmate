@@ -69,8 +69,6 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 	req *connect.Request[orchestrator.ListEvaluationResultsRequest],
 ) (res *connect.Response[orchestrator.ListEvaluationResultsResponse], err error) {
 	var (
-		results   []*evaluation.EvaluationResult
-		npt       string
 		query     []string
 		partition []string
 		args      []any
