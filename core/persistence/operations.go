@@ -54,7 +54,7 @@ func (s *gormDB) Create(r any) (err error) {
 // Save attempts to save the given record to the database, applying optional conditions for
 // filtering. If a constraint violation occurs, it returns [ErrConstraintFailed].
 func (s *gormDB) Save(r any, conds ...any) (err error) {
-	db := applyWhere(s.DB, conds...).Save(r)
+	db := applyWhere(s.DB.Session(&gorm.Session{FullSaveAssociations: true}), conds...).Save(r)
 	err = db.Error
 
 	if err != nil && strings.Contains(err.Error(), "constraint failed") {

@@ -72,7 +72,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
 				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
 					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, toe.GetId())
@@ -110,7 +110,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
 				count, err = db.Count(&orchestrator.UserPermission{},
 					"user_id = ? AND object_id = ? AND object_type = ? AND permission = ?",
 					orchestratortest.GetConfirmateUserID(orchestratortest.MockUserIssuer1, orchestratortest.MockUserId1),
@@ -160,7 +160,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
 				wantOrg := orchestratortest.MockTargetOfEvaluationWithOrganization.GetOrganization()
 				org := toe.GetOrganization()
 
@@ -203,7 +203,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
 				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
 					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, toe.GetId())
@@ -243,7 +243,7 @@ func TestService_CreateTargetOfEvaluation(t *testing.T) {
 				res := assert.Is[*connect.Response[orchestrator.TargetOfEvaluation]](t, msgAndArgs[0])
 				assert.NotNil(t, res)
 
-				toe := assert.InDB[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
+				toe := assert.InDBGet[orchestrator.TargetOfEvaluation](t, db, res.Msg.Id)
 				return assert.Equal(t, orchestratortest.MockTargetOfEvaluation1, toe,
 					protocmp.IgnoreFields(&orchestrator.TargetOfEvaluation{}, "id", "created_at", "updated_at")) &&
 					assert.NotEmpty(t, toe.GetId())

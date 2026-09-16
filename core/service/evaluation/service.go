@@ -201,7 +201,22 @@ func (svc *Service) StartEvaluation(ctx context.Context, req *connect.Request[ev
 		slog.Error("Could not get audit scope from orchestrator", log.Err(err))
 		return nil, connect.NewError(connect.CodeNotFound, errors.New("could not get audit scope from orchestrator"))
 	}
+
 	auditScope = auditScopeRes.Msg
+
+	// Ensure a certificate exists for the Audit Scope. Certificate creation is idempotent per
+	// audit scope (audit_scope_id has a unique DB constraint), so we simply attempt to create
+	// one and tolerate an already-exists response, rather than doing a separate check-then-act
+	// lookup. The latter would race with concurrent evaluation starts and, since it is
+	// filtered by the caller's ToE list permissions, could under-report an existing
+	// certificate for a caller who is allowed to start the scope but not list its ToE.
+	_, err = svc.orchestratorClient.CreateCertificate(ctx, connect.NewRequest(&orchestrator.CreateCertificateRequest{
+		AuditScopeId: auditScope.GetId(),
+	}))
+	if err != nil && connect.CodeOf(err) != connect.CodeAlreadyExists {
+		slog.Error("Could not create a certificate", slog.String("audit scope", auditScope.Id), log.Err(err))
+		return nil, err
+	}
 
 	// Make sure that the scheduler is already running
 	svc.scheduler.StartAsync()
@@ -1058,4 +1073,3 @@ func getMetricIds(metrics []*assessment.Metric) []string {
 
 	return metricIds
 }
-

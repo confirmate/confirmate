@@ -21,11 +21,12 @@ import "testing"
 // Getter is an interface for database operations that can retrieve objects by ID.
 type Getter interface {
 	Get(dest any, conds ...any) error
+	List(dest any, orderBy string, asc bool, pageSize int, page int, conds ...any) error
 }
 
-// InDB retrieves an object from the database by ID and returns it.
+// InDBGet retrieves an object from the database by ID and returns it.
 // If the object cannot be retrieved, the test fails and returns the zero value.
-func InDB[T any](t *testing.T, db Getter, id string) *T {
+func InDBGet[T any](t *testing.T, db Getter, id string) *T {
 	t.Helper()
 
 	var obj T
@@ -35,4 +36,18 @@ func InDB[T any](t *testing.T, db Getter, id string) *T {
 	}
 
 	return &obj
+}
+
+// InDBList retrieves a list of objects from the database by ID and returns it.
+// If the objects cannot be retrieved, the test fails and returns the zero value.
+func InDBList[T any](t *testing.T, db Getter, page_size int) []T {
+	t.Helper()
+
+	var obj []T
+	err := db.List(&obj, "", true, 0, page_size)
+	if !NoError(t, err) {
+		return nil
+	}
+
+	return obj
 }

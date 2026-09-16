@@ -402,12 +402,49 @@ func (svc *Service) GetControl(
 // loadCatalogs loads catalog definitions from configured sources.
 // It loads catalogs from:
 // 1. DefaultCatalogsPath (if LoadDefaultCatalogs is true)
-// 2. LoadCatalogsFunc (if provided) for additional custom catalogs
+// 2. LoadCatalogsFunc (if provided) for additional new custom catalogs
+// 3. UpsertCatalogsFunc (if provided) to create new catalogs and update existing ones
 func (svc *Service) loadCatalogs() (err error) {
 	var (
 		catalogs         []*orchestrator.Catalog
 		emptyCatalogList = false
 	)
+
+	// If UpsertCatalogsFunc is provided, call it to create new catalogs and update existing ones
+	if svc.cfg.UpsertCatalogsFunc != nil {
+		upsertedCatalogs, err := svc.cfg.UpsertCatalogsFunc(svc)
+		if err != nil {
+			return fmt.Errorf("could not upsert catalogs: %w", err)
+		}
+
+		// Upsert catalogs in DB (only if we have any)
+		if len(upsertedCatalogs) > 0 {
+			var upsertErr error
+			for _, catalog := range upsertedCatalogs {
+				// Check if the catalog already exists in the database
+				var count int64
+				count, upsertErr = svc.db.Count(catalog, "id = ?", catalog.GetId())
+				if upsertErr != nil {
+					return fmt.Errorf("could not check existence of catalog %s: %w", catalog.GetId(), upsertErr)
+				}
+
+				if count == 0 {
+					// If the catalog is new, use Create().
+					// This guarantees that GORM inserts the parent catalog first,
+					// avoiding foreign key constraint violations for its nested categories.
+					upsertErr = svc.db.Create(catalog)
+				} else {
+					// If the catalog already exists, use Update() so nested associations are updated as well.
+					upsertErr = svc.db.Update(catalog)
+				}
+
+				if upsertErr != nil {
+					return fmt.Errorf("could not upsert catalog %s: %w", catalog.GetId(), upsertErr)
+				}
+				emptyCatalogList = false
+			}
+		}
+	}
 
 	// Load default catalogs from folder if enabled
 	if svc.cfg.LoadDefaultCatalogs {
@@ -427,7 +464,7 @@ func (svc *Service) loadCatalogs() (err error) {
 		catalogs = append(catalogs, additionalCatalogs...)
 	}
 
-	// Save all catalogs to DB (only if we have any)
+	// Create all catalogs in DB (only if we have any)
 	if len(catalogs) > 0 {
 		var createErr error
 		for _, catalog := range catalogs {

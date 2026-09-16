@@ -17,6 +17,7 @@ package evaluation
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
@@ -1605,6 +1606,11 @@ func TestService_StartEvaluation(t *testing.T) {
 		scheduler          *gocron.Scheduler
 		authz              service.AuthorizationStrategy
 	}
+
+	// certHandler is captured by the "certificate is not available" test case below, so its
+	// wantSvc check can assert that CreateCertificate was actually invoked.
+	var certHandler *mockOrchestratorHandler
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1838,6 +1844,107 @@ func TestService_StartEvaluation(t *testing.T) {
 				return assert.Equal(t, 1, len(got.scheduler.Jobs()))
 			},
 			wantErr: assert.NoError,
+		},
+		{
+			name: "happy path: certificate is not available for the audit scope, create a new one",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId2,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: func() orchestratorconnect.OrchestratorClient {
+					var client orchestratorconnect.OrchestratorClient
+					client, certHandler = newOrchestratorClientWithHandler(t,
+						WithAuditScope(evaluationtest.MockAuditScope2),
+						WithControls(
+							[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+						),
+						WithCatalog(evaluationtest.MockCatalog1),
+					)
+					return client
+				}(),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						evaluationtest.MockControl1.Id: evaluationtest.MockControl1,
+						evaluationtest.MockControl2.Id: evaluationtest.MockControl2,
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.StartEvaluationResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				return assert.True(t, got.Msg.GetSuccessful())
+			},
+			wantErr: assert.NoError,
+			wantSvc: func(t *testing.T, _ *Service, msgAndArgs ...any) bool {
+				return assert.Equal(t, []string{evaluationtest.MockAuditScopeId2}, certHandler.createCertificateCalls)
+			},
+		},
+		{
+			name: "happy path: certificate already exists, evaluation still starts",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId2,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope2),
+					WithControls(
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+					WithCreateCertificateError(connect.NewError(connect.CodeAlreadyExists, errors.New("certificate already exists"))),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						evaluationtest.MockControl1.Id: evaluationtest.MockControl1,
+						evaluationtest.MockControl2.Id: evaluationtest.MockControl2,
+					},
+				},
+			},
+			want: func(t *testing.T, got *connect.Response[evaluation.StartEvaluationResponse], _ ...any) bool {
+				assert.NotNil(t, got)
+				return assert.True(t, got.Msg.GetSuccessful())
+			},
+			wantErr: assert.NoError,
+			wantSvc: assert.NotNil[*Service],
+		},
+		{
+			name: "err: CreateCertificate fails",
+			args: args{
+				ctx: context.Background(),
+				req: connect.NewRequest(&evaluation.StartEvaluationRequest{
+					AuditScopeId: evaluationtest.MockAuditScopeId2,
+				}),
+			},
+			fields: fields{
+				orchestratorClient: newOrchestratorClient(t,
+					WithAuditScope(evaluationtest.MockAuditScope2),
+					WithControls(
+						[]*orchestrator.Control{evaluationtest.MockControl1, evaluationtest.MockControl2},
+					),
+					WithCatalog(evaluationtest.MockCatalog1),
+					WithCreateCertificateError(connect.NewError(connect.CodeInternal, errors.New("database error"))),
+				),
+				scheduler: gocron.NewScheduler(time.Local),
+				catalogControls: map[string]map[string]*orchestrator.Control{
+					evaluationtest.MockCatalog1.Id: {
+						evaluationtest.MockControl1.Id: evaluationtest.MockControl1,
+						evaluationtest.MockControl2.Id: evaluationtest.MockControl2,
+					},
+				},
+			},
+			want:    assert.Nil[*connect.Response[evaluation.StartEvaluationResponse]],
+			wantSvc: assert.NotNil[*Service],
+			wantErr: func(t *testing.T, err error, msgAndArgs ...any) bool {
+				return assert.IsConnectError(t, err, connect.CodeInternal) &&
+					assert.ErrorContains(t, err, "database error")
+			},
 		},
 	}
 	for _, tt := range tests {

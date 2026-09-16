@@ -65,20 +65,6 @@ func TestGetPayload(t *testing.T) {
 			},
 		},
 		{
-			name: "create certificate",
-			args: args{
-				get: func() proto.Message {
-					cert := &Certificate{Id: "cert-1"}
-					return (&CreateCertificateRequest{Certificate: cert}).GetPayload()
-				},
-				want: &Certificate{Id: "cert-1"},
-			},
-			want: func(t *testing.T, got proto.Message, msgAndArgs ...any) bool {
-				want := assert.Is[proto.Message](t, msgAndArgs[0])
-				return assert.Equal(t, want, got)
-			},
-		},
-		{
 			name: "update certificate",
 			args: args{
 				get: func() proto.Message {
