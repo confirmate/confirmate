@@ -161,6 +161,13 @@ permission update call.
 List handlers also constrain query results to allowed resource IDs using
 `authz.AllowedTargetOfEvaluations(ctx)` or `authz.AllowedAuditScopes(ctx)`.
 
+`CreateCertificate` checks `OBJECT_TYPE_AUDIT_SCOPE` permission on the audit scope the
+certificate is created for, rather than `OBJECT_TYPE_CERTIFICATE`: the certificate does not
+exist yet at creation time, and a certificate always belongs to exactly one audit scope.
+Other certificate handlers (`GetCertificate`, `UpdateCertificate`, `RemoveCertificate`) check
+`OBJECT_TYPE_CERTIFICATE` against the certificate's target of evaluation, since those operate
+on an already-existing certificate.
+
 ## Configuration
 
 When auth is enabled in server commands, the following options are applied:

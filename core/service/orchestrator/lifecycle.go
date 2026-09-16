@@ -158,9 +158,8 @@ func targetCertificateState(results []*evaluation.EvaluationResult) string {
 func latestCertificateState(states []*orchestrator.State) string {
 	var latest *orchestrator.State
 	for _, s := range states {
-		if latest == nil || s.Timestamp != nil &&
-			latest.Timestamp != nil &&
-			s.Timestamp.AsTime().After(latest.Timestamp.AsTime()) {
+		if latest == nil || (s.Timestamp != nil &&
+			(latest.Timestamp == nil || s.Timestamp.AsTime().After(latest.Timestamp.AsTime()))) {
 			latest = s
 		}
 	}

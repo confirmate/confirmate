@@ -81,7 +81,7 @@ func TestService_CreateCertificate(t *testing.T) {
 					AuditScopeId:         orchestratortest.MockAuditScope1.GetId(),
 					AssuranceLevel:       orchestratortest.MockAuditScope1.GetAssuranceLevel(),
 				}
-				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "standard"))
+				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "description")) && assert.NotEmpty(t, cert.GetDescription())
 			},
 		},
 		{
@@ -117,7 +117,7 @@ func TestService_CreateCertificate(t *testing.T) {
 					AuditScopeId:         orchestratortest.MockAuditScope1.GetId(),
 					AssuranceLevel:       orchestratortest.MockAuditScope1.GetAssuranceLevel(),
 				}
-				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "standard"))
+				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "description")) && assert.NotEmpty(t, cert.GetDescription())
 			},
 		},
 		{
@@ -162,7 +162,7 @@ func TestService_CreateCertificate(t *testing.T) {
 					AuditScopeId:         orchestratortest.MockAuditScope1.GetId(),
 					AssuranceLevel:       orchestratortest.MockAuditScope1.GetAssuranceLevel(),
 				}
-				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "standard"))
+				return assert.Equal(t, want, cert, protocmp.IgnoreFields(&orchestrator.Certificate{}, "id", "issue_date", "expiration_date", "states", "cab", "description")) && assert.NotEmpty(t, cert.GetDescription())
 			},
 		},
 		{

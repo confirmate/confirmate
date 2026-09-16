@@ -143,8 +143,10 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 		// Use PostgreSQL's DISTINCT ON to let the database pick the latest row per
 		// control_id directly, instead of pulling every historical evaluation result
 		// into memory and deduplicating in Go (see #486). "id DESC" breaks ties
-		// deterministically when two results share the same timestamp.
-		rawQuery := fmt.Sprintf(`
+		// deterministically when two results share the same timestamp. Paginate the
+		// raw query itself (mirroring ListAssessmentResults' latest_by_resource_id
+		// path) so a catalog with many controls still returns bounded pages.
+		sql := fmt.Sprintf(`
 			SELECT DISTINCT ON (control_id) *
 			FROM evaluation_results
 			%s
@@ -152,7 +154,7 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 			LIMIT ? OFFSET ?
 		`, where)
 
-		results, npt, err = service.PaginateRaw(
+		res.Msg.Results, res.Msg.NextPageToken, err = service.PaginateRaw[*evaluation.EvaluationResult](
 			req.Msg,
 			service.DefaultPaginationOpts,
 			func(start int64, size int32) ([]*evaluation.EvaluationResult, error) {
@@ -161,7 +163,7 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 				queryArgs := append([]any(nil), args...)
 				queryArgs = append(queryArgs, int(size), int(start))
 
-				if err := svc.db.Raw(&page, rawQuery, queryArgs...); err != nil {
+				if err := svc.db.Raw(&page, sql, queryArgs...); err != nil {
 					return nil, err
 				}
 
@@ -171,11 +173,6 @@ func (svc *Service) ListEvaluationResults(_ context.Context,
 		if err = service.HandleDatabaseError(err); err != nil {
 			return nil, err
 		}
-
-		return connect.NewResponse(&orchestrator.ListEvaluationResultsResponse{
-			Results:       results,
-			NextPageToken: npt,
-		}), nil
 	} else {
 		// join query with AND and prepend the query
 		args = append([]any{strings.Join(query, " AND ")}, args...)

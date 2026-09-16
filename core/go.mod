@@ -111,4 +111,4 @@ require cel.dev/cel-go v0.32.0 // indirect
 
 /// Use confirmate/ramsql fork instead of proullon/ramsql due to required bugfixes and compatibility
 /// improvements not present in upstream.
-replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260707111905-b281c366397a
+replace github.com/proullon/ramsql => github.com/confirmate/ramsql v0.0.0-20260915075656-eb237b9d45d9

@@ -4200,7 +4200,7 @@ func (x *ListControlsResponse) GetNextPageToken() string {
 
 type CreateCertificateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AuditScopeId  string                 `protobuf:"bytes,1,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
+	AuditScopeId  string                 `protobuf:"bytes,2,opt,name=audit_scope_id,json=auditScopeId,proto3" json:"audit_scope_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6501,9 +6501,9 @@ const file_api_orchestrator_orchestrator_proto_rawDesc = "" +
 	"\a_filter\"\x7f\n" +
 	"\x14ListControlsResponse\x12?\n" +
 	"\bcontrols\x18\x01 \x03(\v2#.confirmate.orchestrator.v1.ControlR\bcontrols\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"K\n" +
-	"\x18CreateCertificateRequest\x12/\n" +
-	"\x0eaudit_scope_id\x18\x01 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\fauditScopeId\"M\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"`\n" +
+	"\x18CreateCertificateRequest\x121\n" +
+	"\x0eaudit_scope_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\fauditScopeIdJ\x04\b\x01\x10\x02R\vcertificate\"M\n" +
 	"\x18RemoveCertificateRequest\x121\n" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\rcertificateId\"V\n" +
