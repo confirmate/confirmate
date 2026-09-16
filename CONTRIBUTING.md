@@ -5,6 +5,8 @@ Thank you for your interest in contributing to Confirmate! This document provide
 ## Table of Contents
 
 - [Code Style Guidelines](#code-style-guidelines)
+- [Error Handling](#error-handling)
+- [API Design Guidelines](#api-design-guidelines)
 - [Documentation Guidelines](#documentation-guidelines)
 - [Testing Guidelines](#testing-guidelines)
 - [Dependencies and Libraries](#dependencies-and-libraries)
@@ -267,6 +269,130 @@ This will run all `//go:generate` directives, including multiple `buf generate` 
 - Go struct tags
 
 **Important:** Always run `go generate` from the repository root to ensure all proto files are regenerated correctly.
+
+## API Design Guidelines
+
+Confirmate's API follows the [Google API Design Guide](https://cloud.google.com/apis/design). All contributors should read the guide before adding or modifying RPC methods or protobuf definitions. The key principles are summarized below.
+
+### Resource-Oriented Design
+
+APIs must be modeled as a hierarchy of resources and collections rather than arbitrary RPC operations. Each resource has a unique name and a small set of standard methods.
+
+- **Collections** are plural nouns: `metrics`, `assessment_tools`, `targets_of_evaluation`
+- **Resources** have a unique `id` field within their collection; the collection is implied by the RPC/HTTP path (e.g. `GET /v1/orchestrator/metrics/{metric_id}`). This repo does not use AIP-122's composed resource-name convention (e.g. `metrics/{metric_id}` as a single `name` field) — resources just have a plain `id`
+- Prefer [standard methods](https://cloud.google.com/apis/design/standard_methods) (`Create`, `Get`, `List`, `Update`, `Delete`) over custom methods whenever possible
+- Use [custom methods](https://cloud.google.com/apis/design/custom_methods) only for operations that cannot be expressed as a standard method. Unlike the Google guide, this repo does **not** use the `:verb` HTTP suffix convention (e.g. `POST /foos/{id}:archive`); custom methods here are a trailing path segment instead, e.g. `POST /v1/evaluation/evaluate/{audit_scope_id}/start` or `POST /v1/orchestrator/controls_in_scope/{id}/transition`. Follow this existing pattern for new custom methods — adopting the `:verb` style would mean migrating every existing one first
+
+### RPC Naming Conventions
+
+| Operation | Standard method | HTTP mapping |
+|-----------|----------------|--------------|
+| Create a resource | `CreateFoo` | `POST /v1/foos` |
+| Retrieve a resource | `GetFoo` | `GET /v1/foos/{foo_id}` |
+| List a collection | `ListFoos` | `GET /v1/foos` |
+| Fully replace a resource | `UpdateFoo` | `PUT /v1/foos/{foo.id}` |
+| Partially update a resource | `UpdateFoo` + `FieldMask` | `PATCH /v1/foos/{foo.id}` |
+| Delete a resource | `DeleteFoo` | `DELETE /v1/foos/{foo_id}` |
+
+> **Current state:** several existing RPCs use `Remove*` (e.g. `RemoveMetric`, `RemoveTargetOfEvaluation`)
+> or `Deregister*` (e.g. `DeregisterAssessmentTool`) for delete semantics, even though the
+> corresponding database operations and REST routes already use `Delete`. New delete-style RPCs
+> should use `Delete*` as shown above. Do not rename existing `Remove*`/`Deregister*` methods as
+> part of an unrelated change — that would be a breaking API change; a repo-wide rename is a
+> separate decision.
+
+**Good:**
+```proto
+rpc CreateMetric(CreateMetricRequest) returns (Metric) {
+  option (google.api.http) = {
+    post: "/v1/orchestrator/metrics"
+    body: "metric"
+  };
+}
+
+rpc GetMetric(GetMetricRequest) returns (Metric) {
+  option (google.api.http) = {get: "/v1/orchestrator/metrics/{metric_id}"};
+}
+
+rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse) {
+  option (google.api.http) = {get: "/v1/orchestrator/metrics"};
+}
+```
+
+**Bad:**
+```proto
+// Avoid verb-based names and non-standard response wrappers for standard CRUD operations
+rpc FetchMetric(FetchMetricRequest) returns (Metric);
+rpc AddMetric(AddMetricRequest) returns (AddMetricResponse);
+```
+
+### Request and Response Messages
+
+- Every RPC method must have its own dedicated request message (e.g., `CreateMetricRequest`), even if it is currently empty
+- Standard methods that return a resource return the resource message directly (not wrapped): `CreateMetric` returns `Metric`, not `CreateMetricResponse`
+- `List` methods must return a dedicated response message that includes the repeated resource field and the `next_page_token` pagination field
+- `Delete` methods return `google.protobuf.Empty`
+
+**Good:**
+```proto
+message CreateMetricRequest {
+  Metric metric = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Returns the resource directly, not a CreateMetricResponse wrapper
+rpc CreateMetric(CreateMetricRequest) returns (Metric);
+
+message ListMetricsResponse {
+  repeated Metric metrics = 1;
+  string next_page_token = 2;
+}
+```
+
+### Pagination
+
+List methods must support [page-token-based pagination](https://cloud.google.com/apis/design/design_patterns#list_pagination):
+
+- Request: `page_size` (int32) and `page_token` (string) fields
+- Response: `next_page_token` (string, empty when no further pages) is required
+- Response: `total_size` (int32) is optional, per [AIP-158](https://google.aip.dev/158) — it is not part of the current API surface (existing `List*Response` messages in this repo omit it), so only add it if there is a real need for an exact count
+- Default and maximum page sizes should be documented in the proto comments (see `evidence_store.proto`'s `page_size` field for an example — most existing `List*Request.page_size` fields don't yet document this; do so for new fields and when you touch existing ones)
+
+### Field Behavior Annotations
+
+Per [AIP-203](https://google.aip.dev/203), prefer `google.api.field_behavior` annotations over
+comments to clearly communicate field semantics — annotations are machine-readable and show up
+in generated clients, whereas comments can drift out of sync:
+
+```proto
+import "google/api/field_behavior.proto";
+
+message CreateTargetRequest {
+  Target target = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Target {
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string description = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+```
+
+### Comment Conventions
+
+Follow [AIP-192](https://google.aip.dev/192) for proto comments. In particular, the first
+sentence of a comment should omit the subject and be written in third-person present tense:
+
+**Good:**
+```proto
+// Retrieves the metric by ID.
+rpc GetMetric(GetMetricRequest) returns (Metric);
+```
+
+**Bad:**
+```proto
+// This function retrieves the metric by ID.
+rpc GetMetric(GetMetricRequest) returns (Metric);
+```
 
 ## Documentation Guidelines
 
