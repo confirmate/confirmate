@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.2.17-76-g9864db18
+    version: core/v0.2.17-62-g12fb527
 paths:
     /v1/assessment/evidences:
         post:
@@ -759,7 +759,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n Percentage: Percentage of commits with \"Signed-off-by\" lines. \n PercentageLastMonth: Percentage of commits with \"Signed-off-by\" lines in the last 30 days. \n Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository"
+            description: |-
+                CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                 Percentage: Percentage of commits with "Signed-off-by" lines.
+                 PercentageLastMonth: Percentage of commits with "Signed-off-by" lines in the last 30 days.
+                 Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
         ComplianceAuditIntervalPolicy:
             type: object
             properties:
@@ -5676,7 +5680,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  SignedCommits cryptographically verify the identity of the commit author.\n Percentage: Percentage of signed commits. \n PercentageLastMonth: Percentage of signed commits in the last 30 days."
+            description: |-
+                SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                  SignedCommits cryptographically verify the identity of the commit author.
+                 Percentage: Percentage of signed commits.
+                 PercentageLastMonth: Percentage of signed commits in the last 30 days.
         SingleSignOn:
             type: object
             properties:
@@ -5984,7 +5992,11 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: "VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.\n Percentage: Percentage of verified commits. \n PercentageLastMonth: Percentage of verified commits in the last 30 days."
+            description: |-
+                VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+                  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.
+                 Percentage: Percentage of verified commits.
+                 PercentageLastMonth: Percentage of verified commits in the last 30 days.
         VirtualMachine:
             type: object
             properties:
