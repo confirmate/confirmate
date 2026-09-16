@@ -17,8 +17,11 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"slices"
+	"strings"
 	"testing"
+	"time"
 
 	"confirmate.io/core/api/evaluation"
 	"confirmate.io/core/api/orchestrator"
@@ -517,4 +520,76 @@ func TestService_ListEvaluationResults(t *testing.T) {
 			tt.wantErr(t, gotErr)
 		})
 	}
+}
+
+// TestService_ListEvaluationResults_LatestByControlIdPagination mirrors
+// TestService_ListAssessmentResults_LatestByResourceIdPagination: it asserts that the
+// latest_by_control_id raw query is paginated (rather than returned in one unbounded page),
+// and that repeatedly following NextPageToken yields every control exactly once.
+func TestService_ListEvaluationResults_LatestByControlIdPagination(t *testing.T) {
+	const numControls = 5
+
+	db := persistencetest.NewInMemoryDB(t, types, []persistence.CustomJoinTable{}, func(d persistence.DB) {
+		// Create numControls unique control IDs, each with two results, so that only the
+		// latest of each should be returned.
+		for i := range numControls {
+			controlId := fmt.Sprintf("control-%d", i)
+
+			older := &evaluation.EvaluationResult{
+				Id:                   fmt.Sprintf("result-%d-old", i),
+				TargetOfEvaluationId: evaluationtest.MockToeId1,
+				ControlId:            controlId,
+				Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+				Timestamp:            timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
+			}
+			latest := &evaluation.EvaluationResult{
+				Id:                   fmt.Sprintf("result-%d-latest", i),
+				TargetOfEvaluationId: evaluationtest.MockToeId1,
+				ControlId:            controlId,
+				Status:               evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
+				Timestamp:            timestamppb.New(time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)),
+			}
+
+			assert.NoError(t, d.Create(older))
+			assert.NoError(t, d.Create(latest))
+		}
+	})
+
+	svc := &Service{db: db}
+
+	var (
+		pageToken string
+		seen      = make(map[string]bool)
+		pageCount int
+	)
+	for {
+		res, err := svc.ListEvaluationResults(context.Background(), connect.NewRequest(&orchestrator.ListEvaluationResultsRequest{
+			LatestByControlId: new(true),
+			PageSize:          2,
+			PageToken:         pageToken,
+		}))
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+
+		pageCount++
+		// Guard against an infinite loop if pagination never terminates.
+		if pageCount > numControls {
+			t.Fatalf("pagination did not terminate after %d pages", pageCount)
+		}
+
+		for _, r := range res.Msg.GetResults() {
+			// Every returned result must be the "latest" one and must not have been seen on a
+			// previous page (i.e., pages must not overlap).
+			assert.True(t, strings.HasSuffix(r.Id, "-latest"), "unexpected result %s on page %d", r.Id, pageCount)
+			assert.False(t, seen[r.Id], "result %s returned on more than one page", r.Id)
+			seen[r.Id] = true
+		}
+
+		pageToken = res.Msg.GetNextPageToken()
+		if pageToken == "" {
+			break
+		}
+	}
+
+	assert.Equal(t, numControls, len(seen))
 }
