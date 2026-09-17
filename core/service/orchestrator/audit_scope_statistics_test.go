@@ -29,74 +29,60 @@ import (
 	"confirmate.io/core/service/orchestrator/orchestratortest"
 	"confirmate.io/core/util/assert"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const (
-	statsCatalogId = "00000000-0000-0000-0009-000000000010"
-	statsCtrl1Id   = "00000000-0000-0000-000a-000000000011"
-	statsCtrl1Sub  = "00000000-0000-0000-000a-000000000012"
-	statsCtrl2Id   = "00000000-0000-0000-000a-000000000013"
-)
-
-// newAuditScopeStatisticsTestDB seeds a catalog with two top-level controls (one of which has a
-// sub-control), an audit scope (reusing orchestratortest.MockScopeId1 so the shared permission
-// fixtures apply), ControlInScope records at mixed workflow states, and EvaluationResult records
-// at mixed compliance statuses (including a superseded one, to exercise "latest per control").
+// newAuditScopeStatisticsTestDB seeds orchestratortest.MockCatalog1 (two top-level controls,
+// MockControlId1 with two sub-controls and MockControlId2 with one) and MockAuditScope1, then adds
+// ControlInScope records at mixed workflow states and EvaluationResult records at mixed
+// compliance statuses (including a superseded one, to exercise "latest per control").
 func newAuditScopeStatisticsTestDB(t *testing.T) persistence.DB {
 	return persistencetest.NewInMemoryDB(t, types, joinTables, func(d persistence.DB) {
-		assert.NoError(t, d.Create(&orchestrator.Catalog{Id: statsCatalogId, Name: "Test Catalog"}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: statsCtrl1Id, ShortName: "C-1", Name: "Control 1", CatalogId: statsCatalogId}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: statsCtrl1Sub, ShortName: "C-1.1", Name: "Sub-control 1.1", CatalogId: statsCatalogId, ParentControlId: new(statsCtrl1Id)}))
-		assert.NoError(t, d.Create(&orchestrator.Control{Id: statsCtrl2Id, ShortName: "C-2", Name: "Control 2", CatalogId: statsCatalogId}))
-		assert.NoError(t, d.Create(&orchestrator.AuditScope{
-			Id:                   orchestratortest.MockScopeId1,
-			Name:                 "Test Scope",
-			TargetOfEvaluationId: orchestratortest.MockToeId1,
-			CatalogId:            statsCatalogId,
-			Status:               orchestrator.AuditScopeStatus_AUDIT_SCOPE_STATUS_SETUP,
-		}))
+		assert.NoError(t, d.Create(orchestratortest.MockCatalog1))
+		assert.NoError(t, d.Create(orchestratortest.MockAuditScope1))
 
-		// Workflow status: only top-level controls (ctrl1, ctrl2) should be counted. The
-		// sub-control's state (OPEN) must not leak into the aggregation.
+		// Workflow status: only the top-level controls (MockControlId1, MockControlId2) should be
+		// counted. The sub-control's state (OPEN) must not leak into the aggregation.
 		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
-			Id: "00000000-0000-0000-000b-000000000001", AuditScopeId: orchestratortest.MockScopeId1, TargetOfEvaluationId: orchestratortest.MockToeId1,
-			ControlId: statsCtrl1Id, State: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IMPLEMENTED,
+			Id: orchestratortest.MockControlInScopeId1, AuditScopeId: orchestratortest.MockScopeId1, TargetOfEvaluationId: orchestratortest.MockToeId1,
+			ControlId: orchestratortest.MockControlId1, State: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_IMPLEMENTED,
 		}))
 		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
-			Id: "00000000-0000-0000-000b-000000000002", AuditScopeId: orchestratortest.MockScopeId1, TargetOfEvaluationId: orchestratortest.MockToeId1,
-			ControlId: statsCtrl1Sub, State: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
+			Id: uuid.NewString(), AuditScopeId: orchestratortest.MockScopeId1, TargetOfEvaluationId: orchestratortest.MockToeId1,
+			ControlId: orchestratortest.MockControl1SubControlId1, State: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_OPEN,
 		}))
 		assert.NoError(t, d.Create(&orchestrator.ControlInScope{
-			Id: "00000000-0000-0000-000b-000000000003", AuditScopeId: orchestratortest.MockScopeId1, TargetOfEvaluationId: orchestratortest.MockToeId1,
-			ControlId: statsCtrl2Id, State: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED,
+			Id: orchestratortest.MockControlInScopeId2, AuditScopeId: orchestratortest.MockScopeId1, TargetOfEvaluationId: orchestratortest.MockToeId1,
+			ControlId: orchestratortest.MockControlId2, State: orchestrator.ControlInScopeState_CONTROL_IN_SCOPE_STATE_ACCEPTED,
 		}))
 
 		// Compliance status: an evaluation on the sub-control must be counted (metrics
-		// typically attach there), and only the latest of ctrl2's two results should count.
+		// typically attach there), and only the latest of MockControlId2's two results should
+		// count.
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
-			Id: "00000000-0000-0000-000c-000000000001", TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
-			ControlId: statsCtrl1Id, ControlCatalogId: statsCatalogId,
+			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
+			ControlId: orchestratortest.MockControlId1, ControlCatalogId: orchestratortest.MockCatalogId1,
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 			Timestamp: timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		}))
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
-			Id: "00000000-0000-0000-000c-000000000002", TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
-			ControlId: statsCtrl1Sub, ControlCatalogId: statsCatalogId, ParentControlId: new(statsCtrl1Id),
+			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
+			ControlId: orchestratortest.MockControl1SubControlId1, ControlCatalogId: orchestratortest.MockCatalogId1, ParentControlId: new(orchestratortest.MockControlId1),
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_NOT_COMPLIANT,
 			Timestamp: timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		}))
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
-			Id: "00000000-0000-0000-000c-000000000003", TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
-			ControlId: statsCtrl2Id, ControlCatalogId: statsCatalogId,
+			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
+			ControlId: orchestratortest.MockControlId2, ControlCatalogId: orchestratortest.MockCatalogId1,
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_PENDING,
 			Timestamp: timestamppb.New(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
 		}))
 		assert.NoError(t, d.Create(&evaluation.EvaluationResult{
-			Id: "00000000-0000-0000-000c-000000000004", TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
-			ControlId: statsCtrl2Id, ControlCatalogId: statsCatalogId,
+			Id: uuid.NewString(), TargetOfEvaluationId: orchestratortest.MockToeId1, AuditScopeId: orchestratortest.MockScopeId1,
+			ControlId: orchestratortest.MockControlId2, ControlCatalogId: orchestratortest.MockCatalogId1,
 			Status:    evaluation.EvaluationStatus_EVALUATION_STATUS_COMPLIANT,
 			Timestamp: timestamppb.New(time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)),
 		}))
@@ -239,7 +225,7 @@ func TestService_GetAuditScopeStatistics(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.ListErrorDB(t, persistence.ErrDatabase, types, joinTables, func(d persistence.DB) {
-					err := d.Create(&orchestrator.AuditScope{Id: orchestratortest.MockScopeId1, Name: "Test Scope", TargetOfEvaluationId: orchestratortest.MockToeId1, CatalogId: statsCatalogId})
+					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},
@@ -258,7 +244,7 @@ func TestService_GetAuditScopeStatistics(t *testing.T) {
 			},
 			fields: fields{
 				db: persistencetest.RawErrorDB(t, persistence.ErrDatabase, types, joinTables, func(d persistence.DB) {
-					err := d.Create(&orchestrator.AuditScope{Id: orchestratortest.MockScopeId1, Name: "Test Scope", TargetOfEvaluationId: orchestratortest.MockToeId1, CatalogId: statsCatalogId})
+					err := d.Create(orchestratortest.MockAuditScope1)
 					assert.NoError(t, err)
 				}),
 				authz: &service.AuthorizationStrategyAllowAll{},

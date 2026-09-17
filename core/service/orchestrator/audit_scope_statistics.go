@@ -34,8 +34,12 @@ func (svc *Service) GetAuditScopeStatistics(
 	req *connect.Request[orchestrator.GetAuditScopeStatisticsRequest],
 ) (res *connect.Response[orchestrator.GetAuditScopeStatisticsResponse], err error) {
 	var (
-		scope   orchestrator.AuditScope
-		allowed bool
+		scope              orchestrator.AuditScope
+		allowed            bool
+		topLevelControls   []*orchestrator.Control
+		topLevelControlIds map[string]bool
+		controlsInScope    []*orchestrator.ControlInScope
+		latestResults      []*evaluation.EvaluationResult
 	)
 
 	// Validate the request
@@ -67,20 +71,21 @@ func (svc *Service) GetAuditScopeStatistics(
 	// autoCreateControlsInScope), so counting all of them would inflate the numbers beyond what
 	// a single row in the UI represents. Aggregation is done in Go rather than via SQL GROUP BY
 	// so this works against every supported database, including the in-memory one used in tests.
-	var topLevelControls []*orchestrator.Control
-	if err = svc.db.List(&topLevelControls, "", true, 0, -1, persistence.WithoutPreload(),
-		"catalog_id = ? AND parent_control_id IS NULL", scope.GetCatalogId()); err != nil {
-		return nil, service.HandleDatabaseError(err)
+	err = svc.db.List(&topLevelControls, "", true, 0, -1, persistence.WithoutPreload(),
+		"catalog_id = ? AND parent_control_id IS NULL", scope.GetCatalogId())
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
-	topLevelControlIds := make(map[string]bool, len(topLevelControls))
+
+	topLevelControlIds = make(map[string]bool, len(topLevelControls))
 	for _, c := range topLevelControls {
 		topLevelControlIds[c.GetId()] = true
 	}
 
-	var controlsInScope []*orchestrator.ControlInScope
-	if err = svc.db.List(&controlsInScope, "", true, 0, -1, persistence.WithoutPreload(),
-		"audit_scope_id = ?", req.Msg.GetAuditScopeId()); err != nil {
-		return nil, service.HandleDatabaseError(err)
+	err = svc.db.List(&controlsInScope, "", true, 0, -1, persistence.WithoutPreload(),
+		"audit_scope_id = ?", req.Msg.GetAuditScopeId())
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 	for _, cis := range controlsInScope {
 		if topLevelControlIds[cis.GetControlId()] {
@@ -91,14 +96,14 @@ func (svc *Service) GetAuditScopeStatistics(
 	// Compliance status: latest evaluation result per control (regardless of depth: metrics are
 	// typically attached to sub-controls rather than their top-level parent), grouped by status.
 	// Uses PostgreSQL's DISTINCT ON, mirroring ListEvaluationResults' latest_by_control_id path.
-	var latestResults []*evaluation.EvaluationResult
-	if err = svc.db.Raw(&latestResults, `
+	err = svc.db.Raw(&latestResults, `
 		SELECT DISTINCT ON (control_id) *
 		FROM evaluation_results
 		WHERE audit_scope_id = ?
 		ORDER BY control_id, timestamp DESC, id DESC
-	`, req.Msg.GetAuditScopeId()); err != nil {
-		return nil, service.HandleDatabaseError(err)
+	`, req.Msg.GetAuditScopeId())
+	if err = service.HandleDatabaseError(err); err != nil {
+		return nil, err
 	}
 	for _, r := range latestResults {
 		res.Msg.CountsByComplianceStatus[r.GetStatus().String()]++
