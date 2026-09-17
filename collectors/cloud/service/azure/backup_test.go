@@ -60,13 +60,13 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration7Days),
-						Enabled:         true,
+						Enabled:         new(true),
 						StorageId:       new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
 						TransportEncryption: &ontology.TransportEncryption{
-							Enforced:        true,
-							Enabled:         true,
-							ProtocolVersion: 1.2,
-							Protocol:        constants.TLS,
+							Enforced:        new(true),
+							Enabled:         new(true),
+							ProtocolVersion: new(float32(1.2)),
+							Protocol:        new(constants.TLS),
 						},
 					},
 				}
@@ -84,13 +84,13 @@ func Test_azureCollector_collectBackupVaults(t *testing.T) {
 				want := []*ontology.Backup{
 					{
 						RetentionPeriod: durationpb.New(Duration30Days),
-						Enabled:         true,
+						Enabled:         new(true),
 						StorageId:       new("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/res1/providers/Microsoft.DataProtection/backupVaults/backupAccount1"),
 						TransportEncryption: &ontology.TransportEncryption{
-							Enforced:        true,
-							Enabled:         true,
-							ProtocolVersion: 1.2,
-							Protocol:        constants.TLS,
+							Enforced:        new(true),
+							Enabled:         new(true),
+							ProtocolVersion: new(float32(1.2)),
+							Protocol:        new(constants.TLS),
 						},
 					},
 				}
@@ -221,7 +221,7 @@ func Test_backupsEmptyCheck(t *testing.T) {
 			args: args{
 				backups: []*ontology.Backup{
 					{
-						Enabled:         true,
+						Enabled:         new(true),
 						Interval:        durationpb.New(90 * time.Hour * 24),
 						RetentionPeriod: durationpb.New(100 * time.Hour * 24),
 					},
@@ -229,7 +229,7 @@ func Test_backupsEmptyCheck(t *testing.T) {
 			},
 			want: []*ontology.Backup{
 				{
-					Enabled:         true,
+					Enabled:         new(true),
 					Interval:        durationpb.New(90 * time.Hour * 24),
 					RetentionPeriod: durationpb.New(100 * time.Hour * 24),
 				},
@@ -240,7 +240,7 @@ func Test_backupsEmptyCheck(t *testing.T) {
 			args: args{},
 			want: []*ontology.Backup{
 				{
-					Enabled:         false,
+					Enabled:         new(false),
 					RetentionPeriod: nil,
 					Interval:        nil,
 				},

@@ -61,19 +61,20 @@ func Test_openstackCollector_handleProject(t *testing.T) {
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.ResourceGroup{
-					Id:   testdata.MockOpenstackProjectID1,
-					Name: testdata.MockOpenstackProjectName1,
+					Id:   new(testdata.MockOpenstackProjectID1),
+					Name: new(testdata.MockOpenstackProjectName1),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
-					Description: testdata.MockOpenstackProjectDescription1,
+					Description: new(testdata.MockOpenstackProjectDescription1),
 					Labels:      labels(new([]string{})),
 					ParentId:    new(testdata.MockOpenstackProjectParentID1),
+					Raw:         new(""),
 				}
 
 				gotNew := got.(*ontology.ResourceGroup)
 				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = ""
+				gotNew.Raw = new("")
 				return assert.Equal(t, want, gotNew)
 			},
 			wantErr: assert.NoError,
@@ -125,14 +126,15 @@ func Test_openstackCollector_handleDomain(t *testing.T) {
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.Account{
-					Id:          testdata.MockOpenstackDomainID1,
-					Name:        testdata.MockOpenstackDomainName1,
-					Description: testdata.MockOpenstackDomainDescription1,
+					Id:          new(testdata.MockOpenstackDomainID1),
+					Name:        new(testdata.MockOpenstackDomainName1),
+					Description: new(testdata.MockOpenstackDomainDescription1),
+					Raw:         new(""),
 				}
 
 				gotNew := got.(*ontology.Account)
 				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = ""
+				gotNew.Raw = new("")
 				return assert.Equal(t, want, gotNew)
 			},
 			wantErr: assert.NoError,

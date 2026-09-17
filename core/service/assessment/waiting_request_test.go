@@ -67,8 +67,8 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 			evidence: &evidence.Evidence{
 				Id: testEvidenceID1,
 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-					Id:              testResourceID1,
-					Name:            "my resource",
+					Id:              new(testResourceID1),
+					Name:            new("my resource"),
 					BlockStorageIds: []string{testResourceID3},
 				}),
 				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
@@ -84,8 +84,8 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 			evidence: &evidence.Evidence{
 				Id: testEvidenceID2,
 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-					Id:              testResourceID2,
-					Name:            "my other resource",
+					Id:              new(testResourceID2),
+					Name:            new("my other resource"),
 					BlockStorageIds: []string{testResourceID3},
 				}),
 				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
@@ -101,8 +101,8 @@ func TestService_AssessEvidenceWaitFor(t *testing.T) {
 			evidence: &evidence.Evidence{
 				Id: testEvidenceID3,
 				Resource: prototest.NewProtobufResource(t, &ontology.BlockStorage{
-					Id:   testResourceID3,
-					Name: "my third resource",
+					Id:   new(testResourceID3),
+					Name: new("my third resource"),
 				}),
 				TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationID1,
 				ToolId:                         "my-tool",
@@ -250,8 +250,8 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 	e1 := &evidence.Evidence{
 		Id: testEvidenceID1,
 		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-			Id:              testResourceID1,
-			Name:            "my resource",
+			Id:              new(testResourceID1),
+			Name:            new("my resource"),
 			BlockStorageIds: []string{testResourceID3},
 		}),
 		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
@@ -268,8 +268,8 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 	e2 := &evidence.Evidence{
 		Id: testEvidenceID2,
 		Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-			Id:              testResourceID2,
-			Name:            "my other resource",
+			Id:              new(testResourceID2),
+			Name:            new("my other resource"),
 			BlockStorageIds: []string{testResourceID3},
 		}),
 		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
@@ -286,8 +286,8 @@ func TestService_AssessEvidenceWaitFor_Integration(t *testing.T) {
 	e3 := &evidence.Evidence{
 		Id: testEvidenceID3,
 		Resource: prototest.NewProtobufResource(t, &ontology.BlockStorage{
-			Id:   testResourceID3,
-			Name: "my third resource",
+			Id:   new(testResourceID3),
+			Name: new("my third resource"),
 		}),
 		TargetOfEvaluationId:           evidencetest.MockTargetOfEvaluationZerosID,
 		ToolId:                         "my-tool",

@@ -27,24 +27,24 @@ import (
 // handleResourceGroup returns a [ontology.ResourceGroup] out of an existing [armresources.ResourceGroup].
 func (d *azureCollector) handleResourceGroup(rg *armresources.ResourceGroup) ontology.IsResource {
 	return &ontology.ResourceGroup{
-		Id:          resourceID(rg.ID),
-		Name:        pointer.Deref(rg.Name),
+		Id:          new(resourceID(rg.ID)),
+		Name:        new(pointer.Deref(rg.Name)),
 		GeoLocation: location(rg.Location),
 		Labels:      labels(rg.Tags),
 		ParentId:    d.sub.ID,
-		Raw:         collector.Raw(rg),
+		Raw:         new(collector.Raw(rg)),
 	}
 }
 
 // handleSubscription returns a [ontology.Account] out of an existing [armsubscription.Subscription].
 func (d *azureCollector) handleSubscription(s *armsubscription.Subscription) *ontology.Account {
 	return &ontology.Account{
-		Id:           resourceID(s.ID),
-		Name:         pointer.Deref(s.DisplayName),
+		Id:           new(resourceID(s.ID)),
+		Name:         new(pointer.Deref(s.DisplayName)),
 		CreationTime: nil, // subscriptions do not have a creation date
 		GeoLocation:  nil, // subscriptions are global
 		Labels:       nil, // subscriptions do not have labels,
 		ParentId:     nil, // subscriptions are the top-most item and have no parent,
-		Raw:          collector.Raw(s),
+		Raw:          new(collector.Raw(s)),
 	}
 }

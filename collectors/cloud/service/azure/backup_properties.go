@@ -26,7 +26,7 @@ func backupsEmptyCheck(backups []*ontology.Backup) []*ontology.Backup {
 	if len(backups) == 0 {
 		return []*ontology.Backup{
 			{
-				Enabled: false,
+				Enabled: new(false),
 			},
 		}
 	}
