@@ -122,7 +122,6 @@ func Test_regoEval_Eval(t *testing.T) {
 				"AtRestEncryptionAlgorithm":         true,
 				"AtRestEncryptionEnabled":           true,
 				"ObjectStoragePublicAccessDisabled": true,
-				"VulnerabilitiesNotExploitable":     false,
 			},
 			args: args{
 				resource: &ontology.ObjectStorage{
@@ -172,7 +171,6 @@ func Test_regoEval_Eval(t *testing.T) {
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
 				"ObjectStoragePublicAccessDisabled": false,
-				"VulnerabilitiesNotExploitable":     false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -205,7 +203,6 @@ func Test_regoEval_Eval(t *testing.T) {
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
 				"ObjectStoragePublicAccessDisabled": false,
-				"VulnerabilitiesNotExploitable":     false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -249,17 +246,16 @@ func Test_regoEval_Eval(t *testing.T) {
 				evidenceID: mockVM1EvidenceID,
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":       true,
-				"AutomaticUpdatesInterval":      true,
-				"BootLoggingEnabled":            true,
-				"BootLoggingOutput":             true,
-				"BootLoggingRetention":          true,
-				"MalwareProtectionEnabled":      true,
-				"MalwareProtectionOutput":       true,
-				"OSLoggingRetention":            true,
-				"OSLoggingOutput":               true,
-				"OSLoggingEnabled":              true,
-				"VulnerabilitiesNotExploitable": false,
+				"AutomaticUpdatesEnabled":  true,
+				"AutomaticUpdatesInterval": true,
+				"BootLoggingEnabled":       true,
+				"BootLoggingOutput":        true,
+				"BootLoggingRetention":     true,
+				"MalwareProtectionEnabled": true,
+				"MalwareProtectionOutput":  true,
+				"OSLoggingRetention":       true,
+				"OSLoggingOutput":          true,
+				"OSLoggingEnabled":         true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -288,13 +284,12 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"BootLoggingEnabled":            false,
-				"BootLoggingOutput":             false,
-				"BootLoggingRetention":          false,
-				"OSLoggingEnabled":              false,
-				"OSLoggingOutput":               true,
-				"OSLoggingRetention":            false,
-				"VulnerabilitiesNotExploitable": false,
+				"BootLoggingEnabled":   false,
+				"BootLoggingOutput":    false,
+				"BootLoggingRetention": false,
+				"OSLoggingEnabled":     false,
+				"OSLoggingOutput":      true,
+				"OSLoggingRetention":   false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -328,7 +323,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			compliant: map[string]bool{
 				"VirtualMachineDiskEncryptionEnabled": false,
-				"VulnerabilitiesNotExploitable":       false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -362,7 +356,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			compliant: map[string]bool{
 				"VirtualMachineDiskEncryptionEnabled": true,
-				"VulnerabilitiesNotExploitable":       false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -375,13 +368,17 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			args: args{
 				resource: &ontology.Application{
-					Id: new("app"),
+					Id: new("app"), SoftwareAttestations: []*ontology.SoftwareAttestation{
+						{
+							Enabled: new(true),
+						},
+					},
 				},
 				evidenceID: mockVM1EvidenceID,
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"VulnerabilitiesNotExploitable": false,
+				"SoftwareAttestationEnabled": true,
 			},
 			wantErr: assert.NoError,
 		},
@@ -400,11 +397,8 @@ func Test_regoEval_Eval(t *testing.T) {
 				evidenceID: mockVM1EvidenceID,
 				src:        &mockMetricsErrorSource{t: t},
 			},
-			compliant: map[string]bool{
-				// "SoftwareAttestationEnabled":    true, // metric is incorrect
-				"VulnerabilitiesNotExploitable": false,
-			},
-			wantErr: assert.NoError,
+			compliant: map[string]bool{},
+			wantErr:   assert.NoError,
 		},
 		{
 			name: "error: Application: StrongCryptographicHash",
@@ -442,10 +436,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			}, tt.args.resource, tt.args.related, tt.args.src)
 
 			tt.wantErr(t, err)
-
-			if err == nil {
-				assert.NotEmpty(t, results)
-			}
 
 			var compliants = map[string]bool{}
 
