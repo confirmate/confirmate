@@ -265,8 +265,8 @@ func TestService_AssessEvidence(t *testing.T) {
 		// 				ToolId:    evidencetest.MockEvidenceToolID1,
 		// 				Timestamp: timestamppb.Now(),
 		// 				Resource: prototest.NewProtobufResource(t, &ontology.VirtualMachine{
-		// 					Id:   evidencetest.MockVirtualMachineID1,
-		// 					Name: evidencetest.MockVirtualMachineName1,
+		// 					Id:   new(evidencetest.MockVirtualMachineID1),
+		// 					Name: new(evidencetest.MockVirtualMachineName1),
 		// 				}),
 		// 				TargetOfEvaluationId: evidencetest.MockTargetOfEvaluationID1},
 		// 		},
@@ -499,7 +499,7 @@ func TestService_AssessEvidences(t *testing.T) {
 			}, testMetricConfiguration{
 				metricID:    metric.Id,
 				toeID:       evidencetest.MockTargetOfEvaluationZerosID,
-				targetValue: evidencetest.MockMetricConfigurationTargetValueTrue,
+				targetValue: new(evidencetest.MockMetricConfigurationTargetValueTrue),
 			})
 			client, url := setupOrchestratorServer(t, orchSvc)
 
@@ -705,7 +705,7 @@ func TestService_handleEvidence(t *testing.T) {
 				configs = append(configs, testMetricConfiguration{
 					metricID:    tt.args.metric.Id,
 					toeID:       evidencetest.MockTargetOfEvaluationZerosID,
-					targetValue: evidencetest.MockMetricConfigurationTargetValueTrue,
+					targetValue: new(evidencetest.MockMetricConfigurationTargetValueTrue),
 				})
 			}
 
