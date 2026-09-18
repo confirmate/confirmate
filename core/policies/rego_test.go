@@ -517,7 +517,7 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 		Id:                   "22222222-2222-2222-2222-222222222222",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, &mockMetricsSource{t: t})
+	}, &ontology.VirtualMachine{Id: new("vm-1")}, nil, &mockMetricsSource{t: t})
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, 0, len(results))
