@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Evidence Store API
-    version: core/v0.2.17-109-ge1ab08e0
+    version: core/v0.2.17-118-g6861b173
 paths:
     /v1/evidence_store/evidence:
         post:
@@ -278,7 +278,9 @@ components:
             type: object
             properties:
                 authorizationTypes:
-                    type: string
+                    type: array
+                    items:
+                        type: string
             description: AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         AccessRestriction:
             type: object
@@ -534,9 +536,13 @@ components:
                     type: string
                     description: Service contains the name of the service (e.g., Asset Management).
                 status:
-                    type: string
+                    type: array
+                    items:
+                        type: string
                 storageFacility:
-                    type: string
+                    type: array
+                    items:
+                        type: string
                 type:
                     type: string
                 updateDuration:
@@ -989,7 +995,9 @@ components:
             type: object
             properties:
                 methodology:
-                    type: string
+                    type: array
+                    items:
+                        type: string
             description: ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Configuration:
             type: object

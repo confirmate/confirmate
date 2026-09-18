@@ -91,7 +91,7 @@ func (*ABAC) Descriptor() ([]byte, []int) {
 // AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type AccessControlTypePolicy struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	AuthorizationTypes *string                `protobuf:"bytes,2672,opt,name=authorization_types,json=authorizationTypes,proto3,oneof" json:"authorization_types,omitempty"`
+	AuthorizationTypes []string               `protobuf:"bytes,2672,rep,name=authorization_types,json=authorizationTypes,proto3" json:"authorization_types,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -126,11 +126,11 @@ func (*AccessControlTypePolicy) Descriptor() ([]byte, []int) {
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AccessControlTypePolicy) GetAuthorizationTypes() string {
-	if x != nil && x.AuthorizationTypes != nil {
-		return *x.AuthorizationTypes
+func (x *AccessControlTypePolicy) GetAuthorizationTypes() []string {
+	if x != nil {
+		return x.AuthorizationTypes
 	}
-	return ""
+	return nil
 }
 
 // AccessRestriction is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -1102,10 +1102,10 @@ type AssetInventory struct {
 	CompletedReviewPercentage *float32 `protobuf:"fixed32,15931,opt,name=completed_review_percentage,json=completedReviewPercentage,proto3,oneof" json:"completed_review_percentage,omitempty"`
 	ReviewFrequency           *int32   `protobuf:"varint,12717,opt,name=review_frequency,json=reviewFrequency,proto3,oneof" json:"review_frequency,omitempty"`
 	// Service contains the name of the service (e.g., Asset Management).
-	Service         *string `protobuf:"bytes,11727,opt,name=service,proto3,oneof" json:"service,omitempty"`
-	Status          *string `protobuf:"bytes,11933,opt,name=status,proto3,oneof" json:"status,omitempty"`
-	StorageFacility *string `protobuf:"bytes,2637,opt,name=storage_facility,json=storageFacility,proto3,oneof" json:"storage_facility,omitempty"`
-	Type            *string `protobuf:"bytes,11720,opt,name=type,proto3,oneof" json:"type,omitempty"`
+	Service         *string  `protobuf:"bytes,11727,opt,name=service,proto3,oneof" json:"service,omitempty"`
+	Status          []string `protobuf:"bytes,11933,rep,name=status,proto3" json:"status,omitempty"`
+	StorageFacility []string `protobuf:"bytes,2637,rep,name=storage_facility,json=storageFacility,proto3" json:"storage_facility,omitempty"`
+	Type            *string  `protobuf:"bytes,11720,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	// The time needed for an update.
 	UpdateDuration *int32 `protobuf:"varint,5698,opt,name=update_duration,json=updateDuration,proto3,oneof" json:"update_duration,omitempty"`
 	UpdateInterval *int32 `protobuf:"varint,4178,opt,name=update_interval,json=updateInterval,proto3,oneof" json:"update_interval,omitempty"`
@@ -1178,18 +1178,18 @@ func (x *AssetInventory) GetService() string {
 	return ""
 }
 
-func (x *AssetInventory) GetStatus() string {
-	if x != nil && x.Status != nil {
-		return *x.Status
+func (x *AssetInventory) GetStatus() []string {
+	if x != nil {
+		return x.Status
 	}
-	return ""
+	return nil
 }
 
-func (x *AssetInventory) GetStorageFacility() string {
-	if x != nil && x.StorageFacility != nil {
-		return *x.StorageFacility
+func (x *AssetInventory) GetStorageFacility() []string {
+	if x != nil {
+		return x.StorageFacility
 	}
-	return ""
+	return nil
 }
 
 func (x *AssetInventory) GetType() string {
@@ -4802,7 +4802,7 @@ func (x *ComplianceAuditIntervalPolicy) GetAuditInterval() int32 {
 // ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ComplianceMethodologyPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Methodology   *string                `protobuf:"bytes,8814,opt,name=methodology,proto3,oneof" json:"methodology,omitempty"`
+	Methodology   []string               `protobuf:"bytes,8814,rep,name=methodology,proto3" json:"methodology,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4837,11 +4837,11 @@ func (*ComplianceMethodologyPolicy) Descriptor() ([]byte, []int) {
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{43}
 }
 
-func (x *ComplianceMethodologyPolicy) GetMethodology() string {
-	if x != nil && x.Methodology != nil {
-		return *x.Methodology
+func (x *ComplianceMethodologyPolicy) GetMethodology() []string {
+	if x != nil {
+		return x.Methodology
 	}
-	return ""
+	return nil
 }
 
 // Component is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -32936,10 +32936,9 @@ var File_policies_security_metrics_ontology_v1_ontology_proto protoreflect.FileD
 const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"4policies/security-metrics/ontology/v1/ontology.proto\x12\x16confirmate.ontology.v1\x1a\x1bbuf/validate/validate.proto\x1a google/protobuf/descriptor.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"4\n" +
-	"\x04ABAC:,\x82\xa6\x1d\x04ABAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\xa2\x01\n" +
-	"\x17AccessControlTypePolicy\x125\n" +
-	"\x13authorization_types\x18\xf0\x14 \x01(\tH\x00R\x12authorizationTypes\x88\x01\x01:8\x82\xa6\x1d\x17AccessControlTypePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x16\n" +
-	"\x14_authorization_types\"\x9e\x02\n" +
+	"\x04ABAC:,\x82\xa6\x1d\x04ABAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\x85\x01\n" +
+	"\x17AccessControlTypePolicy\x120\n" +
+	"\x13authorization_types\x18\xf0\x14 \x03(\tR\x12authorizationTypes:8\x82\xa6\x1d\x17AccessControlTypePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x9e\x02\n" +
 	"\x11AccessRestriction\x12F\n" +
 	"\vl3_firewall\x18\xa5G \x01(\v2\".confirmate.ontology.v1.L3FirewallH\x00R\n" +
 	"l3Firewall\x12k\n" +
@@ -33092,26 +33091,24 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"_log_levelB\x1e\n" +
 	"\x1c_monitoring_log_data_enabledB\x13\n" +
 	"\x11_retention_periodB\x1a\n" +
-	"\x18_security_alerts_enabled\"\xea\x05\n" +
+	"\x18_security_alerts_enabled\"\xc0\x05\n" +
 	"\x0eAssetInventory\x12O\n" +
 	"!all_required_information_recorded\x18\xae- \x01(\bH\x00R\x1eallRequiredInformationRecorded\x88\x01\x01\x12+\n" +
 	"\x0eaudit_interval\x18\xf0u \x01(\x05H\x01R\rauditInterval\x88\x01\x01\x12D\n" +
 	"\x1bcompleted_review_percentage\x18\xbb| \x01(\x02H\x02R\x19completedReviewPercentage\x88\x01\x01\x12/\n" +
 	"\x10review_frequency\x18\xadc \x01(\x05H\x03R\x0freviewFrequency\x88\x01\x01\x12\x1e\n" +
-	"\aservice\x18\xcf[ \x01(\tH\x04R\aservice\x88\x01\x01\x12\x1c\n" +
-	"\x06status\x18\x9d] \x01(\tH\x05R\x06status\x88\x01\x01\x12/\n" +
-	"\x10storage_facility\x18\xcd\x14 \x01(\tH\x06R\x0fstorageFacility\x88\x01\x01\x12\x18\n" +
-	"\x04type\x18\xc8[ \x01(\tH\aR\x04type\x88\x01\x01\x12-\n" +
-	"\x0fupdate_duration\x18\xc2, \x01(\x05H\bR\x0eupdateDuration\x88\x01\x01\x12-\n" +
-	"\x0fupdate_interval\x18\xd2  \x01(\x05H\tR\x0eupdateInterval\x88\x01\x01:1\x82\xa6\x1d\x0eAssetInventory\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB$\n" +
+	"\aservice\x18\xcf[ \x01(\tH\x04R\aservice\x88\x01\x01\x12\x17\n" +
+	"\x06status\x18\x9d] \x03(\tR\x06status\x12*\n" +
+	"\x10storage_facility\x18\xcd\x14 \x03(\tR\x0fstorageFacility\x12\x18\n" +
+	"\x04type\x18\xc8[ \x01(\tH\x05R\x04type\x88\x01\x01\x12-\n" +
+	"\x0fupdate_duration\x18\xc2, \x01(\x05H\x06R\x0eupdateDuration\x88\x01\x01\x12-\n" +
+	"\x0fupdate_interval\x18\xd2  \x01(\x05H\aR\x0eupdateInterval\x88\x01\x01:1\x82\xa6\x1d\x0eAssetInventory\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB$\n" +
 	"\"_all_required_information_recordedB\x11\n" +
 	"\x0f_audit_intervalB\x1e\n" +
 	"\x1c_completed_review_percentageB\x13\n" +
 	"\x11_review_frequencyB\n" +
 	"\n" +
-	"\b_serviceB\t\n" +
-	"\a_statusB\x13\n" +
-	"\x11_storage_facilityB\a\n" +
+	"\b_serviceB\a\n" +
 	"\x05_typeB\x12\n" +
 	"\x10_update_durationB\x12\n" +
 	"\x10_update_interval\"\x99\x02\n" +
@@ -33464,10 +33461,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x16_percentage_last_month\"\x9f\x01\n" +
 	"\x1dComplianceAuditIntervalPolicy\x12+\n" +
 	"\x0eaudit_interval\x18\x92= \x01(\x05H\x00R\rauditInterval\x88\x01\x01:>\x82\xa6\x1d\x1dComplianceAuditIntervalPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x11\n" +
-	"\x0f_audit_interval\"\x93\x01\n" +
-	"\x1bComplianceMethodologyPolicy\x12&\n" +
-	"\vmethodology\x18\xeeD \x01(\tH\x00R\vmethodology\x88\x01\x01:<\x82\xa6\x1d\x1bComplianceMethodologyPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_methodology\"\x9c\x01\n" +
+	"\x0f_audit_interval\"~\n" +
+	"\x1bComplianceMethodologyPolicy\x12!\n" +
+	"\vmethodology\x18\xeeD \x03(\tR\vmethodology:<\x82\xa6\x1d\x1bComplianceMethodologyPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x9c\x01\n" +
 	"\tComponent\x12I\n" +
 	"\vapplication\x18\xfa\x90\x01 \x01(\v2#.confirmate.ontology.v1.ApplicationH\x00R\vapplication\x12<\n" +
 	"\alibrary\x18\xb9o \x01(\v2\x1f.confirmate.ontology.v1.LibraryH\x00R\alibraryB\x06\n" +
@@ -38520,7 +38516,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	if File_policies_security_metrics_ontology_v1_ontology_proto != nil {
 		return
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[1].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[2].OneofWrappers = []any{
 		(*AccessRestriction_L3Firewall)(nil),
 		(*AccessRestriction_WebApplicationFirewall)(nil),
@@ -38658,7 +38653,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44].OneofWrappers = []any{
 		(*Component_Application)(nil),
 		(*Component_Library)(nil),
