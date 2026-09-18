@@ -272,10 +272,17 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 			}
 		}
 
-		// Set it and unlock
-		// TODO(anatheka): Remove the caching?
-		re.mrtc.m[key] = cached
-		slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(re.mrtc.m[key])), slog.Any("names", namesOf(re.mrtc.m[key])))
+		// Only persist a non-empty result. If discovery found zero applicable metrics -- which can
+		// legitimately happen transiently, e.g. if this is called before the metric source has
+		// finished loading its catalog on startup -- leave the cache entry unset (nil) so the next
+		// evidence for this key retries discovery instead of being permanently stuck with an empty
+		// result. There is no other code path that invalidates this cache (HandleMetricEvent only
+		// evicts the separate query cache), so caching an empty result here would otherwise silently
+		// suppress evaluation for every future evidence with the same key.
+		if len(cached) > 0 {
+			re.mrtc.m[key] = cached
+		}
+		slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(cached)), slog.Any("names", namesOf(cached)))
 
 		re.mrtc.Unlock()
 	} else {
