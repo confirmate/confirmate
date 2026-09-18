@@ -182,6 +182,9 @@ const (
 	// OrchestratorGetAuditScopeProcedure is the fully-qualified name of the Orchestrator's
 	// GetAuditScope RPC.
 	OrchestratorGetAuditScopeProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAuditScope"
+	// OrchestratorGetAuditScopeStatisticsProcedure is the fully-qualified name of the Orchestrator's
+	// GetAuditScopeStatistics RPC.
+	OrchestratorGetAuditScopeStatisticsProcedure = "/confirmate.orchestrator.v1.Orchestrator/GetAuditScopeStatistics"
 	// OrchestratorListAuditScopesProcedure is the fully-qualified name of the Orchestrator's
 	// ListAuditScopes RPC.
 	OrchestratorListAuditScopesProcedure = "/confirmate.orchestrator.v1.Orchestrator/ListAuditScopes"
@@ -348,6 +351,10 @@ type OrchestratorClient interface {
 	CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
 	// Retrieves an Audit Scope
 	GetAuditScope(context.Context, *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	// Retrieves aggregated statistics for an audit scope: the number of top-level controls in
+	// scope grouped by workflow (implementation) state, and the number of controls grouped by
+	// their latest compliance (evaluation) status.
+	GetAuditScopeStatistics(context.Context, *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error)
 	// Lists all Audit Scopes
 	ListAuditScopes(context.Context, *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error)
 	// Updates an existing Audit Scope
@@ -672,6 +679,12 @@ func NewOrchestratorClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(orchestratorMethods.ByName("GetAuditScope")),
 			connect.WithClientOptions(opts...),
 		),
+		getAuditScopeStatistics: connect.NewClient[orchestrator.GetAuditScopeStatisticsRequest, orchestrator.GetAuditScopeStatisticsResponse](
+			httpClient,
+			baseURL+OrchestratorGetAuditScopeStatisticsProcedure,
+			connect.WithSchema(orchestratorMethods.ByName("GetAuditScopeStatistics")),
+			connect.WithClientOptions(opts...),
+		),
 		listAuditScopes: connect.NewClient[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse](
 			httpClient,
 			baseURL+OrchestratorListAuditScopesProcedure,
@@ -836,6 +849,7 @@ type orchestratorClient struct {
 	getControl                      *connect.Client[orchestrator.GetControlRequest, orchestrator.Control]
 	createAuditScope                *connect.Client[orchestrator.CreateAuditScopeRequest, orchestrator.AuditScope]
 	getAuditScope                   *connect.Client[orchestrator.GetAuditScopeRequest, orchestrator.AuditScope]
+	getAuditScopeStatistics         *connect.Client[orchestrator.GetAuditScopeStatisticsRequest, orchestrator.GetAuditScopeStatisticsResponse]
 	listAuditScopes                 *connect.Client[orchestrator.ListAuditScopesRequest, orchestrator.ListAuditScopesResponse]
 	updateAuditScope                *connect.Client[orchestrator.UpdateAuditScopeRequest, orchestrator.AuditScope]
 	removeAuditScope                *connect.Client[orchestrator.RemoveAuditScopeRequest, emptypb.Empty]
@@ -1086,6 +1100,11 @@ func (c *orchestratorClient) GetAuditScope(ctx context.Context, req *connect.Req
 	return c.getAuditScope.CallUnary(ctx, req)
 }
 
+// GetAuditScopeStatistics calls confirmate.orchestrator.v1.Orchestrator.GetAuditScopeStatistics.
+func (c *orchestratorClient) GetAuditScopeStatistics(ctx context.Context, req *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error) {
+	return c.getAuditScopeStatistics.CallUnary(ctx, req)
+}
+
 // ListAuditScopes calls confirmate.orchestrator.v1.Orchestrator.ListAuditScopes.
 func (c *orchestratorClient) ListAuditScopes(ctx context.Context, req *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error) {
 	return c.listAuditScopes.CallUnary(ctx, req)
@@ -1292,6 +1311,10 @@ type OrchestratorHandler interface {
 	CreateAuditScope(context.Context, *connect.Request[orchestrator.CreateAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
 	// Retrieves an Audit Scope
 	GetAuditScope(context.Context, *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error)
+	// Retrieves aggregated statistics for an audit scope: the number of top-level controls in
+	// scope grouped by workflow (implementation) state, and the number of controls grouped by
+	// their latest compliance (evaluation) status.
+	GetAuditScopeStatistics(context.Context, *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error)
 	// Lists all Audit Scopes
 	ListAuditScopes(context.Context, *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error)
 	// Updates an existing Audit Scope
@@ -1612,6 +1635,12 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(orchestratorMethods.ByName("GetAuditScope")),
 		connect.WithHandlerOptions(opts...),
 	)
+	orchestratorGetAuditScopeStatisticsHandler := connect.NewUnaryHandler(
+		OrchestratorGetAuditScopeStatisticsProcedure,
+		svc.GetAuditScopeStatistics,
+		connect.WithSchema(orchestratorMethods.ByName("GetAuditScopeStatistics")),
+		connect.WithHandlerOptions(opts...),
+	)
 	orchestratorListAuditScopesHandler := connect.NewUnaryHandler(
 		OrchestratorListAuditScopesProcedure,
 		svc.ListAuditScopes,
@@ -1818,6 +1847,8 @@ func NewOrchestratorHandler(svc OrchestratorHandler, opts ...connect.HandlerOpti
 			orchestratorCreateAuditScopeHandler.ServeHTTP(w, r)
 		case OrchestratorGetAuditScopeProcedure:
 			orchestratorGetAuditScopeHandler.ServeHTTP(w, r)
+		case OrchestratorGetAuditScopeStatisticsProcedure:
+			orchestratorGetAuditScopeStatisticsHandler.ServeHTTP(w, r)
 		case OrchestratorListAuditScopesProcedure:
 			orchestratorListAuditScopesHandler.ServeHTTP(w, r)
 		case OrchestratorUpdateAuditScopeProcedure:
@@ -2043,6 +2074,10 @@ func (UnimplementedOrchestratorHandler) CreateAuditScope(context.Context, *conne
 
 func (UnimplementedOrchestratorHandler) GetAuditScope(context.Context, *connect.Request[orchestrator.GetAuditScopeRequest]) (*connect.Response[orchestrator.AuditScope], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAuditScope is not implemented"))
+}
+
+func (UnimplementedOrchestratorHandler) GetAuditScopeStatistics(context.Context, *connect.Request[orchestrator.GetAuditScopeStatisticsRequest]) (*connect.Response[orchestrator.GetAuditScopeStatisticsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("confirmate.orchestrator.v1.Orchestrator.GetAuditScopeStatistics is not implemented"))
 }
 
 func (UnimplementedOrchestratorHandler) ListAuditScopes(context.Context, *connect.Request[orchestrator.ListAuditScopesRequest]) (*connect.Response[orchestrator.ListAuditScopesResponse], error) {
