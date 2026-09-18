@@ -273,6 +273,7 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 		}
 
 		// Set it and unlock
+		// TODO(anatheka): Remove the caching?
 		re.mrtc.m[key] = cached
 		slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(re.mrtc.m[key])), slog.Any("names", namesOf(re.mrtc.m[key])))
 
