@@ -3,9 +3,150 @@
 
 openapi: 3.0.3
 info:
-    title: Evidence Store API
-    version: core/v0.2.17-118-g6861b173
+    title: ""
+    version: 0.0.1
 paths:
+    /v1/assessment/evidences:
+        post:
+            tags:
+                - Assessment
+            description: |-
+                Assesses the evidence sent by the discovery. Part of the public API, also
+                 exposed as REST.
+            operationId: Assessment_AssessEvidence
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Evidence'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AssessEvidenceResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate:
+        get:
+            tags:
+                - Evaluation
+            description: ListEvaluationJobs returns a list of all evaluation jobs running. Part of the public API, also exposed as REST.
+            operationId: Evaluation_ListEvaluationJobs
+            parameters:
+                - name: filter.auditScopeId
+                  in: query
+                  description: Optional, if provided, filters the evaluation jobs by the given audit scope ID.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEvaluationJobsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/start:
+        post:
+            tags:
+                - Evaluation
+            description: StartEvaluation evaluates periodically all assessment results based on a given audit scope id. Part of the public API, also exposed as REST.
+            operationId: Evaluation_StartEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: interval
+                  in: query
+                  description: |-
+                    The interval time in minutes the evaluation executes periodically. The
+                     default interval is set to 5 minutes.
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StartEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/stop:
+        post:
+            tags:
+                - Evaluation
+            description: |-
+                StopEvaluation stops the evaluation for the given audit scope.
+                 Part of the public API, also exposed as REST.
+            operationId: Evaluation_StopEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StopEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/evaluation/evaluate/{auditScopeId}/trigger:
+        post:
+            tags:
+                - Evaluation
+            description: |-
+                TriggerEvaluation triggers an immediate evaluation run for the given audit scope,
+                 bypassing the scheduler interval. If a scheduled evaluation job exists for the
+                 scope, it is run immediately; otherwise the catalog is evaluated once directly,
+                 without creating a scheduled job.
+            operationId: Evaluation_TriggerEvaluation
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TriggerEvaluationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /v1/evidence_store/evidence:
         post:
             tags:
@@ -515,6 +656,21 @@ components:
                     items:
                         type: string
             description: ApplicationLogging is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        AssessEvidenceResponse:
+            type: object
+            properties:
+                status:
+                    enum:
+                        - ASSESSMENT_STATUS_UNSPECIFIED
+                        - ASSESSMENT_STATUS_WAITING_FOR_RELATED
+                        - ASSESSMENT_STATUS_ASSESSED
+                        - ASSESSMENT_STATUS_FAILED
+                    type: string
+                    format: enum
+            description: |-
+                AssessEvidenceResponse belongs to AssessEvidence, which uses a custom unary
+                 RPC and therefore requires a response message according to the style
+                 convention. Since no return values are required, this is empty.
         AssetInventory:
             type: object
             properties:
@@ -2011,6 +2167,25 @@ components:
                 message:
                     type: string
             description: Error is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        EvaluationJob:
+            type: object
+            properties:
+                auditScopeId:
+                    type: string
+                startedAt:
+                    type: string
+                    format: date-time
+                interval:
+                    type: integer
+                    description: interval in minutes the evaluation executes periodically. The default interval is set to 5 minutes.
+                    format: int32
+                runCount:
+                    type: integer
+                    description: the number of times the job has finished running
+                    format: int32
+                lastRun:
+                    type: string
+                    format: date-time
         Evidence:
             type: object
             properties:
@@ -3642,6 +3817,13 @@ components:
             description: |-
                 LibraryEntryPoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents an entry point that is triggered if the code is loaded as a (dynamic) library.
+        ListEvaluationJobsResponse:
+            type: object
+            properties:
+                evaluationJobs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EvaluationJob'
         ListEvidencesResponse:
             type: object
             properties:
@@ -6086,6 +6268,11 @@ components:
                     items:
                         $ref: '#/components/schemas/SoftwareAttestation'
             description: SourceCodeFile is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
+        StartEvaluationResponse:
+            type: object
+            properties:
+                successful:
+                    type: boolean
         Status:
             type: object
             properties:
@@ -6102,6 +6289,9 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        StopEvaluationResponse:
+            type: object
+            properties: {}
         StoreEvidenceResponse:
             type: object
             properties: {}
@@ -6190,6 +6380,11 @@ components:
             description: |-
                 TransportEncryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  enabled means the resource _can_ be reached via https, while enforced means it _can only_ be reached via https (or http traffic is redirected)
+        TriggerEvaluationResponse:
+            type: object
+            properties:
+                successful:
+                    type: boolean
         UnlockEncryptedDisk:
             type: object
             properties:
@@ -6600,6 +6795,12 @@ components:
                         $ref: '#/components/schemas/GeoLocation'
             description: ZoneRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 tags:
+    - name: Assessment
+      description: |-
+        Representing the link between orchestrator and discovery: Assessing evidences
+         from discovery and sending results to orchestrator
+    - name: Evaluation
+      description: Manages the evaluation of Confirmate's assessment results
     - name: EvidenceStore
       description: Manages the storage of evidences.
     - name: Resources

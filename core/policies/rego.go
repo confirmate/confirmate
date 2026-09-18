@@ -207,8 +207,17 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 	key := createKey(evidence, types)
 
 	re.mrtc.RLock()
-	cached := re.mrtc.m[key]
+	cached, cacheHit := re.mrtc.m[key]
 	re.mrtc.RUnlock()
+	slog.Info("Metric cache lookup",
+		slog.String("evidence_id", evidence.GetId()),
+		slog.String("tool_id", evidence.GetToolId()),
+		slog.String("target_id", evidence.GetTargetOfEvaluationId()),
+		slog.String("key", key),
+		slog.Bool("cache_hit", cacheHit),
+		slog.Any("resource_types", types),
+		slog.Any("cached_metrics", namesOf(cached)),
+	)
 
 	// TODO(lebogg): Try to optimize duplicated code
 	if cached == nil {
@@ -277,6 +286,7 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 
 		re.mrtc.Unlock()
 	} else {
+		slog.Info("Resource type has the applicable metric(s) in else part", slog.Any("key", key), slog.Any("len", len(cached)), slog.Any("names", namesOf(cached)))
 		for _, metric := range cached {
 			runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 			if err != nil {

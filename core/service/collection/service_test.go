@@ -224,7 +224,7 @@ func TestRunOnce_ForwardsCollectedResourcesToEvidenceStore(t *testing.T) {
 			Collectors: []collection.Collector{
 				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
 					return []ontology.IsResource{
-						&ontology.VirtualMachine{Id: "vm-1"},
+						&ontology.VirtualMachine{Id: new("vm-1")},
 					}, nil
 				}),
 			},
@@ -281,7 +281,7 @@ func TestRunOnce_ReturnsError_WhenEvidenceStoreReturnsErrorStatus(t *testing.T) 
 			Collectors: []collection.Collector{
 				collectiontest.NewFunctionCollector("collector-ok", func() ([]ontology.IsResource, error) {
 					return []ontology.IsResource{
-						&ontology.VirtualMachine{Id: "vm-1"},
+						&ontology.VirtualMachine{Id: new("vm-1")},
 					}, nil
 				}),
 			},

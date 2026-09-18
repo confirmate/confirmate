@@ -92,7 +92,7 @@ func (svc *Service) updateCertificateLifecycle(ctx context.Context, auditScopeId
 		LatestByControlId: new(true),
 	}))
 	if err != nil {
-		return fmt.Errorf("lifecycle: list evaluation results: %w", err)
+		return fmt.Errorf("lifecycle: error list evaluation results for audit scope '%s': %w", auditScopeId, err)
 	}
 	results := listRes.Msg.GetResults()
 	if len(results) == 0 {
