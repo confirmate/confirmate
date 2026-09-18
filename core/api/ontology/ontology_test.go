@@ -64,8 +64,8 @@ func TestRelated(t *testing.T) {
 			name: "happy path",
 			args: args{
 				r: &VirtualMachine{
-					Id:              "some-id",
-					Name:            "some-name",
+					Id:              new("some-id"),
+					Name:            new("some-name"),
 					ParentId:        new("some-parent-id"),
 					BlockStorageIds: []string{"some-storage-id"},
 				},
@@ -85,10 +85,10 @@ func TestRelated(t *testing.T) {
 			name: "happy path with plural",
 			args: args{
 				r: &Application{
-					Id:         "some-id",
-					Name:       "some-name",
+					Id:         new("some-id"),
+					Name:       new("some-name"),
 					LibraryIds: []string{"some-library"},
-					Raw:        "{}",
+					Raw:        new("{}"),
 				},
 			},
 			want: []Relationship{
@@ -125,8 +125,8 @@ func TestResourceMap(t *testing.T) {
 			name: "happy path",
 			args: args{
 				r: &VirtualMachine{
-					Id:           "my-id",
-					Name:         "My VM",
+					Id:           new("my-id"),
+					Name:         new("My VM"),
 					CreationTime: timestamppb.New(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)),
 					AutomaticUpdates: &AutomaticUpdates{
 						Interval: durationpb.New(time.Hour * 24 * 2),
@@ -135,33 +135,13 @@ func TestResourceMap(t *testing.T) {
 			},
 			wantProps: func(t *testing.T, got map[string]any, args ...any) bool {
 				want := map[string]any{
-					"activityLogging":                  nil,
-					"blockStorageIds":                  []any{},
-					"bootLogging":                      nil,
-					"changeAndConfigurationManagement": nil,
-					"creationTime":                     "2024-01-01T00:00:00Z",
-					"encryptionInUse":                  nil,
-					"geoLocation":                      nil,
-					"id":                               "my-id",
-					"internetAccessibleEndpoint":       false,
-					"labels":                           map[string]any{},
-					"name":                             "My VM",
-					"description":                      "",
-					"networkInterfaceIds":              []any{},
-					"malwareProtection":                nil,
-					"osLogging":                        nil,
-					"loggings":                         []any{},
-					"raw":                              "",
-					"redundancies":                     []any{},
-					"remoteAttestation":                nil,
-					"resourceLogging":                  nil,
+					"creationTime": "2024-01-01T00:00:00Z",
+					"id":           "my-id",
+					"name":         "My VM",
 					"automaticUpdates": map[string]any{
-						"enabled":      false,
-						"interval":     "172800s",
-						"securityOnly": false,
+						"interval": "172800s",
 					},
-					"type":            []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"},
-					"usageStatistics": nil,
+					"type": []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"},
 				}
 
 				return assert.Equal(t, want, got)
@@ -197,8 +177,8 @@ func TestListResourceIDs(t *testing.T) {
 			name: "Happy path",
 			args: args{
 				[]IsResource{
-					&Account{Id: "test"},
-					&Account{Id: "test2"},
+					&Account{Id: new("test")},
+					&Account{Id: new("test2")},
 				},
 			},
 			want: []string{"test", "test2"},
@@ -226,15 +206,15 @@ func TestProtoResource(t *testing.T) {
 			name: "happy path",
 			args: args{
 				resource: &VirtualMachine{
-					Id:   "vm-1",
-					Name: "My VM",
+					Id:   new("vm-1"),
+					Name: new("My VM"),
 				},
 			},
 			want: &Resource{
 				Type: &Resource_VirtualMachine{
 					VirtualMachine: &VirtualMachine{
-						Id:   "vm-1",
-						Name: "My VM",
+						Id:   new("vm-1"),
+						Name: new("My VM"),
 					},
 				},
 			},
@@ -279,8 +259,8 @@ func TestResourceJSONRoundTrip(t *testing.T) {
 	want := &Resource{
 		Type: &Resource_VirtualMachine{
 			VirtualMachine: &VirtualMachine{
-				Id:   "vm-1",
-				Name: "vm-name",
+				Id:   new("vm-1"),
+				Name: new("vm-name"),
 			},
 		},
 	}
