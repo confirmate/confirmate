@@ -244,14 +244,14 @@ type Account struct {
 	Name                       *string                `protobuf:"bytes,18836,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,14088,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	AssetInventory                   *AssetInventory                   `protobuf:"bytes,14263,opt,name=asset_inventory,json=assetInventory,proto3,oneof" json:"asset_inventory,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7524,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,402,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	AssetInventory                   *AssetInventory                   `protobuf:"bytes,14263,opt,name=asset_inventory,json=assetInventory,proto3" json:"asset_inventory,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7524,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,402,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,11094,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,8981,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,8981,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,2929,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,1286,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4034,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4034,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -607,7 +607,7 @@ func (x *Agnostic) GetSoftwareAttestations() []*SoftwareAttestation {
 // Allocate is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type Allocate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,11008,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,11008,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	MemoryId      *string                `protobuf:"bytes,10921,opt,name=memory_id,json=memoryId,proto3,oneof" json:"memory_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -668,7 +668,7 @@ type AndRule struct {
 	Name         *string                `protobuf:"bytes,2112,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,15790,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,12945,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,12945,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,13799,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -767,7 +767,7 @@ type AnomalyDetection struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Enabled            *bool                  `protobuf:"varint,8852,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	Scope              *string                `protobuf:"bytes,8482,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
-	ApplicationLogging *ApplicationLogging    `protobuf:"bytes,16001,opt,name=application_logging,json=applicationLogging,proto3,oneof" json:"application_logging,omitempty"`
+	ApplicationLogging *ApplicationLogging    `protobuf:"bytes,16001,opt,name=application_logging,json=applicationLogging,proto3" json:"application_logging,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -837,7 +837,7 @@ type Application struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                  *string                `protobuf:"bytes,18684,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	TranslationUnits     []string               `protobuf:"bytes,9449,rep,name=translation_units,json=translationUnits,proto3" json:"translation_units,omitempty"`
-	AutomaticUpdates     *AutomaticUpdates      `protobuf:"bytes,1992,opt,name=automatic_updates,json=automaticUpdates,proto3,oneof" json:"automatic_updates,omitempty"`
+	AutomaticUpdates     *AutomaticUpdates      `protobuf:"bytes,1992,opt,name=automatic_updates,json=automaticUpdates,proto3" json:"automatic_updates,omitempty"`
 	CodeModuleIds        []string               `protobuf:"bytes,18101,rep,name=code_module_ids,json=codeModuleIds,proto3" json:"code_module_ids,omitempty"`
 	CodeRepositoryId     *string                `protobuf:"bytes,3551,opt,name=code_repository_id,json=codeRepositoryId,proto3,oneof" json:"code_repository_id,omitempty"`
 	ComputeId            *string                `protobuf:"bytes,13326,opt,name=compute_id,json=computeId,proto3,oneof" json:"compute_id,omitempty"`
@@ -1102,10 +1102,10 @@ type AssetInventory struct {
 	CompletedReviewPercentage *float32 `protobuf:"fixed32,15931,opt,name=completed_review_percentage,json=completedReviewPercentage,proto3,oneof" json:"completed_review_percentage,omitempty"`
 	ReviewFrequency           *int32   `protobuf:"varint,12717,opt,name=review_frequency,json=reviewFrequency,proto3,oneof" json:"review_frequency,omitempty"`
 	// Service contains the name of the service (e.g., Asset Management).
-	Service         *string `protobuf:"bytes,11727,opt,name=service,proto3,oneof" json:"service,omitempty"`
-	Status          *string `protobuf:"bytes,11933,opt,name=status,proto3,oneof" json:"status,omitempty"`
-	StorageFacility *string `protobuf:"bytes,2637,opt,name=storage_facility,json=storageFacility,proto3,oneof" json:"storage_facility,omitempty"`
-	Type            *string `protobuf:"bytes,11720,opt,name=type,proto3,oneof" json:"type,omitempty"`
+	Service         *string  `protobuf:"bytes,11727,opt,name=service,proto3,oneof" json:"service,omitempty"`
+	Status          []string `protobuf:"bytes,11933,rep,name=status,proto3" json:"status,omitempty"`
+	StorageFacility []string `protobuf:"bytes,2637,rep,name=storage_facility,json=storageFacility,proto3" json:"storage_facility,omitempty"`
+	Type            *string  `protobuf:"bytes,11720,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	// The time needed for an update.
 	UpdateDuration *int32 `protobuf:"varint,5698,opt,name=update_duration,json=updateDuration,proto3,oneof" json:"update_duration,omitempty"`
 	UpdateInterval *int32 `protobuf:"varint,4178,opt,name=update_interval,json=updateInterval,proto3,oneof" json:"update_interval,omitempty"`
@@ -1178,18 +1178,18 @@ func (x *AssetInventory) GetService() string {
 	return ""
 }
 
-func (x *AssetInventory) GetStatus() string {
-	if x != nil && x.Status != nil {
-		return *x.Status
+func (x *AssetInventory) GetStatus() []string {
+	if x != nil {
+		return x.Status
 	}
-	return ""
+	return nil
 }
 
-func (x *AssetInventory) GetStorageFacility() string {
-	if x != nil && x.StorageFacility != nil {
-		return *x.StorageFacility
+func (x *AssetInventory) GetStorageFacility() []string {
+	if x != nil {
+		return x.StorageFacility
 	}
-	return ""
+	return nil
 }
 
 func (x *AssetInventory) GetType() string {
@@ -1222,7 +1222,7 @@ type AsymmetricCipher struct {
 	CipherName *string `protobuf:"bytes,10744,opt,name=cipher_name,json=cipherName,proto3,oneof" json:"cipher_name,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
 	KeySize       *int32   `protobuf:"varint,8751,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
-	Padding       *Padding `protobuf:"bytes,15741,opt,name=padding,proto3,oneof" json:"padding,omitempty"`
+	Padding       *Padding `protobuf:"bytes,15741,opt,name=padding,proto3" json:"padding,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1698,8 +1698,8 @@ func (*Auditing_UsageStatistics) isAuditing_Type() {}
 // Represents an authentication operation.
 type Authenticate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Authenticity  *Authenticity          `protobuf:"bytes,536,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,5745,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	Authenticity  *Authenticity          `protobuf:"bytes,536,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,5745,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	CredentialId  *string                `protobuf:"bytes,6982,opt,name=credential_id,json=credentialId,proto3,oneof" json:"credential_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2170,8 +2170,8 @@ func (*Authorization_Rbac) isAuthorization_Type() {}
 // Represents an authorization operation based on JWT tokens.
 type AuthorizeJwt struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Authenticity  *Authenticity          `protobuf:"bytes,444,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,2623,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	Authenticity  *Authenticity          `protobuf:"bytes,444,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,2623,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2494,7 +2494,7 @@ type Backup struct {
 	RecoveryFrequency   *int32               `protobuf:"varint,8809,opt,name=recovery_frequency,json=recoveryFrequency,proto3,oneof" json:"recovery_frequency,omitempty"`
 	RetentionPeriod     *durationpb.Duration `protobuf:"bytes,6795,opt,name=retention_period,json=retentionPeriod,proto3,oneof" json:"retention_period,omitempty"`
 	StorageId           *string              `protobuf:"bytes,17051,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
-	TransportEncryption *TransportEncryption `protobuf:"bytes,2398,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
+	TransportEncryption *TransportEncryption `protobuf:"bytes,2398,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -2589,18 +2589,18 @@ type BlockStorage struct {
 	Name                       *string                `protobuf:"bytes,13869,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,11057,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16146,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,12598,opt,name=at_rest_encryption,json=atRestEncryption,proto3,oneof" json:"at_rest_encryption,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16146,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,12598,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,2815,rep,name=backups,proto3" json:"backups,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,8917,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3908,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	Immutability                     *Immutability                     `protobuf:"bytes,2967,opt,name=immutability,proto3,oneof" json:"immutability,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,8917,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3908,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	Immutability                     *Immutability                     `protobuf:"bytes,2967,opt,name=immutability,proto3" json:"immutability,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,7973,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14705,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14705,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,16302,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,15420,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,4514,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9280,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,4514,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9280,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -2772,7 +2772,7 @@ func (x *BlockStorage) GetUsageStatistics() *UsageStatistics {
 type BlockStorageOperation struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	BlockStorageId *string                `protobuf:"bytes,13477,opt,name=block_storage_id,json=blockStorageId,proto3,oneof" json:"block_storage_id,omitempty"`
-	CodeRegion     *CodeRegion            `protobuf:"bytes,2756,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion     *CodeRegion            `protobuf:"bytes,2756,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -3043,14 +3043,14 @@ type Certificate struct {
 	NotBeforeDate              *timestamppb.Timestamp `protobuf:"bytes,11770,opt,name=not_before_date,json=notBeforeDate,proto3,oneof" json:"not_before_date,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,7199,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9330,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4443,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,13381,opt,name=used_by_multiple,json=usedByMultiple,proto3,oneof" json:"used_by_multiple,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9330,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4443,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,13381,opt,name=used_by_multiple,json=usedByMultiple,proto3" json:"used_by_multiple,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,3178,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,13721,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,13721,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,15810,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,9548,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3679,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3679,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -3291,7 +3291,7 @@ func (x *CertificateBasedAuthentication) GetRotationInterval() int32 {
 // ChangeAndConfigurationManagement is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ChangeAndConfigurationManagement struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	RequestForChange *RequestForChange      `protobuf:"bytes,5737,opt,name=request_for_change,json=requestForChange,proto3,oneof" json:"request_for_change,omitempty"`
+	RequestForChange *RequestForChange      `protobuf:"bytes,5737,opt,name=request_for_change,json=requestForChange,proto3" json:"request_for_change,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -3337,8 +3337,8 @@ func (x *ChangeAndConfigurationManagement) GetRequestForChange() *RequestForChan
 // Represents an operation that checks whether a user or principal has access to a protected
 type CheckAccess struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion     *CodeRegion            `protobuf:"bytes,9029,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	ProtectedAsset *ProtectedAsset        `protobuf:"bytes,4640,opt,name=protected_asset,json=protectedAsset,proto3,oneof" json:"protected_asset,omitempty"`
+	CodeRegion     *CodeRegion            `protobuf:"bytes,9029,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	ProtectedAsset *ProtectedAsset        `protobuf:"bytes,4640,opt,name=protected_asset,json=protectedAsset,proto3" json:"protected_asset,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -4498,16 +4498,16 @@ type CodeRepository struct {
 	Raw                              *string                           `protobuf:"bytes,15664,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ReviewPercentage                 *float32                          `protobuf:"fixed32,17697,opt,name=review_percentage,json=reviewPercentage,proto3,oneof" json:"review_percentage,omitempty"`
 	ReviewPercentageLastMonth        *float32                          `protobuf:"fixed32,747,opt,name=review_percentage_last_month,json=reviewPercentageLastMonth,proto3,oneof" json:"review_percentage_last_month,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1727,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	CodeSignoff                      *CodeSignoff                      `protobuf:"bytes,1837,opt,name=code_signoff,json=codeSignoff,proto3,oneof" json:"code_signoff,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,111,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1727,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	CodeSignoff                      *CodeSignoff                      `protobuf:"bytes,1837,opt,name=code_signoff,json=codeSignoff,proto3" json:"code_signoff,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,111,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,133,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,2071,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,2071,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,11273,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,5357,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	SignedCommits                    *SignedCommits                    `protobuf:"bytes,434,opt,name=signed_commits,json=signedCommits,proto3,oneof" json:"signed_commits,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3480,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
-	VerifiedCommits                  *VerifiedCommits                  `protobuf:"bytes,11661,opt,name=verified_commits,json=verifiedCommits,proto3,oneof" json:"verified_commits,omitempty"`
+	SignedCommits                    *SignedCommits                    `protobuf:"bytes,434,opt,name=signed_commits,json=signedCommits,proto3" json:"signed_commits,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3480,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
+	VerifiedCommits                  *VerifiedCommits                  `protobuf:"bytes,11661,opt,name=verified_commits,json=verifiedCommits,proto3" json:"verified_commits,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -5185,7 +5185,7 @@ type Configuration struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                   *string       `protobuf:"bytes,17099,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationGroupIds []string      `protobuf:"bytes,7024,rep,name=configuration_group_ids,json=configurationGroupIds,proto3" json:"configuration_group_ids,omitempty"`
-	DataLocation          *DataLocation `protobuf:"bytes,5147,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation          *DataLocation `protobuf:"bytes,5147,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId              *string       `protobuf:"bytes,13616,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
@@ -5296,10 +5296,10 @@ type ConfigurationDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,1506,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,11524,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,1817,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,1817,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,14626,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,11413,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,1274,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,1274,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,11996,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -5439,7 +5439,7 @@ type ConfigurationGroup struct {
 	Raw                    *string       `protobuf:"bytes,15135,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationId        *string       `protobuf:"bytes,3610,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationOptionIds []string      `protobuf:"bytes,5873,rep,name=configuration_option_ids,json=configurationOptionIds,proto3" json:"configuration_option_ids,omitempty"`
-	DataLocation           *DataLocation `protobuf:"bytes,10960,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation           *DataLocation `protobuf:"bytes,10960,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId               *string       `protobuf:"bytes,16963,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -5556,7 +5556,7 @@ type ConfigurationGroupSource struct {
 	Name         *string                `protobuf:"bytes,7188,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,10682,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,9790,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,9790,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,11712,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -5839,7 +5839,7 @@ type ConfigurationOption struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                  *string       `protobuf:"bytes,8644,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationGroupId *string       `protobuf:"bytes,6079,opt,name=configuration_group_id,json=configurationGroupId,proto3,oneof" json:"configuration_group_id,omitempty"`
-	DataLocation         *DataLocation `protobuf:"bytes,17197,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation         *DataLocation `protobuf:"bytes,17197,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	KeyId                *string       `protobuf:"bytes,12044,opt,name=key_id,json=keyId,proto3,oneof" json:"key_id,omitempty"`
 	ParentId             *string       `protobuf:"bytes,6223,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ValueId              *string       `protobuf:"bytes,2572,opt,name=value_id,json=valueId,proto3,oneof" json:"value_id,omitempty"`
@@ -5965,7 +5965,7 @@ type ConfigurationOptionSource struct {
 	Name         *string                `protobuf:"bytes,15744,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,9031,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,11870,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,11870,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,312,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6069,7 +6069,7 @@ type ConfigurationSource struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                         *string       `protobuf:"bytes,16840,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ConfigurationGroupSourceIds []string      `protobuf:"bytes,4705,rep,name=configuration_group_source_ids,json=configurationGroupSourceIds,proto3" json:"configuration_group_source_ids,omitempty"`
-	DataLocation                *DataLocation `protobuf:"bytes,16924,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation                *DataLocation `protobuf:"bytes,16924,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId                    *string       `protobuf:"bytes,12170,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields               protoimpl.UnknownFields
 	sizeCache                   protoimpl.SizeCache
@@ -6240,18 +6240,18 @@ type Container struct {
 	Name                       *string                `protobuf:"bytes,736,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,18367,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1837,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,295,opt,name=encryption_in_use,json=encryptionInUse,proto3,oneof" json:"encryption_in_use,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5503,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1837,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,295,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5503,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	ImageId                          *string                           `protobuf:"bytes,11948,opt,name=image_id,json=imageId,proto3,oneof" json:"image_id,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,4933,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,10187,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,10187,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	NetworkInterfaceIds              []string                          `protobuf:"bytes,5591,rep,name=network_interface_ids,json=networkInterfaceIds,proto3" json:"network_interface_ids,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,9300,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
-	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,4110,opt,name=remote_attestation,json=remoteAttestation,proto3,oneof" json:"remote_attestation,omitempty"`
+	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,4110,opt,name=remote_attestation,json=remoteAttestation,proto3" json:"remote_attestation,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,14600,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,13978,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,11440,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,13978,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,11440,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -6431,13 +6431,13 @@ type ContainerImage struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,10543,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ApplicationId                    *string                           `protobuf:"bytes,758,opt,name=application_id,json=applicationId,proto3,oneof" json:"application_id,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3018,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,117,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3018,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,117,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,12269,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,11095,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,11095,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,16536,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,462,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,349,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,349,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -6589,15 +6589,15 @@ type ContainerOrchestration struct {
 	Name                       *string                `protobuf:"bytes,18187,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,17471,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,4641,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,4641,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ContainerIds                     []string                          `protobuf:"bytes,1059,rep,name=container_ids,json=containerIds,proto3" json:"container_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8832,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8832,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,2512,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,201,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,201,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,5269,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,139,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,1847,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6800,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,1847,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6800,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -6762,13 +6762,13 @@ type ContainerRegistry struct {
 	Name                       *string                `protobuf:"bytes,1523,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,5030,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,8763,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5019,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,8763,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5019,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,685,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,18536,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,18536,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,12740,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,14247,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,13554,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,13554,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -6912,7 +6912,7 @@ type Context struct {
 	Name         *string                `protobuf:"bytes,12248,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,4517,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,14574,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,14574,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,5287,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7015,7 +7015,7 @@ type CoordinatedVulnerabilityDisclosurePolicy struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,2293,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ContextId     *string       `protobuf:"bytes,13420,opt,name=context_id,json=contextId,proto3,oneof" json:"context_id,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,7041,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,7041,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	PolicyRuleIds []string      `protobuf:"bytes,17592,rep,name=policy_rule_ids,json=policyRuleIds,proto3" json:"policy_rule_ids,omitempty"`
 	ParentId      *string       `protobuf:"bytes,1517,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -7256,8 +7256,8 @@ func (*Core_ResourceType) isCore_Type() {}
 // CreateEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CreateEncryptedDisk struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion     *CodeRegion            `protobuf:"bytes,3010,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	DiskEncryption *DiskEncryption        `protobuf:"bytes,15083,opt,name=disk_encryption,json=diskEncryption,proto3,oneof" json:"disk_encryption,omitempty"`
+	CodeRegion     *CodeRegion            `protobuf:"bytes,3010,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	DiskEncryption *DiskEncryption        `protobuf:"bytes,15083,opt,name=disk_encryption,json=diskEncryption,proto3" json:"disk_encryption,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -7309,7 +7309,7 @@ func (x *CreateEncryptedDisk) GetDiskEncryption() *DiskEncryption {
 // CreateSecret is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type CreateSecret struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,9369,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,9369,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	SecretId      *string                `protobuf:"bytes,7663,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7584,7 +7584,7 @@ type CustomerKeyEncryption struct {
 	Algorithm     *string                `protobuf:"bytes,12685,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	Enabled       *bool                  `protobuf:"varint,14976,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	KeyUrl        *string                `protobuf:"bytes,13999,opt,name=key_url,json=keyUrl,proto3,oneof" json:"key_url,omitempty"`
-	BasedOn       *Cipher                `protobuf:"bytes,13151,opt,name=based_on,json=basedOn,proto3,oneof" json:"based_on,omitempty"`
+	BasedOn       *Cipher                `protobuf:"bytes,13151,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	SecretId      *string                `protobuf:"bytes,4394,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7667,10 +7667,10 @@ type CyberSecurityRiskAssessmentDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,14695,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,8879,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,10511,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,10511,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,6497,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,2895,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,12304,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,12304,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,14049,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -8578,7 +8578,7 @@ func (*DataLocation_RemoteDataLocation) isDataLocation_Type() {}
 type DatabaseConnect struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Calls              []string               `protobuf:"bytes,12922,rep,name=calls,proto3" json:"calls,omitempty"`
-	CodeRegion         *CodeRegion            `protobuf:"bytes,805,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion         *CodeRegion            `protobuf:"bytes,805,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	DatabaseServiceIds []string               `protobuf:"bytes,7502,rep,name=database_service_ids,json=databaseServiceIds,proto3" json:"database_service_ids,omitempty"`
 	DatabaseStorageId  *string                `protobuf:"bytes,1233,opt,name=database_storage_id,json=databaseStorageId,proto3,oneof" json:"database_storage_id,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -8731,7 +8731,7 @@ type DatabaseQuery struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Calls              []string               `protobuf:"bytes,7647,rep,name=calls,proto3" json:"calls,omitempty"`
 	Modify             *bool                  `protobuf:"varint,7601,opt,name=modify,proto3,oneof" json:"modify,omitempty"`
-	CodeRegion         *CodeRegion            `protobuf:"bytes,5643,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion         *CodeRegion            `protobuf:"bytes,5643,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	DatabaseServiceIds []string               `protobuf:"bytes,10199,rep,name=database_service_ids,json=databaseServiceIds,proto3" json:"database_service_ids,omitempty"`
 	DatabaseStorageId  *string                `protobuf:"bytes,15992,opt,name=database_storage_id,json=databaseStorageId,proto3,oneof" json:"database_storage_id,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -8932,18 +8932,18 @@ type DatabaseStorage struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,11538,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	Ttl                              *float64                          `protobuf:"fixed64,6277,opt,name=ttl,proto3,oneof" json:"ttl,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,14738,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,16710,opt,name=at_rest_encryption,json=atRestEncryption,proto3,oneof" json:"at_rest_encryption,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,14738,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,16710,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,6649,rep,name=backups,proto3" json:"backups,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5963,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,17276,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	Immutability                     *Immutability                     `protobuf:"bytes,16030,opt,name=immutability,proto3,oneof" json:"immutability,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5963,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,17276,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	Immutability                     *Immutability                     `protobuf:"bytes,16030,opt,name=immutability,proto3" json:"immutability,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,5231,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,1289,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,1289,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,5699,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,1057,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,7886,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,10375,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,7886,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,10375,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -9122,7 +9122,7 @@ func (x *DatabaseStorage) GetUsageStatistics() *UsageStatistics {
 // Represents a memory de-allocation operation. This can be done using `free` in C or `delete` in C++ or by calling a destructor in managed languages.
 type DeAllocate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,10932,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,10932,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	MemoryId      *string                `protobuf:"bytes,17476,opt,name=memory_id,json=memoryId,proto3,oneof" json:"memory_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9176,8 +9176,8 @@ func (x *DeAllocate) GetMemoryId() string {
 type Decryption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Algorithm     *string                `protobuf:"bytes,7747,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
-	Cipher        *Cipher                `protobuf:"bytes,10213,opt,name=cipher,proto3,oneof" json:"cipher,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,7584,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	Cipher        *Cipher                `protobuf:"bytes,10213,opt,name=cipher,proto3" json:"cipher,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,7584,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	SecretId      *string                `protobuf:"bytes,2937,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9252,13 +9252,13 @@ type DeviceProvisioningService struct {
 	Name                       *string                `protobuf:"bytes,9731,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,14841,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,18538,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3548,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,18538,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3548,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,3832,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,13981,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,13981,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,4325,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,7483,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,15375,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,15375,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -9397,8 +9397,8 @@ type DiskEncryption struct {
 	Algorithm     *string                `protobuf:"bytes,2867,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	Enabled       *bool                  `protobuf:"varint,9285,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	KeyUrl        *string                `protobuf:"bytes,6086,opt,name=key_url,json=keyUrl,proto3,oneof" json:"key_url,omitempty"`
-	UsedBy        *BlockStorage          `protobuf:"bytes,14240,opt,name=used_by,json=usedBy,proto3,oneof" json:"used_by,omitempty"`
-	BasedOn       *Cipher                `protobuf:"bytes,6881,opt,name=based_on,json=basedOn,proto3,oneof" json:"based_on,omitempty"`
+	UsedBy        *BlockStorage          `protobuf:"bytes,14240,opt,name=used_by,json=usedBy,proto3" json:"used_by,omitempty"`
+	BasedOn       *Cipher                `protobuf:"bytes,6881,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	SecretId      *string                `protobuf:"bytes,10114,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -9571,10 +9571,10 @@ type DistributionOfUpdatesDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,3530,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,10781,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,18419,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,18419,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,12279,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,17550,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,18560,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,18560,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,14004,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -9958,20 +9958,20 @@ type DocumentDatabaseService struct {
 	Ports                      []uint32               `protobuf:"varint,10225,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,7317,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,6357,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,6357,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,3091,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,12101,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,12101,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,15914,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8772,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,8315,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8772,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,8315,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,2720,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,4601,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,4601,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,6171,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,17529,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,9461,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,3838,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,2253,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4752,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,2253,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4752,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -10301,10 +10301,10 @@ type EUDeclarationOfConformity struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,3395,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,16462,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,5046,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,5046,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,18195,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,10071,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,10088,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,10088,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,9763,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -10596,8 +10596,8 @@ func (x *EncryptionInUse) GetEnabled() bool {
 type EncryptionOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Algorithm     *string                `protobuf:"bytes,15092,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,14814,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Encryption    *Encryption            `protobuf:"bytes,9123,opt,name=encryption,proto3,oneof" json:"encryption,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,14814,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Encryption    *Encryption            `protobuf:"bytes,9123,opt,name=encryption,proto3" json:"encryption,omitempty"`
 	SecretId      *string                `protobuf:"bytes,7662,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -10765,10 +10765,10 @@ func (*EntryPoint_HttpEndpoint) isEntryPoint_Type() {}
 // Represents an operation that checks whether two principals are equal.
 type EqualityCheck struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion     *CodeRegion            `protobuf:"bytes,8863,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion     *CodeRegion            `protobuf:"bytes,8863,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	PolicyId       *string                `protobuf:"bytes,927,opt,name=policy_id,json=policyId,proto3,oneof" json:"policy_id,omitempty"`
-	LeftPrincipal  *Principal             `protobuf:"bytes,15267,opt,name=left_principal,json=leftPrincipal,proto3,oneof" json:"left_principal,omitempty"`
-	RightPrincipal *Principal             `protobuf:"bytes,9410,opt,name=right_principal,json=rightPrincipal,proto3,oneof" json:"right_principal,omitempty"`
+	LeftPrincipal  *Principal             `protobuf:"bytes,15267,opt,name=left_principal,json=leftPrincipal,proto3" json:"left_principal,omitempty"`
+	RightPrincipal *Principal             `protobuf:"bytes,9410,opt,name=right_principal,json=rightPrincipal,proto3" json:"right_principal,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -10880,8 +10880,8 @@ func (x *Error) GetMessage() string {
 // Represents an exit operation that is part of a [Boundary]. This operation is used to define the point at which data leaves the boundary.
 type ExitBoundaryOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Boundary      *Boundary              `protobuf:"bytes,7768,opt,name=boundary,proto3,oneof" json:"boundary,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,3532,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	Boundary      *Boundary              `protobuf:"bytes,7768,opt,name=boundary,proto3" json:"boundary,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,3532,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10977,7 +10977,7 @@ type File struct {
 	Name         *string                `protobuf:"bytes,16988,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,17122,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,9097,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,9097,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,8615,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -11080,7 +11080,7 @@ type FileHandle struct {
 	Name         *string                `protobuf:"bytes,1128,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,13657,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,7246,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,7246,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,8541,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -11259,7 +11259,7 @@ func (*FileLikeObject_FileHandle) isFileLikeObject_Type() {}
 // FileOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type FileOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,18400,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,18400,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	FileId        *string                `protobuf:"bytes,3605,opt,name=file_id,json=fileId,proto3,oneof" json:"file_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -11321,18 +11321,18 @@ type FileStorage struct {
 	PublicAccess               *bool                  `protobuf:"varint,10539,opt,name=public_access,json=publicAccess,proto3,oneof" json:"public_access,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,4379,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,108,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,12115,opt,name=at_rest_encryption,json=atRestEncryption,proto3,oneof" json:"at_rest_encryption,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,108,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,12115,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,4043,rep,name=backups,proto3" json:"backups,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3773,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10014,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	Immutability                     *Immutability                     `protobuf:"bytes,1506,opt,name=immutability,proto3,oneof" json:"immutability,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3773,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10014,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	Immutability                     *Immutability                     `protobuf:"bytes,1506,opt,name=immutability,proto3" json:"immutability,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,9165,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,16292,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,16292,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,1252,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,13904,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,12122,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3902,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,12122,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3902,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -11521,19 +11521,19 @@ type FileStorageService struct {
 	Ports                      []uint32               `protobuf:"varint,12509,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,13948,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16844,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9861,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16844,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9861,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,11010,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,14794,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,16772,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,14794,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,16772,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,6801,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,7182,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,7182,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,14092,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,8578,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,5580,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,9777,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,10948,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4605,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,10948,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4605,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -11933,17 +11933,17 @@ type Function struct {
 	Raw                              *string                           `protobuf:"bytes,1531,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	RuntimeLanguage                  *string                           `protobuf:"bytes,7048,opt,name=runtime_language,json=runtimeLanguage,proto3,oneof" json:"runtime_language,omitempty"`
 	RuntimeVersion                   *string                           `protobuf:"bytes,16017,opt,name=runtime_version,json=runtimeVersion,proto3,oneof" json:"runtime_version,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,2041,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,9821,opt,name=encryption_in_use,json=encryptionInUse,proto3,oneof" json:"encryption_in_use,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5466,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,2041,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,9821,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,5466,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,2200,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,17601,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,17601,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	NetworkInterfaceIds              []string                          `protobuf:"bytes,8092,rep,name=network_interface_ids,json=networkInterfaceIds,proto3" json:"network_interface_ids,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,13881,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
-	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,153,opt,name=remote_attestation,json=remoteAttestation,proto3,oneof" json:"remote_attestation,omitempty"`
+	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,153,opt,name=remote_attestation,json=remoteAttestation,proto3" json:"remote_attestation,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,9026,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,7634,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,12153,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,7634,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,12153,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -12131,17 +12131,17 @@ type FunctionService struct {
 	Ports                      []uint32               `protobuf:"varint,17713,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,4925,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3264,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3264,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,10103,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
 	FunctionIds                      []string                          `protobuf:"bytes,2977,rep,name=function_ids,json=functionIds,proto3" json:"function_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,17812,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,17812,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,10958,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,3901,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,3901,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,1327,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,2810,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,1408,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,12735,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,16800,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,12735,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,16800,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -13793,16 +13793,16 @@ type GenericNetworkService struct {
 	Ports                      []uint32               `protobuf:"varint,532,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,10844,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,235,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,235,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,17384,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,1874,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,1874,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,1801,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,12461,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,12461,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,13999,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,14004,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,9192,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,10346,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9415,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,10346,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9415,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -14063,8 +14063,8 @@ func (x *GeoRedundancy) GetGeoLocations() []*GeoLocation {
 // GetCurrentTimeOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type GetCurrentTimeOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,5045,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Time          *Time                  `protobuf:"bytes,146,opt,name=time,proto3,oneof" json:"time,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,5045,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Time          *Time                  `protobuf:"bytes,146,opt,name=time,proto3" json:"time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -14117,7 +14117,7 @@ func (x *GetCurrentTimeOperation) GetTime() *Time {
 // An operation that retrieves a secret from a (remote) location. This can be a local keystore, a remote key server or a hardware device such as a TPM or HSM.
 type GetSecret struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,15770,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,15770,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	SecretId      *string                `protobuf:"bytes,8422,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -14354,8 +14354,8 @@ type HashOperation struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Algorithm       *string                `protobuf:"bytes,16160,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	UsesSalt        *bool                  `protobuf:"varint,14753,opt,name=uses_salt,json=usesSalt,proto3,oneof" json:"uses_salt,omitempty"`
-	CodeRegion      *CodeRegion            `protobuf:"bytes,10758,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	SecurityFeature *SecurityFeature       `protobuf:"bytes,10332,opt,name=security_feature,json=securityFeature,proto3,oneof" json:"security_feature,omitempty"`
+	CodeRegion      *CodeRegion            `protobuf:"bytes,10758,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	SecurityFeature *SecurityFeature       `protobuf:"bytes,10332,opt,name=security_feature,json=securityFeature,proto3" json:"security_feature,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -14523,8 +14523,8 @@ func (*Http_HttpRequestHandler) isHttp_Type() {}
 type HttpClient struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IsTls         *bool                  `protobuf:"varint,2674,opt,name=is_tls,json=isTls,proto3,oneof" json:"is_tls,omitempty"`
-	Authenticity  *Authenticity          `protobuf:"bytes,14857,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
-	Uses          *TransportEncryption   `protobuf:"bytes,18191,opt,name=uses,proto3,oneof" json:"uses,omitempty"`
+	Authenticity  *Authenticity          `protobuf:"bytes,14857,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
+	Uses          *TransportEncryption   `protobuf:"bytes,18191,opt,name=uses,proto3" json:"uses,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -14695,11 +14695,11 @@ type HttpEndpoint struct {
 	Method              *string                `protobuf:"bytes,1347,opt,name=method,proto3,oneof" json:"method,omitempty"`
 	Path                *string                `protobuf:"bytes,11504,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	Url                 *string                `protobuf:"bytes,16076,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	Authenticity        *Authenticity          `protobuf:"bytes,3805,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
-	Authorization       *Authorization         `protobuf:"bytes,2327,opt,name=authorization,proto3,oneof" json:"authorization,omitempty"`
-	HttpRequestContext  *HttpRequestContext    `protobuf:"bytes,4988,opt,name=http_request_context,json=httpRequestContext,proto3,oneof" json:"http_request_context,omitempty"`
-	RateLimiting        *RateLimiting          `protobuf:"bytes,7825,opt,name=rate_limiting,json=rateLimiting,proto3,oneof" json:"rate_limiting,omitempty"`
-	TransportEncryption *TransportEncryption   `protobuf:"bytes,13575,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
+	Authenticity        *Authenticity          `protobuf:"bytes,3805,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
+	Authorization       *Authorization         `protobuf:"bytes,2327,opt,name=authorization,proto3" json:"authorization,omitempty"`
+	HttpRequestContext  *HttpRequestContext    `protobuf:"bytes,4988,opt,name=http_request_context,json=httpRequestContext,proto3" json:"http_request_context,omitempty"`
+	RateLimiting        *RateLimiting          `protobuf:"bytes,7825,opt,name=rate_limiting,json=rateLimiting,proto3" json:"rate_limiting,omitempty"`
+	TransportEncryption *TransportEncryption   `protobuf:"bytes,13575,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -14808,8 +14808,8 @@ func (x *HttpEndpoint) GetTransportEncryption() *TransportEncryption {
 // Base class for operations on an [HttpEndpoint].
 type HttpEndpointOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,8403,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Http          *Http                  `protobuf:"bytes,4994,opt,name=http,proto3,oneof" json:"http,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,8403,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Http          *Http                  `protobuf:"bytes,4994,opt,name=http,proto3" json:"http,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -14865,8 +14865,8 @@ type HttpRequest struct {
 	Call          *string                `protobuf:"bytes,16831,opt,name=call,proto3,oneof" json:"call,omitempty"`
 	Method        *string                `protobuf:"bytes,17392,opt,name=method,proto3,oneof" json:"method,omitempty"`
 	ReqBody       *string                `protobuf:"bytes,5634,opt,name=req_body,json=reqBody,proto3,oneof" json:"req_body,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,681,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	HttpClient    *HttpClient            `protobuf:"bytes,16750,opt,name=http_client,json=httpClient,proto3,oneof" json:"http_client,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,681,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	HttpClient    *HttpClient            `protobuf:"bytes,16750,opt,name=http_client,json=httpClient,proto3" json:"http_client,omitempty"`
 	HttpEndpoints []*HttpEndpoint        `protobuf:"bytes,1360,rep,name=http_endpoints,json=httpEndpoints,proto3" json:"http_endpoints,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -15113,7 +15113,7 @@ func (*HttpRequestHandlerOperation_RegisterHttpEndpoint) isHttpRequestHandlerOpe
 // HttpServer is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type HttpServer struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	HttpRequestHandler *HttpRequestHandler    `protobuf:"bytes,16943,opt,name=http_request_handler,json=httpRequestHandler,proto3,oneof" json:"http_request_handler,omitempty"`
+	HttpRequestHandler *HttpRequestHandler    `protobuf:"bytes,16943,opt,name=http_request_handler,json=httpRequestHandler,proto3" json:"http_request_handler,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -15164,11 +15164,11 @@ type HybridCipher struct {
 	CipherName *string `protobuf:"bytes,4930,opt,name=cipher_name,json=cipherName,proto3,oneof" json:"cipher_name,omitempty"`
 	// Key size refers to the length of a key used in an enryption.
 	KeySize                   *int32                     `protobuf:"varint,5462,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
-	Uses                      *AsymmetricCipher          `protobuf:"bytes,11248,opt,name=uses,proto3,oneof" json:"uses,omitempty"`
-	KeyDerivationFunction     *KeyDerivationFunction     `protobuf:"bytes,16735,opt,name=key_derivation_function,json=keyDerivationFunction,proto3,oneof" json:"key_derivation_function,omitempty"`
-	MessageAuthenticationCode *MessageAuthenticationCode `protobuf:"bytes,14986,opt,name=message_authentication_code,json=messageAuthenticationCode,proto3,oneof" json:"message_authentication_code,omitempty"`
-	Padding                   *Padding                   `protobuf:"bytes,18342,opt,name=padding,proto3,oneof" json:"padding,omitempty"`
-	SymmetricCipher           *SymmetricCipher           `protobuf:"bytes,5013,opt,name=symmetric_cipher,json=symmetricCipher,proto3,oneof" json:"symmetric_cipher,omitempty"`
+	Uses                      *AsymmetricCipher          `protobuf:"bytes,11248,opt,name=uses,proto3" json:"uses,omitempty"`
+	KeyDerivationFunction     *KeyDerivationFunction     `protobuf:"bytes,16735,opt,name=key_derivation_function,json=keyDerivationFunction,proto3" json:"key_derivation_function,omitempty"`
+	MessageAuthenticationCode *MessageAuthenticationCode `protobuf:"bytes,14986,opt,name=message_authentication_code,json=messageAuthenticationCode,proto3" json:"message_authentication_code,omitempty"`
+	Padding                   *Padding                   `protobuf:"bytes,18342,opt,name=padding,proto3" json:"padding,omitempty"`
+	SymmetricCipher           *SymmetricCipher           `protobuf:"bytes,5013,opt,name=symmetric_cipher,json=symmetricCipher,proto3" json:"symmetric_cipher,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -15359,14 +15359,14 @@ type Identity struct {
 	Privileged                 *bool                  `protobuf:"varint,2301,opt,name=privileged,proto3,oneof" json:"privileged,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,16151,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	Authorization                    *Authorization                    `protobuf:"bytes,16314,opt,name=authorization,proto3,oneof" json:"authorization,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5595,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8606,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	Authorization                    *Authorization                    `protobuf:"bytes,16314,opt,name=authorization,proto3" json:"authorization,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5595,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8606,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,11698,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,1541,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,1541,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,16086,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,13088,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,7855,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,7855,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -15755,9 +15755,9 @@ func (*Input) Descriptor() ([]byte, []int) {
 // InputValidationOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type InputValidationOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,12844,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Input         *Input                 `protobuf:"bytes,458,opt,name=input,proto3,oneof" json:"input,omitempty"`
-	Output        *Output                `protobuf:"bytes,15204,opt,name=output,proto3,oneof" json:"output,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,12844,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Input         *Input                 `protobuf:"bytes,458,opt,name=input,proto3" json:"input,omitempty"`
+	Output        *Output                `protobuf:"bytes,15204,opt,name=output,proto3" json:"output,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -15816,8 +15816,8 @@ func (x *InputValidationOperation) GetOutput() *Output {
 // InstallUpdateOperation is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type InstallUpdateOperation struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	AutomaticUpdates *AutomaticUpdates      `protobuf:"bytes,7281,opt,name=automatic_updates,json=automaticUpdates,proto3,oneof" json:"automatic_updates,omitempty"`
-	CodeRegion       *CodeRegion            `protobuf:"bytes,13679,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	AutomaticUpdates *AutomaticUpdates      `protobuf:"bytes,7281,opt,name=automatic_updates,json=automaticUpdates,proto3" json:"automatic_updates,omitempty"`
+	CodeRegion       *CodeRegion            `protobuf:"bytes,13679,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -16148,8 +16148,8 @@ func (*IoT_MessagingHub) isIoT_Type() {}
 // Represents an operation to issue a new JWT token.
 type IssueJwt struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Authenticity  *Authenticity          `protobuf:"bytes,5692,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,9610,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	Authenticity  *Authenticity          `protobuf:"bytes,5692,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,9610,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -16209,13 +16209,13 @@ type Job struct {
 	Name                       *string                `protobuf:"bytes,18498,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,5776,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,13997,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,9162,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,13997,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,9162,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,13308,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,649,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,649,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,10691,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,161,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6673,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6673,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -16523,14 +16523,14 @@ type Key struct {
 	NotBeforeDate *timestamppb.Timestamp `protobuf:"bytes,235,opt,name=not_before_date,json=notBeforeDate,proto3,oneof" json:"not_before_date,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,11846,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,15846,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,215,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,5694,opt,name=used_by_multiple,json=usedByMultiple,proto3,oneof" json:"used_by_multiple,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,15846,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,215,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,5694,opt,name=used_by_multiple,json=usedByMultiple,proto3" json:"used_by_multiple,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,13175,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,1845,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,1845,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,7868,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,95,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,7188,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,7188,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -16716,7 +16716,7 @@ func (x *Key) GetUsageStatistics() *UsageStatistics {
 type KeyDerivationFunction struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          *string                `protobuf:"bytes,3552,opt,name=type,proto3,oneof" json:"type,omitempty"`
-	Input         *Input                 `protobuf:"bytes,6321,opt,name=input,proto3,oneof" json:"input,omitempty"`
+	Input         *Input                 `protobuf:"bytes,6321,opt,name=input,proto3" json:"input,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -16778,20 +16778,20 @@ type KeyValueDatabaseService struct {
 	Ports                      []uint32               `protobuf:"varint,6710,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,14509,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,4083,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,4083,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,121,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,16118,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,16118,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,13039,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,13241,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,11793,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,13241,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,11793,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,9475,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,16811,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,16811,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,6228,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,10462,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,15280,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,9275,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,11007,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,846,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,11007,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,846,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -16998,14 +16998,14 @@ type KeyVault struct {
 	Name                       *string                `protobuf:"bytes,5705,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,16199,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11331,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11331,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	CredentialIds                    []string                          `protobuf:"bytes,16714,rep,name=credential_ids,json=credentialIds,proto3" json:"credential_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,7862,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,7862,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,1262,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14918,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14918,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,11552,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,7075,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,13634,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,13634,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -17406,7 +17406,7 @@ func (x *Library) GetVulnerabilities() []*Vulnerability {
 // Represents an entry point that is triggered if the code is loaded as a (dynamic) library.
 type LibraryEntryPoint struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
-	UsedBy        *OperatingSystemArchitecture `protobuf:"bytes,16083,opt,name=used_by,json=usedBy,proto3,oneof" json:"used_by,omitempty"`
+	UsedBy        *OperatingSystemArchitecture `protobuf:"bytes,16083,opt,name=used_by,json=usedBy,proto3" json:"used_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -17463,19 +17463,19 @@ type LoadBalancer struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,16379,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	Url                              *string                           `protobuf:"bytes,2355,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	AccessRestriction                *AccessRestriction                `protobuf:"bytes,11292,opt,name=access_restriction,json=accessRestriction,proto3,oneof" json:"access_restriction,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,799,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	AccessRestriction                *AccessRestriction                `protobuf:"bytes,11292,opt,name=access_restriction,json=accessRestriction,proto3" json:"access_restriction,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,799,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,16161,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10722,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10722,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	HttpEndpoints                    []*HttpEndpoint                   `protobuf:"bytes,10771,rep,name=http_endpoints,json=httpEndpoints,proto3" json:"http_endpoints,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,2461,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,12749,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,12749,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	NetworkServiceIds                []string                          `protobuf:"bytes,1926,rep,name=network_service_ids,json=networkServiceIds,proto3" json:"network_service_ids,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,14687,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,9758,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,13642,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,14729,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4391,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,14729,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,4391,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -17675,7 +17675,7 @@ func (x *LoadBalancer) GetUsageStatistics() *UsageStatistics {
 // Represents an operation to load a configuration from a source, such as a file.
 type LoadConfiguration struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion      *CodeRegion            `protobuf:"bytes,11396,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion      *CodeRegion            `protobuf:"bytes,11396,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId *string                `protobuf:"bytes,10076,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -17729,7 +17729,7 @@ func (x *LoadConfiguration) GetConfigurationId() string {
 // Represents an operation that loads a shared library during runtime. A common example would be a call to `dlopen` in C/C++.
 type LoadLibrary struct {
 	state                         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion                    *CodeRegion            `protobuf:"bytes,15903,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion                    *CodeRegion            `protobuf:"bytes,15903,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	EntryPoints                   []*EntryPoint          `protobuf:"bytes,1641,rep,name=entry_points,json=entryPoints,proto3" json:"entry_points,omitempty"`
 	MemoryId                      *string                `protobuf:"bytes,1740,opt,name=memory_id,json=memoryId,proto3,oneof" json:"memory_id,omitempty"`
 	OperatingSystemArchitectureId *string                `protobuf:"bytes,4592,opt,name=operating_system_architecture_id,json=operatingSystemArchitectureId,proto3,oneof" json:"operating_system_architecture_id,omitempty"`
@@ -17799,7 +17799,7 @@ func (x *LoadLibrary) GetOperatingSystemArchitectureId() string {
 // Represents an operation that loads a symbol during runtime. A common example would be a call to`dlsym` in C/C++.
 type LoadSymbol struct {
 	state                         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion                    *CodeRegion            `protobuf:"bytes,11982,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion                    *CodeRegion            `protobuf:"bytes,11982,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	MemoryId                      *string                `protobuf:"bytes,17766,opt,name=memory_id,json=memoryId,proto3,oneof" json:"memory_id,omitempty"`
 	OperatingSystemArchitectureId *string                `protobuf:"bytes,13808,opt,name=operating_system_architecture_id,json=operatingSystemArchitectureId,proto3,oneof" json:"operating_system_architecture_id,omitempty"`
 	unknownFields                 protoimpl.UnknownFields
@@ -17906,7 +17906,7 @@ func (x *LocalAttestation) GetEnabled() bool {
 type LocalDataLocation struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Path             *string                `protobuf:"bytes,16659,opt,name=path,proto3,oneof" json:"path,omitempty"`
-	AtRestEncryption *AtRestEncryption      `protobuf:"bytes,6913,opt,name=at_rest_encryption,json=atRestEncryption,proto3,oneof" json:"at_rest_encryption,omitempty"`
+	AtRestEncryption *AtRestEncryption      `protobuf:"bytes,6913,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	StorageId        *string                `protobuf:"bytes,231,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -18104,10 +18104,10 @@ type LogDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,546,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,9077,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,12350,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,12350,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,8195,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,4022,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,1781,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,1781,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,6558,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -18238,8 +18238,8 @@ func (x *LogDocument) GetSecurityFeatures() []*SecurityFeature {
 // A log get operation e.g. `logging.getLogger("...")`.
 type LogGet struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,945,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Logging       *Logging               `protobuf:"bytes,12274,opt,name=logging,proto3,oneof" json:"logging,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,945,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Logging       *Logging               `protobuf:"bytes,12274,opt,name=logging,proto3" json:"logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -18377,8 +18377,8 @@ type LogOutput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Call          *string                `protobuf:"bytes,6341,opt,name=call,proto3,oneof" json:"call,omitempty"`
 	Value         *string                `protobuf:"bytes,16550,opt,name=value,proto3,oneof" json:"value,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,3291,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Logging       *Logging               `protobuf:"bytes,1240,opt,name=logging,proto3,oneof" json:"logging,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,3291,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Logging       *Logging               `protobuf:"bytes,1240,opt,name=logging,proto3" json:"logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -18447,8 +18447,8 @@ type LogWrite struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// enum:logLevel=FATAL,CRITICAL,ERROR,WARN,INFO,DEBUG,TRACE,UNKNOWN
 	LogLevel      *string     `protobuf:"bytes,11587,opt,name=log_level,json=logLevel,proto3,oneof" json:"log_level,omitempty"`
-	CodeRegion    *CodeRegion `protobuf:"bytes,3510,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	Logging       *Logging    `protobuf:"bytes,15543,opt,name=logging,proto3,oneof" json:"logging,omitempty"`
+	CodeRegion    *CodeRegion `protobuf:"bytes,3510,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	Logging       *Logging    `protobuf:"bytes,15543,opt,name=logging,proto3" json:"logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -18687,17 +18687,17 @@ type LoggingService struct {
 	Ports                      []uint32               `protobuf:"varint,2549,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,3703,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,853,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,853,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,18796,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4817,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4817,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,2206,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,2951,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,2951,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,4732,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,5257,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,10739,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,11805,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,10876,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,12394,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,10876,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,12394,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -18967,7 +18967,7 @@ type MachineLearningDataset struct {
 	Raw           *string       `protobuf:"bytes,6307,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	Size          *int32        `protobuf:"varint,7901,opt,name=size,proto3,oneof" json:"size,omitempty"`
 	Type          *string       `protobuf:"bytes,5204,opt,name=type,proto3,oneof" json:"type,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,14136,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,14136,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,11544,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -19091,7 +19091,7 @@ type MachineLearningModel struct {
 	PoisoningResilienceLevel      *float32               `protobuf:"fixed32,16395,opt,name=poisoning_resilience_level,json=poisoningResilienceLevel,proto3,oneof" json:"poisoning_resilience_level,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw             *string          `protobuf:"bytes,12454,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation    *DataLocation    `protobuf:"bytes,1022,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation    *DataLocation    `protobuf:"bytes,1022,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId        *string          `protobuf:"bytes,17150,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	Vulnerabilities []*Vulnerability `protobuf:"bytes,9542,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
 	unknownFields   protoimpl.UnknownFields
@@ -19260,18 +19260,18 @@ type MachineLearningService struct {
 	Ports                      []uint32               `protobuf:"varint,6816,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,5983,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7490,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7490,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,16877,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4584,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4584,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,12431,rep,name=loggings,proto3" json:"loggings,omitempty"`
 	MachineLearningIds               []string                          `protobuf:"bytes,3782,rep,name=machine_learning_ids,json=machineLearningIds,proto3" json:"machine_learning_ids,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,3121,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,3121,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,15904,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,14660,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,11927,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,7868,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,13332,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6309,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,13332,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6309,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -19457,7 +19457,7 @@ func (x *MachineLearningService) GetUsageStatistics() *UsageStatistics {
 // The main function of a program.
 type Main struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
-	UsedBy        *OperatingSystemArchitecture `protobuf:"bytes,18908,opt,name=used_by,json=usedBy,proto3,oneof" json:"used_by,omitempty"`
+	UsedBy        *OperatingSystemArchitecture `protobuf:"bytes,18908,opt,name=used_by,json=usedBy,proto3" json:"used_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -19506,7 +19506,7 @@ type MalwareProtection struct {
 	DurationSinceActive  *durationpb.Duration   `protobuf:"bytes,18754,opt,name=duration_since_active,json=durationSinceActive,proto3,oneof" json:"duration_since_active,omitempty"`
 	Enabled              *bool                  `protobuf:"varint,18004,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	NumberOfThreatsFound *int32                 `protobuf:"varint,11973,opt,name=number_of_threats_found,json=numberOfThreatsFound,proto3,oneof" json:"number_of_threats_found,omitempty"`
-	ApplicationLogging   *ApplicationLogging    `protobuf:"bytes,12380,opt,name=application_logging,json=applicationLogging,proto3,oneof" json:"application_logging,omitempty"`
+	ApplicationLogging   *ApplicationLogging    `protobuf:"bytes,12380,opt,name=application_logging,json=applicationLogging,proto3" json:"application_logging,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -19575,7 +19575,7 @@ type ManagedKeyEncryption struct {
 	Algorithm     *string                `protobuf:"bytes,4822,opt,name=algorithm,proto3,oneof" json:"algorithm,omitempty"`
 	Enabled       *bool                  `protobuf:"varint,13201,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	KeyUrl        *string                `protobuf:"bytes,16982,opt,name=key_url,json=keyUrl,proto3,oneof" json:"key_url,omitempty"`
-	BasedOn       *Cipher                `protobuf:"bytes,9630,opt,name=based_on,json=basedOn,proto3,oneof" json:"based_on,omitempty"`
+	BasedOn       *Cipher                `protobuf:"bytes,9630,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	SecretId      *string                `protobuf:"bytes,13805,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -19869,7 +19869,7 @@ func (*MemoryOperation_LoadSymbol) isMemoryOperation_Type() {}
 type MessageAuthenticationCode struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          *string                `protobuf:"bytes,16668,opt,name=type,proto3,oneof" json:"type,omitempty"`
-	Input         *Input                 `protobuf:"bytes,14423,opt,name=input,proto3,oneof" json:"input,omitempty"`
+	Input         *Input                 `protobuf:"bytes,14423,opt,name=input,proto3" json:"input,omitempty"`
 	KeyId         *string                `protobuf:"bytes,3220,opt,name=key_id,json=keyId,proto3,oneof" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -19937,13 +19937,13 @@ type MessagingHub struct {
 	Name                       *string                `protobuf:"bytes,4131,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,6465,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1045,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,392,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,1045,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,392,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,13600,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,5650,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,5650,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,771,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,5514,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,8646,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,8646,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -20290,20 +20290,20 @@ type MultiModalDatabaseService struct {
 	Ports                      []uint32               `protobuf:"varint,5,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,17449,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,9310,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,9310,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,9066,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3349,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3349,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,913,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,17721,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,6447,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,17721,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,6447,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,1820,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,13913,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,13913,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,3250,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,1553,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,134,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,10582,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,7542,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,1641,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,7542,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,1641,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -20556,15 +20556,15 @@ type NetworkInterface struct {
 	Name                       *string                `protobuf:"bytes,12404,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,5176,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	AccessRestriction                *AccessRestriction                `protobuf:"bytes,17872,opt,name=access_restriction,json=accessRestriction,proto3,oneof" json:"access_restriction,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11699,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10038,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	AccessRestriction                *AccessRestriction                `protobuf:"bytes,17872,opt,name=access_restriction,json=accessRestriction,proto3" json:"access_restriction,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11699,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10038,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,8003,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,9038,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,9038,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	NetworkServiceId                 *string                           `protobuf:"bytes,14403,opt,name=network_service_id,json=networkServiceId,proto3,oneof" json:"network_service_id,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,3740,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,8306,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,11090,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,11090,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -20722,13 +20722,13 @@ type NetworkSecurityGroup struct {
 	Name                       *string                `protobuf:"bytes,11440,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,11170,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,15869,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,11423,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,15869,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,11423,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,393,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,8872,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,8872,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,14376,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,15293,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9388,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9388,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -21689,18 +21689,18 @@ type ObjectStorage struct {
 	PublicAccess               *bool                  `protobuf:"varint,4621,opt,name=public_access,json=publicAccess,proto3,oneof" json:"public_access,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,6632,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,11889,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,6489,opt,name=at_rest_encryption,json=atRestEncryption,proto3,oneof" json:"at_rest_encryption,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,11889,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	AtRestEncryption                 *AtRestEncryption                 `protobuf:"bytes,6489,opt,name=at_rest_encryption,json=atRestEncryption,proto3" json:"at_rest_encryption,omitempty"`
 	Backups                          []*Backup                         `protobuf:"bytes,4514,rep,name=backups,proto3" json:"backups,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,686,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8943,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	Immutability                     *Immutability                     `protobuf:"bytes,4592,opt,name=immutability,proto3,oneof" json:"immutability,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,686,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8943,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	Immutability                     *Immutability                     `protobuf:"bytes,4592,opt,name=immutability,proto3" json:"immutability,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,11121,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14679,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14679,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,13679,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,16072,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,5368,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,14545,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,5368,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,14545,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -21879,7 +21879,7 @@ func (x *ObjectStorage) GetUsageStatistics() *UsageStatistics {
 type ObjectStorageRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Source           *string                `protobuf:"bytes,178,opt,name=source,proto3,oneof" json:"source,omitempty"`
-	CodeRegion       *CodeRegion            `protobuf:"bytes,11189,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion       *CodeRegion            `protobuf:"bytes,11189,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ObjectStorageIds []string               `protobuf:"bytes,17017,rep,name=object_storage_ids,json=objectStorageIds,proto3" json:"object_storage_ids,omitempty"`
 	StorageId        *string                `protobuf:"bytes,7565,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -21958,19 +21958,19 @@ type ObjectStorageService struct {
 	Ports                      []uint32               `protobuf:"varint,8166,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,16651,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16914,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,777,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,16914,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,777,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,15695,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,9923,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,11411,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,9923,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,11411,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,12719,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,2705,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,2705,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,18648,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,11624,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,1823,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,11503,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,1565,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,8426,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,1565,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,8426,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -23385,13 +23385,13 @@ type PasswordPolicy struct {
 	Name                       *string                `protobuf:"bytes,8966,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,10264,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7943,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8344,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7943,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,8344,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,6081,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,15271,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,15271,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,4959,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,12653,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,863,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,863,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -23799,24 +23799,24 @@ type PolicyDocument struct {
 	Name         *string                `protobuf:"bytes,2052,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                           *string                        `protobuf:"bytes,5038,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	AccessControlTypePolicy       *AccessControlTypePolicy       `protobuf:"bytes,9164,opt,name=access_control_type_policy,json=accessControlTypePolicy,proto3,oneof" json:"access_control_type_policy,omitempty"`
-	AssetInventory                *AssetInventory                `protobuf:"bytes,16496,opt,name=asset_inventory,json=assetInventory,proto3,oneof" json:"asset_inventory,omitempty"`
-	Backup                        *Backup                        `protobuf:"bytes,16402,opt,name=backup,proto3,oneof" json:"backup,omitempty"`
+	AccessControlTypePolicy       *AccessControlTypePolicy       `protobuf:"bytes,9164,opt,name=access_control_type_policy,json=accessControlTypePolicy,proto3" json:"access_control_type_policy,omitempty"`
+	AssetInventory                *AssetInventory                `protobuf:"bytes,16496,opt,name=asset_inventory,json=assetInventory,proto3" json:"asset_inventory,omitempty"`
+	Backup                        *Backup                        `protobuf:"bytes,16402,opt,name=backup,proto3" json:"backup,omitempty"`
 	CryptographicHashs            []*CryptographicHash           `protobuf:"bytes,12896,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataConfidentialitySdnPolicy  *DataConfidentialitySDNPolicy  `protobuf:"bytes,4864,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3,oneof" json:"data_confidentiality_sdn_policy,omitempty"`
-	DataLocation                  *DataLocation                  `protobuf:"bytes,11474,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataConfidentialitySdnPolicy  *DataConfidentialitySDNPolicy  `protobuf:"bytes,4864,opt,name=data_confidentiality_sdn_policy,json=dataConfidentialitySdnPolicy,proto3" json:"data_confidentiality_sdn_policy,omitempty"`
+	DataLocation                  *DataLocation                  `protobuf:"bytes,11474,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures            []*DocumentSignature           `protobuf:"bytes,7191,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	Governances                   []*Governance                  `protobuf:"bytes,4759,rep,name=governances,proto3" json:"governances,omitempty"`
-	LeastPrivilegePolicy          *LeastPrivilegePolicy          `protobuf:"bytes,12663,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3,oneof" json:"least_privilege_policy,omitempty"`
-	MonitoringProcedure           *MonitoringProcedure           `protobuf:"bytes,11357,opt,name=monitoring_procedure,json=monitoringProcedure,proto3,oneof" json:"monitoring_procedure,omitempty"`
-	NeedToKnowPolicy              *NeedToKnowPolicy              `protobuf:"bytes,3585,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3,oneof" json:"need_to_know_policy,omitempty"`
-	NetworkThreatMitigationPolicy *NetworkThreatMitigationPolicy `protobuf:"bytes,9407,opt,name=network_threat_mitigation_policy,json=networkThreatMitigationPolicy,proto3,oneof" json:"network_threat_mitigation_policy,omitempty"`
+	LeastPrivilegePolicy          *LeastPrivilegePolicy          `protobuf:"bytes,12663,opt,name=least_privilege_policy,json=leastPrivilegePolicy,proto3" json:"least_privilege_policy,omitempty"`
+	MonitoringProcedure           *MonitoringProcedure           `protobuf:"bytes,11357,opt,name=monitoring_procedure,json=monitoringProcedure,proto3" json:"monitoring_procedure,omitempty"`
+	NeedToKnowPolicy              *NeedToKnowPolicy              `protobuf:"bytes,3585,opt,name=need_to_know_policy,json=needToKnowPolicy,proto3" json:"need_to_know_policy,omitempty"`
+	NetworkThreatMitigationPolicy *NetworkThreatMitigationPolicy `protobuf:"bytes,9407,opt,name=network_threat_mitigation_policy,json=networkThreatMitigationPolicy,proto3" json:"network_threat_mitigation_policy,omitempty"`
 	ParentId                      *string                        `protobuf:"bytes,18208,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	SdnFunctionValidationPolicy   *SDNFunctionValidationPolicy   `protobuf:"bytes,8099,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3,oneof" json:"sdn_function_validation_policy,omitempty"`
-	ValidatedBy                   *SchemaValidation              `protobuf:"bytes,5620,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	SdnFunctionValidationPolicy   *SDNFunctionValidationPolicy   `protobuf:"bytes,8099,opt,name=sdn_function_validation_policy,json=sdnFunctionValidationPolicy,proto3" json:"sdn_function_validation_policy,omitempty"`
+	ValidatedBy                   *SchemaValidation              `protobuf:"bytes,5620,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures              []*SecurityFeature             `protobuf:"bytes,13896,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
-	SecurityIncident              *SecurityIncident              `protobuf:"bytes,16664,opt,name=security_incident,json=securityIncident,proto3,oneof" json:"security_incident,omitempty"`
-	SeparationOfDutiesPolicy      *SeparationOfDutiesPolicy      `protobuf:"bytes,6434,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3,oneof" json:"separation_of_duties_policy,omitempty"`
+	SecurityIncident              *SecurityIncident              `protobuf:"bytes,16664,opt,name=security_incident,json=securityIncident,proto3" json:"security_incident,omitempty"`
+	SeparationOfDutiesPolicy      *SeparationOfDutiesPolicy      `protobuf:"bytes,6434,opt,name=separation_of_duties_policy,json=separationOfDutiesPolicy,proto3" json:"separation_of_duties_policy,omitempty"`
 	unknownFields                 protoimpl.UnknownFields
 	sizeCache                     protoimpl.SizeCache
 }
@@ -24205,7 +24205,7 @@ func (*Principal) Descriptor() ([]byte, []int) {
 type ProtectedAsset struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PolicyIds     []string               `protobuf:"bytes,13769,rep,name=policy_ids,json=policyIds,proto3" json:"policy_ids,omitempty"`
-	Protects      *Resource              `protobuf:"bytes,16075,opt,name=protects,proto3,oneof" json:"protects,omitempty"`
+	Protects      *Resource              `protobuf:"bytes,16075,opt,name=protects,proto3" json:"protects,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -24271,7 +24271,7 @@ type Product struct {
 	SupportEnds       *timestamppb.Timestamp `protobuf:"bytes,14253,opt,name=support_ends,json=supportEnds,proto3,oneof" json:"support_ends,omitempty"`
 	Type              *string                `protobuf:"bytes,6467,opt,name=type,proto3,oneof" json:"type,omitempty"`
 	CodeIds           []string               `protobuf:"bytes,10540,rep,name=code_ids,json=codeIds,proto3" json:"code_ids,omitempty"`
-	ContactPerson     *ContactPerson         `protobuf:"bytes,8641,opt,name=contact_person,json=contactPerson,proto3,oneof" json:"contact_person,omitempty"`
+	ContactPerson     *ContactPerson         `protobuf:"bytes,8641,opt,name=contact_person,json=contactPerson,proto3" json:"contact_person,omitempty"`
 	DataIds           []string               `protobuf:"bytes,11462,rep,name=data_ids,json=dataIds,proto3" json:"data_ids,omitempty"`
 	Governances       []*Governance          `protobuf:"bytes,16685,rep,name=governances,proto3" json:"governances,omitempty"`
 	HardwareIds       []string               `protobuf:"bytes,7586,rep,name=hardware_ids,json=hardwareIds,proto3" json:"hardware_ids,omitempty"`
@@ -24449,10 +24449,10 @@ type ProductionAndMonitoringProcessDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,12529,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,11667,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,3635,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,3635,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,13921,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,8794,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,12634,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,12634,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,3125,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -24651,7 +24651,7 @@ func (*ProtectedAssetOperation_CheckAccess) isProtectedAssetOperation_Type() {}
 // Represents an operation to provide a [Configuration], e.g., in the form of a configuration file (through a [ConfigurationSource]). When the configuration file is loaded, a [LoadConfiguration] operation would be found in the code component (matching the configuration file's name in [LoadConfiguration.fileExpression]) and the [ProvideConfiguration] operation would be found in the configuration component. But also other sources of configuration could be represented by a [ProvideConfiguration] operation, such as environment variables or command-line arguments. Note: The [ProvideConfiguration] operation is part of the [ConfigurationSource.ops] and not of the [Configuration.ops] as it's an operation of the source, not the target.
 type ProvideConfiguration struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion            *CodeRegion            `protobuf:"bytes,6654,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion            *CodeRegion            `protobuf:"bytes,6654,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId       *string                `protobuf:"bytes,9286,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationSourceId *string                `protobuf:"bytes,11294,opt,name=configuration_source_id,json=configurationSourceId,proto3,oneof" json:"configuration_source_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
@@ -24712,7 +24712,7 @@ func (x *ProvideConfiguration) GetConfigurationSourceId() string {
 // ProvideConfigurationGroup is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ProvideConfigurationGroup struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion                 *CodeRegion            `protobuf:"bytes,1380,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion                 *CodeRegion            `protobuf:"bytes,1380,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId            *string                `protobuf:"bytes,11374,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationGroupId       *string                `protobuf:"bytes,14075,opt,name=configuration_group_id,json=configurationGroupId,proto3,oneof" json:"configuration_group_id,omitempty"`
 	ConfigurationGroupSourceId *string                `protobuf:"bytes,11513,opt,name=configuration_group_source_id,json=configurationGroupSourceId,proto3,oneof" json:"configuration_group_source_id,omitempty"`
@@ -24782,7 +24782,7 @@ func (x *ProvideConfigurationGroup) GetConfigurationGroupSourceId() string {
 // Represents an operation to provide a [ConfigurationOption]. It connects a [ConfigurationOptionSource] with a [ConfigurationOption].
 type ProvideConfigurationOption struct {
 	state                       protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion                  *CodeRegion            `protobuf:"bytes,7186,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion                  *CodeRegion            `protobuf:"bytes,7186,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId             *string                `protobuf:"bytes,18296,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationOptionId       *string                `protobuf:"bytes,10671,opt,name=configuration_option_id,json=configurationOptionId,proto3,oneof" json:"configuration_option_id,omitempty"`
 	ConfigurationOptionSourceId *string                `protobuf:"bytes,15601,opt,name=configuration_option_source_id,json=configurationOptionSourceId,proto3,oneof" json:"configuration_option_source_id,omitempty"`
@@ -24869,17 +24869,17 @@ type QPU struct {
 	Name                       *string                `protobuf:"bytes,1538,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,8462,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,2743,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,7289,opt,name=encryption_in_use,json=encryptionInUse,proto3,oneof" json:"encryption_in_use,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,16264,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,2743,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,7289,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,16264,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,14768,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,697,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,697,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	NetworkInterfaceIds              []string                          `protobuf:"bytes,2623,rep,name=network_interface_ids,json=networkInterfaceIds,proto3" json:"network_interface_ids,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,12185,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
-	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,1044,opt,name=remote_attestation,json=remoteAttestation,proto3,oneof" json:"remote_attestation,omitempty"`
+	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,1044,opt,name=remote_attestation,json=remoteAttestation,proto3" json:"remote_attestation,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,3322,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,5756,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9392,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,5756,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,9392,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -25210,7 +25210,7 @@ func (x *RateLimiting) GetTimeWindowSeconds() int32 {
 // Represents an operation to read a specific configuration group. Often this is done with a member access or a subscript operation on the configuration object, such as`conf.GROUP` or`conf["GROUP"]`.
 type ReadConfigurationGroup struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion           *CodeRegion            `protobuf:"bytes,14967,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion           *CodeRegion            `protobuf:"bytes,14967,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId      *string                `protobuf:"bytes,4865,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationGroupId *string                `protobuf:"bytes,9364,opt,name=configuration_group_id,json=configurationGroupId,proto3,oneof" json:"configuration_group_id,omitempty"`
 	unknownFields        protoimpl.UnknownFields
@@ -25272,7 +25272,7 @@ func (x *ReadConfigurationGroup) GetConfigurationGroupId() string {
 // Represents an operation to read a specific configuration option. Often this is done with a member access such as `group.option` or a subscript operation such as `group["option"]`.
 type ReadConfigurationOption struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion            *CodeRegion            `protobuf:"bytes,15892,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion            *CodeRegion            `protobuf:"bytes,15892,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId       *string                `protobuf:"bytes,11945,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationOptionId *string                `protobuf:"bytes,17432,opt,name=configuration_option_id,json=configurationOptionId,proto3,oneof" json:"configuration_option_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
@@ -25433,7 +25433,7 @@ func (*Redundancy_ZoneRedundancy) isRedundancy_Type() {}
 // Represents an operation to register a new [ConfigurationGroup]. This is often done with a call, such as `conf.registerGroup("group")`. This might not be necessary for all configuration frameworks, some might allow to directly read the group (via [ReadConfigurationGroup]) without registering it first, or it is done implicitly. When code and configuration is interacting, we expect that the configuration file (such as an INI file) contains the [ConfigurationGroup] node and the code contains the [RegisterConfigurationGroup] and [ReadConfigurationGroup] nodes.
 type RegisterConfigurationGroup struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion           *CodeRegion            `protobuf:"bytes,15411,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion           *CodeRegion            `protobuf:"bytes,15411,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId      *string                `protobuf:"bytes,7462,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationGroupId *string                `protobuf:"bytes,15672,opt,name=configuration_group_id,json=configurationGroupId,proto3,oneof" json:"configuration_group_id,omitempty"`
 	unknownFields        protoimpl.UnknownFields
@@ -25495,7 +25495,7 @@ func (x *RegisterConfigurationGroup) GetConfigurationGroupId() string {
 // Represents an operation to register a new [ConfigurationOption]. This is often done with a call, such as `conf.registerOption("option", "defaultValue")`. This might not be necessary for all configuration frameworks, some might allow to directly read the group (via  [RegisterConfigurationOption]) without registering it first, or it is done implicitly. When code and configuration is interacting, we expect that the configuration file (such as an INI file) contains the [ConfigurationOption] node and the code contains the [RegisterConfigurationOption] and [ReadConfigurationOption] nodes.
 type RegisterConfigurationOption struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion            *CodeRegion            `protobuf:"bytes,11406,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	CodeRegion            *CodeRegion            `protobuf:"bytes,11406,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	ConfigurationId       *string                `protobuf:"bytes,10637,opt,name=configuration_id,json=configurationId,proto3,oneof" json:"configuration_id,omitempty"`
 	ConfigurationOptionId *string                `protobuf:"bytes,12873,opt,name=configuration_option_id,json=configurationOptionId,proto3,oneof" json:"configuration_option_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
@@ -25556,9 +25556,9 @@ func (x *RegisterConfigurationOption) GetConfigurationOptionId() string {
 // RegisterHttpEndpoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type RegisterHttpEndpoint struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion         *CodeRegion            `protobuf:"bytes,18646,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	HttpEndpoint       *HttpEndpoint          `protobuf:"bytes,14831,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
-	HttpRequestHandler *HttpRequestHandler    `protobuf:"bytes,15118,opt,name=http_request_handler,json=httpRequestHandler,proto3,oneof" json:"http_request_handler,omitempty"`
+	CodeRegion         *CodeRegion            `protobuf:"bytes,18646,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	HttpEndpoint       *HttpEndpoint          `protobuf:"bytes,14831,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
+	HttpRequestHandler *HttpRequestHandler    `protobuf:"bytes,15118,opt,name=http_request_handler,json=httpRequestHandler,proto3" json:"http_request_handler,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -25627,20 +25627,20 @@ type RelationalDatabaseService struct {
 	Ports                      []uint32               `protobuf:"varint,285,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,308,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,17935,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,17935,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
 	AnomalyDetections                []*AnomalyDetection               `protobuf:"bytes,18542,rep,name=anomaly_detections,json=anomalyDetections,proto3" json:"anomaly_detections,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11313,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,11313,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,5357,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,13809,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,3492,opt,name=http_endpoint,json=httpEndpoint,proto3,oneof" json:"http_endpoint,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,13809,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	HttpEndpoint                     *HttpEndpoint                     `protobuf:"bytes,3492,opt,name=http_endpoint,json=httpEndpoint,proto3" json:"http_endpoint,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,14640,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,15407,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,15407,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,18313,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,1800,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,8269,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
 	StorageIds                       []string                          `protobuf:"bytes,14683,rep,name=storage_ids,json=storageIds,proto3" json:"storage_ids,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,6793,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,7216,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,6793,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,7216,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -25984,9 +25984,9 @@ func (x *RemoteAttestation) GetStatus() bool {
 type RemoteDataLocation struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Path                *string                `protobuf:"bytes,5099,opt,name=path,proto3,oneof" json:"path,omitempty"`
-	Authenticity        *Authenticity          `protobuf:"bytes,1719,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
+	Authenticity        *Authenticity          `protobuf:"bytes,1719,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
 	StorageId           *string                `protobuf:"bytes,9156,opt,name=storage_id,json=storageId,proto3,oneof" json:"storage_id,omitempty"`
-	TransportEncryption *TransportEncryption   `protobuf:"bytes,1008,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
+	TransportEncryption *TransportEncryption   `protobuf:"bytes,1008,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -26129,10 +26129,10 @@ type ReportDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,2605,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,17448,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,18583,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,18583,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,367,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,16048,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,9750,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,9750,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,10419,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -27630,13 +27630,13 @@ type ResourceGroup struct {
 	Name                       *string                `protobuf:"bytes,18950,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,16903,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,6025,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10139,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,6025,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10139,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,17486,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,10760,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,10760,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,11277,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,9625,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,16846,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,16846,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -27941,14 +27941,14 @@ type RoleAssignment struct {
 	Name                       *string                `protobuf:"bytes,2963,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,10862,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	Authorization                    *Authorization                    `protobuf:"bytes,18501,opt,name=authorization,proto3,oneof" json:"authorization,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,12427,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10092,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	Authorization                    *Authorization                    `protobuf:"bytes,18501,opt,name=authorization,proto3" json:"authorization,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,12427,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,10092,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,18727,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,17663,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,17663,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,18916,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,8394,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,18400,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,18400,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -28107,10 +28107,10 @@ type SBOMDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,16176,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,1611,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,2559,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,2559,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,2453,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,12294,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,17308,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,17308,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,4541,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -28361,15 +28361,15 @@ type Secret struct {
 	NotBeforeDate *timestamppb.Timestamp `protobuf:"bytes,13335,opt,name=not_before_date,json=notBeforeDate,proto3,oneof" json:"not_before_date,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,5998,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7249,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	BasedOn                          *Cipher                           `protobuf:"bytes,7866,opt,name=based_on,json=basedOn,proto3,oneof" json:"based_on,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4152,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
-	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,3559,opt,name=used_by_multiple,json=usedByMultiple,proto3,oneof" json:"used_by_multiple,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7249,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	BasedOn                          *Cipher                           `protobuf:"bytes,7866,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,4152,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
+	UsedByMultiple                   *Infrastructure                   `protobuf:"bytes,3559,opt,name=used_by_multiple,json=usedByMultiple,proto3" json:"used_by_multiple,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,16085,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,6751,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,6751,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,14119,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,13608,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,5354,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,5354,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -28646,10 +28646,10 @@ type SecurityAdvisoryDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,3544,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,4824,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,12507,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,12507,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,16888,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,4792,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,10910,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,10910,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,1557,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	Vulnerabilities    []*Vulnerability     `protobuf:"bytes,16368,rep,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -28843,18 +28843,18 @@ type SecurityAdvisoryService struct {
 	Ports                      []uint32               `protobuf:"varint,4555,rep,packed,name=ports,proto3" json:"ports,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,10467,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3016,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3016,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
 	ComputeIds                       []string                          `protobuf:"bytes,18065,rep,name=compute_ids,json=computeIds,proto3" json:"compute_ids,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,11088,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,11088,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	KeyIds                           []string                          `protobuf:"bytes,7181,rep,name=key_ids,json=keyIds,proto3" json:"key_ids,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,28,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,7307,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,7307,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,14683,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,11251,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	SecurityAdvisoryFeeds            []*SecurityAdvisoryFeed           `protobuf:"bytes,4972,rep,name=security_advisory_feeds,json=securityAdvisoryFeeds,proto3" json:"security_advisory_feeds,omitempty"`
 	ServiceMetadataDocumentId        *string                           `protobuf:"bytes,3851,opt,name=service_metadata_document_id,json=serviceMetadataDocumentId,proto3,oneof" json:"service_metadata_document_id,omitempty"`
-	TransportEncryption              *TransportEncryption              `protobuf:"bytes,17775,opt,name=transport_encryption,json=transportEncryption,proto3,oneof" json:"transport_encryption,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,14285,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	TransportEncryption              *TransportEncryption              `protobuf:"bytes,17775,opt,name=transport_encryption,json=transportEncryption,proto3" json:"transport_encryption,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,14285,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -29947,10 +29947,10 @@ type ServiceMetadataDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,8064,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,12184,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,14106,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,14106,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,4448,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,8317,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,5832,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,5832,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,9489,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -30911,8 +30911,8 @@ type SymmetricCipher struct {
 	KeySize *int32 `protobuf:"varint,488,opt,name=key_size,json=keySize,proto3,oneof" json:"key_size,omitempty"`
 	// Describes a modus of something being executed. (e.g. used by an Encryption)
 	Modus                *string               `protobuf:"bytes,10292,opt,name=modus,proto3,oneof" json:"modus,omitempty"`
-	InitializationVector *InitializationVector `protobuf:"bytes,11325,opt,name=initialization_vector,json=initializationVector,proto3,oneof" json:"initialization_vector,omitempty"`
-	Padding              *Padding              `protobuf:"bytes,2670,opt,name=padding,proto3,oneof" json:"padding,omitempty"`
+	InitializationVector *InitializationVector `protobuf:"bytes,11325,opt,name=initialization_vector,json=initializationVector,proto3" json:"initialization_vector,omitempty"`
+	Padding              *Padding              `protobuf:"bytes,2670,opt,name=padding,proto3" json:"padding,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -31044,7 +31044,7 @@ type Token struct {
 	Name         *string                `protobuf:"bytes,15808,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,16748,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,13703,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,13703,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,10701,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -31229,7 +31229,7 @@ type TransportEncryption struct {
 	ProtocolVersion *float32               `protobuf:"fixed32,11009,opt,name=protocol_version,json=protocolVersion,proto3,oneof" json:"protocol_version,omitempty"`
 	// tlsSignatureAlgorithm: e.g., rsa_pss_rsae_sha256/384/512, ecdsa_secp256r1_sha256, ed25519
 	TlsSignatureAlgorithm *string        `protobuf:"bytes,14996,opt,name=tls_signature_algorithm,json=tlsSignatureAlgorithm,proto3,oneof" json:"tls_signature_algorithm,omitempty"`
-	BasedOn               *Cipher        `protobuf:"bytes,17349,opt,name=based_on,json=basedOn,proto3,oneof" json:"based_on,omitempty"`
+	BasedOn               *Cipher        `protobuf:"bytes,17349,opt,name=based_on,json=basedOn,proto3" json:"based_on,omitempty"`
 	CipherSuites          []*CipherSuite `protobuf:"bytes,5672,rep,name=cipher_suites,json=cipherSuites,proto3" json:"cipher_suites,omitempty"`
 	SecretId              *string        `protobuf:"bytes,9451,opt,name=secret_id,json=secretId,proto3,oneof" json:"secret_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
@@ -31325,8 +31325,8 @@ func (x *TransportEncryption) GetSecretId() string {
 // UnlockEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type UnlockEncryptedDisk struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	CodeRegion     *CodeRegion            `protobuf:"bytes,13452,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
-	DiskEncryption *DiskEncryption        `protobuf:"bytes,1963,opt,name=disk_encryption,json=diskEncryption,proto3,oneof" json:"disk_encryption,omitempty"`
+	CodeRegion     *CodeRegion            `protobuf:"bytes,13452,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
+	DiskEncryption *DiskEncryption        `protobuf:"bytes,1963,opt,name=disk_encryption,json=diskEncryption,proto3" json:"disk_encryption,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -31432,10 +31432,10 @@ type UserInformationAndIntructionDocument struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                *string              `protobuf:"bytes,13906,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	CryptographicHashs []*CryptographicHash `protobuf:"bytes,5030,rep,name=cryptographic_hashs,json=cryptographicHashs,proto3" json:"cryptographic_hashs,omitempty"`
-	DataLocation       *DataLocation        `protobuf:"bytes,10061,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation       *DataLocation        `protobuf:"bytes,10061,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	DocumentSignatures []*DocumentSignature `protobuf:"bytes,8364,rep,name=document_signatures,json=documentSignatures,proto3" json:"document_signatures,omitempty"`
 	ParentId           *string              `protobuf:"bytes,1569,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ValidatedBy        *SchemaValidation    `protobuf:"bytes,13833,opt,name=validated_by,json=validatedBy,proto3,oneof" json:"validated_by,omitempty"`
+	ValidatedBy        *SchemaValidation    `protobuf:"bytes,13833,opt,name=validated_by,json=validatedBy,proto3" json:"validated_by,omitempty"`
 	SecurityFeatures   []*SecurityFeature   `protobuf:"bytes,12653,rep,name=security_features,json=securityFeatures,proto3" json:"security_features,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -31574,13 +31574,13 @@ type VMImage struct {
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,3459,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	ApplicationId                    *string                           `protobuf:"bytes,5181,opt,name=application_id,json=applicationId,proto3,oneof" json:"application_id,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3927,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,18401,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,3927,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,18401,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,14669,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,8165,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,8165,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,1511,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,6454,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3468,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3468,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -31724,8 +31724,8 @@ func (x *VMImage) GetUsageStatistics() *UsageStatistics {
 // Represents an operation to check the validity of a JWT token.
 type ValidateJwt struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Authenticity  *Authenticity          `protobuf:"bytes,11768,opt,name=authenticity,proto3,oneof" json:"authenticity,omitempty"`
-	CodeRegion    *CodeRegion            `protobuf:"bytes,15087,opt,name=code_region,json=codeRegion,proto3,oneof" json:"code_region,omitempty"`
+	Authenticity  *Authenticity          `protobuf:"bytes,11768,opt,name=authenticity,proto3" json:"authenticity,omitempty"`
+	CodeRegion    *CodeRegion            `protobuf:"bytes,15087,opt,name=code_region,json=codeRegion,proto3" json:"code_region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -31785,7 +31785,7 @@ type Value struct {
 	Name         *string                `protobuf:"bytes,3876,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw           *string       `protobuf:"bytes,7659,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	DataLocation  *DataLocation `protobuf:"bytes,18490,opt,name=data_location,json=dataLocation,proto3,oneof" json:"data_location,omitempty"`
+	DataLocation  *DataLocation `protobuf:"bytes,18490,opt,name=data_location,json=dataLocation,proto3" json:"data_location,omitempty"`
 	ParentId      *string       `protobuf:"bytes,18063,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -31946,22 +31946,22 @@ type VirtualMachine struct {
 	Name                       *string                `protobuf:"bytes,11617,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,14073,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,9858,opt,name=activity_logging,json=activityLogging,proto3,oneof" json:"activity_logging,omitempty"`
-	AutomaticUpdates                 *AutomaticUpdates                 `protobuf:"bytes,14565,opt,name=automatic_updates,json=automaticUpdates,proto3,oneof" json:"automatic_updates,omitempty"`
+	ActivityLogging                  *ActivityLogging                  `protobuf:"bytes,9858,opt,name=activity_logging,json=activityLogging,proto3" json:"activity_logging,omitempty"`
+	AutomaticUpdates                 *AutomaticUpdates                 `protobuf:"bytes,14565,opt,name=automatic_updates,json=automaticUpdates,proto3" json:"automatic_updates,omitempty"`
 	BlockStorageIds                  []string                          `protobuf:"bytes,17882,rep,name=block_storage_ids,json=blockStorageIds,proto3" json:"block_storage_ids,omitempty"`
-	BootLogging                      *BootLogging                      `protobuf:"bytes,10025,opt,name=boot_logging,json=bootLogging,proto3,oneof" json:"boot_logging,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5993,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,1520,opt,name=encryption_in_use,json=encryptionInUse,proto3,oneof" json:"encryption_in_use,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,14863,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	BootLogging                      *BootLogging                      `protobuf:"bytes,10025,opt,name=boot_logging,json=bootLogging,proto3" json:"boot_logging,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,5993,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	EncryptionInUse                  *EncryptionInUse                  `protobuf:"bytes,1520,opt,name=encryption_in_use,json=encryptionInUse,proto3" json:"encryption_in_use,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,14863,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,1737,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14626,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,14626,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	NetworkInterfaceIds              []string                          `protobuf:"bytes,7192,rep,name=network_interface_ids,json=networkInterfaceIds,proto3" json:"network_interface_ids,omitempty"`
-	OsLogging                        *OSLogging                        `protobuf:"bytes,14542,opt,name=os_logging,json=osLogging,proto3,oneof" json:"os_logging,omitempty"`
+	OsLogging                        *OSLogging                        `protobuf:"bytes,14542,opt,name=os_logging,json=osLogging,proto3" json:"os_logging,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,3591,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
-	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,8401,opt,name=remote_attestation,json=remoteAttestation,proto3,oneof" json:"remote_attestation,omitempty"`
+	RemoteAttestation                *RemoteAttestation                `protobuf:"bytes,8401,opt,name=remote_attestation,json=remoteAttestation,proto3" json:"remote_attestation,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,86,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,15838,opt,name=resource_logging,json=resourceLogging,proto3,oneof" json:"resource_logging,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3827,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	ResourceLogging                  *ResourceLogging                  `protobuf:"bytes,15838,opt,name=resource_logging,json=resourceLogging,proto3" json:"resource_logging,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,3827,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -32168,13 +32168,13 @@ type VirtualNetwork struct {
 	Name                       *string                `protobuf:"bytes,818,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,14216,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,157,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3004,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,157,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,3004,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,18851,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,3504,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,3504,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,9275,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,7611,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,2221,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,2221,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -32318,13 +32318,13 @@ type VirtualSubNetwork struct {
 	Name                       *string                `protobuf:"bytes,1563,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,15165,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9134,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,518,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,9134,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,518,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,9326,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,9469,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,9469,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,16897,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,15829,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,13627,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,13627,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -32730,13 +32730,13 @@ type Workflow struct {
 	Name                       *string                `protobuf:"bytes,12414,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// The raw field contains the raw information that is used to fill in the fields of the ontology.
 	Raw                              *string                           `protobuf:"bytes,9416,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
-	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7785,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3,oneof" json:"change_and_configuration_management,omitempty"`
-	GeoLocation                      *GeoLocation                      `protobuf:"bytes,18272,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`
+	ChangeAndConfigurationManagement *ChangeAndConfigurationManagement `protobuf:"bytes,7785,opt,name=change_and_configuration_management,json=changeAndConfigurationManagement,proto3" json:"change_and_configuration_management,omitempty"`
+	GeoLocation                      *GeoLocation                      `protobuf:"bytes,18272,opt,name=geo_location,json=geoLocation,proto3" json:"geo_location,omitempty"`
 	Loggings                         []*Logging                        `protobuf:"bytes,4437,rep,name=loggings,proto3" json:"loggings,omitempty"`
-	MalwareProtection                *MalwareProtection                `protobuf:"bytes,11115,opt,name=malware_protection,json=malwareProtection,proto3,oneof" json:"malware_protection,omitempty"`
+	MalwareProtection                *MalwareProtection                `protobuf:"bytes,11115,opt,name=malware_protection,json=malwareProtection,proto3" json:"malware_protection,omitempty"`
 	Redundancies                     []*Redundancy                     `protobuf:"bytes,7788,rep,name=redundancies,proto3" json:"redundancies,omitempty"`
 	ParentId                         *string                           `protobuf:"bytes,14352,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
-	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6102,opt,name=usage_statistics,json=usageStatistics,proto3,oneof" json:"usage_statistics,omitempty"`
+	UsageStatistics                  *UsageStatistics                  `protobuf:"bytes,6102,opt,name=usage_statistics,json=usageStatistics,proto3" json:"usage_statistics,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -32945,8 +32945,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"l3Firewall\x12k\n" +
 	"\x18web_application_firewall\x18\x9d- \x01(\v2..confirmate.ontology.v1.WebApplicationFirewallH\x00R\x16webApplicationFirewall\x12L\n" +
 	"\rrate_limiting\x18\xf2' \x01(\v2$.confirmate.ontology.v1.RateLimitingH\x00R\frateLimitingB\x06\n" +
-	"\x04type\"\xc0\n" +
-	"\n" +
+	"\x04type\"\xae\t\n" +
 	"\aAccount\x12E\n" +
 	"\rcreation_time\x18\xc6c \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xfbE \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -32955,17 +32954,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x98+ \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12D\n" +
 	"\x06labels\x18\xd52 \x03(\v2+.confirmate.ontology.v1.Account.LabelsEntryR\x06labels\x12!\n" +
 	"\x04name\x18\x94\x93\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x88n \x01(\tH\x05R\x03raw\x88\x01\x01\x12U\n" +
-	"\x0fasset_inventory\x18\xb7o \x01(\v2&.confirmate.ontology.v1.AssetInventoryH\x06R\x0eassetInventory\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xe4: \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x92\x03 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xd6V \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x95F \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\tR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x88n \x01(\tH\x05R\x03raw\x88\x01\x01\x12P\n" +
+	"\x0fasset_inventory\x18\xb7o \x01(\v2&.confirmate.ontology.v1.AssetInventoryR\x0eassetInventory\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xe4: \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x92\x03 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xd6V \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x95F \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xf1\x16 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
 	"\tparent_id\x18\x86\n" +
-	" \x01(\tH\n" +
-	"R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xc2\x1f \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\vR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	" \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xc2\x1f \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:)\x82\xa6\x1d\aAccount\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -32974,14 +32972,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x12\n" +
-	"\x10_asset_inventoryB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x81\x04\n" +
+	"_parent_id\"\x81\x04\n" +
 	"\x0fActivityLogging\x12\x1f\n" +
 	"\aenabled\x18Ս\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
 	"\tlog_level\x18\xd5W \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
@@ -33018,23 +33011,22 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xd5\x01\n" +
-	"\bAllocate\x12I\n" +
-	"\vcode_region\x18\x80V \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12!\n" +
-	"\tmemory_id\x18\xa9U \x01(\tH\x01R\bmemoryId\x88\x01\x01:=\x82\xa6\x1d\bAllocate\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"_parent_id\"\xc0\x01\n" +
+	"\bAllocate\x12D\n" +
+	"\vcode_region\x18\x80V \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12!\n" +
+	"\tmemory_id\x18\xa9U \x01(\tH\x00R\bmemoryId\x88\x01\x01:=\x82\xa6\x1d\bAllocate\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_memory_id\"\xcf\x04\n" +
+	"_memory_id\"\xb8\x04\n" +
 	"\aAndRule\x12E\n" +
 	"\rcreation_time\x18\xe48 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xe7\x1b \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\x02id\x18\xf1\x80\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12D\n" +
 	"\x06labels\x18\xceM \x03(\v2+.confirmate.ontology.v1.AndRule.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xc0\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xae{ \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\x91e \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xe7k \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xae{ \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\x91e \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xe7k \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:-\x82\xa6\x1d\aAndRule\x82\xa6\x1d\n" +
@@ -33043,18 +33035,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x94\x02\n" +
+	"_parent_id\"\xf7\x01\n" +
 	"\x10AnomalyDetection\x12\x1e\n" +
 	"\aenabled\x18\x94E \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x1a\n" +
-	"\x05scope\x18\xa2B \x01(\tH\x01R\x05scope\x88\x01\x01\x12a\n" +
-	"\x13application_logging\x18\x81} \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingH\x02R\x12applicationLogging\x88\x01\x01:3\x82\xa6\x1d\x10AnomalyDetection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"\x05scope\x18\xa2B \x01(\tH\x01R\x05scope\x88\x01\x01\x12\\\n" +
+	"\x13application_logging\x18\x81} \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingR\x12applicationLogging:3\x82\xa6\x1d\x10AnomalyDetection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
 	"\b_enabledB\b\n" +
-	"\x06_scopeB\x16\n" +
-	"\x14_application_logging\"\xba\t\n" +
+	"\x06_scope\"\x9f\t\n" +
 	"\vApplication\x12E\n" +
 	"\rcreation_time\x18\xd1u \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xeb\x11 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33064,17 +33054,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x14programming_language\x18\x81\r \x01(\tH\x04R\x13programmingLanguage\x88\x01\x01\x125\n" +
 	"\x13programming_version\x18\xce\x18 \x01(\tH\x05R\x12programmingVersion\x88\x01\x01\x12\x17\n" +
 	"\x03raw\x18\xfc\x91\x01 \x01(\tH\x06R\x03raw\x88\x01\x01\x12,\n" +
-	"\x11translation_units\x18\xe9I \x03(\tR\x10translationUnits\x12[\n" +
-	"\x11automatic_updates\x18\xc8\x0f \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesH\aR\x10automaticUpdates\x88\x01\x01\x12(\n" +
+	"\x11translation_units\x18\xe9I \x03(\tR\x10translationUnits\x12V\n" +
+	"\x11automatic_updates\x18\xc8\x0f \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesR\x10automaticUpdates\x12(\n" +
 	"\x0fcode_module_ids\x18\xb5\x8d\x01 \x03(\tR\rcodeModuleIds\x122\n" +
-	"\x12code_repository_id\x18\xdf\x1b \x01(\tH\bR\x10codeRepositoryId\x88\x01\x01\x12#\n" +
+	"\x12code_repository_id\x18\xdf\x1b \x01(\tH\aR\x10codeRepositoryId\x88\x01\x01\x12#\n" +
 	"\n" +
-	"compute_id\x18\x8eh \x01(\tH\tR\tcomputeId\x88\x01\x01\x12P\n" +
+	"compute_id\x18\x8eh \x01(\tH\bR\tcomputeId\x88\x01\x01\x12P\n" +
 	"\x0ffunctionalities\x18\xac3 \x03(\v2%.confirmate.ontology.v1.FunctionalityR\x0ffunctionalities\x12 \n" +
 	"\vlibrary_ids\x18\xeaZ \x03(\tR\n" +
 	"libraryIds\x12!\n" +
-	"\tparent_id\x18\x90\x1f \x01(\tH\n" +
-	"R\bparentId\x88\x01\x01\x12b\n" +
+	"\tparent_id\x18\x90\x1f \x01(\tH\tR\bparentId\x88\x01\x01\x12b\n" +
 	"\x15software_attestations\x18ۀ\x01 \x03(\v2+.confirmate.ontology.v1.SoftwareAttestationR\x14softwareAttestations\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -33085,8 +33074,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x05_nameB\x17\n" +
 	"\x15_programming_languageB\x16\n" +
 	"\x14_programming_versionB\x06\n" +
-	"\x04_rawB\x14\n" +
-	"\x12_automatic_updatesB\x15\n" +
+	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\r\n" +
 	"\v_compute_idB\f\n" +
 	"\n" +
@@ -33104,41 +33092,37 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"_log_levelB\x1e\n" +
 	"\x1c_monitoring_log_data_enabledB\x13\n" +
 	"\x11_retention_periodB\x1a\n" +
-	"\x18_security_alerts_enabled\"\xea\x05\n" +
+	"\x18_security_alerts_enabled\"\xc0\x05\n" +
 	"\x0eAssetInventory\x12O\n" +
 	"!all_required_information_recorded\x18\xae- \x01(\bH\x00R\x1eallRequiredInformationRecorded\x88\x01\x01\x12+\n" +
 	"\x0eaudit_interval\x18\xf0u \x01(\x05H\x01R\rauditInterval\x88\x01\x01\x12D\n" +
 	"\x1bcompleted_review_percentage\x18\xbb| \x01(\x02H\x02R\x19completedReviewPercentage\x88\x01\x01\x12/\n" +
 	"\x10review_frequency\x18\xadc \x01(\x05H\x03R\x0freviewFrequency\x88\x01\x01\x12\x1e\n" +
-	"\aservice\x18\xcf[ \x01(\tH\x04R\aservice\x88\x01\x01\x12\x1c\n" +
-	"\x06status\x18\x9d] \x01(\tH\x05R\x06status\x88\x01\x01\x12/\n" +
-	"\x10storage_facility\x18\xcd\x14 \x01(\tH\x06R\x0fstorageFacility\x88\x01\x01\x12\x18\n" +
-	"\x04type\x18\xc8[ \x01(\tH\aR\x04type\x88\x01\x01\x12-\n" +
-	"\x0fupdate_duration\x18\xc2, \x01(\x05H\bR\x0eupdateDuration\x88\x01\x01\x12-\n" +
-	"\x0fupdate_interval\x18\xd2  \x01(\x05H\tR\x0eupdateInterval\x88\x01\x01:1\x82\xa6\x1d\x0eAssetInventory\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB$\n" +
+	"\aservice\x18\xcf[ \x01(\tH\x04R\aservice\x88\x01\x01\x12\x17\n" +
+	"\x06status\x18\x9d] \x03(\tR\x06status\x12*\n" +
+	"\x10storage_facility\x18\xcd\x14 \x03(\tR\x0fstorageFacility\x12\x18\n" +
+	"\x04type\x18\xc8[ \x01(\tH\x05R\x04type\x88\x01\x01\x12-\n" +
+	"\x0fupdate_duration\x18\xc2, \x01(\x05H\x06R\x0eupdateDuration\x88\x01\x01\x12-\n" +
+	"\x0fupdate_interval\x18\xd2  \x01(\x05H\aR\x0eupdateInterval\x88\x01\x01:1\x82\xa6\x1d\x0eAssetInventory\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB$\n" +
 	"\"_all_required_information_recordedB\x11\n" +
 	"\x0f_audit_intervalB\x1e\n" +
 	"\x1c_completed_review_percentageB\x13\n" +
 	"\x11_review_frequencyB\n" +
 	"\n" +
-	"\b_serviceB\t\n" +
-	"\a_statusB\x13\n" +
-	"\x11_storage_facilityB\a\n" +
+	"\b_serviceB\a\n" +
 	"\x05_typeB\x12\n" +
 	"\x10_update_durationB\x12\n" +
-	"\x10_update_interval\"\xaa\x02\n" +
+	"\x10_update_interval\"\x99\x02\n" +
 	"\x10AsymmetricCipher\x12$\n" +
 	"\n" +
 	"block_size\x18\xc0\x92\x01 \x01(\x05H\x00R\tblockSize\x88\x01\x01\x12%\n" +
 	"\vcipher_name\x18\xf8S \x01(\tH\x01R\n" +
 	"cipherName\x88\x01\x01\x12\x1f\n" +
-	"\bkey_size\x18\xafD \x01(\x05H\x02R\akeySize\x88\x01\x01\x12?\n" +
-	"\apadding\x18\xfdz \x01(\v2\x1f.confirmate.ontology.v1.PaddingH\x03R\apadding\x88\x01\x01:/\x82\xa6\x1d\x10AsymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\bkey_size\x18\xafD \x01(\x05H\x02R\akeySize\x88\x01\x01\x12:\n" +
+	"\apadding\x18\xfdz \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding:/\x82\xa6\x1d\x10AsymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\r\n" +
 	"\v_block_sizeB\x0e\n" +
 	"\f_cipher_nameB\v\n" +
-	"\t_key_sizeB\n" +
-	"\n" +
-	"\b_padding\"\xbf\x02\n" +
+	"\t_key_size\"\xbf\x02\n" +
 	"\x10AtRestEncryption\x12h\n" +
 	"\x17customer_key_encryption\x18\x9a\\ \x01(\v2-.confirmate.ontology.v1.CustomerKeyEncryptionH\x00R\x15customerKeyEncryption\x12R\n" +
 	"\x0fdisk_encryption\x18\x8cF \x01(\v2&.confirmate.ontology.v1.DiskEncryptionH\x00R\x0ediskEncryption\x12e\n" +
@@ -33161,14 +33145,12 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x10resource_logging\x18\x9b\x89\x01 \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x00R\x0fresourceLogging\x12[\n" +
 	"\x12malware_protection\x18\xe18 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\x00R\x11malwareProtection\x12U\n" +
 	"\x10usage_statistics\x18\x8aw \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x00R\x0fusageStatisticsB\x06\n" +
-	"\x04type\"\xd2\x02\n" +
-	"\fAuthenticate\x12N\n" +
-	"\fauthenticity\x18\x98\x04 \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x00R\fauthenticity\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xf1, \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01\x12)\n" +
-	"\rcredential_id\x18\xc66 \x01(\tH\x02R\fcredentialId\x88\x01\x01:I\x82\xa6\x1d\fAuthenticate\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0f\n" +
-	"\r_authenticityB\x0e\n" +
-	"\f_code_regionB\x10\n" +
+	"\x04type\"\xa7\x02\n" +
+	"\fAuthenticate\x12I\n" +
+	"\fauthenticity\x18\x98\x04 \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
+	"\vcode_region\x18\xf1, \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12)\n" +
+	"\rcredential_id\x18\xc66 \x01(\tH\x00R\fcredentialId\x88\x01\x01:I\x82\xa6\x1d\fAuthenticate\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x10\n" +
 	"\x0e_credential_id\"\xc9\x02\n" +
 	"\x17AuthenticationOperation\x12K\n" +
 	"\fauthenticate\x18\x86\x0e \x01(\v2$.confirmate.ontology.v1.AuthenticateH\x00R\fauthenticate\x12L\n" +
@@ -33192,13 +33174,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x18web_application_firewall\x18\x9d- \x01(\v2..confirmate.ontology.v1.WebApplicationFirewallH\x00R\x16webApplicationFirewall\x12L\n" +
 	"\rrate_limiting\x18\xf2' \x01(\v2$.confirmate.ontology.v1.RateLimitingH\x00R\frateLimiting\x124\n" +
 	"\x04rbac\x18ߒ\x01 \x01(\v2\x1c.confirmate.ontology.v1.RBACH\x00R\x04rbacB\x06\n" +
-	"\x04type\"\x95\x02\n" +
-	"\fAuthorizeJwt\x12N\n" +
-	"\fauthenticity\x18\xbc\x03 \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x00R\fauthenticity\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xbf\x14 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01:I\x82\xa6\x1d\fAuthorizeJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0f\n" +
-	"\r_authenticityB\x0e\n" +
-	"\f_code_region\"\xfb\x01\n" +
+	"\x04type\"\xea\x01\n" +
+	"\fAuthorizeJwt\x12I\n" +
+	"\fauthenticity\x18\xbc\x03 \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
+	"\vcode_region\x18\xbf\x14 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion:I\x82\xa6\x1d\fAuthorizeJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xfb\x01\n" +
 	"\x10AutomaticUpdates\x12\x1e\n" +
 	"\aenabled\x18\xeb\x11 \x01(\bH\x00R\aenabled\x88\x01\x01\x12;\n" +
 	"\binterval\x18\x85\x12 \x01(\v2\x19.google.protobuf.DurationH\x01R\binterval\x88\x01\x01\x12)\n" +
@@ -33220,7 +33200,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"!successfully_completed_percentage\x18\xa4I \x01(\bH\x01R\x1fsuccessfullyCompletedPercentage\x88\x01\x01:@\x82\xa6\x1d\x11AwarenessTraining\x82\xa6\x1d\bTraining\x82\xa6\x1d\n" +
 	"Governance\x82\xa6\x1d\rFunctionalityB\x1a\n" +
 	"\x18_annual_update_completedB$\n" +
-	"\"_successfully_completed_percentage\"\xc0\x04\n" +
+	"\"_successfully_completed_percentage\"\xa2\x04\n" +
 	"\x06Backup\x12\x1e\n" +
 	"\aenabled\x18\xff\x15 \x01(\bH\x00R\aenabled\x88\x01\x01\x12\"\n" +
 	"\tfrequency\x18\xedJ \x01(\x05H\x01R\tfrequency\x88\x01\x01\x12;\n" +
@@ -33228,8 +33208,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x12recovery_frequency\x18\xe9D \x01(\x05H\x03R\x11recoveryFrequency\x88\x01\x01\x12J\n" +
 	"\x10retention_period\x18\x8b5 \x01(\v2\x19.google.protobuf.DurationH\x04R\x0fretentionPeriod\x88\x01\x01\x12$\n" +
 	"\n" +
-	"storage_id\x18\x9b\x85\x01 \x01(\tH\x05R\tstorageId\x88\x01\x01\x12d\n" +
-	"\x14transport_encryption\x18\xde\x12 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\x06R\x13transportEncryption\x88\x01\x01:-\x82\xa6\x1d\x06Backup\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeatureB\n" +
+	"storage_id\x18\x9b\x85\x01 \x01(\tH\x05R\tstorageId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\xde\x12 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:-\x82\xa6\x1d\x06Backup\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
 	"\b_enabledB\f\n" +
 	"\n" +
@@ -33237,8 +33217,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_intervalB\x15\n" +
 	"\x13_recovery_frequencyB\x13\n" +
 	"\x11_retention_periodB\r\n" +
-	"\v_storage_idB\x17\n" +
-	"\x15_transport_encryption\"\xdd\r\n" +
+	"\v_storage_id\"\xfe\v\n" +
 	"\fBlockStorage\x12E\n" +
 	"\rcreation_time\x18\x9fW \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xf3\x10 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33246,20 +33225,19 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x9fu \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12I\n" +
 	"\x06labels\x18\xa8{ \x03(\v20.confirmate.ontology.v1.BlockStorage.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xadl \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xb1V \x01(\tH\x05R\x03raw\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\x92~ \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12\\\n" +
-	"\x12at_rest_encryption\x18\xb6b \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionH\aR\x10atRestEncryption\x88\x01\x01\x129\n" +
-	"\abackups\x18\xff\x15 \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xd5E \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\bR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xc4\x1e \x01(\v2#.confirmate.ontology.v1.GeoLocationH\tR\vgeoLocation\x88\x01\x01\x12N\n" +
-	"\fimmutability\x18\x97\x17 \x01(\v2$.confirmate.ontology.v1.ImmutabilityH\n" +
-	"R\fimmutability\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xa5> \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xf1r \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\vR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xb1V \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\x92~ \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
+	"\x12at_rest_encryption\x18\xb6b \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
+	"\abackups\x18\xff\x15 \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xd5E \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xc4\x1e \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12I\n" +
+	"\fimmutability\x18\x97\x17 \x01(\v2$.confirmate.ontology.v1.ImmutabilityR\fimmutability\x12<\n" +
+	"\bloggings\x18\xa5> \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xf1r \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xae\x7f \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbcx \x01(\tH\fR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xa2# \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\rR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xc0H \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xbcx \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xa2# \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xc0H \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\fBlockStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33268,23 +33246,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB\x15\n" +
-	"\x13_at_rest_encryptionB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x0f\n" +
-	"\r_immutabilityB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xf0\x01\n" +
+	"_parent_id\"\xdb\x01\n" +
 	"\x15BlockStorageOperation\x12.\n" +
-	"\x10block_storage_id\x18\xa5i \x01(\tH\x00R\x0eblockStorageId\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xc4\x15 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01:7\x82\xa6\x1d\x15BlockStorageOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
-	"\x11_block_storage_idB\x0e\n" +
-	"\f_code_region\"\xf8\x03\n" +
+	"\x10block_storage_id\x18\xa5i \x01(\tH\x00R\x0eblockStorageId\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\xc4\x15 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion:7\x82\xa6\x1d\x15BlockStorageOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
+	"\x11_block_storage_id\"\xf8\x03\n" +
 	"\vBootLogging\x12\x1f\n" +
 	"\aenabled\x18\xa9\x87\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
 	"\tlog_level\x18\x8a> \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
@@ -33303,7 +33272,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vCICDService\x120\n" +
 	"\x03job\x18\x9f\x1f \x01(\v2\x1b.confirmate.ontology.v1.JobH\x00R\x03job\x12?\n" +
 	"\bworkflow\x18\xaaD \x01(\v2 .confirmate.ontology.v1.WorkflowH\x00R\bworkflowB\x06\n" +
-	"\x04type\"\xfb\f\n" +
+	"\x04type\"\xe8\v\n" +
 	"\vCertificate\x12F\n" +
 	"\rcreation_time\x18\xec\x8e\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x8eQ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1e\n" +
@@ -33317,16 +33286,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	" \x03(\v2/.confirmate.ontology.v1.Certificate.LabelsEntryR\x06labels\x12!\n" +
 	"\x04name\x18\xa5\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\aR\x04name\x88\x01\x01\x12H\n" +
 	"\x0fnot_before_date\x18\xfa[ \x01(\v2\x1a.google.protobuf.TimestampH\bR\rnotBeforeDate\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x9f8 \x01(\tH\tR\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xf2H \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\n" +
-	"R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xdb\" \x01(\v2#.confirmate.ontology.v1.GeoLocationH\vR\vgeoLocation\x88\x01\x01\x12V\n" +
-	"\x10used_by_multiple\x18\xc5h \x01(\v2&.confirmate.ontology.v1.InfrastructureH\fR\x0eusedByMultiple\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xea\x18 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x99k \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\rR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x9f8 \x01(\tH\tR\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xf2H \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xdb\" \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12Q\n" +
+	"\x10used_by_multiple\x18\xc5h \x01(\v2&.confirmate.ontology.v1.InfrastructureR\x0eusedByMultiple\x12<\n" +
+	"\bloggings\x18\xea\x18 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x99k \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc2{ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xccJ \x01(\tH\x0eR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xdf\x1c \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xccJ \x01(\tH\n" +
+	"R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xdf\x1c \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\vCertificate\x82\xa6\x1d\n" +
@@ -33341,14 +33310,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\v_is_managedB\a\n" +
 	"\x05_nameB\x12\n" +
 	"\x10_not_before_dateB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x13\n" +
-	"\x11_used_by_multipleB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x96\x03\n" +
+	"_parent_id\"\x96\x03\n" +
 	"\x1eCertificateBasedAuthentication\x122\n" +
 	"\x12context_is_checked\x18\xeet \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12\x1e\n" +
 	"\aenabled\x18\xcf] \x01(\bH\x01R\aenabled\x88\x01\x01\x12J\n" +
@@ -33358,16 +33322,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"\b_enabledB!\n" +
 	"\x1f_failed_authentication_attemptsB\x14\n" +
-	"\x12_rotation_interval\"\xce\x01\n" +
-	" ChangeAndConfigurationManagement\x12\\\n" +
-	"\x12request_for_change\x18\xe9, \x01(\v2(.confirmate.ontology.v1.RequestForChangeH\x00R\x10requestForChange\x88\x01\x01:5\x82\xa6\x1d ChangeAndConfigurationManagement\x82\xa6\x1d\rFunctionalityB\x15\n" +
-	"\x13_request_for_change\"\x9d\x02\n" +
-	"\vCheckAccess\x12I\n" +
-	"\vcode_region\x18\xc5F \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12U\n" +
-	"\x0fprotected_asset\x18\xa0$ \x01(\v2&.confirmate.ontology.v1.ProtectedAssetH\x01R\x0eprotectedAsset\x88\x01\x01:H\x82\xa6\x1d\vCheckAccess\x82\xa6\x1d\x17ProtectedAssetOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x12\n" +
-	"\x10_protected_asset\"\x8f\x02\n" +
+	"\x12_rotation_interval\"\xb2\x01\n" +
+	" ChangeAndConfigurationManagement\x12W\n" +
+	"\x12request_for_change\x18\xe9, \x01(\v2(.confirmate.ontology.v1.RequestForChangeR\x10requestForChange:5\x82\xa6\x1d ChangeAndConfigurationManagement\x82\xa6\x1d\rFunctionality\"\xef\x01\n" +
+	"\vCheckAccess\x12D\n" +
+	"\vcode_region\x18\xc5F \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12P\n" +
+	"\x0fprotected_asset\x18\xa0$ \x01(\v2&.confirmate.ontology.v1.ProtectedAssetR\x0eprotectedAsset:H\x82\xa6\x1d\vCheckAccess\x82\xa6\x1d\x17ProtectedAssetOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x8f\x02\n" +
 	"\x06Cipher\x12X\n" +
 	"\x11asymmetric_cipher\x18\xa9Q \x01(\v2(.confirmate.ontology.v1.AsymmetricCipherH\x00R\x10asymmetricCipher\x12L\n" +
 	"\rhybrid_cipher\x18\xfe* \x01(\v2$.confirmate.ontology.v1.HybridCipherH\x00R\fhybridCipher\x12U\n" +
@@ -33450,7 +33411,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_end_lineB\a\n" +
 	"\x05_fileB\x0f\n" +
 	"\r_start_columnB\r\n" +
-	"\v_start_line\"\xa9\x0f\n" +
+	"\v_start_line\"\xe8\r\n" +
 	"\x0eCodeRepository\x12L\n" +
 	"\x1fapproved_commit_author_enforced\x18\x86\x84\x01 \x01(\bH\x00R\x1capprovedCommitAuthorEnforced\x88\x01\x01\x12E\n" +
 	"\rcreation_time\x18\x89p \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -33463,18 +33424,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cnumber_of_required_reviewers\x18\xbbW \x01(\x05H\x06R\x19numberOfRequiredReviewers\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xb0z \x01(\tH\aR\x03raw\x88\x01\x01\x122\n" +
 	"\x11review_percentage\x18\xa1\x8a\x01 \x01(\x02H\bR\x10reviewPercentage\x88\x01\x01\x12E\n" +
-	"\x1creview_percentage_last_month\x18\xeb\x05 \x01(\x02H\tR\x19reviewPercentageLastMonth\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xbf\r \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\n" +
-	"R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fcode_signoff\x18\xad\x0e \x01(\v2#.confirmate.ontology.v1.CodeSignoffH\vR\vcodeSignoff\x88\x01\x01\x12K\n" +
-	"\fgeo_location\x18o \x01(\v2#.confirmate.ontology.v1.GeoLocationH\fR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x85\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x97\x10 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\rR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x1creview_percentage_last_month\x18\xeb\x05 \x01(\x02H\tR\x19reviewPercentageLastMonth\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xbf\r \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fcode_signoff\x18\xad\x0e \x01(\v2#.confirmate.ontology.v1.CodeSignoffR\vcodeSignoff\x12F\n" +
+	"\fgeo_location\x18o \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\x85\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x97\x10 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x89X \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xed) \x01(\tH\x0eR\bparentId\x88\x01\x01\x12R\n" +
-	"\x0esigned_commits\x18\xb2\x03 \x01(\v2%.confirmate.ontology.v1.SignedCommitsH\x0fR\rsignedCommits\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x98\x1b \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x10R\x0fusageStatistics\x88\x01\x01\x12X\n" +
-	"\x10verified_commits\x18\x8d[ \x01(\v2'.confirmate.ontology.v1.VerifiedCommitsH\x11R\x0fverifiedCommits\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xed) \x01(\tH\n" +
+	"R\bparentId\x88\x01\x01\x12M\n" +
+	"\x0esigned_commits\x18\xb2\x03 \x01(\v2%.confirmate.ontology.v1.SignedCommitsR\rsignedCommits\x12S\n" +
+	"\x10usage_statistics\x18\x98\x1b \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x12S\n" +
+	"\x10verified_commits\x18\x8d[ \x01(\v2'.confirmate.ontology.v1.VerifiedCommitsR\x0fverifiedCommits\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0eCodeRepository\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\"\n" +
@@ -33487,16 +33448,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_number_of_required_reviewersB\x06\n" +
 	"\x04_rawB\x14\n" +
 	"\x12_review_percentageB\x1f\n" +
-	"\x1d_review_percentage_last_monthB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_code_signoffB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x1d_review_percentage_last_monthB\f\n" +
 	"\n" +
-	"_parent_idB\x11\n" +
-	"\x0f_signed_commitsB\x13\n" +
-	"\x11_usage_statisticsB\x13\n" +
-	"\x11_verified_commits\"\xf6\x01\n" +
+	"_parent_id\"\xf6\x01\n" +
 	"\vCodeSignoff\x12!\n" +
 	"\benforced\x18đ\x01 \x01(\bH\x00R\benforced\x88\x01\x01\x12$\n" +
 	"\n" +
@@ -33528,7 +33482,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x16managed_key_encryption\x18\x80Z \x01(\v2,.confirmate.ontology.v1.ManagedKeyEncryptionH\x00R\x14managedKeyEncryption\x12a\n" +
 	"\x14transport_encryption\x18\xb3n \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\x00R\x13transportEncryption\x12V\n" +
 	"\x11encryption_in_use\x18\x9f{ \x01(\v2'.confirmate.ontology.v1.EncryptionInUseH\x00R\x0fencryptionInUseB\x06\n" +
-	"\x04type\"\x8c\x05\n" +
+	"\x04type\"\xf5\x04\n" +
 	"\rConfiguration\x12E\n" +
 	"\rcreation_time\x18\xe1H \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xc1\" \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33536,9 +33490,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xc9\x01 \x03(\v21.confirmate.ontology.v1.Configuration.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xf05 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
 	"\x03raw\x18˅\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x127\n" +
-	"\x17configuration_group_ids\x18\xf06 \x03(\tR\x15configurationGroupIds\x12O\n" +
-	"\rdata_location\x18\x9b( \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xb0j \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x17configuration_group_ids\x18\xf06 \x03(\tR\x15configurationGroupIds\x12J\n" +
+	"\rdata_location\x18\x9b( \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xb0j \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:%\x82\xa6\x1d\rConfiguration\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33546,10 +33500,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x9b\b\n" +
+	"_parent_id\"\xee\a\n" +
 	"\x15ConfigurationDocument\x12E\n" +
 	"\rcreation_time\x18\xee\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x9aj \x01(\tH\x01R\vdescription\x88\x01\x01\x12!\n" +
@@ -33558,11 +33511,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x90\x05 \x03(\v29.confirmate.ontology.v1.ConfigurationDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xf2\t \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xe2\v \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\x84Z \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\x99\x0e \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\x84Z \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\x99\x0e \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xa2r \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\x95Y \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\xfa\t \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\x95Y \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\xfa\t \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xdc] \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -33572,11 +33525,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\xe4\x05\n" +
+	"_parent_id\"\xcd\x05\n" +
 	"\x12ConfigurationGroup\x12E\n" +
 	"\rcreation_time\x18\xd8^ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xc2\x1d \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -33585,9 +33536,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\x9bt \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\x9fv \x01(\tH\x04R\x03raw\x88\x01\x01\x12/\n" +
 	"\x10configuration_id\x18\x9a\x1c \x01(\tH\x05R\x0fconfigurationId\x88\x01\x01\x129\n" +
-	"\x18configuration_option_ids\x18\xf1- \x03(\tR\x16configurationOptionIds\x12O\n" +
-	"\rdata_location\x18\xd0U \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12\"\n" +
-	"\tparent_id\x18Ä\x01 \x01(\tH\aR\bparentId\x88\x01\x01\x1a9\n" +
+	"\x18configuration_option_ids\x18\xf1- \x03(\tR\x16configurationOptionIds\x12J\n" +
+	"\rdata_location\x18\xd0U \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\"\n" +
+	"\tparent_id\x18Ä\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\x12ConfigurationGroup\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33596,19 +33547,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x13\n" +
-	"\x11_configuration_idB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x11_configuration_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xf3\x04\n" +
+	"_parent_id\"\xdc\x04\n" +
 	"\x18ConfigurationGroupSource\x12E\n" +
 	"\rcreation_time\x18\x81O \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xcdM \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\xeb^ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12U\n" +
 	"\x06labels\x18\xf7\x0f \x03(\v2<.confirmate.ontology.v1.ConfigurationGroupSource.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x948 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xbaS \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xbeL \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xc0[ \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xbaS \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\xbeL \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xc0[ \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x18ConfigurationGroupSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33616,8 +33566,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xa4\a\n" +
 	"\x16ConfigurationOperation\x12[\n" +
@@ -33629,7 +33578,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x19read_configuration_option\x18\x8dw \x01(\v2/.confirmate.ontology.v1.ReadConfigurationOptionH\x00R\x17readConfigurationOption\x12w\n" +
 	"\x1cregister_configuration_group\x18\xc2O \x01(\v22.confirmate.ontology.v1.RegisterConfigurationGroupH\x00R\x1aregisterConfigurationGroup\x12z\n" +
 	"\x1dregister_configuration_option\x18\xf7f \x01(\v23.confirmate.ontology.v1.RegisterConfigurationOptionH\x00R\x1bregisterConfigurationOptionB\x06\n" +
-	"\x04type\"\x93\x06\n" +
+	"\x04type\"\xfc\x05\n" +
 	"\x13ConfigurationOption\x12E\n" +
 	"\rcreation_time\x18\xceL \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x82] \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33637,11 +33586,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xf5~ \x03(\v27.confirmate.ontology.v1.ConfigurationOption.LabelsEntryR\x06labels\x12!\n" +
 	"\x04name\x18\xfb\x86\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xc4C \x01(\tH\x04R\x03raw\x88\x01\x01\x12:\n" +
-	"\x16configuration_group_id\x18\xbf/ \x01(\tH\x05R\x14configurationGroupId\x88\x01\x01\x12P\n" +
-	"\rdata_location\x18\xad\x86\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12\x1b\n" +
-	"\x06key_id\x18\x8c^ \x01(\tH\aR\x05keyId\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xcf0 \x01(\tH\bR\bparentId\x88\x01\x01\x12\x1f\n" +
-	"\bvalue_id\x18\x8c\x14 \x01(\tH\tR\avalueId\x88\x01\x01\x1a9\n" +
+	"\x16configuration_group_id\x18\xbf/ \x01(\tH\x05R\x14configurationGroupId\x88\x01\x01\x12K\n" +
+	"\rdata_location\x18\xad\x86\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\x1b\n" +
+	"\x06key_id\x18\x8c^ \x01(\tH\x06R\x05keyId\x88\x01\x01\x12!\n" +
+	"\tparent_id\x18\xcf0 \x01(\tH\aR\bparentId\x88\x01\x01\x12\x1f\n" +
+	"\bvalue_id\x18\x8c\x14 \x01(\tH\bR\avalueId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:+\x82\xa6\x1d\x13ConfigurationOption\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33650,21 +33599,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x19\n" +
-	"\x17_configuration_group_idB\x10\n" +
-	"\x0e_data_locationB\t\n" +
+	"\x17_configuration_group_idB\t\n" +
 	"\a_key_idB\f\n" +
 	"\n" +
 	"_parent_idB\v\n" +
-	"\t_value_id\"\xf6\x04\n" +
+	"\t_value_id\"\xdf\x04\n" +
 	"\x19ConfigurationOptionSource\x12E\n" +
 	"\rcreation_time\x18\xcbM \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xdcH \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\xa61 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12V\n" +
 	"\x06labels\x18\xd3< \x03(\v2=.confirmate.ontology.v1.ConfigurationOptionSource.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x80{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xc7F \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xde\\ \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xb8\x02 \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xc7F \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\xde\\ \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xb8\x02 \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:1\x82\xa6\x1d\x19ConfigurationOptionSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33672,10 +33620,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xac\x05\n" +
+	"_parent_id\"\x95\x05\n" +
 	"\x13ConfigurationSource\x12E\n" +
 	"\rcreation_time\x18\xadk \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xa7S \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33683,9 +33630,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xbeD \x03(\v27.confirmate.ontology.v1.ConfigurationSource.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xbfC \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
 	"\x03raw\x18ȃ\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12D\n" +
-	"\x1econfiguration_group_source_ids\x18\xe1$ \x03(\tR\x1bconfigurationGroupSourceIds\x12P\n" +
-	"\rdata_location\x18\x9c\x84\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\x8a_ \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x1econfiguration_group_source_ids\x18\xe1$ \x03(\tR\x1bconfigurationGroupSourceIds\x12K\n" +
+	"\rdata_location\x18\x9c\x84\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\x8a_ \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:+\x82\xa6\x1d\x13ConfigurationSource\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33693,8 +33640,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xe9\x01\n" +
 	"\rContactPerson\x12)\n" +
@@ -33705,7 +33651,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0e_email_addressB\f\n" +
 	"\n" +
 	"_job_titleB\x0f\n" +
-	"\r_phone_number\"\xa0\r\n" +
+	"\r_phone_number\"\xd6\v\n" +
 	"\tContainer\x12E\n" +
 	"\rcreation_time\x18\xd5I \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xe5c \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33713,20 +33659,19 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x80O \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12F\n" +
 	"\x06labels\x18\x9eg \x03(\v2-.confirmate.ontology.v1.Container.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xe0\x05 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x17\n" +
-	"\x03raw\x18\xbf\x8f\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xad\x0e \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12Y\n" +
-	"\x11encryption_in_use\x18\xa7\x02 \x01(\v2'.confirmate.ontology.v1.EncryptionInUseH\aR\x0fencryptionInUse\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xff* \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12\x1f\n" +
-	"\bimage_id\x18\xac] \x01(\tH\tR\aimageId\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xc5& \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xcbO \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x123\n" +
+	"\x03raw\x18\xbf\x8f\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xad\x0e \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
+	"\x11encryption_in_use\x18\xa7\x02 \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
+	"\fgeo_location\x18\xff* \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12\x1f\n" +
+	"\bimage_id\x18\xac] \x01(\tH\x06R\aimageId\x88\x01\x01\x12<\n" +
+	"\bloggings\x18\xc5& \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xcbO \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x123\n" +
 	"\x15network_interface_ids\x18\xd7+ \x03(\tR\x13networkInterfaceIds\x12G\n" +
-	"\fredundancies\x18\xd4H \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12^\n" +
-	"\x12remote_attestation\x18\x8e  \x01(\v2).confirmate.ontology.v1.RemoteAttestationH\vR\x11remoteAttestation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\x88r \x01(\tH\fR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\x9am \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\rR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xb0Y \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\fredundancies\x18\xd4H \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
+	"\x12remote_attestation\x18\x8e  \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12!\n" +
+	"\tparent_id\x18\x88r \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\x9am \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xb0Y \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:6\x82\xa6\x1d\tContainer\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33735,18 +33680,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x14\n" +
-	"\x12_encryption_in_useB\x0f\n" +
-	"\r_geo_locationB\v\n" +
-	"\t_image_idB\x15\n" +
-	"\x13_malware_protectionB\x15\n" +
-	"\x13_remote_attestationB\f\n" +
+	"\x04_rawB\v\n" +
+	"\t_image_idB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xb3\n" +
-	"\n" +
+	"_parent_id\"\xba\t\n" +
 	"\x0eContainerImage\x12E\n" +
 	"\rcreation_time\x18\x93W \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xfaT \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33755,15 +33692,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xe3\x8c\x01 \x03(\v22.confirmate.ontology.v1.ContainerImage.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x85\x11 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xafR \x01(\tH\x05R\x03raw\x88\x01\x01\x12+\n" +
-	"\x0eapplication_id\x18\xf6\x05 \x01(\tH\x06R\rapplicationId\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xca\x17 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12K\n" +
-	"\fgeo_location\x18u \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xed_ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xd7V \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\tR\x11malwareProtection\x88\x01\x01\x12H\n" +
+	"\x0eapplication_id\x18\xf6\x05 \x01(\tH\x06R\rapplicationId\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xca\x17 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12F\n" +
+	"\fgeo_location\x18u \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xed_ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xd7V \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\x98\x81\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xce\x03 \x01(\tH\n" +
-	"R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xdd\x02 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\vR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xce\x03 \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xdd\x02 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\x0eContainerImage\x82\xa6\x1d\x05Image\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33773,13 +33709,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x11\n" +
-	"\x0f_application_idB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x0f_application_idB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xd8\v\n" +
+	"_parent_id\"\xc5\n" +
+	"\n" +
 	"\x16ContainerOrchestration\x12E\n" +
 	"\rcreation_time\x18\x84O \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x83\x02 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33788,17 +33721,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xbew \x03(\v2:.confirmate.ontology.v1.ContainerOrchestration.LabelsEntryR\x06labels\x12+\n" +
 	"\x0emanagement_url\x18\xef\a \x01(\tH\x04R\rmanagementUrl\x88\x01\x01\x12!\n" +
 	"\x04name\x18\x8b\x8e\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x04name\x88\x01\x01\x12\x17\n" +
-	"\x03raw\x18\xbf\x88\x01 \x01(\tH\x06R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xa1$ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12$\n" +
-	"\rcontainer_ids\x18\xa3\b \x03(\tR\fcontainerIds\x12L\n" +
-	"\fgeo_location\x18\x80E \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xd0\x13 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xc9\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\tR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xbf\x88\x01 \x01(\tH\x06R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xa1$ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12$\n" +
+	"\rcontainer_ids\x18\xa3\b \x03(\tR\fcontainerIds\x12G\n" +
+	"\fgeo_location\x18\x80E \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xd0\x13 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xc9\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x95) \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x8b\x01 \x01(\tH\n" +
-	"R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xb7\x0e \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\vR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x905 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x8b\x01 \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xb7\x0e \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\x905 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:8\x82\xa6\x1d\x16ContainerOrchestration\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33808,14 +33740,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\x11\n" +
 	"\x0f_management_urlB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xf5\t\n" +
+	"_parent_id\"\xfc\b\n" +
 	"\x11ContainerRegistry\x12E\n" +
 	"\rcreation_time\x18\x93! \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18\xe5\x89\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -33823,15 +33750,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xb1c \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12N\n" +
 	"\x06labels\x18\x95\x13 \x03(\v25.confirmate.ontology.v1.ContainerRegistry.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xf3\v \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xa6' \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xbbD \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x9b' \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xad\x05 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12_\n" +
-	"\x12malware_protection\x18\xe8\x90\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xa6' \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xbbD \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x9b' \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xad\x05 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
+	"\x12malware_protection\x18\xe8\x90\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc4c \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa7o \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xf2i \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa7o \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xf2i \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:3\x82\xa6\x1d\x11ContainerRegistry\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33840,22 +33766,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xc2\x04\n" +
+	"_parent_id\"\xab\x04\n" +
 	"\aContext\x12E\n" +
 	"\rcreation_time\x18\xb8E \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18\xb9\x92\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\x97\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12E\n" +
 	"\x06labels\x18Á\x01 \x03(\v2+.confirmate.ontology.v1.Context.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xd8_ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xa5# \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xeeq \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xa7) \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xa5# \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\xeeq \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xa7) \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1f\x82\xa6\x1d\aContext\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33863,10 +33785,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\x8d\x06\n" +
+	"_parent_id\"\xf6\x05\n" +
 	"(CoordinatedVulnerabilityDisclosurePolicy\x12F\n" +
 	"\rcreation_time\x18\x9a\x81\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x96< \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -33875,10 +33796,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\xb5\x87\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xf5\x11 \x01(\tH\x04R\x03raw\x88\x01\x01\x12#\n" +
 	"\n" +
-	"context_id\x18\xech \x01(\tH\x05R\tcontextId\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\x817 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12(\n" +
+	"context_id\x18\xech \x01(\tH\x05R\tcontextId\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\x817 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12(\n" +
 	"\x0fpolicy_rule_ids\x18\xb8\x89\x01 \x03(\tR\rpolicyRuleIds\x12!\n" +
-	"\tparent_id\x18\xed\v \x01(\tH\aR\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xed\v \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:J\x82\xa6\x1d(CoordinatedVulnerabilityDisclosurePolicy\x82\xa6\x1d\x06Policy\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -33887,8 +33808,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\r\n" +
-	"\v_context_idB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\v_context_idB\f\n" +
 	"\n" +
 	"_parent_id\"\xff\x02\n" +
 	"\x04Core\x12@\n" +
@@ -33898,18 +33818,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"httpServer\x129\n" +
 	"\x06logger\x18\x8d: \x01(\v2\x1e.confirmate.ontology.v1.LoggerH\x00R\x06logger\x12L\n" +
 	"\rresource_type\x18\xbd+ \x01(\v2$.confirmate.ontology.v1.ResourceTypeH\x00R\fresourceTypeB\x06\n" +
-	"\x04type\"\xad\x02\n" +
-	"\x13CreateEncryptedDisk\x12I\n" +
-	"\vcode_region\x18\xc2\x17 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12U\n" +
-	"\x0fdisk_encryption\x18\xebu \x01(\v2&.confirmate.ontology.v1.DiskEncryptionH\x01R\x0ediskEncryption\x88\x01\x01:P\x82\xa6\x1d\x13CreateEncryptedDisk\x82\xa6\x1d\x17DiskEncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x12\n" +
-	"\x10_disk_encryption\"\xdd\x01\n" +
-	"\fCreateSecret\x12I\n" +
-	"\vcode_region\x18\x99I \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\xef; \x01(\tH\x01R\bsecretId\x88\x01\x01:A\x82\xa6\x1d\fCreateSecret\x82\xa6\x1d\x0fSecretOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"\x04type\"\xff\x01\n" +
+	"\x13CreateEncryptedDisk\x12D\n" +
+	"\vcode_region\x18\xc2\x17 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12P\n" +
+	"\x0fdisk_encryption\x18\xebu \x01(\v2&.confirmate.ontology.v1.DiskEncryptionR\x0ediskEncryption:P\x82\xa6\x1d\x13CreateEncryptedDisk\x82\xa6\x1d\x17DiskEncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xc8\x01\n" +
+	"\fCreateSecret\x12D\n" +
+	"\vcode_region\x18\x99I \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12!\n" +
+	"\tsecret_id\x18\xef; \x01(\tH\x00R\bsecretId\x88\x01\x01:A\x82\xa6\x1d\fCreateSecret\x82\xa6\x1d\x0fSecretOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
 	"_secret_id\"\xcb\x01\n" +
 	"\n" +
@@ -33925,23 +33842,22 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"_algorithm\"q\n" +
 	"\x16CryptographicOperation\x12O\n" +
 	"\x0ehash_operation\x18\xceZ \x01(\v2%.confirmate.ontology.v1.HashOperationH\x00R\rhashOperationB\x06\n" +
-	"\x04type\"\x82\x03\n" +
+	"\x04type\"\xf0\x02\n" +
 	"\x15CustomerKeyEncryption\x12\"\n" +
 	"\talgorithm\x18\x8dc \x01(\tH\x00R\talgorithm\x88\x01\x01\x12\x1e\n" +
 	"\aenabled\x18\x80u \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1d\n" +
-	"\akey_url\x18\xafm \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12?\n" +
-	"\bbased_on\x18\xdff \x01(\v2\x1e.confirmate.ontology.v1.CipherH\x03R\abasedOn\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\xaa\" \x01(\tH\x04R\bsecretId\x88\x01\x01:a\x82\xa6\x1d\x15CustomerKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
+	"\akey_url\x18\xafm \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12:\n" +
+	"\bbased_on\x18\xdff \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12!\n" +
+	"\tsecret_id\x18\xaa\" \x01(\tH\x03R\bsecretId\x88\x01\x01:a\x82\xa6\x1d\x15CustomerKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
 	"\n" +
 	"_algorithmB\n" +
 	"\n" +
 	"\b_enabledB\n" +
 	"\n" +
-	"\b_key_urlB\v\n" +
-	"\t_based_onB\f\n" +
+	"\b_key_urlB\f\n" +
 	"\n" +
-	"_secret_id\"\xc5\b\n" +
+	"_secret_id\"\x98\b\n" +
 	"#CyberSecurityRiskAssessmentDocument\x12E\n" +
 	"\rcreation_time\x18\xe9^ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x83> \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -33950,11 +33866,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18Ë\x01 \x03(\v2G.confirmate.ontology.v1.CyberSecurityRiskAssessmentDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xc3! \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xe7r \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\xafE \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\x8fR \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\xafE \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\x8fR \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xe12 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xcf\x16 \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\x90` \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xcf\x16 \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\x90` \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xe1m \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -33964,11 +33880,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"G\n" +
+	"_parent_id\"G\n" +
 	"\x0eDDoSProtection:5\x82\xa6\x1d\x0eDDoSProtection\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xa3\x06\n" +
 	"\x06Darwin\x12E\n" +
 	"\rcreation_time\x18\x9b\\ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -34031,35 +33945,33 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\fDataLocation\x12\\\n" +
 	"\x13local_data_location\x18\x99` \x01(\v2).confirmate.ontology.v1.LocalDataLocationH\x00R\x11localDataLocation\x12_\n" +
 	"\x14remote_data_location\x18\xe5i \x01(\v2*.confirmate.ontology.v1.RemoteDataLocationH\x00R\x12remoteDataLocationB\x06\n" +
-	"\x04type\"\xcc\x02\n" +
+	"\x04type\"\xb7\x02\n" +
 	"\x0fDatabaseConnect\x12\x15\n" +
-	"\x05calls\x18\xfad \x03(\tR\x05calls\x12I\n" +
-	"\vcode_region\x18\xa5\x06 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x121\n" +
+	"\x05calls\x18\xfad \x03(\tR\x05calls\x12D\n" +
+	"\vcode_region\x18\xa5\x06 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x121\n" +
 	"\x14database_service_ids\x18\xce: \x03(\tR\x12databaseServiceIds\x124\n" +
-	"\x13database_storage_id\x18\xd1\t \x01(\tH\x01R\x11databaseStorageId\x88\x01\x01:F\x82\xa6\x1d\x0fDatabaseConnect\x82\xa6\x1d\x11DatabaseOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x16\n" +
+	"\x13database_storage_id\x18\xd1\t \x01(\tH\x00R\x11databaseStorageId\x88\x01\x01:F\x82\xa6\x1d\x0fDatabaseConnect\x82\xa6\x1d\x11DatabaseOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x16\n" +
 	"\x14_database_storage_id\"\xc3\x01\n" +
 	"\x11DatabaseOperation\x12U\n" +
 	"\x10database_connect\x18\xaeT \x01(\v2'.confirmate.ontology.v1.DatabaseConnectH\x00R\x0fdatabaseConnect\x12O\n" +
 	"\x0edatabase_query\x18\x92< \x01(\v2%.confirmate.ontology.v1.DatabaseQueryH\x00R\rdatabaseQueryB\x06\n" +
-	"\x04type\"\xf1\x02\n" +
+	"\x04type\"\xdc\x02\n" +
 	"\rDatabaseQuery\x12\x15\n" +
 	"\x05calls\x18\xdf; \x03(\tR\x05calls\x12\x1c\n" +
-	"\x06modify\x18\xb1; \x01(\bH\x00R\x06modify\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\x8b, \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01\x121\n" +
+	"\x06modify\x18\xb1; \x01(\bH\x00R\x06modify\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\x8b, \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x121\n" +
 	"\x14database_service_ids\x18\xd7O \x03(\tR\x12databaseServiceIds\x124\n" +
-	"\x13database_storage_id\x18\xf8| \x01(\tH\x02R\x11databaseStorageId\x88\x01\x01:D\x82\xa6\x1d\rDatabaseQuery\x82\xa6\x1d\x11DatabaseOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\t\n" +
-	"\a_modifyB\x0e\n" +
-	"\f_code_regionB\x16\n" +
+	"\x13database_storage_id\x18\xf8| \x01(\tH\x01R\x11databaseStorageId\x88\x01\x01:D\x82\xa6\x1d\rDatabaseQuery\x82\xa6\x1d\x11DatabaseOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_modifyB\x16\n" +
 	"\x14_database_storage_id\"\xe8\x03\n" +
 	"\x0fDatabaseService\x12o\n" +
 	"\x19document_database_service\x18\x9e\x8c\x01 \x01(\v2/.confirmate.ontology.v1.DocumentDatabaseServiceH\x00R\x17documentDatabaseService\x12o\n" +
 	"\x1akey_value_database_service\x18\xec\a \x01(\v2/.confirmate.ontology.v1.KeyValueDatabaseServiceH\x00R\x17keyValueDatabaseService\x12u\n" +
 	"\x1cmulti_modal_database_service\x18\xe1\x14 \x01(\v21.confirmate.ontology.v1.MultiModalDatabaseServiceH\x00R\x19multiModalDatabaseService\x12t\n" +
 	"\x1brelational_database_service\x18\xc5a \x01(\v21.confirmate.ontology.v1.RelationalDatabaseServiceH\x00R\x19relationalDatabaseServiceB\x06\n" +
-	"\x04type\"\x88\x0e\n" +
+	"\x04type\"\xa9\f\n" +
 	"\x0fDatabaseStorage\x12E\n" +
 	"\rcreation_time\x18\x91r \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xf9  \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34068,21 +33980,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x82x \x03(\v23.confirmate.ontology.v1.DatabaseStorage.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xf0\t \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\x92Z \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x16\n" +
-	"\x03ttl\x18\x851 \x01(\x01H\x06R\x03ttl\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\x92s \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\aR\x0factivityLogging\x88\x01\x01\x12]\n" +
-	"\x12at_rest_encryption\x18Ƃ\x01 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionH\bR\x10atRestEncryption\x88\x01\x01\x129\n" +
-	"\abackups\x18\xf93 \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xcb. \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\tR changeAndConfigurationManagement\x88\x01\x01\x12M\n" +
-	"\fgeo_location\x18\xfc\x86\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\n" +
-	"R\vgeoLocation\x88\x01\x01\x12N\n" +
-	"\fimmutability\x18\x9e} \x01(\v2$.confirmate.ontology.v1.ImmutabilityH\vR\fimmutability\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xef( \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
+	"\x03ttl\x18\x851 \x01(\x01H\x06R\x03ttl\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\x92s \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12X\n" +
+	"\x12at_rest_encryption\x18Ƃ\x01 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
+	"\abackups\x18\xf93 \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xcb. \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12H\n" +
+	"\fgeo_location\x18\xfc\x86\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12I\n" +
+	"\fimmutability\x18\x9e} \x01(\v2$.confirmate.ontology.v1.ImmutabilityR\fimmutability\x12<\n" +
+	"\bloggings\x18\xef( \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
 	"\x12malware_protection\x18\x89\n" +
-	" \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\fR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	" \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc3, \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa1\b \x01(\tH\rR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xce= \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x0eR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x87Q \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa1\b \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xce= \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\x87Q \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:<\x82\xa6\x1d\x0fDatabaseStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -34092,41 +34003,29 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x06\n" +
-	"\x04_ttlB\x13\n" +
-	"\x11_activity_loggingB\x15\n" +
-	"\x13_at_rest_encryptionB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x0f\n" +
-	"\r_immutabilityB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_ttlB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xda\x01\n" +
+	"_parent_id\"\xc5\x01\n" +
 	"\n" +
-	"DeAllocate\x12I\n" +
-	"\vcode_region\x18\xb4U \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12\"\n" +
-	"\tmemory_id\x18Ĉ\x01 \x01(\tH\x01R\bmemoryId\x88\x01\x01:?\x82\xa6\x1d\n" +
-	"DeAllocate\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"DeAllocate\x12D\n" +
+	"\vcode_region\x18\xb4U \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12\"\n" +
+	"\tmemory_id\x18Ĉ\x01 \x01(\tH\x00R\bmemoryId\x88\x01\x01:?\x82\xa6\x1d\n" +
+	"DeAllocate\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_memory_id\"\xd4\x02\n" +
+	"_memory_id\"\xaf\x02\n" +
 	"\n" +
 	"Decryption\x12\"\n" +
-	"\talgorithm\x18\xc3< \x01(\tH\x00R\talgorithm\x88\x01\x01\x12<\n" +
-	"\x06cipher\x18\xe5O \x01(\v2\x1e.confirmate.ontology.v1.CipherH\x01R\x06cipher\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xa0; \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x02R\n" +
-	"codeRegion\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\xf9\x16 \x01(\tH\x03R\bsecretId\x88\x01\x01:?\x82\xa6\x1d\n" +
+	"\talgorithm\x18\xc3< \x01(\tH\x00R\talgorithm\x88\x01\x01\x127\n" +
+	"\x06cipher\x18\xe5O \x01(\v2\x1e.confirmate.ontology.v1.CipherR\x06cipher\x12D\n" +
+	"\vcode_region\x18\xa0; \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12!\n" +
+	"\tsecret_id\x18\xf9\x16 \x01(\tH\x01R\bsecretId\x88\x01\x01:?\x82\xa6\x1d\n" +
 	"Decryption\x82\xa6\x1d\x0fCipherOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_algorithmB\t\n" +
-	"\a_cipherB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"_algorithmB\f\n" +
 	"\n" +
-	"_secret_id\"\x95\n" +
-	"\n" +
+	"_secret_id\"\x9c\t\n" +
 	"\x19DeviceProvisioningService\x12F\n" +
 	"\rcreation_time\x18ҋ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18\xaf\x8d\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -34134,15 +34033,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xb5u \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12V\n" +
 	"\x06labels\x18\xae. \x03(\v2=.confirmate.ontology.v1.DeviceProvisioningService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x83L \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xf9s \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8e\x01\n" +
-	"#change_and_configuration_management\x18\xea\x90\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xdc\x1b \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xf8\x1d \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x9dm \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xf9s \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x89\x01\n" +
+	"#change_and_configuration_management\x18\xea\x90\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xdc\x1b \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xf8\x1d \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x9dm \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xe5! \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbb: \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x8fx \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xbb: \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\x8fx \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:B\x82\xa6\x1d\x19DeviceProvisioningService\x82\xa6\x1d\x03IoT\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -34151,36 +34049,29 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xc5\x03\n" +
+	"_parent_id\"\xa2\x03\n" +
 	"\x0eDiskEncryption\x12\"\n" +
 	"\talgorithm\x18\xb3\x16 \x01(\tH\x00R\talgorithm\x88\x01\x01\x12\x1e\n" +
 	"\aenabled\x18\xc5H \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1d\n" +
-	"\akey_url\x18\xc6/ \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12C\n" +
-	"\aused_by\x18\xa0o \x01(\v2$.confirmate.ontology.v1.BlockStorageH\x03R\x06usedBy\x88\x01\x01\x12?\n" +
-	"\bbased_on\x18\xe15 \x01(\v2\x1e.confirmate.ontology.v1.CipherH\x04R\abasedOn\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\x82O \x01(\tH\x05R\bsecretId\x88\x01\x01:Z\x82\xa6\x1d\x0eDiskEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
+	"\akey_url\x18\xc6/ \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12>\n" +
+	"\aused_by\x18\xa0o \x01(\v2$.confirmate.ontology.v1.BlockStorageR\x06usedBy\x12:\n" +
+	"\bbased_on\x18\xe15 \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12!\n" +
+	"\tsecret_id\x18\x82O \x01(\tH\x03R\bsecretId\x88\x01\x01:Z\x82\xa6\x1d\x0eDiskEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
 	"\n" +
 	"_algorithmB\n" +
 	"\n" +
 	"\b_enabledB\n" +
 	"\n" +
-	"\b_key_urlB\n" +
-	"\n" +
-	"\b_used_byB\v\n" +
-	"\t_based_onB\f\n" +
+	"\b_key_urlB\f\n" +
 	"\n" +
 	"_secret_id\"\xea\x01\n" +
 	"\x17DiskEncryptionOperation\x12b\n" +
 	"\x15create_encrypted_disk\x18\xf2\x11 \x01(\v2+.confirmate.ontology.v1.CreateEncryptedDiskH\x00R\x13createEncryptedDisk\x12c\n" +
 	"\x15unlock_encrypted_disk\x18\xb0\x94\x01 \x01(\v2+.confirmate.ontology.v1.UnlockEncryptedDiskH\x00R\x13unlockEncryptedDiskB\x06\n" +
-	"\x04type\"\xb5\b\n" +
+	"\x04type\"\x88\b\n" +
 	"\x1dDistributionOfUpdatesDocument\x12E\n" +
 	"\rcreation_time\x18\xec\x14 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xaaA \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -34189,11 +34080,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x8dW \x03(\v2A.confirmate.ontology.v1.DistributionOfUpdatesDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xd8J \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xca\x1b \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\x9dT \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12P\n" +
-	"\rdata_location\x18\xf3\x8f\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\x9dT \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12K\n" +
+	"\rdata_location\x18\xf3\x8f\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xf7_ \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12\"\n" +
-	"\tparent_id\x18\x8e\x89\x01 \x01(\tH\aR\bparentId\x88\x01\x01\x12R\n" +
-	"\fvalidated_by\x18\x80\x91\x01 \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\x8e\x89\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12M\n" +
+	"\fvalidated_by\x18\x80\x91\x01 \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xb4m \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -34203,11 +34094,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\xeb\n" +
+	"_parent_id\"\xeb\n" +
 	"\n" +
 	"\bDocument\x12g\n" +
 	"\x16configuration_document\x18\xa9\t \x01(\v2-.confirmate.ontology.v1.ConfigurationDocumentH\x00R\x15configurationDocument\x12\x94\x01\n" +
@@ -34222,7 +34111,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1asecurity_advisory_document\x18\xfdr \x01(\v20.confirmate.ontology.v1.SecurityAdvisoryDocumentH\x00R\x18securityAdvisoryDocument\x12n\n" +
 	"\x19service_metadata_document\x18\x90\x02 \x01(\v2/.confirmate.ontology.v1.ServiceMetadataDocumentH\x00R\x17serviceMetadataDocument\x12\x97\x01\n" +
 	"(user_information_and_intruction_document\x18\x8d\x17 \x01(\v2<.confirmate.ontology.v1.UserInformationAndIntructionDocumentH\x00R$userInformationAndIntructionDocumentB\x06\n" +
-	"\x04type\"\xcb\x0f\n" +
+	"\x04type\"\x83\x0e\n" +
 	"\x17DocumentDatabaseService\x12E\n" +
 	"\rcreation_time\x18\xee[ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xcek \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34232,24 +34121,23 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xe9\x18 \x03(\v2;.confirmate.ontology.v1.DocumentDatabaseService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xb6c \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xf1O \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\x959 \x01(\tH\x05R\x03raw\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\xd51 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12X\n" +
-	"\x12anomaly_detections\x18\x93\x18 \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xc5^ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\x959 \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\xd51 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12X\n" +
+	"\x12anomaly_detections\x18\x93\x18 \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xc5^ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xaa| \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xc4D \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12O\n" +
-	"\rhttp_endpoint\x18\xfb@ \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\tR\fhttpEndpoint\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xa0\x15 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xf9# \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xc4D \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12J\n" +
+	"\rhttp_endpoint\x18\xfb@ \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12<\n" +
+	"\bloggings\x18\xa0\x15 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xf9# \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x9b0 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12\"\n" +
-	"\tparent_id\x18\xf9\x88\x01 \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xf5I \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xf9\x88\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xf5I \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xfe\x1d \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\xcd\x11 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x90% \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\xcd\x11 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\x90% \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:~\x82\xa6\x1d\x17DocumentDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -34259,23 +34147,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x10\n" +
-	"\x0e_http_endpointB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"5\n" +
+	"\x1d_service_metadata_document_id\"5\n" +
 	"\x0eDynamicLoading:#\x82\xa6\x1d\x0eDynamicLoading\x82\xa6\x1d\rFunctionality\"\xb4\x01\n" +
 	"\x17DynamicLoadingOperation\x12I\n" +
 	"\fload_library\x18\x98\x03 \x01(\v2#.confirmate.ontology.v1.LoadLibraryH\x00R\vloadLibrary\x12F\n" +
 	"\vload_symbol\x18\x9bw \x01(\v2\".confirmate.ontology.v1.LoadSymbolH\x00R\n" +
 	"loadSymbolB\x06\n" +
-	"\x04type\"\xa9\b\n" +
+	"\x04type\"\xfc\a\n" +
 	"\x19EUDeclarationOfConformity\x12E\n" +
 	"\rcreation_time\x18\xd9\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xc02 \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -34284,11 +34165,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\u0089\x01 \x03(\v2=.confirmate.ontology.v1.EUDeclarationOfConformity.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xc8Q \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xc3\x1a \x01(\tH\x05R\x03raw\x88\x01\x01\x12\\\n" +
-	"\x13cryptographic_hashs\x18\u0380\x01 \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\xb6' \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12\\\n" +
+	"\x13cryptographic_hashs\x18\u0380\x01 \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\xb6' \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\\\n" +
 	"\x13document_signatures\x18\x93\x8e\x01 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xd7N \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\xe8N \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xd7N \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\xe8N \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xa3L \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -34298,11 +34179,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\x9c\x03\n" +
+	"_parent_id\"\x9c\x03\n" +
 	"\n" +
 	"Encryption\x12h\n" +
 	"\x17customer_key_encryption\x18\x9a\\ \x01(\v2-.confirmate.ontology.v1.CustomerKeyEncryptionH\x00R\x15customerKeyEncryption\x12R\n" +
@@ -34313,19 +34192,17 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0fEncryptionInUse\x12\x1e\n" +
 	"\aenabled\x18\xdeB \x01(\bH\x00R\aenabled\x88\x01\x01:9\x82\xa6\x1d\x0fEncryptionInUse\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
-	"\b_enabled\"\xe3\x02\n" +
+	"\b_enabled\"\xba\x02\n" +
 	"\x13EncryptionOperation\x12\"\n" +
-	"\talgorithm\x18\xf4u \x01(\tH\x00R\talgorithm\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xdes \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01\x12H\n" +
+	"\talgorithm\x18\xf4u \x01(\tH\x00R\talgorithm\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\xdes \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12C\n" +
 	"\n" +
-	"encryption\x18\xa3G \x01(\v2\".confirmate.ontology.v1.EncryptionH\x02R\n" +
-	"encryption\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\xee; \x01(\tH\x03R\bsecretId\x88\x01\x01:5\x82\xa6\x1d\x13EncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"encryption\x18\xa3G \x01(\v2\".confirmate.ontology.v1.EncryptionR\n" +
+	"encryption\x12!\n" +
+	"\tsecret_id\x18\xee; \x01(\tH\x01R\bsecretId\x88\x01\x01:5\x82\xa6\x1d\x13EncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_algorithmB\x0e\n" +
-	"\f_code_regionB\r\n" +
-	"\v_encryptionB\f\n" +
+	"_algorithmB\f\n" +
 	"\n" +
 	"_secret_id\"\xf5\x01\n" +
 	"\n" +
@@ -34333,38 +34210,33 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x13library_entry_point\x18\x87\x02 \x01(\v2).confirmate.ontology.v1.LibraryEntryPointH\x00R\x11libraryEntryPoint\x123\n" +
 	"\x04main\x18\xdd\b \x01(\v2\x1c.confirmate.ontology.v1.MainH\x00R\x04main\x12L\n" +
 	"\rhttp_endpoint\x18\xa3F \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\x00R\fhttpEndpointB\x06\n" +
-	"\x04type\"\xa8\x03\n" +
-	"\rEqualityCheck\x12I\n" +
-	"\vcode_region\x18\x9fE \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12!\n" +
-	"\tpolicy_id\x18\x9f\a \x01(\tH\x01R\bpolicyId\x88\x01\x01\x12N\n" +
-	"\x0eleft_principal\x18\xa3w \x01(\v2!.confirmate.ontology.v1.PrincipalH\x02R\rleftPrincipal\x88\x01\x01\x12P\n" +
-	"\x0fright_principal\x18\xc2I \x01(\v2!.confirmate.ontology.v1.PrincipalH\x03R\x0erightPrincipal\x88\x01\x01:B\x82\xa6\x1d\rEqualityCheck\x82\xa6\x1d\x0fPolicyOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"\x04type\"\xe2\x02\n" +
+	"\rEqualityCheck\x12D\n" +
+	"\vcode_region\x18\x9fE \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12!\n" +
+	"\tpolicy_id\x18\x9f\a \x01(\tH\x00R\bpolicyId\x88\x01\x01\x12I\n" +
+	"\x0eleft_principal\x18\xa3w \x01(\v2!.confirmate.ontology.v1.PrincipalR\rleftPrincipal\x12K\n" +
+	"\x0fright_principal\x18\xc2I \x01(\v2!.confirmate.ontology.v1.PrincipalR\x0erightPrincipal:B\x82\xa6\x1d\rEqualityCheck\x82\xa6\x1d\x0fPolicyOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_policy_idB\x11\n" +
-	"\x0f_left_principalB\x12\n" +
-	"\x10_right_principal\"O\n" +
+	"_policy_id\"O\n" +
 	"\x05Error\x12\x1e\n" +
 	"\amessage\x18\xa9\x1b \x01(\tH\x00R\amessage\x88\x01\x01:\x1a\x82\xa6\x1d\x05Error\x82\xa6\x1d\rFunctionalityB\n" +
 	"\n" +
-	"\b_message\"\xfc\x01\n" +
-	"\x15ExitBoundaryOperation\x12B\n" +
-	"\bboundary\x18\xd8< \x01(\v2 .confirmate.ontology.v1.BoundaryH\x00R\bboundary\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xcc\x1b \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01:7\x82\xa6\x1d\x15ExitBoundaryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\v\n" +
-	"\t_boundaryB\x0e\n" +
-	"\f_code_region\"N\n" +
-	"\x12ExplainableResults:8\x82\xa6\x1d\x12ExplainableResults\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\xcb\x04\n" +
+	"\b_message\"\xd5\x01\n" +
+	"\x15ExitBoundaryOperation\x12=\n" +
+	"\bboundary\x18\xd8< \x01(\v2 .confirmate.ontology.v1.BoundaryR\bboundary\x12D\n" +
+	"\vcode_region\x18\xcc\x1b \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion:7\x82\xa6\x1d\x15ExitBoundaryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"N\n" +
+	"\x12ExplainableResults:8\x82\xa6\x1d\x12ExplainableResults\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\xb4\x04\n" +
 	"\x04File\x12E\n" +
 	"\rcreation_time\x18\xb4\\ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xc8m \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\x800 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12A\n" +
 	"\x06labels\x18\x8a5 \x03(\v2(.confirmate.ontology.v1.File.LabelsEntryR\x06labels\x12!\n" +
 	"\x04name\x18܄\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
-	"\x03raw\x18\xe2\x85\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\x89G \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xa7C \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xe2\x85\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\x89G \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xa7C \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:.\x82\xa6\x1d\x04File\x82\xa6\x1d\x0eFileLikeObject\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -34372,10 +34244,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xdb\x04\n" +
+	"_parent_id\"\xc4\x04\n" +
 	"\n" +
 	"FileHandle\x12E\n" +
 	"\rcreation_time\x18\xe0\r \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -34383,9 +34254,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x02id\x18\x9ca \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12G\n" +
 	"\x06labels\x18\xbb~ \x03(\v2..confirmate.ontology.v1.FileHandle.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xe8\b \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xd9j \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xce8 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xddB \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xd9j \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\xce8 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xddB \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:4\x82\xa6\x1d\n" +
@@ -34394,22 +34265,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\x96\x01\n" +
 	"\x0eFileLikeObject\x123\n" +
 	"\x04file\x18\xb2J \x01(\v2\x1c.confirmate.ontology.v1.FileH\x00R\x04file\x12G\n" +
 	"\vfile_handle\x18\xab\x84\x01 \x01(\v2\".confirmate.ontology.v1.FileHandleH\x00R\n" +
 	"fileHandleB\x06\n" +
-	"\x04type\"\xc7\x01\n" +
-	"\rFileOperation\x12J\n" +
-	"\vcode_region\x18\xe0\x8f\x01 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12\x1d\n" +
-	"\afile_id\x18\x95\x1c \x01(\tH\x01R\x06fileId\x88\x01\x01:/\x82\xa6\x1d\rFileOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\n" +
+	"\x04type\"\xb2\x01\n" +
+	"\rFileOperation\x12E\n" +
+	"\vcode_region\x18\xe0\x8f\x01 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12\x1d\n" +
+	"\afile_id\x18\x95\x1c \x01(\tH\x00R\x06fileId\x88\x01\x01:/\x82\xa6\x1d\rFileOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\n" +
 	"\n" +
-	"\b_file_id\"\x96\x0e\n" +
+	"\b_file_id\"\xb7\f\n" +
 	"\vFileStorage\x12E\n" +
 	"\rcreation_time\x18\xca\x1d \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x8a0 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34418,20 +34287,19 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xe3\x15 \x03(\v2/.confirmate.ontology.v1.FileStorage.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x84~ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12)\n" +
 	"\rpublic_access\x18\xabR \x01(\bH\x05R\fpublicAccess\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x9b\" \x01(\tH\x06R\x03raw\x88\x01\x01\x12W\n" +
-	"\x10activity_logging\x18l \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\aR\x0factivityLogging\x88\x01\x01\x12\\\n" +
-	"\x12at_rest_encryption\x18\xd3^ \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionH\bR\x10atRestEncryption\x88\x01\x01\x129\n" +
-	"\abackups\x18\xcb\x1f \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xbd\x1d \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\tR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x9eN \x01(\v2#.confirmate.ontology.v1.GeoLocationH\n" +
-	"R\vgeoLocation\x88\x01\x01\x12N\n" +
-	"\fimmutability\x18\xe2\v \x01(\v2$.confirmate.ontology.v1.ImmutabilityH\vR\fimmutability\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xcdG \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xa4\x7f \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\fR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x9b\" \x01(\tH\x06R\x03raw\x88\x01\x01\x12R\n" +
+	"\x10activity_logging\x18l \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
+	"\x12at_rest_encryption\x18\xd3^ \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
+	"\abackups\x18\xcb\x1f \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xbd\x1d \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x9eN \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12I\n" +
+	"\fimmutability\x18\xe2\v \x01(\v2$.confirmate.ontology.v1.ImmutabilityR\fimmutability\x12<\n" +
+	"\bloggings\x18\xcdG \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xa4\x7f \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xe4\t \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xd0l \x01(\tH\rR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xda^ \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x0eR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xbe\x1e \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xd0l \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xda^ \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xbe\x1e \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:8\x82\xa6\x1d\vFileStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -34441,17 +34309,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x10\n" +
 	"\x0e_public_accessB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB\x15\n" +
-	"\x13_at_rest_encryptionB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x0f\n" +
-	"\r_immutabilityB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xd2\x0e\n" +
+	"_parent_id\"\x8a\r\n" +
 	"\x12FileStorageService\x12F\n" +
 	"\rcreation_time\x18\xb7\x91\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xd4M \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -34461,23 +34321,22 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x83I \x03(\v26.confirmate.ontology.v1.FileStorageService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xcd\x18 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xdda \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xfcl \x01(\tH\x05R\x03raw\x88\x01\x01\x12Y\n" +
-	"\x10activity_logging\x18̃\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x85M \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\xfcl \x01(\tH\x05R\x03raw\x88\x01\x01\x12T\n" +
+	"\x10activity_logging\x18̃\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x85M \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\x82V \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xcas \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12P\n" +
-	"\rhttp_endpoint\x18\x84\x83\x01 \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\tR\fhttpEndpoint\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x915 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x8e8 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xcas \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12K\n" +
+	"\rhttp_endpoint\x18\x84\x83\x01 \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12<\n" +
+	"\bloggings\x18\x915 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x8e8 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x8cn \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x82C \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xcc+ \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x82C \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xcc+ \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xb1L \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\xc4U \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xfd# \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\xc4U \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xfd# \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:f\x82\xa6\x1d\x12FileStorageService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -34487,17 +34346,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x10\n" +
-	"\x0e_http_endpointB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\xc7\x01\n" +
+	"\x1d_service_metadata_document_id\"\xc7\x01\n" +
 	"\bFirewall\x12F\n" +
 	"\vl3_firewall\x18\xa5G \x01(\v2\".confirmate.ontology.v1.L3FirewallH\x00R\n" +
 	"l3Firewall\x12k\n" +
@@ -34509,7 +34361,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vhttp_server\x18\x898 \x01(\v2\".confirmate.ontology.v1.HttpServerH\x00R\n" +
 	"httpServer\x129\n" +
 	"\x06logger\x18\x8d: \x01(\v2\x1e.confirmate.ontology.v1.LoggerH\x00R\x06loggerB\x06\n" +
-	"\x04type\"\xf9\r\n" +
+	"\x04type\"\xaf\f\n" +
 	"\bFunction\x12E\n" +
 	"\rcreation_time\x18\xe2\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18\x9b\x8e\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34519,19 +34371,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\xf52 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xfb\v \x01(\tH\x05R\x03raw\x88\x01\x01\x12/\n" +
 	"\x10runtime_language\x18\x887 \x01(\tH\x06R\x0fruntimeLanguage\x88\x01\x01\x12-\n" +
-	"\x0fruntime_version\x18\x91} \x01(\tH\aR\x0eruntimeVersion\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xf9\x0f \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\bR changeAndConfigurationManagement\x88\x01\x01\x12Y\n" +
-	"\x11encryption_in_use\x18\xddL \x01(\v2'.confirmate.ontology.v1.EncryptionInUseH\tR\x0fencryptionInUse\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xda* \x01(\v2#.confirmate.ontology.v1.GeoLocationH\n" +
-	"R\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x98\x11 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12_\n" +
-	"\x12malware_protection\x18\xc1\x89\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\vR\x11malwareProtection\x88\x01\x01\x123\n" +
+	"\x0fruntime_version\x18\x91} \x01(\tH\aR\x0eruntimeVersion\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xf9\x0f \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
+	"\x11encryption_in_use\x18\xddL \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
+	"\fgeo_location\x18\xda* \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\x98\x11 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
+	"\x12malware_protection\x18\xc1\x89\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x123\n" +
 	"\x15network_interface_ids\x18\x9c? \x03(\tR\x13networkInterfaceIds\x12G\n" +
-	"\fredundancies\x18\xb9l \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12^\n" +
-	"\x12remote_attestation\x18\x99\x01 \x01(\v2).confirmate.ontology.v1.RemoteAttestationH\fR\x11remoteAttestation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xc2F \x01(\tH\rR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xd2; \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x0eR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xf9^ \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\fredundancies\x18\xb9l \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
+	"\x12remote_attestation\x18\x99\x01 \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12!\n" +
+	"\tparent_id\x18\xc2F \x01(\tH\bR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xd2; \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xf9^ \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:5\x82\xa6\x1d\bFunction\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -34542,16 +34393,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x13\n" +
 	"\x11_runtime_languageB\x12\n" +
-	"\x10_runtime_versionB&\n" +
-	"$_change_and_configuration_managementB\x14\n" +
-	"\x12_encryption_in_useB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\x15\n" +
-	"\x13_remote_attestationB\f\n" +
+	"\x10_runtime_versionB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xe8\f\n" +
+	"_parent_id\"\xd1\v\n" +
 	"\x0fFunctionService\x12E\n" +
 	"\rcreation_time\x18\xb0\x1c \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18χ\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34561,21 +34405,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x99\x92\x01 \x03(\v23.confirmate.ontology.v1.FunctionService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xf3z \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x05ports\x18\xb1\x8a\x01 \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xbd& \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xc0\x19 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\xbd& \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xc0\x19 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xf7N \x03(\tR\n" +
 	"computeIds\x12\"\n" +
-	"\ffunction_ids\x18\xa1\x17 \x03(\tR\vfunctionIds\x12M\n" +
-	"\fgeo_location\x18\x94\x8b\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xceU \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xbd\x1e \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\ffunction_ids\x18\xa1\x17 \x03(\tR\vfunctionIds\x12H\n" +
+	"\fgeo_location\x18\x94\x8b\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xceU \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xbd\x1e \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xaf\n" +
 	" \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xfa\x15 \x01(\tH\tR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x80\v \x01(\tH\n" +
-	"R\x19serviceMetadataDocumentId\x88\x01\x01\x12d\n" +
-	"\x14transport_encryption\x18\xbfc \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\vR\x13transportEncryption\x88\x01\x01\x12Y\n" +
-	"\x10usage_statistics\x18\xa0\x83\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xfa\x15 \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x80\v \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\xbfc \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12T\n" +
+	"\x10usage_statistics\x18\xa0\x83\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:Q\x82\xa6\x1d\x0fFunctionService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -34585,15 +34428,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\xef;\n" +
+	"\x1d_service_metadata_document_id\"\xef;\n" +
 	"\rFunctionality\x12?\n" +
 	"\bboundary\x18\x8cS \x01(\v2 .confirmate.ontology.v1.BoundaryH\x00R\bboundary\x12\x8a\x01\n" +
 	"#change_and_configuration_management\x18\xc7_ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x00R changeAndConfigurationManagement\x12X\n" +
@@ -34690,7 +34528,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"m\n" +
 	"\x0fGenericDocument\x12R\n" +
 	"\x0freport_document\x18\xa1R \x01(\v2&.confirmate.ontology.v1.ReportDocumentH\x00R\x0ereportDocumentB\x06\n" +
-	"\x04type\"\xd3\f\n" +
+	"\x04type\"\xbc\v\n" +
 	"\x15GenericNetworkService\x12F\n" +
 	"\rcreation_time\x18ށ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x9bo \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34700,19 +34538,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x98' \x03(\v29.confirmate.ontology.v1.GenericNetworkService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x9bi \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\x94\x04 \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xdcT \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xeb\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12!\n" +
+	"\x03raw\x18\xdcT \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xeb\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\xe8\x87\x01 \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xd2\x0e \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x89\x0e \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xada \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xd2\x0e \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\x89\x0e \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xada \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xafm \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xb4m \x01(\tH\tR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xe8G \x01(\tH\n" +
-	"R\x19serviceMetadataDocumentId\x88\x01\x01\x12d\n" +
-	"\x14transport_encryption\x18\xeaP \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\vR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xc7I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xb4m \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xe8G \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\xeaP \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xc7I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:W\x82\xa6\x1d\x15GenericNetworkService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -34722,32 +34559,24 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"j\n" +
+	"\x1d_service_metadata_document_id\"j\n" +
 	"\vGeoLocation\x12\x1c\n" +
 	"\x06region\x18\x9c< \x01(\tH\x00R\x06region\x88\x01\x01:2\x82\xa6\x1d\vGeoLocation\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeatureB\t\n" +
 	"\a_region\"\x9e\x01\n" +
 	"\rGeoRedundancy\x12I\n" +
 	"\rgeo_locations\x18\xe8Q \x03(\v2#.confirmate.ontology.v1.GeoLocationR\fgeoLocations:B\x82\xa6\x1d\rGeoRedundancy\x82\xa6\x1d\n" +
-	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xf0\x01\n" +
-	"\x17GetCurrentTimeOperation\x12I\n" +
-	"\vcode_region\x18\xb5' \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x126\n" +
-	"\x04time\x18\x92\x01 \x01(\v2\x1c.confirmate.ontology.v1.TimeH\x01R\x04time\x88\x01\x01:9\x82\xa6\x1d\x17GetCurrentTimeOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\a\n" +
-	"\x05_time\"\xd7\x01\n" +
-	"\tGetSecret\x12I\n" +
-	"\vcode_region\x18\x9a{ \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\xe6A \x01(\tH\x01R\bsecretId\x88\x01\x01:>\x82\xa6\x1d\tGetSecret\x82\xa6\x1d\x0fSecretOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xcd\x01\n" +
+	"\x17GetCurrentTimeOperation\x12D\n" +
+	"\vcode_region\x18\xb5' \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x121\n" +
+	"\x04time\x18\x92\x01 \x01(\v2\x1c.confirmate.ontology.v1.TimeR\x04time:9\x82\xa6\x1d\x17GetCurrentTimeOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xc2\x01\n" +
+	"\tGetSecret\x12D\n" +
+	"\vcode_region\x18\x9a{ \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12!\n" +
+	"\tsecret_id\x18\xe6A \x01(\tH\x00R\bsecretId\x88\x01\x01:>\x82\xa6\x1d\tGetSecret\x82\xa6\x1d\x0fSecretOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
 	"_secret_id\"\xff\x02\n" +
 	"\n" +
@@ -34759,38 +34588,34 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"M\n" +
 	"\bHardware\x129\n" +
 	"\x06memory\x18\xc7\a \x01(\v2\x1e.confirmate.ontology.v1.MemoryH\x00R\x06memoryB\x06\n" +
-	"\x04type\"\x87\x03\n" +
+	"\x04type\"\xd8\x02\n" +
 	"\rHashOperation\x12\"\n" +
 	"\talgorithm\x18\xa0~ \x01(\tH\x00R\talgorithm\x88\x01\x01\x12!\n" +
-	"\tuses_salt\x18\xa1s \x01(\bH\x01R\busesSalt\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\x86T \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x02R\n" +
-	"codeRegion\x88\x01\x01\x12X\n" +
-	"\x10security_feature\x18\xdcP \x01(\v2'.confirmate.ontology.v1.SecurityFeatureH\x03R\x0fsecurityFeature\x88\x01\x01:I\x82\xa6\x1d\rHashOperation\x82\xa6\x1d\x16CryptographicOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"\tuses_salt\x18\xa1s \x01(\bH\x01R\busesSalt\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\x86T \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12S\n" +
+	"\x10security_feature\x18\xdcP \x01(\v2'.confirmate.ontology.v1.SecurityFeatureR\x0fsecurityFeature:I\x82\xa6\x1d\rHashOperation\x82\xa6\x1d\x16CryptographicOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
 	"_algorithmB\f\n" +
 	"\n" +
-	"_uses_saltB\x0e\n" +
-	"\f_code_regionB\x13\n" +
-	"\x11_security_feature\"\x99\x02\n" +
+	"_uses_salt\"\x99\x02\n" +
 	"\x04Http\x12G\n" +
 	"\vhttp_client\x18ɍ\x01 \x01(\v2\".confirmate.ontology.v1.HttpClientH\x00R\n" +
 	"httpClient\x12_\n" +
 	"\x14http_request_context\x18\xb7! \x01(\v2*.confirmate.ontology.v1.HttpRequestContextH\x00R\x12httpRequestContext\x12_\n" +
 	"\x14http_request_handler\x18\x93\x01 \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerH\x00R\x12httpRequestHandlerB\x06\n" +
-	"\x04type\"\x8f\x02\n" +
+	"\x04type\"\xeb\x01\n" +
 	"\n" +
 	"HttpClient\x12\x1b\n" +
-	"\x06is_tls\x18\xf2\x14 \x01(\bH\x00R\x05isTls\x88\x01\x01\x12N\n" +
-	"\fauthenticity\x18\x89t \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x01R\fauthenticity\x88\x01\x01\x12F\n" +
-	"\x04uses\x18\x8f\x8e\x01 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\x02R\x04uses\x88\x01\x01:'\x82\xa6\x1d\n" +
+	"\x06is_tls\x18\xf2\x14 \x01(\bH\x00R\x05isTls\x88\x01\x01\x12I\n" +
+	"\fauthenticity\x18\x89t \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12A\n" +
+	"\x04uses\x18\x8f\x8e\x01 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x04uses:'\x82\xa6\x1d\n" +
 	"HttpClient\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionalityB\t\n" +
-	"\a_is_tlsB\x0f\n" +
-	"\r_authenticityB\a\n" +
-	"\x05_uses\"?\n" +
+	"\a_is_tls\"?\n" +
 	"\x11HttpClientLibrary:*\x82\xa6\x1d\x11HttpClientLibrary\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"h\n" +
 	"\x13HttpClientOperation\x12I\n" +
 	"\fhttp_request\x18\xcf@ \x01(\v2#.confirmate.ontology.v1.HttpRequestH\x00R\vhttpRequestB\x06\n" +
-	"\x04type\"\xc4\x06\n" +
+	"\x04type\"\xc4\x05\n" +
 	"\fHttpEndpoint\x12\x1e\n" +
 	"\ahandler\x18\xfeC \x01(\tH\x00R\ahandler\x88\x01\x01\x12#\n" +
 	"\n" +
@@ -34798,45 +34623,36 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06method\x18\xc3\n" +
 	" \x01(\tH\x02R\x06method\x88\x01\x01\x12\x18\n" +
 	"\x04path\x18\xf0Y \x01(\tH\x03R\x04path\x88\x01\x01\x12\x16\n" +
-	"\x03url\x18\xcc} \x01(\tH\x04R\x03url\x88\x01\x01\x12N\n" +
-	"\fauthenticity\x18\xdd\x1d \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x05R\fauthenticity\x88\x01\x01\x12Q\n" +
-	"\rauthorization\x18\x97\x12 \x01(\v2%.confirmate.ontology.v1.AuthorizationH\x06R\rauthorization\x88\x01\x01\x12b\n" +
-	"\x14http_request_context\x18\xfc& \x01(\v2*.confirmate.ontology.v1.HttpRequestContextH\aR\x12httpRequestContext\x88\x01\x01\x12O\n" +
-	"\rrate_limiting\x18\x91= \x01(\v2$.confirmate.ontology.v1.RateLimitingH\bR\frateLimiting\x88\x01\x01\x12d\n" +
-	"\x14transport_encryption\x18\x87j \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\tR\x13transportEncryption\x88\x01\x01:C\x82\xa6\x1d\fHttpEndpoint\x82\xa6\x1d\x10RemoteEntryPoint\x82\xa6\x1d\n" +
+	"\x03url\x18\xcc} \x01(\tH\x04R\x03url\x88\x01\x01\x12I\n" +
+	"\fauthenticity\x18\xdd\x1d \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12L\n" +
+	"\rauthorization\x18\x97\x12 \x01(\v2%.confirmate.ontology.v1.AuthorizationR\rauthorization\x12]\n" +
+	"\x14http_request_context\x18\xfc& \x01(\v2*.confirmate.ontology.v1.HttpRequestContextR\x12httpRequestContext\x12J\n" +
+	"\rrate_limiting\x18\x91= \x01(\v2$.confirmate.ontology.v1.RateLimitingR\frateLimiting\x12_\n" +
+	"\x14transport_encryption\x18\x87j \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:C\x82\xa6\x1d\fHttpEndpoint\x82\xa6\x1d\x10RemoteEntryPoint\x82\xa6\x1d\n" +
 	"EntryPoint\x82\xa6\x1d\rFunctionalityB\n" +
 	"\n" +
 	"\b_handlerB\r\n" +
 	"\v_input_sizeB\t\n" +
 	"\a_methodB\a\n" +
 	"\x05_pathB\x06\n" +
-	"\x04_urlB\x0f\n" +
-	"\r_authenticityB\x10\n" +
-	"\x0e_authorizationB\x17\n" +
-	"\x15_http_request_contextB\x10\n" +
-	"\x0e_rate_limitingB\x17\n" +
-	"\x15_transport_encryption\"\xec\x01\n" +
-	"\x15HttpEndpointOperation\x12I\n" +
-	"\vcode_region\x18\xd3A \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x126\n" +
-	"\x04http\x18\x82' \x01(\v2\x1c.confirmate.ontology.v1.HttpH\x01R\x04http\x88\x01\x01:7\x82\xa6\x1d\x15HttpEndpointOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\a\n" +
-	"\x05_http\"\xd4\x03\n" +
+	"\x04_url\"\xc9\x01\n" +
+	"\x15HttpEndpointOperation\x12D\n" +
+	"\vcode_region\x18\xd3A \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x121\n" +
+	"\x04http\x18\x82' \x01(\v2\x1c.confirmate.ontology.v1.HttpR\x04http:7\x82\xa6\x1d\x15HttpEndpointOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xaa\x03\n" +
 	"\vHttpRequest\x12\x19\n" +
 	"\x04call\x18\xbf\x83\x01 \x01(\tH\x00R\x04call\x88\x01\x01\x12\x1d\n" +
 	"\x06method\x18\xf0\x87\x01 \x01(\tH\x01R\x06method\x88\x01\x01\x12\x1f\n" +
-	"\breq_body\x18\x82, \x01(\tH\x02R\areqBody\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xa9\x05 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x03R\n" +
-	"codeRegion\x88\x01\x01\x12J\n" +
-	"\vhttp_client\x18\xee\x82\x01 \x01(\v2\".confirmate.ontology.v1.HttpClientH\x04R\n" +
-	"httpClient\x88\x01\x01\x12L\n" +
+	"\breq_body\x18\x82, \x01(\tH\x02R\areqBody\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\xa9\x05 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12E\n" +
+	"\vhttp_client\x18\xee\x82\x01 \x01(\v2\".confirmate.ontology.v1.HttpClientR\n" +
+	"httpClient\x12L\n" +
 	"\x0ehttp_endpoints\x18\xd0\n" +
 	" \x03(\v2$.confirmate.ontology.v1.HttpEndpointR\rhttpEndpoints:D\x82\xa6\x1d\vHttpRequest\x82\xa6\x1d\x13HttpClientOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\a\n" +
 	"\x05_callB\t\n" +
 	"\a_methodB\v\n" +
-	"\t_req_bodyB\x0e\n" +
-	"\f_code_regionB\x0e\n" +
-	"\f_http_client\"E\n" +
+	"\t_req_body\"E\n" +
 	"\x12HttpRequestContext:/\x82\xa6\x1d\x12HttpRequestContext\x82\xa6\x1d\x04Http\x82\xa6\x1d\rFunctionality\"\xf7\x01\n" +
 	"\x12HttpRequestHandler\x12\x18\n" +
 	"\x04path\x18\xa82 \x01(\tH\x00R\x04path\x88\x01\x01\x12,\n" +
@@ -34846,36 +34662,29 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0f_application_id\"\x8c\x01\n" +
 	"\x1bHttpRequestHandlerOperation\x12e\n" +
 	"\x16register_http_endpoint\x18\xf0\x1a \x01(\v2,.confirmate.ontology.v1.RegisterHttpEndpointH\x00R\x14registerHttpEndpointB\x06\n" +
-	"\x04type\"\xaf\x01\n" +
+	"\x04type\"\x91\x01\n" +
 	"\n" +
-	"HttpServer\x12c\n" +
-	"\x14http_request_handler\x18\xaf\x84\x01 \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerH\x00R\x12httpRequestHandler\x88\x01\x01:#\x82\xa6\x1d\n" +
-	"HttpServer\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04CoreB\x17\n" +
-	"\x15_http_request_handler\"\x81\x06\n" +
+	"HttpServer\x12^\n" +
+	"\x14http_request_handler\x18\xaf\x84\x01 \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerR\x12httpRequestHandler:#\x82\xa6\x1d\n" +
+	"HttpServer\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\x82\x05\n" +
 	"\fHybridCipher\x12#\n" +
 	"\n" +
 	"block_size\x18\xbd\x1f \x01(\x05H\x00R\tblockSize\x88\x01\x01\x12%\n" +
 	"\vcipher_name\x18\xc2& \x01(\tH\x01R\n" +
 	"cipherName\x88\x01\x01\x12\x1f\n" +
-	"\bkey_size\x18\xd6* \x01(\x05H\x02R\akeySize\x88\x01\x01\x12B\n" +
-	"\x04uses\x18\xf0W \x01(\v2(.confirmate.ontology.v1.AsymmetricCipherH\x03R\x04uses\x88\x01\x01\x12l\n" +
-	"\x17key_derivation_function\x18߂\x01 \x01(\v2-.confirmate.ontology.v1.KeyDerivationFunctionH\x04R\x15keyDerivationFunction\x88\x01\x01\x12w\n" +
-	"\x1bmessage_authentication_code\x18\x8au \x01(\v21.confirmate.ontology.v1.MessageAuthenticationCodeH\x05R\x19messageAuthenticationCode\x88\x01\x01\x12@\n" +
-	"\apadding\x18\xa6\x8f\x01 \x01(\v2\x1f.confirmate.ontology.v1.PaddingH\x06R\apadding\x88\x01\x01\x12X\n" +
-	"\x10symmetric_cipher\x18\x95' \x01(\v2'.confirmate.ontology.v1.SymmetricCipherH\aR\x0fsymmetricCipher\x88\x01\x01:+\x82\xa6\x1d\fHybridCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\r\n" +
+	"\bkey_size\x18\xd6* \x01(\x05H\x02R\akeySize\x88\x01\x01\x12=\n" +
+	"\x04uses\x18\xf0W \x01(\v2(.confirmate.ontology.v1.AsymmetricCipherR\x04uses\x12g\n" +
+	"\x17key_derivation_function\x18߂\x01 \x01(\v2-.confirmate.ontology.v1.KeyDerivationFunctionR\x15keyDerivationFunction\x12r\n" +
+	"\x1bmessage_authentication_code\x18\x8au \x01(\v21.confirmate.ontology.v1.MessageAuthenticationCodeR\x19messageAuthenticationCode\x12;\n" +
+	"\apadding\x18\xa6\x8f\x01 \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding\x12S\n" +
+	"\x10symmetric_cipher\x18\x95' \x01(\v2'.confirmate.ontology.v1.SymmetricCipherR\x0fsymmetricCipher:+\x82\xa6\x1d\fHybridCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\r\n" +
 	"\v_block_sizeB\x0e\n" +
 	"\f_cipher_nameB\v\n" +
-	"\t_key_sizeB\a\n" +
-	"\x05_usesB\x1a\n" +
-	"\x18_key_derivation_functionB\x1e\n" +
-	"\x1c_message_authentication_codeB\n" +
-	"\n" +
-	"\b_paddingB\x13\n" +
-	"\x11_symmetric_cipher\"\xab\x01\n" +
+	"\t_key_size\"\xab\x01\n" +
 	"\fIdentifiable\x12?\n" +
 	"\bidentity\x18\xe5r \x01(\v2 .confirmate.ontology.v1.IdentityH\x00R\bidentity\x12R\n" +
 	"\x0frole_assignment\x18\xb9\x12 \x01(\v2&.confirmate.ontology.v1.RoleAssignmentH\x00R\x0eroleAssignmentB\x06\n" +
-	"\x04type\"\xf5\r\n" +
+	"\x04type\"\xe5\f\n" +
 	"\bIdentity\x12\"\n" +
 	"\tactivated\x18\x84O \x01(\bH\x00R\tactivated\x88\x01\x01\x12E\n" +
 	"\rcreation_time\x18\x97n \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -34893,15 +34702,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"privileged\x18\xfd\x11 \x01(\bH\n" +
 	"R\n" +
 	"privileged\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x97~ \x01(\tH\vR\x03raw\x88\x01\x01\x12Q\n" +
-	"\rauthorization\x18\xba\x7f \x01(\v2%.confirmate.ontology.v1.AuthorizationH\fR\rauthorization\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xdb+ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\rR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x9eC \x01(\v2#.confirmate.ontology.v1.GeoLocationH\x0eR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xb2[ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x85\f \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\x0fR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x97~ \x01(\tH\vR\x03raw\x88\x01\x01\x12L\n" +
+	"\rauthorization\x18\xba\x7f \x01(\v2%.confirmate.ontology.v1.AuthorizationR\rauthorization\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xdb+ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x9eC \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xb2[ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x85\f \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xd6} \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa0f \x01(\tH\x10R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xaf= \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x11R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa0f \x01(\tH\fR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xaf= \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01::\x82\xa6\x1d\bIdentity\x82\xa6\x1d\fIdentifiable\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
@@ -34917,14 +34726,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x17_login_defender_enabledB\a\n" +
 	"\x05_nameB\r\n" +
 	"\v_privilegedB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_authorizationB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xa4\x01\n" +
+	"_parent_id\"\xa4\x01\n" +
 	"\x05Image\x12S\n" +
 	"\x0fcontainer_image\x18ȋ\x01 \x01(\v2&.confirmate.ontology.v1.ContainerImageH\x00R\x0econtainerImage\x12>\n" +
 	"\bvm_image\x18\xa1\x80\x01 \x01(\v2\x1f.confirmate.ontology.v1.VMImageH\x00R\avmImageB\x06\n" +
@@ -34934,21 +34738,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"\b_enabled\"A\n" +
 	"\x14InitializationVector:)\x82\xa6\x1d\x14InitializationVector\x82\xa6\x1d\rFunctionality\"#\n" +
-	"\x05Input:\x1a\x82\xa6\x1d\x05Input\x82\xa6\x1d\rFunctionality\"\xbf\x02\n" +
-	"\x18InputValidationOperation\x12I\n" +
-	"\vcode_region\x18\xacd \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x129\n" +
-	"\x05input\x18\xca\x03 \x01(\v2\x1d.confirmate.ontology.v1.InputH\x01R\x05input\x88\x01\x01\x12<\n" +
-	"\x06output\x18\xe4v \x01(\v2\x1e.confirmate.ontology.v1.OutputH\x02R\x06output\x88\x01\x01::\x82\xa6\x1d\x18InputValidationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\b\n" +
-	"\x06_inputB\t\n" +
-	"\a_output\"\xa0\x02\n" +
-	"\x16InstallUpdateOperation\x12[\n" +
-	"\x11automatic_updates\x18\xf18 \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesH\x00R\x10automaticUpdates\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xefj \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01:8\x82\xa6\x1d\x16InstallUpdateOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x14\n" +
-	"\x12_automatic_updatesB\x0e\n" +
-	"\f_code_region\"\xb7\x06\n" +
+	"\x05Input:\x1a\x82\xa6\x1d\x05Input\x82\xa6\x1d\rFunctionality\"\x8b\x02\n" +
+	"\x18InputValidationOperation\x12D\n" +
+	"\vcode_region\x18\xacd \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x124\n" +
+	"\x05input\x18\xca\x03 \x01(\v2\x1d.confirmate.ontology.v1.InputR\x05input\x127\n" +
+	"\x06output\x18\xe4v \x01(\v2\x1e.confirmate.ontology.v1.OutputR\x06output::\x82\xa6\x1d\x18InputValidationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xf0\x01\n" +
+	"\x16InstallUpdateOperation\x12V\n" +
+	"\x11automatic_updates\x18\xf18 \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesR\x10automaticUpdates\x12D\n" +
+	"\vcode_region\x18\xefj \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion:8\x82\xa6\x1d\x16InstallUpdateOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xb7\x06\n" +
 	"\tIntegrity\x12X\n" +
 	"\x11local_attestation\x18\xc8! \x01(\v2(.confirmate.ontology.v1.LocalAttestationH\x00R\x10localAttestation\x12[\n" +
 	"\x12remote_attestation\x18\xc8j \x01(\v2).confirmate.ontology.v1.RemoteAttestationH\x00R\x11remoteAttestation\x12a\n" +
@@ -34963,13 +34762,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03IoT\x12t\n" +
 	"\x1bdevice_provisioning_service\x18\xe4q \x01(\v21.confirmate.ontology.v1.DeviceProvisioningServiceH\x00R\x19deviceProvisioningService\x12L\n" +
 	"\rmessaging_hub\x18\x93d \x01(\v2$.confirmate.ontology.v1.MessagingHubH\x00R\fmessagingHubB\x06\n" +
-	"\x04type\"\x8d\x02\n" +
-	"\bIssueJwt\x12N\n" +
-	"\fauthenticity\x18\xbc, \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x00R\fauthenticity\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\x8aK \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01:E\x82\xa6\x1d\bIssueJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0f\n" +
-	"\r_authenticityB\x0e\n" +
-	"\f_code_region\"\xd9\t\n" +
+	"\x04type\"\xe2\x01\n" +
+	"\bIssueJwt\x12I\n" +
+	"\fauthenticity\x18\xbc, \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
+	"\vcode_region\x18\x8aK \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion:E\x82\xa6\x1d\bIssueJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xe0\b\n" +
 	"\x03Job\x12E\n" +
 	"\rcreation_time\x18\x84\x17 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xbd= \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -34977,15 +34774,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x9b, \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12A\n" +
 	"\x06labels\x18\xb1\x8c\x01 \x03(\v2'.confirmate.ontology.v1.Job.LabelsEntryR\x06labels\x12!\n" +
 	"\x04name\x18\u0090\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x90- \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xadm \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xcaG \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xfcg \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x89\x05 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x90- \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xadm \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xcaG \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xfcg \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x89\x05 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xc3S \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa1\x01 \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x914 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa1\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\x914 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:4\x82\xa6\x1d\x03Job\x82\xa6\x1d\vCICDService\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -34994,13 +34790,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xf6\x03\n" +
+	"_parent_id\"\xf6\x03\n" +
 	"\x11JwtAuthentication\x122\n" +
 	"\x12context_is_checked\x18\xd2\x1b \x01(\bH\x00R\x10contextIsChecked\x88\x01\x01\x12\x1e\n" +
 	"\aenabled\x18\x8d\x18 \x01(\bH\x01R\aenabled\x88\x01\x01\x12 \n" +
@@ -35017,7 +34809,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_token_id\"\x7f\n" +
 	"\x18TokenBasedAuthentication\x12[\n" +
 	"\x12jwt_authentication\x18\xa4\x0f \x01(\v2).confirmate.ontology.v1.JwtAuthenticationH\x00R\x11jwtAuthenticationB\x06\n" +
-	"\x04type\"\xc2\r\n" +
+	"\x04type\"\xaf\f\n" +
 	"\x03Key\x12\"\n" +
 	"\talgorithm\x18\x85\v \x01(\tH\x00R\talgorithm\x88\x01\x01\x12E\n" +
 	"\rcreation_time\x18\xba& \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12'\n" +
@@ -35033,15 +34825,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\x91\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\tR\x04name\x88\x01\x01\x12H\n" +
 	"\x0fnot_before_date\x18\xeb\x01 \x01(\v2\x1a.google.protobuf.TimestampH\n" +
 	"R\rnotBeforeDate\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xc6\\ \x01(\tH\vR\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xe6{ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\fR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xd7\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\rR\vgeoLocation\x88\x01\x01\x12V\n" +
-	"\x10used_by_multiple\x18\xbe, \x01(\v2&.confirmate.ontology.v1.InfrastructureH\x0eR\x0eusedByMultiple\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xf7f \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xb5\x0e \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\x0fR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xc6\\ \x01(\tH\vR\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xe6{ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xd7\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12Q\n" +
+	"\x10used_by_multiple\x18\xbe, \x01(\v2&.confirmate.ontology.v1.InfrastructureR\x0eusedByMultiple\x12<\n" +
+	"\bloggings\x18\xf7f \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xb5\x0e \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xbc= \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12 \n" +
-	"\tparent_id\x18_ \x01(\tH\x10R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x948 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x11R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18_ \x01(\tH\fR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\x948 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:3\x82\xa6\x1d\x03Key\x82\xa6\x1d\n" +
@@ -35059,19 +34851,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_key_sizeB\a\n" +
 	"\x05_nameB\x12\n" +
 	"\x10_not_before_dateB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x13\n" +
-	"\x11_used_by_multipleB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xab\x01\n" +
+	"_parent_id\"\x9c\x01\n" +
 	"\x15KeyDerivationFunction\x12\x18\n" +
-	"\x04type\x18\xe0\x1b \x01(\tH\x00R\x04type\x88\x01\x01\x129\n" +
-	"\x05input\x18\xb11 \x01(\v2\x1d.confirmate.ontology.v1.InputH\x01R\x05input\x88\x01\x01:*\x82\xa6\x1d\x15KeyDerivationFunction\x82\xa6\x1d\rFunctionalityB\a\n" +
-	"\x05_typeB\b\n" +
-	"\x06_input\"\xca\x0f\n" +
+	"\x04type\x18\xe0\x1b \x01(\tH\x00R\x04type\x88\x01\x01\x124\n" +
+	"\x05input\x18\xb11 \x01(\v2\x1d.confirmate.ontology.v1.InputR\x05input:*\x82\xa6\x1d\x15KeyDerivationFunction\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_type\"\x82\x0e\n" +
 	"\x17KeyValueDatabaseService\x12E\n" +
 	"\rcreation_time\x18\x90z \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x9c\v \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35081,24 +34867,23 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xa7j \x03(\v2;.confirmate.ontology.v1.KeyValueDatabaseService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xc7W \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xb64 \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xadq \x01(\tH\x05R\x03raw\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\xf3\x1f \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12W\n" +
-	"\x12anomaly_detections\x18y \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xf6} \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\xadq \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\xf3\x1f \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
+	"\x12anomaly_detections\x18y \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xf6} \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xefe \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xb9g \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12O\n" +
-	"\rhttp_endpoint\x18\x91\\ \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\tR\fhttpEndpoint\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x83J \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12_\n" +
-	"\x12malware_protection\x18\xab\x83\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xb9g \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12J\n" +
+	"\rhttp_endpoint\x18\x91\\ \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12<\n" +
+	"\bloggings\x18\x83J \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
+	"\x12malware_protection\x18\xab\x83\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xd40 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xdeQ \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xb0w \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xdeQ \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xb0w \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xbbH \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\xffU \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xce\x06 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\xffU \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xce\x06 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:~\x82\xa6\x1d\x17KeyValueDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -35108,18 +34893,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x10\n" +
-	"\x0e_http_endpointB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\x80\n" +
-	"\n" +
+	"\x1d_service_metadata_document_id\"\x87\t\n" +
 	"\bKeyVault\x12E\n" +
 	"\rcreation_time\x18\xbcf \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xbf# \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35127,16 +34904,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xd8y \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
 	"\x06labels\x18\xd1\\ \x03(\v2,.confirmate.ontology.v1.KeyVault.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xc9, \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xc7~ \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xc3X \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12'\n" +
-	"\x0ecredential_ids\x18ʂ\x01 \x03(\tR\rcredentialIds\x12L\n" +
-	"\fgeo_location\x18\xb6= \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xee\t \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xc6t \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xc7~ \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xc3X \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12'\n" +
+	"\x0ecredential_ids\x18ʂ\x01 \x03(\tR\rcredentialIds\x12G\n" +
+	"\fgeo_location\x18\xb6= \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xee\t \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xc6t \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa0Z \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa37 \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xc2j \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa37 \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xc2j \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:*\x82\xa6\x1d\bKeyVault\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -35145,13 +34921,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x8f\x02\n" +
+	"_parent_id\"\x8f\x02\n" +
 	"\n" +
 	"L3Firewall\x12(\n" +
 	"\x0fallowed_sources\x18\xf6\" \x03(\tR\x0eallowedSources\x12\x1e\n" +
@@ -35192,12 +34964,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xbc\x01\n" +
-	"\x11LibraryEntryPoint\x12R\n" +
-	"\aused_by\x18\xd3} \x01(\v23.confirmate.ontology.v1.OperatingSystemArchitectureH\x00R\x06usedBy\x88\x01\x01:G\x82\xa6\x1d\x11LibraryEntryPoint\x82\xa6\x1d\x0fLocalEntryPoint\x82\xa6\x1d\n" +
-	"EntryPoint\x82\xa6\x1d\rFunctionalityB\n" +
-	"\n" +
-	"\b_used_by\"\xce\x0e\n" +
+	"_parent_id\"\xab\x01\n" +
+	"\x11LibraryEntryPoint\x12M\n" +
+	"\aused_by\x18\xd3} \x01(\v23.confirmate.ontology.v1.OperatingSystemArchitectureR\x06usedBy:G\x82\xa6\x1d\x11LibraryEntryPoint\x82\xa6\x1d\x0fLocalEntryPoint\x82\xa6\x1d\n" +
+	"EntryPoint\x82\xa6\x1d\rFunctionality\"\x9b\r\n" +
 	"\fLoadBalancer\x12E\n" +
 	"\rcreation_time\x18\x94\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x86\x16 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35208,22 +34978,21 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\xa4\x80\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\x8c' \x03(\rR\x05ports\x12\x16\n" +
 	"\x03raw\x18\xfb\x7f \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x16\n" +
-	"\x03url\x18\xb3\x12 \x01(\tH\x06R\x03url\x88\x01\x01\x12^\n" +
-	"\x12access_restriction\x18\x9cX \x01(\v2).confirmate.ontology.v1.AccessRestrictionH\aR\x11accessRestriction\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x9f\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\bR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03url\x18\xb3\x12 \x01(\tH\x06R\x03url\x88\x01\x01\x12Y\n" +
+	"\x12access_restriction\x18\x9cX \x01(\v2).confirmate.ontology.v1.AccessRestrictionR\x11accessRestriction\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x9f\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xa1~ \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xe2S \x01(\v2#.confirmate.ontology.v1.GeoLocationH\tR\vgeoLocation\x88\x01\x01\x12L\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xe2S \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12L\n" +
 	"\x0ehttp_endpoints\x18\x93T \x03(\v2$.confirmate.ontology.v1.HttpEndpointR\rhttpEndpoints\x12<\n" +
-	"\bloggings\x18\x9d\x13 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xcdc \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12/\n" +
+	"\bloggings\x18\x9d\x13 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xcdc \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12/\n" +
 	"\x13network_service_ids\x18\x86\x0f \x03(\tR\x11networkServiceIds\x12G\n" +
 	"\fredundancies\x18\xdfr \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x9eL \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xcaj \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12d\n" +
-	"\x14transport_encryption\x18\x89s \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xa7\" \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x9eL \x01(\tH\aR\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xcaj \x01(\tH\bR\x19serviceMetadataDocumentId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\x89s \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xa7\" \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:N\x82\xa6\x1d\fLoadBalancer\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -35234,54 +35003,44 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x06\n" +
-	"\x04_urlB\x15\n" +
-	"\x13_access_restrictionB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_urlB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\x83\x02\n" +
-	"\x11LoadConfiguration\x12I\n" +
-	"\vcode_region\x18\x84Y \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\xdcN \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01:M\x82\xa6\x1d\x11LoadConfiguration\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
-	"\x11_configuration_id\"\xb2\x03\n" +
-	"\vLoadLibrary\x12I\n" +
-	"\vcode_region\x18\x9f| \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12F\n" +
+	"\x1d_service_metadata_document_id\"\xee\x01\n" +
+	"\x11LoadConfiguration\x12D\n" +
+	"\vcode_region\x18\x84Y \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\xdcN \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01:M\x82\xa6\x1d\x11LoadConfiguration\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
+	"\x11_configuration_id\"\x9d\x03\n" +
+	"\vLoadLibrary\x12D\n" +
+	"\vcode_region\x18\x9f| \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12F\n" +
 	"\fentry_points\x18\xe9\f \x03(\v2\".confirmate.ontology.v1.EntryPointR\ventryPoints\x12!\n" +
-	"\tmemory_id\x18\xcc\r \x01(\tH\x01R\bmemoryId\x88\x01\x01\x12M\n" +
-	" operating_system_architecture_id\x18\xf0# \x01(\tH\x02R\x1doperatingSystemArchitectureId\x88\x01\x01:[\x82\xa6\x1d\vLoadLibrary\x82\xa6\x1d\x17DynamicLoadingOperation\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"\tmemory_id\x18\xcc\r \x01(\tH\x00R\bmemoryId\x88\x01\x01\x12M\n" +
+	" operating_system_architecture_id\x18\xf0# \x01(\tH\x01R\x1doperatingSystemArchitectureId\x88\x01\x01:[\x82\xa6\x1d\vLoadLibrary\x82\xa6\x1d\x17DynamicLoadingOperation\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
 	"_memory_idB#\n" +
-	"!_operating_system_architecture_id\"\xe9\x02\n" +
+	"!_operating_system_architecture_id\"\xd4\x02\n" +
 	"\n" +
-	"LoadSymbol\x12I\n" +
-	"\vcode_region\x18\xce] \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12\"\n" +
-	"\tmemory_id\x18\xe6\x8a\x01 \x01(\tH\x01R\bmemoryId\x88\x01\x01\x12M\n" +
-	" operating_system_architecture_id\x18\xf0k \x01(\tH\x02R\x1doperatingSystemArchitectureId\x88\x01\x01:Z\x82\xa6\x1d\n" +
-	"LoadSymbol\x82\xa6\x1d\x17DynamicLoadingOperation\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\f\n" +
+	"LoadSymbol\x12D\n" +
+	"\vcode_region\x18\xce] \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12\"\n" +
+	"\tmemory_id\x18\xe6\x8a\x01 \x01(\tH\x00R\bmemoryId\x88\x01\x01\x12M\n" +
+	" operating_system_architecture_id\x18\xf0k \x01(\tH\x01R\x1doperatingSystemArchitectureId\x88\x01\x01:Z\x82\xa6\x1d\n" +
+	"LoadSymbol\x82\xa6\x1d\x17DynamicLoadingOperation\x82\xa6\x1d\x0fMemoryOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
 	"_memory_idB#\n" +
 	"!_operating_system_architecture_id\"\x83\x01\n" +
 	"\x10LocalAttestation\x12\x1e\n" +
 	"\aenabled\x18\xfeb \x01(\bH\x00R\aenabled\x88\x01\x01:C\x82\xa6\x1d\x10LocalAttestation\x82\xa6\x1d\vAttestation\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
-	"\b_enabled\"\x98\x02\n" +
+	"\b_enabled\"\xfc\x01\n" +
 	"\x11LocalDataLocation\x12\x19\n" +
-	"\x04path\x18\x93\x82\x01 \x01(\tH\x00R\x04path\x88\x01\x01\x12\\\n" +
-	"\x12at_rest_encryption\x18\x816 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionH\x01R\x10atRestEncryption\x88\x01\x01\x12#\n" +
+	"\x04path\x18\x93\x82\x01 \x01(\tH\x00R\x04path\x88\x01\x01\x12W\n" +
+	"\x12at_rest_encryption\x18\x816 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x12#\n" +
 	"\n" +
-	"storage_id\x18\xe7\x01 \x01(\tH\x02R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x11LocalDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\a\n" +
-	"\x05_pathB\x15\n" +
-	"\x13_at_rest_encryptionB\r\n" +
+	"storage_id\x18\xe7\x01 \x01(\tH\x01R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x11LocalDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_pathB\r\n" +
 	"\v_storage_id\"\xac\x01\n" +
 	"\x0fLocalEntryPoint\x12\\\n" +
 	"\x13library_entry_point\x18\x87\x02 \x01(\v2).confirmate.ontology.v1.LibraryEntryPointH\x00R\x11libraryEntryPoint\x123\n" +
@@ -35289,7 +35048,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"\xa2\x01\n" +
 	"\x0fLocalRedundancy\x12I\n" +
 	"\rgeo_locations\x18\xe0W \x03(\v2#.confirmate.ontology.v1.GeoLocationR\fgeoLocations:D\x82\xa6\x1d\x0fLocalRedundancy\x82\xa6\x1d\n" +
-	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xfb\a\n" +
+	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature\"\xce\a\n" +
 	"\vLogDocument\x12E\n" +
 	"\rcreation_time\x18\x86\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12%\n" +
 	"\vdescription\x18j \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -35298,11 +35057,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x9es \x03(\v2/.confirmate.ontology.v1.LogDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xe7\\ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xa2\x04 \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\xf5F \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\xbe` \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\xf5F \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\xbe` \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\x83@ \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xb6\x1f \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\xf5\r \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xb6\x1f \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\xf5\r \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\x9e3 \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -35312,43 +35071,32 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\xea\x01\n" +
-	"\x06LogGet\x12I\n" +
-	"\vcode_region\x18\xb1\a \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12?\n" +
-	"\alogging\x18\xf2_ \x01(\v2\x1f.confirmate.ontology.v1.LoggingH\x01R\alogging\x88\x01\x01:8\x82\xa6\x1d\x06LogGet\x82\xa6\x1d\fLogOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\n" +
-	"\n" +
-	"\b_logging\"\x94\x01\n" +
+	"_parent_id\"\xc4\x01\n" +
+	"\x06LogGet\x12D\n" +
+	"\vcode_region\x18\xb1\a \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12:\n" +
+	"\alogging\x18\xf2_ \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging:8\x82\xa6\x1d\x06LogGet\x82\xa6\x1d\fLogOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x94\x01\n" +
 	"\fLogOperation\x12:\n" +
 	"\alog_get\x18\xd3] \x01(\v2\x1e.confirmate.ontology.v1.LogGetH\x00R\x06logGet\x12@\n" +
 	"\tlog_write\x18\x8d8 \x01(\v2 .confirmate.ontology.v1.LogWriteH\x00R\blogWriteB\x06\n" +
-	"\x04type\"\xaa\x02\n" +
+	"\x04type\"\x84\x02\n" +
 	"\tLogOutput\x12\x18\n" +
 	"\x04call\x18\xc51 \x01(\tH\x00R\x04call\x88\x01\x01\x12\x1b\n" +
-	"\x05value\x18\xa6\x81\x01 \x01(\tH\x01R\x05value\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xdb\x19 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x02R\n" +
-	"codeRegion\x88\x01\x01\x12?\n" +
-	"\alogging\x18\xd8\t \x01(\v2\x1f.confirmate.ontology.v1.LoggingH\x03R\alogging\x88\x01\x01:+\x82\xa6\x1d\tLogOutput\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05value\x18\xa6\x81\x01 \x01(\tH\x01R\x05value\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\xdb\x19 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12:\n" +
+	"\alogging\x18\xd8\t \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging:+\x82\xa6\x1d\tLogOutput\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\a\n" +
 	"\x05_callB\b\n" +
-	"\x06_valueB\x0e\n" +
-	"\f_code_regionB\n" +
-	"\n" +
-	"\b_logging\"\x9f\x02\n" +
+	"\x06_value\"\xf9\x01\n" +
 	"\bLogWrite\x12!\n" +
-	"\tlog_level\x18\xc3Z \x01(\tH\x00R\blogLevel\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xb6\x1b \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01\x12?\n" +
-	"\alogging\x18\xb7y \x01(\v2\x1f.confirmate.ontology.v1.LoggingH\x02R\alogging\x88\x01\x01::\x82\xa6\x1d\bLogWrite\x82\xa6\x1d\fLogOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
+	"\tlog_level\x18\xc3Z \x01(\tH\x00R\blogLevel\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\xb6\x1b \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12:\n" +
+	"\alogging\x18\xb7y \x01(\v2\x1f.confirmate.ontology.v1.LoggingR\alogging::\x82\xa6\x1d\bLogWrite\x82\xa6\x1d\fLogOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\f\n" +
 	"\n" +
-	"_log_levelB\x0e\n" +
-	"\f_code_regionB\n" +
-	"\n" +
-	"\b_logging\")\n" +
+	"_log_level\")\n" +
 	"\x06Logger:\x1f\x82\xa6\x1d\x06Logger\x82\xa6\x1d\tFramework\x82\xa6\x1d\x04Core\"\xb1\x03\n" +
 	"\aLogging\x12U\n" +
 	"\x10activity_logging\x18\x8c\x17 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x00R\x0factivityLogging\x12^\n" +
@@ -35357,7 +35105,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"os_logging\x18\xee\x16 \x01(\v2!.confirmate.ontology.v1.OSLoggingH\x00R\tosLogging\x12V\n" +
 	"\x10resource_logging\x18\x9b\x89\x01 \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x00R\x0fresourceLoggingB\x06\n" +
-	"\x04type\"\xdf\f\n" +
+	"\x04type\"\xc8\v\n" +
 	"\x0eLoggingService\x12E\n" +
 	"\rcreation_time\x18\x96k \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xe4u \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35367,21 +35115,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x81\x06 \x03(\v22.confirmate.ontology.v1.LoggingService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xfc\x1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xf5\x13 \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xf7\x1c \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xd5\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12!\n" +
+	"\x03raw\x18\xf7\x1c \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xd5\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\xec\x92\x01 \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xd1% \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x9e\x11 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x87\x17 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xd1% \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\x9e\x11 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x87\x17 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xfc$ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x89) \x01(\tH\tR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xf3S \x01(\tH\n" +
-	"R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x89) \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xf3S \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\x9d\\ \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\xfcT \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\vR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xea` \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\xfcT \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xea` \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:P\x82\xa6\x1d\x0eLoggingService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -35391,19 +35138,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\xed\x01\n" +
+	"\x1d_service_metadata_document_id\"\xed\x01\n" +
 	"\x0fMachineLearning\x12k\n" +
 	"\x18machine_learning_dataset\x18\xf8\x0f \x01(\v2..confirmate.ontology.v1.MachineLearningDatasetH\x00R\x16machineLearningDataset\x12e\n" +
 	"\x16machine_learning_model\x18\xa1x \x01(\v2,.confirmate.ontology.v1.MachineLearningModelH\x00R\x14machineLearningModelB\x06\n" +
-	"\x04type\"\xc6\x05\n" +
+	"\x04type\"\xaf\x05\n" +
 	"\x16MachineLearningDataset\x12E\n" +
 	"\rcreation_time\x18\xfdq \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xdd$ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35412,9 +35154,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\xdfp \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xa31 \x01(\tH\x04R\x03raw\x88\x01\x01\x12\x18\n" +
 	"\x04size\x18\xdd= \x01(\x05H\x05R\x04size\x88\x01\x01\x12\x18\n" +
-	"\x04type\x18\xd4( \x01(\tH\x06R\x04type\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xb8n \x01(\v2$.confirmate.ontology.v1.DataLocationH\aR\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\x98Z \x01(\tH\bR\bparentId\x88\x01\x01\x1a9\n" +
+	"\x04type\x18\xd4( \x01(\tH\x06R\x04type\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\xb8n \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\x98Z \x01(\tH\aR\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x16MachineLearningDataset\x82\xa6\x1d\x0fMachineLearning\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -35424,10 +35166,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\a\n" +
 	"\x05_sizeB\a\n" +
-	"\x05_typeB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x05_typeB\f\n" +
 	"\n" +
-	"_parent_id\"\xa3\v\n" +
+	"_parent_id\"\x8c\v\n" +
 	"\x14MachineLearningModel\x12F\n" +
 	"\x1cadversarial_robustness_score\x18\x80W \x01(\x02H\x00R\x1aadversarialRobustnessScore\x88\x01\x01\x12F\n" +
 	"\rcreation_time\x18Ռ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -35444,9 +35185,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x13poisoned_data_level\x18\xf8k \x01(\x02H\n" +
 	"R\x11poisonedDataLevel\x88\x01\x01\x12C\n" +
 	"\x1apoisoning_resilience_level\x18\x8b\x80\x01 \x01(\x02H\vR\x18poisoningResilienceLevel\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xa6a \x01(\tH\fR\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xfe\a \x01(\v2$.confirmate.ontology.v1.DataLocationH\rR\fdataLocation\x88\x01\x01\x12\"\n" +
-	"\tparent_id\x18\xfe\x85\x01 \x01(\tH\x0eR\bparentId\x88\x01\x01\x12P\n" +
+	"\x03raw\x18\xa6a \x01(\tH\fR\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\xfe\a \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\"\n" +
+	"\tparent_id\x18\xfe\x85\x01 \x01(\tH\rR\bparentId\x88\x01\x01\x12P\n" +
 	"\x0fvulnerabilities\x18\xc6J \x03(\v2%.confirmate.ontology.v1.VulnerabilityR\x0fvulnerabilities\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -35463,10 +35204,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x05_nameB\x16\n" +
 	"\x14_poisoned_data_levelB\x1d\n" +
 	"\x1b_poisoning_resilience_levelB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_id\"\xac\r\n" +
+	"_parent_id\"\x95\f\n" +
 	"\x16MachineLearningService\x12F\n" +
 	"\rcreation_time\x18ӎ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xa0\x10 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35476,22 +35216,21 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xf7\x93\x01 \x03(\v2:.confirmate.ontology.v1.MachineLearningService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xad/ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xa05 \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xdf. \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xc2: \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12!\n" +
+	"\x03raw\x18\xdf. \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xc2: \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\xed\x83\x01 \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xe8# \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xe8# \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
 	"\bloggings\x18\x8fa \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x121\n" +
-	"\x14machine_learning_ids\x18\xc6\x1d \x03(\tR\x12machineLearningIds\x12^\n" +
-	"\x12malware_protection\x18\xb1\x18 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x14machine_learning_ids\x18\xc6\x1d \x03(\tR\x12machineLearningIds\x12Y\n" +
+	"\x12malware_protection\x18\xb1\x18 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa0| \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xc4r \x01(\tH\tR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x97] \x01(\tH\n" +
-	"R\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xc4r \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x97] \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xbc= \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\x94h \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\vR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xa51 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\x94h \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xa51 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:X\x82\xa6\x1d\x16MachineLearningService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -35501,44 +35240,35 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\xa3\x01\n" +
-	"\x04Main\x12S\n" +
-	"\aused_by\x18ܓ\x01 \x01(\v23.confirmate.ontology.v1.OperatingSystemArchitectureH\x00R\x06usedBy\x88\x01\x01::\x82\xa6\x1d\x04Main\x82\xa6\x1d\x0fLocalEntryPoint\x82\xa6\x1d\n" +
-	"EntryPoint\x82\xa6\x1d\rFunctionalityB\n" +
-	"\n" +
-	"\b_used_by\"\xba\x03\n" +
+	"\x1d_service_metadata_document_id\"\x92\x01\n" +
+	"\x04Main\x12N\n" +
+	"\aused_by\x18ܓ\x01 \x01(\v23.confirmate.ontology.v1.OperatingSystemArchitectureR\x06usedBy::\x82\xa6\x1d\x04Main\x82\xa6\x1d\x0fLocalEntryPoint\x82\xa6\x1d\n" +
+	"EntryPoint\x82\xa6\x1d\rFunctionality\"\x9d\x03\n" +
 	"\x11MalwareProtection\x12T\n" +
 	"\x15duration_since_active\x18\u0092\x01 \x01(\v2\x19.google.protobuf.DurationH\x00R\x13durationSinceActive\x88\x01\x01\x12\x1f\n" +
 	"\aenabled\x18Ԍ\x01 \x01(\bH\x01R\aenabled\x88\x01\x01\x12;\n" +
-	"\x17number_of_threats_found\x18\xc5] \x01(\x05H\x02R\x14numberOfThreatsFound\x88\x01\x01\x12a\n" +
-	"\x13application_logging\x18\xdc` \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingH\x03R\x12applicationLogging\x88\x01\x01:4\x82\xa6\x1d\x11MalwareProtection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\x18\n" +
+	"\x17number_of_threats_found\x18\xc5] \x01(\x05H\x02R\x14numberOfThreatsFound\x88\x01\x01\x12\\\n" +
+	"\x13application_logging\x18\xdc` \x01(\v2*.confirmate.ontology.v1.ApplicationLoggingR\x12applicationLogging:4\x82\xa6\x1d\x11MalwareProtection\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\x18\n" +
 	"\x16_duration_since_activeB\n" +
 	"\n" +
 	"\b_enabledB\x1a\n" +
-	"\x18_number_of_threats_foundB\x16\n" +
-	"\x14_application_logging\"\x81\x03\n" +
+	"\x18_number_of_threats_found\"\xef\x02\n" +
 	"\x14ManagedKeyEncryption\x12\"\n" +
 	"\talgorithm\x18\xd6% \x01(\tH\x00R\talgorithm\x88\x01\x01\x12\x1e\n" +
 	"\aenabled\x18\x91g \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x1e\n" +
-	"\akey_url\x18ք\x01 \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12?\n" +
-	"\bbased_on\x18\x9eK \x01(\v2\x1e.confirmate.ontology.v1.CipherH\x03R\abasedOn\x88\x01\x01\x12!\n" +
-	"\tsecret_id\x18\xedk \x01(\tH\x04R\bsecretId\x88\x01\x01:`\x82\xa6\x1d\x14ManagedKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
+	"\akey_url\x18ք\x01 \x01(\tH\x02R\x06keyUrl\x88\x01\x01\x12:\n" +
+	"\bbased_on\x18\x9eK \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12!\n" +
+	"\tsecret_id\x18\xedk \x01(\tH\x03R\bsecretId\x88\x01\x01:`\x82\xa6\x1d\x14ManagedKeyEncryption\x82\xa6\x1d\x10AtRestEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
 	"\n" +
 	"_algorithmB\n" +
 	"\n" +
 	"\b_enabledB\n" +
 	"\n" +
-	"\b_key_urlB\v\n" +
-	"\t_based_onB\f\n" +
+	"\b_key_urlB\f\n" +
 	"\n" +
 	"_secret_id\"\x82\x04\n" +
 	"\x06Memory\x12E\n" +
@@ -35568,14 +35298,13 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\fload_library\x18\x98\x03 \x01(\v2#.confirmate.ontology.v1.LoadLibraryH\x00R\vloadLibrary\x12F\n" +
 	"\vload_symbol\x18\x9bw \x01(\v2\".confirmate.ontology.v1.LoadSymbolH\x00R\n" +
 	"loadSymbolB\x06\n" +
-	"\x04type\"\xdc\x01\n" +
+	"\x04type\"\xcd\x01\n" +
 	"\x19MessageAuthenticationCode\x12\x19\n" +
-	"\x04type\x18\x9c\x82\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x129\n" +
-	"\x05input\x18\xd7p \x01(\v2\x1d.confirmate.ontology.v1.InputH\x01R\x05input\x88\x01\x01\x12\x1b\n" +
-	"\x06key_id\x18\x94\x19 \x01(\tH\x02R\x05keyId\x88\x01\x01:.\x82\xa6\x1d\x19MessageAuthenticationCode\x82\xa6\x1d\rFunctionalityB\a\n" +
-	"\x05_typeB\b\n" +
-	"\x06_inputB\t\n" +
-	"\a_key_id\"\xea\t\n" +
+	"\x04type\x18\x9c\x82\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x124\n" +
+	"\x05input\x18\xd7p \x01(\v2\x1d.confirmate.ontology.v1.InputR\x05input\x12\x1b\n" +
+	"\x06key_id\x18\x94\x19 \x01(\tH\x01R\x05keyId\x88\x01\x01:.\x82\xa6\x1d\x19MessageAuthenticationCode\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_typeB\t\n" +
+	"\a_key_id\"\xf1\b\n" +
 	"\fMessagingHub\x12E\n" +
 	"\rcreation_time\x18\x86B \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x89] \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35583,15 +35312,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x8d) \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12I\n" +
 	"\x06labels\x18\xaa$ \x03(\v20.confirmate.ontology.v1.MessagingHub.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xa3  \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xc12 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x95\b \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x88\x03 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xa0j \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x92, \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xc12 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x95\b \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x88\x03 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xa0j \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x92, \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x83\x06 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x8a+ \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xc6C \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x8a+ \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xc6C \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:5\x82\xa6\x1d\fMessagingHub\x82\xa6\x1d\x03IoT\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -35600,13 +35328,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xa7\x01\n" +
+	"_parent_id\"\xa7\x01\n" +
 	"\n" +
 	"CodeModule\x12<\n" +
 	"\apackage\x18\xe1( \x01(\v2\x1f.confirmate.ontology.v1.PackageH\x00R\apackage\x12S\n" +
@@ -35623,7 +35347,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0eauthenticities\x18\xdep \x03(\v2$.confirmate.ontology.v1.AuthenticityR\x0eauthenticities:?\x82\xa6\x1d\x18MultiFactorAuthentiation\x82\xa6\x1d\fAuthenticity\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
 	"\x13_context_is_checkedB!\n" +
 	"\x1f_failed_authentication_attemptsB\x14\n" +
-	"\x12_rotation_interval\"\xd2\x0f\n" +
+	"\x12_rotation_interval\"\x8a\x0e\n" +
 	"\x19MultiModalDatabaseService\x12E\n" +
 	"\rcreation_time\x18\xe1Q \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x8fz \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35633,24 +35357,23 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xc4: \x03(\v2=.confirmate.ontology.v1.MultiModalDatabaseService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xddi \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x14\n" +
 	"\x05ports\x18\x05 \x03(\rR\x05ports\x12\x17\n" +
-	"\x03raw\x18\xa9\x88\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\xdeH \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12X\n" +
-	"\x12anomaly_detections\x18\xeaF \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x95\x1a \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\xa9\x88\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\xdeH \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12X\n" +
+	"\x12anomaly_detections\x18\xeaF \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x95\x1a \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\x91\a \x03(\tR\n" +
-	"computeIds\x12M\n" +
-	"\fgeo_location\x18\xb9\x8a\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12O\n" +
-	"\rhttp_endpoint\x18\xaf2 \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\tR\fhttpEndpoint\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x9c\x0e \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xd9l \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"computeIds\x12H\n" +
+	"\fgeo_location\x18\xb9\x8a\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12J\n" +
+	"\rhttp_endpoint\x18\xaf2 \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12<\n" +
+	"\bloggings\x18\x9c\x0e \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xd9l \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xb2\x19 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x91\f \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x86\x01 \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x91\f \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x86\x01 \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xd6R \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\xf6: \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xe9\f \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\xf6: \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xe9\f \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x80\x01\x82\xa6\x1d\x19MultiModalDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -35660,21 +35383,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x10\n" +
-	"\x0e_http_endpointB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"z\n" +
+	"\x1d_service_metadata_document_id\"z\n" +
 	"\x10NeedToKnowPolicy\x12$\n" +
 	"\n" +
 	"is_defined\x18\xb3\x89\x01 \x01(\bH\x00R\tisDefined\x88\x01\x01:1\x82\xa6\x1d\x10NeedToKnowPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
-	"\v_is_defined\"\xc1\v\n" +
+	"\v_is_defined\"\xac\n" +
+	"\n" +
 	"\x10NetworkInterface\x12E\n" +
 	"\rcreation_time\x18\xf9* \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x85U \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -35682,17 +35399,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xa2p \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12M\n" +
 	"\x06labels\x18\xf1$ \x03(\v24.confirmate.ontology.v1.NetworkInterface.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xf4` \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xb8( \x01(\tH\x05R\x03raw\x88\x01\x01\x12_\n" +
-	"\x12access_restriction\x18Ћ\x01 \x01(\v2).confirmate.ontology.v1.AccessRestrictionH\x06R\x11accessRestriction\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xb3[ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xb6N \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xc3> \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xceF \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\tR\x11malwareProtection\x88\x01\x01\x122\n" +
-	"\x12network_service_id\x18\xc3p \x01(\tH\n" +
-	"R\x10networkServiceId\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xb8( \x01(\tH\x05R\x03raw\x88\x01\x01\x12Z\n" +
+	"\x12access_restriction\x18Ћ\x01 \x01(\v2).confirmate.ontology.v1.AccessRestrictionR\x11accessRestriction\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xb3[ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xb6N \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xc3> \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xceF \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x122\n" +
+	"\x12network_service_id\x18\xc3p \x01(\tH\x06R\x10networkServiceId\x88\x01\x01\x12G\n" +
 	"\fredundancies\x18\x9c\x1d \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xf2@ \x01(\tH\vR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xd2V \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xf2@ \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xd2V \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:@\x82\xa6\x1d\x10NetworkInterface\x82\xa6\x1d\n" +
@@ -35703,15 +35419,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x15\n" +
-	"\x13_access_restrictionB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\x15\n" +
 	"\x13_network_service_idB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x89\n" +
-	"\n" +
+	"_parent_id\"\x90\t\n" +
 	"\x14NetworkSecurityGroup\x12E\n" +
 	"\rcreation_time\x18\xc88 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xc4\x1b \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35719,15 +35429,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xc5u \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12Q\n" +
 	"\x06labels\x18\x91. \x03(\v28.confirmate.ontology.v1.NetworkSecurityGroup.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xb0Y \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xa2W \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xfd{ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x9fY \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\x89\x03 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xa8E \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xa2W \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xfd{ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x9fY \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\x89\x03 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xa8E \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa8p \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbdw \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xacI \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xbdw \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xacI \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:D\x82\xa6\x1d\x14NetworkSecurityGroup\x82\xa6\x1d\n" +
@@ -35737,13 +35446,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xf1\t\n" +
+	"_parent_id\"\xf1\t\n" +
 	"\x0eNetworkService\x12U\n" +
 	"\x10function_service\x18\xc1& \x01(\v2'.confirmate.ontology.v1.FunctionServiceH\x00R\x0ffunctionService\x12h\n" +
 	"\x17generic_network_service\x18\xe6\n" +
@@ -35811,7 +35516,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"_activatedB\x15\n" +
 	"\x13_context_is_checkedB!\n" +
 	"\x1f_failed_authentication_attemptsB\x14\n" +
-	"\x12_rotation_interval\"\x9e\x0e\n" +
+	"\x12_rotation_interval\"\xbf\f\n" +
 	"\rObjectStorage\x12E\n" +
 	"\rcreation_time\x18\xbd\x1a \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xdc: \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -35820,20 +35525,19 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xd4y \x03(\v21.confirmate.ontology.v1.ObjectStorage.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xd1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12)\n" +
 	"\rpublic_access\x18\x8d$ \x01(\bH\x05R\fpublicAccess\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xe83 \x01(\tH\x06R\x03raw\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\xf1\\ \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\aR\x0factivityLogging\x88\x01\x01\x12\\\n" +
-	"\x12at_rest_encryption\x18\xd92 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionH\bR\x10atRestEncryption\x88\x01\x01\x129\n" +
-	"\abackups\x18\xa2# \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xae\x05 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\tR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xefE \x01(\v2#.confirmate.ontology.v1.GeoLocationH\n" +
-	"R\vgeoLocation\x88\x01\x01\x12N\n" +
-	"\fimmutability\x18\xf0# \x01(\v2$.confirmate.ontology.v1.ImmutabilityH\vR\fimmutability\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xf1V \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xd7r \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\fR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xe83 \x01(\tH\x06R\x03raw\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\xf1\\ \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12W\n" +
+	"\x12at_rest_encryption\x18\xd92 \x01(\v2(.confirmate.ontology.v1.AtRestEncryptionR\x10atRestEncryption\x129\n" +
+	"\abackups\x18\xa2# \x03(\v2\x1e.confirmate.ontology.v1.BackupR\abackups\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xae\x05 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xefE \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12I\n" +
+	"\fimmutability\x18\xf0# \x01(\v2$.confirmate.ontology.v1.ImmutabilityR\fimmutability\x12<\n" +
+	"\bloggings\x18\xf1V \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xd7r \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xefj \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xc8} \x01(\tH\rR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xf8) \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x0eR\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xd1q \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xc8} \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xf8) \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xd1q \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01::\x82\xa6\x1d\rObjectStorage\x82\xa6\x1d\aStorage\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -35843,27 +35547,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x10\n" +
 	"\x0e_public_accessB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB\x15\n" +
-	"\x13_at_rest_encryptionB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x0f\n" +
-	"\r_immutabilityB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xb6\x02\n" +
+	"_parent_id\"\xa1\x02\n" +
 	"\x14ObjectStorageRequest\x12\x1c\n" +
-	"\x06source\x18\xb2\x01 \x01(\tH\x00R\x06source\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xb5W \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01\x12.\n" +
+	"\x06source\x18\xb2\x01 \x01(\tH\x00R\x06source\x88\x01\x01\x12D\n" +
+	"\vcode_region\x18\xb5W \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12.\n" +
 	"\x12object_storage_ids\x18\xf9\x84\x01 \x03(\tR\x10objectStorageIds\x12#\n" +
 	"\n" +
-	"storage_id\x18\x8d; \x01(\tH\x02R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x14ObjectStorageRequest\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\t\n" +
-	"\a_sourceB\x0e\n" +
-	"\f_code_regionB\r\n" +
-	"\v_storage_id\"\xda\x0e\n" +
+	"storage_id\x18\x8d; \x01(\tH\x01R\tstorageId\x88\x01\x01:6\x82\xa6\x1d\x14ObjectStorageRequest\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\t\n" +
+	"\a_sourceB\r\n" +
+	"\v_storage_id\"\x92\r\n" +
 	"\x14ObjectStorageService\x12E\n" +
 	"\rcreation_time\x18\x93\\ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xbcW \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -35874,23 +35569,22 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\xd5\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xe6? \x03(\rR\x05ports\x12\x17\n" +
-	"\x03raw\x18\x8b\x82\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12Y\n" +
-	"\x10activity_logging\x18\x92\x84\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x89\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\x8b\x82\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12T\n" +
+	"\x10activity_logging\x18\x92\x84\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x89\x06 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xcfz \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xc3M \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12O\n" +
-	"\rhttp_endpoint\x18\x93Y \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\tR\fhttpEndpoint\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xafc \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x91\x15 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12H\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xc3M \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12J\n" +
+	"\rhttp_endpoint\x18\x93Y \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12<\n" +
+	"\bloggings\x18\xafc \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x91\x15 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18ؑ\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xe8Z \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x9f\x0e \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\xe8Z \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\x9f\x0e \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xefY \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\x9d\f \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xeaA \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\x9d\f \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xeaA \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:h\x82\xa6\x1d\x14ObjectStorageService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -35900,17 +35594,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x10\n" +
-	"\x0e_http_endpointB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\x92\x02\n" +
+	"\x1d_service_metadata_document_id\"\x92\x02\n" +
 	"\x1bOperatingSystemArchitecture\x12?\n" +
 	"\bagnostic\x18\x86o \x01(\v2 .confirmate.ontology.v1.AgnosticH\x00R\bagnostic\x12:\n" +
 	"\x06darwin\x18֑\x01 \x01(\v2\x1e.confirmate.ontology.v1.DarwinH\x00R\x06darwin\x126\n" +
@@ -36026,7 +35713,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"_activatedB\x15\n" +
 	"\x13_context_is_checkedB!\n" +
 	"\x1f_failed_authentication_attemptsB\x14\n" +
-	"\x12_rotation_interval\"\xea\t\n" +
+	"\x12_rotation_interval\"\xf1\b\n" +
 	"\x0ePasswordPolicy\x12E\n" +
 	"\rcreation_time\x18\x9a\f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18\x95\x82\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -36034,15 +35721,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xa5t \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
 	"\x06labels\x18\xcc\x05 \x03(\v22.confirmate.ontology.v1.PasswordPolicy.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x86F \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x98P \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x87> \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x98A \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xc1/ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xa7w \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x98P \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x87> \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x98A \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xc1/ \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xa7w \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xdf& \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xedb \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xdf\x06 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xedb \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xdf\x06 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x0ePasswordPolicy\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -36051,13 +35737,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xbc\b\n" +
+	"_parent_id\"\xbc\b\n" +
 	"\bPolicies\x12o\n" +
 	"\x1aaccess_control_type_policy\x18\xcae \x01(\v2/.confirmate.ontology.v1.AccessControlTypePolicyH\x00R\x17accessControlTypePolicy\x12\x81\x01\n" +
 	" compliance_audit_interval_policy\x18\x9a\x18 \x01(\v25.confirmate.ontology.v1.ComplianceAuditIntervalPolicyH\x00R\x1dcomplianceAuditIntervalPolicy\x12z\n" +
@@ -36071,7 +35753,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04type\"\xb6\x01\n" +
 	"\x06Policy\x12\xa3\x01\n" +
 	"+coordinated_vulnerability_disclosure_policy\x18Ҍ\x01 \x01(\v2@.confirmate.ontology.v1.CoordinatedVulnerabilityDisclosurePolicyH\x00R(coordinatedVulnerabilityDisclosurePolicyB\x06\n" +
-	"\x04type\"\x93\x14\n" +
+	"\x04type\"\x81\x11\n" +
 	"\x0ePolicyDocument\x12E\n" +
 	"\rcreation_time\x18\xe1B \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x8f\v \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -36079,26 +35761,25 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x02id\x18\x963 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x02id\x88\x01\x01\x12K\n" +
 	"\x06labels\x18\xad, \x03(\v22.confirmate.ontology.v1.PolicyDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x84\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xae' \x01(\tH\x05R\x03raw\x88\x01\x01\x12r\n" +
-	"\x1aaccess_control_type_policy\x18\xccG \x01(\v2/.confirmate.ontology.v1.AccessControlTypePolicyH\x06R\x17accessControlTypePolicy\x88\x01\x01\x12V\n" +
-	"\x0fasset_inventory\x18\xf0\x80\x01 \x01(\v2&.confirmate.ontology.v1.AssetInventoryH\aR\x0eassetInventory\x88\x01\x01\x12=\n" +
-	"\x06backup\x18\x92\x80\x01 \x01(\v2\x1e.confirmate.ontology.v1.BackupH\bR\x06backup\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\xe0d \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12\x81\x01\n" +
-	"\x1fdata_confidentiality_sdn_policy\x18\x80& \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyH\tR\x1cdataConfidentialitySdnPolicy\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\xd2Y \x01(\v2$.confirmate.ontology.v1.DataLocationH\n" +
-	"R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x03raw\x18\xae' \x01(\tH\x05R\x03raw\x88\x01\x01\x12m\n" +
+	"\x1aaccess_control_type_policy\x18\xccG \x01(\v2/.confirmate.ontology.v1.AccessControlTypePolicyR\x17accessControlTypePolicy\x12Q\n" +
+	"\x0fasset_inventory\x18\xf0\x80\x01 \x01(\v2&.confirmate.ontology.v1.AssetInventoryR\x0eassetInventory\x128\n" +
+	"\x06backup\x18\x92\x80\x01 \x01(\v2\x1e.confirmate.ontology.v1.BackupR\x06backup\x12[\n" +
+	"\x13cryptographic_hashs\x18\xe0d \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12|\n" +
+	"\x1fdata_confidentiality_sdn_policy\x18\x80& \x01(\v24.confirmate.ontology.v1.DataConfidentialitySDNPolicyR\x1cdataConfidentialitySdnPolicy\x12J\n" +
+	"\rdata_location\x18\xd2Y \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\x978 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12E\n" +
-	"\vgovernances\x18\x97% \x03(\v2\".confirmate.ontology.v1.GovernanceR\vgovernances\x12h\n" +
-	"\x16least_privilege_policy\x18\xf7b \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyH\vR\x14leastPrivilegePolicy\x88\x01\x01\x12d\n" +
-	"\x14monitoring_procedure\x18\xddX \x01(\v2+.confirmate.ontology.v1.MonitoringProcedureH\fR\x13monitoringProcedure\x88\x01\x01\x12]\n" +
-	"\x13need_to_know_policy\x18\x81\x1c \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyH\rR\x10needToKnowPolicy\x88\x01\x01\x12\x84\x01\n" +
-	" network_threat_mitigation_policy\x18\xbfI \x01(\v25.confirmate.ontology.v1.NetworkThreatMitigationPolicyH\x0eR\x1dnetworkThreatMitigationPolicy\x88\x01\x01\x12\"\n" +
-	"\tparent_id\x18\xa0\x8e\x01 \x01(\tH\x0fR\bparentId\x88\x01\x01\x12~\n" +
-	"\x1esdn_function_validation_policy\x18\xa3? \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyH\x10R\x1bsdnFunctionValidationPolicy\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\xf4+ \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\x11R\vvalidatedBy\x88\x01\x01\x12U\n" +
-	"\x11security_features\x18\xc8l \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12\\\n" +
-	"\x11security_incident\x18\x98\x82\x01 \x01(\v2(.confirmate.ontology.v1.SecurityIncidentH\x12R\x10securityIncident\x88\x01\x01\x12u\n" +
-	"\x1bseparation_of_duties_policy\x18\xa22 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyH\x13R\x18separationOfDutiesPolicy\x88\x01\x01\x1a9\n" +
+	"\vgovernances\x18\x97% \x03(\v2\".confirmate.ontology.v1.GovernanceR\vgovernances\x12c\n" +
+	"\x16least_privilege_policy\x18\xf7b \x01(\v2,.confirmate.ontology.v1.LeastPrivilegePolicyR\x14leastPrivilegePolicy\x12_\n" +
+	"\x14monitoring_procedure\x18\xddX \x01(\v2+.confirmate.ontology.v1.MonitoringProcedureR\x13monitoringProcedure\x12X\n" +
+	"\x13need_to_know_policy\x18\x81\x1c \x01(\v2(.confirmate.ontology.v1.NeedToKnowPolicyR\x10needToKnowPolicy\x12\x7f\n" +
+	" network_threat_mitigation_policy\x18\xbfI \x01(\v25.confirmate.ontology.v1.NetworkThreatMitigationPolicyR\x1dnetworkThreatMitigationPolicy\x12\"\n" +
+	"\tparent_id\x18\xa0\x8e\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x12y\n" +
+	"\x1esdn_function_validation_policy\x18\xa3? \x01(\v23.confirmate.ontology.v1.SDNFunctionValidationPolicyR\x1bsdnFunctionValidationPolicy\x12L\n" +
+	"\fvalidated_by\x18\xf4+ \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
+	"\x11security_features\x18\xc8l \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12W\n" +
+	"\x11security_incident\x18\x98\x82\x01 \x01(\v2(.confirmate.ontology.v1.SecurityIncidentR\x10securityIncident\x12p\n" +
+	"\x1bseparation_of_duties_policy\x18\xa22 \x01(\v20.confirmate.ontology.v1.SeparationOfDutiesPolicyR\x18separationOfDutiesPolicy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\x0ePolicyDocument\x82\xa6\x1d\bDocument\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -36107,22 +35788,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x1d\n" +
-	"\x1b_access_control_type_policyB\x12\n" +
-	"\x10_asset_inventoryB\t\n" +
-	"\a_backupB\"\n" +
-	" _data_confidentiality_sdn_policyB\x10\n" +
-	"\x0e_data_locationB\x19\n" +
-	"\x17_least_privilege_policyB\x17\n" +
-	"\x15_monitoring_procedureB\x16\n" +
-	"\x14_need_to_know_policyB#\n" +
-	"!_network_threat_mitigation_policyB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB!\n" +
-	"\x1f_sdn_function_validation_policyB\x0f\n" +
-	"\r_validated_byB\x14\n" +
-	"\x12_security_incidentB\x1e\n" +
-	"\x1c_separation_of_duties_policy\"j\n" +
+	"_parent_id\"j\n" +
 	"\x0fPolicyOperation\x12O\n" +
 	"\x0eequality_check\x18\xc67 \x01(\v2%.confirmate.ontology.v1.EqualityCheckH\x00R\requalityCheckB\x06\n" +
 	"\x04type\"S\n" +
@@ -36130,12 +35798,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"PolicyRule\x12=\n" +
 	"\band_rule\x18\xda\b \x01(\v2\x1f.confirmate.ontology.v1.AndRuleH\x00R\aandRuleB\x06\n" +
 	"\x04type\"+\n" +
-	"\tPrincipal:\x1e\x82\xa6\x1d\tPrincipal\x82\xa6\x1d\rFunctionality\"\xa6\x01\n" +
+	"\tPrincipal:\x1e\x82\xa6\x1d\tPrincipal\x82\xa6\x1d\rFunctionality\"\x94\x01\n" +
 	"\x0eProtectedAsset\x12\x1e\n" +
 	"\n" +
-	"policy_ids\x18\xc9k \x03(\tR\tpolicyIds\x12B\n" +
-	"\bprotects\x18\xcb} \x01(\v2 .confirmate.ontology.v1.ResourceH\x00R\bprotects\x88\x01\x01:#\x82\xa6\x1d\x0eProtectedAsset\x82\xa6\x1d\rFunctionalityB\v\n" +
-	"\t_protects\"\xc6\b\n" +
+	"policy_ids\x18\xc9k \x03(\tR\tpolicyIds\x12=\n" +
+	"\bprotects\x18\xcb} \x01(\v2 .confirmate.ontology.v1.ResourceR\bprotects:#\x82\xa6\x1d\x0eProtectedAsset\x82\xa6\x1d\rFunctionality\"\xae\b\n" +
 	"\aProduct\x12+\n" +
 	"\x0econtext_of_use\x18\xa0\x8d\x01 \x01(\tH\x00R\fcontextOfUse\x88\x01\x01\x12F\n" +
 	"\rcreation_time\x18\xea\x8b\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -36148,14 +35815,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03raw\x18\x85\x7f \x01(\tH\aR\x03raw\x88\x01\x01\x12C\n" +
 	"\fsupport_ends\x18\xado \x01(\v2\x1a.google.protobuf.TimestampH\bR\vsupportEnds\x88\x01\x01\x12\x18\n" +
 	"\x04type\x18\xc32 \x01(\tH\tR\x04type\x88\x01\x01\x12\x1a\n" +
-	"\bcode_ids\x18\xacR \x03(\tR\acodeIds\x12R\n" +
-	"\x0econtact_person\x18\xc1C \x01(\v2%.confirmate.ontology.v1.ContactPersonH\n" +
-	"R\rcontactPerson\x88\x01\x01\x12\x1a\n" +
+	"\bcode_ids\x18\xacR \x03(\tR\acodeIds\x12M\n" +
+	"\x0econtact_person\x18\xc1C \x01(\v2%.confirmate.ontology.v1.ContactPersonR\rcontactPerson\x12\x1a\n" +
 	"\bdata_ids\x18\xc6Y \x03(\tR\adataIds\x12F\n" +
 	"\vgovernances\x18\xad\x82\x01 \x03(\v2\".confirmate.ontology.v1.GovernanceR\vgovernances\x12\"\n" +
 	"\fhardware_ids\x18\xa2; \x03(\tR\vhardwareIds\x12.\n" +
 	"\x12infrastructure_ids\x18\xa1\x17 \x03(\tR\x11infrastructureIds\x12!\n" +
-	"\tparent_id\x18\xcb\x05 \x01(\tH\vR\bparentId\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xcb\x05 \x01(\tH\n" +
+	"R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x17\x82\xa6\x1d\aProduct\x82\xa6\x1d\bResourceB\x11\n" +
@@ -36169,10 +35836,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\b_purposeB\x06\n" +
 	"\x04_rawB\x0f\n" +
 	"\r_support_endsB\a\n" +
-	"\x05_typeB\x11\n" +
-	"\x0f_contact_personB\f\n" +
+	"\x05_typeB\f\n" +
 	"\n" +
-	"_parent_id\"\xce\b\n" +
+	"_parent_id\"\xa1\b\n" +
 	"&ProductionAndMonitoringProcessDocument\x12E\n" +
 	"\rcreation_time\x18\xa1\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18ل\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -36181,11 +35847,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xd2] \x03(\v2J.confirmate.ontology.v1.ProductionAndMonitoringProcessDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xdaS \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xf1a \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\x93[ \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\xb3\x1c \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\x93[ \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\xb3\x1c \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xe1l \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xdaD \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\xdab \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xdaD \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\xdab \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xb5\x18 \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -36195,43 +35861,38 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"l\n" +
+	"_parent_id\"l\n" +
 	"\x17ProtectedAssetOperation\x12I\n" +
 	"\fcheck_access\x18\x8e\b \x01(\v2#.confirmate.ontology.v1.CheckAccessH\x00R\vcheckAccessB\x06\n" +
-	"\x04type\"\xe3\x02\n" +
-	"\x14ProvideConfiguration\x12I\n" +
-	"\vcode_region\x18\xfe3 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\xc6H \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12<\n" +
-	"\x17configuration_source_id\x18\x9eX \x01(\tH\x02R\x15configurationSourceId\x88\x01\x01:P\x82\xa6\x1d\x14ProvideConfiguration\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	"\x04type\"\xce\x02\n" +
+	"\x14ProvideConfiguration\x12D\n" +
+	"\vcode_region\x18\xfe3 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\xc6H \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12<\n" +
+	"\x17configuration_source_id\x18\x9eX \x01(\tH\x01R\x15configurationSourceId\x88\x01\x01:P\x82\xa6\x1d\x14ProvideConfiguration\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x1a\n" +
-	"\x18_configuration_source_id\"\xd5\x03\n" +
-	"\x19ProvideConfigurationGroup\x12I\n" +
+	"\x18_configuration_source_id\"\xc0\x03\n" +
+	"\x19ProvideConfigurationGroup\x12D\n" +
 	"\vcode_region\x18\xe4\n" +
-	" \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\xeeX \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12:\n" +
-	"\x16configuration_group_id\x18\xfbm \x01(\tH\x02R\x14configurationGroupId\x88\x01\x01\x12G\n" +
-	"\x1dconfiguration_group_source_id\x18\xf9Y \x01(\tH\x03R\x1aconfigurationGroupSourceId\x88\x01\x01:U\x82\xa6\x1d\x19ProvideConfigurationGroup\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	" \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\xeeX \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12:\n" +
+	"\x16configuration_group_id\x18\xfbm \x01(\tH\x01R\x14configurationGroupId\x88\x01\x01\x12G\n" +
+	"\x1dconfiguration_group_source_id\x18\xf9Y \x01(\tH\x02R\x1aconfigurationGroupSourceId\x88\x01\x01:U\x82\xa6\x1d\x19ProvideConfigurationGroup\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x19\n" +
 	"\x17_configuration_group_idB \n" +
-	"\x1e_configuration_group_source_id\"\xde\x03\n" +
-	"\x1aProvideConfigurationOption\x12I\n" +
-	"\vcode_region\x18\x928 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x120\n" +
-	"\x10configuration_id\x18\xf8\x8e\x01 \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12<\n" +
-	"\x17configuration_option_id\x18\xafS \x01(\tH\x02R\x15configurationOptionId\x88\x01\x01\x12I\n" +
-	"\x1econfiguration_option_source_id\x18\xf1y \x01(\tH\x03R\x1bconfigurationOptionSourceId\x88\x01\x01:V\x82\xa6\x1d\x1aProvideConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	"\x1e_configuration_group_source_id\"\xc9\x03\n" +
+	"\x1aProvideConfigurationOption\x12D\n" +
+	"\vcode_region\x18\x928 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x120\n" +
+	"\x10configuration_id\x18\xf8\x8e\x01 \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12<\n" +
+	"\x17configuration_option_id\x18\xafS \x01(\tH\x01R\x15configurationOptionId\x88\x01\x01\x12I\n" +
+	"\x1econfiguration_option_source_id\x18\xf1y \x01(\tH\x02R\x1bconfigurationOptionSourceId\x88\x01\x01:V\x82\xa6\x1d\x1aProvideConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x1a\n" +
 	"\x18_configuration_option_idB!\n" +
-	"\x1f_configuration_option_source_id\"\x91\x11\n" +
+	"\x1f_configuration_option_source_id\"\xc7\x0f\n" +
 	"\x03QPU\x125\n" +
 	"\x14one_qubit_error_rate\x18\xfe\x1d \x01(\x02H\x00R\x11oneQubitErrorRate\x88\x01\x01\x12,\n" +
 	"\x0fspam_error_rate\x18\x90\x17 \x01(\x02H\x01R\rspamErrorRate\x88\x01\x01\x120\n" +
@@ -36247,18 +35908,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12@\n" +
 	"\x06labels\x18\x98Z \x03(\v2'.confirmate.ontology.v1.QPU.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x82\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\vR\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x8eB \x01(\tH\fR\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xb7\x15 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\rR changeAndConfigurationManagement\x88\x01\x01\x12Y\n" +
-	"\x11encryption_in_use\x18\xf98 \x01(\v2'.confirmate.ontology.v1.EncryptionInUseH\x0eR\x0fencryptionInUse\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x88\x7f \x01(\v2#.confirmate.ontology.v1.GeoLocationH\x0fR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xb0s \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xb9\x05 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\x10R\x11malwareProtection\x88\x01\x01\x123\n" +
+	"\x03raw\x18\x8eB \x01(\tH\fR\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xb7\x15 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
+	"\x11encryption_in_use\x18\xf98 \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
+	"\fgeo_location\x18\x88\x7f \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xb0s \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xb9\x05 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x123\n" +
 	"\x15network_interface_ids\x18\xbf\x14 \x03(\tR\x13networkInterfaceIds\x12G\n" +
-	"\fredundancies\x18\x99_ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12^\n" +
-	"\x12remote_attestation\x18\x94\b \x01(\v2).confirmate.ontology.v1.RemoteAttestationH\x11R\x11remoteAttestation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xfa\x19 \x01(\tH\x12R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xfc, \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x13R\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xb0I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x14R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\fredundancies\x18\x99_ \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
+	"\x12remote_attestation\x18\x94\b \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12!\n" +
+	"\tparent_id\x18\xfa\x19 \x01(\tH\rR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xfc, \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xb0I \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:0\x82\xa6\x1d\x03QPU\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x17\n" +
@@ -36274,16 +35935,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x14\n" +
-	"\x12_encryption_in_useB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\x15\n" +
-	"\x13_remote_attestationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xb7\x01\n" +
+	"_parent_id\"\xb7\x01\n" +
 	"\x04RBAC\x121\n" +
 	"\x11broad_assignments\x18\xae, \x01(\x02H\x00R\x10broadAssignments\x88\x01\x01\x12'\n" +
 	"\fmixed_duties\x18\xeep \x01(\x02H\x01R\vmixedDuties\x88\x01\x01:,\x82\xa6\x1d\x04RBAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeatureB\x14\n" +
@@ -36296,21 +35950,19 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"\b_enabledB\x0f\n" +
 	"\r_max_requestsB\x16\n" +
-	"\x14_time_window_seconds\"\xe4\x02\n" +
-	"\x16ReadConfigurationGroup\x12I\n" +
-	"\vcode_region\x18\xf7t \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\x81& \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12:\n" +
-	"\x16configuration_group_id\x18\x94I \x01(\tH\x02R\x14configurationGroupId\x88\x01\x01:R\x82\xa6\x1d\x16ReadConfigurationGroup\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	"\x14_time_window_seconds\"\xcf\x02\n" +
+	"\x16ReadConfigurationGroup\x12D\n" +
+	"\vcode_region\x18\xf7t \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\x81& \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12:\n" +
+	"\x16configuration_group_id\x18\x94I \x01(\tH\x01R\x14configurationGroupId\x88\x01\x01:R\x82\xa6\x1d\x16ReadConfigurationGroup\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x19\n" +
-	"\x17_configuration_group_id\"\xea\x02\n" +
-	"\x17ReadConfigurationOption\x12I\n" +
-	"\vcode_region\x18\x94| \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\xa9] \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12=\n" +
-	"\x17configuration_option_id\x18\x98\x88\x01 \x01(\tH\x02R\x15configurationOptionId\x88\x01\x01:S\x82\xa6\x1d\x17ReadConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	"\x17_configuration_group_id\"\xd5\x02\n" +
+	"\x17ReadConfigurationOption\x12D\n" +
+	"\vcode_region\x18\x94| \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\xa9] \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12=\n" +
+	"\x17configuration_option_id\x18\x98\x88\x01 \x01(\tH\x01R\x15configurationOptionId\x88\x01\x01:S\x82\xa6\x1d\x17ReadConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x1a\n" +
 	"\x18_configuration_option_id\"\x90\x02\n" +
 	"\n" +
@@ -36318,31 +35970,26 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0egeo_redundancy\x18\x84\x13 \x01(\v2%.confirmate.ontology.v1.GeoRedundancyH\x00R\rgeoRedundancy\x12U\n" +
 	"\x10local_redundancy\x18\xe9\x13 \x01(\v2'.confirmate.ontology.v1.LocalRedundancyH\x00R\x0flocalRedundancy\x12R\n" +
 	"\x0fzone_redundancy\x18\x89W \x01(\v2&.confirmate.ontology.v1.ZoneRedundancyH\x00R\x0ezoneRedundancyB\x06\n" +
-	"\x04type\"\xec\x02\n" +
-	"\x1aRegisterConfigurationGroup\x12I\n" +
-	"\vcode_region\x18\xb3x \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\xa6: \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12:\n" +
-	"\x16configuration_group_id\x18\xb8z \x01(\tH\x02R\x14configurationGroupId\x88\x01\x01:V\x82\xa6\x1d\x1aRegisterConfigurationGroup\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	"\x04type\"\xd7\x02\n" +
+	"\x1aRegisterConfigurationGroup\x12D\n" +
+	"\vcode_region\x18\xb3x \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\xa6: \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12:\n" +
+	"\x16configuration_group_id\x18\xb8z \x01(\tH\x01R\x14configurationGroupId\x88\x01\x01:V\x82\xa6\x1d\x1aRegisterConfigurationGroup\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x19\n" +
-	"\x17_configuration_group_id\"\xf1\x02\n" +
-	"\x1bRegisterConfigurationOption\x12I\n" +
-	"\vcode_region\x18\x8eY \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12/\n" +
-	"\x10configuration_id\x18\x8dS \x01(\tH\x01R\x0fconfigurationId\x88\x01\x01\x12<\n" +
-	"\x17configuration_option_id\x18\xc9d \x01(\tH\x02R\x15configurationOptionId\x88\x01\x01:W\x82\xa6\x1d\x1bRegisterConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x13\n" +
+	"\x17_configuration_group_id\"\xdc\x02\n" +
+	"\x1bRegisterConfigurationOption\x12D\n" +
+	"\vcode_region\x18\x8eY \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12/\n" +
+	"\x10configuration_id\x18\x8dS \x01(\tH\x00R\x0fconfigurationId\x88\x01\x01\x12<\n" +
+	"\x17configuration_option_id\x18\xc9d \x01(\tH\x01R\x15configurationOptionId\x88\x01\x01:W\x82\xa6\x1d\x1bRegisterConfigurationOption\x82\xa6\x1d\x16ConfigurationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x13\n" +
 	"\x11_configuration_idB\x1a\n" +
-	"\x18_configuration_option_id\"\xa9\x03\n" +
-	"\x14RegisterHttpEndpoint\x12J\n" +
-	"\vcode_region\x18֑\x01 \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12O\n" +
-	"\rhttp_endpoint\x18\xefs \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\x01R\fhttpEndpoint\x88\x01\x01\x12b\n" +
-	"\x14http_request_handler\x18\x8ev \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerH\x02R\x12httpRequestHandler\x88\x01\x01:U\x82\xa6\x1d\x14RegisterHttpEndpoint\x82\xa6\x1d\x1bHttpRequestHandlerOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x10\n" +
-	"\x0e_http_endpointB\x17\n" +
-	"\x15_http_request_handler\"\xd4\x0f\n" +
+	"\x18_configuration_option_id\"\xdf\x02\n" +
+	"\x14RegisterHttpEndpoint\x12E\n" +
+	"\vcode_region\x18֑\x01 \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12J\n" +
+	"\rhttp_endpoint\x18\xefs \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12]\n" +
+	"\x14http_request_handler\x18\x8ev \x01(\v2*.confirmate.ontology.v1.HttpRequestHandlerR\x12httpRequestHandler:U\x82\xa6\x1d\x14RegisterHttpEndpoint\x82\xa6\x1d\x1bHttpRequestHandlerOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x8c\x0e\n" +
 	"\x19RelationalDatabaseService\x12E\n" +
 	"\rcreation_time\x18\x9fT \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xe8c \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -36352,24 +35999,23 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xc5( \x03(\v2=.confirmate.ontology.v1.RelationalDatabaseService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xd6S \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\x9d\x02 \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xb4\x02 \x01(\tH\x05R\x03raw\x88\x01\x01\x12Y\n" +
-	"\x10activity_logging\x18\x8f\x8c\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12Y\n" +
-	"\x12anomaly_detections\x18\xee\x90\x01 \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xb1X \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12 \n" +
+	"\x03raw\x18\xb4\x02 \x01(\tH\x05R\x03raw\x88\x01\x01\x12T\n" +
+	"\x10activity_logging\x18\x8f\x8c\x01 \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12Y\n" +
+	"\x12anomaly_detections\x18\xee\x90\x01 \x03(\v2(.confirmate.ontology.v1.AnomalyDetectionR\x11anomalyDetections\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xb1X \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12 \n" +
 	"\vcompute_ids\x18\xed) \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xf1k \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12O\n" +
-	"\rhttp_endpoint\x18\xa4\x1b \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\tR\fhttpEndpoint\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xb0r \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xafx \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12H\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xf1k \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12J\n" +
+	"\rhttp_endpoint\x18\xa4\x1b \x01(\v2$.confirmate.ontology.v1.HttpEndpointR\fhttpEndpoint\x12<\n" +
+	"\bloggings\x18\xb0r \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xafx \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\x89\x8f\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x88\x0e \x01(\tH\vR\bparentId\x88\x01\x01\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\xcd@ \x01(\tH\fR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
+	"\tparent_id\x18\x88\x0e \x01(\tH\x06R\bparentId\x88\x01\x01\x12E\n" +
+	"\x1cservice_metadata_document_id\x18\xcd@ \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12 \n" +
 	"\vstorage_ids\x18\xdbr \x03(\tR\n" +
-	"storageIds\x12d\n" +
-	"\x14transport_encryption\x18\x895 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\rR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xb08 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x0eR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"storageIds\x12_\n" +
+	"\x14transport_encryption\x18\x895 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xb08 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x80\x01\x82\xa6\x1d\x19RelationalDatabaseService\x82\xa6\x1d\x0fDatabaseService\x82\xa6\x1d\x0eStorageService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -36379,17 +36025,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x10\n" +
-	"\x0e_http_endpointB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\xcc\x01\n" +
+	"\x1d_service_metadata_document_id\"\xcc\x01\n" +
 	"\vReliability\x12^\n" +
 	"\x13explainable_results\x18\xc90 \x01(\v2*.confirmate.ontology.v1.ExplainableResultsH\x00R\x12explainableResults\x12U\n" +
 	"\x10robustness_score\x18\xbce \x01(\v2'.confirmate.ontology.v1.RobustnessScoreH\x00R\x0frobustnessScoreB\x06\n" +
@@ -36401,20 +36040,18 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x0e_creation_timeB\n" +
 	"\n" +
 	"\b_enabledB\t\n" +
-	"\a_status\"\x84\x03\n" +
+	"\a_status\"\xd0\x02\n" +
 	"\x12RemoteDataLocation\x12\x18\n" +
-	"\x04path\x18\xeb' \x01(\tH\x00R\x04path\x88\x01\x01\x12N\n" +
-	"\fauthenticity\x18\xb7\r \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x01R\fauthenticity\x88\x01\x01\x12#\n" +
+	"\x04path\x18\xeb' \x01(\tH\x00R\x04path\x88\x01\x01\x12I\n" +
+	"\fauthenticity\x18\xb7\r \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12#\n" +
 	"\n" +
-	"storage_id\x18\xc4G \x01(\tH\x02R\tstorageId\x88\x01\x01\x12d\n" +
-	"\x14transport_encryption\x18\xf0\a \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\x03R\x13transportEncryption\x88\x01\x01:7\x82\xa6\x1d\x12RemoteDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\a\n" +
-	"\x05_pathB\x0f\n" +
-	"\r_authenticityB\r\n" +
-	"\v_storage_idB\x17\n" +
-	"\x15_transport_encryption\"h\n" +
+	"storage_id\x18\xc4G \x01(\tH\x01R\tstorageId\x88\x01\x01\x12_\n" +
+	"\x14transport_encryption\x18\xf0\a \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption:7\x82\xa6\x1d\x12RemoteDataLocation\x82\xa6\x1d\fDataLocation\x82\xa6\x1d\rFunctionalityB\a\n" +
+	"\x05_pathB\r\n" +
+	"\v_storage_id\"h\n" +
 	"\x10RemoteEntryPoint\x12L\n" +
 	"\rhttp_endpoint\x18\xa3F \x01(\v2$.confirmate.ontology.v1.HttpEndpointH\x00R\fhttpEndpointB\x06\n" +
-	"\x04type\"\x9c\b\n" +
+	"\x04type\"\xef\a\n" +
 	"\x0eReportDocument\x12E\n" +
 	"\rcreation_time\x18\xa3F \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12'\n" +
 	"\vdescription\x18\xa9\x88\x01 \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -36423,11 +36060,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x99# \x03(\v22.confirmate.ontology.v1.ReportDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xe0t \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xad\x14 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\\\n" +
-	"\x13cryptographic_hashs\x18\xa8\x88\x01 \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12P\n" +
-	"\rdata_location\x18\x97\x91\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\xa8\x88\x01 \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12K\n" +
+	"\rdata_location\x18\x97\x91\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xef\x02 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xb0} \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\x96L \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xb0} \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\x96L \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xb3Q \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -36437,11 +36074,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\x9d\x01\n" +
+	"_parent_id\"\x9d\x01\n" +
 	"\x10RequestForChange\x12C\n" +
 	"\x1aapproved_before_deployment\x18\xad\x83\x01 \x01(\bH\x00R\x18approvedBeforeDeployment\x88\x01\x01:%\x82\xa6\x1d\x10RequestForChange\x82\xa6\x1d\rFunctionalityB\x1d\n" +
 	"\x1b_approved_before_deployment\"\xa76\n" +
@@ -36527,7 +36162,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06darwin\x18֑\x01 \x01(\v2\x1e.confirmate.ontology.v1.DarwinH\x00R\x06darwin\x126\n" +
 	"\x05posix\x18\xa7? \x01(\v2\x1d.confirmate.ontology.v1.POSIXH\x00R\x05posix\x126\n" +
 	"\x05win32\x18\xb62 \x01(\v2\x1d.confirmate.ontology.v1.Win32H\x00R\x05win32B\x06\n" +
-	"\x04type\"\xec\t\n" +
+	"\x04type\"\xf3\b\n" +
 	"\rResourceGroup\x12F\n" +
 	"\rcreation_time\x18ԃ\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xcb^ \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -36535,15 +36170,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xe5s \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
 	"\x06labels\x18\xed\x88\x01 \x03(\v21.confirmate.ontology.v1.ResourceGroup.LabelsEntryR\x06labels\x12!\n" +
 	"\x04name\x18\x86\x94\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x17\n" +
-	"\x03raw\x18\x87\x84\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x89/ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x9bO \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12=\n" +
-	"\bloggings\x18Έ\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x88T \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x87\x84\x01 \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x89/ \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x9bO \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12=\n" +
+	"\bloggings\x18Έ\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x88T \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\x8dX \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x99K \x01(\tH\tR\bparentId\x88\x01\x01\x12Y\n" +
-	"\x10usage_statistics\x18\u0383\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x99K \x01(\tH\x06R\bparentId\x88\x01\x01\x12T\n" +
+	"\x10usage_statistics\x18\u0383\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:/\x82\xa6\x1d\rResourceGroup\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -36552,13 +36186,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xfe\x03\n" +
+	"_parent_id\"\xfe\x03\n" +
 	"\x0fResourceLogging\x12\x1e\n" +
 	"\aenabled\x18\xe5\v \x01(\bH\x00R\aenabled\x88\x01\x01\x12!\n" +
 	"\tlog_level\x18\xd1. \x01(\tH\x01R\blogLevel\x88\x01\x01\x12C\n" +
@@ -36574,7 +36204,8 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x11_retention_periodB\x1a\n" +
 	"\x18_security_alerts_enabled\"(\n" +
 	"\fResourceType:\x18\x82\xa6\x1d\fResourceType\x82\xa6\x1d\x04Core\"H\n" +
-	"\x0fRobustnessScore:5\x82\xa6\x1d\x0fRobustnessScore\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\x97\v\n" +
+	"\x0fRobustnessScore:5\x82\xa6\x1d\x0fRobustnessScore\x82\xa6\x1d\vReliability\x82\xa6\x1d\x0fSecurityFeature\"\x87\n" +
+	"\n" +
 	"\x0eRoleAssignment\x12\"\n" +
 	"\tactivated\x18\xf0W \x01(\bH\x00R\tactivated\x88\x01\x01\x12E\n" +
 	"\rcreation_time\x18\x99m \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fcreationTime\x88\x01\x01\x12&\n" +
@@ -36583,16 +36214,15 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x95\x83\x01 \x01(\bH\x04R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12L\n" +
 	"\x06labels\x18\xaa\x8f\x01 \x03(\v22.confirmate.ontology.v1.RoleAssignment.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x93\x17 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x05R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xeeT \x01(\tH\x06R\x03raw\x88\x01\x01\x12R\n" +
-	"\rauthorization\x18Ő\x01 \x01(\v2%.confirmate.ontology.v1.AuthorizationH\aR\rauthorization\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x8ba \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\bR changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xecN \x01(\v2#.confirmate.ontology.v1.GeoLocationH\tR\vgeoLocation\x88\x01\x01\x12=\n" +
-	"\bloggings\x18\xa7\x92\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12_\n" +
-	"\x12malware_protection\x18\xff\x89\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\n" +
-	"R\x11malwareProtection\x88\x01\x01\x12H\n" +
+	"\x03raw\x18\xeeT \x01(\tH\x06R\x03raw\x88\x01\x01\x12M\n" +
+	"\rauthorization\x18Ő\x01 \x01(\v2%.confirmate.ontology.v1.AuthorizationR\rauthorization\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x8ba \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xecN \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12=\n" +
+	"\bloggings\x18\xa7\x92\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Z\n" +
+	"\x12malware_protection\x18\xff\x89\x01 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\xe4\x93\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xcaA \x01(\tH\vR\bparentId\x88\x01\x01\x12Y\n" +
-	"\x10usage_statistics\x18\xe0\x8f\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xcaA \x01(\tH\aR\bparentId\x88\x01\x01\x12T\n" +
+	"\x10usage_statistics\x18\xe0\x8f\x01 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:@\x82\xa6\x1d\x0eRoleAssignment\x82\xa6\x1d\fIdentifiable\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\f\n" +
@@ -36603,14 +36233,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_authorizationB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x81\b\n" +
+	"_parent_id\"\xd4\a\n" +
 	"\fSBOMDocument\x12F\n" +
 	"\rcreation_time\x18\xb7\x93\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xccb \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -36619,11 +36244,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x89L \x03(\v20.confirmate.ontology.v1.SBOMDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x85\x1d \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xb0~ \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\xcb\f \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\xff\x13 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\xcb\f \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\xff\x13 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\x95\x13 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\x86` \x01(\tH\aR\bparentId\x88\x01\x01\x12R\n" +
-	"\fvalidated_by\x18\x9c\x87\x01 \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\x86` \x01(\tH\x06R\bparentId\x88\x01\x01\x12M\n" +
+	"\fvalidated_by\x18\x9c\x87\x01 \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xbd# \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -36633,11 +36258,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\x8f\x01\n" +
+	"_parent_id\"\x8f\x01\n" +
 	"\x1bSDNFunctionValidationPolicy\x12#\n" +
 	"\n" +
 	"is_defined\x18\x89P \x01(\bH\x00R\tisDefined\x88\x01\x01:<\x82\xa6\x1d\x1bSDNFunctionValidationPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
@@ -36648,7 +36271,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"schema_url\x18\xaeh \x01(\tH\x01R\tschemaUrl\x88\x01\x01\x127\n" +
 	"\x06errors\x18Ā\x01 \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:%\x82\xa6\x1d\x10SchemaValidation\x82\xa6\x1d\rFunctionalityB\t\n" +
 	"\a_formatB\r\n" +
-	"\v_schema_url\"\xe6\r\n" +
+	"\v_schema_url\"\xc1\f\n" +
 	"\x06Secret\x12F\n" +
 	"\rcreation_time\x18\xe5\x88\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x9bY \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1e\n" +
@@ -36663,16 +36286,16 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04name\x18\xc4\a \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\bR\x04name\x88\x01\x01\x12H\n" +
 	"\x0fnot_before_date\x18\x97h \x01(\v2\x1a.google.protobuf.TimestampH\tR\rnotBeforeDate\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xee. \x01(\tH\n" +
-	"R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xd18 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\vR changeAndConfigurationManagement\x88\x01\x01\x12?\n" +
-	"\bbased_on\x18\xba= \x01(\v2\x1e.confirmate.ontology.v1.CipherH\fR\abasedOn\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xb8  \x01(\v2#.confirmate.ontology.v1.GeoLocationH\rR\vgeoLocation\x88\x01\x01\x12V\n" +
-	"\x10used_by_multiple\x18\xe7\x1b \x01(\v2&.confirmate.ontology.v1.InfrastructureH\x0eR\x0eusedByMultiple\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xd5} \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xdf4 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\x0fR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xd18 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12:\n" +
+	"\bbased_on\x18\xba= \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12G\n" +
+	"\fgeo_location\x18\xb8  \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12Q\n" +
+	"\x10used_by_multiple\x18\xe7\x1b \x01(\v2&.confirmate.ontology.v1.InfrastructureR\x0eusedByMultiple\x12<\n" +
+	"\bloggings\x18\xd5} \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xdf4 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xa7n \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xa8j \x01(\tH\x10R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xea) \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x11R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xa8j \x01(\tH\vR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xea) \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:6\x82\xa6\x1d\x06Secret\x82\xa6\x1d\n" +
@@ -36688,20 +36311,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_key_sizeB\a\n" +
 	"\x05_nameB\x12\n" +
 	"\x10_not_before_dateB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\v\n" +
-	"\t_based_onB\x0f\n" +
-	"\r_geo_locationB\x13\n" +
-	"\x11_used_by_multipleB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xac\x01\n" +
+	"_parent_id\"\xac\x01\n" +
 	"\x0fSecretOperation\x12L\n" +
 	"\rcreate_secret\x18\xcd\x1d \x01(\v2$.confirmate.ontology.v1.CreateSecretH\x00R\fcreateSecret\x12C\n" +
 	"\n" +
 	"get_secret\x18\xf9\x15 \x01(\v2!.confirmate.ontology.v1.GetSecretH\x00R\tgetSecretB\x06\n" +
-	"\x04type\"\xf8\b\n" +
+	"\x04type\"\xcb\b\n" +
 	"\x18SecurityAdvisoryDocument\x12E\n" +
 	"\rcreation_time\x18\xc8U \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x8f\x1c \x01(\tH\x01R\vdescription\x88\x01\x01\x12!\n" +
@@ -36710,11 +36327,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18Ђ\x01 \x03(\v2<.confirmate.ontology.v1.SecurityAdvisoryDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xb9v \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xd8\x1b \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\xd8% \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\xdba \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12\\\n" +
+	"\x13cryptographic_hashs\x18\xd8% \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\xdba \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\\\n" +
 	"\x13document_signatures\x18\xf8\x83\x01 \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xb8% \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\x9eU \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xb8% \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\x9eU \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\x95\f \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x12P\n" +
 	"\x0fvulnerabilities\x18\xf0\x7f \x03(\v2%.confirmate.ontology.v1.VulnerabilityR\x0fvulnerabilities\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
@@ -36725,13 +36342,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\x88\x01\n" +
+	"_parent_id\"\x88\x01\n" +
 	"\x14SecurityAdvisoryFeed\x12E\n" +
-	"\x1esecurity_advisory_document_ids\x18\xbb\x81\x01 \x03(\tR\x1bsecurityAdvisoryDocumentIds:)\x82\xa6\x1d\x14SecurityAdvisoryFeed\x82\xa6\x1d\rFunctionality\"\xda\r\n" +
+	"\x1esecurity_advisory_document_ids\x18\xbb\x81\x01 \x03(\tR\x1bsecurityAdvisoryDocumentIds:)\x82\xa6\x1d\x14SecurityAdvisoryFeed\x82\xa6\x1d\rFunctionality\"\xc3\f\n" +
 	"\x17SecurityAdvisoryService\x12E\n" +
 	"\rcreation_time\x18\xd1\x17 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x90\x12 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -36741,21 +36356,20 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\xc5\x06 \x03(\v2;.confirmate.ontology.v1.SecurityAdvisoryService.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xb6\x10 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x15\n" +
 	"\x05ports\x18\xcb# \x03(\rR\x05ports\x12\x16\n" +
-	"\x03raw\x18\xe3Q \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xc8\x17 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12!\n" +
+	"\x03raw\x18\xe3Q \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xc8\x17 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12!\n" +
 	"\vcompute_ids\x18\x91\x8d\x01 \x03(\tR\n" +
-	"computeIds\x12L\n" +
-	"\fgeo_location\x18\xd0V \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12\x18\n" +
+	"computeIds\x12G\n" +
+	"\fgeo_location\x18\xd0V \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12\x18\n" +
 	"\akey_ids\x18\x8d8 \x03(\tR\x06keyIds\x12;\n" +
-	"\bloggings\x18\x1c \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\x8b9 \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\bloggings\x18\x1c \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\x8b9 \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xdbr \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xf3W \x01(\tH\tR\bparentId\x88\x01\x01\x12e\n" +
+	"\tparent_id\x18\xf3W \x01(\tH\x06R\bparentId\x88\x01\x01\x12e\n" +
 	"\x17security_advisory_feeds\x18\xec& \x03(\v2,.confirmate.ontology.v1.SecurityAdvisoryFeedR\x15securityAdvisoryFeeds\x12E\n" +
-	"\x1cservice_metadata_document_id\x18\x8b\x1e \x01(\tH\n" +
-	"R\x19serviceMetadataDocumentId\x88\x01\x01\x12e\n" +
-	"\x14transport_encryption\x18\xef\x8a\x01 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionH\vR\x13transportEncryption\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xcdo \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\fR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\x1cservice_metadata_document_id\x18\x8b\x1e \x01(\tH\aR\x19serviceMetadataDocumentId\x88\x01\x01\x12`\n" +
+	"\x14transport_encryption\x18\xef\x8a\x01 \x01(\v2+.confirmate.ontology.v1.TransportEncryptionR\x13transportEncryption\x12S\n" +
+	"\x10usage_statistics\x18\xcdo \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:Y\x82\xa6\x1d\x17SecurityAdvisoryService\x82\xa6\x1d\x0eNetworkService\x82\xa6\x1d\n" +
@@ -36765,15 +36379,10 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_idB\x1f\n" +
-	"\x1d_service_metadata_document_idB\x17\n" +
-	"\x15_transport_encryptionB\x13\n" +
-	"\x11_usage_statistics\"\xd5\x1e\n" +
+	"\x1d_service_metadata_document_id\"\xd5\x1e\n" +
 	"\x0fSecurityFeature\x12X\n" +
 	"\x11anomaly_detection\x18\xf8$ \x01(\v2(.confirmate.ontology.v1.AnomalyDetectionH\x00R\x10anomalyDetection\x12R\n" +
 	"\x0fasset_inventory\x18\xa0d \x01(\v2&.confirmate.ontology.v1.AssetInventoryH\x00R\x0eassetInventory\x12J\n" +
@@ -36833,7 +36442,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x18SeparationOfDutiesPolicy\x12#\n" +
 	"\n" +
 	"is_defined\x18\xc9o \x01(\bH\x00R\tisDefined\x88\x01\x01:9\x82\xa6\x1d\x18SeparationOfDutiesPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\r\n" +
-	"\v_is_defined\"\xa0\b\n" +
+	"\v_is_defined\"\xf3\a\n" +
 	"\x17ServiceMetadataDocument\x12E\n" +
 	"\rcreation_time\x18\xa5- \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xb5\x1d \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -36842,11 +36451,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x88\r \x03(\v2;.confirmate.ontology.v1.ServiceMetadataDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xa0U \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\x80? \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\x98_ \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\x9an \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\x98_ \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\x9an \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xe0\" \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xfd@ \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\xc8- \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xfd@ \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\xc8- \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\x91J \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -36856,11 +36465,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\xb4\x01\n" +
+	"_parent_id\"\xb4\x01\n" +
 	"\x11DocumentSignature\x12\"\n" +
 	"\talgorithm\x18\xbf\x1f \x01(\tH\x00R\talgorithm\x88\x01\x01\x126\n" +
 	"\x06errors\x18\xe1p \x03(\v2\x1d.confirmate.ontology.v1.ErrorR\x06errors:5\x82\xa6\x1d\x11DocumentSignature\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\f\n" +
@@ -36940,7 +36547,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1brelational_database_service\x18\xc5a \x01(\v21.confirmate.ontology.v1.RelationalDatabaseServiceH\x00R\x19relationalDatabaseService\x12`\n" +
 	"\x14file_storage_service\x18\xae\x83\x01 \x01(\v2*.confirmate.ontology.v1.FileStorageServiceH\x00R\x12fileStorageService\x12e\n" +
 	"\x16object_storage_service\x18\xbb2 \x01(\v2,.confirmate.ontology.v1.ObjectStorageServiceH\x00R\x14objectStorageServiceB\x06\n" +
-	"\x04type\"\x8c\x04\n" +
+	"\x04type\"\xdc\x03\n" +
 	"\x0fSymmetricCipher\x12(\n" +
 	"\rauth_tag_size\x18\xb8; \x01(\x05H\x00R\vauthTagSize\x88\x01\x01\x12#\n" +
 	"\n" +
@@ -36948,27 +36555,24 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\vcipher_name\x18\x8a\x0f \x01(\tH\x02R\n" +
 	"cipherName\x88\x01\x01\x12\x1f\n" +
 	"\bkey_size\x18\xe8\x03 \x01(\x05H\x03R\akeySize\x88\x01\x01\x12\x1a\n" +
-	"\x05modus\x18\xb4P \x01(\tH\x04R\x05modus\x88\x01\x01\x12g\n" +
-	"\x15initialization_vector\x18\xbdX \x01(\v2,.confirmate.ontology.v1.InitializationVectorH\x05R\x14initializationVector\x88\x01\x01\x12?\n" +
-	"\apadding\x18\xee\x14 \x01(\v2\x1f.confirmate.ontology.v1.PaddingH\x06R\apadding\x88\x01\x01:.\x82\xa6\x1d\x0fSymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\x10\n" +
+	"\x05modus\x18\xb4P \x01(\tH\x04R\x05modus\x88\x01\x01\x12b\n" +
+	"\x15initialization_vector\x18\xbdX \x01(\v2,.confirmate.ontology.v1.InitializationVectorR\x14initializationVector\x12:\n" +
+	"\apadding\x18\xee\x14 \x01(\v2\x1f.confirmate.ontology.v1.PaddingR\apadding:.\x82\xa6\x1d\x0fSymmetricCipher\x82\xa6\x1d\x06Cipher\x82\xa6\x1d\rFunctionalityB\x10\n" +
 	"\x0e_auth_tag_sizeB\r\n" +
 	"\v_block_sizeB\x0e\n" +
 	"\f_cipher_nameB\v\n" +
 	"\t_key_sizeB\b\n" +
-	"\x06_modusB\x18\n" +
-	"\x16_initialization_vectorB\n" +
-	"\n" +
-	"\b_padding\"!\n" +
-	"\x04Time:\x19\x82\xa6\x1d\x04Time\x82\xa6\x1d\rFunctionality\"\xbc\x04\n" +
+	"\x06_modus\"!\n" +
+	"\x04Time:\x19\x82\xa6\x1d\x04Time\x82\xa6\x1d\rFunctionality\"\xa5\x04\n" +
 	"\x05Token\x12E\n" +
 	"\rcreation_time\x18\xf8G \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xf1\x1f \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\x02id\x18\x99\x82\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12B\n" +
 	"\x06labels\x18\xaaz \x03(\v2).confirmate.ontology.v1.Token.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xc0{ \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x17\n" +
-	"\x03raw\x18\xec\x82\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12O\n" +
-	"\rdata_location\x18\x87k \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12!\n" +
-	"\tparent_id\x18\xcdS \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xec\x82\x01 \x01(\tH\x04R\x03raw\x88\x01\x01\x12J\n" +
+	"\rdata_location\x18\x87k \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12!\n" +
+	"\tparent_id\x18\xcdS \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1d\x82\xa6\x1d\x05Token\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -36976,42 +36580,38 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xc9\x01\n" +
 	"\bTraining\x12[\n" +
 	"\x12awareness_training\x18\xa3@ \x01(\v2).confirmate.ontology.v1.AwarenessTrainingH\x00R\x11awarenessTraining\x12X\n" +
 	"\x11security_training\x18\xdfB \x01(\v2(.confirmate.ontology.v1.SecurityTrainingH\x00R\x10securityTrainingB\x06\n" +
-	"\x04type\"\xd7\x04\n" +
+	"\x04type\"\xc5\x04\n" +
 	"\x13TransportEncryption\x12\x1e\n" +
 	"\aenabled\x18\xb5q \x01(\bH\x00R\aenabled\x88\x01\x01\x12 \n" +
 	"\benforced\x18\xe3K \x01(\bH\x01R\benforced\x88\x01\x01\x12 \n" +
 	"\bprotocol\x18\xcb6 \x01(\tH\x02R\bprotocol\x88\x01\x01\x12/\n" +
 	"\x10protocol_version\x18\x81V \x01(\x02H\x03R\x0fprotocolVersion\x88\x01\x01\x12<\n" +
-	"\x17tls_signature_algorithm\x18\x94u \x01(\tH\x04R\x15tlsSignatureAlgorithm\x88\x01\x01\x12@\n" +
-	"\bbased_on\x18Ň\x01 \x01(\v2\x1e.confirmate.ontology.v1.CipherH\x05R\abasedOn\x88\x01\x01\x12I\n" +
+	"\x17tls_signature_algorithm\x18\x94u \x01(\tH\x04R\x15tlsSignatureAlgorithm\x88\x01\x01\x12;\n" +
+	"\bbased_on\x18Ň\x01 \x01(\v2\x1e.confirmate.ontology.v1.CipherR\abasedOn\x12I\n" +
 	"\rcipher_suites\x18\xa8, \x03(\v2#.confirmate.ontology.v1.CipherSuiteR\fcipherSuites\x12!\n" +
-	"\tsecret_id\x18\xebI \x01(\tH\x06R\bsecretId\x88\x01\x01:K\x82\xa6\x1d\x13TransportEncryption\x82\xa6\x1d\n" +
+	"\tsecret_id\x18\xebI \x01(\tH\x05R\bsecretId\x88\x01\x01:K\x82\xa6\x1d\x13TransportEncryption\x82\xa6\x1d\n" +
 	"Encryption\x82\xa6\x1d\x0fConfidentiality\x82\xa6\x1d\x0fSecurityFeatureB\n" +
 	"\n" +
 	"\b_enabledB\v\n" +
 	"\t_enforcedB\v\n" +
 	"\t_protocolB\x13\n" +
 	"\x11_protocol_versionB\x1a\n" +
-	"\x18_tls_signature_algorithmB\v\n" +
-	"\t_based_onB\f\n" +
+	"\x18_tls_signature_algorithmB\f\n" +
 	"\n" +
-	"_secret_id\"\xad\x02\n" +
-	"\x13UnlockEncryptedDisk\x12I\n" +
-	"\vcode_region\x18\x8ci \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x00R\n" +
-	"codeRegion\x88\x01\x01\x12U\n" +
-	"\x0fdisk_encryption\x18\xab\x0f \x01(\v2&.confirmate.ontology.v1.DiskEncryptionH\x01R\x0ediskEncryption\x88\x01\x01:P\x82\xa6\x1d\x13UnlockEncryptedDisk\x82\xa6\x1d\x17DiskEncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_code_regionB\x12\n" +
-	"\x10_disk_encryption\"\x8f\x01\n" +
+	"_secret_id\"\xff\x01\n" +
+	"\x13UnlockEncryptedDisk\x12D\n" +
+	"\vcode_region\x18\x8ci \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion\x12P\n" +
+	"\x0fdisk_encryption\x18\xab\x0f \x01(\v2&.confirmate.ontology.v1.DiskEncryptionR\x0ediskEncryption:P\x82\xa6\x1d\x13UnlockEncryptedDisk\x82\xa6\x1d\x17DiskEncryptionOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\x8f\x01\n" +
 	"\x0fUsageStatistics\x121\n" +
 	"\x12api_hits_per_month\x18\xc9; \x01(\x05H\x00R\x0fapiHitsPerMonth\x88\x01\x01:2\x82\xa6\x1d\x0fUsageStatistics\x82\xa6\x1d\bAuditing\x82\xa6\x1d\x0fSecurityFeatureB\x15\n" +
-	"\x13_api_hits_per_month\"\xc7\b\n" +
+	"\x13_api_hits_per_month\"\x9a\b\n" +
 	"$UserInformationAndIntructionDocument\x12E\n" +
 	"\rcreation_time\x18\xf8\" \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xc2> \x01(\tH\x01R\vdescription\x88\x01\x01\x12 \n" +
@@ -37020,11 +36620,11 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18\x9e& \x03(\v2H.confirmate.ontology.v1.UserInformationAndIntructionDocument.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xb0f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\xd2l \x01(\tH\x05R\x03raw\x88\x01\x01\x12[\n" +
-	"\x13cryptographic_hashs\x18\xa6' \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12O\n" +
-	"\rdata_location\x18\xcdN \x01(\v2$.confirmate.ontology.v1.DataLocationH\x06R\fdataLocation\x88\x01\x01\x12[\n" +
+	"\x13cryptographic_hashs\x18\xa6' \x03(\v2).confirmate.ontology.v1.CryptographicHashR\x12cryptographicHashs\x12J\n" +
+	"\rdata_location\x18\xcdN \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12[\n" +
 	"\x13document_signatures\x18\xacA \x03(\v2).confirmate.ontology.v1.DocumentSignatureR\x12documentSignatures\x12!\n" +
-	"\tparent_id\x18\xa1\f \x01(\tH\aR\bparentId\x88\x01\x01\x12Q\n" +
-	"\fvalidated_by\x18\x89l \x01(\v2(.confirmate.ontology.v1.SchemaValidationH\bR\vvalidatedBy\x88\x01\x01\x12U\n" +
+	"\tparent_id\x18\xa1\f \x01(\tH\x06R\bparentId\x88\x01\x01\x12L\n" +
+	"\fvalidated_by\x18\x89l \x01(\v2(.confirmate.ontology.v1.SchemaValidationR\vvalidatedBy\x12U\n" +
 	"\x11security_features\x18\xedb \x03(\v2'.confirmate.ontology.v1.SecurityFeatureR\x10securityFeatures\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -37034,12 +36634,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\t_filetypeB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x0f\n" +
-	"\r_validated_by\"\xa0\n" +
-	"\n" +
+	"_parent_id\"\xa7\t\n" +
 	"\aVMImage\x12E\n" +
 	"\rcreation_time\x18\xd7@ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x98% \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
@@ -37048,15 +36645,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x06labels\x18͆\x01 \x03(\v2+.confirmate.ontology.v1.VMImage.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xe40 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
 	"\x03raw\x18\x83\x1b \x01(\tH\x05R\x03raw\x88\x01\x01\x12+\n" +
-	"\x0eapplication_id\x18\xbd( \x01(\tH\x06R\rapplicationId\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xd7\x1e \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\aR changeAndConfigurationManagement\x88\x01\x01\x12M\n" +
-	"\fgeo_location\x18\xe1\x8f\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\bR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xcdr \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xe5? \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\tR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x0eapplication_id\x18\xbd( \x01(\tH\x06R\rapplicationId\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xd7\x1e \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12H\n" +
+	"\fgeo_location\x18\xe1\x8f\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xcdr \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xe5? \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xe7\v \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xb62 \x01(\tH\n" +
-	"R\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\x8c\x1b \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\vR\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xb62 \x01(\tH\aR\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\x8c\x1b \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:2\x82\xa6\x1d\aVMImage\x82\xa6\x1d\x05Image\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -37066,28 +36662,22 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_rawB\x11\n" +
-	"\x0f_application_idB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x0f_application_idB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x93\x02\n" +
-	"\vValidateJwt\x12N\n" +
-	"\fauthenticity\x18\xf8[ \x01(\v2$.confirmate.ontology.v1.AuthenticityH\x00R\fauthenticity\x88\x01\x01\x12I\n" +
-	"\vcode_region\x18\xefu \x01(\v2\".confirmate.ontology.v1.CodeRegionH\x01R\n" +
-	"codeRegion\x88\x01\x01:H\x82\xa6\x1d\vValidateJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionalityB\x0f\n" +
-	"\r_authenticityB\x0e\n" +
-	"\f_code_region\"\xbc\x04\n" +
+	"_parent_id\"\xe8\x01\n" +
+	"\vValidateJwt\x12I\n" +
+	"\fauthenticity\x18\xf8[ \x01(\v2$.confirmate.ontology.v1.AuthenticityR\fauthenticity\x12D\n" +
+	"\vcode_region\x18\xefu \x01(\v2\".confirmate.ontology.v1.CodeRegionR\n" +
+	"codeRegion:H\x82\xa6\x1d\vValidateJwt\x82\xa6\x1d\x17AuthenticationOperation\x82\xa6\x1d\tOperation\x82\xa6\x1d\rFunctionality\"\xa5\x04\n" +
 	"\x05Value\x12E\n" +
 	"\rcreation_time\x18\xa0\x13 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\x89M \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
 	"\x02id\x18\xc7\x1f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\x02id\x88\x01\x01\x12B\n" +
 	"\x06labels\x18\xb15 \x03(\v2).confirmate.ontology.v1.Value.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xa4\x1e \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x03R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xeb; \x01(\tH\x04R\x03raw\x88\x01\x01\x12P\n" +
-	"\rdata_location\x18\xba\x90\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationH\x05R\fdataLocation\x88\x01\x01\x12\"\n" +
-	"\tparent_id\x18\x8f\x8d\x01 \x01(\tH\x06R\bparentId\x88\x01\x01\x1a9\n" +
+	"\x03raw\x18\xeb; \x01(\tH\x04R\x03raw\x88\x01\x01\x12K\n" +
+	"\rdata_location\x18\xba\x90\x01 \x01(\v2$.confirmate.ontology.v1.DataLocationR\fdataLocation\x12\"\n" +
+	"\tparent_id\x18\x8f\x8d\x01 \x01(\tH\x05R\bparentId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x1d\x82\xa6\x1d\x05Value\x82\xa6\x1d\x04Data\x82\xa6\x1d\bResourceB\x10\n" +
@@ -37095,8 +36685,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\f_descriptionB\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x10\n" +
-	"\x0e_data_locationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
 	"_parent_id\"\xcf\x01\n" +
 	"\x0fVerifiedCommits\x12$\n" +
@@ -37105,7 +36694,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"percentage\x88\x01\x01\x128\n" +
 	"\x15percentage_last_month\x18\x9f2 \x01(\x02H\x01R\x13percentageLastMonth\x88\x01\x01:3\x82\xa6\x1d\x0fVerifiedCommits\x82\xa6\x1d\tIntegrity\x82\xa6\x1d\x0fSecurityFeatureB\r\n" +
 	"\v_percentageB\x18\n" +
-	"\x16_percentage_last_month\"\xc5\x10\n" +
+	"\x16_percentage_last_month\"\x9c\x0e\n" +
 	"\x0eVirtualMachine\x12E\n" +
 	"\rcreation_time\x18\xe93 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xb1q \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -37113,25 +36702,24 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\x96\x10 \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
 	"\x06labels\x18\xf0\x12 \x03(\v22.confirmate.ontology.v1.VirtualMachine.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xe1Z \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xf9m \x01(\tH\x05R\x03raw\x88\x01\x01\x12X\n" +
-	"\x10activity_logging\x18\x82M \x01(\v2'.confirmate.ontology.v1.ActivityLoggingH\x06R\x0factivityLogging\x88\x01\x01\x12[\n" +
-	"\x11automatic_updates\x18\xe5q \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesH\aR\x10automaticUpdates\x88\x01\x01\x12,\n" +
-	"\x11block_storage_ids\x18ڋ\x01 \x03(\tR\x0fblockStorageIds\x12L\n" +
-	"\fboot_logging\x18\xa9N \x01(\v2#.confirmate.ontology.v1.BootLoggingH\bR\vbootLogging\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xe9. \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\tR changeAndConfigurationManagement\x88\x01\x01\x12Y\n" +
-	"\x11encryption_in_use\x18\xf0\v \x01(\v2'.confirmate.ontology.v1.EncryptionInUseH\n" +
-	"R\x0fencryptionInUse\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x8ft \x01(\v2#.confirmate.ontology.v1.GeoLocationH\vR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xc9\r \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xa2r \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\fR\x11malwareProtection\x88\x01\x01\x123\n" +
-	"\x15network_interface_ids\x18\x988 \x03(\tR\x13networkInterfaceIds\x12F\n" +
+	"\x03raw\x18\xf9m \x01(\tH\x05R\x03raw\x88\x01\x01\x12S\n" +
+	"\x10activity_logging\x18\x82M \x01(\v2'.confirmate.ontology.v1.ActivityLoggingR\x0factivityLogging\x12V\n" +
+	"\x11automatic_updates\x18\xe5q \x01(\v2(.confirmate.ontology.v1.AutomaticUpdatesR\x10automaticUpdates\x12,\n" +
+	"\x11block_storage_ids\x18ڋ\x01 \x03(\tR\x0fblockStorageIds\x12G\n" +
+	"\fboot_logging\x18\xa9N \x01(\v2#.confirmate.ontology.v1.BootLoggingR\vbootLogging\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xe9. \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12T\n" +
+	"\x11encryption_in_use\x18\xf0\v \x01(\v2'.confirmate.ontology.v1.EncryptionInUseR\x0fencryptionInUse\x12G\n" +
+	"\fgeo_location\x18\x8ft \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xc9\r \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xa2r \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x123\n" +
+	"\x15network_interface_ids\x18\x988 \x03(\tR\x13networkInterfaceIds\x12A\n" +
 	"\n" +
-	"os_logging\x18\xceq \x01(\v2!.confirmate.ontology.v1.OSLoggingH\rR\tosLogging\x88\x01\x01\x12G\n" +
-	"\fredundancies\x18\x87\x1c \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12^\n" +
-	"\x12remote_attestation\x18\xd1A \x01(\v2).confirmate.ontology.v1.RemoteAttestationH\x0eR\x11remoteAttestation\x88\x01\x01\x12 \n" +
-	"\tparent_id\x18V \x01(\tH\x0fR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10resource_logging\x18\xde{ \x01(\v2'.confirmate.ontology.v1.ResourceLoggingH\x10R\x0fresourceLogging\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xf3\x1d \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\x11R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"os_logging\x18\xceq \x01(\v2!.confirmate.ontology.v1.OSLoggingR\tosLogging\x12G\n" +
+	"\fredundancies\x18\x87\x1c \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12Y\n" +
+	"\x12remote_attestation\x18\xd1A \x01(\v2).confirmate.ontology.v1.RemoteAttestationR\x11remoteAttestation\x12 \n" +
+	"\tparent_id\x18V \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10resource_logging\x18\xde{ \x01(\v2'.confirmate.ontology.v1.ResourceLoggingR\x0fresourceLogging\x12S\n" +
+	"\x10usage_statistics\x18\xf3\x1d \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:;\x82\xa6\x1d\x0eVirtualMachine\x82\xa6\x1d\aCompute\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -37140,20 +36728,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB\x13\n" +
-	"\x11_activity_loggingB\x14\n" +
-	"\x12_automatic_updatesB\x0f\n" +
-	"\r_boot_loggingB&\n" +
-	"$_change_and_configuration_managementB\x14\n" +
-	"\x12_encryption_in_useB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\r\n" +
-	"\v_os_loggingB\x15\n" +
-	"\x13_remote_attestationB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_resource_loggingB\x13\n" +
-	"\x11_usage_statistics\"\xf8\t\n" +
+	"_parent_id\"\xff\b\n" +
 	"\x0eVirtualNetwork\x12E\n" +
 	"\rcreation_time\x18\xdd\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xcaM \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -37161,15 +36738,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xbf= \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12K\n" +
 	"\x06labels\x18\xa25 \x03(\v22.confirmate.ontology.v1.VirtualNetwork.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xb2\x06 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\x88o \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\x9d\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\xbc\x17 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12=\n" +
-	"\bloggings\x18\xa3\x93\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xb0\x1b \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\x88o \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\x9d\x01 \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\xbc\x17 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12=\n" +
+	"\bloggings\x18\xa3\x93\x01 \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xb0\x1b \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xbbH \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xbb; \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xad\x11 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xbb; \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xad\x11 \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:>\x82\xa6\x1d\x0eVirtualNetwork\x82\xa6\x1d\n" +
@@ -37179,14 +36755,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\x81\n" +
-	"\n" +
+	"_parent_id\"\x88\t\n" +
 	"\x11VirtualSubNetwork\x12E\n" +
 	"\rcreation_time\x18\xbd\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xb0q \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -37194,15 +36765,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xc5p \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12N\n" +
 	"\x06labels\x18\xdc  \x03(\v25.confirmate.ontology.v1.VirtualSubNetwork.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\x9b\f \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xbdv \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xaeG \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12L\n" +
-	"\fgeo_location\x18\x86\x04 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xeeH \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xfdI \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12H\n" +
+	"\x03raw\x18\xbdv \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xaeG \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12G\n" +
+	"\fgeo_location\x18\x86\x04 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xeeH \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xfdI \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12H\n" +
 	"\fredundancies\x18\x81\x84\x01 \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\xd5{ \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xbbj \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\xd5{ \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xbbj \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:A\x82\xa6\x1d\x11VirtualSubNetwork\x82\xa6\x1d\n" +
@@ -37212,13 +36782,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xaf\x02\n" +
+	"_parent_id\"\xaf\x02\n" +
 	"\rVulnerability\x12&\n" +
 	"\vcriticality\x18\xf2M \x01(\tH\x00R\vcriticality\x88\x01\x01\x12\x16\n" +
 	"\x03cve\x18\xcd\x01 \x01(\tH\x01R\x03cve\x88\x01\x01\x12\x12\n" +
@@ -37257,7 +36823,7 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x04_rawB\x15\n" +
 	"\x13_code_repository_idB\f\n" +
 	"\n" +
-	"_parent_id\"\xe7\t\n" +
+	"_parent_id\"\xee\b\n" +
 	"\bWorkflow\x12E\n" +
 	"\rcreation_time\x18\xdc+ \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fcreationTime\x88\x01\x01\x12&\n" +
 	"\vdescription\x18\xcf\x16 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1c\n" +
@@ -37265,15 +36831,14 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x1cinternet_accessible_endpoint\x18\xd0' \x01(\bH\x03R\x1ainternetAccessibleEndpoint\x88\x01\x01\x12E\n" +
 	"\x06labels\x18\xe6H \x03(\v2,.confirmate.ontology.v1.Workflow.LabelsEntryR\x06labels\x12 \n" +
 	"\x04name\x18\xfe` \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x04R\x04name\x88\x01\x01\x12\x16\n" +
-	"\x03raw\x18\xc8I \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x8d\x01\n" +
-	"#change_and_configuration_management\x18\xe9< \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementH\x06R changeAndConfigurationManagement\x88\x01\x01\x12M\n" +
-	"\fgeo_location\x18\xe0\x8e\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationH\aR\vgeoLocation\x88\x01\x01\x12<\n" +
-	"\bloggings\x18\xd5\" \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12^\n" +
-	"\x12malware_protection\x18\xebV \x01(\v2).confirmate.ontology.v1.MalwareProtectionH\bR\x11malwareProtection\x88\x01\x01\x12G\n" +
+	"\x03raw\x18\xc8I \x01(\tH\x05R\x03raw\x88\x01\x01\x12\x88\x01\n" +
+	"#change_and_configuration_management\x18\xe9< \x01(\v28.confirmate.ontology.v1.ChangeAndConfigurationManagementR changeAndConfigurationManagement\x12H\n" +
+	"\fgeo_location\x18\xe0\x8e\x01 \x01(\v2#.confirmate.ontology.v1.GeoLocationR\vgeoLocation\x12<\n" +
+	"\bloggings\x18\xd5\" \x03(\v2\x1f.confirmate.ontology.v1.LoggingR\bloggings\x12Y\n" +
+	"\x12malware_protection\x18\xebV \x01(\v2).confirmate.ontology.v1.MalwareProtectionR\x11malwareProtection\x12G\n" +
 	"\fredundancies\x18\xec< \x03(\v2\".confirmate.ontology.v1.RedundancyR\fredundancies\x12!\n" +
-	"\tparent_id\x18\x90p \x01(\tH\tR\bparentId\x88\x01\x01\x12X\n" +
-	"\x10usage_statistics\x18\xd6/ \x01(\v2'.confirmate.ontology.v1.UsageStatisticsH\n" +
-	"R\x0fusageStatistics\x88\x01\x01\x1a9\n" +
+	"\tparent_id\x18\x90p \x01(\tH\x06R\bparentId\x88\x01\x01\x12S\n" +
+	"\x10usage_statistics\x18\xd6/ \x01(\v2'.confirmate.ontology.v1.UsageStatisticsR\x0fusageStatistics\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:9\x82\xa6\x1d\bWorkflow\x82\xa6\x1d\vCICDService\x82\xa6\x1d\x0eInfrastructure\x82\xa6\x1d\bResourceB\x10\n" +
@@ -37282,13 +36847,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x03_idB\x1f\n" +
 	"\x1d_internet_accessible_endpointB\a\n" +
 	"\x05_nameB\x06\n" +
-	"\x04_rawB&\n" +
-	"$_change_and_configuration_managementB\x0f\n" +
-	"\r_geo_locationB\x15\n" +
-	"\x13_malware_protectionB\f\n" +
+	"\x04_rawB\f\n" +
 	"\n" +
-	"_parent_idB\x13\n" +
-	"\x11_usage_statistics\"\xa0\x01\n" +
+	"_parent_id\"\xa0\x01\n" +
 	"\x0eZoneRedundancy\x12I\n" +
 	"\rgeo_locations\x18\xbb\a \x03(\v2#.confirmate.ontology.v1.GeoLocationR\fgeoLocations:C\x82\xa6\x1d\x0eZoneRedundancy\x82\xa6\x1d\n" +
 	"Redundancy\x82\xa6\x1d\fAvailability\x82\xa6\x1d\x0fSecurityFeature:Q\n" +
@@ -39018,7 +38579,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Authorization_RateLimiting)(nil),
 		(*Authorization_Rbac)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[20].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[21].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[22].OneofWrappers = []any{
 		(*Availability_Backup)(nil),
@@ -39039,8 +38599,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[30].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[31].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[32].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[33].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[34].OneofWrappers = []any{
 		(*Cipher_AsymmetricCipher)(nil),
 		(*Cipher_HybridCipher)(nil),
@@ -39147,7 +38705,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Core_Logger)(nil),
 		(*Core_ResourceType)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[63].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[64].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[65].OneofWrappers = []any{
 		(*Credential_Certificate)(nil),
@@ -39252,7 +38809,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[95].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[96].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[97].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[99].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[100].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[101].OneofWrappers = []any{
@@ -39365,7 +38921,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[111].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[112].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[114].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[115].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[116].OneofWrappers = []any{
 		(*Governance_ContactPerson)(nil),
@@ -39387,13 +38942,11 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*HttpClientOperation_HttpRequest)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[123].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[124].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[125].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[127].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[128].OneofWrappers = []any{
 		(*HttpRequestHandlerOperation_RegisterHttpEndpoint)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[129].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[130].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[131].OneofWrappers = []any{
 		(*Identifiable_Identity)(nil),
@@ -39405,8 +38958,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Image_VmImage)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[134].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[137].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[138].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[139].OneofWrappers = []any{
 		(*Integrity_LocalAttestation)(nil),
 		(*Integrity_RemoteAttestation)(nil),
@@ -39422,7 +38973,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*IoT_DeviceProvisioningService)(nil),
 		(*IoT_MessagingHub)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[141].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[142].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[143].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[144].OneofWrappers = []any{
@@ -39435,7 +38985,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[149].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[150].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[151].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[152].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[153].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[154].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[155].OneofWrappers = []any{}
@@ -39447,7 +38996,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*LocalEntryPoint_Main)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[161].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[162].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[163].OneofWrappers = []any{
 		(*LogOperation_LogGet)(nil),
 		(*LogOperation_LogWrite)(nil),
@@ -39469,7 +39017,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[170].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[171].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[172].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[173].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[174].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[175].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[176].OneofWrappers = []any{}
@@ -39603,7 +39150,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[208].OneofWrappers = []any{
 		(*PolicyRule_AndRule)(nil),
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[210].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[211].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[212].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[213].OneofWrappers = []any{
@@ -39624,7 +39170,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[223].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[224].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[225].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[226].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[227].OneofWrappers = []any{
 		(*Reliability_ExplainableResults)(nil),
@@ -39816,11 +39361,9 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 		(*Training_SecurityTraining)(nil),
 	}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[264].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[265].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[266].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[267].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[268].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[269].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[270].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[271].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[272].OneofWrappers = []any{}

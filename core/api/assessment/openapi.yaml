@@ -7,7 +7,7 @@ info:
     description: |-
         Representing the link between orchestrator and discovery: Assessing evidences
          from discovery and sending results to orchestrator
-    version: core/v0.2.17-62-g12fb527
+    version: core/v0.2.17-69-gcbef4fdd
 paths:
     /v1/assessment/evidences:
         post:
@@ -317,9 +317,13 @@ components:
                     type: string
                     description: Service contains the name of the service (e.g., Asset Management).
                 status:
-                    type: string
+                    type: array
+                    items:
+                        type: string
                 storageFacility:
-                    type: string
+                    type: array
+                    items:
+                        type: string
                 type:
                     type: string
                 updateDuration:
@@ -759,11 +763,7 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: |-
-                CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-                 Percentage: Percentage of commits with "Signed-off-by" lines.
-                 PercentageLastMonth: Percentage of commits with "Signed-off-by" lines in the last 30 days.
-                 Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository
+            description: "CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n Percentage: Percentage of commits with \"Signed-off-by\" lines. \n PercentageLastMonth: Percentage of commits with \"Signed-off-by\" lines in the last 30 days. \n Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository"
         ComplianceAuditIntervalPolicy:
             type: object
             properties:
@@ -1802,7 +1802,17 @@ components:
                     format: date-time
                 targetOfEvaluationId:
                     type: string
-                    description: Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from
+                    description: |-
+                        Reference to a target of evaluation (e.g., service, organization) this evidence was gathered from.
+
+                         NOTE: this index is picked up by GORM's AutoMigrate on service startup
+                         (see persistence.NewDB). Evidence is append-only and can grow very
+                         large; on an already-populated table, the first startup after this
+                         index is introduced will run a blocking CREATE INDEX and may stall
+                         writes for a while. Consider pre-creating it out-of-band with
+                         `CREATE INDEX CONCURRENTLY idx_evidences_target_of_evaluation_id ON
+                         evidences (target_of_evaluation_id);` before rolling this out;
+                         AutoMigrate detects the existing index by name and skips it.
                 toolId:
                     type: string
                     description: Reference to the tool which provided the evidence
@@ -5680,11 +5690,7 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: |-
-                SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-                  SignedCommits cryptographically verify the identity of the commit author.
-                 Percentage: Percentage of signed commits.
-                 PercentageLastMonth: Percentage of signed commits in the last 30 days.
+            description: "SignedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  SignedCommits cryptographically verify the identity of the commit author.\n Percentage: Percentage of signed commits. \n PercentageLastMonth: Percentage of signed commits in the last 30 days."
         SingleSignOn:
             type: object
             properties:
@@ -5992,11 +5998,7 @@ components:
                 percentageLastMonth:
                     type: number
                     format: float
-            description: |-
-                VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-                  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.
-                 Percentage: Percentage of verified commits.
-                 PercentageLastMonth: Percentage of verified commits in the last 30 days.
+            description: "VerifiedCommits is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n  VerifiedCommits ensure that cryptographic signatures on commits are successfully validated against trusted keys, confirming author authenticity and code integrity.\n Percentage: Percentage of verified commits. \n PercentageLastMonth: Percentage of verified commits in the last 30 days."
         VirtualMachine:
             type: object
             properties:
