@@ -5,7 +5,7 @@ openapi: 3.0.3
 info:
     title: Orchestrator API
     description: Manages the orchestration of components within the confirmate architecture
-    version: core/v0.2.17-69-gcbef4fdd
+    version: core/v0.2.17-64-gd0bad6cf
 paths:
     /v1/orchestrator/assessment_results:
         get:
@@ -418,6 +418,34 @@ paths:
                 "200":
                     description: OK
                     content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/orchestrator/audit_scopes/{auditScopeId}/statistics:
+        get:
+            tags:
+                - Orchestrator
+            description: |-
+                Retrieves aggregated statistics for an audit scope: the number of top-level controls in
+                 scope grouped by workflow (implementation) state, and the number of controls grouped by
+                 their latest compliance (evaluation) status.
+            operationId: Orchestrator_GetAuditScopeStatistics
+            parameters:
+                - name: auditScopeId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetAuditScopeStatisticsResponse'
                 default:
                     description: Default error response
                     content:
@@ -2804,6 +2832,28 @@ components:
                 A evaluation result resource, representing the result after evaluating the
                  target of evaluation with a specific control target_of_evaluation_id, category_name and
                  catalog_id are necessary to get the corresponding AuditScope
+        GetAuditScopeStatisticsResponse:
+            type: object
+            properties:
+                countsByControlState:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Number of top-level controls in scope, keyed by the name of their ControlInScopeState (e.g.
+                         "CONTROL_IN_SCOPE_STATE_OPEN"). Only counts controls without a parent control:
+                         ControlInScope records exist for every control including sub-controls, so counting all of
+                         them would inflate the numbers beyond what a single row in the UI represents.
+                countsByComplianceStatus:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Number of controls, keyed by the name of their latest confirmate.evaluation.v1.EvaluationStatus
+                         (e.g. "EVALUATION_STATUS_COMPLIANT"), for controls that have at least one evaluation result.
+                         Unlike counts_by_control_state, this counts controls at whatever depth they were actually
+                         evaluated at, since metrics are typically attached to sub-controls rather than their
+                         top-level parent.
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:

@@ -508,6 +508,19 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, 0, len(results))
+
+	// A metric source finding zero applicable metrics can happen transiently, e.g. if this is
+	// called before the metric source has finished loading its catalog. Evaluating the exact same
+	// (tool, resource type) again with a metric source that now succeeds must retry discovery
+	// instead of being permanently stuck with the empty result cached above.
+	results, err = pe.Eval(context.Background(), &evidence.Evidence{
+		Id:                   "22222222-2222-2222-2222-222222222222",
+		ToolId:               "tool-a",
+		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
+	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, &mockMetricsSource{t: t})
+
+	assert.NoError(t, err)
+	assert.NotEqual(t, 0, len(results))
 }
 
 func TestWithPackageName(t *testing.T) {
