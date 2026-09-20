@@ -33,16 +33,15 @@
 package ontology
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	descriptorpb "google.golang.org/protobuf/types/descriptorpb"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -92,7 +91,7 @@ func (*ABAC) Descriptor() ([]byte, []int) {
 // AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type AccessControlTypePolicy struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	AuthorizationTypes *string                `protobuf:"bytes,2672,opt,name=authorization_types,json=authorizationTypes,proto3,oneof" json:"authorization_types,omitempty"`
+	AuthorizationTypes []string               `protobuf:"bytes,2672,rep,name=authorization_types,json=authorizationTypes,proto3" json:"authorization_types,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -127,11 +126,11 @@ func (*AccessControlTypePolicy) Descriptor() ([]byte, []int) {
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AccessControlTypePolicy) GetAuthorizationTypes() string {
-	if x != nil && x.AuthorizationTypes != nil {
-		return *x.AuthorizationTypes
+func (x *AccessControlTypePolicy) GetAuthorizationTypes() []string {
+	if x != nil {
+		return x.AuthorizationTypes
 	}
-	return ""
+	return nil
 }
 
 // AccessRestriction is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -4803,7 +4802,7 @@ func (x *ComplianceAuditIntervalPolicy) GetAuditInterval() int32 {
 // ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
 type ComplianceMethodologyPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Methodology   *string                `protobuf:"bytes,8814,opt,name=methodology,proto3,oneof" json:"methodology,omitempty"`
+	Methodology   []string               `protobuf:"bytes,8814,rep,name=methodology,proto3" json:"methodology,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4838,11 +4837,11 @@ func (*ComplianceMethodologyPolicy) Descriptor() ([]byte, []int) {
 	return file_policies_security_metrics_ontology_v1_ontology_proto_rawDescGZIP(), []int{43}
 }
 
-func (x *ComplianceMethodologyPolicy) GetMethodology() string {
-	if x != nil && x.Methodology != nil {
-		return *x.Methodology
+func (x *ComplianceMethodologyPolicy) GetMethodology() []string {
+	if x != nil {
+		return x.Methodology
 	}
-	return ""
+	return nil
 }
 
 // Component is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
@@ -32937,10 +32936,9 @@ var File_policies_security_metrics_ontology_v1_ontology_proto protoreflect.FileD
 const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\n" +
 	"4policies/security-metrics/ontology/v1/ontology.proto\x12\x16confirmate.ontology.v1\x1a\x1bbuf/validate/validate.proto\x1a google/protobuf/descriptor.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"4\n" +
-	"\x04ABAC:,\x82\xa6\x1d\x04ABAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\xa2\x01\n" +
-	"\x17AccessControlTypePolicy\x125\n" +
-	"\x13authorization_types\x18\xf0\x14 \x01(\tH\x00R\x12authorizationTypes\x88\x01\x01:8\x82\xa6\x1d\x17AccessControlTypePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x16\n" +
-	"\x14_authorization_types\"\x9e\x02\n" +
+	"\x04ABAC:,\x82\xa6\x1d\x04ABAC\x82\xa6\x1d\rAuthorization\x82\xa6\x1d\x0fSecurityFeature\"\x85\x01\n" +
+	"\x17AccessControlTypePolicy\x120\n" +
+	"\x13authorization_types\x18\xf0\x14 \x03(\tR\x12authorizationTypes:8\x82\xa6\x1d\x17AccessControlTypePolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x9e\x02\n" +
 	"\x11AccessRestriction\x12F\n" +
 	"\vl3_firewall\x18\xa5G \x01(\v2\".confirmate.ontology.v1.L3FirewallH\x00R\n" +
 	"l3Firewall\x12k\n" +
@@ -33463,10 +33461,9 @@ const file_policies_security_metrics_ontology_v1_ontology_proto_rawDesc = "" +
 	"\x16_percentage_last_month\"\x9f\x01\n" +
 	"\x1dComplianceAuditIntervalPolicy\x12+\n" +
 	"\x0eaudit_interval\x18\x92= \x01(\x05H\x00R\rauditInterval\x88\x01\x01:>\x82\xa6\x1d\x1dComplianceAuditIntervalPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x11\n" +
-	"\x0f_audit_interval\"\x93\x01\n" +
-	"\x1bComplianceMethodologyPolicy\x12&\n" +
-	"\vmethodology\x18\xeeD \x01(\tH\x00R\vmethodology\x88\x01\x01:<\x82\xa6\x1d\x1bComplianceMethodologyPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionalityB\x0e\n" +
-	"\f_methodology\"\x9c\x01\n" +
+	"\x0f_audit_interval\"~\n" +
+	"\x1bComplianceMethodologyPolicy\x12!\n" +
+	"\vmethodology\x18\xeeD \x03(\tR\vmethodology:<\x82\xa6\x1d\x1bComplianceMethodologyPolicy\x82\xa6\x1d\bPolicies\x82\xa6\x1d\rFunctionality\"\x9c\x01\n" +
 	"\tComponent\x12I\n" +
 	"\vapplication\x18\xfa\x90\x01 \x01(\v2#.confirmate.ontology.v1.ApplicationH\x00R\vapplication\x12<\n" +
 	"\alibrary\x18\xb9o \x01(\v2\x1f.confirmate.ontology.v1.LibraryH\x00R\alibraryB\x06\n" +
@@ -38519,7 +38516,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	if File_policies_security_metrics_ontology_v1_ontology_proto != nil {
 		return
 	}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[1].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[2].OneofWrappers = []any{
 		(*AccessRestriction_L3Firewall)(nil),
 		(*AccessRestriction_WebApplicationFirewall)(nil),
@@ -38657,7 +38653,6 @@ func file_policies_security_metrics_ontology_v1_ontology_proto_init() {
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[40].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[41].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[42].OneofWrappers = []any{}
-	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[43].OneofWrappers = []any{}
 	file_policies_security_metrics_ontology_v1_ontology_proto_msgTypes[44].OneofWrappers = []any{
 		(*Component_Application)(nil),
 		(*Component_Library)(nil),

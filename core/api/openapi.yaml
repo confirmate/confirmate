@@ -409,8 +409,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-<<<<<<< HEAD
-=======
     /v1/orchestrator/assessment_results:
         get:
             tags:
@@ -2700,7 +2698,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
->>>>>>> main
 components:
     schemas:
         ABAC:
@@ -2711,13 +2708,9 @@ components:
             type: object
             properties:
                 authorizationTypes:
-<<<<<<< HEAD
                     type: array
                     items:
                         type: string
-=======
-                    type: string
->>>>>>> main
             description: AccessControlTypePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         AccessRestriction:
             type: object
@@ -2967,8 +2960,6 @@ components:
                 AssessEvidenceResponse belongs to AssessEvidence, which uses a custom unary
                  RPC and therefore requires a response message according to the style
                  convention. Since no return values are required, this is empty.
-<<<<<<< HEAD
-=======
         AssessmentResult:
             required:
                 - id
@@ -3070,7 +3061,6 @@ components:
             description: |-
                 Represents an external tool or service that offers assessments according to
                  certain metrics.
->>>>>>> main
         AssetInventory:
             type: object
             properties:
@@ -3144,8 +3134,6 @@ components:
                 managedKeyEncryption:
                     $ref: '#/components/schemas/ManagedKeyEncryption'
             description: AtRestEncryption is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
-<<<<<<< HEAD
-=======
         AuditScope:
             required:
                 - id
@@ -3232,7 +3220,6 @@ components:
                 AuditTrailEvent is a persisted record of any significant change related to an audit scope,
                  such as a control being scoped/unscoped or an audit scope state transition. The event_data
                  field holds a typed payload (one of the event messages below) serialized as JSON via anypb.
->>>>>>> main
         Authenticate:
             type: object
             properties:
@@ -3420,8 +3407,6 @@ components:
             description: |-
                 Boundary is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a boundary in data processing, which can be used to define the scope of a policy or the separation between different policies. For example, a boundary could be defined around an [HttpEndpoint], so that the policy applies once data either comes in or goes out of the HTTP endpoint.
-<<<<<<< HEAD
-=======
         Catalog:
             required:
                 - id
@@ -3484,7 +3469,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Control'
->>>>>>> main
         Certificate:
             type: object
             properties:
@@ -3693,8 +3677,6 @@ components:
                     type: number
                     format: float
             description: "CodeSignoff is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.\n Percentage: Percentage of commits with \"Signed-off-by\" lines. \n PercentageLastMonth: Percentage of commits with \"Signed-off-by\" lines in the last 30 days. \n Signoffs enable users to affirm that a commit complies with the rules and licensing governing a repository"
-<<<<<<< HEAD
-=======
         ComparisonResult:
             required:
                 - property
@@ -3722,7 +3704,6 @@ components:
                     type: boolean
                     description: Success is true, if the comparison was successful
             description: An optional structure containing more details how a comparison inside an assessment result was done and if it was successful.
->>>>>>> main
         ComplianceAuditIntervalPolicy:
             type: object
             properties:
@@ -3735,13 +3716,9 @@ components:
             type: object
             properties:
                 methodology:
-<<<<<<< HEAD
                     type: array
                     items:
                         type: string
-=======
-                    type: string
->>>>>>> main
             description: ComplianceMethodologyPolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
         Configuration:
             type: object
@@ -4177,8 +4154,6 @@ components:
             description: |-
                 Context is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a context in which a policy is applied. Typically, a context contains information about a user or some other form of identity (e.g. a [Principal]).
-<<<<<<< HEAD
-=======
         Control:
             required:
                 - id
@@ -4287,7 +4262,6 @@ components:
                  There is exactly one ControlInScope per (audit scope, control) pair. Records are auto-created
                  when an audit scope is created and can also be managed manually via the CreateControlInScope /
                  RemoveControlInScope RPCs.
->>>>>>> main
         CoordinatedVulnerabilityDisclosurePolicy:
             type: object
             properties:
@@ -4318,8 +4292,6 @@ components:
                 parentId:
                     type: string
             description: CoordinatedVulnerabilityDisclosurePolicy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         CreateControlInScopeRequest:
             required:
                 - auditScopeId
@@ -4342,7 +4314,6 @@ components:
                 comment:
                     type: string
                     description: Comment explains why this control is being brought into scope.
->>>>>>> main
         CreateEncryptedDisk:
             type: object
             properties:
@@ -4606,8 +4577,6 @@ components:
                 secretId:
                     type: string
             description: Decryption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         Dependency:
             type: object
             properties:
@@ -4615,7 +4584,6 @@ components:
                     type: string
                 version:
                     type: string
->>>>>>> main
         DeviceProvisioningService:
             type: object
             properties:
@@ -4920,8 +4888,6 @@ components:
                 lastRun:
                     type: string
                     format: date-time
-<<<<<<< HEAD
-=======
         EvaluationResult:
             required:
                 - id
@@ -5006,7 +4972,6 @@ components:
                 A evaluation result resource, representing the result after evaluating the
                  target of evaluation with a specific control target_of_evaluation_id, category_name and
                  catalog_id are necessary to get the corresponding AuditScope
->>>>>>> main
         Evidence:
             type: object
             properties:
@@ -5601,8 +5566,6 @@ components:
                     items:
                         $ref: '#/components/schemas/GeoLocation'
             description: GeoRedundancy is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         GetAuditScopeStatisticsResponse:
             type: object
             properties:
@@ -5625,7 +5588,6 @@ components:
                          Unlike counts_by_control_state, this counts controls at whatever depth they were actually
                          evaluated at, since metrics are typically attached to sub-controls rather than their
                          top-level parent.
->>>>>>> main
         GetCurrentTimeOperation:
             type: object
             properties:
@@ -5644,8 +5606,6 @@ components:
             description: |-
                 GetSecret is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  An operation that retrieves a secret from a (remote) location. This can be a local keystore, a remote key server or a hardware device such as a TPM or HSM.
-<<<<<<< HEAD
-=======
         GetTargetOfEvaluationStatisticsResponse:
             type: object
             properties:
@@ -5661,7 +5621,6 @@ components:
                 numberOfSelectedCatalogs:
                     type: string
                     description: number of selected catalogs per target of evaluation
->>>>>>> main
         GoogleProtobufAny:
             type: object
             properties:
@@ -5670,11 +5629,8 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-<<<<<<< HEAD
-=======
         GoogleProtobufValue:
             description: Represents a dynamically typed value which can be either null, a number, a string, a boolean, a recursive struct value, or a list of values.
->>>>>>> main
         Governance:
             type: object
             properties:
@@ -6686,8 +6642,6 @@ components:
             description: |-
                 LibraryEntryPoint is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents an entry point that is triggered if the code is loaded as a (dynamic) library.
-<<<<<<< HEAD
-=======
         ListAssessmentResultsResponse:
             type: object
             properties:
@@ -6760,7 +6714,6 @@ components:
                         $ref: '#/components/schemas/Control'
                 nextPageToken:
                     type: string
->>>>>>> main
         ListEvaluationJobsResponse:
             type: object
             properties:
@@ -6768,8 +6721,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/EvaluationJob'
-<<<<<<< HEAD
-=======
         ListEvaluationResultsResponse:
             type: object
             properties:
@@ -6779,7 +6730,6 @@ components:
                         $ref: '#/components/schemas/EvaluationResult'
                 nextPageToken:
                     type: string
->>>>>>> main
         ListEvidencesResponse:
             type: object
             properties:
@@ -6800,8 +6750,6 @@ components:
                         $ref: '#/components/schemas/GraphEdge'
                 nextPageToken:
                     type: string
-<<<<<<< HEAD
-=======
         ListMetricConfigurationResponse:
             type: object
             properties:
@@ -6832,7 +6780,6 @@ components:
                         $ref: '#/components/schemas/Certificate'
                 nextPageToken:
                     type: string
->>>>>>> main
         ListResourcesResponse:
             required:
                 - results
@@ -6851,8 +6798,6 @@ components:
                     type: array
                     items:
                         type: string
-<<<<<<< HEAD
-=======
         ListTargetsOfEvaluationResponse:
             required:
                 - targetsOfEvaluation
@@ -6864,7 +6809,6 @@ components:
                         $ref: '#/components/schemas/TargetOfEvaluation'
                 nextPageToken:
                     type: string
->>>>>>> main
         ListToolsResponse:
             type: object
             properties:
@@ -6874,8 +6818,6 @@ components:
                         type: string
                 nextPageToken:
                     type: string
-<<<<<<< HEAD
-=======
         ListUserPermissionsResponse:
             type: object
             properties:
@@ -6914,7 +6856,6 @@ components:
                         $ref: '#/components/schemas/User'
                 nextPageToken:
                     type: string
->>>>>>> main
         LoadBalancer:
             type: object
             properties:
@@ -7463,8 +7404,6 @@ components:
                 usageStatistics:
                     $ref: '#/components/schemas/UsageStatistics'
             description: MessagingHub is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         Metric:
             required:
                 - id
@@ -7559,7 +7498,6 @@ components:
                     description: The last time of update
                     format: date-time
             description: MetricImplementation defines the implementation of an individual metric.
->>>>>>> main
         MonitoringProcedure:
             type: object
             properties:
@@ -7957,8 +7895,6 @@ components:
             description: |-
                 OperatingSystemArchitecture is an abstract class in our ontology, it cannot be instantiated but acts as an "interface".
                  Represents an architecture of an operating system.
-<<<<<<< HEAD
-=======
         Organization_PostalAddress:
             type: object
             properties:
@@ -7975,7 +7911,6 @@ components:
                     type: string
                     description: Country.
             description: PostalAddress holds the physical address of the organization.
->>>>>>> main
         Output:
             type: object
             properties: {}
@@ -8460,8 +8395,6 @@ components:
             description: |-
                 ReadConfigurationOption is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents an operation to read a specific configuration option. Often this is done with a member access such as `group.option` or a subscript operation such as `group["option"]`.
-<<<<<<< HEAD
-=======
         Record:
             required:
                 - evidenceId
@@ -8473,7 +8406,6 @@ components:
                 evidenceRecordedAt:
                     type: string
                     format: date-time
->>>>>>> main
         Redundancy:
             type: object
             properties:
@@ -8972,8 +8904,6 @@ components:
                 usageStatistics:
                     $ref: '#/components/schemas/UsageStatistics'
             description: RoleAssignment is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         Runtime:
             type: object
             properties:
@@ -8998,7 +8928,6 @@ components:
                     items:
                         $ref: '#/components/schemas/Dependency'
                     description: dependency is a list of used runtime dependencies
->>>>>>> main
         SBOMDocument:
             type: object
             properties:
@@ -9493,8 +9422,6 @@ components:
         StopEvaluationResponse:
             type: object
             properties: {}
-<<<<<<< HEAD
-=======
         StoreAssessmentResultResponse:
             type: object
             properties: {}
@@ -9502,7 +9429,6 @@ components:
                 StoreAssessmentResultReponse belongs to StoreAssessmentResult, which uses a
                  custom unary RPC and therefore requires a response message according to the
                  style convention. Since no return values are required, this is empty.
->>>>>>> main
         StoreEvidenceResponse:
             type: object
             properties: {}
@@ -9535,8 +9461,6 @@ components:
             description: |-
                 SymmetricCipher is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  Represents a symmetric cipher.
-<<<<<<< HEAD
-=======
         TargetOfEvaluation:
             required:
                 - id
@@ -9611,7 +9535,6 @@ components:
                     type: string
                     description: Website URL of the organization.
             description: Organization contains details about the organization responsible for this target of evaluation.
->>>>>>> main
         Time:
             type: object
             properties: {}
@@ -9642,8 +9565,6 @@ components:
             description: |-
                 Token is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
                  A Token used for TokenBasedAuthentication.
-<<<<<<< HEAD
-=======
         TransitionControlInScopeStateRequest:
             required:
                 - id
@@ -9666,7 +9587,6 @@ components:
                 comment:
                     type: string
                     description: Comment explaining the reason for this transition.
->>>>>>> main
         TransportEncryption:
             type: object
             properties:
@@ -9706,8 +9626,6 @@ components:
                 diskEncryption:
                     $ref: '#/components/schemas/DiskEncryption'
             description: UnlockEncryptedDisk is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         UpdateControlInScopeRequest:
             required:
                 - id
@@ -9720,7 +9638,6 @@ components:
                 implementationDetails:
                     type: string
                     description: ImplementationDetails contains free-form notes about how the control is being addressed.
->>>>>>> main
         UpdateResourceRequest:
             required:
                 - resource
@@ -9728,8 +9645,6 @@ components:
             properties:
                 resource:
                     $ref: '#/components/schemas/ResourceSnapshot'
-<<<<<<< HEAD
-=======
         UpsertUserPermissionRequest:
             required:
                 - userPermission
@@ -9742,7 +9657,6 @@ components:
             properties:
                 userPermission:
                     $ref: '#/components/schemas/UserPermission'
->>>>>>> main
         UsageStatistics:
             type: object
             properties:
@@ -9750,8 +9664,6 @@ components:
                     type: integer
                     format: int32
             description: UsageStatistics is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         User:
             required:
                 - id
@@ -9803,7 +9715,6 @@ components:
                     description: LastAccess indicates the last time the user accessed the system.
                     format: date-time
             description: Represents a user from the IdP
->>>>>>> main
         UserInformationAndIntructionDocument:
             type: object
             properties:
@@ -9844,8 +9755,6 @@ components:
                     items:
                         $ref: '#/components/schemas/SecurityFeature'
             description: UserInformationAndIntructionDocument is an entity class in our ontology. It can be instantiated and contains all of its properties as well of its implemented interfaces.
-<<<<<<< HEAD
-=======
         UserPermission:
             required:
                 - userId
@@ -9891,7 +9800,6 @@ components:
                     type: string
                     description: Role permission is required to specify the level of access the user should have for the resource (e.g., reader, contributor, admin).
                     format: enum
->>>>>>> main
         VMImage:
             type: object
             properties:
@@ -10248,11 +10156,8 @@ tags:
       description: Manages the evaluation of Confirmate's assessment results
     - name: EvidenceStore
       description: Manages the storage of evidences.
-<<<<<<< HEAD
-=======
     - name: Orchestrator
       description: Manages the orchestration of components within the confirmate architecture
->>>>>>> main
     - name: Resources
       description: |-
         Maps cloud resources and its properties to the format of the
