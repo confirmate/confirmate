@@ -499,7 +499,7 @@ func TestService_AssessEvidences(t *testing.T) {
 			}, testMetricConfiguration{
 				metricID:    metric.Id,
 				toeID:       evidencetest.MockTargetOfEvaluationZerosID,
-				targetValue: new(evidencetest.MockMetricConfigurationTargetValueTrue),
+				targetValue: evidencetest.MockMetricConfigurationTargetValueTrue,
 			})
 			client, url := setupOrchestratorServer(t, orchSvc)
 
@@ -705,7 +705,7 @@ func TestService_handleEvidence(t *testing.T) {
 				configs = append(configs, testMetricConfiguration{
 					metricID:    tt.args.metric.Id,
 					toeID:       evidencetest.MockTargetOfEvaluationZerosID,
-					targetValue: new(evidencetest.MockMetricConfigurationTargetValueTrue),
+					targetValue: evidencetest.MockMetricConfigurationTargetValueTrue,
 				})
 			}
 
@@ -1579,19 +1579,22 @@ func setupOrchestratorForTesting(t *testing.T) (orchestratorconnect.Orchestrator
 func ValidRego() string {
 	return `package cch.metrics.boot_logging_enabled
 
-	import data.cch.compare
-	import rego.v1
-	import input.bootLogging as logging
+import data.cch.comparison_result
+import rego.v1
+import input.bootLogging as logging
 
-	default applicable = new(false)
+default applicable = false
 
-	default compliant = new(false)
+default compliant = false
 
-	applicable if {
-		logging
-	}
+applicable if {
+	logging
+}
 
-	compliant if {
-		compare(data.operator, data.target_value, logging.enabled)
-	}`
+compliant if {
+	every r in results { r.success }
+}
+
+results := [comparison_result("bootLogging.enabled", logging.enabled)]
+`
 }
