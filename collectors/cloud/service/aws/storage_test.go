@@ -353,17 +353,17 @@ func TestAwsS3Collector_getEncryptionAtRest(t *testing.T) {
 	encryptionAtRest, rawEncryptionAtRest, err = d.getEncryptionAtRest(&bucket{name: mockBucket1})
 	assert.NoError(t, err)
 	managedEncryption = encryptionAtRest.GetManagedKeyEncryption()
-	assert.True(t, managedEncryption.Enabled)
-	assert.Equal(t, "AES256", managedEncryption.Algorithm)
+	assert.True(t, *managedEncryption.Enabled)
+	assert.Equal(t, new("AES256"), managedEncryption.Algorithm)
 	assert.NotEmpty(t, rawEncryptionAtRest)
 
 	// Second case: SSE-KMS encryption
 	encryptionAtRest, rawEncryptionAtRest, err = d.getEncryptionAtRest(&bucket{name: mockBucket2, region: mockBucket2Region})
 	customerEncryption = encryptionAtRest.GetCustomerKeyEncryption()
 	assert.NoError(t, err)
-	assert.True(t, customerEncryption.Enabled)
-	assert.Equal(t, "", customerEncryption.Algorithm)
-	assert.Equal(t, "arn:aws:kms:"+mockBucket2Region+":"+mockAccountID+":key/"+mockBucket2KeyId, customerEncryption.KeyUrl)
+	assert.True(t, *customerEncryption.Enabled)
+	assert.Equal(t, new(""), customerEncryption.Algorithm)
+	assert.Equal(t, "arn:aws:kms:"+mockBucket2Region+":"+mockAccountID+":key/"+mockBucket2KeyId, *customerEncryption.KeyUrl)
 	assert.NotEmpty(t, rawEncryptionAtRest)
 
 	// Third case: No encryption
@@ -402,9 +402,9 @@ func TestAwsS3Collector_getTransportEncryption(t *testing.T) {
 	// Case 2: Enforced
 	encryptionAtTransit, rawBucketPolicy, err := d.getTransportEncryption(mockBucket1)
 	assert.NoError(t, err)
-	assert.True(t, encryptionAtTransit.Enabled)
-	assert.Equal(t, float32(1.2), encryptionAtTransit.ProtocolVersion)
-	assert.True(t, encryptionAtTransit.Enforced)
+	assert.True(t, *encryptionAtTransit.Enabled)
+	assert.Equal(t, float32(1.2), *encryptionAtTransit.ProtocolVersion)
+	assert.True(t, *encryptionAtTransit.Enforced)
 	assert.NotEmpty(t, rawBucketPolicy)
 
 	// Case 3: JSON failure
@@ -416,25 +416,25 @@ func TestAwsS3Collector_getTransportEncryption(t *testing.T) {
 	// Case 4: Not enforced
 	encryptionAtTransit, rawBucketPolicy, err = d.getTransportEncryption(mockBucket3)
 	assert.NoError(t, err)
-	assert.True(t, encryptionAtTransit.Enabled)
-	assert.Equal(t, float32(1.2), encryptionAtTransit.ProtocolVersion)
-	assert.False(t, encryptionAtTransit.Enforced)
+	assert.True(t, *encryptionAtTransit.Enabled)
+	assert.Equal(t, float32(1.2), *encryptionAtTransit.ProtocolVersion)
+	assert.False(t, *encryptionAtTransit.Enforced)
 	assert.NotEmpty(t, rawBucketPolicy)
 
 	// Case 5: No bucket policy == not enforced
 	encryptionAtTransit, rawBucketPolicy, err = d.getTransportEncryption("")
 	assert.NoError(t, err)
-	assert.True(t, encryptionAtTransit.Enabled)
-	assert.Equal(t, float32(1.2), encryptionAtTransit.ProtocolVersion)
-	assert.False(t, encryptionAtTransit.Enforced)
+	assert.True(t, *encryptionAtTransit.Enabled)
+	assert.Equal(t, float32(1.2), *encryptionAtTransit.ProtocolVersion)
+	assert.False(t, *encryptionAtTransit.Enforced)
 	assert.Empty(t, rawBucketPolicy)
 
 	// Case 6: Enforced when action list unmarshals as []interface{}
 	encryptionAtTransit, rawBucketPolicy, err = d.getTransportEncryption("mockbucket4")
 	assert.NoError(t, err)
-	assert.True(t, encryptionAtTransit.Enabled)
-	assert.Equal(t, float32(1.2), encryptionAtTransit.ProtocolVersion)
-	assert.True(t, encryptionAtTransit.Enforced)
+	assert.True(t, *encryptionAtTransit.Enabled)
+	assert.Equal(t, float32(1.2), *encryptionAtTransit.ProtocolVersion)
+	assert.True(t, *encryptionAtTransit.Enforced)
 	assert.NotEmpty(t, rawBucketPolicy)
 }
 

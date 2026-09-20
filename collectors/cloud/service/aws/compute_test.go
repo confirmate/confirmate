@@ -294,12 +294,12 @@ func TestComputeCollector_collectVirtualMachines(t *testing.T) {
 	machines, err := d.collectVirtualMachines()
 	assert.NoError(t, err)
 	testMachine := machines[0]
-	assert.Equal(t, mockVM1, testMachine.Name)
-	assert.Equal(t, "arn:aws:ec2:eu-central-1:MockAccountID1234:instance/mockVM1ID", testMachine.Id)
-	assert.False(t, testMachine.BootLogging.Enabled)
-	assert.False(t, testMachine.OsLogging.Enabled)
+	assert.Equal(t, new(mockVM1), testMachine.Name)
+	assert.Equal(t, new("arn:aws:ec2:eu-central-1:MockAccountID1234:instance/mockVM1ID"), testMachine.Id)
+	assert.False(t, *testMachine.BootLogging.Enabled)
+	assert.False(t, *testMachine.OsLogging.Enabled)
 	assert.Nil(t, testMachine.CreationTime)
-	assert.Equal(t, mockFunction1Region, testMachine.GeoLocation.Region)
+	assert.Equal(t, new(mockFunction1Region), testMachine.GeoLocation.Region)
 
 	d = computeCollector{
 		virtualMachineAPI: mockEC2APIWithErrors{},
@@ -397,10 +397,10 @@ func TestComputeCollector_collectFunctions(t *testing.T) {
 			//args: args{client: mockClient},
 			[]*ontology.Function{
 				{
-					Id:   mockFunction1ID,
-					Name: mockFunction1,
+					Id:   new(mockFunction1ID),
+					Name: new(mockFunction1),
 					GeoLocation: &ontology.GeoLocation{
-						Region: mockFunction1Region,
+						Region: new(mockFunction1Region),
 					},
 				},
 			},

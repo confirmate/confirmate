@@ -135,17 +135,17 @@ func TestResourceMap(t *testing.T) {
 			},
 			wantProps: func(t *testing.T, got map[string]any, args ...any) bool {
 				want := map[string]any{
+					"creationTime":                     "2024-01-01T00:00:00Z",
+					"id":                               "my-id",
+					"name":                             "My VM",
 					"activityLogging":                  nil,
 					"blockStorageIds":                  []any{},
 					"bootLogging":                      nil,
 					"changeAndConfigurationManagement": nil,
-					"creationTime":                     "2024-01-01T00:00:00Z",
 					"encryptionInUse":                  nil,
 					"geoLocation":                      nil,
-					"id":                               "my-id",
 					"internetAccessibleEndpoint":       false,
 					"labels":                           map[string]any{},
-					"name":                             new("My VM"),
 					"description":                      "",
 					"networkInterfaceIds":              []any{},
 					"malwareProtection":                nil,
@@ -156,12 +156,9 @@ func TestResourceMap(t *testing.T) {
 					"remoteAttestation":                nil,
 					"resourceLogging":                  nil,
 					"automaticUpdates": map[string]any{
-						"enabled":      false,
-						"interval":     "172800s",
-						"securityOnly": false,
+						"interval": "172800s",
 					},
-					"type":            []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"},
-					"usageStatistics": nil,
+					"type": []string{"VirtualMachine", "Compute", "Infrastructure", "Resource"},
 				}
 
 				return assert.Equal(t, want, got)

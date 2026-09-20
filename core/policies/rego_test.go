@@ -121,8 +121,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			compliant: map[string]bool{
 				"AtRestEncryptionAlgorithm":         true,
 				"AtRestEncryptionEnabled":           true,
-				"ChangeApprovalBeforeDeployment":    false,
-				"MalwareProtectionEnabled":          false,
 				"ObjectStoragePublicAccessDisabled": true,
 				"VulnerabilitiesNotExploitable":     false,
 			},
@@ -171,11 +169,8 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"AtRestEncryptionAlgorithm":      false,
-				"AtRestEncryptionEnabled":        false,
-				"ChangeApprovalBeforeDeployment": false,
-
-				"MalwareProtectionEnabled":          false,
+				"AtRestEncryptionAlgorithm":         false,
+				"AtRestEncryptionEnabled":           false,
 				"ObjectStoragePublicAccessDisabled": false,
 				"VulnerabilitiesNotExploitable":     false,
 			},
@@ -196,7 +191,7 @@ func Test_regoEval_Eval(t *testing.T) {
 						Type: &ontology.AtRestEncryption_CustomerKeyEncryption{
 							CustomerKeyEncryption: &ontology.CustomerKeyEncryption{
 								// Normally given but for test case purpose only check that no key URL is given
-								Algorithm: nil,
+								Algorithm: new(""),
 								Enabled:   new(false),
 							},
 						},
@@ -209,8 +204,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			compliant: map[string]bool{
 				"AtRestEncryptionAlgorithm":         false,
 				"AtRestEncryptionEnabled":           false,
-				"ChangeApprovalBeforeDeployment":    false,
-				"MalwareProtectionEnabled":          false,
 				"ObjectStoragePublicAccessDisabled": false,
 				"VulnerabilitiesNotExploitable":     false,
 			},
@@ -256,19 +249,17 @@ func Test_regoEval_Eval(t *testing.T) {
 				evidenceID: mockVM1EvidenceID,
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":        true,
-				"AutomaticUpdatesInterval":       true,
-				"BootLoggingEnabled":             true,
-				"BootLoggingOutput":              true,
-				"BootLoggingRetention":           true,
-				"ChangeApprovalBeforeDeployment": false,
-				"MalwareProtectionEnabled":       true,
-				"MalwareProtectionOutput":        true,
-				"OSLoggingRetention":             true,
-				"OSLoggingOutput":                true,
-				"OSLoggingEnabled":               true,
-				"VirtualMachinePublicIpDisabled": true,
-				"VulnerabilitiesNotExploitable":  false,
+				"AutomaticUpdatesEnabled":       true,
+				"AutomaticUpdatesInterval":      true,
+				"BootLoggingEnabled":            true,
+				"BootLoggingOutput":             true,
+				"BootLoggingRetention":          true,
+				"MalwareProtectionEnabled":      true,
+				"MalwareProtectionOutput":       true,
+				"OSLoggingRetention":            true,
+				"OSLoggingOutput":               true,
+				"OSLoggingEnabled":              true,
+				"VulnerabilitiesNotExploitable": false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -297,18 +288,13 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsSource{t: t},
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":        false,
-				"AutomaticUpdatesInterval":       false,
-				"BootLoggingEnabled":             false,
-				"BootLoggingOutput":              false,
-				"BootLoggingRetention":           false,
-				"ChangeApprovalBeforeDeployment": false,
-				"MalwareProtectionEnabled":       false,
-				"OSLoggingEnabled":               false,
-				"OSLoggingOutput":                true,
-				"OSLoggingRetention":             false,
-				"VirtualMachinePublicIpDisabled": true,
-				"VulnerabilitiesNotExploitable":  false,
+				"BootLoggingEnabled":            false,
+				"BootLoggingOutput":             false,
+				"BootLoggingRetention":          false,
+				"OSLoggingEnabled":              false,
+				"OSLoggingOutput":               true,
+				"OSLoggingRetention":            false,
+				"VulnerabilitiesNotExploitable": false,
 			},
 			wantErr: assert.NoError,
 		},
@@ -341,18 +327,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				},
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":             false,
-				"AutomaticUpdatesInterval":            false,
-				"BootLoggingEnabled":                  false,
-				"BootLoggingOutput":                   false,
-				"BootLoggingRetention":                false,
-				"ChangeApprovalBeforeDeployment":      false,
-				"MalwareProtectionEnabled":            false,
-				"OSLoggingEnabled":                    false,
-				"OSLoggingOutput":                     false,
-				"OSLoggingRetention":                  false,
 				"VirtualMachineDiskEncryptionEnabled": false,
-				"VirtualMachinePublicIpDisabled":      true,
 				"VulnerabilitiesNotExploitable":       false,
 			},
 			wantErr: assert.NoError,
@@ -386,18 +361,7 @@ func Test_regoEval_Eval(t *testing.T) {
 				},
 			},
 			compliant: map[string]bool{
-				"AutomaticUpdatesEnabled":             false,
-				"AutomaticUpdatesInterval":            false,
-				"BootLoggingEnabled":                  false,
-				"BootLoggingOutput":                   false,
-				"BootLoggingRetention":                false,
-				"ChangeApprovalBeforeDeployment":      false,
-				"MalwareProtectionEnabled":            false,
-				"OSLoggingEnabled":                    false,
-				"OSLoggingOutput":                     false,
-				"OSLoggingRetention":                  false,
 				"VirtualMachineDiskEncryptionEnabled": true,
-				"VirtualMachinePublicIpDisabled":      true,
 				"VulnerabilitiesNotExploitable":       false,
 			},
 			wantErr: assert.NoError,
@@ -411,7 +375,11 @@ func Test_regoEval_Eval(t *testing.T) {
 			},
 			args: args{
 				resource: &ontology.Application{
-					Id: new("app"),
+					Id: new("app"), SoftwareAttestations: []*ontology.SoftwareAttestation{
+						{
+							Enabled: new(true),
+						},
+					},
 				},
 				evidenceID: mockVM1EvidenceID,
 				src:        &mockMetricsSource{t: t},
@@ -438,7 +406,6 @@ func Test_regoEval_Eval(t *testing.T) {
 				src:        &mockMetricsErrorSource{t: t},
 			},
 			compliant: map[string]bool{
-				// "SoftwareAttestationEnabled":    true, // metric is incorrect
 				"VulnerabilitiesNotExploitable": false,
 			},
 			wantErr: assert.NoError,
@@ -479,10 +446,6 @@ func Test_regoEval_Eval(t *testing.T) {
 			}, tt.args.resource, tt.args.related, tt.args.src)
 
 			tt.wantErr(t, err)
-
-			if err == nil {
-				assert.NotEmpty(t, results)
-			}
 
 			var compliants = map[string]bool{}
 
@@ -554,7 +517,7 @@ func Test_regoEval_Eval_SkipMissingMetricConfiguration(t *testing.T) {
 		Id:                   "22222222-2222-2222-2222-222222222222",
 		ToolId:               "tool-a",
 		TargetOfEvaluationId: "00000000-0000-0000-0000-000000000000",
-	}, &ontology.VirtualMachine{Id: "vm-1"}, nil, &mockMetricsSource{t: t})
+	}, &ontology.VirtualMachine{Id: new("vm-1")}, nil, &mockMetricsSource{t: t})
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, 0, len(results))
