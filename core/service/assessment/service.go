@@ -556,7 +556,7 @@ func (svc *Service) MetricConfiguration(ctx context.Context, TargetOfEvaluationI
 	svc.confMutex.Unlock()
 
 	// Check if entry is not there or is expired
-	if !ok || cache.cachedAt.After(time.Now().Add(EvictionTime)) {
+	if !ok || time.Since(cache.cachedAt) > EvictionTime {
 		req = connect.NewRequest(&orchestrator.GetMetricConfigurationRequest{
 			TargetOfEvaluationId: TargetOfEvaluationID,
 			MetricId:             metric.Id,
