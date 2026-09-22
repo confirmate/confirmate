@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
+	"connectrpc.com/connect"
 
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
@@ -176,10 +177,11 @@ func (re *regoEval) Close() error {
 // ontology resource in r.
 func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ontology.IsResource, related map[string]ontology.IsResource, src MetricsSource) (data []*CombinedResult, err error) {
 	var (
-		baseDir string
-		m       map[string]any
-		mm      map[string]any
-		types   []string
+		baseDir     string
+		m           map[string]any
+		mm          map[string]any
+		types       []string
+		usedMetrics []*assessment.Metric
 	)
 
 	baseDir = "."
@@ -213,12 +215,22 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve metric definitions: %w", err)
 	}
-	slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(metrics)), slog.Any("names", namesOf(metrics)))
 
 	for _, metric := range metrics {
 		runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 		if err != nil {
-			return nil, err
+			// Try to check if the metric implementation just does not exist.
+			if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
+				strings.Contains(err.Error(), "metric configuration not found")) {
+				slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
+			}
+
+			if re.skipMetricOnError {
+				// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+				slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
+			}
 		}
 		// Add runMap to data only if metric was applicable. runMap=nil and err=nil means the metric was not
 		// applicable.
@@ -228,12 +240,15 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 		// fields are not set properly.
 		if runMap != nil {
 			data = append(data, runMap)
+			usedMetrics = append(usedMetrics, metric)
 		}
 
 		if runMap == nil {
 			slog.Debug("Metric is not applicable for this evidence. That should not happen.", slog.Any("metric_name", metric.GetName()), slog.Any("metric_id", metric.GetId()), slog.String("evidence_id", evidence.GetId()))
 		}
 	}
+
+	slog.Info("Resource type has the applicable metric(s)", slog.Any("key", key), slog.Any("len", len(data)), slog.Any("names", namesOf(usedMetrics)))
 
 	// // TODO(lebogg): Try to optimize duplicated code
 	// if cached == nil {
