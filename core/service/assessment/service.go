@@ -576,7 +576,7 @@ func (svc *Service) MetricConfiguration(ctx context.Context, TargetOfEvaluationI
 
 		svc.confMutex.Lock()
 		// Update the metric configuration
-		slog.Info("Update cachedConfigurations", slog.String("metric id", config.MetricId))
+		slog.Debug("Update cachedConfigurations", slog.String("metric id", config.MetricId), slog.String("key", key))
 		svc.cachedConfigurations[key] = cache
 		defer svc.confMutex.Unlock()
 	}
