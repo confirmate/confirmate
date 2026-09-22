@@ -28,6 +28,7 @@ import (
 	"confirmate.io/core/api/ontology"
 	"confirmate.io/core/api/orchestrator"
 	"confirmate.io/core/util"
+	"connectrpc.com/connect"
 
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
@@ -218,7 +219,18 @@ func (re *regoEval) Eval(ctx context.Context, evidence *evidence.Evidence, r ont
 	for _, metric := range metrics {
 		runMap, err := re.evalMap(ctx, baseDir, evidence.TargetOfEvaluationId, metric, m, src)
 		if err != nil {
-			return nil, err
+			// Try to check if the metric implementation just does not exist.
+			if connect.CodeOf(err) == connect.CodeNotFound && (strings.Contains(err.Error(), "implementation for metric not found") ||
+				strings.Contains(err.Error(), "metric configuration not found")) {
+				slog.Error("Metric implementation or configuration not found. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
+			}
+
+			if re.skipMetricOnError {
+				// We intentionally do NOT mark the whole cache as invalid here so other metrics can still be evaluated.
+				slog.Error("Error while evaluating metric. Skipping metric", "metric_name", metric.GetName(), "metric_id", metric.GetId(), "error", err)
+				continue
+			}
 		}
 		// Add runMap to data only if metric was applicable. runMap=nil and err=nil means the metric was not
 		// applicable.
