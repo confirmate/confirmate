@@ -130,8 +130,8 @@ func Test_k8sComputeCollector_List(t *testing.T) {
 				}
 				// Create expected ontology.Container
 				expectedContainer := &ontology.Container{
-					Id:                  podID,
-					Name:                podName,
+					Id:                  new(podID),
+					Name:                new(podName),
 					Labels:              podLabel,
 					NetworkInterfaceIds: []string{},
 				}
@@ -147,8 +147,8 @@ func Test_k8sComputeCollector_List(t *testing.T) {
 
 				// Create expected ontology.BlockStorage
 				expectedVolume := &ontology.BlockStorage{
-					Id:               volumeName,
-					Name:             volumeName,
+					Id:               new(volumeName),
+					Name:             new(volumeName),
 					CreationTime:     nil,
 					AtRestEncryption: &ontology.AtRestEncryption{},
 				}
@@ -207,9 +207,10 @@ func Test_k8sComputeCollector_handlePodVolume(t *testing.T) {
 			},
 			want: []ontology.IsResource{
 				&ontology.FileStorage{
-					Id:               "test",
-					Name:             "test",
+					Id:               new("test"),
+					Name:             new("test"),
 					AtRestEncryption: &ontology.AtRestEncryption{},
+					Raw:              new(""),
 				},
 			},
 		},
@@ -238,9 +239,10 @@ func Test_k8sComputeCollector_handlePodVolume(t *testing.T) {
 			},
 			want: []ontology.IsResource{
 				&ontology.BlockStorage{
-					Id:               "block",
-					Name:             "block",
+					Id:               new("block"),
+					Name:             new("block"),
 					AtRestEncryption: &ontology.AtRestEncryption{},
+					Raw:              new(""),
 				},
 			},
 		},
@@ -258,10 +260,10 @@ func Test_k8sComputeCollector_handlePodVolume(t *testing.T) {
 				switch r := res.(type) {
 				case *ontology.FileStorage:
 					assert.NotEmpty(t, r.Raw)
-					r.Raw = ""
+					r.Raw = new("")
 				case *ontology.BlockStorage:
 					assert.NotEmpty(t, r.Raw)
-					r.Raw = ""
+					r.Raw = new("")
 				}
 			}
 

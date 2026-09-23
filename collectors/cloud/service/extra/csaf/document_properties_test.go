@@ -51,10 +51,10 @@ func Test_documentValidationErrors(t *testing.T) {
 			want: func(t *testing.T, got []*ontology.Error, msgAndArgs ...any) bool {
 				want := []*ontology.Error{
 					{
-						Message: "message1",
+						Message: new("message1"),
 					},
 					{
-						Message: "message2",
+						Message: new("message2"),
 					},
 				}
 				return assert.Equal(t, want, got)
@@ -90,7 +90,7 @@ func Test_transportEncryption(t *testing.T) {
 				state: nil,
 			},
 			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndArgs ...any) bool {
-				want := &ontology.TransportEncryption{Enabled: false}
+				want := &ontology.TransportEncryption{}
 				return assert.Equal(t, want, got)
 			},
 		},
@@ -101,8 +101,8 @@ func Test_transportEncryption(t *testing.T) {
 			},
 			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndArgs ...any) bool {
 				want := &ontology.TransportEncryption{
-					Enabled:      true,
-					Protocol:     constants.TLS,
+					Enabled:      new(true),
+					Protocol:     new(constants.TLS),
 					CipherSuites: []*ontology.CipherSuite{},
 				}
 				return assert.Equal(t, want, got)
@@ -115,9 +115,9 @@ func Test_transportEncryption(t *testing.T) {
 			},
 			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndArgs ...any) bool {
 				want := &ontology.TransportEncryption{
-					Enabled:         true,
-					ProtocolVersion: 1.0,
-					Protocol:        constants.TLS,
+					Enabled:         new(true),
+					ProtocolVersion: new(float32(1.0)),
+					Protocol:        new(constants.TLS),
 					CipherSuites:    []*ontology.CipherSuite{},
 				}
 				return assert.Equal(t, want, got)
@@ -130,9 +130,9 @@ func Test_transportEncryption(t *testing.T) {
 			},
 			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndArgs ...any) bool {
 				want := &ontology.TransportEncryption{
-					Enabled:         true,
-					ProtocolVersion: 1.1,
-					Protocol:        constants.TLS,
+					Enabled:         new(true),
+					ProtocolVersion: new(float32(1.1)),
+					Protocol:        new(constants.TLS),
 					CipherSuites:    []*ontology.CipherSuite{},
 				}
 				return assert.Equal(t, want, got)
@@ -145,9 +145,9 @@ func Test_transportEncryption(t *testing.T) {
 			},
 			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndArgs ...any) bool {
 				want := &ontology.TransportEncryption{
-					Enabled:         true,
-					ProtocolVersion: 1.2,
-					Protocol:        constants.TLS,
+					Enabled:         new(true),
+					ProtocolVersion: new(float32(1.2)),
+					Protocol:        new(constants.TLS),
 					CipherSuites:    []*ontology.CipherSuite{},
 				}
 				return assert.Equal(t, want, got)
@@ -163,13 +163,13 @@ func Test_transportEncryption(t *testing.T) {
 			},
 			want: func(t *testing.T, got *ontology.TransportEncryption, msgAndArgs ...any) bool {
 				want := &ontology.TransportEncryption{
-					Enabled:         true,
-					ProtocolVersion: 1.3,
-					Protocol:        constants.TLS,
+					Enabled:         new(true),
+					ProtocolVersion: new(float32(1.3)),
+					Protocol:        new(constants.TLS),
 					CipherSuites: []*ontology.CipherSuite{
 						{
-							SessionCipher: "AES-256-GCM",
-							MacAlgorithm:  "SHA-384",
+							SessionCipher: new("AES-256-GCM"),
+							MacAlgorithm:  new("SHA-384"),
 						},
 					},
 				}
@@ -228,7 +228,7 @@ func Test_csafCollector_documentChecksum(t *testing.T) {
 			},
 			want: &ontology.CryptographicHash{
 				Errors:    fromError(errors.New("checksum mismatch")),
-				Algorithm: constants.SHA_256,
+				Algorithm: new(constants.SHA_256),
 			},
 		},
 		{
@@ -244,7 +244,7 @@ func Test_csafCollector_documentChecksum(t *testing.T) {
 			},
 			want: &ontology.CryptographicHash{
 				Errors:    fromError(errors.New("checksum file does not contain correct filename")),
-				Algorithm: constants.SHA_256,
+				Algorithm: new(constants.SHA_256),
 			},
 		},
 	}
@@ -276,8 +276,8 @@ func Test_cipherSuite(t *testing.T) {
 				id: tls.TLS_AES_128_GCM_SHA256,
 			},
 			want: &ontology.CipherSuite{
-				SessionCipher: constants.AES_128_GCM,
-				MacAlgorithm:  constants.SHA_256,
+				SessionCipher: new(constants.AES_128_GCM),
+				MacAlgorithm:  new(constants.SHA_256),
 			},
 		},
 		{
@@ -364,7 +364,7 @@ func Test_csafCollector_documentPGPSignature(t *testing.T) {
 				keyring: goodProvider.Keyring,
 			},
 			wantSig: &ontology.DocumentSignature{
-				Algorithm: "PGP",
+				Algorithm: new("PGP"),
 				Errors:    nil,
 			},
 		},
@@ -403,13 +403,13 @@ func Test_fromError(t *testing.T) {
 			},
 			wantErrors: []*ontology.Error{
 				{
-					Message: "first",
+					Message: new("first"),
 				},
 				{
-					Message: "second",
+					Message: new("second"),
 				},
 				{
-					Message: "third",
+					Message: new("third"),
 				},
 			},
 		},

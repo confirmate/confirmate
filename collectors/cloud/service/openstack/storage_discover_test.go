@@ -78,21 +78,22 @@ func Test_openstackCollector_collectBlockStorage(t *testing.T) {
 				assert.NoError(t, err)
 
 				want := &ontology.BlockStorage{
-					Id:           "289da7f8-6440-407c-9fb4-7db01ec49164",
-					Name:         "vol-001",
-					Description:  "",
+					Id:           new("289da7f8-6440-407c-9fb4-7db01ec49164"),
+					Name:         new("vol-001"),
+					Description:  new(""),
 					CreationTime: timestamppb.New(t1),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					ParentId: new("83ec2e3b-4321-422b-8706-a84185f52a0a"),
 					Labels:   map[string]string{},
+					Raw:      new(""),
 				}
 
 				got0 := got[0].(*ontology.BlockStorage)
 
 				assert.NotEmpty(t, got0.GetRaw())
-				got0.Raw = ""
+				got0.Raw = new("")
 				return assert.Equal(t, want, got0)
 			},
 			wantErr: assert.NoError,

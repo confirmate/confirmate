@@ -40,9 +40,9 @@ func (d *openstackCollector) collectDomains() (list []ontology.IsResource, err e
 		}
 
 		r := &ontology.Account{
-			Id:   d.domain.domainID,
-			Name: d.domain.domainName,
-			Raw:  collector.Raw("Domain information manually added."),
+			Id:   new(d.domain.domainID),
+			Name: new(d.domain.domainName),
+			Raw:  new(collector.Raw("Domain information manually added.")),
 		}
 
 		list = append(list, r)
@@ -66,10 +66,10 @@ func (d *openstackCollector) collectProjects() (list []ontology.IsResource, err 
 		}
 
 		r := &ontology.ResourceGroup{
-			Id:       d.project.projectID,
-			Name:     d.project.projectName,
+			Id:       new(d.project.projectID),
+			Name:     new(d.project.projectName),
 			ParentId: &d.domain.domainID,
-			Raw:      collector.Raw("Project/Tenant information manually added."),
+			Raw:      new(collector.Raw("Project/Tenant information manually added.")),
 		}
 
 		list = append(list, r)

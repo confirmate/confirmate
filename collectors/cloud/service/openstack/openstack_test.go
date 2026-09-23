@@ -511,15 +511,15 @@ func Test_openstackCollector_List(t *testing.T) {
 			},
 			want: func(t *testing.T, got []ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.ResourceGroup{
-					Id:       "fcad67a6189847c4aecfa3c81a05783b",
-					Name:     "fcad67a6189847c4aecfa3c81a05783b",
+					Id:       new("fcad67a6189847c4aecfa3c81a05783b"),
+					Name:     new("fcad67a6189847c4aecfa3c81a05783b"),
 					ParentId: new("test domain ID"),
-					Raw:      "",
+					Raw:      new(""),
 				}
 
 				got0 := got[9].(*ontology.ResourceGroup)
 				assert.NotEmpty(t, got0.GetRaw())
-				got0.Raw = ""
+				got0.Raw = new("")
 				return assert.Equal(t, want, got0)
 			},
 			wantErr: assert.NoError,

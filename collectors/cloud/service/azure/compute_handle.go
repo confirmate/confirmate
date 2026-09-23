@@ -66,34 +66,34 @@ func (d *azureCollector) handleVirtualMachines(vm *armcompute.VirtualMachine) (o
 	}
 
 	r := &ontology.VirtualMachine{
-		Id:           resourceID(vm.ID),
-		Name:         pointer.Deref(vm.Name),
+		Id:           new(resourceID(vm.ID)),
+		Name:         new(pointer.Deref(vm.Name)),
 		CreationTime: creationTime(vm.Properties.TimeCreated),
 		GeoLocation: &ontology.GeoLocation{
-			Region: pointer.Deref(vm.Location),
+			Region: new(pointer.Deref(vm.Location)),
 		},
 		Labels:              labels(vm.Tags),
 		ParentId:            resourceGroupID(vm.ID),
-		Raw:                 collector.Raw(vm),
+		Raw:                 new(collector.Raw(vm)),
 		NetworkInterfaceIds: []string{}, // TODO(all): Collect network interface IDs
 		BlockStorageIds:     []string{},
 		MalwareProtection:   &ontology.MalwareProtection{},
 		BootLogging: &ontology.BootLogging{
-			Enabled:                  isBootDiagnosticEnabled(vm),
+			Enabled:                  new(isBootDiagnosticEnabled(vm)),
 			LoggingServiceIds:        bootLogging,
 			RetentionPeriod:          durationpb.New(0), // Currently, configuring the retention period for Managed Boot Diagnostics is not available. The logs will be overwritten after 1gb of space according to https://github.com/MicrosoftDocs/azure-docs/issues/69953
-			MonitoringLogDataEnabled: monitoringLogDataEnabled,
-			SecurityAlertsEnabled:    securityAlertsEnabled,
+			MonitoringLogDataEnabled: new(monitoringLogDataEnabled),
+			SecurityAlertsEnabled:    new(securityAlertsEnabled),
 		},
 		OsLogging: &ontology.OSLogging{
-			Enabled:                  osLoggingEnabled,
+			Enabled:                  new(osLoggingEnabled),
 			RetentionPeriod:          durationpb.New(0),
 			LoggingServiceIds:        []string{}, // TODO(all): TBD
-			MonitoringLogDataEnabled: monitoringLogDataEnabled,
-			SecurityAlertsEnabled:    securityAlertsEnabled,
+			MonitoringLogDataEnabled: new(monitoringLogDataEnabled),
+			SecurityAlertsEnabled:    new(securityAlertsEnabled),
 		},
 		ActivityLogging: &ontology.ActivityLogging{
-			Enabled:           true, // is always enabled
+			Enabled:           new(true), // is always enabled
 			RetentionPeriod:   durationpb.New(RetentionPeriod90Days),
 			LoggingServiceIds: []string{}, // TODO(all): TBD
 		},
@@ -144,13 +144,13 @@ func (d *azureCollector) handleBlockStorage(disk *armcompute.Disk) (*ontology.Bl
 	backups = backupsEmptyCheck(backups)
 
 	return &ontology.BlockStorage{
-		Id:               resourceID(disk.ID),
-		Name:             pointer.Deref(disk.Name),
+		Id:               new(resourceID(disk.ID)),
+		Name:             new(pointer.Deref(disk.Name)),
 		CreationTime:     creationTime(disk.Properties.TimeCreated),
 		GeoLocation:      location(disk.Location),
 		Labels:           labels(disk.Tags),
 		ParentId:         resourceGroupID(disk.ManagedBy),
-		Raw:              collector.Raw(disk, rawKeyUrl),
+		Raw:              new(collector.Raw(disk, rawKeyUrl)),
 		AtRestEncryption: enc,
 		Backups:          backups,
 	}, nil
@@ -197,24 +197,24 @@ func (d *azureCollector) handleFunction(function *armappservice.Site, config arm
 	}
 
 	return &ontology.Function{
-		Id:           resourceID(function.ID),
-		Name:         pointer.Deref(function.Name),
+		Id:           new(resourceID(function.ID)),
+		Name:         new(pointer.Deref(function.Name)),
 		CreationTime: nil, // No creation time available
 		GeoLocation: &ontology.GeoLocation{
-			Region: pointer.Deref(function.Location),
+			Region: new(pointer.Deref(function.Location)),
 		},
 		Labels:              labels(function.Tags),
 		ParentId:            resourceGroupID(function.ID),
-		Raw:                 collector.Raw(function, config),
+		Raw:                 new(collector.Raw(function, config)),
 		NetworkInterfaceIds: getVirtualNetworkSubnetId(function), // Add the Virtual Network Subnet ID
 		ResourceLogging:     d.getResourceLoggingWebApps(function),
-		RuntimeLanguage:     runtimeLanguage,
-		RuntimeVersion:      runtimeVersion,
+		RuntimeLanguage:     new(runtimeLanguage),
+		RuntimeVersion:      new(runtimeVersion),
 		// TODO(oxisto): This is missing in the ontology
 		/*HttpEndpoint: &ontology.HttpEndpoint{
 			TransportEncryption: getTransportEncryption(function.Properties, config),
 		},*/
-		InternetAccessibleEndpoint: publicNetworkAccessStatus(function.Properties.PublicNetworkAccess),
+		InternetAccessibleEndpoint: new(publicNetworkAccessStatus(function.Properties.PublicNetworkAccess)),
 		Redundancies:               getRedundancies(function),
 	}
 }
@@ -226,22 +226,22 @@ func (d *azureCollector) handleWebApp(webApp *armappservice.Site, config armapps
 	}
 
 	return &ontology.Function{
-		Id:           resourceID(webApp.ID),
-		Name:         pointer.Deref(webApp.Name),
+		Id:           new(resourceID(webApp.ID)),
+		Name:         new(pointer.Deref(webApp.Name)),
 		CreationTime: nil, // Only the last modified time is available.
 		GeoLocation: &ontology.GeoLocation{
-			Region: pointer.Deref(webApp.Location),
+			Region: new(pointer.Deref(webApp.Location)),
 		},
 		Labels:              labels(webApp.Tags),
 		ParentId:            resourceGroupID(webApp.ID),
-		Raw:                 collector.Raw(webApp, config),
+		Raw:                 new(collector.Raw(webApp, config)),
 		NetworkInterfaceIds: getVirtualNetworkSubnetId(webApp), // Add the Virtual Network Subnet ID
 		ResourceLogging:     d.getResourceLoggingWebApps(webApp),
 		// TODO(oxisto): This is missing in the ontology
 		/*HttpEndpoint: &ontology.HttpEndpoint{
 			TransportEncryption: getTransportEncryption(webApp.Properties, config),
 		},*/
-		InternetAccessibleEndpoint: publicNetworkAccessStatus(webApp.Properties.PublicNetworkAccess),
+		InternetAccessibleEndpoint: new(publicNetworkAccessStatus(webApp.Properties.PublicNetworkAccess)),
 		Redundancies:               getRedundancies(webApp),
 	}
 }
