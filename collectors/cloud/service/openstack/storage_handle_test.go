@@ -63,19 +63,21 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.BlockStorage{
-					Id:           testdata.MockOpenstackVolumeID1,
-					Name:         testdata.MockOpenstackVolumeID1,
+					Id:           new(testdata.MockOpenstackVolumeID1),
+					Name:         new(testdata.MockOpenstackVolumeID1),
 					CreationTime: timestamppb.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
-					ParentId: new(testdata.MockOpenstackVolumeTenantID),
+					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
+					Description: new(""),
+					Raw:         new(""),
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
 
 				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = ""
+				gotNew.Raw = new("")
 				return assert.Equal(t, want, gotNew)
 			},
 			wantErr: assert.NoError,
@@ -95,19 +97,21 @@ func Test_openstackCollector_handleBlockStorage(t *testing.T) {
 			},
 			want: func(t *testing.T, got ontology.IsResource, msgAndArgs ...any) bool {
 				want := &ontology.BlockStorage{
-					Id:           testdata.MockOpenstackVolumeID1,
-					Name:         testdata.MockOpenstackVolumeName1,
+					Id:           new(testdata.MockOpenstackVolumeID1),
+					Name:         new(testdata.MockOpenstackVolumeName1),
 					CreationTime: timestamppb.New(testTime),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
-					ParentId: new(testdata.MockOpenstackVolumeTenantID),
+					ParentId:    new(testdata.MockOpenstackVolumeTenantID),
+					Description: new(""),
+					Raw:         new(""),
 				}
 
 				gotNew := got.(*ontology.BlockStorage)
 
 				assert.NotEmpty(t, gotNew.GetRaw())
-				gotNew.Raw = ""
+				gotNew.Raw = new("")
 				return assert.Equal(t, want, gotNew)
 			},
 			wantErr: assert.NoError,

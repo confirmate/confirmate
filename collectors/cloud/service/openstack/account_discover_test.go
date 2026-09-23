@@ -73,23 +73,24 @@ func Test_openstackCollector_collectProjects(t *testing.T) {
 				assert.Equal(t, 2, len(got))
 
 				want := &ontology.ResourceGroup{
-					Id:          "1234",
-					Name:        "Red Team",
-					Description: "The team that is red",
+					Id:          new("1234"),
+					Name:        new("Red Team"),
+					Description: new("The team that is red"),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					Labels: map[string]string{
 						"Red":  "",
 						"Team": "",
 					},
 					ParentId: new(""),
+					Raw:      new(""),
 				}
 
 				got0 := got[0].(*ontology.ResourceGroup)
 
 				assert.NotEmpty(t, got0.GetRaw())
-				got0.Raw = ""
+				got0.Raw = new("")
 				return assert.Equal(t, want, got0)
 			},
 			wantErr: assert.NoError,
@@ -157,15 +158,16 @@ func Test_openstackCollector_collectDomain(t *testing.T) {
 				assert.Equal(t, 2, len(got))
 
 				want := &ontology.Account{
-					Id:          "2844b2a08be147a08ef58317d6471f1f",
-					Name:        "domain one",
-					Description: "some description",
+					Id:          new("2844b2a08be147a08ef58317d6471f1f"),
+					Name:        new("domain one"),
+					Description: new("some description"),
+					Raw:         new(""),
 				}
 
 				got0 := got[0].(*ontology.Account)
 
 				assert.NotEmpty(t, got0.GetRaw())
-				got0.Raw = ""
+				got0.Raw = new("")
 				return assert.Equal(t, want, got0)
 			},
 			wantErr: assert.NoError,

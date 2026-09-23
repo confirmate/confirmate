@@ -94,14 +94,14 @@ func (d *azureCollector) collectBackupVaults() error {
 				// Store voc.Backup in backupMap
 				d.backupMap[dataSourceType].backup[pointer.Deref(instance.Properties.DataSourceInfo.ResourceID)] = []*ontology.Backup{
 					{
-						Enabled:         true,
+						Enabled:         new(true),
 						RetentionPeriod: retentionDuration(pointer.Deref(retention)),
 						StorageId:       vault.ID,
 						TransportEncryption: &ontology.TransportEncryption{
-							Enabled:         true,
-							Enforced:        true,
-							Protocol:        constants.TLS,
-							ProtocolVersion: 1.2, // https://learn.microsoft.com/en-us/azure/backup/transport-layer-security#why-enable-tls-12 (Last access: 04/27/2023)
+							Enabled:         new(true),
+							Enforced:        new(true),
+							Protocol:        new(constants.TLS),
+							ProtocolVersion: new(float32(1.2)), // https://learn.microsoft.com/en-us/azure/backup/transport-layer-security#why-enable-tls-12 (Last access: 04/27/2023)
 						},
 					},
 				}

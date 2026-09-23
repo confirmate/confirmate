@@ -83,11 +83,11 @@ func (d *k8sComputeCollector) Collect() ([]ontology.IsResource, error) {
 // handlePod returns all existing pods
 func (d *k8sComputeCollector) handlePod(pod *v1.Pod) *ontology.Container {
 	r := &ontology.Container{
-		Id:                  getContainerResourceID(pod),
-		Name:                pod.Name,
+		Id:                  new(getContainerResourceID(pod)),
+		Name:                new(pod.Name),
 		CreationTime:        timestamppb.New(pod.CreationTimestamp.Time),
 		Labels:              pod.Labels,
-		Raw:                 collector.Raw(pod),
+		Raw:                 new(collector.Raw(pod)),
 		NetworkInterfaceIds: []string{},
 	}
 
@@ -134,8 +134,8 @@ func (d *k8sComputeCollector) handlePodVolume(pod *v1.Pod) []ontology.IsResource
 		// storageos - StorageOS volume (deprecated in v1.22)
 		if vs.AWSElasticBlockStore != nil || vs.AzureDisk != nil || vs.Cinder != nil || vs.FlexVolume != nil || vs.CephFS != nil || vs.Glusterfs != nil || vs.GCEPersistentDisk != nil || vs.RBD != nil || vs.StorageOS != nil || vs.FC != nil || vs.PortworxVolume != nil || vs.ISCSI != nil || vs.Flocker != nil {
 			v = &ontology.BlockStorage{
-				Id:           vol.Name, // The ID we have to get directly from the related storage
-				Name:         vol.Name,
+				Id:           new(vol.Name), // The ID we have to get directly from the related storage
+				Name:         new(vol.Name),
 				CreationTime: nil, // The CreationTime we have to get directly from the related storage
 				// anatheka: As I understand it, there are no labels for the volume here, we have to get that from the
 				// related storage directly. But we could take the pod labels to which the volume is assigned. I think that
@@ -143,12 +143,12 @@ func (d *k8sComputeCollector) handlePodVolume(pod *v1.Pod) []ontology.IsResource
 				Labels: nil,
 				// Not able to get the AtRestEncryption information, that must be retrieved directly from the storage
 				AtRestEncryption: &ontology.AtRestEncryption{},
-				Raw:              collector.Raw(pod, &vol),
+				Raw:              new(collector.Raw(pod, &vol)),
 			}
 		} else if vs.AzureFile != nil || vs.EmptyDir != nil || vs.NFS != nil || vs.HostPath != nil || vs.Secret != nil {
 			v = &ontology.FileStorage{
-				Id:           vol.Name, // The ID we have to get directly from the related storage
-				Name:         vol.Name,
+				Id:           new(vol.Name), // The ID we have to get directly from the related storage
+				Name:         new(vol.Name),
 				CreationTime: nil, // The CreationTime we have to get directly from the related storage
 				// anatheka: As I understand it, there are no labels for the volume here, we have to get that from the
 				// related storage directly. But we could take the pod labels to which the volume is assigned. I think that
@@ -156,7 +156,7 @@ func (d *k8sComputeCollector) handlePodVolume(pod *v1.Pod) []ontology.IsResource
 				Labels: nil,
 				// Not able to get the AtRestEncryption information, that must be retrieved directly from the storage
 				AtRestEncryption: &ontology.AtRestEncryption{},
-				Raw:              collector.Raw(pod, &vol),
+				Raw:              new(collector.Raw(pod, &vol)),
 			}
 		}
 
