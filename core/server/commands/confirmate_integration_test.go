@@ -156,22 +156,22 @@ func loadBalancerEvidence() *evidence.Evidence {
 		Resource: &ontology.Resource{
 			Type: &ontology.Resource_LoadBalancer{
 				LoadBalancer: &ontology.LoadBalancer{
-					Id:           "123e4567-e89b-12d3-a456-426614174000",
-					Name:         "Example Load Balancer",
-					Description:  "Example Load Balancer",
+					Id:           new("123e4567-e89b-12d3-a456-426614174000"),
+					Name:         new("Example Load Balancer"),
+					Description:  new("Example Load Balancer"),
 					CreationTime: timestamppb.New(time.Date(2023, 5, 11, 14, 16, 9, 0, time.UTC)),
 					ParentId:     new("123e4567-e89b-12d3-a456-426614174002"),
-					GeoLocation:  &ontology.GeoLocation{Region: "Germany"},
+					GeoLocation:  &ontology.GeoLocation{Region: new("Germany")},
 					AccessRestriction: &ontology.AccessRestriction{
 						Type: &ontology.AccessRestriction_WebApplicationFirewall{
-							WebApplicationFirewall: &ontology.WebApplicationFirewall{Enabled: true},
+							WebApplicationFirewall: &ontology.WebApplicationFirewall{Enabled: new(true)},
 						},
 					},
 					TransportEncryption: &ontology.TransportEncryption{
-						Enabled:         true,
-						Enforced:        true,
-						Protocol:        "HTTPS",
-						ProtocolVersion: 1.2,
+						Enabled:         new(true),
+						Enforced:        new(true),
+						Protocol:        new("HTTPS"),
+						ProtocolVersion: new(float32(1.2)),
 					},
 				},
 			},

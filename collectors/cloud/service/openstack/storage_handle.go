@@ -34,16 +34,16 @@ func (d *openstackCollector) handleBlockStorage(volume *volumes.Volume) (ontolog
 	}
 
 	r := &ontology.BlockStorage{
-		Id:           volume.ID,
-		Name:         name,
-		Description:  volume.Description,
+		Id:           new(volume.ID),
+		Name:         new(name),
+		Description:  new(volume.Description),
 		CreationTime: timestamppb.New(volume.CreatedAt),
 		GeoLocation: &ontology.GeoLocation{
-			Region: d.region,
+			Region: new(d.region),
 		},
 		ParentId: new(getParentID(volume)),
 		Labels:   map[string]string{}, // Not available
-		Raw:      collector.Raw(volume),
+		Raw:      new(collector.Raw(volume)),
 	}
 
 	log.Info("Adding block storage", slog.String("name", volume.Name))

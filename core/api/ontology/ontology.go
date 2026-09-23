@@ -135,7 +135,7 @@ func ResourceMap(r IsResource) (props map[string]any, err error) {
 	)
 
 	opts = protojson.MarshalOptions{
-		EmitUnpopulated: true,
+		EmitUnpopulated: false, // Only include fields that were explicitly set in the original JSON request, so that policies can distinguish unset fields from default values.
 	}
 
 	b, err = opts.Marshal(r)

@@ -33,8 +33,8 @@ var (
 		ToolId:               "MockTool1",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
 			VirtualMachine: &ontology.VirtualMachine{
-				Id:   "mock-id-1",
-				Name: "my-vm",
+				Id:   new("mock-id-1"),
+				Name: new("my-vm"),
 			},
 		}},
 	}
@@ -47,8 +47,8 @@ var (
 		ToolId:               "MockTool1",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
 			VirtualMachine: &ontology.VirtualMachine{
-				Id:   "mock-id-1",
-				Name: "my-vm",
+				Id:   new("mock-id-1"),
+				Name: new("my-vm"),
 			},
 		}},
 	}
@@ -72,8 +72,8 @@ var (
 		ToolId:               "tool-a",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
 			VirtualMachine: &ontology.VirtualMachine{
-				Id:   "vm-1",
-				Name: "vm-vm-1",
+				Id:   new("vm-1"),
+				Name: new("vm-vm-1"),
 			},
 		}},
 	}
@@ -86,8 +86,8 @@ var (
 		ToolId:               "tool-a",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
 			VirtualMachine: &ontology.VirtualMachine{
-				Id:   "vm-2",
-				Name: "vm-vm-2",
+				Id:   new("vm-2"),
+				Name: new("vm-vm-2"),
 			},
 		}},
 	}
@@ -100,8 +100,8 @@ var (
 		ToolId:               "tool-b",
 		Resource: &ontology.Resource{Type: &ontology.Resource_VirtualMachine{
 			VirtualMachine: &ontology.VirtualMachine{
-				Id:   "vm-3",
-				Name: "vm-vm-3",
+				Id:   new("vm-3"),
+				Name: new("vm-vm-3"),
 			},
 		}},
 	}

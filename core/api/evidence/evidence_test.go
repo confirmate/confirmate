@@ -44,13 +44,13 @@ func TestEvidence_GetOntologyResource(t *testing.T) {
 				Resource: &ontology.Resource{
 					Type: &ontology.Resource_VirtualMachine{
 						VirtualMachine: &ontology.VirtualMachine{
-							Id: "vm-1",
+							Id: new("vm-1"),
 						},
 					},
 				},
 			},
 			want: &ontology.VirtualMachine{
-				Id: "vm-1",
+				Id: new("vm-1"),
 			},
 		},
 		{
@@ -101,11 +101,11 @@ func TestToResourceSnapshot(t *testing.T) {
 			name: "happy path",
 			args: args{
 				resource: &ontology.BlockStorage{
-					Id:   "my-block-storage",
-					Name: "My Block Storage",
+					Id:   new("my-block-storage"),
+					Name: new("My Block Storage"),
 					Backups: []*ontology.Backup{
 						{
-							Enabled:   true,
+							Enabled:   new(true),
 							StorageId: new("my-offsite-backup-id"),
 						},
 					},
@@ -119,11 +119,11 @@ func TestToResourceSnapshot(t *testing.T) {
 				ToolId:               "test-collector-id",
 				ResourceType:         "BlockStorage,Storage,Infrastructure,Resource",
 				Resource: ontology.ProtoResource(&ontology.BlockStorage{
-					Id:   "my-block-storage",
-					Name: "My Block Storage",
+					Id:   new("my-block-storage"),
+					Name: new("My Block Storage"),
 					Backups: []*ontology.Backup{
 						{
-							Enabled:   true,
+							Enabled:   new(true),
 							StorageId: new("my-offsite-backup-id"),
 						},
 					},

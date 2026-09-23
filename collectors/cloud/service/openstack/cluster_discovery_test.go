@@ -80,34 +80,36 @@ func Test_openstackCollector_collectCluster(t *testing.T) {
 				assert.NoError(t, err)
 
 				want := &ontology.ContainerOrchestration{
-					Id:           "746e779a-751a-456b-a3e9-c883d734946f",
+					Id:           new("746e779a-751a-456b-a3e9-c883d734946f"),
 					CreationTime: timestamppb.New(t1),
-					Name:         "k8s",
+					Name:         new("k8s"),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					ParentId: new(""),
+					Raw:      new(""),
 				}
 
 				want1 := &ontology.ContainerOrchestration{
-					Id:           "846e779a-751a-456b-a3e9-c883d734946f",
+					Id:           new("846e779a-751a-456b-a3e9-c883d734946f"),
 					CreationTime: timestamppb.New(t2),
-					Name:         "k8s",
+					Name:         new("k8s"),
 					GeoLocation: &ontology.GeoLocation{
-						Region: "test region",
+						Region: new("test region"),
 					},
 					ParentId: new(""),
+					Raw:      new(""),
 				}
 
 				// Check Raw field and skip it for comparison
 				got0 := got[0].(*ontology.ContainerOrchestration)
 				assert.NotEmpty(t, got0.GetRaw())
-				got0.Raw = ""
+				got0.Raw = new("")
 				assert.Equal(t, want, got0)
 
 				got1 := got[1].(*ontology.ContainerOrchestration)
 				assert.NotEmpty(t, got1.GetRaw())
-				got1.Raw = ""
+				got1.Raw = new("")
 				return assert.Equal(t, want1, got1)
 			},
 			wantErr: assert.NoError,

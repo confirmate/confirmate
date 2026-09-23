@@ -94,9 +94,20 @@ message AssessmentResult {
   // ComplianceDetails contains machine-readable details about which comparisons lead to a (non)-compliance.
   repeated ComparisonResult compliance_details = 10 [(tagger.tags) = "gorm:\"serializer:json\""];
 
-  // The target of evaluation which this assessment result belongs to
+  // The target of evaluation which this assessment result belongs to.
+  //
+  // NOTE: idx_assessment_results_target_of_evaluation_id is picked up by
+  // GORM's AutoMigrate on service startup (see persistence.NewDB). On a
+  // large, already-populated assessment_results table, the first startup
+  // after this index is introduced will run a blocking CREATE INDEX and may
+  // stall writes for a while. Consider pre-creating the index out-of-band
+  // with `CREATE INDEX CONCURRENTLY
+  // idx_assessment_results_target_of_evaluation_id ON assessment_results
+  // (target_of_evaluation_id);` before rolling this out; AutoMigrate detects
+  // the existing index by name and skips it.
   string target_of_evaluation_id = 20 [
     (buf.validate.field).string.uuid = true,
+    (tagger.tags) = "gorm:\"index:idx_assessment_results_target_of_evaluation_id\"",
     (google.api.field_behavior) = REQUIRED
   ];
 

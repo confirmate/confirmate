@@ -100,13 +100,13 @@ func (d *azureCollector) collectMongoDBDatabases(account *armcosmos.DatabaseAcco
 		for _, value := range pageResponse.Value {
 			// Create Cosmos DB database storage voc object
 			mongoDB := &ontology.DatabaseStorage{
-				Id:               resourceID(value.ID),
-				Name:             pointer.Deref(value.Name),
+				Id:               new(resourceID(value.ID)),
+				Name:             new(pointer.Deref(value.Name)),
 				CreationTime:     nil, // creation time of database not available
 				GeoLocation:      location(value.Location),
 				Labels:           labels(value.Tags),
 				ParentId:         resourceIDPointer(account.ID),
-				Raw:              collector.Raw(account, value),
+				Raw:              new(collector.Raw(account, value)),
 				AtRestEncryption: atRestEnc,
 			}
 			list = append(list, mongoDB)
@@ -186,26 +186,26 @@ func (d *azureCollector) getSqlDBs(server *armsql.Server) ([]ontology.IsResource
 			}
 
 			a := &ontology.AnomalyDetection{
-				Scope:   pointer.Deref(value.ID),
-				Enabled: anomalyDetectionEnabled,
+				Scope:   new(pointer.Deref(value.ID)),
+				Enabled: new(anomalyDetectionEnabled),
 			}
 
 			anomalyDetectionList = append(anomalyDetectionList, a)
 
 			// Create database storage voc object
 			sqlDB := &ontology.DatabaseStorage{
-				Id:           resourceID(value.ID),
-				Name:         pointer.Deref(value.Name),
+				Id:           new(resourceID(value.ID)),
+				Name:         new(pointer.Deref(value.Name)),
 				CreationTime: creationTime(value.Properties.CreationDate),
 				GeoLocation:  location(value.Location),
 				Labels:       labels(value.Tags),
 				ParentId:     resourceIDPointer(server.ID),
-				Raw:          collector.Raw(value),
+				Raw:          new(collector.Raw(value)),
 				AtRestEncryption: &ontology.AtRestEncryption{
 					Type: &ontology.AtRestEncryption_ManagedKeyEncryption{
 						ManagedKeyEncryption: &ontology.ManagedKeyEncryption{
-							Enabled:   *value.Properties.IsInfraEncryptionEnabled,
-							Algorithm: constants.AES256,
+							Enabled:   new(*value.Properties.IsInfraEncryptionEnabled),
+							Algorithm: new(constants.AES256),
 						},
 					},
 				},
